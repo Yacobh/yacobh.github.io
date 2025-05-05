@@ -1,3 +1,19 @@
-(ns universo.core)
+(ns universo.core
+  (:require
+   [reagent.core :as r]
+   [reagent.dom :as d]))
 
-(js/console.log "Hello, Github Pages!")
+;; -------------------------
+;; Views
+
+(defn home-page []
+  [:div [:h2 "Welcome to Reagent"]])
+
+;; -------------------------
+;; Initialize app
+
+(defn mount-root []
+  (d/render [home-page] (.getElementById js/document "app")))
+
+(defn ^:export init! []
+  (mount-root))

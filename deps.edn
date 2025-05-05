@@ -1,1 +1,2 @@
-{:deps {org.clojure/clojurescript {:mvn/version "1.11.54"}}}
+{:deps {org.clojure/clojurescript {:mvn/version "1.11.54"}
+        thheller/shadow-cljs {:mvn/version "3.0.4"}}}

@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Github Pages + ClojureScript</title>
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="style.css" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <h1 class="site__title">
-      <span class="site__title-text">Hello ClojureScript</span>
-    </h1>
-    <script src="./out/main.js"></script>
+    <div id="app">
+      <h3>ClojureScript has not been compiled!</h3>
+      <p>please run <b>npx shadow-cljs watch app</b> in order to start the compiler</p>
+    </div>
+    <script src="./public/js/app.js" type="text/javascript"></script>
+    <script type="text/javascript">universo.core.init_BANG_();</script>
   </body>
 </html>
