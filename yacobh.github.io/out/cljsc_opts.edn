@@ -1,1 +1,0 @@
-{:browser-repl true, :output-dir "yacobh.github.io/out", :main yacobh.core, :output-to "yacobh.github.io/out/main.js", :aot-cache true}
