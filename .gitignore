@@ -1,0 +1,8 @@
+.cpcache/
+out/cljs/
+out/clojure/
+out/goog/
+out/process/
+out/universo/
+out/cljs_deps.js
+out/cljsc_opts.edn
