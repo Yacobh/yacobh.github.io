@@ -1,8 +1,7 @@
 body {
     font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
-    max-width: 600px;
-    margin: 0 auto;
-    padding-top: 72px;
+    width: 100%;
+    margin: 0;
     -webkit-font-smoothing: antialiased;
     font-size: 1.125em;
     color: #333;
@@ -31,4 +30,50 @@ body {
 
   a:hover {
     text-decoration: underline;
+  }
+
+/* --- NUEVOS ESTILOS PARA EL DIV CON ID "app" --- */
+#app {
+  background-color: #f0f0f0; /* Un color de fondo gris claro para distinguirlo */
+  width : 100%;          /* Ancho del 100% del contenedor padre */
+  border: 1px solid #ccc;    /* Un borde sutil */
+  text-align: center;        /* Centrar el texto dentro de #app */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Una sombra suave */
+}
+
+/* wow effect */
+  .wow-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #121212;
+  }
+
+  .wow-text {
+    font-size: 5rem;
+    color: #9780809d;
+    transform: scale(0.1);
+    opacity: 0;
+    transition: all 5.0s cubic-bezier(0.47, 0, 0.745, 0.715);
+  }
+
+  .wow-text.visible {
+    transform: scale(6);
+    opacity: 1;
+  }
+/*movable object*/
+.movable-box {
+    width: 50px;
+    height: 50px;
+    background-color: red;
+    position: absolute; /* Necesario para que transform funcione como esperamos aquí */
+  }
+
+  .movable-circle {
+    width: 50px;
+    height: 50px;
+    background-color: rgb(74, 15, 194);
+    border-radius: 50%;
+    position: absolute; /* Necesario para que transform funcione como esperamos aquí */
   }
