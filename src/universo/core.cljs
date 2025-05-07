@@ -3,6 +3,10 @@
    [reagent.core :as r]
    [reagent.dom :as d]))
 
+(defn toggle-dark-mode! []
+  (let [body (.-body js/document)]
+    (.toggle (.-classList body) "dark-mode")))
+
 (defonce box-position (r/atom {:x 0 :y 0 :target-x 0}))
 
 (defn animate-step [timestamp]
@@ -49,8 +53,22 @@
    [:button {:on-click #(start-animation 200)} "Move to 200px"]
    [:button {:on-click #(start-animation 0)} "Move to 0px"]])
 
+(defn fade-in-page []
+  (let [body (.-body js/document)]
+    ;; Añade la clase de desvanecimiento
+    (.add (.-classList body) "fading")
+
+    ;; Quita la clase después de un breve retraso
+    (js/setTimeout
+     (fn []
+       (.remove (.-classList body) "fading"))
+     5000)))
+
+
+
 (defn home-page []
   ;; Ejecuta show-wow cuando el componente se monta
+  (fade-in-page)
   (r/create-class
    {:component-did-mount show-wow
     :reagent-render

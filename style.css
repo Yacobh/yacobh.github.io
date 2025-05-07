@@ -4,9 +4,18 @@ body {
     margin: 0;
     -webkit-font-smoothing: antialiased;
     font-size: 1.125em;
-    color: #333;
+    background-color: #ffffff;
+
     line-height: 1.5em;
+    opacity: 0;
+    transition: opacity 3.0s ease-in-out;
   }
+
+
+body.fading {
+  opacity: 1;
+}
+
 
   h1, h2, h3 {
     color: #000;
@@ -34,9 +43,9 @@ body {
 
 /* --- NUEVOS ESTILOS PARA EL DIV CON ID "app" --- */
 #app {
-  background-color: #f0f0f0; /* Un color de fondo gris claro para distinguirlo */
+  background-color: #ffffff; /* Un color de fondo gris claro para distinguirlo */
   width : 100%;          /* Ancho del 100% del contenedor padre */
-  border: 1px solid #ccc;    /* Un borde sutil */
+  border: 1px solid #ffffff;    /* Un borde sutil */
   text-align: center;        /* Centrar el texto dentro de #app */
   box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Una sombra suave */
 }
