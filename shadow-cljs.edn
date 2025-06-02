@@ -1,11 +1,17 @@
-{:source-paths ["src"]
- :dependencies [[binaryage/devtools "1.0.6"]
-                [nrepl "1.0.0"]
-                [reagent "1.1.1"]]
+{:source-paths ["src" "test"]
+ :dependencies [[reagent "1.2.0"]]
  :builds       {:app {:target     :browser
                       :output-dir "./public/js"
                       :asset-path "/js"
                       :modules    {:app {:entries [universo.core]}}
-                      :devtools   {:after-load universo.core/mount-root}}}
+                      :devtools   {:after-load universo.core/mount-root}}
+                :test ; Build específico para los tests
+                {:target :node-test ; Ejecuta los tests en un entorno Node.js
+                 :output-to "out/test.js" ; Archivo de salida para los tests compilados
+                 :ns-regexp "-test$" ; Expresión regular para encontrar namespaces de tests
+                                       ; (tu archivo core-test.cljs coincide con esto)
+                 :autorun true ; shadow-cljs intentará ejecutar los tests automáticamente
+                 :compiler-options {:warnings {:fn-deprecated false}} ; Opcional: suprime warnings específicos si es necesario
+                 }}
 
  :dev-http     {3000 {:root "public"}}}

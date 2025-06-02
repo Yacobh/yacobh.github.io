@@ -1,0 +1,84 @@
+; This is the Calva REPL Window.
+; It's just a file, really, with some special treatment from Calva.
+; Use it as a REPL input prompt if you like. (When the REPL is connected.)
+; TIPS: The keyboard shortcut `ctrl+alt+o r` shows and focuses this window
+; Please see https://calva.io/repl-window/ for more info.
+; Happy coding! ♥️
+
+; TIPS: As with any Clojure file when the REPL is connected:
+; - `alt+enter` evaluates the current top level form.
+; - `ctrl+enter` evaluates the current form.
+; Special for this file:
+; - `alt+up` and `alt+down` traverse up and down the REPL command history
+;    when the cursor is after the last contents at the prompt
+;
+; See also the Calva Inspector: https://calva.io/inspector/
+
+PLEASE NOTE
+We will update the default location of this file.
+The new default location will be
+  "<projectRootPath>/.calva/repl.calva-repl"
+For now the legacy path is used by default.
+To give yourself a smooth transition, you can opt in
+to the change, by configuring this setting as false:
+  "calva.useLegacyReplWindowPath"
+and then add "**/.calva/repl.calva-repl" to your ".gitignore" file.
+
+
+This file is configured as the output destination for all REPL output.
+You can configure this with the setting:
+  "calva.outputDestinations"
+
+
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
+nil
+clj꞉shadow.user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: ClojureScript nREPL Server...
+; Connected session: cljs
+; TIPS: You can choose which REPL to use (clj or cljs):
+;    *Calva: Toggle REPL connection*
+;    (There is a button in the status bar for this)
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
+; Execution error (IllegalAccessError) at user/eval11907 (REPL:38).
+; print-doc does not exist
+"Please see https://calva.io/output/#about-stdout-in-the-repl-window
+about why stdout printed to this file is prepended with `;` to be line comments."
+cljs꞉user꞉> 
+; Evaluating file: core.cljs
+;
+; ; cljs  universo.core
+; Execution error (FileNotFoundException) at universo.core/eval11914$loading (core.cljs:1).
+; Could not locate reagent/dom__init.class, reagent/dom.clj or reagent/dom.cljc on classpath.
+; Evaluation of file core.cljs failed: class clojure.lang.Compiler$CompilerException
+cljs꞉universo.core꞉> 
+; Syntax error compiling at (src/universo/core.cljs:89:5).
+; Unable to resolve symbol: mount-root in this context
+cljs꞉universo.core꞉> 
+; Syntax error compiling at (src/universo/core.cljs:86:5).
+; No such namespace: d
+cljs꞉universo.core꞉> 
+; Evaluating file: core.cljs
+;
+; Execution error (FileNotFoundException) at universo.core/eval11923$loading (core.cljs:1).
+; Could not locate reagent/dom__init.class, reagent/dom.clj or reagent/dom.cljc on classpath.
+; Evaluation of file core.cljs failed: class clojure.lang.Compiler$CompilerException
+cljs꞉universo.core꞉> 
+; Evaluating file: voz.cljs
+;
+; ; cljs  universo.voz
+; Syntax error compiling at (src/universo/voz.cljs:6:19).
+; No such namespace: js
+; Evaluation of file voz.cljs failed: class clojure.lang.Compiler$CompilerException
+cljs꞉universo.voz꞉> 
+; Syntax error reading source at (REPL:36:19).
+; No reader function for tag dbg
+cljs꞉universo.voz꞉> 
+; Syntax error reading source at (REPL:36:19).
+; No reader function for tag dbg
+cljs꞉universo.voz꞉> 

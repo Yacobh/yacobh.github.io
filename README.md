@@ -13,3 +13,5 @@ npx shadow-cljs browser-repl
 ```
 npx shadow-cljs release app
 ```
+
+clj -M:test
