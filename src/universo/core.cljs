@@ -11,6 +11,7 @@
    [universo.components.supabase-test :refer [supabase-test]]
    [universo.components.login :as login]
    [universo.components.guestbook :as guestbook]
+   [universo.components.mathacademy :as mathacademy]
    [universo.components.auth :as auth]))
 
   ;; -------------------------
@@ -32,7 +33,8 @@
      #_[auth/auth-component]
      #_[ip/minimal-test]
      #_[geo/welcome-message]
-     [guestbook/guestbook-component]
+     #_[guestbook/guestbook-component]
+     [mathacademy/math-academy-component]
      (.getElementById js/document "app")))
 
   (defn ^:export init! []

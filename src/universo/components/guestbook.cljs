@@ -108,7 +108,7 @@
     [:span.text-sm.text-gray-500
      (.toLocaleDateString (js/Date. (:created_at entry)) "es-ES")]]
    [:p.text-gray-700.leading-relaxed (:message entry)]
-   (when (and (:email entry) (not (str/blank? (:email entry))))
+   #_(when (and (:email entry) (not (str/blank? (:email entry))))
      [:p.text-sm.text-gray-500.mt-2
       [:span "📧 " (:email entry)]])])
 

@@ -1,6 +1,6 @@
 goog.provide('universo.core');
 universo.core.mount_root = (function universo$core$mount_root(){
-return reagent.dom.render.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [universo.components.guestbook.guestbook_component], null),document.getElementById("app"));
+return reagent.dom.render.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [universo.components.mathacademy.math_academy_component], null),document.getElementById("app"));
 });
 universo.core.init_BANG_ = (function universo$core$init_BANG_(){
 return universo.core.mount_root();
