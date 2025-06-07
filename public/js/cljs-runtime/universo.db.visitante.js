@@ -1,16 +1,18 @@
 goog.provide('universo.db.visitante');
+/**
+ * Recolecta datos básicos del visitante
+ */
 universo.db.visitante.collect_visitor_data = (function universo$db$visitante$collect_visitor_data(){
-
 return new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"pais","pais",1648581293),null,new cljs.core.Keyword(null,"ciudad","ciudad",1617222680),null,new cljs.core.Keyword(null,"timezone","timezone",1831928099),Intl.DateTimeFormat().resolvedOptions().timeZone,new cljs.core.Keyword(null,"idioma","idioma",244604300),navigator.language], null);
 });
 /**
  * Inserta nuevo visitante en la tabla
  */
-universo.db.visitante.insert_visitor_BANG_ = (function universo$db$visitante$insert_visitor_BANG_(visitor_data){
+universo.db.visitante.insert_data_table_BANG_ = (function universo$db$visitante$insert_data_table_BANG_(data_to_insert,table_name){
 var ch = cljs.core.async.chan.cljs$core$IFn$_invoke$arity$0();
-console.log("\uD83D\uDCE4 Enviando datos a Supabase:",visitor_data);
+console.log("\uD83D\uDCE4 Enviando datos a Supabase:",data_to_insert);
 
-universo.supabase.supabase_client.from("visitor").insert(cljs.core.clj__GT_js(visitor_data)).then((function (result){
+universo.supabase.supabase_client.from(table_name).insert(cljs.core.clj__GT_js(data_to_insert)).then((function (result){
 console.log("\uD83D\uDCE1 Respuesta de Supabase:",result);
 
 if(cljs.core.truth_(result.error)){
@@ -31,11 +33,11 @@ return cljs.core.async.put_BANG_.cljs$core$IFn$_invoke$arity$2(ch,new cljs.core.
 return ch;
 });
 /**
- * Obtiene todos los visitantes (para testing)
+ * Obtiene todos los elementos de la tabla
  */
-universo.db.visitante.get_all_visitors = (function universo$db$visitante$get_all_visitors(){
+universo.db.visitante.get_all_table = (function universo$db$visitante$get_all_table(table_name){
 var ch = cljs.core.async.chan.cljs$core$IFn$_invoke$arity$0();
-universo.supabase.supabase_client.from("visitor").select("*").then((function (result){
+universo.supabase.supabase_client.from(table_name).select("*").then((function (result){
 console.log("\uD83D\uDCE1 Respuesta de Supabase:",result);
 
 if(cljs.core.truth_(result.error)){

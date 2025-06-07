@@ -1,6 +1,6 @@
 (ns universo.components.supabase-test
   (:require [reagent.core :as r]
-            [universo.db.visitante :as db]
+            [universo.db.crud :as db]
             [universo.ip :refer [fetch-ip-info]]
             [cljs.core.async :refer [go <!]]))
 
@@ -37,7 +37,7 @@
                          (reset! visitor-data final-data)
 
                          ;; Insertar en Supabase
-                         (let [result (<! (db/insert-visitor! final-data))]
+                         (let [result (<! (db/insert-data-table! final-data "visitor"))]
                            (if (:success result)
                              (reset! status "✅ Insertado exitosamente!")
                              (reset! status (str "❌ Error: " (:error result))))))))}
@@ -48,7 +48,7 @@
         {:on-click (fn []
                      (reset! status "obteniendo datos...")
                      (go
-                       (let [result (<! (db/get-all-visitors))]
+                       (let [result (<! (db/get-all-table "visitor"))]
                          (if (:success result)
                            (do
                              (reset! all-visitors (:data result))

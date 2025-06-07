@@ -438,3 +438,15 @@ button {
 button:hover {
   background-color: #2980b9;
 }
+
+.guestbook-list {
+  margin-top: 32px;
+}
+
+.guestbook-entry {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-left: 4px solid #3b82f6;
+}

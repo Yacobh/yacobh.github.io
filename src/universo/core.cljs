@@ -8,7 +8,10 @@
    [universo.geo :as geo]
    [universo.ip :as ip]
    [universo.animations :as animations]
-   [universo.components.supabase-test :refer [supabase-test]]))
+   [universo.components.supabase-test :refer [supabase-test]]
+   [universo.components.login :as login]
+   [universo.components.guestbook :as guestbook]
+   [universo.components.auth :as auth]))
 
   ;; -------------------------
   ;; Initialize app
@@ -23,9 +26,13 @@
      #_[geo/geo-info-display]
      #_[ip/ip-test-component]
      #_[ip/simple-ip-test]
-     [supabase-test]
+     #_[supabase-test]
+     #_[login/login-component]
+     #_[login/login-form]
+     #_[auth/auth-component]
      #_[ip/minimal-test]
      #_[geo/welcome-message]
+     [guestbook/guestbook-component]
      (.getElementById js/document "app")))
 
   (defn ^:export init! []
