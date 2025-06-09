@@ -12,7 +12,9 @@
    [universo.components.login :as login]
    [universo.components.guestbook :as guestbook]
    [universo.components.mathacademy :as mathacademy]
-   [universo.components.auth :as auth]))
+   [universo.components.auth :as auth]
+   [universo.components.tailwind :as tailwind]
+   [universo.home :as home]))
 
   ;; -------------------------
   ;; Initialize app
@@ -34,7 +36,9 @@
      #_[ip/minimal-test]
      #_[geo/welcome-message]
      #_[guestbook/guestbook-component]
-     [mathacademy/math-academy-component]
+     #_[mathacademy/math-academy-component]
+     #_[tailwind/app]
+     [home/home]
      (.getElementById js/document "app")))
 
   (defn ^:export init! []

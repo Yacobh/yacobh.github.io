@@ -82,3 +82,13 @@ cljs꞉universo.voz꞉> 
 ; Syntax error reading source at (REPL:36:19).
 ; No reader function for tag dbg
 cljs꞉universo.voz꞉> 
+; Connecting using "ClojureScript nREPL Server" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; nREPL connection failed: Error: getaddrinfo ENOTFOUND hostname
+; Failed connecting.
