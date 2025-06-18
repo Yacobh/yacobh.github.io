@@ -3,8 +3,7 @@
             [reagent.dom :as rdom]
             [universo.components.mathacademy :as mathacademy]
             [universo.components.diagnostic-test :as diagnostic-test]
-            [universo.components.guestbook :refer [guestbook-component]]
-            [re-flow.core :as re-flow]))
+            [universo.components.guestbook :refer [guestbook-component]]))
 
 ;; Componentes individuales
 #_(defn navigation []
@@ -442,19 +441,18 @@
     [:p "© 2024 Academia Integral. Todos los derechos reservados."]]])
 
 (def learning-flow
-  (re-flow/flow [{:name :welcome
-                  :section [practica-paes]
-                  :transition {:re-flow.transition/default :diagnostic}}
-                 {:name :diagnostic
-                  :section [services-section]
-                  :transition {:re-flow.transition/default :question}}
-                 {:name :question
-                  :section [:main.flex-1 [diagnostic-test/diagnostic-test]]
-                  :transition {:re-flow.transition/default :welcome}
-                  }]
-                {:start :welcome}))
+  [{:name :welcome
+    :section [practica-paes]
+    :transition {:re-flow.transition/default :diagnostic}}
+   {:name :diagnostic
+    :section [services-section]
+    :transition {:re-flow.transition/default :question}}
+   {:name :question
+    :section [:main.flex-1 [diagnostic-test/diagnostic-test]]
+    :transition {:re-flow.transition/default :welcome}
+    }])
 
-(defn learning []
+#_(defn learning []
   (let [state (re-flow/sub-flow-state)]
     (fn []
       [:div
@@ -482,8 +480,6 @@
 (defn main-content []
   (case @current-section
     :main [:div
-           [learning]]
-    #_[:div
            [practica-paes]
            [services-section]
            [guestbook-section]
@@ -494,7 +490,7 @@
 
 ;; Componente principal (equivalente a Home)
 
-#_(defn home []
+(defn home []
   [:div.flex.min-h-screen.flex-col
    [navigation]
     [:main.flex-1.pt-16  ;; pt-16 para compensar la altura del nav  ;; flex-1 hace que main ocupe todo el espacio disponible

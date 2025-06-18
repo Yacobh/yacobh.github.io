@@ -2,7 +2,6 @@
   (:require
    [reagent.core :as r]
    [re-frame.core :as re-frame]
-   [re-flow.core :as re-flow]
    [reagent.dom :as d]
    [universo.battery :as api]
    [universo.jardin :as jardin]
@@ -42,10 +41,8 @@
      #_[guestbook/guestbook-component]
      #_[mathacademy/math-academy-component]
      #_[tailwind/app]
-     #_[home/home]
-     [home/learning]
+     [home/home]
      (.getElementById js/document "app")))
 
   (defn ^:export init! []
-    (re-flow/start home/learning-flow)
     (mount-root))
