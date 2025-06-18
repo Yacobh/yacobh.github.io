@@ -1,6 +1,5 @@
 (ns universo.components.diagnostic-test
-  (:require [reagent.core :as r]
-            [re-flow.core :as re-flow]))
+  (:require [reagent.core :as r]))
 
 ;; Estado del componente
 (def test-state (r/atom {:current-step :intro
