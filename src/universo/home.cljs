@@ -1,7 +1,10 @@
 (ns universo.home
   (:require [reagent.core :as r]
             [reagent.dom :as rdom]
-            [universo.components.mathacademy :as mathacademy]))
+            [universo.components.mathacademy :as mathacademy]
+            [universo.components.diagnostic-test :as diagnostic-test]
+            [universo.components.guestbook :refer [guestbook-component]]
+            [re-flow.core :as re-flow]))
 
 ;; Componentes individuales
 #_(defn navigation []
@@ -261,18 +264,30 @@
   [:nav.fixed.top-0.left-0.right-0.z-50.bg-white.border-b.border-gray-100
    [:div.max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8
     [:div.flex.justify-between.items-center.h-16
-     ;; Logo
+     ;; Logo con vinculo a la sección principal
+
      [:div.flex.items-center
-      [:h1.text-2xl.font-light.tracking-tight
-       [:span.font-bold.text-indigo-600 "Integral"]
-       [:span.text-gray-800 "Academy"]]
-      [:span.ml-2.text-xl.text-gray-500.hidden.sm:inline "|"]
-      [:span.ml-2.text-sm.text-gray-500.hidden.sm:inline " Prof. Jacobo Córdova"]]
+      ;; Logo con integral animada
+      [:a.text-gray-800.font-bold.text-xl.flex.items-center
+       {:href "#"
+        :on-click #(set-section! :main)} ; Cambia a la sección principal
+       [:span.bg-gradient-to-r.from-blue-600.to-purple-600.bg-clip-text.text-transparent "Integral"]
+       [:span.mx-2.text-3xl.font-light.text-indigo-600 "∫"]
+       [:span.bg-gradient-to-r.from-purple-600.to-indigo-700.bg-clip-text.text-transparent "Academy"]]]
+     #_[:a
+      {:href #(set-section! :main)}
+      [:div.flex.items-center
+       [:h1.text-2xl.font-light.tracking-tight
+        [:span.font-bold.text-indigo-600 "Integral"]
+        [:span.text-gray-800 "Academy"]]
+       [:span.ml-2.text-xl.text-gray-500.hidden.sm:inline "|"]
+       [:span.ml-2.text-sm.text-gray-500.hidden.sm:inline " Prof. Jacobo Córdova"]]]
 
      ;; Botones
      [:div.flex.items-center.gap-3
-      [:a.text-sm.text-gray-600.hover:text-gray-900.px-3.py-2.rounded-md.transition
-       {:href "#evaluation"}
+      #_[:a.text-sm.text-gray-600.hover:text-gray-900.px-3.py-2.rounded-md.transition
+       {:href "#"
+        :on-click #(set-section! :diagnostic-test)} ; Cambia a la sección de test diagnóstico
        "Evaluación Gratuita"]
       [:a.bg-indigo-600.text-white.text-sm.px-5.py-2.5.rounded-full.hover:bg-indigo-700.transition.shadow-sm.hover:shadow-md
        ;; Botón de acceso
@@ -305,13 +320,16 @@
       [:button.px-4.py-2.bg-gradient-to-r.from-blue-600.to-indigo-700.text-white.rounded-lg.hover:shadow-lg.transform.hover:-translate-y-0.5.transition-all.duration-200.font-medium
        "Acceder →"]]]]])
 
-(defn hero-section []
+(defn practica-paes []
   [:section.bg-gray-100.py-20
    [:div.container.mx-auto.px-4.text-center
-    [:h2.text-5xl.font-bold.mb-4 "Bienvenido"]
-    [:p.text-xl.text-gray-600 "Tu solución integral"]
+    [:h2.text-5xl.font-bold.mb-4 "Practica la PAES"]
+    [:p.text-xl.text-gray-600 "Con el test interactivo, se identifican rapidamente cuales son tus puntos debiles, y !se te entrega un resultado diagnostico personalizado totalmente gratis!"]
     [:button.mt-8.bg-blue-600.text-white.px-8.py-3.rounded-lg.hover:bg-blue-700
-     "Comenzar"]]])
+
+     {:href "#"
+      :on-click #(set-section! :diagnostic-test)} ; Cambia a la sección de test diagnóstico
+     "Comenzar test"]]])
 
 (defn services-section []
   [:section#services.py-16
@@ -331,6 +349,7 @@
 (defn guestbook-section []
   [:section.bg-gray-100.py-16
    [:div.container.mx-auto.px-4
+
     [mathacademy/math-academy-component]
     #_#_[:h2.text-4xl.font-bold.text-center.mb-12 "Libro de Visitas"]
     [:div.max-w-2xl.mx-auto
@@ -340,9 +359,8 @@
      [:div.bg-white.p-6.rounded-lg.shadow
       [:p.italic "\"Muy recomendado.\""]
       [:p.text-sm.text-gray-500.mt-2 "- Otro Cliente"]]]]])
-
 (defn booking-section []
-  [:section#booking.py-16
+  #_[:section#booking.py-16
    [:div.container.mx-auto.px-4
     [:h2.text-4xl.font-bold.text-center.mb-12 "Hacer una Reserva"]
     [:form.max-w-md.mx-auto.bg-white.p-8.rounded-lg.shadow
@@ -357,32 +375,147 @@
       [:input.w-full.px-3.py-2.border.rounded {:type "date"}]]
      [:button.w-full.bg-blue-600.text-white.py-2.rounded.hover:bg-blue-700
       "Reservar"]]]])
-
-
-
-
-
-
 (defn footer []
-  [:footer.bg-gray-800.text-white.py-8
+  [:footer.bg-gradient-to-r.from-gray-900.to-gray-800.text-white.mt-auto
+   ;; Sección principal
+   #_[:div.container.mx-auto.px-4.py-12
+    [:div.grid.grid-cols-1.md:grid-cols-4.gap-8
+     ;; Logo y descripción
+     [:div.col-span-1.md:col-span-2
+      [:div.flex.items-center.mb-4
+       [:span.text-2xl.mr-2 "∫"]
+       [:h3.text-xl.font-bold "Academia Integral"]]
+      [:p.text-gray-400.mb-4
+       "Transformando el aprendizaje de las matemáticas con métodos innovadores y personalizados."]
+      ;; Redes sociales
+      [:div.flex.space-x-4
+       [:a.text-gray-400.hover:text-white.transition {:href "#"}
+        [:svg.w-6.h-6 {:fill "currentColor" :viewBox "0 0 24 24"}
+         [:path {:d "M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"}]]]
+       [:a.text-gray-400.hover:text-white.transition {:href "#"}
+        [:svg.w-6.h-6 {:fill "currentColor" :viewBox "0 0 24 24"}
+         [:path {:d "M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"}]]]]]
+
+     ;; Enlaces rápidos
+     [:div
+      [:h4.text-lg.font-semibold.mb-4 "Enlaces Rápidos"]
+      [:ul.space-y-2
+       [:li [:a.text-gray-400.hover:text-white.transition {:href "#"} "Inicio"]]
+       [:li [:a.text-gray-400.hover:text-white.transition {:href "#"} "Cursos"]]
+       [:li [:a.text-gray-400.hover:text-white.transition {:href "#"} "Evaluación"]]
+       [:li [:a.text-gray-400.hover:text-white.transition {:href "#"} "Blog"]]]]
+
+     ;; Contacto
+     [:div
+      [:h4.text-lg.font-semibold.mb-4 "Contacto"]
+      [:ul.space-y-2.text-gray-400
+       [:li.flex.items-center
+        [:svg.w-5.h-5.mr-2 {:fill "none" :stroke "currentColor" :viewBox "0 0 24 24"}
+         [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
+                 :d "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"}]]
+        "contacto@academiaintegral.com"]
+       [:li.flex.items-center
+        [:svg.w-5.h-5.mr-2 {:fill "none" :stroke "currentColor" :viewBox "0 0 24 24"}
+         [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
+                 :d "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"}]]
+        "+52 123 456 7890"]
+       [:li.flex.items-start
+        [:svg.w-5.h-5.mr-2.mt-1 {:fill "none" :stroke "currentColor" :viewBox "0 0 24 24"}
+         [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
+                 :d "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"}]
+         [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
+                 :d "M15 11a3 3 0 11-6 0 3 3 0 016 0z"}]]
+        "Ciudad de México, México"]]]]]
+
+   ;; Barra inferior
+   [:div.border-t.border-gray-700
+    [:div.container.mx-auto.px-4.py-4
+     [:div.flex.flex-col.md:flex-row.justify-between.items-center.text-sm.text-gray-400
+      [:p "© 2025 Academia Integral. Todos los derechos reservados."]
+      #_[:div.flex.space-x-4.mt-2.md:mt-0
+       [:a.hover:text-white.transition {:href "#"} "Privacidad"]
+       [:a.hover:text-white.transition {:href "#"} "Términos"]
+       [:a.hover:text-white.transition {:href "#"} "Cookies"]]]]]])
+#_(defn footer []
+  [:footer.bg-gray-800.text-white.py-8.mt-auto
    [:div.container.mx-auto.px-4.text-center
-    [:p "© 2025 Jacobo Córdova."]]])
+    [:p "© 2024 Academia Integral. Todos los derechos reservados."]]])
+
+(def learning-flow
+  (re-flow/flow [{:name :welcome
+                  :section [practica-paes]
+                  :transition {:re-flow.transition/default :diagnostic}}
+                 {:name :diagnostic
+                  :section [services-section]
+                  :transition {:re-flow.transition/default :question}}
+                 {:name :question
+                  :section [:main.flex-1 [diagnostic-test/diagnostic-test]]
+                  :transition {:re-flow.transition/default :welcome}
+                  }]
+                {:start :welcome}))
+
+(defn learning []
+  (let [state (re-flow/sub-flow-state)]
+    (fn []
+      [:div
+       ;; State here is one of the maps defined in ping-pong-flow, so we'll
+       ;; just pull out the name to display
+       [:div.flex.min-h-screen.flex-col
+        [navigation]
+        [:main.flex-1.pt-16  ;; pt-16 para compensar la altura del nav  ;; flex-1 hace que main ocupe todo el espacio disponible
+         (:section @state)
+         [:p (:name @state)]
+         [:button {:on-click #(re-flow/transition)} "Transition!"]
+         #_[main-content]]
+        [footer]]
+       ;; If we click the button, we want the flow to transition from one
+       ;; state to the next. We can accomplish that by calling the transition
+       ;; function. You will normally provide transition data to go along with
+       ;; this call, and you can provide a flow-name as well.
+       ;;
+       ;; If you are using a named flow, you have to provide some transition
+       ;; data, but nil is a perfectly valid value to pass. In fact, that is
+       ;; what is happening here.
+       ])))
 
 ;; main content por atomo de reagent
 (defn main-content []
   (case @current-section
     :main [:div
-           [hero-section]
+           [learning]]
+    #_[:div
+           [practica-paes]
            [services-section]
            [guestbook-section]
            [booking-section]]
-    :login [mathacademy/math-academy-component] ; Aquí puedes cambiar por el componente de login
-    :other-section [:div "Otra sección"]))
+    :login [:main.flex-1 [mathacademy/math-academy-component]]
+    :diagnostic-test [:main.flex-1 [diagnostic-test/diagnostic-test]]
+    [:div "Sección no encontrada (404)"]))
 
 ;; Componente principal (equivalente a Home)
-(defn home []
-  [:div.min-h-screen
+
+#_(defn home []
+  [:div.flex.min-h-screen.flex-col
    [navigation]
-    [:div.mt-16
+    [:main.flex-1.pt-16  ;; pt-16 para compensar la altura del nav  ;; flex-1 hace que main ocupe todo el espacio disponible
      [main-content]]
+   [footer]])
+
+
+
+#_(defn app []
+  ;; Site = flex min-h-screen flex-col
+  [:div.flex.min-h-screen.flex-col
+
+   ;; Header
+   [navigation]
+
+   ;; Site-content = flex-1 (esto es flex-grow: 1)
+   [:main.flex-1
+    [practica-paes]
+    [services-section]
+    [guestbook-section]
+    [booking-section]]
+
+   ;; Footer
    [footer]])

@@ -1,6 +1,8 @@
 (ns universo.core
   (:require
    [reagent.core :as r]
+   [re-frame.core :as re-frame]
+   [re-flow.core :as re-flow]
    [reagent.dom :as d]
    [universo.battery :as api]
    [universo.jardin :as jardin]
@@ -20,6 +22,8 @@
   ;; Initialize app
 
   (defn mount-root []
+
+    (re-frame/clear-subscription-cache!)
     (d/render
      #_[voz/voice-selector]
      #_[voz/speech-component]
@@ -38,8 +42,10 @@
      #_[guestbook/guestbook-component]
      #_[mathacademy/math-academy-component]
      #_[tailwind/app]
-     [home/home]
+     #_[home/home]
+     [home/learning]
      (.getElementById js/document "app")))
 
   (defn ^:export init! []
+    (re-flow/start home/learning-flow)
     (mount-root))
