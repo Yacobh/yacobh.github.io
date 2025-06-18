@@ -484,8 +484,8 @@
            [services-section]
            [guestbook-section]
            [booking-section]]
-    :login [:main.flex-1 [mathacademy/math-academy-component]]
-    :diagnostic-test [:main.flex-1 [diagnostic-test/diagnostic-test]]
+    :login [mathacademy/math-academy-component]
+    :diagnostic-test [diagnostic-test/diagnostic-test]
     [:div "Sección no encontrada (404)"]))
 
 ;; Componente principal (equivalente a Home)
