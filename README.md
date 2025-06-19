@@ -1,8 +1,7 @@
 
 ### Development mode
 ```
-npm install
-npx shadow-cljs watch app
+clojure -M:shadow-cljs watch app
 ```
 start a ClojureScript REPL
 ```
@@ -15,3 +14,6 @@ npx shadow-cljs release app
 ```
 
 clj -M:test
+
+### to watch css
+npm run watch:css

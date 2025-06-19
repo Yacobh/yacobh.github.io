@@ -108,7 +108,7 @@
          (case @current-section
            :main
 
-           #_[:div.card.bg-white.rounded-lg.shadow-lg.p-6
+           [:div.card.bg-white.rounded-lg.shadow-lg.p-6
               [:h2.text-2xl.font-bold.text-gray-800.mb-4
                [:span.mr-2 "📊"] "Test Diagnóstico"]
               [:p.text-gray-600.mb-6
