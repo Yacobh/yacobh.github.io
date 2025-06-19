@@ -14,3 +14,6 @@ npx shadow-cljs release app
 ```
 
 clj -M:test
+
+### to watch css
+npm run watch:css

@@ -99,6 +99,29 @@
        :on-click #(reset! test-state {:current-step :closed})}
       "Tal vez más tarde"]]]])
 
+(defn multiple-choice-component [question]
+  (let [selected (r/atom nil)]
+    ;; watcher: cuando cambia la respuesta, guardamos y avanzamos
+    (add-watch selected :on-select
+               (fn [_ _ _ new-val]
+                 (when new-val
+                   (save-answer! (:id question) new-val)
+                   (js/setTimeout next-question! 100)))) ; leve delay para transición visual
+
+    (fn [question]
+      [:div {:class "space-y-3"}
+       (for [option (:options question)]
+         ^{:key (:value option)}
+         [:label {:class "flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"}
+          [:input {:type "radio"
+                   :name (str "question-" (:id question))
+                   :value (:value option)
+                   :class "mr-3 text-blue-600"
+                   :checked (= @selected (:value option))
+                   :on-change #(reset! selected (:value option))}]
+          [:span {:class "text-gray-700"} (:label option)]])])))
+
+
 (defn question-component []
   (let [current-idx (:current-question @test-state)
         question (nth sample-questions current-idx)
@@ -122,7 +145,9 @@
       ;; Opciones según el tipo
       (case (:type question)
         :multiple-choice
-        [:div {:class "space-y-3"}
+          [multiple-choice-component question]
+
+        #_[:div {:class "space-y-3"}
          (for [option (:options question)]
            ^{:key (:value option)}
            [:label {:class "flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"}

@@ -26,4 +26,4 @@ node_modules/
 !/public/js/app.js
 .clj-kondo
 .lsp
-/public/*
+public/js/cljs-runtime/*
