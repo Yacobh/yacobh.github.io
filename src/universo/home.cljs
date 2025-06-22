@@ -105,11 +105,7 @@
 ;; main content por atomo de reagent
 (defn main-content []
   (case @current-section
-    :main [:div
-           [practica-paes]
-           #_[services-section]
-           #_[guestbook-section]
-           #_[booking-section]]
+    :main [practica-paes]
     :login [login/login-form]
     :diagnostic-test [diagnostic-test/diagnostic-test]
     [:div "Sección no encontrada (404)"]))

@@ -1,5 +1,7 @@
 goog.provide('universo.core');
 universo.core.mount_root = (function universo$core$mount_root(){
+re_frame.core.clear_subscription_cache_BANG_();
+
 return reagent.dom.render.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [universo.home.home], null),document.getElementById("app"));
 });
 universo.core.init_BANG_ = (function universo$core$init_BANG_(){

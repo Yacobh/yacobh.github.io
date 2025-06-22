@@ -10,7 +10,8 @@
         success (r/atom nil)]
 
     (fn []
-      [:div.flex.items-center.justify-center.min-h-screen.bg-gray-100
+      [:div.flex.items-center.justify-center.bg-gray-100.p-20
+       ;; Contenedor principal
        [:div.bg-white.shadow-md.rounded-lg.p-6.w-full.max-w-md
 
 
