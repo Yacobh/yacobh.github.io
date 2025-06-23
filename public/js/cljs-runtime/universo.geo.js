@@ -108,99 +108,99 @@ var country_estimate = universo.geo.estimate_country();
 var ip_data = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"loading","loading",-737050189),true], null));
 var show_details_QMARK_ = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(false);
 return reagent.core.create_class.cljs$core$IFn$_invoke$arity$1(new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"component-did-mount","component-did-mount",-1126910518),(function (){
-var c__11659__auto__ = cljs.core.async.chan.cljs$core$IFn$_invoke$arity$1((1));
+var c__34471__auto__ = cljs.core.async.chan.cljs$core$IFn$_invoke$arity$1((1));
 cljs.core.async.impl.dispatch.run((function (){
-var f__11660__auto__ = (function (){var switch__11495__auto__ = (function (state_11921){
-var state_val_11922 = (state_11921[(1)]);
-if((state_val_11922 === (1))){
-var inst_11916 = universo.geo.fetch_ip_info();
-var state_11921__$1 = state_11921;
-return cljs.core.async.impl.ioc_helpers.take_BANG_(state_11921__$1,(2),inst_11916);
+var f__34472__auto__ = (function (){var switch__34095__auto__ = (function (state_39895){
+var state_val_39897 = (state_39895[(1)]);
+if((state_val_39897 === (1))){
+var inst_39890 = universo.geo.fetch_ip_info();
+var state_39895__$1 = state_39895;
+return cljs.core.async.impl.ioc_helpers.take_BANG_(state_39895__$1,(2),inst_39890);
 } else {
-if((state_val_11922 === (2))){
-var inst_11918 = (state_11921[(2)]);
-var inst_11919 = cljs.core.reset_BANG_(ip_data,inst_11918);
-var state_11921__$1 = state_11921;
-return cljs.core.async.impl.ioc_helpers.return_chan(state_11921__$1,inst_11919);
+if((state_val_39897 === (2))){
+var inst_39892 = (state_39895[(2)]);
+var inst_39893 = cljs.core.reset_BANG_(ip_data,inst_39892);
+var state_39895__$1 = state_39895;
+return cljs.core.async.impl.ioc_helpers.return_chan(state_39895__$1,inst_39893);
 } else {
 return null;
 }
 }
 });
 return (function() {
-var universo$geo$geo_info_display_$_state_machine__11496__auto__ = null;
-var universo$geo$geo_info_display_$_state_machine__11496__auto____0 = (function (){
-var statearr_11923 = [null,null,null,null,null,null,null];
-(statearr_11923[(0)] = universo$geo$geo_info_display_$_state_machine__11496__auto__);
+var universo$geo$geo_info_display_$_state_machine__34096__auto__ = null;
+var universo$geo$geo_info_display_$_state_machine__34096__auto____0 = (function (){
+var statearr_39901 = [null,null,null,null,null,null,null];
+(statearr_39901[(0)] = universo$geo$geo_info_display_$_state_machine__34096__auto__);
 
-(statearr_11923[(1)] = (1));
+(statearr_39901[(1)] = (1));
 
-return statearr_11923;
+return statearr_39901;
 });
-var universo$geo$geo_info_display_$_state_machine__11496__auto____1 = (function (state_11921){
+var universo$geo$geo_info_display_$_state_machine__34096__auto____1 = (function (state_39895){
 while(true){
-var ret_value__11497__auto__ = (function (){try{while(true){
-var result__11498__auto__ = switch__11495__auto__(state_11921);
-if(cljs.core.keyword_identical_QMARK_(result__11498__auto__,new cljs.core.Keyword(null,"recur","recur",-437573268))){
+var ret_value__34097__auto__ = (function (){try{while(true){
+var result__34098__auto__ = switch__34095__auto__(state_39895);
+if(cljs.core.keyword_identical_QMARK_(result__34098__auto__,new cljs.core.Keyword(null,"recur","recur",-437573268))){
 continue;
 } else {
-return result__11498__auto__;
+return result__34098__auto__;
 }
 break;
 }
-}catch (e11924){var ex__11499__auto__ = e11924;
-var statearr_11925_11934 = state_11921;
-(statearr_11925_11934[(2)] = ex__11499__auto__);
+}catch (e39904){var ex__34099__auto__ = e39904;
+var statearr_39906_40007 = state_39895;
+(statearr_39906_40007[(2)] = ex__34099__auto__);
 
 
-if(cljs.core.seq((state_11921[(4)]))){
-var statearr_11926_11935 = state_11921;
-(statearr_11926_11935[(1)] = cljs.core.first((state_11921[(4)])));
+if(cljs.core.seq((state_39895[(4)]))){
+var statearr_39909_40008 = state_39895;
+(statearr_39909_40008[(1)] = cljs.core.first((state_39895[(4)])));
 
 } else {
-throw ex__11499__auto__;
+throw ex__34099__auto__;
 }
 
 return new cljs.core.Keyword(null,"recur","recur",-437573268);
 }})();
-if(cljs.core.keyword_identical_QMARK_(ret_value__11497__auto__,new cljs.core.Keyword(null,"recur","recur",-437573268))){
-var G__11936 = state_11921;
-state_11921 = G__11936;
+if(cljs.core.keyword_identical_QMARK_(ret_value__34097__auto__,new cljs.core.Keyword(null,"recur","recur",-437573268))){
+var G__40009 = state_39895;
+state_39895 = G__40009;
 continue;
 } else {
-return ret_value__11497__auto__;
+return ret_value__34097__auto__;
 }
 break;
 }
 });
-universo$geo$geo_info_display_$_state_machine__11496__auto__ = function(state_11921){
+universo$geo$geo_info_display_$_state_machine__34096__auto__ = function(state_39895){
 switch(arguments.length){
 case 0:
-return universo$geo$geo_info_display_$_state_machine__11496__auto____0.call(this);
+return universo$geo$geo_info_display_$_state_machine__34096__auto____0.call(this);
 case 1:
-return universo$geo$geo_info_display_$_state_machine__11496__auto____1.call(this,state_11921);
+return universo$geo$geo_info_display_$_state_machine__34096__auto____1.call(this,state_39895);
 }
 throw(new Error('Invalid arity: ' + arguments.length));
 };
-universo$geo$geo_info_display_$_state_machine__11496__auto__.cljs$core$IFn$_invoke$arity$0 = universo$geo$geo_info_display_$_state_machine__11496__auto____0;
-universo$geo$geo_info_display_$_state_machine__11496__auto__.cljs$core$IFn$_invoke$arity$1 = universo$geo$geo_info_display_$_state_machine__11496__auto____1;
-return universo$geo$geo_info_display_$_state_machine__11496__auto__;
+universo$geo$geo_info_display_$_state_machine__34096__auto__.cljs$core$IFn$_invoke$arity$0 = universo$geo$geo_info_display_$_state_machine__34096__auto____0;
+universo$geo$geo_info_display_$_state_machine__34096__auto__.cljs$core$IFn$_invoke$arity$1 = universo$geo$geo_info_display_$_state_machine__34096__auto____1;
+return universo$geo$geo_info_display_$_state_machine__34096__auto__;
 })()
 })();
-var state__11661__auto__ = (function (){var statearr_11927 = f__11660__auto__();
-(statearr_11927[(6)] = c__11659__auto__);
+var state__34473__auto__ = (function (){var statearr_39914 = f__34472__auto__();
+(statearr_39914[(6)] = c__34471__auto__);
 
-return statearr_11927;
+return statearr_39914;
 })();
-return cljs.core.async.impl.ioc_helpers.run_state_machine_wrapped(state__11661__auto__);
+return cljs.core.async.impl.ioc_helpers.run_state_machine_wrapped(state__34473__auto__);
 }));
 
-return c__11659__auto__;
+return c__34471__auto__;
 }),new cljs.core.Keyword(null,"reagent-render","reagent-render",-985383853),(function (){
 return new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.geo-info-container","div.geo-info-container",1355798504),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.info-header","div.info-header",510011472),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"h3","h3",2067611163),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"flag","flag",1088647881).cljs$core$IFn$_invoke$arity$1(country_estimate))," Informaci\u00F3n Detectada"].join('')], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"button.toggle-btn","button.toggle-btn",-47503824),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"on-click","on-click",1632826543),(function (){
 return cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$2(show_details_QMARK_,cljs.core.not);
-})], null),(cljs.core.truth_(cljs.core.deref(show_details_QMARK_))?"Ocultar detalles":"Ver detalles")], null)], null),new cljs.core.PersistentVector(null, 5, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.info-summary","div.info-summary",1106554506),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.info-card","div.info-card",-1341595317),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"h4","h4",2004862993),"\uD83D\uDDE3\uFE0F Idioma"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),(function (){var G__11928 = new cljs.core.Keyword(null,"language","language",-1591107564).cljs$core$IFn$_invoke$arity$1(browser_data);
-switch (G__11928) {
+})], null),(cljs.core.truth_(cljs.core.deref(show_details_QMARK_))?"Ocultar detalles":"Ver detalles")], null)], null),new cljs.core.PersistentVector(null, 5, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.info-summary","div.info-summary",1106554506),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.info-card","div.info-card",-1341595317),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"h4","h4",2004862993),"\uD83D\uDDE3\uFE0F Idioma"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),(function (){var G__39916 = new cljs.core.Keyword(null,"language","language",-1591107564).cljs$core$IFn$_invoke$arity$1(browser_data);
+switch (G__39916) {
 case "es":
 return "Espa\u00F1ol";
 
@@ -229,25 +229,25 @@ default:
 return new cljs.core.Keyword(null,"language","language",-1591107564).cljs$core$IFn$_invoke$arity$1(browser_data);
 
 }
-})()], null),(cljs.core.truth_(cljs.core.deref(show_details_QMARK_))?new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.details","div.details",-1501667044),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),"Idiomas preferidos:"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"ul","ul",-1349521403),(function (){var iter__5480__auto__ = (function universo$geo$geo_info_display_$_iter__11929(s__11930){
+})()], null),(cljs.core.truth_(cljs.core.deref(show_details_QMARK_))?new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.details","div.details",-1501667044),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),"Idiomas preferidos:"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"ul","ul",-1349521403),(function (){var iter__5503__auto__ = (function universo$geo$geo_info_display_$_iter__39917(s__39918){
 return (new cljs.core.LazySeq(null,(function (){
-var s__11930__$1 = s__11930;
+var s__39918__$1 = s__39918;
 while(true){
-var temp__5804__auto__ = cljs.core.seq(s__11930__$1);
-if(temp__5804__auto__){
-var s__11930__$2 = temp__5804__auto__;
-if(cljs.core.chunked_seq_QMARK_(s__11930__$2)){
-var c__5478__auto__ = cljs.core.chunk_first(s__11930__$2);
-var size__5479__auto__ = cljs.core.count(c__5478__auto__);
-var b__11932 = cljs.core.chunk_buffer(size__5479__auto__);
-if((function (){var i__11931 = (0);
+var temp__5823__auto__ = cljs.core.seq(s__39918__$1);
+if(temp__5823__auto__){
+var s__39918__$2 = temp__5823__auto__;
+if(cljs.core.chunked_seq_QMARK_(s__39918__$2)){
+var c__5501__auto__ = cljs.core.chunk_first(s__39918__$2);
+var size__5502__auto__ = cljs.core.count(c__5501__auto__);
+var b__39920 = cljs.core.chunk_buffer(size__5502__auto__);
+if((function (){var i__39919 = (0);
 while(true){
-if((i__11931 < size__5479__auto__)){
-var lang = cljs.core._nth(c__5478__auto__,i__11931);
-cljs.core.chunk_append(b__11932,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"li","li",723558921),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"key","key",-1516042587),lang], null),lang], null));
+if((i__39919 < size__5502__auto__)){
+var lang = cljs.core._nth(c__5501__auto__,i__39919);
+cljs.core.chunk_append(b__39920,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"li","li",723558921),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"key","key",-1516042587),lang], null),lang], null));
 
-var G__11938 = (i__11931 + (1));
-i__11931 = G__11938;
+var G__40012 = (i__39919 + (1));
+i__39919 = G__40012;
 continue;
 } else {
 return true;
@@ -255,13 +255,13 @@ return true;
 break;
 }
 })()){
-return cljs.core.chunk_cons(cljs.core.chunk(b__11932),universo$geo$geo_info_display_$_iter__11929(cljs.core.chunk_rest(s__11930__$2)));
+return cljs.core.chunk_cons(cljs.core.chunk(b__39920),universo$geo$geo_info_display_$_iter__39917(cljs.core.chunk_rest(s__39918__$2)));
 } else {
-return cljs.core.chunk_cons(cljs.core.chunk(b__11932),null);
+return cljs.core.chunk_cons(cljs.core.chunk(b__39920),null);
 }
 } else {
-var lang = cljs.core.first(s__11930__$2);
-return cljs.core.cons(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"li","li",723558921),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"key","key",-1516042587),lang], null),lang], null),universo$geo$geo_info_display_$_iter__11929(cljs.core.rest(s__11930__$2)));
+var lang = cljs.core.first(s__39918__$2);
+return cljs.core.cons(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"li","li",723558921),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"key","key",-1516042587),lang], null),lang], null),universo$geo$geo_info_display_$_iter__39917(cljs.core.rest(s__39918__$2)));
 }
 } else {
 return null;
@@ -270,12 +270,12 @@ break;
 }
 }),null,null));
 });
-return iter__5480__auto__(new cljs.core.Keyword(null,"languages","languages",1471910331).cljs$core$IFn$_invoke$arity$1(browser_data));
-})()], null)], null):null)], null),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.info-card","div.info-card",-1341595317),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"h4","h4",2004862993),"\uD83D\uDD50 Zona Horaria"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),new cljs.core.Keyword(null,"timezone","timezone",1831928099).cljs$core$IFn$_invoke$arity$1(timezone_data)], null),(cljs.core.truth_(cljs.core.deref(show_details_QMARK_))?new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.details","div.details",-1501667044),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),"Hora local: "], null),new cljs.core.Keyword(null,"local-time","local-time",-1873195290).cljs$core$IFn$_invoke$arity$1(timezone_data)], null),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),"Offset UTC: "], null),new cljs.core.Keyword(null,"offset-hours","offset-hours",1977849303).cljs$core$IFn$_invoke$arity$1(timezone_data)," horas"], null)], null):null)], null),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.info-card","div.info-card",-1341595317),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"h4","h4",2004862993),"\uD83D\uDCCD Ubicaci\u00F3n Estimada"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"flag","flag",1088647881).cljs$core$IFn$_invoke$arity$1(country_estimate))," ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"country","country",312965309).cljs$core$IFn$_invoke$arity$1(country_estimate))].join('')], null),(cljs.core.truth_(cljs.core.deref(show_details_QMARK_))?new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.details","div.details",-1501667044),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),"Basado en: "], null),"Zona horaria del navegador"], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),"Precisi\u00F3n: "], null),"Pa\u00EDs/Regi\u00F3n aproximado"], null)], null):null)], null),(cljs.core.truth_((function (){var and__5000__auto__ = cljs.core.not(new cljs.core.Keyword(null,"loading","loading",-737050189).cljs$core$IFn$_invoke$arity$1(cljs.core.deref(ip_data)));
-if(and__5000__auto__){
+return iter__5503__auto__(new cljs.core.Keyword(null,"languages","languages",1471910331).cljs$core$IFn$_invoke$arity$1(browser_data));
+})()], null)], null):null)], null),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.info-card","div.info-card",-1341595317),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"h4","h4",2004862993),"\uD83D\uDD50 Zona Horaria"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),new cljs.core.Keyword(null,"timezone","timezone",1831928099).cljs$core$IFn$_invoke$arity$1(timezone_data)], null),(cljs.core.truth_(cljs.core.deref(show_details_QMARK_))?new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.details","div.details",-1501667044),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),"Hora local: "], null),new cljs.core.Keyword(null,"local-time","local-time",-1873195290).cljs$core$IFn$_invoke$arity$1(timezone_data)], null),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),"Offset UTC: "], null),new cljs.core.Keyword(null,"offset-hours","offset-hours",1977849303).cljs$core$IFn$_invoke$arity$1(timezone_data)," horas"], null)], null):null)], null),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.info-card","div.info-card",-1341595317),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"h4","h4",2004862993),"\uD83D\uDCCD Ubicaci\u00F3n Estimada"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"flag","flag",1088647881).cljs$core$IFn$_invoke$arity$1(country_estimate))," ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"country","country",312965309).cljs$core$IFn$_invoke$arity$1(country_estimate))].join('')], null),(cljs.core.truth_(cljs.core.deref(show_details_QMARK_))?new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.details","div.details",-1501667044),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),"Basado en: "], null),"Zona horaria del navegador"], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),"Precisi\u00F3n: "], null),"Pa\u00EDs/Regi\u00F3n aproximado"], null)], null):null)], null),(cljs.core.truth_((function (){var and__5023__auto__ = cljs.core.not(new cljs.core.Keyword(null,"loading","loading",-737050189).cljs$core$IFn$_invoke$arity$1(cljs.core.deref(ip_data)));
+if(and__5023__auto__){
 return new cljs.core.Keyword(null,"success","success",1890645906).cljs$core$IFn$_invoke$arity$1(cljs.core.deref(ip_data));
 } else {
-return and__5000__auto__;
+return and__5023__auto__;
 }
 })())?new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.info-card","div.info-card",-1341595317),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"h4","h4",2004862993),"\uD83C\uDF10 IP Info"], null),(function (){var data = new cljs.core.Keyword(null,"data","data",-232669377).cljs$core$IFn$_invoke$arity$1(cljs.core.deref(ip_data));
 return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"city","city",-393302614).cljs$core$IFn$_invoke$arity$1(data)),", ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"country_name","country_name",1205772562).cljs$core$IFn$_invoke$arity$1(data))].join('')], null),(cljs.core.truth_(cljs.core.deref(show_details_QMARK_))?new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.details","div.details",-1501667044),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),"IP: "], null),new cljs.core.Keyword(null,"ip","ip",58378915).cljs$core$IFn$_invoke$arity$1(data)], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p","p",151049309),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),"ISP: "], null),new cljs.core.Keyword(null,"org","org",1495985).cljs$core$IFn$_invoke$arity$1(data)], null)], null):null)], null);
@@ -288,8 +288,8 @@ var lang = navigator.language;
 var hour = (new Date()).getHours();
 var greeting = (((hour < (12)))?"Buenos d\u00EDas":(((hour < (18)))?"Buenas tardes":"Buenas noches"
 ));
-var lang_name = (function (){var G__11933 = lang.substring((0),(2));
-switch (G__11933) {
+var lang_name = (function (){var G__39948 = lang.substring((0),(2));
+switch (G__39948) {
 case "es":
 return "espa\u00F1ol";
 

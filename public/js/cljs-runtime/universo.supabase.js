@@ -20,12 +20,12 @@ console.log("2. supabase.auth:",universo.supabase.supabase_client.auth);
 
 console.log("3. auth methods:",(cljs.core.truth_(universo.supabase.supabase_client.auth)?Object.keys(universo.supabase.supabase_client.auth):null));
 
-var temp__5802__auto__ = universo.supabase.supabase_client.auth;
-if(cljs.core.truth_(temp__5802__auto__)){
-var auth = temp__5802__auto__;
-var temp__5802__auto____$1 = auth.getSession;
-if(cljs.core.truth_(temp__5802__auto____$1)){
-var get_session_fn = temp__5802__auto____$1;
+var temp__5821__auto__ = universo.supabase.supabase_client.auth;
+if(cljs.core.truth_(temp__5821__auto__)){
+var auth = temp__5821__auto__;
+var temp__5821__auto____$1 = auth.getSession;
+if(cljs.core.truth_(temp__5821__auto____$1)){
+var get_session_fn = temp__5821__auto____$1;
 console.log("4. Calling getSession...");
 
 return auth.getSession();

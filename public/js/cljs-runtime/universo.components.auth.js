@@ -8,9 +8,9 @@ var loading = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(false);
 var error = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(null);
 var message = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(null);
 universo.supabase.get_session().then((function (res){
-var temp__5804__auto__ = res.data.session;
-if(cljs.core.truth_(temp__5804__auto__)){
-var session = temp__5804__auto__;
+var temp__5823__auto__ = res.data.session;
+if(cljs.core.truth_(temp__5823__auto__)){
+var session = temp__5823__auto__;
 return cljs.core.reset_BANG_(user,session.user);
 } else {
 return null;
@@ -34,9 +34,9 @@ cljs.core.reset_BANG_(error,null);
 cljs.core.reset_BANG_(message,null);
 
 var auth_fn = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.deref(mode),new cljs.core.Keyword(null,"login","login",55217519)))?universo.supabase.sign_in:universo.supabase.sign_up);
-return (function (){var G__11899 = cljs.core.deref(email);
-var G__11900 = cljs.core.deref(password);
-return (auth_fn.cljs$core$IFn$_invoke$arity$2 ? auth_fn.cljs$core$IFn$_invoke$arity$2(G__11899,G__11900) : auth_fn.call(null,G__11899,G__11900));
+return (function (){var G__40106 = cljs.core.deref(email);
+var G__40107 = cljs.core.deref(password);
+return (auth_fn.cljs$core$IFn$_invoke$arity$2 ? auth_fn.cljs$core$IFn$_invoke$arity$2(G__40106,G__40107) : auth_fn.call(null,G__40106,G__40107));
 })().then((function (res){
 cljs.core.reset_BANG_(loading,false);
 
@@ -54,10 +54,10 @@ cljs.core.reset_BANG_(loading,false);
 
 return cljs.core.reset_BANG_(error,"Error de conexi\u00F3n");
 }));
-})], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input","input",556931961),new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"type","type",1174270348),"email",new cljs.core.Keyword(null,"placeholder","placeholder",-104873083),"Email",new cljs.core.Keyword(null,"value","value",305978217),cljs.core.deref(email),new cljs.core.Keyword(null,"on-change","on-change",-732046149),(function (p1__11896_SHARP_){
-return cljs.core.reset_BANG_(email,p1__11896_SHARP_.target.value);
-}),new cljs.core.Keyword(null,"required","required",1807647006),true], null)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input","input",556931961),new cljs.core.PersistentArrayMap(null, 6, [new cljs.core.Keyword(null,"type","type",1174270348),"password",new cljs.core.Keyword(null,"placeholder","placeholder",-104873083),"Contrase\u00F1a (m\u00EDnimo 6 caracteres)",new cljs.core.Keyword(null,"value","value",305978217),cljs.core.deref(password),new cljs.core.Keyword(null,"on-change","on-change",-732046149),(function (p1__11897_SHARP_){
-return cljs.core.reset_BANG_(password,p1__11897_SHARP_.target.value);
+})], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input","input",556931961),new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"type","type",1174270348),"email",new cljs.core.Keyword(null,"placeholder","placeholder",-104873083),"Email",new cljs.core.Keyword(null,"value","value",305978217),cljs.core.deref(email),new cljs.core.Keyword(null,"on-change","on-change",-732046149),(function (p1__40089_SHARP_){
+return cljs.core.reset_BANG_(email,p1__40089_SHARP_.target.value);
+}),new cljs.core.Keyword(null,"required","required",1807647006),true], null)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input","input",556931961),new cljs.core.PersistentArrayMap(null, 6, [new cljs.core.Keyword(null,"type","type",1174270348),"password",new cljs.core.Keyword(null,"placeholder","placeholder",-104873083),"Contrase\u00F1a (m\u00EDnimo 6 caracteres)",new cljs.core.Keyword(null,"value","value",305978217),cljs.core.deref(password),new cljs.core.Keyword(null,"on-change","on-change",-732046149),(function (p1__40091_SHARP_){
+return cljs.core.reset_BANG_(password,p1__40091_SHARP_.target.value);
 }),new cljs.core.Keyword(null,"required","required",1807647006),true,new cljs.core.Keyword(null,"min-length","min-length",-325792315),(6)], null)], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"button","button",1456579943),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"type","type",1174270348),"submit",new cljs.core.Keyword(null,"disabled","disabled",-1529784218),cljs.core.deref(loading)], null),(cljs.core.truth_(cljs.core.deref(loading))?"Procesando...":((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.deref(mode),new cljs.core.Keyword(null,"login","login",55217519)))?"Iniciar Sesi\u00F3n":"Registrarse"))], null)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p.switch-mode","p.switch-mode",-1717507031),((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.deref(mode),new cljs.core.Keyword(null,"login","login",55217519)))?new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"span","span",1394872991),"\u00BFNo tienes cuenta? ",new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"a","a",-2123407586),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"href","href",-793805698),"#",new cljs.core.Keyword(null,"on-click","on-click",1632826543),(function (e){
 e.preventDefault();
 

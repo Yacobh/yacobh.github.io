@@ -17,7 +17,9 @@
     (js/console.log "📤 Enviando datos a Supabase:" data-to-insert)
 
     (-> (.from supabase-client table-name)
-        (.insert (clj->js data-to-insert))
+        (.insert (clj->js data-to-insert) #js {:returning "representation"})
+        (.select "*")  ; Selecciona todos los campos después de insertar
+        (.single)  ; Asegura que solo se espera un único resultado
         (.then (fn [result]
                  (js/console.log "📡 Respuesta de Supabase:" result)
                  (if (.-error result)

@@ -12,12 +12,12 @@ cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$2(universo.animations.box_posit
 var current_x = new cljs.core.Keyword(null,"x","x",2099068185).cljs$core$IFn$_invoke$arity$1(current_pos);
 var target_x = new cljs.core.Keyword(null,"target-x","target-x",-1562024412).cljs$core$IFn$_invoke$arity$1(current_pos);
 var step_size = (10);
-var new_x = (((current_x < target_x))?(function (){var x__5090__auto__ = target_x;
-var y__5091__auto__ = (current_x + step_size);
-return ((x__5090__auto__ < y__5091__auto__) ? x__5090__auto__ : y__5091__auto__);
-})():(function (){var x__5087__auto__ = target_x;
-var y__5088__auto__ = (current_x - step_size);
-return ((x__5087__auto__ > y__5088__auto__) ? x__5087__auto__ : y__5088__auto__);
+var new_x = (((current_x < target_x))?(function (){var x__5113__auto__ = target_x;
+var y__5114__auto__ = (current_x + step_size);
+return ((x__5113__auto__ < y__5114__auto__) ? x__5113__auto__ : y__5114__auto__);
+})():(function (){var x__5110__auto__ = target_x;
+var y__5111__auto__ = (current_x - step_size);
+return ((x__5110__auto__ > y__5111__auto__) ? x__5110__auto__ : y__5111__auto__);
 })());
 return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(current_pos,new cljs.core.Keyword(null,"x","x",2099068185),new_x);
 }));

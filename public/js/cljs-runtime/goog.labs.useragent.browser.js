@@ -259,12 +259,15 @@ goog.loadModule(function(exports) {
   goog.module.declareLegacyNamespace();
   const util = goog.require("goog.labs.userAgent.util");
   const {AsyncValue, Version} = goog.require("goog.labs.userAgent.highEntropy.highEntropyValue");
+  const {ChromiumRebrand} = goog.require("goog.labs.userAgent.chromiumRebrands");
   const {assert, assertExists} = goog.require("goog.asserts");
   const {compareVersions} = goog.require("goog.string.internal");
   const {fullVersionList} = goog.require("goog.labs.userAgent.highEntropy.highEntropyData");
   const {useClientHints} = goog.require("goog.labs.userAgent");
   const Brand = {ANDROID_BROWSER:"Android Browser", CHROMIUM:"Chromium", EDGE:"Microsoft Edge", FIREFOX:"Firefox", IE:"Internet Explorer", OPERA:"Opera", SAFARI:"Safari", SILK:"Silk"};
   exports.Brand = Brand;
+  let AllBrandsInternal;
+  exports.AllBrands;
   const isOpera = matchOpera;
   exports.isOpera = isOpera;
   const isIE = matchIE;

@@ -12,7 +12,7 @@ universo.db.crud.insert_data_table_BANG_ = (function universo$db$crud$insert_dat
 var ch = cljs.core.async.chan.cljs$core$IFn$_invoke$arity$0();
 console.log("\uD83D\uDCE4 Enviando datos a Supabase:",data_to_insert);
 
-universo.supabase.supabase_client.from(table_name).insert(cljs.core.clj__GT_js(data_to_insert)).then((function (result){
+universo.supabase.supabase_client.from(table_name).insert(cljs.core.clj__GT_js(data_to_insert),({"returning": "representation"})).select("*").single().then((function (result){
 console.log("\uD83D\uDCE1 Respuesta de Supabase:",result);
 
 if(cljs.core.truth_(result.error)){

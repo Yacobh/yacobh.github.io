@@ -2,8 +2,8 @@ goog.provide('universo.voz');
 universo.voz.list_voices = (function universo$voz$list_voices(){
 if((typeof window !== 'undefined') && (typeof window.speechSynthesis !== 'undefined')){
 var voices = window.speechSynthesis.getVoices();
-return cljs.core.filter.cljs$core$IFn$_invoke$arity$2((function (p1__11999_SHARP_){
-return cljs.core.re_find(/es-/,p1__11999_SHARP_.lang);
+return cljs.core.filter.cljs$core$IFn$_invoke$arity$2((function (p1__39835_SHARP_){
+return cljs.core.re_find(/es-/,p1__39835_SHARP_.lang);
 }),voices);
 } else {
 return null;
@@ -70,14 +70,14 @@ var utterance = (new SpeechSynthesisUtterance(text));
 
 (utterance.lang = "es-ES");
 
-var temp__5804__auto___12003 = cljs.core.seq(synthesis.getVoices());
-if(temp__5804__auto___12003){
-var voices_12004 = temp__5804__auto___12003;
-var spanish_voices_12005 = cljs.core.filter.cljs$core$IFn$_invoke$arity$2((function (p1__12001_SHARP_){
-return cljs.core.re_find(/es-/,p1__12001_SHARP_.lang);
-}),voices_12004);
-if(cljs.core.seq(spanish_voices_12005)){
-(utterance.voice = cljs.core.first(spanish_voices_12005));
+var temp__5823__auto___39932 = cljs.core.seq(synthesis.getVoices());
+if(temp__5823__auto___39932){
+var voices_39933 = temp__5823__auto___39932;
+var spanish_voices_39934 = cljs.core.filter.cljs$core$IFn$_invoke$arity$2((function (p1__39876_SHARP_){
+return cljs.core.re_find(/es-/,p1__39876_SHARP_.lang);
+}),voices_39933);
+if(cljs.core.seq(spanish_voices_39934)){
+(utterance.voice = cljs.core.first(spanish_voices_39934));
 } else {
 }
 } else {
@@ -91,8 +91,8 @@ return null;
 universo.voz.speech_component = (function universo$voz$speech_component(){
 var text = reagent.core.atom.cljs$core$IFn$_invoke$arity$1("");
 return (function (){
-return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input","input",556931961),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"type","type",1174270348),"text",new cljs.core.Keyword(null,"value","value",305978217),cljs.core.deref(text),new cljs.core.Keyword(null,"on-change","on-change",-732046149),(function (p1__12002_SHARP_){
-return cljs.core.reset_BANG_(text,p1__12002_SHARP_.target.value);
+return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input","input",556931961),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"type","type",1174270348),"text",new cljs.core.Keyword(null,"value","value",305978217),cljs.core.deref(text),new cljs.core.Keyword(null,"on-change","on-change",-732046149),(function (p1__39900_SHARP_){
+return cljs.core.reset_BANG_(text,p1__39900_SHARP_.target.value);
 })], null)], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"button","button",1456579943),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"on-click","on-click",1632826543),(function (){
 return universo.voz.speak_text(cljs.core.deref(text));
 })], null),"Hablar"], null)], null);

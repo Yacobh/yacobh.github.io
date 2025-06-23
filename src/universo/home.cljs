@@ -1,5 +1,15 @@
 (ns universo.home
   (:require [reagent.core :as r]
+            [universo.battery :as api]
+            [universo.jardin :as jardin]
+            [universo.voz :as voz]
+            [universo.geo :as geo]
+            [universo.ip :as ip]
+            [universo.animations :as animations]
+            [universo.components.supabase-test :refer [supabase-test]]
+            [universo.components.guestbook :as guestbook]
+            [universo.components.auth :as auth]
+
             [universo.components.mathacademy :as mathacademy]
             [universo.components.login :as login]
             [universo.components.diagnostic-test :as diagnostic-test]))

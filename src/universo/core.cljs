@@ -3,19 +3,11 @@
    [reagent.core :as r]
    [re-frame.core :as re-frame]
    [reagent.dom :as d]
-   [universo.battery :as api]
-   [universo.jardin :as jardin]
-   [universo.voz :as voz]
-   [universo.geo :as geo]
-   [universo.ip :as ip]
-   [universo.animations :as animations]
-   [universo.components.supabase-test :refer [supabase-test]]
-   [universo.components.login :as login]
-   [universo.components.guestbook :as guestbook]
-   [universo.components.mathacademy :as mathacademy]
-   [universo.components.auth :as auth]
-   [universo.components.tailwind :as tailwind]
-   [universo.home :as home]))
+   [universo.home :as home]
+   [universo.events]           ;; Registrar eventos aquí
+   [universo.subs]             ;; Registrar subscripciones aquí
+   [universo.views :as views]
+   [universo.visitor-tracker :as tracker])) ;; Contendrá la vista dinámica
 
   ;; -------------------------
   ;; Initialize app
@@ -41,8 +33,11 @@
      #_[guestbook/guestbook-component]
      #_[mathacademy/math-academy-component]
      #_[tailwind/app]
-     [home/home]
+     #_[home/home]
+     [views/main-panel]
      (.getElementById js/document "app")))
 
   (defn ^:export init! []
+      (re-frame/dispatch-sync [:initialize-db])
+    (tracker/start-tracking!)
     (mount-root))

@@ -12,25 +12,25 @@ return new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMP
 return universo.jardin.init_particles((20));
 })], null),"Generate 10 Particles"], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"button","button",1456579943),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"on-click","on-click",1632826543),(function (){
 return cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(universo.jardin.app_state,cljs.core.update,new cljs.core.Keyword(null,"simulation-running","simulation-running",-921231822),cljs.core.not);
-})], null),(cljs.core.truth_(new cljs.core.Keyword(null,"simulation-running","simulation-running",-921231822).cljs$core$IFn$_invoke$arity$1(state))?"Stop Simulation":"Start Simulation")], null)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.visualization-area","div.visualization-area",-507799395),(function (){var iter__5480__auto__ = (function universo$jardin$quantum_simulator_$_iter__12305(s__12306){
+})], null),(cljs.core.truth_(new cljs.core.Keyword(null,"simulation-running","simulation-running",-921231822).cljs$core$IFn$_invoke$arity$1(state))?"Stop Simulation":"Start Simulation")], null)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.visualization-area","div.visualization-area",-507799395),(function (){var iter__5503__auto__ = (function universo$jardin$quantum_simulator_$_iter__39830(s__39831){
 return (new cljs.core.LazySeq(null,(function (){
-var s__12306__$1 = s__12306;
+var s__39831__$1 = s__39831;
 while(true){
-var temp__5804__auto__ = cljs.core.seq(s__12306__$1);
-if(temp__5804__auto__){
-var s__12306__$2 = temp__5804__auto__;
-if(cljs.core.chunked_seq_QMARK_(s__12306__$2)){
-var c__5478__auto__ = cljs.core.chunk_first(s__12306__$2);
-var size__5479__auto__ = cljs.core.count(c__5478__auto__);
-var b__12309 = cljs.core.chunk_buffer(size__5479__auto__);
-if((function (){var i__12308 = (0);
+var temp__5823__auto__ = cljs.core.seq(s__39831__$1);
+if(temp__5823__auto__){
+var s__39831__$2 = temp__5823__auto__;
+if(cljs.core.chunked_seq_QMARK_(s__39831__$2)){
+var c__5501__auto__ = cljs.core.chunk_first(s__39831__$2);
+var size__5502__auto__ = cljs.core.count(c__5501__auto__);
+var b__39833 = cljs.core.chunk_buffer(size__5502__auto__);
+if((function (){var i__39832 = (0);
 while(true){
-if((i__12308 < size__5479__auto__)){
-var particle = cljs.core._nth(c__5478__auto__,i__12308);
-cljs.core.chunk_append(b__12309,cljs.core.with_meta(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.quantum-particle","div.quantum-particle",758561641),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"style","style",-496642736),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"left","left",-399115937),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"x","x",2099068185).cljs$core$IFn$_invoke$arity$1(particle)),"px"].join(''),new cljs.core.Keyword(null,"top","top",-1856271961),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"y","y",-1757859776).cljs$core$IFn$_invoke$arity$1(particle)),"px"].join('')], null)], null)], null),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"key","key",-1516042587),new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(particle)], null)));
+if((i__39832 < size__5502__auto__)){
+var particle = cljs.core._nth(c__5501__auto__,i__39832);
+cljs.core.chunk_append(b__39833,cljs.core.with_meta(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.quantum-particle","div.quantum-particle",758561641),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"style","style",-496642736),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"left","left",-399115937),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"x","x",2099068185).cljs$core$IFn$_invoke$arity$1(particle)),"px"].join(''),new cljs.core.Keyword(null,"top","top",-1856271961),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"y","y",-1757859776).cljs$core$IFn$_invoke$arity$1(particle)),"px"].join('')], null)], null)], null),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"key","key",-1516042587),new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(particle)], null)));
 
-var G__12320 = (i__12308 + (1));
-i__12308 = G__12320;
+var G__39877 = (i__39832 + (1));
+i__39832 = G__39877;
 continue;
 } else {
 return true;
@@ -38,13 +38,13 @@ return true;
 break;
 }
 })()){
-return cljs.core.chunk_cons(cljs.core.chunk(b__12309),universo$jardin$quantum_simulator_$_iter__12305(cljs.core.chunk_rest(s__12306__$2)));
+return cljs.core.chunk_cons(cljs.core.chunk(b__39833),universo$jardin$quantum_simulator_$_iter__39830(cljs.core.chunk_rest(s__39831__$2)));
 } else {
-return cljs.core.chunk_cons(cljs.core.chunk(b__12309),null);
+return cljs.core.chunk_cons(cljs.core.chunk(b__39833),null);
 }
 } else {
-var particle = cljs.core.first(s__12306__$2);
-return cljs.core.cons(cljs.core.with_meta(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.quantum-particle","div.quantum-particle",758561641),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"style","style",-496642736),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"left","left",-399115937),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"x","x",2099068185).cljs$core$IFn$_invoke$arity$1(particle)),"px"].join(''),new cljs.core.Keyword(null,"top","top",-1856271961),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"y","y",-1757859776).cljs$core$IFn$_invoke$arity$1(particle)),"px"].join('')], null)], null)], null),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"key","key",-1516042587),new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(particle)], null)),universo$jardin$quantum_simulator_$_iter__12305(cljs.core.rest(s__12306__$2)));
+var particle = cljs.core.first(s__39831__$2);
+return cljs.core.cons(cljs.core.with_meta(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.quantum-particle","div.quantum-particle",758561641),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"style","style",-496642736),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"left","left",-399115937),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"x","x",2099068185).cljs$core$IFn$_invoke$arity$1(particle)),"px"].join(''),new cljs.core.Keyword(null,"top","top",-1856271961),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"y","y",-1757859776).cljs$core$IFn$_invoke$arity$1(particle)),"px"].join('')], null)], null)], null),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"key","key",-1516042587),new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(particle)], null)),universo$jardin$quantum_simulator_$_iter__39830(cljs.core.rest(s__39831__$2)));
 }
 } else {
 return null;
@@ -53,7 +53,7 @@ break;
 }
 }),null,null));
 });
-return iter__5480__auto__(new cljs.core.Keyword(null,"particles","particles",801881788).cljs$core$IFn$_invoke$arity$1(state));
+return iter__5503__auto__(new cljs.core.Keyword(null,"particles","particles",801881788).cljs$core$IFn$_invoke$arity$1(state));
 })()], null)], null);
 });
 universo.jardin.particle_position = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"x","x",2099068185),"50%",new cljs.core.Keyword(null,"y","y",-1757859776),"40%"], null));

@@ -8,7 +8,10 @@ goog.require("goog.string.Const");
 goog.require("goog.string.TypedString");
 goog.html.TrustedResourceUrl = class {
   constructor(value, token) {
-    this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ = token === goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ ? value : "";
+    if (goog.DEBUG && token !== goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_) {
+      throw Error("TrustedResourceUrl is not meant to be built directly");
+    }
+    this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ = value;
   }
   toString() {
     return this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ + "";
@@ -33,7 +36,7 @@ goog.html.TrustedResourceUrl.unwrapTrustedScriptURL = function(trustedResourceUr
   if (trustedResourceUrl instanceof goog.html.TrustedResourceUrl && trustedResourceUrl.constructor === goog.html.TrustedResourceUrl) {
     return trustedResourceUrl.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_;
   } else {
-    goog.asserts.fail("expected object of type TrustedResourceUrl, got '" + trustedResourceUrl + "' of type " + goog.typeOf(trustedResourceUrl));
+    goog.asserts.fail("expected object of type TrustedResourceUrl, got '%s' of type %s", trustedResourceUrl, goog.typeOf(trustedResourceUrl));
     return "type_error:TrustedResourceUrl";
   }
 };

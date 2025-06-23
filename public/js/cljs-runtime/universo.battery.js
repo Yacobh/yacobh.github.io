@@ -25,10 +25,10 @@ universo.battery.battery_status_component = (function universo$battery$battery_s
 var battery_state = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"charging","charging",-72750460),false,new cljs.core.Keyword(null,"level","level",1290497552),(0),new cljs.core.Keyword(null,"chargingTime","chargingTime",-1353766724),"Infinito",new cljs.core.Keyword(null,"dischargingTime","dischargingTime",1190357238),"Infinito"], null));
 return reagent.core.create_class.cljs$core$IFn$_invoke$arity$1(new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"component-did-mount","component-did-mount",-1126910518),(function (){
 if(cljs.core.truth_(navigator.getBattery)){
-return navigator.getBattery().then((function (p1__11896_SHARP_){
-return universo.battery.setup_battery_listeners(p1__11896_SHARP_,battery_state);
-})).catch((function (p1__11897_SHARP_){
-return console.error("Error accediendo a la API de bater\u00EDa:",p1__11897_SHARP_);
+return navigator.getBattery().then((function (p1__39837_SHARP_){
+return universo.battery.setup_battery_listeners(p1__39837_SHARP_,battery_state);
+})).catch((function (p1__39838_SHARP_){
+return console.error("Error accediendo a la API de bater\u00EDa:",p1__39838_SHARP_);
 }));
 } else {
 return null;
