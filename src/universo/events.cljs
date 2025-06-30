@@ -1,13 +1,18 @@
 (ns universo.events
-  (:require [re-frame.core :as re-frame]
-            [universo.db :as db]))
+  (:require [re-frame.core :as re-frame]))
 
 (re-frame/reg-event-db
  :initialize-db
  (fn [_ _]
-   db/default-db))
+   {:current-page :home
+    :current-section :main}))
 
 (re-frame/reg-event-db
  :set-page
  (fn [db [_ new-page]]
-   (assoc db :page new-page)))
+   (assoc db :current-page new-page)))
+
+(re-frame/reg-event-db
+ :set-section
+ (fn [db [_ section]]
+   (assoc db :current-section section)))

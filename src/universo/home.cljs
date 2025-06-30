@@ -9,15 +9,13 @@
             [universo.components.supabase-test :refer [supabase-test]]
             [universo.components.guestbook :as guestbook]
             [universo.components.auth :as auth]
-
+            [re-frame.core :as re-frame]
             [universo.components.mathacademy :as mathacademy]
             [universo.components.login :as login]
             [universo.components.diagnostic-test :as diagnostic-test]))
 
 ;; seccion principal variable con atomo de reagent, dinamico
-(defonce current-section (r/atom :main))
-(defn set-section! [section]
-  (reset! current-section section))
+
 
 (defn navigation []
   [:nav.fixed.top-0.left-0.right-0.z-50.bg-white.border-b.border-gray-100
@@ -29,7 +27,7 @@
       ;; Logo con integral animada
       [:a.text-gray-800.font-bold.text-xl.flex.items-center
        {:href "#"
-        :on-click #(set-section! :main)} ; Cambia a la sección principal
+        :on-click #(re-frame/dispatch [:set-section :main])} ; Cambia a la sección principal
        [:span.bg-gradient-to-r.from-blue-600.to-purple-600.bg-clip-text.text-transparent "Integral"]
        [:span.mx-2.text-3xl.font-light.text-indigo-600 "∫"]
        [:span.bg-gradient-to-r.from-purple-600.to-indigo-700.bg-clip-text.text-transparent "Academy"]]]
@@ -38,7 +36,7 @@
      [:div.flex.items-center.gap-3
       [:a.bg-indigo-600.text-white.text-sm.px-5.py-2.5.rounded-full.hover:bg-indigo-700.transition.shadow-sm.hover:shadow-md
        ;; Botón de acceso
-       {:on-click #(set-section! :login)} ; Cambia a la sección de login
+       {:on-click #(re-frame/dispatch [:set-section :login])} ; Cambia a la sección de login
        "Mi Dashboard"]]]]])
 
 (defn practica-paes []
@@ -49,7 +47,7 @@
     [:button.mt-8.bg-blue-600.text-white.px-8.py-3.rounded-lg.hover:bg-blue-700
 
      {:href "#"
-      :on-click #(set-section! :diagnostic-test)} ; Cambia a la sección de test diagnóstico
+      :on-click #(re-frame/dispatch [:set-section :diagnostic-test])} ; Cambia a la sección de test diagnóstico
      "Comenzar test"]]])
 
 (defn guestbook-section []
@@ -76,13 +74,13 @@
       [:h4.text-lg.font-semibold.mb-4 "Enlaces Rápidos"]
       [:ul.space-y-2
        [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
-                                                           :on-click #(set-section! :main)} "Inicio"]]
+                                                           :on-click #(re-frame/dispatch [:set-section :main])} "Inicio"]]
        [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
-                                                           :on-click #(set-section! :main)} "Cursos"]]
+                                                           :on-click #(re-frame/dispatch [:set-section :main])} "Cursos"]]
        [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
-                                                           :on-click #(set-section! :main)} "Evaluación"]]
+                                                           :on-click #(re-frame/dispatch [:set-section :main])} "Evaluación"]]
        [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
-                                                           :on-click #(set-section! :main)} "Blog"]]]]
+                                                           :on-click #(re-frame/dispatch [:set-section :main])} "Blog"]]]]
 
      ;; Contacto
      [:div
@@ -114,11 +112,15 @@
 
 ;; main content por atomo de reagent
 (defn main-content []
-  (case @current-section
-    :main [practica-paes]
-    :login [login/login-form]
-    :diagnostic-test [diagnostic-test/diagnostic-test]
-    [:div "Sección no encontrada (404)"]))
+  (let [current-section @(re-frame/subscribe [:current-section])
+        _ (js/console.log "Current section:" current-section)]  ;; Para depuración
+
+    (case current-section
+      :main [practica-paes]
+      :login [login/login-form]
+      :diagnostic-test [diagnostic-test/diagnostic-test]
+      [:div "Sección no encontrada (404)"])))
+
 
 ;; Componente principal (equivalente a Home)
 

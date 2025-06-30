@@ -30,7 +30,10 @@ You can configure this with the setting:
   "calva.outputDestinations"
 
 
-; Connecting ...
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
 ; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
 ; No nrepl port file found.
 ; Hooking up nREPL sessions ...
@@ -39,85 +42,74 @@ You can configure this with the setting:
 nil
 clj꞉shadow.user꞉> 
 ; Creating cljs repl session...
-; Connecting cljs repl: ClojureScript nREPL Server...
-; Connected session: cljs
+; Connecting cljs repl: deps.edn + shadow-cljs...
+; Starting cljs repl for: deps.edn + shadow-cljs...
+; Cljs builds started
+; Connected session: cljs, repl: :app
 ; TIPS: You can choose which REPL to use (clj or cljs):
 ;    *Calva: Toggle REPL connection*
 ;    (There is a button in the status bar for this)
 ; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
-; Execution error (IllegalAccessError) at user/eval11907 (REPL:38).
-; print-doc does not exist
-"Please see https://calva.io/output/#about-stdout-in-the-repl-window
-about why stdout printed to this file is prepended with `;` to be line comments."
-cljs꞉user꞉> 
-; Evaluating file: core.cljs
-;
-; ; cljs  universo.core
-; Execution error (FileNotFoundException) at universo.core/eval11914$loading (core.cljs:1).
-; Could not locate reagent/dom__init.class, reagent/dom.clj or reagent/dom.cljc on classpath.
-; Evaluation of file core.cljs failed: class clojure.lang.Compiler$CompilerException
-cljs꞉universo.core꞉> 
-; Syntax error compiling at (src/universo/core.cljs:89:5).
-; Unable to resolve symbol: mount-root in this context
-cljs꞉universo.core꞉> 
-; Syntax error compiling at (src/universo/core.cljs:86:5).
-; No such namespace: d
-cljs꞉universo.core꞉> 
-; Evaluating file: core.cljs
-;
-; Execution error (FileNotFoundException) at universo.core/eval11923$loading (core.cljs:1).
-; Could not locate reagent/dom__init.class, reagent/dom.clj or reagent/dom.cljc on classpath.
-; Evaluation of file core.cljs failed: class clojure.lang.Compiler$CompilerException
-cljs꞉universo.core꞉> 
-; Evaluating file: voz.cljs
-;
-; ; cljs  universo.voz
-; Syntax error compiling at (src/universo/voz.cljs:6:19).
-; No such namespace: js
-; Evaluation of file voz.cljs failed: class clojure.lang.Compiler$CompilerException
-cljs꞉universo.voz꞉> 
-; Syntax error reading source at (REPL:36:19).
-; No reader function for tag dbg
-cljs꞉universo.voz꞉> 
-; Syntax error reading source at (REPL:36:19).
-; No reader function for tag dbg
-cljs꞉universo.voz꞉> 
-; Connecting using "ClojureScript nREPL Server" project type.
-; You can make Calva auto-select this.
-;   - See https://calva.io/connect-sequences/
-;
-; Connecting ...
-; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
-; No nrepl port file found.
-; Hooking up nREPL sessions ...
-; nREPL connection failed: Error: getaddrinfo ENOTFOUND hostname
-; Failed connecting.
-; Connecting using "ClojureScript nREPL Server" project type.
-; You can make Calva auto-select this.
-;   - See https://calva.io/connect-sequences/
-;
-; Connecting ...
-; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
-; No nrepl port file found.
-; Hooking up nREPL sessions ...
-; Connected session: clj
-; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
 nil
-clj꞉shadow.user꞉> 
-; Creating cljs repl session...
-; Connecting cljs repl: ClojureScript nREPL Server...
-; Connected session: cljs
-; TIPS: You can choose which REPL to use (clj or cljs):
-;    *Calva: Toggle REPL connection*
-;    (There is a button in the status bar for this)
-; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
-; Execution error (IllegalAccessError) at user/eval29009 (REPL:105).
-; print-doc does not exist
 "Please see https://calva.io/output/#about-stdout-in-the-repl-window
 about why stdout printed to this file is prepended with `;` to be line comments."
 cljs꞉user꞉> 
-(+ 12 23
-   )
-35
+(+ 3 2)
+5
 cljs꞉user꞉> 
-; nREPL Connection was closed
+; Evaluating file: subs.cljs
+#object [re_frame$subs$subs_handler_fn]
+cljs꞉universo.subs꞉> 
+#object [re_frame$subs$subs_handler_fn]
+cljs꞉universo.subs꞉> 
+; Evaluating file: views.cljs
+#'universo.views/main-panel
+cljs꞉universo.views꞉> 
+#'universo.views/main-panel
+cljs꞉universo.views꞉> 
+@(re-frame/subscribe [:current-section]
+[:current-section]
+cljs꞉universo.views꞉> 
+; Evaluating file: core.cljs
+nil
+cljs꞉universo.core꞉> 
+@(re-frame/subscribe [:current-page]
+[:current-page]
+cljs꞉universo.core꞉> 
+@(re-frame/subscribe [:current-page])
+nil
+cljs꞉universo.core꞉> 
+(re-frame/dispatch-sync [:set-page :math])
+nil
+cljs꞉universo.core꞉> 
+(re-frame/dispatch-sync [:set-section :math])
+nil
+cljs꞉universo.core꞉> 
+nil
+cljs꞉universo.core꞉> 
+@(re-frame/subscribe [:current-page])
+nil
+cljs꞉universo.core꞉> 
+@(re-frame/subscribe [:current-section])
+:math
+cljs꞉universo.core꞉> 
+nil
+cljs꞉universo.core꞉> 
+@(re-frame/subscribe [:current-page])
+(re-frame/dispatch-sync [:initialize-db])
+nil
+cljs꞉universo.core꞉> 
+@(re-frame/subscribe [:current-page])
+:home
+cljs꞉universo.core꞉> 
+(re-frame/dispatch-sync [:set-page :math])
+nil
+cljs꞉universo.core꞉> 
+@(re-frame/subscribe [:current-page])
+@(re-frame/subscribe [:db])
+#:mathacademy{:section :main}
+cljs꞉universo.home꞉> 
+nil
+cljs꞉universo.home꞉> 
+{:current-page :home, :current-section :main}
+cljs꞉universo.home꞉> 

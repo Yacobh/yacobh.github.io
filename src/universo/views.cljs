@@ -11,5 +11,6 @@
     [:div "Página no encontrada "]))
 
 (defn main-panel []
-  (let [current-page @(re-frame/subscribe [:current-page])]
+  (let [current-page @(re-frame/subscribe [:current-page])
+        _ (js/console.log "Current page:" current-page)]
     [pages current-page]))

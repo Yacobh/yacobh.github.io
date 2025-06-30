@@ -1,6 +1,4 @@
 {:deps true
- :source-paths ["src" "test"]
- :dependencies [[reagent "1.2.0"]]
  :builds       {:app {:target     :browser
                       :output-dir "./public/js"
                       :asset-path "/js"
