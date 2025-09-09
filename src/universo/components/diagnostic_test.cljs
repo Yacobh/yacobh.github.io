@@ -1,54 +1,28 @@
 (ns universo.components.diagnostic-test
-  (:require [reagent.core :as r]))
+  (:require [reagent.core :as r]
+            [cljs.core.async :refer [go <!]]
+            [universo.db.crud :as db]
+            [re-frame.core :as re-frame]))
+
+(defn get-questions []
+  (go
+    (let [result (<! (db/get-all-table "questions"))]
+      (if (:success result)
+        (do
+          (js/console.log "Questions loaded")
+          (let [data (:data result)]
+            (when data
+              (js/console.log "Questions updated " (clj->js data))
+              (re-frame/dispatch [:set-questions data]))))
+        (js/console.error "❌ Error saving question:" result)))))
+
 
 ;; Estado del componente
 (def test-state (r/atom {:current-step :intro
                         :current-question 0
+                         :selected nil
                         :answers {}
                         :started? false}))
-
-;; Preguntas de ejemplo para el diagnóstico
-(def sample-questions
-  [{:id 1
-    :question "¿Cuál es tu nivel actual de programación?"
-    :type :multiple-choice
-    :options [{:value "beginner" :label "Principiante - Nunca he programado"}
-              {:value "basic" :label "Básico - Conozco algunos conceptos"}
-              {:value "intermediate" :label "Intermedio - Puedo crear programas simples"}
-              {:value "advanced" :label "Avanzado - Tengo experiencia significativa"}]}
-
-   {:id 2
-    :question "¿Con qué lenguajes de programación has trabajado?"
-    :type :multiple-select
-    :options [{:value "javascript" :label "JavaScript"}
-              {:value "python" :label "Python"}
-              {:value "java" :label "Java"}
-              {:value "clojure" :label "Clojure"}
-              {:value "none" :label "Ninguno"}]}
-
-   {:id 3
-    :question "¿Cuánto tiempo puedes dedicar al estudio por semana?"
-    :type :multiple-choice
-    :options [{:value "1-3" :label "1-3 horas"}
-              {:value "4-7" :label "4-7 horas"}
-              {:value "8-15" :label "8-15 horas"}
-              {:value "15+" :label "Más de 15 horas"}]}
-
-   {:id 4
-    :question "¿Cuál es tu objetivo principal?"
-    :type :multiple-choice
-    :options [{:value "career-change" :label "Cambio de carrera"}
-              {:value "skill-improvement" :label "Mejorar habilidades actuales"}
-              {:value "hobby" :label "Aprendizaje como hobby"}
-              {:value "academic" :label "Complemento académico"}]}
-
-   {:id 5
-    :question "¿Tienes experiencia con bases de datos?"
-    :type :multiple-choice
-    :options [{:value "none" :label "No tengo experiencia"}
-              {:value "basic" :label "Conceptos básicos (SQL básico)"}
-              {:value "intermediate" :label "Intermedio (diseño de esquemas)"}
-              {:value "advanced" :label "Avanzado (optimización, administración)"}]}])
 
 ;; Funciones auxiliares
 (defn reset-test! []
@@ -60,18 +34,9 @@
 (defn start-test! []
   (swap! test-state assoc :current-step :questions :started? true))
 
-(defn next-question! []
-  (let [current (:current-question @test-state)
-        total (count sample-questions)]
-    (if (>= (inc current) total)
-      (swap! test-state assoc :current-step :completed)
-      (swap! test-state update :current-question inc))))
-
-(defn save-answer! [question-id answer]
-  (swap! test-state assoc-in [:answers question-id] answer))
-
 ;; Componentes
 (defn intro-component []
+  (get-questions) ;maybe not so good idea
   [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
    [:div {:class "text-center"}
     [:h2 {:class "text-3xl font-bold text-gray-800 mb-6"}
@@ -99,96 +64,64 @@
        :on-click #(reset! test-state {:current-step :closed})}
       "Tal vez más tarde"]]]])
 
-(defn multiple-choice-component [question]
-  (let [selected (r/atom nil)]
-    ;; watcher: cuando cambia la respuesta, guardamos y avanzamos
-    (add-watch selected :on-select
-               (fn [_ _ _ new-val]
-                 (when new-val
-                   (save-answer! (:id question) new-val)
-                   (js/setTimeout next-question! 100)))) ; leve delay para transición visual
-
-    (fn [question]
-      [:div {:class "space-y-3"}
-       (for [option (:options question)]
-         ^{:key (:value option)}
-         [:label {:class "flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"}
-          [:input {:type "radio"
-                   :name (str "question-" (:id question))
-                   :value (:value option)
-                   :class "mr-3 text-blue-600"
-                   :checked (= @selected (:value option))
-                   :on-change #(reset! selected (:value option))}]
-          [:span {:class "text-gray-700"} (:label option)]])])))
-
+(defn normalize-question [q qid]
+  {:id (:id q)
+   :question (:question q)
+   :options [{:value "A" :label (:option_a q)}
+             {:value "B" :label (:option_b q)}
+             {:value "C" :label (:option_c q)}
+             {:value "D" :label (:option_d q)}]
+   :correct-option (:correct_option q)
+   :errors {:A (:error_a q)
+            :B (:error_b q)
+            :C (:error_c q)
+            :D (:error_d q)}
+   :difficulty (:difficulty q)
+   :position qid})
 
 (defn question-component []
-  (let [current-idx (:current-question @test-state)
-        question (nth sample-questions current-idx)
-        progress (* (/ (inc current-idx) (count sample-questions)) 100)]
-
-    [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
-     ;; Barra de progreso
-     [:div {:class "mb-8"}
-      [:div {:class "flex justify-between text-sm text-gray-600 mb-2"}
-       [:span (str "Pregunta " (inc current-idx) " de " (count sample-questions))]
-       [:span (str (int progress) "%")]]
-      [:div {:class "w-full bg-gray-200 rounded-full h-2"}
-       [:div {:class "bg-blue-600 h-2 rounded-full transition-all duration-300"
-              :style {:width (str progress "%")}}]]]
-
-     ;; Pregunta
-     [:div {:class "mb-8"}
-      [:h3 {:class "text-xl font-semibold text-gray-800 mb-6"}
-       (:question question)]
-
-      ;; Opciones según el tipo
-      (case (:type question)
-        :multiple-choice
-          [multiple-choice-component question]
-
-        #_[:div {:class "space-y-3"}
-         (for [option (:options question)]
-           ^{:key (:value option)}
-           [:label {:class "flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"}
-            [:input {:type "radio"
-                    :name (str "question-" (:id question))
-                    :value (:value option)
-                    :class "mr-3 text-blue-600"
-                    :on-change #(save-answer! (:id question) (:value option))}]
-            [:span {:class "text-gray-700"} (:label option)]])]
-
-        :multiple-select
-        [:div {:class "space-y-3"}
-         (for [option (:options question)]
-           ^{:key (:value option)}
-           [:label {:class "flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"}
-            [:input {:type "checkbox"
-                    :value (:value option)
-                    :class "mr-3 text-blue-600"
-                    :on-change #(let [checked (-> % .-target .-checked)
-                                     current-answers (get-in @test-state [:answers (:id question)] #{})
-                                     new-answers (if checked
-                                                  (conj current-answers (:value option))
-                                                  (disj current-answers (:value option)))]
-                                 (save-answer! (:id question) new-answers))}]
-            [:span {:class "text-gray-700"} (:label option)]])])]
-
-     ;; Botones de navegación
-     [:div {:class "flex justify-between"}
-      [:button
-       {:class "px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-        :disabled (= current-idx 0)
-        :on-click #(swap! test-state update :current-question dec)}
-       "← Anterior"]
-
-      [:button
-       {:class "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
-        :disabled (nil? (get-in @test-state [:answers (:id question)]))
-        :on-click next-question!}
-       (if (= current-idx (dec (count sample-questions)))
-         "Finalizar"
-         "Siguiente →")]]]))
+  (let [qid @(re-frame/subscribe [:current-question])
+        questions @(re-frame/subscribe [:questions])
+        selected-option @(re-frame/subscribe [:current-question-selected-option])
+        last-idx (dec (count questions))
+        q (when (and questions (<= 0 qid last-idx))
+            (normalize-question (nth questions qid) qid))]
+    (when q
+      [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
+       [:h3 {:class "text-xl font-semibold text-gray-800 mb-6"} (:question q)]
+       [:div {:class "space-y-3"}
+        (for [opt (:options q)]
+          (let [input-id (str "q-" (:id q) "-" (:value opt))]
+            [:div {:key (:value opt)}
+             [:input {:type "radio"
+                      :id input-id
+                      :name (str "q-" (:id q))
+                      :class "mr-3 text-blue-600"
+                      :value (:value opt)
+                      :on-change #(re-frame/dispatch
+                                   [:test/answer {:question-id (:id q)
+                                                  :selected (:value opt)
+                                                  :correct? (= (:value opt) (:correct-option q))
+                                                  :time-ms 0
+                                                  :error ((keyword (:value opt)) (:errors q))
+                                                  :difficulty (:difficulty q)}])
+                      :checked (= (:value opt) selected-option)}]
+             [:label {:for input-id} (:label opt)]]))]
+       ;; Navegación con app-db
+       [:div {:class "flex justify-between mt-6"}
+        [:button
+         {:class "px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50"
+          :disabled (= qid 0)
+          :on-click #(re-frame/dispatch [:test/prev])}
+         "← Anterior"]
+        [:button
+         {:class "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors disabled:opacity-50"
+          :disabled (nil? selected-option)
+          :on-click  #(if (= qid last-idx)
+                        (do (re-frame/dispatch [:test/finish])
+                            (swap! test-state assoc :current-step :completed))
+                        (re-frame/dispatch [:test/next]))}
+         (if (= qid last-idx) "Finalizar" "Siguiente →")]]])))
 
 (defn completion-component []
   [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg text-center"}
@@ -205,13 +138,47 @@
    [:div {:class "space-y-4"}
     [:button
      {:class "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-      :on-click #(js/alert "Aquí procesarías los resultados")}
+      :on-click #(swap! test-state assoc :current-step :results)}
      "Ver Mis Resultados"]
 
     [:button
      {:class "text-gray-500 hover:text-gray-700 transition-colors"
       :on-click reset-test!}
      "Hacer la evaluación nuevamente"]]])
+
+(defn results-component []
+  (let [test @(re-frame/subscribe [:test])
+        responses (:responses test)
+        traits (:traits test)
+        score (:score test)]
+    [:div {:class "max-w-3xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
+     [:h2 {:class "text-2xl font-bold text-gray-800 mb-6"}
+      "📊 Resultados de tu Evaluación"]
+
+     ;; Puntaje global
+     [:div {:class "mb-6"}
+      [:p {:class "text-xl font-semibold text-blue-600"} (str "Puntaje: " score)]
+      [:p {:class "text-gray-600"} "Este puntaje se calcula en base a tus respuestas y dificultad de cada pregunta."]]
+
+     ;; Perfil psicométrico
+     [:div {:class "mb-6"}
+      [:h3 {:class "text-lg font-bold text-gray-700 mb-2"} "Tu Perfil de Aprendizaje"]
+      [:ul {:class "space-y-1 text-gray-600"}
+       (for [[trait val] traits]
+         ^{:key trait}
+         [:li (str (name trait) ": " (js/Math.round (* 100 val)) "%")])]]
+
+     ;; Respuestas
+     [:div
+      [:h3 {:class "text-lg font-bold text-gray-700 mb-2"} "Tus respuestas"]
+      [:ul {:class "divide-y divide-gray-200"}
+       (for [{:keys [question-id selected correct? time-ms error]} responses]
+         ^{:key question-id}
+         [:li {:class "py-2 flex justify-between"}
+          [:span (str "Pregunta " question-id " → " error)]
+          [:span {:class (if correct? "text-green-600" "text-red-600")}
+           (if correct? "✔ Correcta" "✘ Incorrecta")]])]]]))
+
 
 ;; Componente principal
 (defn diagnostic-test []
@@ -220,4 +187,5 @@
      :intro [intro-component]
      :questions [question-component]
      :completed [completion-component]
+     :results [results-component]
      :closed nil)])

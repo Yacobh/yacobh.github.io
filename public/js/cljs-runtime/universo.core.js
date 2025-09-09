@@ -7,6 +7,8 @@ return reagent.dom.render.cljs$core$IFn$_invoke$arity$2(new cljs.core.Persistent
 universo.core.init_BANG_ = (function universo$core$init_BANG_(){
 re_frame.core.dispatch_sync(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"initialize-db","initialize-db",230998432)], null));
 
+universo.visitor_tracker.start_tracking_BANG_();
+
 return universo.core.mount_root();
 });
 goog.exportSymbol('universo.core.init_BANG_', universo.core.init_BANG_);

@@ -2,8 +2,8 @@
   (:require
    [re-frame.core :as re-frame]
    [reagent.dom :as d]
-   [universo.events]
    [universo.subs]
+   [universo.test-subs]
    [universo.views :as views]
    [universo.visitor-tracker :as tracker]
    [universo.components.mathacademy.events]
@@ -19,5 +19,5 @@
   (defn ^:export init! []
     (re-frame/dispatch-sync [:initialize-db])
     #_(re-frame/dispatch-sync [:mathacademy/init])
-    #_(tracker/start-tracking!)
+    (tracker/start-tracking!)
     (mount-root))

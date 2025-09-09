@@ -39,10 +39,35 @@
        {:on-click #(re-frame/dispatch [:set-section :login])} ; Cambia a la sección de login
        "Mi Dashboard"]]]]])
 
-(defn practica-paes []
+(defn presentacion []
   [:section.bg-gray-100.py-20
    [:div.container.mx-auto.px-4.text-center
-    [:h2.text-5xl.font-bold.mb-4 "Practica la PAES"]
+    [:h2.text-3xl.font-bold.mb-4 "Hola soy el profesor Jacobo Córdova"]
+    [:p.text-xl.text-gray-600 "Bienvenido a mi portal Web "]
+    [:p.text-xl.text-gray-600 "Ofrezco cursos de matemática, adaptados a perfiles de estudiantes"]
+    [:p.text-xl.text-gray-600 "Te invito a que realices el test interactivo, que podrá perfilar cuál es tu nivel matemático, indicándote cuáles son los temas que necesitas
+                               abordar. Se identifican rápidamente tus puntos débiles y ¡se te entrega un resultado diagnóstico personalizado totalmente gratis!"]
+    [:p.text-xl.text-gray-600 "Actualmente cuento con un test de Álgebra, dentro del temario de la PAES"]
+    #_[:p.text-xl.text-gray-600 "Para entregarte el resultado del test necesitaré que me dejes un correo electrónico"]
+
+    ;; Aquí está el input funcional
+    #_[:input.border.rounded-lg.p-2.w-full
+     {:type "email"
+      :placeholder "Tu correo electrónico"
+      :required true
+      :value @(re-frame/subscribe [:visitor-email])
+      :on-change #(re-frame/dispatch [:set-visitor-email (.. % -target -value)])}]
+
+    ;; Botón para iniciar test
+    [:button.mt-8.bg-blue-600.text-white.px-8.py-3.rounded-lg.hover:bg-blue-700
+     {:on-click #(re-frame/dispatch [:set-section :diagnostic-test])}
+     "Comenzar test"]]])
+
+
+#_(defn practica-paes []
+  [:section.bg-gray-100.py-20
+   [:div.container.mx-auto.px-4.text-center
+    [:h2.text-5xl.font-bold.mb-4 "Practica la PAES ooo"]
     [:p.text-xl.text-gray-600 "Con el test interactivo, se identifican rapidamente cuales son tus puntos debiles, y !se te entrega un resultado diagnostico personalizado totalmente gratis!"]
     [:button.mt-8.bg-blue-600.text-white.px-8.py-3.rounded-lg.hover:bg-blue-700
 
@@ -50,7 +75,7 @@
       :on-click #(re-frame/dispatch [:set-section :diagnostic-test])} ; Cambia a la sección de test diagnóstico
      "Comenzar test"]]])
 
-(defn guestbook-section []
+#_(defn guestbook-section []
   [:section.bg-gray-100.py-16
    [:div.container.mx-auto.px-4
 
@@ -90,19 +115,19 @@
         [:svg.w-5.h-5.mr-2 {:fill "none" :stroke "currentColor" :viewBox "0 0 24 24"}
          [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
                  :d "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"}]]
-        "contacto@academiaintegral.com"]
+        "jacobocordova@gmail.com"]
        [:li.flex.items-center
         [:svg.w-5.h-5.mr-2 {:fill "none" :stroke "currentColor" :viewBox "0 0 24 24"}
          [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
                  :d "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"}]]
-        "+52 123 456 7890"]
+        "+56 9 28789476"]
        [:li.flex.items-start
         [:svg.w-5.h-5.mr-2.mt-1 {:fill "none" :stroke "currentColor" :viewBox "0 0 24 24"}
          [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
                  :d "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"}]
          [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
                  :d "M15 11a3 3 0 11-6 0 3 3 0 016 0z"}]]
-        "Ciudad de México, México"]]]]]
+        "Iquique, Chile"]]]]]
 
    ;; Barra inferior
    [:div.border-t.border-gray-700
@@ -116,7 +141,7 @@
         _ (js/console.log "Current section:" current-section)]  ;; Para depuración
 
     (case current-section
-      :main [practica-paes]
+      :main [presentacion] #_[practica-paes]
       :login [login/login-form]
       :diagnostic-test [diagnostic-test/diagnostic-test]
       [:div "Sección no encontrada (404)"])))

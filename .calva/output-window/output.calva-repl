@@ -1,39 +1,424 @@
-; This is the Calva REPL Window.
-; It's just a file, really, with some special treatment from Calva.
-; Use it as a REPL input prompt if you like. (When the REPL is connected.)
-; TIPS: The keyboard shortcut `ctrl+alt+o r` shows and focuses this window
-; Please see https://calva.io/repl-window/ for more info.
-; Happy coding! ♥️
+(range 5)
+#object [Function]
+cljs꞉universo.home꞉> 
+(0 1 2 3 4)
+cljs꞉universo.home꞉> 
+range
+#object [cljs$core$range]
+cljs꞉universo.home꞉> 
+(rand-int 3)
 
-; TIPS: As with any Clojure file when the REPL is connected:
-; - `alt+enter` evaluates the current top level form.
-; - `ctrl+enter` evaluates the current form.
-; Special for this file:
-; - `alt+up` and `alt+down` traverse up and down the REPL command history
-;    when the cursor is after the last contents at the prompt
+0.3296106050679748
+cljs꞉universo.home꞉> 
+0
+cljs꞉universo.home꞉> 
+{:favorite-color (nth ["green" "red" "blue"] (rand-int 3))
+ :height (+ (rand-int 13) 60)
+ :id (random-uuid)}
+{:favorite-color "red", :height 70, :id #uuid "65d43a76-7398-4626-a829-4447441e42e6"}
+cljs꞉universo.home꞉> 
+{:favorite-color "blue", :height 70, :id #uuid "8ee8fec5-d9cf-4731-b811-bd4f1b7e1bc1"}
+cljs꞉universo.home꞉> 
+{:favorite-color "green", :height 67, :id #uuid "7467d122-f77c-4ae0-8fcf-b38263692839"}
+cljs꞉universo.home꞉> 
+(repeatedly (fn [_] {:favorite-color (nth ["green" "red" "blue"] (rand-int 3))
+                     :height (+ (rand-int 13) 60)
+                     :id (random-uuid)}))
+:repl/print-error!
 ;
-; See also the Calva Inspector: https://calva.io/inspector/
+; The result object failed to print. It is available via *1 if you want to interact with it.
+;
+; The exception was:
+;
+; Error: Invalid arity: 0
+cljs꞉universo.home꞉> 
+:repl/print-error!
+;
+; The result object failed to print. It is available via *1 if you want to interact with it.
+;
+; The exception was:
+;
+; Error: Invalid arity: 0
+cljs꞉universo.home꞉> 
+({:favorite-color "red", :height 66, :id #uuid "39d7a2fe-85e4-4d19-a15d-ae9408410070"} {:favorite-color "blue", :height 62, :id #uuid "b69fc05d-9ee6-4725-b195-0fb3960f7bab"})
+cljs꞉universo.home꞉> 
 
-PLEASE NOTE
-We will update the default location of this file.
-The new default location will be
-  "<projectRootPath>/.calva/repl.calva-repl"
-For now the legacy path is used by default.
-To give yourself a smooth transition, you can opt in
-to the change, by configuring this setting as false:
-  "calva.useLegacyReplWindowPath"
-and then add "**/.calva/repl.calva-repl" to your ".gitignore" file.
+
+(def inf-fake-user (repeatedly (fn [_] {:favorite-color (nth ["green" "red" "blue"] (rand-int 3))
+                       :height (+ (rand-int 13) 60)
+                       :id (random-uuid)})))
+:repl/print-error!
+;
+; The result object failed to print. It is available via *1 if you want to interact with it.
+;
+; The exception was:
+;
+; #error {:message "The limit of 1048576 bytes was reached while printing.", :data {:tag :shadow.remote.runtime.writer/limit-reached, :limit 1048576}}
+cljs꞉universo.home꞉> 
+({:favorite-color "red", :height 63, :id #uuid "825af90c-f370-43bc-a412-59f53206afa2"} {:favorite-color "green", :height 65, :id #uuid "3b533a7b-5231-4ed4-9215-2b11b800bb8e"} {:favorite-color "blue", :height 64, :id #uuid "7e32a158-c898-4ca1-af81-d2cce3b0823c"} {:favorite-color "blue", :height 64, :id #uuid "9f7b4e16-4a0c-49fc-af9b-cbf2cf237601"} {:favorite-color "red", :height 62, :id #uuid "56763513-de5e-4a30-84f1-6b855db0bdf9"})
+cljs꞉universo.home꞉> 
+#'universo.home/inf-fake-user
+cljs꞉universo.home꞉> 
+(take 5 inf-fake-user)
+({:favorite-color "green", :height 60, :id #uuid "88f54a0c-7116-4554-a43f-a0ebea84f6d4"}
+ {:favorite-color "green", :height 62, :id #uuid "785f14fd-8eb2-44fb-abed-12c93a339549"}
+ {:favorite-color "blue", :height 64, :id #uuid "2e0cf54c-b377-4c0c-9223-0e5ac630f491"}
+ {:favorite-color "red", :height 66, :id #uuid "2ef08cd6-0013-4562-8e13-c8a4568594e1"}
+ {:favorite-color "red", :height 65, :id #uuid "efff24d5-9031-44a9-aaf2-e94c195c0b9d"})
+cljs꞉universo.home꞉> 
+(map #(assoc % :height (* 2.54 (:height %))) (take 20 inf-fake-user))
+({:favorite-color "green", :height 152.4, :id #uuid "88f54a0c-7116-4554-a43f-a0ebea84f6d4"}
+ {:favorite-color "green", :height 157.48, :id #uuid "785f14fd-8eb2-44fb-abed-12c93a339549"}
+ {:favorite-color "blue", :height 162.56, :id #uuid "2e0cf54c-b377-4c0c-9223-0e5ac630f491"}
+ {:favorite-color "red", :height 167.64000000000001, :id #uuid "2ef08cd6-0013-4562-8e13-c8a4568594e1"}
+ {:favorite-color "red", :height 165.1, :id #uuid "efff24d5-9031-44a9-aaf2-e94c195c0b9d"}
+ {:favorite-color "blue", :height 167.64000000000001, :id #uuid "30ab3d85-f1de-4a99-b480-8f2ac38f90d2"}
+ {:favorite-color "red", :height 165.1, :id #uuid "f968a6a4-8ab4-4ad0-a6c6-9f9b35b4b8b8"}
+ {:favorite-color "red", :height 152.4, :id #uuid "12a58e8b-5542-4d80-9f79-38291cf4321e"}
+ {:favorite-color "red", :height 157.48, :id #uuid "0fbb7bd8-8e2b-43fb-b75f-3e85d16415b8"}
+ {:favorite-color "green", :height 160.02, :id #uuid "d6080793-920a-4c62-8d8a-7beed1223780"}
+ {:favorite-color "green", :height 177.8, :id #uuid "4025150c-d257-4cf0-8057-203863357384"} {:favorite-color "green", :height 157.48, :id #uuid "56747f02-44fe-43e4-9b71-b1bdf84e8237"} {:favorite-color "blue", :height 154.94, :id #uuid "6ad021ab-45ef-4d6b-90ea-d6591d07a60c"} {:favorite-color "blue", :height 180.34, :id #uuid "065097be-00a3-4a37-9286-09e646f7b9b3"} {:favorite-color "red", :height 175.26, :id #uuid "61595eb3-0b25-45be-90e1-e67c0b17908a"} {:favorite-color "green", :height 154.94, :id #uuid "6e71015a-cc87-495b-9a4a-4b15c96a4cfe"} {:favorite-color "green", :height 172.72, :id #uuid "d83fd5a8-440e-4567-a39d-50280f6a4ffc"} {:favorite-color "green", :height 170.18, :id #uuid "35aab786-7804-48bb-a157-0cb08bf630f6"} {:favorite-color "green", :height 182.88, :id #uuid "9adac243-fee2-4d21-9d71-c49e66879a03"} {:favorite-color "red", :height 165.1, :id #uuid "b2d0882f-7086-417b-bed7-a90b9e051030"})
 
 
-This file is configured as the output destination for all REPL output.
-You can configure this with the setting:
-  "calva.outputDestinations"
+(defn my-avg [n]
+
+  (loop [acc-b 0
+         ;acc-r 0
+         ;acc-g 0
+         counter n
+         list (take n inf-fake-user)]
+    (if (= 0 counter)
+      (println "avg-b" (/ avg-b n))
+      (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )))))
+(defn my-avg [n]
+
+  (loop [acc-b 0
+         ;acc-r 0
+         ;acc-g 0
+         counter n
+         list (inf-fake-user n)]
+    (if (= 0 counter)
+      (println "avg-b" (/ avg-b n))
+      (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )
+             (dec counter)
+             (rest list)))))
+nil
+;
+; ------ REPL Error while processing ---------------------------------------------
+; (defn my-avg [n]
+;
+;   (loop [acc-b 0
+;          ;acc-r 0
+;          ;acc-g 0
+;          counter n
+;          list (inf-fake-user n)]
+;     (if (= 0 counter)
+;       (println "avg-b" (/ avg-b n))
+;       (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )))))
+; null
+; recur argument count mismatch, expected: 3 args, got: 1 at line 10 universo/home.cljs
+cljs꞉universo.home꞉> 
+(defn my-avg [n]
+
+  (loop [acc-b 0
+         ;acc-r 0
+         ;acc-g 0
+         counter n
+         list (inf-fake-user n)]
+    (if (= 0 counter)
+      (println "avg-b" (/ acc-b n))
+      (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )
+             (dec counter)
+             (rest list)))))
+nil
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:9:27
+;  Use of undeclared Var universo.home/avg-b
+; --------------------------------------------------------------------------------
+;
+cljs꞉universo.home꞉> 
+(defn my-avg [n]
+
+  (loop [acc-b 0
+         ;acc-r 0
+         ;acc-g 0
+         counter n
+         list (inf-fake-user n)]
+    (if (= 0 counter)
+      (println "avg-b" (/ acc-b n))
+      (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )
+             (dec counter)
+             (rest list)))))
+#'universo.home/my-avg
+cljs꞉universo.home꞉> 
+
+#'universo.home/my-avg
+cljs꞉universo.home꞉> 
+(my-avg 3)
+:repl/exception!
+;
+;
+; Execution error (TypeError) at (<cljs repl>:1).
+; universo.home.inf_fake_user.call is not a function
+cljs꞉universo.home꞉> 
+(defn my-avg [n]
+
+  (loop [acc-b 0
+         ;acc-r 0
+         ;acc-g 0
+         counter n
+         list (take n inf-fake-user)]
+    (if (= 0 counter)
+      (println "avg-b" (/ avg-b n))
+      (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )))))
+nil
+;
+; ------ REPL Error while processing ---------------------------------------------
+; (defn my-avg [n]
+;
+;   (loop [acc-b 0
+;          ;acc-r 0
+;          ;acc-g 0
+;          counter n
+;          list (take n inf-fake-user)]
+;     (if (= 0 counter)
+;       (println "avg-b" (/ avg-b n))
+;       (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )))))
+; null
+; recur argument count mismatch, expected: 3 args, got: 1 at line 10 universo/home.cljs
+cljs꞉universo.home꞉> 
 
 
+(defn my-avg [n]
+  (loop [acc-b 0
+         ;acc-r 0
+         ;acc-g 0
+         counter n
+         list (take n inf-fake-user)]
+    (if (= 0 counter)
+      (println "avg-b" (/ acc-b n))
+      (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )
+             (dec counter)
+             (rest list)))))
+(defn my-avg [n]
+  (loop [acc-b 0
+         acc-r 0
+         acc-g 0
+         counter n
+         list (take n inf-fake-user)]
+    (if (= 0 counter)
+      (println "avg-b" (/ acc-b n))
+      (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )
+             (if (= "red" (:favorite-color (first list))) (+ acc-r (:height (first list)) ) acc-r )
+             (if (= "green" (:favorite-color (first list))) (+ acc-g (:height (first list)) ) acc-g )
+             (dec counter)
+             (rest list)))))
+#'universo.home/my-avg
+cljs꞉universo.home꞉> 
+(my-avg 5)
+(my-avg 5)
+; avg-b 12.8
+nil
+cljs꞉universo.home꞉> 
+(defn my-avg [n]
+  (loop [acc-b 0
+         acc-r 0
+         acc-g 0
+         counter n
+         list (take n inf-fake-user)]
+    (if (= 0 counter)
+      (println "avg-b: " (/ acc-b n) " avg-g: " (/ acc-g n) " avg-r: " (/ acc-r n))
+      (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )
+             (if (= "red" (:favorite-color (first list))) (+ acc-r (:height (first list)) ) acc-r )
+             (if (= "green" (:favorite-color (first list))) (+ acc-g (:height (first list)) ) acc-g )
+             (dec counter)
+             (rest list)))))
+#'universo.home/my-avg
+cljs꞉universo.home꞉> 
+(my-avg 100)
+(my-avg 100)
+; avg-b 18.38
+nil
+cljs꞉universo.home꞉> 
+(defn my-avg [n]
+  (loop [acc-b 0
+         acc-r 0
+         acc-g 0
+         counter n
+         list (take n inf-fake-user)]
+    (if (= 0 counter)
+      (println "avg-b: " (/ acc-b n) " avg-g: " (/ acc-g n) " avg-r: " (/ acc-r n) " and n = " n)
+      (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )
+             (if (= "red" (:favorite-color (first list))) (+ acc-r (:height (first list)) ) acc-r )
+             (if (= "green" (:favorite-color (first list))) (+ acc-g (:height (first list)) ) acc-g )
+             (dec counter)
+             (rest list)))))
+#'universo.home/my-avg
+cljs꞉universo.home꞉> 
+(my-avg 1)
+(my-avg 100)
+; avg-b:  18.38  avg-g:  24.17  avg-r:  22.57
+nil
+cljs꞉universo.home꞉> 
+(/ 1 2 )
+(/ 1 2 )
+0.5
+cljs꞉universo.home꞉> 
+(my-avg 3)
+; avg-b:  0  avg-g:  60  avg-r:  0
+nil
+cljs꞉universo.home꞉> 
+(my-avg 3)
+; avg-b:  21.333333333333332  avg-g:  40.666666666666664  avg-r:  0
+nil
+cljs꞉universo.home꞉> 
+(defn my-avg [n]
+  (loop [acc-b 0
+         counter-b 0
+         acc-r 0
+         counter-r 0
+         acc-g 0
+         counter-g 0
+         counter n
+         list (take n inf-fake-user)]
+    (if (= 0 counter)
+      (println "avg-b: " (/ acc-b n) " avg-g: " (/ acc-g n) " avg-r: " (/ acc-r n) " and n = " n)
+      (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )
+             (if (= "blue" (:favorite-color (first list))) (inc counter-b) counter-b)
+             (if (= "red" (:favorite-color (first list))) (+ acc-r (:height (first list)) ) acc-r )
+             (if (= "red" (:favorite-color (first list))) (inc counter-r) counter-r)
+             (if (= "green" (:favorite-color (first list))) (+ acc-g (:height (first list)) ) acc-g )
+             (dec counter)
+             (rest list)))))
+#'universo.home/my-avg
+cljs꞉universo.home꞉> 
+(my-avg 3)
+; avg-b:  21.333333333333332  avg-g:  40.666666666666664  avg-r:  0  and n =  3
+nil
+cljs꞉universo.home꞉> 
+(defn my-avg [n]
+  (loop [acc-b 0
+         counter-b 0
+         acc-r 0
+         counter-r 0
+         acc-g 0
+         counter-g 0
+         counter n
+         list (take n inf-fake-user)]
+    (if (= 0 counter)
+      (println "avg-b: " (/ acc-b counter-b) " avg-g: " (/ acc-g counter-g) " avg-r: " (/ acc-r counter-r) " and n = " n)
+      (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )
+             (if (= "blue" (:favorite-color (first list))) (inc counter-b) counter-b)
+             (if (= "red" (:favorite-color (first list))) (+ acc-r (:height (first list)) ) acc-r )
+             (if (= "red" (:favorite-color (first list))) (inc counter-r) counter-r)
+             (if (= "green" (:favorite-color (first list))) (+ acc-g (:height (first list)) ) acc-g )
+             (if (= "green" (:favorite-color (first list))) (inc counter-g) counter-g)
+             (dec counter)
+             (rest list)))))
+nil
+;
+; ------ REPL Error while processing ---------------------------------------------
+; (defn my-avg [n]
+;   (loop [acc-b 0
+;          counter-b 0
+;          acc-r 0
+;          counter-r 0
+;          acc-g 0
+;          counter-g 0
+;          counter n
+;          list (take n inf-fake-user)]
+;     (if (= 0 counter)
+;       (println "avg-b: " (/ acc-b n) " avg-g: " (/ acc-g n) " avg-r: " (/ acc-r n) " and n = " n)
+;       (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )
+;              (if (= "blue" (:favorite-color (first list))) (inc counter-b) counter-b)
+;              (if (= "red" (:favorite-color (first list))) (+ acc-r (:height (first list)) ) acc-r )
+;              (if (= "red" (:favorite-color (first list))) (inc counter-r) counter-r)
+;              (if (= "green" (:favorite-color (first list))) (+ acc-g (:height (first list)) ) acc-g )
+;              (dec counter)
+;              (rest list)))))
+; null
+; recur argument count mismatch, expected: 8 args, got: 7 at line 12 universo/home.cljs
+cljs꞉universo.home꞉> 
+(defn my-avg [n]
+  (loop [acc-b 0
+         counter-b 0
+         acc-r 0
+         counter-r 0
+         acc-g 0
+         counter-g 0
+         counter n
+         list (take n inf-fake-user)]
+    (if (= 0 counter)
+      (println "avg-b: " (/ acc-b counter-b) " avg-g: " (/ acc-g counter-g) " avg-r: " (/ acc-r counter-r) " and n = " n)
+      (recur (if (= "blue" (:favorite-color (first list))) (+ acc-b (:height (first list)) ) acc-b )
+             (if (= "blue" (:favorite-color (first list))) (inc counter-b) counter-b)
+             (if (= "red" (:favorite-color (first list))) (+ acc-r (:height (first list)) ) acc-r )
+             (if (= "red" (:favorite-color (first list))) (inc counter-r) counter-r)
+             (if (= "green" (:favorite-color (first list))) (+ acc-g (:height (first list)) ) acc-g )
+             (if (= "green" (:favorite-color (first list))) (inc counter-g) counter-g)
+             (dec counter)
+             (rest list)))))
+#'universo.home/my-avg
+cljs꞉universo.home꞉> 
+(my-avg 3)
+(my-avg 3)
+; avg-b:  64  avg-g:  61  avg-r:  ##NaN  and n =  3
+nil
+cljs꞉universo.home꞉> 
+(my-avg 100)
+(my-avg 100)
+; avg-b:  65.64285714285714  avg-g:  65.32432432432432  avg-r:  64.48571428571428  and n =  100
+nil
+cljs꞉universo.home꞉> 
 ; Connecting using "deps.edn + shadow-cljs" project type.
 ; You can make Calva auto-select this.
 ;   - See https://calva.io/connect-sequences/
 ;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Bad url: 49335
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
+(when-let [requires (resolve 'clojure.main/repl-requires)] (clojure.core/apply clojure.core/require @requires))
+nil
+clj꞉shadow.user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: deps.edn + shadow-cljs...
+; Starting cljs repl for: deps.edn + shadow-cljs...
+; Cljs builds started
+; Connected session: cljs, repl: :app
+; TIPS: You can choose which REPL to use (clj or cljs):
+;    *Calva: Toggle REPL connection*
+;    (There is a button in the status bar for this)
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
+(require '[cljs.repl :refer [apropos dir doc find-doc print-doc pst source]])
+nil
+"Please see https://calva.io/output/#about-stdout-in-the-repl-window
+about why stdout printed to this file is prepended with `;` to be line comments."
+cljs꞉user꞉> 
+(+ 2 3); Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
 ; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
 ; No nrepl port file found.
 ; Hooking up nREPL sessions ...
@@ -57,59 +442,608 @@ cljs꞉user꞉> 
 (+ 3 2)
 5
 cljs꞉user꞉> 
+; Evaluating file: diagnostic_test.cljs
+#'universo.components.diagnostic-test/diagnostic-test
+cljs꞉universo.components.diagnostic-test꞉> 
+(println (get-questions))
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.components.diagnostic-test꞉> 
+; #object[cljs.core.async.impl.channels.ManyToManyChannel]
+nil
+cljs꞉universo.components.diagnostic-test꞉> 
+@(re-frame/subscribe :questions)
+:repl/exception!
+;
+;
+; Execution error (Error) at (<cljs repl>:1).
+; No protocol method IDeref.-deref defined for type undefined:
+cljs꞉universo.components.diagnostic-test꞉> 
+({:id :coeffects, :before #object [re_frame$cofx$coeffects_before], :after nil} {:id :do-fx, :before nil, :after #object [re_frame$fx$do_fx_after]} {:id :inject-global-interceptors, :before #object [re_frame$std_interceptors$inject_global_interceptors_before], :after nil} {:id :db-handler, :before #object [re_frame$std_interceptors$db_handler__GT_interceptor_$_db_handler_before], :after nil})
+cljs꞉universo.subs꞉> 
+:repl/exception!
+;
+;
+; Execution error (Error) at (<cljs repl>:1).
+; No protocol method IDeref.-deref defined for type undefined:
+cljs꞉universo.subs꞉> 
+nil
+cljs꞉universo.subs꞉> 
+(re-frame )
+:repl/exception!
+;
+;
+; Execution error (Error) at (<cljs repl>:1).
+; No protocol method IDeref.-deref defined for type undefined:
+cljs꞉universo.subs꞉> 
 ; Evaluating file: subs.cljs
-#object [re_frame$subs$subs_handler_fn]
+({:id :coeffects, :before #object [re_frame$cofx$coeffects_before], :after nil} {:id :do-fx, :before nil, :after #object [re_frame$fx$do_fx_after]} {:id :inject-global-interceptors, :before #object [re_frame$std_interceptors$inject_global_interceptors_before], :after nil} {:id :db-handler, :before #object [re_frame$std_interceptors$db_handler__GT_interceptor_$_db_handler_before], :after nil})
 cljs꞉universo.subs꞉> 
-#object [re_frame$subs$subs_handler_fn]
+db
+nil
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:1
+;  Use of undeclared Var universo.subs/db
+; --------------------------------------------------------------------------------
+;
 cljs꞉universo.subs꞉> 
-; Evaluating file: views.cljs
-#'universo.views/main-panel
-cljs꞉universo.views꞉> 
-#'universo.views/main-panel
-cljs꞉universo.views꞉> 
-@(re-frame/subscribe [:current-section]
-[:current-section]
-cljs꞉universo.views꞉> 
-; Evaluating file: core.cljs
+@(re-frame/subscribe :db)
+:repl/exception!
+;
+;
+; Execution error (Error) at (<cljs repl>:1).
+; No protocol method IDeref.-deref defined for type undefined:
+cljs꞉universo.subs꞉> 
+db
 nil
-cljs꞉universo.core꞉> 
-@(re-frame/subscribe [:current-page]
-[:current-page]
-cljs꞉universo.core꞉> 
-@(re-frame/subscribe [:current-page])
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:1
+;  Use of undeclared Var universo.subs/db
+; --------------------------------------------------------------------------------
+;
+cljs꞉universo.subs꞉> 
+:repl/exception!
+;
+;
+; Execution error (Error) at (<cljs repl>:1).
+; No protocol method IDeref.-deref defined for type undefined:
+cljs꞉universo.subs꞉> 
+:repl/exception!
+;
+;
+; Execution error (Error) at (<cljs repl>:1).
+; No protocol method IDeref.-deref defined for type undefined:
+cljs꞉universo.subs꞉> 
+; Evaluating file: diagnostic_test.cljs
+#'universo.components.diagnostic-test/diagnostic-test
+cljs꞉universo.components.diagnostic-test꞉> 
+questions
 nil
-cljs꞉universo.core꞉> 
-(re-frame/dispatch-sync [:set-page :math])
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:1
+;  Use of undeclared Var universo.components.diagnostic-test/questions
+; --------------------------------------------------------------------------------
+;
+cljs꞉universo.components.diagnostic-test꞉> 
+@(re-frame/subscribe [:questions])
+[{:error_d "Factorización incorrecta con negativos", :option_d "x = -1 o x = -6", :option_a "x = 2 o x = 3", :difficulty 50, :question "Resuelve la ecuación cuadrática: x^2 - 5x + 6 = 0", :topic "Ecuaciones cuadráticas", :error_b "Error de signo en raíces negativas", :order_index 1, :option_b "x = -2 o x = -3", :id 12, :option_c "x = 1 o x = 6", :error_c "Confusión de valores extremos", :error_a "Confusión al factorizar (x-2)(x-3)", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}
+ {:error_d "Confundir términos", :option_d "3x^2", :option_a "5x", :difficulty 1, :question "Simplifica: 3x + 2x", :topic "Expresiones algebraicas", :error_b "Confusión con multiplicación", :order_index 1, :option_b "6x", :id 13, :option_c "x^2", :error_c "Confundir con potencia", :error_a "Error al sumar coeficientes", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}
+ {:error_d "Invertir término mal", :option_d "x = -19", :option_a "x = 5", :difficulty 2, :question "Resuelve: x + 7 = 12", :topic "Ecuaciones lineales", :error_b "Confusión con signos", :order_index 2, :option_b "x = -5", :id 14, :option_c "x = 19", :error_c "Sumar en lugar de restar", :error_a "Olvidar restar 7", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}
+ {:error_d "Error de proporción", :option_d "x = 80", :option_a "x = 5", :difficulty 3, :question "Resuelve: 4x = 20", :topic "Ecuaciones lineales", :error_b "Olvidar dividir", :order_index 3, :option_b "x = 4", :id 15, :option_c "x = 24", :error_c "Multiplicar en vez de dividir", :error_a "División incorrecta", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}
+ {:error_d "Decir que no factoriza", :option_d "No se puede factorizar", :option_a "(x+2)(x+3)", :difficulty 4, :question "Factoriza: x^2 + 5x + 6", :topic "Polinomios", :error_b "Factorización al revés", :order_index 4, :option_b "(x-2)(x-3)", :id 16, :option_c "(x+6)(x-1)", :error_c "Raíces intercambiadas", :error_a "Confusión de signos", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}
+ {:error_d "Invertir término incorrecto", :option_d "x = -2", :option_a "x = 5", :difficulty 5, :question "Resuelve: 2x - 3 = 7", :topic "Ecuaciones lineales", :error_b "Mover signo opuesto mal", :order_index 5, :option_b "x = 2", :id 17, :option_c "x = -5", :error_c "Confundir suma/resta", :error_a "Correcto error de despeje", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}
+ ]
+cljs꞉universo.components.diagnostic-test꞉> 
+(:current-question @test-state)
+0
+cljs꞉universo.components.diagnostic-test꞉> 
+; nREPL Connection was closed
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
 nil
-cljs꞉universo.core꞉> 
-(re-frame/dispatch-sync [:set-section :math])
+clj꞉shadow.user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: deps.edn + shadow-cljs...
+; Starting cljs repl for: deps.edn + shadow-cljs...
+; Cljs builds started
+; Error while connecting cljs REPL: Error: User cancelled waiting for shadow-cljs runtimes.
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Bad url: 54913
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Bad url: localhost:
+; nREPL Connection was closed
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
 nil
-cljs꞉universo.core꞉> 
+clj꞉shadow.user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: deps.edn + shadow-cljs...
+; Starting cljs repl for: deps.edn + shadow-cljs...
+; Cljs builds started
+; Connected session: cljs, repl: :app
+; TIPS: You can choose which REPL to use (clj or cljs):
+;    *Calva: Toggle REPL connection*
+;    (There is a button in the status bar for this)
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
 nil
-cljs꞉universo.core꞉> 
-@(re-frame/subscribe [:current-page])
+cljs꞉user꞉> 
+; Evaluating file: diagnostic_test.cljs
+#'universo.components.diagnostic-test/diagnostic-test
+cljs꞉universo.components.diagnostic-test꞉> 
+@(re-frame/subscribe [:current-question])
 nil
-cljs꞉universo.core꞉> 
-@(re-frame/subscribe [:current-section])
-:math
-cljs꞉universo.core꞉> 
+cljs꞉universo.components.diagnostic-test꞉> 
+@(re-frame/subscribe [:start-time])
+:repl/print-error!
+;
+; The result object failed to print. It is available via *1 if you want to interact with it.
+;
+; The exception was:
+;
+; Error: [object Object] is not ISeqable
+cljs꞉universo.components.diagnostic-test꞉> 
+*1
+:repl/print-error!
+;
+; The result object failed to print. It is available via *1 if you want to interact with it.
+;
+; The exception was:
+;
+; Error: [object Object] is not ISeqable
+cljs꞉universo.components.diagnostic-test꞉> 
+:in-progress
+cljs꞉universo.components.diagnostic-test꞉> 
+[]
+cljs꞉universo.components.diagnostic-test꞉> 
+1757394932436
+cljs꞉universo.components.diagnostic-test꞉> 
+:repl/exception!
+;
+;
+; Execution error (Error) at (<cljs repl>:1).
+; [object Object] is not ISeqable
+cljs꞉universo.components.diagnostic-test꞉> 
+; nREPL Connection was closed
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
 nil
-cljs꞉universo.core꞉> 
-@(re-frame/subscribe [:current-page])
-(re-frame/dispatch-sync [:initialize-db])
+clj꞉shadow.user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: deps.edn + shadow-cljs...
+; Starting cljs repl for: deps.edn + shadow-cljs...
+; Cljs builds started
+; Connected session: cljs, repl: :app
+; TIPS: You can choose which REPL to use (clj or cljs):
+;    *Calva: Toggle REPL connection*
+;    (There is a button in the status bar for this)
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
 nil
-cljs꞉universo.core꞉> 
-@(re-frame/subscribe [:current-page])
-:home
-cljs꞉universo.core꞉> 
-(re-frame/dispatch-sync [:set-page :math])
+cljs꞉user꞉> 
+; Evaluating file: diagnostic_test.cljs
+#'universo.components.diagnostic-test/diagnostic-test
+cljs꞉universo.components.diagnostic-test꞉> 
+@(re-frame/subscribe [:test])
+0
+cljs꞉universo.components.diagnostic-test꞉> 
+(nth [ 1 2 3] 0)
+1
+cljs꞉universo.components.diagnostic-test꞉> 
+()
+{:email "", :questions
+ [{:error_d "Factorización incorrecta con negativos", :option_d "x = -1 o x = -6", :option_a "x = 2 o x = 3", :difficulty 50, :question "Resuelve la ecuación cuadrática: x^2 - 5x + 6 = 0", :topic "Ecuaciones cuadráticas", :error_b "Error de signo en raíces negativas", :order_index 1, :option_b "x = -2 o x = -3", :id 12, :option_c "x = 1 o x = 6", :error_c "Confusión de valores extremos", :error_a "Confusión al factorizar (x-2)(x-3)", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Confundir términos", :option_d "3x^2", :option_a "5x", :difficulty 1, :question "Simplifica: 3x + 2x", :topic "Expresiones algebraicas", :error_b "Confusión con multiplicación", :order_index 1, :option_b "6x", :id 13, :option_c "x^2", :error_c "Confundir con potencia", :error_a "Error al sumar coeficientes", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Invertir término mal", :option_d "x = -19", :option_a "x = 5", :difficulty 2, :question "Resuelve: x + 7 = 12", :topic "Ecuaciones lineales", :error_b "Confusión con signos", :order_index 2, :option_b "x = -5", :id 14, :option_c "x = 19", :error_c "Sumar en lugar de restar", :error_a "Olvidar restar 7", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Error de proporción", :option_d "x = 80", :option_a "x = 5", :difficulty 3, :question "Resuelve: 4x = 20", :topic "Ecuaciones lineales", :error_b "Olvidar dividir", :order_index 3, :option_b "x = 4", :id 15, :option_c "x = 24", :error_c "Multiplicar en vez de dividir", :error_a "División incorrecta", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Decir que no factoriza", :option_d "No se puede factorizar", :option_a "(x+2)(x+3)", :difficulty 4, :question "Factoriza: x^2 + 5x + 6", :topic "Polinomios", :error_b "Factorización al revés", :order_index 4, :option_b "(x-2)(x-3)", :id 16, :option_c "(x+6)(x-1)", :error_c "Raíces intercambiadas", :error_a "Confusión de signos", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Invertir término incorrecto", :option_d "x = -2", :option_a "x = 5", :difficulty 5, :question "Resuelve: 2x - 3 = 7", :topic "Ecuaciones lineales", :error_b "Mover signo opuesto mal", :order_index 5, :option_b "x = 2", :id 17, :option_c "x = -5", :error_c "Confundir suma/resta", :error_a "Correcto error de despeje", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}]
+ , :start-time nil, :end-time nil, :topic "algebra", :theta 0, :question-ids [], :status :not-started, :score 0,
+ :responses [{:question-id 12, :selected-option "A", :correct? true, :time-ms 0}
+             {:question-id 12, :selected-option "B", :correct? false, :time-ms 0}
+             {:question-id 12, :selected-option "A", :correct? true, :time-ms 0}
+             ], :current-question 1, :theta-history [], :traits {:logical 0, :visual 0, :verbal 0, :exploratory 0}}
+cljs꞉universo.components.diagnostic-test꞉> 
+{:email "", :questions [{:error_d "Factorización incorrecta con negativos", :option_d "x = -1 o x = -6", :option_a "x = 2 o x = 3", :difficulty 50, :question "Resuelve la ecuación cuadrática: x^2 - 5x + 6 = 0", :topic "Ecuaciones cuadráticas", :error_b "Error de signo en raíces negativas", :order_index 1, :option_b "x = -2 o x = -3", :id 12, :option_c "x = 1 o x = 6", :error_c "Confusión de valores extremos", :error_a "Confusión al factorizar (x-2)(x-3)", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Confundir términos", :option_d "3x^2", :option_a "5x", :difficulty 1, :question "Simplifica: 3x + 2x", :topic "Expresiones algebraicas", :error_b "Confusión con multiplicación", :order_index 1, :option_b "6x", :id 13, :option_c "x^2", :error_c "Confundir con potencia", :error_a "Error al sumar coeficientes", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Invertir término mal", :option_d "x = -19", :option_a "x = 5", :difficulty 2, :question "Resuelve: x + 7 = 12", :topic "Ecuaciones lineales", :error_b "Confusión con signos", :order_index 2, :option_b "x = -5", :id 14, :option_c "x = 19", :error_c "Sumar en lugar de restar", :error_a "Olvidar restar 7", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Error de proporción", :option_d "x = 80", :option_a "x = 5", :difficulty 3, :question "Resuelve: 4x = 20", :topic "Ecuaciones lineales", :error_b "Olvidar dividir", :order_index 3, :option_b "x = 4", :id 15, :option_c "x = 24", :error_c "Multiplicar en vez de dividir", :error_a "División incorrecta", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Decir que no factoriza", :option_d "No se puede factorizar", :option_a "(x+2)(x+3)", :difficulty 4, :question "Factoriza: x^2 + 5x + 6", :topic "Polinomios", :error_b "Factorización al revés", :order_index 4, :option_b "(x-2)(x-3)", :id 16, :option_c "(x+6)(x-1)", :error_c "Raíces intercambiadas", :error_a "Confusión de signos", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Invertir término incorrecto", :option_d "x = -2", :option_a "x = 5", :difficulty 5, :question "Resuelve: 2x - 3 = 7", :topic "Ecuaciones lineales", :error_b "Mover signo opuesto mal", :order_index 5, :option_b "x = 2", :id 17, :option_c "x = -5", :error_c "Confundir suma/resta", :error_a "Correcto error de despeje", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}]
+ , :start-time nil, :end-time nil, :topic "algebra", :theta 0, :question-ids [], :status :not-started, :score 0,
+ :responses [{:question-id 12, :selected-option "A", :correct? true, :time-ms 0}
+             {:question-id 12, :selected-option "B", :correct? false, :time-ms 0}
+             {:question-id 12, :selected-option "A", :correct? true, :time-ms 0}
+             {:question-id 13, :selected-option "D", :correct? false, :time-ms 0}
+             {:question-id 14, :selected-option "C", :correct? false, :time-ms 0}
+             {:question-id 15, :selected-option "B", :correct? false, :time-ms 0}
+             {:question-id 16, :selected-option "A", :correct? true, :time-ms 0}
+             {:question-id 17, :selected-option "B", :correct? false, :time-ms 0}
+             ], :current-question 6, :theta-history [], :traits {:logical 0, :visual 0, :verbal 0, :exploratory 0}}
+cljs꞉universo.components.diagnostic-test꞉> 
+(+ 1 2 3)
+6
+cljs꞉universo.components.diagnostic-test꞉> 
+@(re-frame/subscribe [:current-question-selected-option])
 nil
-cljs꞉universo.core꞉> 
-@(re-frame/subscribe [:current-page])
-@(re-frame/subscribe [:db])
-#:mathacademy{:section :main}
-cljs꞉universo.home꞉> 
+;
+; ------ WARNING - :undeclared-ns ------------------------------------------------
+;  Resource: <eval>:1:3
+;  No such namespace: re-frame, could not locate re_frame.cljs, re_frame.cljc, or JavaScript source providing "re-frame" (Please check that namespaces with dashes use underscores in the ClojureScript file name)
+; --------------------------------------------------------------------------------
+;
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:3
+;  Use of undeclared Var re-frame/subscribe
+; --------------------------------------------------------------------------------
+;
+cljs꞉universo.components.diagnostic-test꞉> 
+;
+; Timeout while waiting for result.
+cljs꞉universo.components.diagnostic-test꞉> 
 nil
-cljs꞉universo.home꞉> 
-{:current-page :home, :current-section :main}
-cljs꞉universo.home꞉> 
+;
+; ------ WARNING - :undeclared-ns ------------------------------------------------
+;  Resource: <eval>:1:3
+;  No such namespace: re-frame, could not locate re_frame.cljs, re_frame.cljc, or JavaScript source providing "re-frame" (Please check that namespaces with dashes use underscores in the ClojureScript file name)
+; --------------------------------------------------------------------------------
+;
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:3
+;  Use of undeclared Var re-frame/subscribe
+; --------------------------------------------------------------------------------
+;
+cljs꞉universo.components.diagnostic-test꞉> 
+@(re-frame/subscribe [:test])
+nil
+;
+; ------ WARNING - :undeclared-ns ------------------------------------------------
+;  Resource: <eval>:1:3
+;  No such namespace: re-frame, could not locate re_frame.cljs, re_frame.cljc, or JavaScript source providing "re-frame" (Please check that namespaces with dashes use underscores in the ClojureScript file name)
+; --------------------------------------------------------------------------------
+;
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:3
+;  Use of undeclared Var re-frame/subscribe
+; --------------------------------------------------------------------------------
+;
+cljs꞉universo.components.diagnostic-test꞉> 
+;
+; Timeout while waiting for result.
+cljs꞉universo.components.diagnostic-test꞉> 
+nil
+;
+; ------ REPL Error while processing ---------------------------------------------
+; (ns universo.components.diagnostic-test
+;   (:require [reagent.core :as r]
+;             [cljs.core.async :refer [go <!]]
+;             [universo.db.crud :as db]
+;             [re-frame.core :as re-frame]))
+; no source by id: [:shadow.build.classpath/resource "universo/components/diagnostic_test.cljs"]
+; {:id [:shadow.build.classpath/resource "universo/components/diagnostic_test.cljs"]}
+; ExceptionInfo: no source by id: [:shadow.build.classpath/resource "universo/components/diagnostic_test.cljs"]
+; 	shadow.build.data/get-source-by-id (data.clj:175)
+; 	shadow.build.data/get-source-by-id (data.clj:172)
+; 	shadow.build.compiler/remove-dead-js-deps/remove-fn--15753/fn--15754 (compiler.clj:1406)
+; 	clojure.core/complement/fn--5756 (core.clj:1455)
+; 	clojure.core/filter/fn--5981 (core.clj:2834)
+; 	clojure.lang.LazySeq.force (LazySeq.java:50)
+; 	clojure.lang.LazySeq.realize (LazySeq.java:89)
+; 	clojure.lang.LazySeq.seq (LazySeq.java:106)
+; 	clojure.lang.ChunkedCons.chunkedNext (ChunkedCons.java:61)
+; 	clojure.core/chunk-next (core.clj:710)
+; 	clojure.core.protocols/fn--8270 (protocols.clj:136)
+; 	clojure.core.protocols/fn--8270 (protocols.clj:123)
+; 	clojure.core.protocols/fn--8229/G--8224--8238 (protocols.clj:19)
+; 	clojure.core.protocols/seq-reduce (protocols.clj:31)
+; 	clojure.core.protocols/fn--8262 (protocols.clj:74)
+; 	clojure.core.protocols/fn--8262 (protocols.clj:74)
+; 	clojure.core.protocols/fn--8203/G--8198--8216 (protocols.clj:13)
+; 	clojure.core/reduce (core.clj:6965)
+; 	clojure.core/into (core.clj:7038)
+; 	clojure.core/into (core.clj:7029)
+; 	shadow.build.compiler/remove-dead-js-deps/remove-fn--15753 (compiler.clj:1408)
+; 	clojure.core/update (core.clj:6259)
+; 	clojure.core/update (core.clj:6251)
+; 	shadow.build.compiler/remove-dead-js-deps/fn--15758/fn--15759 (compiler.clj:1414)
+; 	clojure.core/map/fn--5954 (core.clj:2770)
+; 	clojure.lang.LazySeq.force (LazySeq.java:50)
+; 	clojure.lang.LazySeq.realize (LazySeq.java:89)
+; 	clojure.lang.LazySeq.seq (LazySeq.java:106)
+; 	clojure.lang.RT.seq (RT.java:555)
+; 	clojure.core/seq--5486 (core.clj:139)
+; 	clojure.core.protocols/seq-reduce (protocols.clj:24)
+; 	clojure.core.protocols/fn--8262 (protocols.clj:74)
+; 	clojure.core.protocols/fn--8262 (protocols.clj:74)
+; 	clojure.core.protocols/fn--8203/G--8198--8216 (protocols.clj:13)
+; 	clojure.core/reduce (core.clj:6965)
+; 	clojure.core/into (core.clj:7038)
+; 	clojure.core/into (core.clj:7029)
+; 	shadow.build.compiler/remove-dead-js-deps/fn--15758 (compiler.clj:1415)
+; 	clojure.core/update (core.clj:6259)
+; 	clojure.core/update (core.clj:6251)
+; 	shadow.build.compiler/remove-dead-js-deps (compiler.clj:1412)
+; 	shadow.build.compiler/remove-dead-js-deps (compiler.clj:1401)
+; 	shadow.build.compiler/compile-all (compiler.clj:1659)
+; 	shadow.build.compiler/compile-all (compiler.clj:1511)
+; 	shadow.build.api/compile-sources (api.clj:261)
+; 	shadow.build.api/compile-sources (api.clj:253)
+; 	shadow.build.api/compile-sources (api.clj:265)
+; 	shadow.build.api/compile-sources (api.clj:253)
+; 	shadow.cljs.repl/repl-ns (repl.clj:401)
+; 	shadow.cljs.repl/repl-ns (repl.clj:384)
+; 	shadow.cljs.repl/process-read-result (repl.clj:571)
+; 	shadow.cljs.repl/process-read-result (repl.clj:551)
+; 	shadow.cljs.repl/process-input (repl.clj:712)
+; 	shadow.cljs.repl/process-input (repl.clj:690)
+; 	shadow.cljs.devtools.server.worker.impl/eval17905/fn--17908 (impl.clj:698)
+; 	clojure.lang.MultiFn.invoke (MultiFn.java:234)
+; 	shadow.cljs.devtools.server.util/server-thread/fn--17540/fn--17541/fn--17549 (util.clj:283)
+; 	shadow.cljs.devtools.server.util/server-thread/fn--17540/fn--17541 (util.clj:282)
+; 	shadow.cljs.devtools.server.util/server-thread/fn--17540 (util.clj:255)
+; 	java.lang.Thread.run (Thread.java:1583)
+;
+cljs꞉universo.components.diagnostic-test꞉> 
+; nREPL Connection was closed
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
+nil
+clj꞉shadow.user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: deps.edn + shadow-cljs...
+; Starting cljs repl for: deps.edn + shadow-cljs...
+; Cljs builds started
+; Connected session: cljs, repl: :app
+; TIPS: You can choose which REPL to use (clj or cljs):
+;    *Calva: Toggle REPL connection*
+;    (There is a button in the status bar for this)
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
+nil
+cljs꞉user꞉> 
+{:email ""
+ :questions [{:error_d "Factorización incorrecta con negativos"
+              :option_d "x = -1 o x = -6"
+              :option_a "x = 2 o x = 3"
+              :difficulty 50
+              :question "Resuelve la ecuación cuadrática: x^2 - 5x + 6 = 0"
+              :topic "Ecuaciones cuadráticas"
+              :error_b "Error de signo en raíces negativas"
+              :order_index 1
+              :option_b "x = -2 o x = -3"
+              :id 12
+              :option_c "x = 1 o x = 6"
+              :error_c "Confusión de valores extremos"
+              :error_a "Confusión al factorizar (x-2)(x-3)"
+              :created_at "2024-02-01T00:00:00+00:00"
+              :correct_option "A"}
+             {:error_d        "Confundir términos"
+              :option_d       "3x^2"
+              :option_a       "5x"
+              :difficulty     1
+              :question       "Simplifica: 3x + 2x"
+              :topic          "Expresiones algebraicas"
+              :error_b        "Confusión con multiplicación"
+              :order_index    1
+              :option_b       "6x"
+              :id             13
+              :option_c       "x^2"
+              :error_c        "Confundir con potencia"
+              :error_a        "Error al sumar coeficientes"
+              :created_at     "2024-02-01T00:00:00+00:00"
+              :correct_option "A"}
+             {:error_d        "Invertir término mal"
+              :option_d       "x = -19"
+              :option_a       "x = 5"
+              :difficulty     2
+              :question       "Resuelve: x + 7 = 12"
+              :topic          "Ecuaciones lineales"
+              :error_b        "Confusión con signos"
+              :order_index    2
+              :option_b       "x = -5"
+              :id             14
+              :option_c       "x = 19"
+              :error_c        "Sumar en lugar de restar"
+              :error_a        "Olvidar restar 7"
+              :created_at     "2024-02-01T00:00:00+00:00"
+              :correct_option "A"}
+             {:error_d        "Error de proporción"
+              :option_d       "x = 80"
+              :option_a       "x = 5"
+              :difficulty     3
+              :question       "Resuelve: 4x = 20"
+              :topic          "Ecuaciones lineales"
+              :error_b        "Olvidar dividir"
+              :order_index    3
+              :option_b       "x = 4"
+              :id             15
+              :option_c       "x = 24"
+              :error_c        "Multiplicar en vez de dividir"
+              :error_a        "División incorrecta"
+              :created_at     "2024-02-01T00:00:00+00:00"
+              :correct_option "A"}
+             {:error_d        "Decir que no factoriza"
+              :option_d       "No se puede factorizar"
+              :option_a       "(x+2)(x+3)"
+              :difficulty     4
+              :question       "Factoriza: x^2 + 5x + 6"
+              :topic          "Polinomios"
+              :error_b        "Factorización al revés"
+              :order_index    4
+              :option_b       "(x-2)(x-3)"
+              :id             16
+              :option_c       "(x+6)(x-1)"
+              :error_c        "Raíces intercambiadas"
+              :error_a        "Confusión de signos"
+              :created_at     "2024-02-01T00:00:00+00:00"
+              :correct_option "A"}
+             {:error_d        "Invertir término incorrecto"
+              :option_d       "x = -2"
+              :option_a       "x = 5"
+              :difficulty     5
+              :question       "Resuelve: 2x - 3 = 7"
+              :topic          "Ecuaciones lineales"
+              :error_b        "Mover signo opuesto mal"
+              :order_index    5
+              :option_b       "x = 2"
+              :id             17
+              :option_c       "x = -5"
+              :error_c        "Confundir suma/resta"
+              :error_a        "Correcto error de despeje"
+              :created_at     "2024-02-01T00:00:00+00:00"
+              :correct_option "A"}]
+ :start-time nil
+ :end-time nil
+ :topic "algebra"
+ :theta 0
+ :question-ids []
+ :status :not-started
+ :score 0
+ :responses [{:question-id 12 :selected-option "A" :correct? true :time-ms 0}
+             {:question-id 12 :selected-option "B" :correct? false :time-ms 0}
+             {:question-id 12 :selected-option "A" :correct? true :time-ms 0}
+             {:question-id 13 :selected-option "D" :correct? false :time-ms 0}
+             {:question-id 14 :selected-option "C" :correct? false :time-ms 0}
+             {:question-id 15 :selected-option "B" :correct? false :time-ms 0}
+             {:question-id 16 :selected-option "A" :correct? true :time-ms 0}
+             {:question-id 17 :selected-option "B" :correct? false :time-ms 0}]
+ :current-question 6
+ :theta-history []
+ :traits {:logical 0 :visual 0 :verbal 0 :exploratory 0}}
+(update {:ta [ 1 2 3]} conj [:ta ] 4)
+{:ta 4}
+cljs꞉user꞉> 
+:repl/exception!
+;
+;
+; Execution error (Error) at (<cljs repl>:1).
+; function cljs$core$conj(var_args){
+; var G__26513 = arguments.length;
+; switch (G__26513) {
+; case 0:
+; return cljs.core.conj.cljs$core$IFn$_invoke$arity$0();
+;
+; break;
+; case 1:
+; return cljs.core.conj.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
+;
+; break;
+; case 2:
+; return cljs.core.conj.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
+;
+; break;
+; default:
+; var args_arr__5774__auto__ = [];
+; var len__5749__auto___29409 = arguments.length;
+; var i__5750__auto___29410 = (0);
+; while(true){
+; if((i__5750__auto___29410 < len__5749__auto___29409)){
+; args_arr__5774__auto__.push((arguments[i__5750__auto___29410]));
+;
+; var G__29411 = (i__5750__auto___29410 + (1));
+; i__5750__auto___29410 = G__29411;
+; continue;
+; } else {
+; }
+; break;
+; }
+;
+; var argseq__5775__auto__ = ((((2) < args_arr__5774__auto__.length))?(new cljs.core.IndexedSeq(args_arr__5774__auto__.slice((2)),(0),null)):null);
+; return cljs.core.conj.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),(arguments[(1)]),argseq__5775__auto__);
+;
+; }
+; } is not ISeqable
+cljs꞉user꞉> 
+#'universo.components.diagnostic-test/normalize-question
+cljs꞉universo.components.diagnostic-test꞉> 
+(update-in {:test {:questions [{:q 1}]}} [:test :questions ] conj {:q 2})
+{:test {:questions [{:q 1}]}}
+cljs꞉universo.components.diagnostic-test꞉> 
+{:test {:questions [{:q 1} {:q 2}]}}
+cljs꞉universo.components.diagnostic-test꞉> 
+( @(re-frame/subscribe [:test]))
+{:email "", :questions [{:error_d "Factorización incorrecta con negativos", :option_d "x = -1 o x = -6", :option_a "x = 2 o x = 3", :difficulty 50, :question "Resuelve la ecuación cuadrática: x^2 - 5x + 6 = 0", :topic "Ecuaciones cuadráticas", :error_b "Error de signo en raíces negativas", :order_index 1, :option_b "x = -2 o x = -3", :id 12, :option_c "x = 1 o x = 6", :error_c "Confusión de valores extremos", :error_a "Confusión al factorizar (x-2)(x-3)", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Confundir términos", :option_d "3x^2", :option_a "5x", :difficulty 1, :question "Simplifica: 3x + 2x", :topic "Expresiones algebraicas", :error_b "Confusión con multiplicación", :order_index 1, :option_b "6x", :id 13, :option_c "x^2", :error_c "Confundir con potencia", :error_a "Error al sumar coeficientes", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Invertir término mal", :option_d "x = -19", :option_a "x = 5", :difficulty 2, :question "Resuelve: x + 7 = 12", :topic "Ecuaciones lineales", :error_b "Confusión con signos", :order_index 2, :option_b "x = -5", :id 14, :option_c "x = 19", :error_c "Sumar en lugar de restar", :error_a "Olvidar restar 7", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Error de proporción", :option_d "x = 80", :option_a "x = 5", :difficulty 3, :question "Resuelve: 4x = 20", :topic "Ecuaciones lineales", :error_b "Olvidar dividir", :order_index 3, :option_b "x = 4", :id 15, :option_c "x = 24", :error_c "Multiplicar en vez de dividir", :error_a "División incorrecta", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Decir que no factoriza", :option_d "No se puede factorizar", :option_a "(x+2)(x+3)", :difficulty 4, :question "Factoriza: x^2 + 5x + 6", :topic "Polinomios", :error_b "Factorización al revés", :order_index 4, :option_b "(x-2)(x-3)", :id 16, :option_c "(x+6)(x-1)", :error_c "Raíces intercambiadas", :error_a "Confusión de signos", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Invertir término incorrecto", :option_d "x = -2", :option_a "x = 5", :difficulty 5, :question "Resuelve: 2x - 3 = 7", :topic "Ecuaciones lineales", :error_b "Mover signo opuesto mal", :order_index 5, :option_b "x = 2", :id 17, :option_c "x = -5", :error_c "Confundir suma/resta", :error_a "Correcto error de despeje", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}], :start-time nil, :end-time 1757413331068, :topic "algebra", :theta 0, :question-ids [], :status :completed, :score 0, :responses [{:question-id 12, :selected-option "C", :correct? false, :time-ms 0} {:question-id 13, :selected-option "C", :correct? false, :time-ms 0} {:question-id 14, :selected-option "C", :correct? false, :time-ms 0} {:question-id 15, :selected-option "C", :correct? false, :time-ms 0} {:question-id 16, :selected-option "C", :correct? false, :time-ms 0} {:question-id 17, :selected-option "D", :correct? false, :time-ms 0}], :current-question 5, :theta-history [], :traits {:logical 0, :visual 0, :verbal 0, :exploratory 0}}
+cljs꞉universo.components.diagnostic-test꞉> 
+(key a)
+nil
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:6
+;  Use of undeclared Var universo.components.diagnostic-test/a
+; --------------------------------------------------------------------------------
+;
+cljs꞉universo.components.diagnostic-test꞉> 
+(keyword "a")
+:repl/exception!
+;
+;
+; Execution error (Error) at (<cljs repl>:1).
+; No protocol method IMapEntry.-key defined for type string: a
+cljs꞉universo.components.diagnostic-test꞉> 
+:a
+cljs꞉universo.components.diagnostic-test꞉> 
+({:id :coeffects, :before #object [re_frame$cofx$coeffects_before], :after nil} {:id :do-fx, :before nil, :after #object [re_frame$fx$do_fx_after]} {:id :inject-global-interceptors, :before #object [re_frame$std_interceptors$inject_global_interceptors_before], :after nil} {:id :db-handler, :before #object [re_frame$std_interceptors$db_handler__GT_interceptor_$_db_handler_before], :after nil})
+cljs꞉universo.test-subs꞉> 
+@(re-frame/subscribe [ :responses])
+{:email "", :questions [{:error_d "Factorización incorrecta con negativos", :option_d "x = -1 o x = -6", :option_a "x = 2 o x = 3", :difficulty 50, :question "Resuelve la ecuación cuadrática: x^2 - 5x + 6 = 0", :topic "Ecuaciones cuadráticas", :error_b "Error de signo en raíces negativas", :order_index 1, :option_b "x = -2 o x = -3", :id 12, :option_c "x = 1 o x = 6", :error_c "Confusión de valores extremos", :error_a "Confusión al factorizar (x-2)(x-3)", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Confundir términos", :option_d "3x^2", :option_a "5x", :difficulty 1, :question "Simplifica: 3x + 2x", :topic "Expresiones algebraicas", :error_b "Confusión con multiplicación", :order_index 1, :option_b "6x", :id 13, :option_c "x^2", :error_c "Confundir con potencia", :error_a "Error al sumar coeficientes", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Invertir término mal", :option_d "x = -19", :option_a "x = 5", :difficulty 2, :question "Resuelve: x + 7 = 12", :topic "Ecuaciones lineales", :error_b "Confusión con signos", :order_index 2, :option_b "x = -5", :id 14, :option_c "x = 19", :error_c "Sumar en lugar de restar", :error_a "Olvidar restar 7", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Error de proporción", :option_d "x = 80", :option_a "x = 5", :difficulty 3, :question "Resuelve: 4x = 20", :topic "Ecuaciones lineales", :error_b "Olvidar dividir", :order_index 3, :option_b "x = 4", :id 15, :option_c "x = 24", :error_c "Multiplicar en vez de dividir", :error_a "División incorrecta", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Decir que no factoriza", :option_d "No se puede factorizar", :option_a "(x+2)(x+3)", :difficulty 4, :question "Factoriza: x^2 + 5x + 6", :topic "Polinomios", :error_b "Factorización al revés", :order_index 4, :option_b "(x-2)(x-3)", :id 16, :option_c "(x+6)(x-1)", :error_c "Raíces intercambiadas", :error_a "Confusión de signos", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Invertir término incorrecto", :option_d "x = -2", :option_a "x = 5", :difficulty 5, :question "Resuelve: 2x - 3 = 7", :topic "Ecuaciones lineales", :error_b "Mover signo opuesto mal", :order_index 5, :option_b "x = 2", :id 17, :option_c "x = -5", :error_c "Confundir suma/resta", :error_a "Correcto error de despeje", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}]
+ , :start-time nil, :end-time 1757413331068, :topic "algebra", :theta 0, :question-ids [], :status :completed, :score 53,
+ :responses [{:question-id 12, :selected-option "B", :correct? false, :time-ms 0}
+             {:question-id 13, :selected-option "B", :correct? false, :time-ms 0}
+             {:question-id 14, :selected-option "D", :correct? false, :time-ms 0}
+             {:question-id 15, :selected-option "A", :correct? true, :time-ms 0}
+             {:question-id 16, :selected-option "C", :correct? false, :time-ms 0}
+             {:question-id 17, :selected-option "D", :correct? false, :time-ms 0}]
+ , :current-question 4, :theta-history [], :traits {:logical 0, :visual 0, :verbal 0, :exploratory 0}}
+cljs꞉universo.test-subs꞉> 
+{:email "", :questions [{:error_d "Factorización incorrecta con negativos", :option_d "x = -1 o x = -6", :option_a "x = 2 o x = 3", :difficulty 50, :question "Resuelve la ecuación cuadrática: x^2 - 5x + 6 = 0", :topic "Ecuaciones cuadráticas", :error_b "Error de signo en raíces negativas", :order_index 1, :option_b "x = -2 o x = -3", :id 12, :option_c "x = 1 o x = 6", :error_c "Confusión de valores extremos", :error_a "Confusión al factorizar (x-2)(x-3)", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Confundir términos", :option_d "3x^2", :option_a "5x", :difficulty 1, :question "Simplifica: 3x + 2x", :topic "Expresiones algebraicas", :error_b "Confusión con multiplicación", :order_index 1, :option_b "6x", :id 13, :option_c "x^2", :error_c "Confundir con potencia", :error_a "Error al sumar coeficientes", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Invertir término mal", :option_d "x = -19", :option_a "x = 5", :difficulty 2, :question "Resuelve: x + 7 = 12", :topic "Ecuaciones lineales", :error_b "Confusión con signos", :order_index 2, :option_b "x = -5", :id 14, :option_c "x = 19", :error_c "Sumar en lugar de restar", :error_a "Olvidar restar 7", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Error de proporción", :option_d "x = 80", :option_a "x = 5", :difficulty 3, :question "Resuelve: 4x = 20", :topic "Ecuaciones lineales", :error_b "Olvidar dividir", :order_index 3, :option_b "x = 4", :id 15, :option_c "x = 24", :error_c "Multiplicar en vez de dividir", :error_a "División incorrecta", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Decir que no factoriza", :option_d "No se puede factorizar", :option_a "(x+2)(x+3)", :difficulty 4, :question "Factoriza: x^2 + 5x + 6", :topic "Polinomios", :error_b "Factorización al revés", :order_index 4, :option_b "(x-2)(x-3)", :id 16, :option_c "(x+6)(x-1)", :error_c "Raíces intercambiadas", :error_a "Confusión de signos", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Invertir término incorrecto", :option_d "x = -2", :option_a "x = 5", :difficulty 5, :question "Resuelve: 2x - 3 = 7", :topic "Ecuaciones lineales", :error_b "Mover signo opuesto mal", :order_index 5, :option_b "x = 2", :id 17, :option_c "x = -5", :error_c "Confundir suma/resta", :error_a "Correcto error de despeje", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}], :start-time nil, :end-time 1757413331068, :topic "algebra", :theta 0, :question-ids [], :status :completed, :score 53, :responses [{:question-id 12, :selected-option "B", :correct? false, :time-ms 0} {:question-id 13, :selected-option "B", :correct? false, :time-ms 0} {:question-id 14, :selected-option "D", :correct? false, :time-ms 0} {:question-id 15, :selected-option "A", :correct? true, :time-ms 0} {:question-id 16, :selected-option "C", :correct? false, :time-ms 0} {:question-id 17, :selected-option "D", :correct? false, :time-ms 0}], :current-question 4, :theta-history [], :traits {:logical 0, :visual 0, :verbal 0, :exploratory 0}}
+cljs꞉universo.test-subs꞉> 
+{:email "", :questions [{:error_d "Factorización incorrecta con negativos", :option_d "x = -1 o x = -6", :option_a "x = 2 o x = 3", :difficulty 50, :question "Resuelve la ecuación cuadrática: x^2 - 5x + 6 = 0", :topic "Ecuaciones cuadráticas", :error_b "Error de signo en raíces negativas", :order_index 1, :option_b "x = -2 o x = -3", :id 12, :option_c "x = 1 o x = 6", :error_c "Confusión de valores extremos", :error_a "Confusión al factorizar (x-2)(x-3)", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Confundir términos", :option_d "3x^2", :option_a "5x", :difficulty 1, :question "Simplifica: 3x + 2x", :topic "Expresiones algebraicas", :error_b "Confusión con multiplicación", :order_index 1, :option_b "6x", :id 13, :option_c "x^2", :error_c "Confundir con potencia", :error_a "Error al sumar coeficientes", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Invertir término mal", :option_d "x = -19", :option_a "x = 5", :difficulty 2, :question "Resuelve: x + 7 = 12", :topic "Ecuaciones lineales", :error_b "Confusión con signos", :order_index 2, :option_b "x = -5", :id 14, :option_c "x = 19", :error_c "Sumar en lugar de restar", :error_a "Olvidar restar 7", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Error de proporción", :option_d "x = 80", :option_a "x = 5", :difficulty 3, :question "Resuelve: 4x = 20", :topic "Ecuaciones lineales", :error_b "Olvidar dividir", :order_index 3, :option_b "x = 4", :id 15, :option_c "x = 24", :error_c "Multiplicar en vez de dividir", :error_a "División incorrecta", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Decir que no factoriza", :option_d "No se puede factorizar", :option_a "(x+2)(x+3)", :difficulty 4, :question "Factoriza: x^2 + 5x + 6", :topic "Polinomios", :error_b "Factorización al revés", :order_index 4, :option_b "(x-2)(x-3)", :id 16, :option_c "(x+6)(x-1)", :error_c "Raíces intercambiadas", :error_a "Confusión de signos", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"} {:error_d "Invertir término incorrecto", :option_d "x = -2", :option_a "x = 5", :difficulty 5, :question "Resuelve: 2x - 3 = 7", :topic "Ecuaciones lineales", :error_b "Mover signo opuesto mal", :order_index 5, :option_b "x = 2", :id 17, :option_c "x = -5", :error_c "Confundir suma/resta", :error_a "Correcto error de despeje", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}], :start-time nil, :end-time 1757413331068, :topic "algebra", :theta 0, :question-ids [], :status :completed, :score 53, :responses [{:question-id 12, :selected-option "B", :correct? false, :time-ms 0} {:question-id 13, :selected-option "B", :correct? false, :time-ms 0} {:question-id 14, :selected-option "D", :correct? false, :time-ms 0} {:question-id 15, :selected-option "A", :correct? true, :time-ms 0} {:question-id 16, :selected-option "C", :correct? false, :time-ms 0} {:question-id 17, :selected-option "D", :correct? false, :time-ms 0}], :current-question 4, :theta-history [], :traits {:logical 0, :visual 0, :verbal 0, :exploratory 0}}
+cljs꞉universo.test-subs꞉> 
+[{:question-id 12, :selected-option "C", :correct? false, :time-ms 0}
+ {:question-id 13, :selected-option "C", :correct? false, :time-ms 0} {:question-id 14, :selected-option "C", :correct? false, :time-ms 0} {:question-id 15, :selected-option "C", :correct? false, :time-ms 0} {:question-id 16, :selected-option "C", :correct? false, :time-ms 0} {:question-id 17, :selected-option "B", :correct? false, :time-ms 0}]
+cljs꞉universo.test-subs꞉> 
+[{:question-id 12, :selected-option "D", :correct? false, :time-ms 0, :error "Factorización incorrecta con negativos"} {:question-id 13, :selected-option "D", :correct? false, :time-ms 0, :error "Confundir términos"} {:question-id 14, :selected-option "A", :correct? true, :time-ms 0, :error "Olvidar restar 7"} {:question-id 15, :selected-option "B", :correct? false, :time-ms 0, :error "Olvidar dividir"} {:question-id 16, :selected-option "B", :correct? false, :time-ms 0, :error "Factorización al revés"} {:question-id 17, :selected-option "B", :correct? false, :time-ms 0, :error "Mover signo opuesto mal"}]
+cljs꞉universo.test-subs꞉> 

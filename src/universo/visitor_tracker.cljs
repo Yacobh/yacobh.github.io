@@ -6,7 +6,8 @@
 
 (defn visitor-saved? []
   (try
-    (boolean (js/localStorage.getItem "visitor-id"))
+    (let [visitor-id (js/localStorage.getItem "visitor-id")]
+      (when (boolean visitor-id) (re-frame/dispatch [:set-visitor-id visitor-id])))
     (catch :default e
       (js/console.warn "⚠️ Error accediendo a localStorage" e)
       false)))
