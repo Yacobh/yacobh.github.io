@@ -2,7 +2,9 @@
   (:require [reagent.core :as r]
             [cljs.core.async :refer [go <!]]
             [universo.db.crud :as db]
-            [re-frame.core :as re-frame]))
+            [re-frame.core :as re-frame]
+            [universo.components.math-render :as math]
+            [universo.db.crud :as crud]))
 
 (defn get-questions []
   (go
@@ -13,7 +15,7 @@
           (let [data (:data result)]
             (when data
               (js/console.log "Questions updated " (clj->js data))
-              (re-frame/dispatch [:set-questions data]))))
+              (re-frame/dispatch [:set-questions (take 5 data)]))))
         (js/console.error "❌ Error saving question:" result)))))
 
 
@@ -88,7 +90,7 @@
             (normalize-question (nth questions qid) qid))]
     (when q
       [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
-       [:h3 {:class "text-xl font-semibold text-gray-800 mb-6"} (:question q)]
+       [:h3 {:class "text-xl font-semibold text-gray-800 mb-6"} [math/inline-math  (:question q)]]
        [:div {:class "space-y-3"}
         (for [opt (:options q)]
           (let [input-id (str "q-" (:id q) "-" (:value opt))]
@@ -148,9 +150,11 @@
 
 (defn results-component []
   (let [test @(re-frame/subscribe [:test])
-        responses (:responses test)
+        responses (take 5 (:responses test))
         traits (:traits test)
-        score (:score test)]
+        score (:score test)
+        email-user @(re-frame/subscribe [:visitor-email])]
+    (crud/insert-data-table! {:test test :email-user email-user}  "tests")
     [:div {:class "max-w-3xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
      [:h2 {:class "text-2xl font-bold text-gray-800 mb-6"}
       "📊 Resultados de tu Evaluación"]
@@ -172,10 +176,11 @@
      [:div
       [:h3 {:class "text-lg font-bold text-gray-700 mb-2"} "Tus respuestas"]
       [:ul {:class "divide-y divide-gray-200"}
-       (for [{:keys [question-id selected correct? time-ms error]} responses]
+       (js/console.log  "responses " responses)
+       (for [{:keys [question question-id selected correct? time-ms error]} responses]
          ^{:key question-id}
          [:li {:class "py-2 flex justify-between"}
-          [:span (str "Pregunta " question-id " → " error)]
+          [:span (str "Pregunta " question " → " error)]
           [:span {:class (if correct? "text-green-600" "text-red-600")}
            (if correct? "✔ Correcta" "✘ Incorrecta")]])]]]))
 

@@ -1,6 +1,7 @@
 (ns universo.components.login
   (:require [reagent.core :as r]
-            [universo.supabase :as sb]))
+            [universo.supabase :as sb]
+            [re-frame.core :as re-frame]))
 
 (defn login-form []
   (let [email (r/atom "")
@@ -40,7 +41,9 @@
                                             (reset! error (.. response -error -message))
                                             (do
                                               (reset! success "¡Login exitoso!")
-                                              (js/console.log "Usuario:" (.-user (.-data response)))))))
+                                              (js/console.log "Usuario:" (.-user (.-data response)))
+                                              (re-frame/dispatch [:set-section :dashboard])
+                                              (re-frame/dispatch [:set-visitor-email @email])))))
                                  (.catch (fn [err]
                                            (reset! loading false)
                                            (reset! error "Error de conexión")))))}

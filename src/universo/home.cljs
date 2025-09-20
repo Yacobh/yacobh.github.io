@@ -28,9 +28,9 @@
       [:a.text-gray-800.font-bold.text-xl.flex.items-center
        {:href "#"
         :on-click #(re-frame/dispatch [:set-section :main])} ; Cambia a la sección principal
-       [:span.bg-gradient-to-r.from-blue-600.to-purple-600.bg-clip-text.text-transparent "Integral"]
+       [:span.bg-gradient-to-r.from-blue-600.to-purple-600.bg-clip-text.text-transparent "Academia"]
        [:span.mx-2.text-3xl.font-light.text-indigo-600 "∫"]
-       [:span.bg-gradient-to-r.from-purple-600.to-indigo-700.bg-clip-text.text-transparent "Academy"]]]
+       [:span.bg-gradient-to-r.from-purple-600.to-indigo-700.bg-clip-text.text-transparent "Integral"]]]
 
      ;; Botones
      [:div.flex.items-center.gap-3
@@ -48,7 +48,7 @@
     [:p.text-xl.text-gray-600 "Te invito a que realices el test interactivo, que podrá perfilar cuál es tu nivel matemático, indicándote cuáles son los temas que necesitas
                                abordar. Se identifican rápidamente tus puntos débiles y ¡se te entrega un resultado diagnóstico personalizado totalmente gratis!"]
     [:p.text-xl.text-gray-600 "Actualmente cuento con un test de Álgebra, dentro del temario de la PAES"]
-    #_[:p.text-xl.text-gray-600 "Para entregarte el resultado del test necesitaré que me dejes un correo electrónico"]
+    [:p.text-xl.text-gray-600 "Para entregarte el resultado del test necesitaré que me dejes un correo electrónico"]
 
     ;; Aquí está el input funcional
     #_[:input.border.rounded-lg.p-2.w-full
@@ -59,9 +59,9 @@
       :on-change #(re-frame/dispatch [:set-visitor-email (.. % -target -value)])}]
 
     ;; Botón para iniciar test
-    [:button.mt-8.bg-blue-600.text-white.px-8.py-3.rounded-lg.hover:bg-blue-700
-     {:on-click #(re-frame/dispatch [:set-section :diagnostic-test])}
-     "Comenzar test"]]])
+    #_[:button.mt-8.bg-blue-600.text-white.px-8.py-3.rounded-lg.hover:bg-blue-700
+     {:on-click #(re-frame/dispatch [:set-section :login])}
+     "Iniciar Sesión"]]])
 
 
 #_(defn practica-paes []
@@ -84,7 +84,7 @@
 (defn footer []
   [:footer.bg-gradient-to-r.from-gray-900.to-gray-800.text-white.mt-auto
    ;; Sección principal
-   [:div.container.mx-auto.px-4.py-12
+   [:div.container.mx-auto.px-2.py-4
     [:div.grid.grid-cols-1.md:grid-cols-4.gap-8
      ;; Logo y descripción
      [:div.col-span-1.md:col-span-2
@@ -95,7 +95,7 @@
        "Transformando el aprendizaje de las matemáticas con métodos innovadores y personalizados."]]
 
      ;; Enlaces rápidos
-     [:div
+     #_[:div
       [:h4.text-lg.font-semibold.mb-4 "Enlaces Rápidos"]
       [:ul.space-y-2
        [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
@@ -138,19 +138,23 @@
 ;; main content por atomo de reagent
 (defn main-content []
   (let [current-section @(re-frame/subscribe [:current-section])
-        _ (js/console.log "Current section:" current-section)]  ;; Para depuración
+        _ (js/console.log "Current section:" current-section)
+        visitor-email @(re-frame/subscribe [:visitor-email])]  ;; Para depuración
 
     (case current-section
       :main [presentacion] #_[practica-paes]
-      :login [login/login-form]
+      :login (if visitor-email
+               [diagnostic-test/diagnostic-test]
+               [login/login-form])
       :diagnostic-test [diagnostic-test/diagnostic-test]
+      :dashboard [diagnostic-test/diagnostic-test]
       [:div "Sección no encontrada (404)"])))
 
 
 ;; Componente principal (equivalente a Home)
 
 (defn home []
-  [:div.flex.min-h-screen.flex-col
+  [:div.flex.min-h-screen.flex-col.bg-gray-100
    [navigation]
     [:main.flex-1.pt-16  ;; pt-16 para compensar la altura del nav  ;; flex-1 hace que main ocupe todo el espacio disponible
      [main-content]]

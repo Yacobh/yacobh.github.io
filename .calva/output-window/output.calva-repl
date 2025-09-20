@@ -1045,5 +1045,122 @@ cljs꞉universo.test-subs꞉> 
 [{:question-id 12, :selected-option "C", :correct? false, :time-ms 0}
  {:question-id 13, :selected-option "C", :correct? false, :time-ms 0} {:question-id 14, :selected-option "C", :correct? false, :time-ms 0} {:question-id 15, :selected-option "C", :correct? false, :time-ms 0} {:question-id 16, :selected-option "C", :correct? false, :time-ms 0} {:question-id 17, :selected-option "B", :correct? false, :time-ms 0}]
 cljs꞉universo.test-subs꞉> 
-[{:question-id 12, :selected-option "D", :correct? false, :time-ms 0, :error "Factorización incorrecta con negativos"} {:question-id 13, :selected-option "D", :correct? false, :time-ms 0, :error "Confundir términos"} {:question-id 14, :selected-option "A", :correct? true, :time-ms 0, :error "Olvidar restar 7"} {:question-id 15, :selected-option "B", :correct? false, :time-ms 0, :error "Olvidar dividir"} {:question-id 16, :selected-option "B", :correct? false, :time-ms 0, :error "Factorización al revés"} {:question-id 17, :selected-option "B", :correct? false, :time-ms 0, :error "Mover signo opuesto mal"}]
+[{:question-id 12, :selected-option "D", :correct? false, :time-ms 0, :error "Factorización incorrecta con negativos"}
+ {:question-id 13, :selected-option "D", :correct? false, :time-ms 0, :error "Confundir términos"}
+ {:question-id 14, :selected-option "A", :correct? true, :time-ms 0, :error "Olvidar restar 7"}
+ {:question-id 15, :selected-option "B", :correct? false, :time-ms 0, :error "Olvidar dividir"}
+ {:question-id 16, :selected-option "B", :correct? false, :time-ms 0, :error "Factorización al revés"}
+ {:question-id 17, :selected-option "B", :correct? false, :time-ms 0, :error "Mover signo opuesto mal"}]
 cljs꞉universo.test-subs꞉> 
+; nREPL Connection was closed
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Bad url: 54171
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; nREPL connection failed: AggregateError
+; Failed connecting.
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
+nil
+clj꞉shadow.user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: deps.edn + shadow-cljs...
+; Starting cljs repl for: deps.edn + shadow-cljs...
+; Cljs builds started
+; Connected session: cljs, repl: :app
+; TIPS: You can choose which REPL to use (clj or cljs):
+;    *Calva: Toggle REPL connection*
+;    (There is a button in the status bar for this)
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
+nil
+cljs꞉user꞉> 
+#'universo.components.login/login-form
+cljs꞉universo.components.login꞉> 
+#'universo.components.login/login-form
+cljs꞉universo.components.login꞉> 
+nil
+;
+; [line 1, col 5] No reader function for tag dbg.
+;
+cljs꞉universo.components.login꞉> 
+(def my-map {:name "Alice"
+             :age 30
+             :skills ["Clojure" "JavaScript"]})
+#'universo.components.login/my-map
+cljs꞉universo.components.login꞉> 
+my-map
+{:name "Alice", :age 30, :skills ["Clojure" "JavaScript"]}
+cljs꞉universo.components.login꞉> 
+
+(def json-str (js/JSON.stringify (clj->js my-map)))
+#'universo.components.login/json-str
+cljs꞉universo.components.login꞉> 
+json-str
+"{\"name\":\"Alice\",\"age\":30,\"skills\":[\"Clojure\",\"JavaScript\"]}"
+cljs꞉universo.components.login꞉> 
+#'universo.db.crud/insert-data-table!
+cljs꞉universo.db.crud꞉> 
+
+(insert-data-table! {:test (clj->js my-map)} "tests")
+nil
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:37
+;  Use of undeclared Var universo.db.crud/my-map
+; --------------------------------------------------------------------------------
+;
+cljs꞉universo.db.crud꞉> 
+#'universo.db.crud/my-map
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+; Evaluating file: crud.cljs
+#'universo.db.crud/get-all-table
+cljs꞉universo.db.crud꞉> 
+(get-all-table "visitor")
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+(insert-data-table! {:test my-map
+                     :email-user "jacobocordova@gmail.com"} "tests" )
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+my-map
+nil
+cljs꞉universo.db.crud꞉> 
+#'universo.db.crud/my-map
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 

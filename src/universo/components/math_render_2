@@ -1,0 +1,230 @@
+(ns universo.components.math_render_2
+  (:require [re-frame.core :as rf]
+            [reagent.core :as r]
+            [reagent.dom :as rdom]
+            [clojure.string :as str]))
+
+;; ===== Eventos de re-frame =====
+(rf/reg-event-fx
+ ::inicializar-mathjax
+ (fn [_ _]
+   {:mathjax/configurar nil}))
+
+(rf/reg-event-db
+ ::mathjax-listo
+ (fn [db [_ listo?]]
+   (assoc db :mathjax-listo? listo?)))
+
+(rf/reg-event-db
+ ::error-mathjax
+ (fn [db [_ error]]
+   (js/console.error "Error MathJax:" error)
+   (assoc db :mathjax-error error)))
+
+;; ===== Suscripciones =====
+(rf/reg-sub
+ ::mathjax-listo?
+ (fn [db _]
+   (:mathjax-listo? db)))
+
+(rf/reg-sub
+ ::mathjax-error
+ (fn [db _]
+   (:mathjax-error db)))
+
+;; ===== Efectos =====
+(rf/reg-fx
+ :mathjax/configurar
+ (fn [_]
+   (if (exists? js/window.MathJax)
+     (do
+       (set! (.. js/window -MathJax)
+             #js {:tex #js {:inlineMath #js [#js ["$" "$"]
+                                             #js ["\$" "\$"]]
+                           :displayMath #js [#js ["$$" "$$"]
+                                            #js ["\
+$$
+" "\
+$$"]]
+                           :processEscapes true
+                           :packages #js ["base" "ams"]}
+                  :options #js {:skipHtmlTags #js ["script" "noscript"
+                                                   "style" "textarea" "pre"]
+                               :ignoreHtmlClass "no-mathjax"}
+                  :startup #js {:typeset false
+                               :ready (fn []
+                                       (rf/dispatch [::mathjax-listo true]))}})
+       (js/window.MathJax.startup.defaultReady))
+     ;; Reintentar si MathJax no está cargado
+     (js/setTimeout #(rf/dispatch [::inicializar-mathjax]) 100))))
+
+(rf/reg-fx
+ :mathjax/renderizar
+ (fn [{:keys [elemento texto on-success on-error]}]
+   (when (and elemento (exists? js/window.MathJax))
+     (-> (js/window.MathJax.typesetClear #js [elemento])
+         (.then (fn []
+                 (set! (.-innerHTML elemento) texto)
+                 (js/window.MathJax.typesetPromise #js [elemento])))
+         (.then (fn []
+                 (when on-success (on-success))))
+         (.catch (fn [error]
+                  (when on-error (on-error error))))))))
+
+;; ===== Utilidades =====
+(defn es-latex? [texto]
+  "Detecta si el texto contiene sintaxis LaTeX"
+  (boolean (re-find #"\\\\|\\frac|\\sum|\\int|\\sqrt|\$|\\
+$$
+|\\\(" texto)))
+
+(defn texto-plano->latex [texto]
+  "Convierte notación de texto plano a LaTeX básico"
+  (-> texto
+      ;; Potencias: x^2 o x^(n+1) -> x^{2} o x^{n+1}
+      (str/replace #"\^(\d+)" "^{$1}")
+      (str/replace #"\^$([^$]+)\)" "^{$1}")
+      ;; Fracciones: (a+b)/(c+d) -> \frac{a+b}{c+d}
+      (str/replace #"$([^$]+)\)/$([^$]+)\)" "\\\\frac{$1}{$2}")
+      ;; Raíces: sqrt(x) -> \sqrt{x}
+      (str/replace #"sqrt$([^$]+)\)" "\\\\sqrt{$1}")
+      ;; Raíz n-ésima: sqrt[n](x) -> \sqrt[n]{x}
+      (str/replace #"sqrt\[(\d+)
+$$$([^$]+)\)" "\\\\sqrt[$1]{$2}")
+      ;; Subíndices: x_1 -> x_{1}
+      (str/replace #"_(\d+)" "_{$1}")
+      (str/replace #"_$([^$]+)\)" "_{$1}")
+      ;; Símbolos comunes
+      (str/replace #"\bpi\b" "\\\\pi")
+      (str/replace #"\btheta\b" "\\\\theta")
+      (str/replace #"\balpha\b" "\\\\alpha")
+      (str/replace #"\bbeta\b" "\\\\beta")
+      (str/replace #"\bsum\b" "\\\\sum")
+      (str/replace #"\bint\b" "\\\\int")))
+
+(defn preparar-texto [texto]
+  "Prepara el texto para ser procesado por MathJax"
+  (cond
+    ;; Si ya tiene delimitadores, dejarlo como está
+    (re-find #"\$|\\\[|\\\(" texto) texto
+    ;; Si es LaTeX sin delimitadores, agregar $
+    (es-latex? texto) (str "$" texto "$")
+    ;; Si es texto plano, convertir y agregar delimitadores
+    :else (str "$" (texto-plano->latex texto) "$")))
+
+;; ===== Componente principal =====
+(defn renderizar-matematicas
+  "Componente que renderiza texto con MathJax.
+   Uso: [renderizar-matematicas \"x^2 + 2x + 1 = 0\"]
+        [renderizar-matematicas {:texto \"...\" :block? true}]"
+  [props]
+  (let [;; Manejar props como string o mapa
+        {:keys [texto block? clase]} (if (string? props)
+                                       {:texto props}
+                                       props)
+        mathjax-listo? @(rf/subscribe [::mathjax-listo?])
+        node-ref (atom nil)
+        texto-preparado (if block?
+                         (str "$$" (str/replace texto #"\$" "") "$$")
+                         (preparar-texto texto))
+
+        renderizar! (fn []
+                     (when (and @node-ref mathjax-listo?)
+                       (rf/dispatch-sync
+                        [:ejecutar-efecto
+                         :mathjax/renderizar
+                         {:elemento @node-ref
+                          :texto texto-preparado
+                          :on-error #(rf/dispatch [::error-mathjax %])}])))]
+
+    (r/create-class
+     {:display-name "renderizar-matematicas"
+
+      :component-did-mount renderizar!
+
+      :component-did-update
+      (fn [this [_ props-anterior]]
+        (let [texto-anterior (if (string? props-anterior)
+                              props-anterior
+                              (:texto props-anterior))]
+          (when (not= texto texto-anterior)
+            (renderizar!))))
+
+      :reagent-render
+      (fn [props]
+        (let [{:keys [texto clase]} (if (string? props)
+                                      {:texto props}
+                                      props)]
+          [:div
+           {:class (str "math-container " clase)
+            :ref #(reset! node-ref %)}
+           (if mathjax-listo?
+             ;; Placeholder invisible mientras se renderiza
+             [:span {:style {:visibility "hidden"}} texto]
+             ;; Mostrar texto sin formato mientras carga
+             [:span.math-cargando texto])]))})))
+
+;; ===== Evento auxiliar para efectos =====
+(rf/reg-event-fx
+ :ejecutar-efecto
+ (fn [_ [_ efecto params]]
+   {efecto params}))
+
+;; ===== Componentes auxiliares =====
+(defn formula-con-titulo
+  "Renderiza una fórmula con título"
+  [{:keys [titulo formula descripcion block?]}]
+  [:div.formula-completa
+   (when titulo [:h4.formula-titulo titulo])
+   [renderizar-matematicas
+    {:texto formula
+     :block? block?
+     :clase "formula-principal"}]
+   (when descripcion
+     [:p.formula-descripcion descripcion])])
+
+(defn lista-formulas
+  "Renderiza una lista de fórmulas"
+  [formulas]
+  [:div.lista-formulas
+   (doall
+    (for [[idx formula] (map-indexed vector formulas)]
+      ^{:key idx}
+      [:div.formula-item
+       [:span.formula-numero (str (inc idx) ". ")]
+       [renderizar-matematicas formula]]))])
+
+(defn editor-formula
+  "Editor interactivo de fórmulas"
+  []
+  (let [texto-actual (r/atom "x^2 + 2x + 1 = 0")
+        modo (r/atom :texto-plano)]
+    (fn []
+      [:div.editor-formula
+       [:div.controles
+        [:label
+         [:input {:type :radio
+                  :checked (= @modo :texto-plano)
+                  :on-change #(reset! modo :texto-plano)}]
+         " Texto plano"]
+        [:label
+         [:input {:type :radio
+                  :checked (= @modo :latex)
+                  :on-change #(reset! modo :latex)}]
+         " LaTeX"]]
+       [:textarea
+        {:value @texto-actual
+         :on-change #(reset! texto-actual (.. % -target -value))
+         :placeholder (if (= @modo :latex)
+                       "\\frac{x^2 + 2x + 1}{x - 1}"
+                       "(x^2 + 2x + 1)/(x - 1)")
+         :rows 3}]
+       [:div.preview
+        [:h5 "Vista previa:"]
+        [renderizar-matematicas @texto-actual]]])))
+
+;; ===== Inicialización =====
+(defn inicializar-mathjax!
+  "Inicializa MathJax. Llamar al cargar la aplicación."
+  []
+  (rf/dispatch [::inicializar-mathjax]))

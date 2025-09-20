@@ -14,10 +14,10 @@
              :logged-in true}
 
 
-   :explanations {;; :e1 "Para resolver 2x + 3 = 7, restamos 3 de ambos lados y luego dividimos por 2."
+   #_#_:explanations {;; :e1 "Para resolver 2x + 3 = 7, restamos 3 de ambos lados y luego dividimos por 2."
                   }
 
-   :responses {;; :r1 {:id :r1
+   #_#_:responses {;; :r1 {:id :r1
                ;;      :question-id :q1
                ;;      :selected-option 1
                ;;      :correct? true
