@@ -7,6 +7,19 @@
 
 ;; Subscriptions
 
+;; dashboard- subscriptions
+(re-frame/reg-sub
+ :user-id
+ (fn [db _]
+   (get-in db [:dashboard :user-id])))
+
+(re-frame/reg-sub
+ :dashboard
+ (fn [db _]
+   (get-in db [:dashboard])))
+;;------
+
+
 (re-frame/reg-sub
  :db
  (fn [db _] db))
@@ -39,6 +52,12 @@
 
 
 ;; Events
+
+;; dashboard events
+(re-frame/reg-event-db
+ :set-dashboard-user-id
+ (fn [db [_ user-id]]
+   (assoc-in db [:dashboard :user-id] user-id)))
 
 (re-frame/reg-event-db
  :initialize-db

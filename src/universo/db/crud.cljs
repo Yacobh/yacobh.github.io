@@ -11,7 +11,7 @@
    :idioma (.-language js/navigator)})
 
 (defn insert-data-table!
-  "Inserta nuevo visitante en la tabla"
+  "Inserta data entregada en un mapa a la tabla"
   [data-to-insert table-name]
   (let [ch (async/chan)]
     (js/console.log "📤 Enviando datos a Supabase:" data-to-insert)
@@ -55,3 +55,53 @@
                   (async/put! ch {:success false
                                   :error (.-message error)}))))
     ch))
+
+
+(defn get-table
+  "Obtiene elementos de una tabla, opcionalmente aplicando filtros.
+   - table-name: nombre de la tabla
+   - filters: mapa opcional con {comlumna valor} o {columna [:operador valor]}"
+  ([table-name] (get-table table-name {})) ;; versión sin filtros
+  ([table-name filters]
+   (let [ch (async/chan)
+         query (-> (.from supabase-client table-name)
+                   (.select "*"))]
+
+     ;; aplicar filtros dinámicamente
+     (doseq [[col val] filters]
+       (if (vector? val)
+         (let [[op v] val]
+           (case op
+             :eq  (.eq query col v)
+             :neq (.neq query col v)
+             :lt  (.lt query col v)
+             :lte (.lte query col v)
+             :gt  (.gt query col v)
+             :gte (.gte query col v)
+             :like (.like query col v)
+             :ilike (.ilike query col v)
+             ;; si no reconoce, cae a eq
+             (.eq query col v)))
+         ;; default = igualdad
+         (.eq query col val)))
+
+     ;; ejecutar
+     (-> query
+         (.then (fn [result]
+                  (js/console.log "📡 Respuesta filtrada de Supabase:" result)
+                  (if (.-error result)
+                    (async/put! ch {:success false
+                                    :error (.-message (.-error result))})
+                    (async/put! ch {:success true
+                                    :data (js->clj (.-data result) :keywordize-keys true)}))))
+         (.catch (fn [error]
+                   (async/put! ch {:success false
+                                   :error (.-message error)}))))
+     ch)))
+
+(comment
+  (go (let [res (<! (get-table "questions" {"topic" "enteros"
+                                            "difficulty" [:lt 30]}))]
+        (js/console.log res)))
+  
+  ,)

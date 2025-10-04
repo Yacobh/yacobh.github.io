@@ -6,7 +6,7 @@
             [universo.components.math-render :as math]
             [universo.db.crud :as crud]))
 
-(defn get-questions []
+(defn get-questions! []
   (go
     (let [result (<! (db/get-all-table "questions"))]
       (if (:success result)
@@ -16,7 +16,7 @@
             (when data
               (js/console.log "Questions updated " (clj->js data))
               (re-frame/dispatch [:set-questions (take 5 data)]))))
-        (js/console.error "❌ Error saving question:" result)))))
+        (js/console.error "❌ Error getting questions:" result)))))
 
 
 ;; Estado del componente
@@ -38,7 +38,7 @@
 
 ;; Componentes
 (defn intro-component []
-  (get-questions) ;maybe not so good idea
+  (get-questions!) ;maybe not so good idea
   [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
    [:div {:class "text-center"}
     [:h2 {:class "text-3xl font-bold text-gray-800 mb-6"}
@@ -63,7 +63,7 @@
 
      [:button
       {:class "text-gray-500 hover:text-gray-700 text-sm transition-colors duration-200"
-       :on-click #(reset! test-state {:current-step :closed})}
+       :on-click #(re-frame/dispatch [:set-section :dashboard])}
       "Tal vez más tarde"]]]])
 
 (defn normalize-question [q qid]
@@ -143,7 +143,7 @@
       :on-click #(swap! test-state assoc :current-step :results)}
      "Ver Mis Resultados"]
 
-    [:button
+    #_[:button
      {:class "text-gray-500 hover:text-gray-700 transition-colors"
       :on-click reset-test!}
      "Hacer la evaluación nuevamente"]]])

@@ -12,7 +12,8 @@
             [re-frame.core :as re-frame]
             [universo.components.mathacademy :as mathacademy]
             [universo.components.login :as login]
-            [universo.components.diagnostic-test :as diagnostic-test]))
+            [universo.components.diagnostic-test :as diagnostic-test]
+            [universo.components.dashboard :as dashboard]))
 
 ;; seccion principal variable con atomo de reagent, dinamico
 
@@ -34,52 +35,164 @@
 
      ;; Botones
      [:div.flex.items-center.gap-3
-      [:a.bg-indigo-600.text-white.text-sm.px-5.py-2.5.rounded-full.hover:bg-indigo-700.transition.shadow-sm.hover:shadow-md
-       ;; Botón de acceso
-       {:on-click #(re-frame/dispatch [:set-section :login])} ; Cambia a la sección de login
-       "Mi Dashboard"]]]]])
+      (if @(re-frame/subscribe [:visitor-email])
+        [:a.bg-indigo-600.text-white.text-sm.px-5.py-2.5.rounded-full.hover:bg-indigo-700.transition.shadow-sm.hover:shadow-md
+         ;; Botón de acceso
+         {:on-click #(re-frame/dispatch [:set-section :dashboard])} ; Cambia a la sección de login
+         "Mi tablero"]
+        [:a.bg-indigo-600.text-white.text-sm.px-5.py-2.5.rounded-full.hover:bg-indigo-700.transition.shadow-sm.hover:shadow-md
+         ;; Botón de acceso
+         {:on-click #(re-frame/dispatch [:set-section :login])} ; Cambia a la sección de login
+         "Iniciar Sesión"])]]]])
+
+
+
+
+#_(defn presentacion []
+  [:section {:class "bg-gradient-to-b from-blue-50 to-white py-16 px-6"}
+   [:div {:class "max-w-4xl mx-auto text-gray-800"}
+
+    ;; Título principal
+    [:h1 {:class "text-4xl sm:text-5xl font-extrabold text-center text-blue-900 mb-8"}
+     "Portal de Tutorías Matemáticas"]
+
+    ;; Subtítulo o descripción breve
+    [:p {:class "text-center text-lg sm:text-xl text-gray-600 mb-12"}
+     "Una herramienta académica para la preparación de la Prueba de Admisión a la Educación Superior (PAES)."]
+
+    ;; Contenido principal en tarjetas
+    [:div {:class "grid grid-cols-1 md:grid-cols-2 gap-8"}
+
+     ;; Columna izquierda
+     [:div {:class "bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition-shadow"}
+      [:h2 {:class "text-2xl font-semibold text-blue-800 mb-4"}
+       "Aprendizaje progresivo"]
+      [:p {:class "text-gray-700 leading-relaxed"}
+       "A través de una serie de evaluaciones, descubrirás qué contenidos necesitas reforzar.
+        El sistema te guiará paso a paso, comenzando desde un nivel 0 y avanzando según tu desempeño."]]
+
+     ;; Columna derecha
+     [:div {:class "bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition-shadow"}
+      [:h2 {:class "text-2xl font-semibold text-blue-800 mb-4"}
+       "Evaluación diagnóstica"]
+      [:p {:class "text-gray-700 leading-relaxed"}
+       "La evaluación diagnóstica mide tus conocimientos en temas granulares y progresivos del plan de estudios de Matemática 1.
+        No se deben usar calculadoras ni ayudas externas. El tiempo de respuesta es un factor importante."]]]
+
+    ;; Sección inferior
+    [:div {:class "mt-12 text-center"}
+     [:p {:class "text-lg text-gray-700 mb-4"}
+      "Esta plataforma es parte de un programa académico de la "
+      [:span {:class "font-semibold text-blue-700"} "Universidad Nacional Arturo Prat"]
+      " en colaboración con el profesor "
+      [:span {:class "font-semibold text-blue-700"} "Jacobo Córdova."]]
+
+     [:p {:class "italic text-blue-700 font-semibold text-lg"}
+      "Esperamos que esta herramienta sea una guía útil en tu preparación para la PAES."]]]])
+
+#_(defn presentacion []
+    [:div {:class "flex justify-center bg-gray-100 sm:bg-gray-200 py-8 px-4"}  ;; gris más claro y padding lateral
+     [:div {:class "w-full max-w-3xl p-6 sm:p-8 text-left font-serif leading-relaxed text-gray-800 shadow-xl bg-white rounded-2xl"}
+
+      [:h1 {:class "text-2xl sm:text-3xl font-bold text-blue-900 mb-4 text-center sm:text-left"}
+       "Portal de tutorías matemáticas"]
+
+      [:p {:class "mb-2"}
+       "En esta aplicación podrás practicar los contenidos de la Prueba de Admisión a la Educación Superior (PAES)."]
+
+      [:p {:class "mb-2"}
+       "A través de una serie de evaluaciones que te indicarán cuáles son los contenidos que necesitas reforzar."]
+
+      [:p {:class "mb-2"}
+       "Esta web es parte de un programa de la Universidad Nacional Arturo Prat, en conjunto con el profesor Jacobo Cordova."]
+
+      [:p {:class "mb-2"}
+       "Para ingresar al tablero necesitarás un usuario y contraseña."]
+
+      [:p {:class "mb-2"}
+       "Al ingresar al tablero tendrás un resumen de tus evaluaciones y podrás acceder a tu evaluación diagnóstica."]
+
+      [:p {:class "mb-2"}
+       "La evaluación diagnóstica está enfocada en contenidos granulares y progresivos del pensum de la prueba de Matemática 1."]
+
+      [:p {:class "mb-2"}
+       "La evaluación funciona en base a niveles de aprendizaje, comenzando con un nivel de 0."]
+
+      [:p {:class "mb-2"}
+       "Durante la evaluación no se debe usar calculadora ni ayudas externas."]
+
+      [:p {:class "mb-4"}
+       "El tiempo utilizado para responder es un elemento que se toma en cuenta."]
+
+      [:p {:class "italic text-blue-700 font-semibold text-center sm:text-left"}
+       "Esperamos que esta herramienta sea de mucha ayuda en tu proceso de práctica para la PAES."]]])
 
 (defn presentacion []
-  [:section.bg-gray-100.py-20
-   [:div.container.mx-auto.px-4.text-center
-    [:h2.text-3xl.font-bold.mb-4 "Hola soy el profesor Jacobo Córdova"]
-    [:p.text-xl.text-gray-600 "Bienvenido a mi portal Web "]
-    [:p.text-xl.text-gray-600 "Ofrezco cursos de matemática, adaptados a perfiles de estudiantes"]
-    [:p.text-xl.text-gray-600 "Te invito a que realices el test interactivo, que podrá perfilar cuál es tu nivel matemático, indicándote cuáles son los temas que necesitas
+    [:div {:class "flex justify-center bg-gray-600 py-8"}
+     [:div {:class "max-w-3xl p-8 text-left font-serif leading-relaxed text-gray-800 shadow-lg bg-white rounded-2xl"}
+
+      [:h1 {:class "text-3xl font-bold text-blue-900 mb-4"}
+       "Portal de tutorías matemáticas"]
+      [:p "En esta aplicación podras practicar los contenidos de la Prueba de Admisión a la Educación Superior (PAES)."]
+
+      [:p "A traves de una serie de evaluaciones que te indicaran cuales son los contenidos que necesitas reforzar."]
+      [:p "Esta web es parte de un programa de la Universidad Nacional Arturo Prat, en conjunto con el profesor Jacobo Cordova."]
+
+      [:p "Para ingresar al tablero necesitará un usuario y contraseña."]
+
+      [:p "Al ingresar al tablero tendrás un resumen de tus evaluaciones y podrás acceder a tu evaluación diagnóstica."]
+
+      [:p "La evaluación diagnóstica está enfocada en contenidos granulares y progresivos del pensum de la prueba de Matemática 1."]
+      [:p "La evaluación funciona en base a niveles de aprendizaje, comenzando con un nivel de 0"]
+
+      [:p "Durante la evaluación no se debe usar calculadora, o ayudas externas."]
+      [:p "El tiempo utilizado para respoder es un elemento que se toma en cuenta."]
+      [:p {:class "italic text-blue-700 font-semibold"}
+       "Esperamos que esta herramienta sea de mucha ayuda en tu proceso para la práctica de la PAES"]]])
+
+
+
+#_(defn presentacion []
+    [:section.bg-gray-100.py-20
+     [:div.container.mx-auto.px-4.text-center
+      [:h2.text-3xl.font-bold.mb-4 "Hola soy el profesor Jacobo Córdova"]
+      [:p.text-xl.text-gray-600 "Bienvenido a mi portal Web "]
+      [:p.text-xl.text-gray-600 "Ofrezco cursos de matemática, adaptados a perfiles de estudiantes"]
+      [:p.text-xl.text-gray-600 "Te invito a que realices el test interactivo, que podrá perfilar cuál es tu nivel matemático, indicándote cuáles son los temas que necesitas
                                abordar. Se identifican rápidamente tus puntos débiles y ¡se te entrega un resultado diagnóstico personalizado totalmente gratis!"]
-    [:p.text-xl.text-gray-600 "Actualmente cuento con un test de Álgebra, dentro del temario de la PAES"]
-    [:p.text-xl.text-gray-600 "Para entregarte el resultado del test necesitaré que me dejes un correo electrónico"]
+      [:p.text-xl.text-gray-600 "Actualmente cuento con un test de Álgebra, dentro del temario de la PAES"]
+      [:p.text-xl.text-gray-600 "Para entregarte el resultado del test necesitaré que me dejes un correo electrónico"]
 
-    ;; Aquí está el input funcional
-    #_[:input.border.rounded-lg.p-2.w-full
-     {:type "email"
-      :placeholder "Tu correo electrónico"
-      :required true
-      :value @(re-frame/subscribe [:visitor-email])
-      :on-change #(re-frame/dispatch [:set-visitor-email (.. % -target -value)])}]
+      ;; Aquí está el input funcional
+      #_[:input.border.rounded-lg.p-2.w-full
+         {:type "email"
+          :placeholder "Tu correo electrónico"
+          :required true
+          :value @(re-frame/subscribe [:visitor-email])
+          :on-change #(re-frame/dispatch [:set-visitor-email (.. % -target -value)])}]
 
-    ;; Botón para iniciar test
-    #_[:button.mt-8.bg-blue-600.text-white.px-8.py-3.rounded-lg.hover:bg-blue-700
-     {:on-click #(re-frame/dispatch [:set-section :login])}
-     "Iniciar Sesión"]]])
+      ;; Botón para iniciar test
+      #_[:button.mt-8.bg-blue-600.text-white.px-8.py-3.rounded-lg.hover:bg-blue-700
+         {:on-click #(re-frame/dispatch [:set-section :login])}
+         "Iniciar Sesión"]]])
 
 
 #_(defn practica-paes []
-  [:section.bg-gray-100.py-20
-   [:div.container.mx-auto.px-4.text-center
-    [:h2.text-5xl.font-bold.mb-4 "Practica la PAES ooo"]
-    [:p.text-xl.text-gray-600 "Con el test interactivo, se identifican rapidamente cuales son tus puntos debiles, y !se te entrega un resultado diagnostico personalizado totalmente gratis!"]
-    [:button.mt-8.bg-blue-600.text-white.px-8.py-3.rounded-lg.hover:bg-blue-700
+    [:section.bg-gray-100.py-20
+     [:div.container.mx-auto.px-4.text-center
+      [:h2.text-5xl.font-bold.mb-4 "Practica la PAES ooo"]
+      [:p.text-xl.text-gray-600 "Con el test interactivo, se identifican rapidamente cuales son tus puntos debiles, y !se te entrega un resultado diagnostico personalizado totalmente gratis!"]
+      [:button.mt-8.bg-blue-600.text-white.px-8.py-3.rounded-lg.hover:bg-blue-700
 
-     {:href "#"
-      :on-click #(re-frame/dispatch [:set-section :diagnostic-test])} ; Cambia a la sección de test diagnóstico
-     "Comenzar test"]]])
+       {:href "#"
+        :on-click #(re-frame/dispatch [:set-section :diagnostic-test])} ; Cambia a la sección de test diagnóstico
+       "Comenzar test"]]])
 
 #_(defn guestbook-section []
-  [:section.bg-gray-100.py-16
-   [:div.container.mx-auto.px-4
+    [:section.bg-gray-100.py-16
+     [:div.container.mx-auto.px-4
 
-    [mathacademy/math-academy-component]]])
+      [mathacademy/math-academy-component]]])
 
 (defn footer []
   [:footer.bg-gradient-to-r.from-gray-900.to-gray-800.text-white.mt-auto
@@ -96,16 +209,16 @@
 
      ;; Enlaces rápidos
      #_[:div
-      [:h4.text-lg.font-semibold.mb-4 "Enlaces Rápidos"]
-      [:ul.space-y-2
-       [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
-                                                           :on-click #(re-frame/dispatch [:set-section :main])} "Inicio"]]
-       [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
-                                                           :on-click #(re-frame/dispatch [:set-section :main])} "Cursos"]]
-       [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
-                                                           :on-click #(re-frame/dispatch [:set-section :main])} "Evaluación"]]
-       [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
-                                                           :on-click #(re-frame/dispatch [:set-section :main])} "Blog"]]]]
+        [:h4.text-lg.font-semibold.mb-4 "Enlaces Rápidos"]
+        [:ul.space-y-2
+         [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
+                                                             :on-click #(re-frame/dispatch [:set-section :main])} "Inicio"]]
+         [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
+                                                             :on-click #(re-frame/dispatch [:set-section :main])} "Cursos"]]
+         [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
+                                                             :on-click #(re-frame/dispatch [:set-section :main])} "Evaluación"]]
+         [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
+                                                             :on-click #(re-frame/dispatch [:set-section :main])} "Blog"]]]]
 
      ;; Contacto
      [:div
@@ -138,16 +251,14 @@
 ;; main content por atomo de reagent
 (defn main-content []
   (let [current-section @(re-frame/subscribe [:current-section])
-        _ (js/console.log "Current section:" current-section)
-        visitor-email @(re-frame/subscribe [:visitor-email])]  ;; Para depuración
+        _ (js/console.log "Current section:" current-section) ;; Para depuración
+        ]
 
     (case current-section
       :main [presentacion] #_[practica-paes]
-      :login (if visitor-email
-               [diagnostic-test/diagnostic-test]
-               [login/login-form])
+      :login [login/login-form]
       :diagnostic-test [diagnostic-test/diagnostic-test]
-      :dashboard [diagnostic-test/diagnostic-test]
+      :dashboard [dashboard/dashboard]
       [:div "Sección no encontrada (404)"])))
 
 
@@ -156,6 +267,6 @@
 (defn home []
   [:div.flex.min-h-screen.flex-col.bg-gray-100
    [navigation]
-    [:main.flex-1.pt-16  ;; pt-16 para compensar la altura del nav  ;; flex-1 hace que main ocupe todo el espacio disponible
-     [main-content]]
+   [:main.flex-1.pt-16  ;; pt-16 para compensar la altura del nav  ;; flex-1 hace que main ocupe todo el espacio disponible
+    [main-content]]
    [footer]])
