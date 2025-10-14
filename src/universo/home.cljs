@@ -1,16 +1,6 @@
 (ns universo.home
-  (:require [reagent.core :as r]
-            [universo.battery :as api]
-            [universo.jardin :as jardin]
-            [universo.voz :as voz]
-            [universo.geo :as geo]
-            [universo.ip :as ip]
-            [universo.animations :as animations]
-            [universo.components.supabase-test :refer [supabase-test]]
-            [universo.components.guestbook :as guestbook]
-            [universo.components.auth :as auth]
+  (:require [universo.components.contacto :refer [contacto-form]]
             [re-frame.core :as re-frame]
-            [universo.components.mathacademy :as mathacademy]
             [universo.components.login :as login]
             [universo.components.diagnostic-test :as diagnostic-test]
             [universo.components.dashboard :as dashboard]))
@@ -45,87 +35,6 @@
          {:on-click #(re-frame/dispatch [:set-section :login])} ; Cambia a la sección de login
          "Iniciar Sesión"])]]]])
 
-
-
-
-#_(defn presentacion []
-  [:section {:class "bg-gradient-to-b from-blue-50 to-white py-16 px-6"}
-   [:div {:class "max-w-4xl mx-auto text-gray-800"}
-
-    ;; Título principal
-    [:h1 {:class "text-4xl sm:text-5xl font-extrabold text-center text-blue-900 mb-8"}
-     "Portal de Tutorías Matemáticas"]
-
-    ;; Subtítulo o descripción breve
-    [:p {:class "text-center text-lg sm:text-xl text-gray-600 mb-12"}
-     "Una herramienta académica para la preparación de la Prueba de Admisión a la Educación Superior (PAES)."]
-
-    ;; Contenido principal en tarjetas
-    [:div {:class "grid grid-cols-1 md:grid-cols-2 gap-8"}
-
-     ;; Columna izquierda
-     [:div {:class "bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition-shadow"}
-      [:h2 {:class "text-2xl font-semibold text-blue-800 mb-4"}
-       "Aprendizaje progresivo"]
-      [:p {:class "text-gray-700 leading-relaxed"}
-       "A través de una serie de evaluaciones, descubrirás qué contenidos necesitas reforzar.
-        El sistema te guiará paso a paso, comenzando desde un nivel 0 y avanzando según tu desempeño."]]
-
-     ;; Columna derecha
-     [:div {:class "bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition-shadow"}
-      [:h2 {:class "text-2xl font-semibold text-blue-800 mb-4"}
-       "Evaluación diagnóstica"]
-      [:p {:class "text-gray-700 leading-relaxed"}
-       "La evaluación diagnóstica mide tus conocimientos en temas granulares y progresivos del plan de estudios de Matemática 1.
-        No se deben usar calculadoras ni ayudas externas. El tiempo de respuesta es un factor importante."]]]
-
-    ;; Sección inferior
-    [:div {:class "mt-12 text-center"}
-     [:p {:class "text-lg text-gray-700 mb-4"}
-      "Esta plataforma es parte de un programa académico de la "
-      [:span {:class "font-semibold text-blue-700"} "Universidad Nacional Arturo Prat"]
-      " en colaboración con el profesor "
-      [:span {:class "font-semibold text-blue-700"} "Jacobo Córdova."]]
-
-     [:p {:class "italic text-blue-700 font-semibold text-lg"}
-      "Esperamos que esta herramienta sea una guía útil en tu preparación para la PAES."]]]])
-
-#_(defn presentacion []
-    [:div {:class "flex justify-center bg-gray-100 sm:bg-gray-200 py-8 px-4"}  ;; gris más claro y padding lateral
-     [:div {:class "w-full max-w-3xl p-6 sm:p-8 text-left font-serif leading-relaxed text-gray-800 shadow-xl bg-white rounded-2xl"}
-
-      [:h1 {:class "text-2xl sm:text-3xl font-bold text-blue-900 mb-4 text-center sm:text-left"}
-       "Portal de tutorías matemáticas"]
-
-      [:p {:class "mb-2"}
-       "En esta aplicación podrás practicar los contenidos de la Prueba de Admisión a la Educación Superior (PAES)."]
-
-      [:p {:class "mb-2"}
-       "A través de una serie de evaluaciones que te indicarán cuáles son los contenidos que necesitas reforzar."]
-
-      [:p {:class "mb-2"}
-       "Esta web es parte de un programa de la Universidad Nacional Arturo Prat, en conjunto con el profesor Jacobo Cordova."]
-
-      [:p {:class "mb-2"}
-       "Para ingresar al tablero necesitarás un usuario y contraseña."]
-
-      [:p {:class "mb-2"}
-       "Al ingresar al tablero tendrás un resumen de tus evaluaciones y podrás acceder a tu evaluación diagnóstica."]
-
-      [:p {:class "mb-2"}
-       "La evaluación diagnóstica está enfocada en contenidos granulares y progresivos del pensum de la prueba de Matemática 1."]
-
-      [:p {:class "mb-2"}
-       "La evaluación funciona en base a niveles de aprendizaje, comenzando con un nivel de 0."]
-
-      [:p {:class "mb-2"}
-       "Durante la evaluación no se debe usar calculadora ni ayudas externas."]
-
-      [:p {:class "mb-4"}
-       "El tiempo utilizado para responder es un elemento que se toma en cuenta."]
-
-      [:p {:class "italic text-blue-700 font-semibold text-center sm:text-left"}
-       "Esperamos que esta herramienta sea de mucha ayuda en tu proceso de práctica para la PAES."]]])
 
 (defn presentacion []
     [:div {:class "flex justify-center bg-gray-600 py-8"}
@@ -207,40 +116,10 @@
       [:p.text-gray-400.mb-4
        "Transformando el aprendizaje de las matemáticas con métodos innovadores y personalizados."]]
 
-     ;; Enlaces rápidos
-     #_[:div
-        [:h4.text-lg.font-semibold.mb-4 "Enlaces Rápidos"]
-        [:ul.space-y-2
-         [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
-                                                             :on-click #(re-frame/dispatch [:set-section :main])} "Inicio"]]
-         [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
-                                                             :on-click #(re-frame/dispatch [:set-section :main])} "Cursos"]]
-         [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
-                                                             :on-click #(re-frame/dispatch [:set-section :main])} "Evaluación"]]
-         [:li [:a.text-gray-400.hover:text-white.transition {:href "#"
-                                                             :on-click #(re-frame/dispatch [:set-section :main])} "Blog"]]]]
-
      ;; Contacto
      [:div
       [:h4.text-lg.font-semibold.mb-4 "Contacto"]
-      [:ul.space-y-2.text-gray-400
-       [:li.flex.items-center
-        [:svg.w-5.h-5.mr-2 {:fill "none" :stroke "currentColor" :viewBox "0 0 24 24"}
-         [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
-                 :d "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"}]]
-        "jacobocordova@gmail.com"]
-       [:li.flex.items-center
-        [:svg.w-5.h-5.mr-2 {:fill "none" :stroke "currentColor" :viewBox "0 0 24 24"}
-         [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
-                 :d "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"}]]
-        "+56 9 28789476"]
-       [:li.flex.items-start
-        [:svg.w-5.h-5.mr-2.mt-1 {:fill "none" :stroke "currentColor" :viewBox "0 0 24 24"}
-         [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
-                 :d "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"}]
-         [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
-                 :d "M15 11a3 3 0 11-6 0 3 3 0 016 0z"}]]
-        "Iquique, Chile"]]]]]
+      [contacto-form]]]]
 
    ;; Barra inferior
    [:div.border-t.border-gray-700
@@ -251,11 +130,10 @@
 ;; main content por atomo de reagent
 (defn main-content []
   (let [current-section @(re-frame/subscribe [:current-section])
-        _ (js/console.log "Current section:" current-section) ;; Para depuración
-        ]
+        _ (js/console.log "Current section:" current-section)]
 
     (case current-section
-      :main [presentacion] #_[practica-paes]
+      :main [presentacion]
       :login [login/login-form]
       :diagnostic-test [diagnostic-test/diagnostic-test]
       :dashboard [dashboard/dashboard]

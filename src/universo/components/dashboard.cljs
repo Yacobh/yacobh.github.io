@@ -41,7 +41,10 @@
         [:div.mt-8.text-center
          [:a.bg-indigo-600.text-white.text-sm.px-5.py-2.5.rounded-full.hover:bg-indigo-700.transition.shadow-sm.hover:shadow-md
           ;; Botón de acceso
-          {:on-click #(re-frame/dispatch [:set-section :diagnostic-test])} ; Cambia a la sección de login
+          {:on-click #(do
+                        (re-frame/dispatch [:test/start "Números"])
+                        (re-frame/dispatch [:set-section :diagnostic-test]))
+           #_(re-frame/dispatch [:set-section :diagnostic-test])} ; Cambia a la sección de login
           "Realizar evaluación"]]]]]))
 
 #_(defn dashboard []

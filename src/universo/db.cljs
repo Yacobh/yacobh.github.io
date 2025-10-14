@@ -13,17 +13,6 @@
              :os "Windows"
              :logged-in true}
 
-
-   #_#_:explanations {;; :e1 "Para resolver 2x + 3 = 7, restamos 3 de ambos lados y luego dividimos por 2."
-                      }
-
-   #_#_:responses {;; :r1 {:id :r1
-                   ;;      :question-id :q1
-                   ;;      :selected-option 1
-                   ;;      :correct? true
-                   ;;      :time-ms 5234
-                   ;;      :explanation [e1]
-                   }
    :dashboard {:user-id nil
                :level 0
                :frecuencia 0

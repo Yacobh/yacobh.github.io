@@ -1261,3 +1261,234 @@ nil
 cljs꞉universo.db.crud꞉> 
 #object [cljs.core.async.impl.channels.ManyToManyChannel]
 cljs꞉universo.db.crud꞉> 
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; nREPL connection failed: AggregateError
+; Failed connecting.
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; nREPL connection failed: AggregateError
+; Failed connecting.
+
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Bad url: 55937
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
+nil
+clj꞉shadow.user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: deps.edn + shadow-cljs...
+; Starting cljs repl for: deps.edn + shadow-cljs...
+; Cljs builds started
+; Connected shadow-cljs runtime: 3, Chrome 537.36 [MacIntel], host: browser
+; Connected session: cljs, repl: :app
+; TIPS: You can choose which REPL to use (clj or cljs):
+;    *Calva: Toggle REPL connection*
+;    (There is a button in the status bar for this)
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
+nil
+"Please see https://calva.io/output/#about-stdout-in-the-repl-window
+about why stdout printed to this file is prepended with `;` to be line comments."
+cljs꞉user꞉> 
+; shadow-cljs remote notificatuons not supported with shadow-cljs version < 3.2.1
+(require '(re-frame.core :as re-frame))
+@(re-frame/subscribe [:test/status])
+nil
+;
+; ------ WARNING - :undeclared-ns ------------------------------------------------
+;  Resource: <eval>:1:3
+;  No such namespace: re-frame, could not locate re_frame.cljs, re_frame.cljc, or JavaScript source providing "re-frame" (Please check that namespaces with dashes use underscores in the ClojureScript file name)
+; --------------------------------------------------------------------------------
+;
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:3
+;  Use of undeclared Var re-frame/subscribe
+; --------------------------------------------------------------------------------
+;
+cljs꞉user꞉> 
+nil
+cljs꞉user꞉> 
+:intro
+cljs꞉user꞉> 
+#'universo.components.diagnostic-test/question-component
+cljs꞉universo.components.diagnostic-test꞉> 
+@(re-frame/subscribe [:test/current-question])
+{:error_d "Invertir término mal", :option_d "x = -19", :option_a "x = 5", :difficulty 2, :question "Resuelve: $x + 7 = 12$", :topic "Ecuaciones lineales", :error_b "Confusión con signos", :order_index 2, :option_b "x = -5", :id 14, :option_c "x = 19", :error_c "Sumar en lugar de restar", :error_a "Correcto", :created_at "2024-02-01T00:00:00+00:00", :correct_option "A"}
+cljs꞉universo.components.diagnostic-test꞉> 
+#'universo.components.diagnostic-test/question-component
+cljs꞉universo.components.diagnostic-test꞉> 
+; nREPL Connection was closed
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
+nil
+clj꞉shadow.user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: deps.edn + shadow-cljs...
+; Starting cljs repl for: deps.edn + shadow-cljs...
+; Cljs builds started
+; Connected shadow-cljs runtime: 15, Chrome 537.36 [MacIntel], host: browser
+; Connected session: cljs, repl: :app
+; TIPS: You can choose which REPL to use (clj or cljs):
+;    *Calva: Toggle REPL connection*
+;    (There is a button in the status bar for this)
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
+nil
+cljs꞉user꞉> 
+; shadow-cljs remote notificatuons not supported with shadow-cljs version < 3.2.1
+(def matches (re-seq #"\$\$([^$]+)\$\$|\$([^$]+)\$|[^$]+" "ajaah$ 3 + 2$"))
+#'user/matches
+cljs꞉user꞉> 
+matches
+(["ajaah" nil nil] ["$ 3 + 2$" nil " 3 + 2"])
+cljs꞉user꞉> 
+(render-)#'universo.components.math-render/render-math
+cljs꞉universo.components.math-render꞉> 
+(render-math "Resuelve la ecuación cuadrática: $x^2 - 5x + 6 = 0$")
+[:span "hola " [:span {:dangerouslySetInnerHTML {:__html "<span class=\"katex\"><span class=\"katex-mathml\"><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><semantics><mrow><mn>3</mn><mo>+</mo><mn>2</mn></mrow><annotation encoding=\"application/x-tex\">3+2</annotation></semantics></math></span><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:0.7278em;vertical-align:-0.0833em;\"></span><span class=\"mord\">3</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">+</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span></span><span class=\"base\"><span class=\"strut\" style=\"height:0.6444em;\"></span><span class=\"mord\">2</span></span></span></span>"}}]]
+cljs꞉universo.components.math-render꞉> 
+[:span "Resuelve la ecuación cuadrática: " [:span {:dangerouslySetInnerHTML {:__html "<span class=\"katex\"><span class=\"katex-mathml\"><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>−</mo><mn>5</mn><mi>x</mi><mo>+</mo><mn>6</mn><mo>=</mo><mn>0</mn></mrow><annotation encoding=\"application/x-tex\">x^2 - 5x + 6 = 0</annotation></semantics></math></span><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:0.8974em;vertical-align:-0.0833em;\"></span><span class=\"mord\"><span class=\"mord mathnormal\">x</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\">2</span></span></span></span></span></span></span></span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">−</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span></span><span class=\"base\"><span class=\"strut\" style=\"height:0.7278em;vertical-align:-0.0833em;\"></span><span class=\"mord\">5</span><span class=\"mord mathnormal\">x</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">+</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span></span><span class=\"base\"><span class=\"strut\" style=\"height:0.6444em;\"></span><span class=\"mord\">6</span><span class=\"mspace\" style=\"margin-right:0.2778em;\"></span><span class=\"mrel\">=</span><span class=\"mspace\" style=\"margin-right:0.2778em;\"></span></span><span class=\"base\"><span class=\"strut\" style=\"height:0.6444em;\"></span><span class=\"mord\">0</span></span></span></span>"}}]]
+cljs꞉universo.components.math-render꞉> 
+(katex/renderToString "x^2 - 5x + 6 = 0")
+"<span class=\"katex\"><span class=\"katex-mathml\"><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>−</mo><mn>5</mn><mi>x</mi><mo>+</mo><mn>6</mn><mo>=</mo><mn>0</mn></mrow><annotation encoding=\"application/x-tex\">x^2 - 5x + 6 = 0</annotation></semantics></math></span><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:0.8974em;vertical-align:-0.0833em;\"></span><span class=\"mord\"><span class=\"mord mathnormal\">x</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\">2</span></span></span></span></span></span></span></span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">−</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span></span><span class=\"base\"><span class=\"strut\" style=\"height:0.7278em;vertical-align:-0.0833em;\"></span><span class=\"mord\">5</span><span class=\"mord mathnormal\">x</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">+</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span></span><span class=\"base\"><span class=\"strut\" style=\"height:0.6444em;\"></span><span class=\"mord\">6</span><span class=\"mspace\" style=\"margin-right:0.2778em;\"></span><span class=\"mrel\">=</span><span class=\"mspace\" style=\"margin-right:0.2778em;\"></span></span><span class=\"base\"><span class=\"strut\" style=\"height:0.6444em;\"></span><span class=\"mord\">0</span></span></span></span>"
+cljs꞉universo.components.math-render꞉> 
+(defn latex
+  "Renderiza texto LaTeX completo"
+  [text]
+  [:span {:dangerouslySetInnerHTML
+          {:__html (katex/renderToString text #js {:throwOnError false})}}])
+#'universo.components.math-render/latex
+cljs꞉universo.components.math-render꞉> 
+[latex "\\text{Resuelve la ecuación cuadrática: } x^2 - 5x + 6 = 0"]
+[#object [universo$components$math_render$latex] "\\text{Resuelve la ecuación cuadrática: } x^2 - 5x + 6 = 0"]
+cljs꞉universo.components.math-render꞉> 
+(latex ); nREPL Connection was closed
+∏; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
+nil
+clj꞉shadow.user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: deps.edn + shadow-cljs...
+; Starting cljs repl for: deps.edn + shadow-cljs...
+; Cljs builds started
+; Connected shadow-cljs runtime: 3, Chrome 537.36 [MacIntel], host: browser
+; Connected session: cljs, repl: :app
+; TIPS: You can choose which REPL to use (clj or cljs):
+;    *Calva: Toggle REPL connection*
+;    (There is a button in the status bar for this)
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
+nil
+cljs꞉user꞉> 
+; shadow-cljs remote notificatuons not supported with shadow-cljs version < 3.2.1
+; Evaluating file: math_render.cljs
+#'universo.components.math-render/latex
+cljs꞉universo.components.math-render꞉> 
+(latex "\text{Resuelve la ecuación cuadrática: } x^2 - 5x + 6 = 0")
+[:span {:dangerouslySetInnerHTML {:__html "<span class=\"katex-mathml\"><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><semantics><mrow><mi>e</mi><mi>x</mi><mi>t</mi><mrow><mi>R</mi><mi>e</mi><mi>s</mi><mi>u</mi><mi>e</mi><mi>l</mi><mi>v</mi><mi>e</mi><mi>l</mi><mi>a</mi><mi>e</mi><mi>c</mi><mi>u</mi><mi>a</mi><mi>c</mi><mi>i</mi><mover accent=\"true\"><mi>o</mi><mo>ˊ</mo></mover><mi>n</mi><mi>c</mi><mi>u</mi><mi>a</mi><mi>d</mi><mi>r</mi><mover accent=\"true\"><mi>a</mi><mo>ˊ</mo></mover><mi>t</mi><mi>i</mi><mi>c</mi><mi>a</mi><mo>:</mo></mrow><msup><mi>x</mi><mn>2</mn></msup><mo>−</mo><mn>5</mn><mi>x</mi><mo>+</mo><mn>6</mn><mo>=</mo><mn>0</mn></mrow><annotation encoding=\"application/x-tex\">\text{Resuelve la ecuación cuadrática: } x^2 - 5x + 6 = 0</annotation></semantics></math></span>"}}]
+cljs꞉universo.components.math-render꞉> 
+(latex "Calcula: $(-3)(-5)$")
+:repl/exception!
+;
+;
+; Execution error (TypeError) at (<cljs repl>:1).
+; Cannot read properties of null (reading 'outerHTML')
+cljs꞉universo.components.math-render꞉> 
+nil
+;
+; [line 1, col 5] No reader function for tag dbg.
+;
+cljs꞉universo.components.math-render꞉> 
+:repl/exception!
+;
+;
+; Execution error (TypeError) at (<cljs repl>:1).
+; Cannot read properties of null (reading 'outerHTML')
+cljs꞉universo.components.math-render꞉> 
+(.renderToString katex "Calcula: $(-3)(-5)$" #js {:throwOnError false})
+"<span class=\"katex-error\" title=\"ParseError: KaTeX parse error: Can&#x27;t use function &#x27;$&#x27; in math mode at position 10: Calcula: $̲(-3)(-5)$\" style=\"color:#cc0000\">Calcula: $(-3)(-5)$</span>"
+cljs꞉universo.components.math-render꞉> 
+(str/split "Calcula: $(-3)(-5)$" #"\$")
+nil
+;
+; ------ WARNING - :undeclared-ns ------------------------------------------------
+;  Resource: <eval>:1:2
+;  No such namespace: str, could not locate str.cljs, str.cljc, or JavaScript source providing "str"
+; --------------------------------------------------------------------------------
+;
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:2
+;  Use of undeclared Var str/split
+; --------------------------------------------------------------------------------
+;
+cljs꞉universo.components.math-render꞉> 
+; Evaluating file: math_render.cljs
+#'universo.components.math-render/latex
+cljs꞉universo.components.math-render꞉> 
+nil
+;
+; ------ WARNING - :undeclared-ns ------------------------------------------------
+;  Resource: <eval>:1:2
+;  No such namespace: str, could not locate str.cljs, str.cljc, or JavaScript source providing "str"
+; --------------------------------------------------------------------------------
+;
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:2
+;  Use of undeclared Var str/split
+; --------------------------------------------------------------------------------
+;
+cljs꞉universo.components.math-render꞉> 
+(require '[clojure.string :as str])
+nil
+cljs꞉universo.components.math-render꞉> 
+["Calcula: " "(-3)(-5)"]
+cljs꞉universo.components.math-render꞉> 
+["Calcula: " "(-3)(-5)"]
+cljs꞉universo.components.math-render꞉> 
+["Calcula: " "(-3)(-5)" " el resultado es " "43"]
+cljs꞉universo.components.math-render꞉> 
+["" "(-3)(-5)" " cuanto es"]
+cljs꞉universo.components.math-render꞉> 

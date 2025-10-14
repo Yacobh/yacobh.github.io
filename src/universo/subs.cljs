@@ -58,6 +58,8 @@
  :set-dashboard-user-id
  (fn [db [_ user-id]]
    (assoc-in db [:dashboard :user-id] user-id)))
+;-----
+
 
 (re-frame/reg-event-db
  :initialize-db
@@ -89,6 +91,8 @@
  :hide-modal
  (fn [db _]
    (assoc-in db [:ui :modal] nil)))
+
+;; authentication
 
 (re-frame/reg-event-db
  :set-visitor-id

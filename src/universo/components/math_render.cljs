@@ -1,46 +1,50 @@
 (ns universo.components.math-render
-  (:require [clojure.string :as str]
-            ["katex" :as katex]
-            [reagent.core :as r]))
+  (:require ["katex" :as katex]
+            [clojure.string :as str]))
 
+#_(defn latex [expr]
+  (let [html (.renderToString katex expr #js {:throwOnError false})
+        node (.createElement js/document "div")]
+    (set! (.-innerHTML node) html)
+    (let [mathml-part (.. node (querySelector ".katex-mathml"))]
+      ;; devolvemos el MathML
+      [:span {:dangerouslySetInnerHTML {:__html (.-outerHTML mathml-part)}}])))
 
+;; Versión más simple si sabes que usas solo $ ... $
+;; 1️⃣ Tu función original - NO LA TOCAMOS (funciona bien)
+(defn render-latex-math [expr]
+  (let [html (.renderToString katex expr #js {:throwOnError false})
+        node (.createElement js/document "div")]
+    (set! (.-innerHTML node) html)
+    (let [mathml-part (.. node (querySelector ".katex-mathml"))]
+      [:span {:dangerouslySetInnerHTML {:__html (.-outerHTML mathml-part)}}])))
 
+;; 2️⃣ Función que separa texto de matemáticas
+(defn split-by-latex [text]
+  (if (or (nil? text) (empty? text))
+    []
+    (let [parts (str/split text #"\$")] ;no me termina de gustar...
+      (map-indexed
+       (fn [idx part]
+         {:type (if (even? idx) :text :math)
+          :content part})
+       parts))))
 
-(defn katex-html
-  "Renderiza LaTeX a HTML usando KaTeX. No lanza error si hay sintaxis inválida."
-  [latex opts]
-  (try
-    (katex/renderToString latex (clj->js (merge {:throwOnError false} opts)))
-    (catch :default e
-      (js/console.error "KaTeX error:" e)
-      (str "$" latex "$"))))
+;; 3️⃣ Función que combina todo
+(defn latex [text]
+  (if (or (nil? text) (empty? text))
+    [:span ""]
+    (let [parts (split-by-latex text)]
+      (into [:span]
+            (map (fn [{:keys [type content]}]
+                   (if (= type :math)
+                     (if (empty? content)
+                       [:span] ;; $ vacío
+                       (render-latex-math content))
+                     [:span content]))
+                 parts)))))
+(comment
 
-(defn inline-math
-  "Devuelve un fragmento Reagent donde:
-   - $$...$$ se renderiza en modo display
-   - $...$ se renderiza en modo inline
-   - El resto del texto se deja tal cual"
-  [s]
-  (let [; Prioriza $$...$$ antes que $...$
-        matches (re-seq #"\$\$([^$]+)\$\$|\$([^$]+)\$|[^$]+" s)]
-    (into
-     [:<>]
-     (map-indexed
-      (fn [i m]
-        (let [[full g-display g-inline] m]
-          (cond
-            g-display
-            [:span.katex-display
-             {:key i
-              :dangerouslySetInnerHTML
-              {:__html (katex-html g-display {:displayMode true})}}]
+(str/split "$(-3)(-5)$ cuanto es" #"\$")
 
-            g-inline
-            [:span.katex-inline
-             {:key i
-              :dangerouslySetInnerHTML
-              {:__html (katex-html g-inline {:displayMode false})}}]
-
-            :else
-            [:span {:key i} full]))))
-     matches)))
+)

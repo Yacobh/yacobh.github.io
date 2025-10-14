@@ -694,3 +694,12 @@ input:focus, select:focus, textarea:focus {
 .question-card {
   animation: fadeIn 0.5s ease;
 }
+.katex-mathml {
+    position: absolute;
+    clip: rect(1px, 1px, 1px, 1px);
+    padding: 0;
+    border: 0;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+}
