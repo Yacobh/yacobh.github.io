@@ -1492,3 +1492,8 @@ cljs꞉universo.components.math-render꞉> 
 cljs꞉universo.components.math-render꞉> 
 ["" "(-3)(-5)" " cuanto es"]
 cljs꞉universo.components.math-render꞉> 
+(first [])
+nil
+cljs꞉universo.components.math-render꞉> 
+#object [Function]
+cljs꞉universo.events.test꞉> 

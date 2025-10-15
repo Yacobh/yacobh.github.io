@@ -1,6 +1,7 @@
 (ns universo.events.test
   (:require
    [re-frame.core :as re-frame]
+   [universo.components.tetha :as tetha]
    [cljs.core.async :refer [go <!]]
    [universo.db.crud :as crud]))
 
@@ -54,7 +55,7 @@
             (assoc-in [:test :topic] topic)
             (assoc-in [:test :responses] [])
             (assoc-in [:test :questions] [])
-            (assoc-in [:test :theta] 0.0)
+            (assoc-in [:test :theta] -3.0)
             (assoc-in [:test :theta-history] [])
             (assoc-in [:test :current-question] 0))
     :dispatch [:test/fetch-next-question]}))
@@ -67,21 +68,64 @@
 ;; - Consulta Supabase con un filtro (tema + dificultad).
 ;; - Cuando obtiene una pregunta, dispara el evento `:test/add-question`.
 
+;; -----------------------------------------------------------------------------
+;; 🔹 EFECTO: Obtiene la siguiente pregunta desde Supabase
+;; -----------------------------------------------------------------------------
+;; - Usa el valor actual de `theta` para estimar una dificultad objetivo.
+;; - Consulta Supabase con un filtro (tema + dificultad).
+;; - Filtra las preguntas que ya han sido respondidas.
+;; - Cuando obtiene una pregunta, dispara el evento `:test/add-question`.
+
 (re-frame/reg-fx
  :test/fetch-next-question
  (fn [_]
    (go
      (let [theta @(re-frame/subscribe [:test/theta])
-           topic @(re-frame/subscribe [:test/topic])
-           ;; Heurística simple para determinar la dificultad objetivo
-           target-difficulty (-> (+ theta 1) (* 3) Math/round)
-           _ (js/console.log "Difficultty: " target-difficulty)
+           ;; Obtener las preguntas ya realizadas
+           answered-questions @(re-frame/subscribe [:test/questions])
+           ;; Extraer los IDs de las preguntas ya respondidas
+           answered-ids (set (map :id answered-questions))
+
+           _ (js/console.log "Theta actual:" theta)
+           _ (js/console.log "Preguntas ya respondidas:" answered-ids)
+
+           ;; Consultar Supabase
+           result (<! (crud/get-table "questions"
+                                      {"difficulty" [:between (- theta 0.5 ) (+ 0.5 theta)]
+                                       "topic" "diagnostico"}))]
+       (if (:success result)
+         (let [;; Filtrar preguntas que NO han sido respondidas
+               available-questions (filter
+                                     #(not (contains? answered-ids (:id %)))
+                                     (:data result))
+
+               _ (js/console.log "Preguntas disponibles:" (count available-questions))
+
+               ;; Seleccionar una pregunta (puedes aleatorizar aquí)
+               next-q (when (seq available-questions)
+                        (normalize-question (first available-questions)))]
+
+           (if next-q
+             (re-frame/dispatch [:test/add-question next-q])
+             (do
+               (js/console.log "⚠️ No hay más preguntas disponibles, finalizando test")
+               (re-frame/dispatch [:test/complete]))))
+         (js/console.error "❌ Error obteniendo pregunta:" result))))))
+
+#_(re-frame/reg-fx
+ :test/fetch-next-question
+ (fn [_]
+   (go
+     (let [theta @(re-frame/subscribe [:test/theta])
+           _ (js/console.log "Difficultty: " theta)
            ;; 🔸 Aquí podrías ajustar la lógica de selección (por ejemplo, aleatorizar)
            result (<! (crud/get-table "questions"
-                                      {"difficulty" [:lt target-difficulty]}))]
+                                      {"difficulty" [:lt (+ 0.01 theta)]}))]
        (if (:success result)
          (let [next-q (normalize-question (first (:data result)))]
-           (re-frame/dispatch [:test/add-question next-q]))
+           (if next-q
+             (re-frame/dispatch [:test/add-question next-q])
+             (re-frame/dispatch [:test/complete])))
          (js/console.error "❌ Error obteniendo pregunta:" result))))))
 
 
@@ -101,8 +145,8 @@
                        :correct? correct?
                        :time-ms time-ms}
          updated-db (update-in db [:test :responses] conj new-response)
-         new-theta (calculate-theta (:test updated-db))
-         _ (js/console.log "new-score: " new-theta)]
+         new-theta (tetha/calculate-theta (:test updated-db))
+         _ (js/console.log "new-theta: " new-theta)]
      {:db (-> updated-db
               (assoc-in [:test :theta] new-theta)
               (update-in [:test :theta-history] conj new-theta))
@@ -172,16 +216,13 @@
 ;; 🔹 EFECTO: Guarda el test en Supabase
 ;; -----------------------------------------------------------------------------
 ;; - Usa tu función existente crud/insert-data-table!
-;; - Registra logs en consola (se puede extender con notificaciones)
-
-(re-frame/reg-fx
- :save-test
+;; - Registra logs en consola (se puede extender con notificaciones)(est
  (fn [data]
    (go
      (let [result (<! (crud/insert-data-table! data "tests"))]
        (if (:success result)
          (js/console.log "✅ Test guardado exitosamente:" (:data result))
-         (js/console.error "❌ Error al guardar test:" (:error result)))))))
+         (js/console.error "❌ Error al guardar test:" (:error result))))))
 
 
 ;; -----------------------------------------------------------------------------

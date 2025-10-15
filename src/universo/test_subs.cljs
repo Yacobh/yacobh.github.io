@@ -33,9 +33,6 @@
      (when current-q-id
        (last (filter #(= (:question-id %) current-q-id) responses))))))
 
-
-
-
 (re-frame/reg-sub
  :current-question-selected-option
  :<- [:current-question-response]

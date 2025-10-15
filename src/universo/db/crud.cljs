@@ -80,6 +80,10 @@
              :gte (.gte query col v)
              :like (.like query col v)
              :ilike (.ilike query col v)
+            ;; NUEVO: operador :between para rangos
+             :between (let [[_ min-val max-val] val]
+                        (.gte query col min-val)
+                        (.lte query col max-val))
              ;; si no reconoce, cae a eq
              (.eq query col v)))
          ;; default = igualdad
