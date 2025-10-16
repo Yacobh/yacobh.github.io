@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Avatar Profesor Matemáticas - Descargar</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .avatar-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .download-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52,152,219,0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="avatar-container">
+        <svg id="math-prof-avatar" width="200" height="200" viewBox="0 0 200 200">
+            <!-- Fondo circular con gradiente matemático -->
+            <defs>
+                <radialGradient id="mathGrad" cx="50%" cy="50%">
+                    <stop offset="0%" style="stop-color:#f39c12;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#e67e22;stop-opacity:1" />
+                </radialGradient>
+                <linearGradient id="boardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#ecf0f1;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#bdc3c7;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+
+            <!-- Círculo principal del avatar -->
+            <circle cx="100" cy="80" r="70" fill="url(#mathGrad)" stroke="#2c3e50" stroke-width="4"/>
+
+            <!-- Cara del profesor -->
+            <!-- Piel -->
+            <circle cx="100" cy="70" r="45" fill="#f4a261"/>
+
+            <!-- Ojos con gafas -->
+            <g transform="translate(100,65)">
+                <!-- Gafas -->
+                <rect x="-35" y="-10" width="70" height="15" rx="7" fill="#2c3e50" stroke="#34495e" stroke-width="2"/>
+                <!-- Lentes -->
+                <circle cx="-15" cy="2.5" r="8" fill="#ffffff" stroke="#bdc3c7" stroke-width="1"/>
+                <circle cx="15" cy="2.5" r="8" fill="#ffffff" stroke="#bdc3c7" stroke-width="1"/>
+                <!-- Pupilas -->
+                <circle cx="-12" cy="3" r="3" fill="#2c3e50"/>
+                <circle cx="18" cy="3" r="3" fill="#2c3e50"/>
+                <!-- Reflejo -->
+                <circle cx="-10" cy="1" r="1" fill="#ffffff" opacity="0.8"/>
+                <circle cx="20" cy="1" r="1" fill="#ffffff" opacity="0.8"/>
+            </g>
+
+            <!-- Nariz -->
+            <path d="M95 75 L100 85 L105 75" fill="none" stroke="#e67e22" stroke-width="2"/>
+
+            <!-- Boca sonriente -->
+            <path d="M80 95 Q100 105 120 95" fill="none" stroke="#7f8c8d" stroke-width="3" stroke-linecap="round"/>
+
+            <!-- Cabello -->
+            <path d="M70 45 Q85 30 100 45 Q115 30 130 45 Q120 60 100 55 Q80 60 70 45"
+                  fill="#34495e" stroke="#2c3e50" stroke-width="2"/>
+
+            <!-- Pizarra detrás -->
+            <rect x="30" y="110" width="140" height="70" rx="10" fill="url(#boardGrad)" stroke="#34495e" stroke-width="3"/>
+            <rect x="35" y="115" width="130" height="60" rx="5" fill="#ffffff"/>
+
+            <!-- Ecuaciones en pizarra -->
+            <text x="100" y="135" text-anchor="middle" fill="#2c3e50" font-family="monospace" font-size="14" font-weight="bold">
+                x² + y²
+            </text>
+            <text x="100" y="155" text-anchor="middle" fill="#e74c3c" font-family="monospace" font-size="16" font-weight="bold">
+                = r²
+            </text>
+
+            <!-- Iconos matemáticos flotantes -->
+            <text x="25" y="50" fill="#3498db" font-family="monospace" font-size="20" font-weight="bold">∑</text>
+            <text x="170" y="60" fill="#e74c3c" font-family="monospace" font-size="18" font-weight="bold">∫</text>
+            <text x="40" y="170" fill="#27ae60" font-family="monospace" font-size="16" font-weight="bold">π</text>
+            <text x="160" y="180" fill="#f39c12" font-family="monospace" font-size="16" font-weight="bold">∞</text>
+
+            <!-- Tiza -->
+            <rect x="175" y="125" width="15" height="4" rx="2" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+
+            <!-- Nombre del profesor -->
+            <text x="100" y="195" text-anchor="middle" fill="#2c3e50" font-family="Arial" font-size="14" font-weight="bold">
+                Prof. Matemáticas
+            </text>
+        </svg>
+
+        <h3>👨‍🏫 Profesor de Matemáticas</h3>
+        <p>Avatar listo para tu footer de coaching</p>
+
+        <button class="download-btn" onclick="downloadSVG()">
+            📥 Descargar SVG
+        </button>
+
+        <br><small>Tamaño: 200x200px | Formato: Vectorial</small>
+    </div>
+
+    <script>
+        function downloadSVG() {
+            const svg = document.getElementById('math-prof-avatar');
+            const serializer = new XMLSerializer();
+            let source = serializer.serializeToString(svg);
+
+            if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+                source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+            }
+            source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+            const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+            const downloadLink = document.createElement('a');
+            downloadLink.href = url;
+            downloadLink.download = 'avatar-profesor-matematicas.svg';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+    </script>
+</body>
+</html>

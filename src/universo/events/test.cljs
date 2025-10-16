@@ -217,12 +217,14 @@
 ;; -----------------------------------------------------------------------------
 ;; - Usa tu función existente crud/insert-data-table!
 ;; - Registra logs en consola (se puede extender con notificaciones)(est
- (fn [data]
-   (go
-     (let [result (<! (crud/insert-data-table! data "tests"))]
-       (if (:success result)
-         (js/console.log "✅ Test guardado exitosamente:" (:data result))
-         (js/console.error "❌ Error al guardar test:" (:error result))))))
+ (re-frame/reg-fx
+  :save-test                                   ; nombre del efecto
+  (fn [data]                                   ; data = mapa con los datos del test
+    (go
+      (let [result (<! (crud/insert-data-table! data "tests"))]
+        (if (:success result)
+          (js/console.log "✅ Test guardado exitosamente:" (clj->js (:data result)))
+          (js/console.error "❌ Error al guardar test:"  (clj->js (:error result))))))))
 
 
 ;; -----------------------------------------------------------------------------
