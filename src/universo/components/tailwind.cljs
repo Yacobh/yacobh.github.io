@@ -1,7 +1,7 @@
 (ns universo.components.tailwind)
 
 (defn app []
-  [:div.min-h-screen.bg-gray-100
+  [:div.min-h-screen.bg-gray-200
    [:div.container.mx-auto.p-8
     [:h1.text-4xl.font-bold.text-center.text-blue-600
      "¡Tailwind CSS está funcionando!"]
