@@ -37,27 +37,34 @@
 
 
 (defn presentacion []
-    [:div {:class "flex justify-center bg-gray-600 py-8"}
-     [:div {:class "max-w-3xl p-8 text-left font-serif leading-relaxed text-gray-800 shadow-lg bg-white rounded-2xl"}
+  [:div {:class "flex justify-center py-8"}
+   [:div {:class "max-w-3xl p-8 text-left font-serif leading-relaxed text-gray-800 shadow-lg bg-white rounded-2xl"}
 
-      [:h1 {:class "text-3xl font-bold text-blue-900 mb-4"}
-       "Portal de tutorías matemáticas"]
-      [:p "En esta aplicación podras practicar los contenidos de la Prueba de Admisión a la Educación Superior (PAES)."]
+    [:h1 {:class "text-3xl font-bold text-blue-900 mb-6"}
+     "Portal de Tutorías Matemáticas"]
 
-      [:p "A traves de una serie de evaluaciones que te indicaran cuales son los contenidos que necesitas reforzar."]
-      [:p "Esta web es parte de un programa de la Universidad Nacional Arturo Prat, en conjunto con el profesor Jacobo Cordova."]
+    [:p {:class "mb-4 text-lg"}
+     "Plataforma de práctica para la Prueba de Admisión a la Educación Superior (PAES) de Matemática 1."]
 
-      [:p "Para ingresar al tablero necesitará un usuario y contraseña."]
+    [:div {:class "mb-4"}
+     [:h2 {:class "text-xl font-semibold text-blue-800 mb-2"} "¿Cómo funciona?"]
+     [:ul {:class "list-disc list-inside space-y-1 text-gray-700"}
+      [:li "Evaluaciones diagnósticas que identifican contenidos a reforzar"]
+      [:li "Sistema progresivo basado en niveles de aprendizaje"]
+      [:li "Seguimiento personalizado de tu avance"]]]
 
-      [:p "Al ingresar al tablero tendrás un resumen de tus evaluaciones y podrás acceder a tu evaluación diagnóstica."]
+    [:div {:class "mb-4"}
+     [:h2 {:class "text-xl font-semibold text-blue-800 mb-2"} "Instrucciones"]
+     [:ul {:class "list-disc list-inside space-y-1 text-gray-700"}
+      [:li "Ingresa con tu usuario y contraseña"]
+      [:li "No uses calculadora ni ayudas externas"]
+      [:li "El tiempo de respuesta es considerado en la evaluación"]]]
 
-      [:p "La evaluación diagnóstica está enfocada en contenidos granulares y progresivos del pensum de la prueba de Matemática 1."]
-      [:p "La evaluación funciona en base a niveles de aprendizaje, comenzando con un nivel de 0"]
+    [:p {:class "text-sm text-gray-600 mt-6"}
+     "Iniciativa de la Universidad Nacional Arturo Prat en conjunto con el profesor Jacobo Córdova."]
 
-      [:p "Durante la evaluación no se debe usar calculadora, o ayudas externas."]
-      [:p "El tiempo utilizado para respoder es un elemento que se toma en cuenta."]
-      [:p {:class "italic text-blue-700 font-semibold"}
-       "Esperamos que esta herramienta sea de mucha ayuda en tu proceso para la práctica de la PAES"]]])
+    [:p {:class "italic text-blue-700 font-semibold mt-4"}
+     "¡Éxito en tu preparación para la PAES!"]]])
 
 
 
@@ -143,7 +150,7 @@
 ;; Componente principal (equivalente a Home)
 
 (defn home []
-  [:div.flex.min-h-screen.flex-col.bg-gray-100
+  [:div.flex.min-h-screen.flex-col.bg-gray-200
    [navigation]
    [:main.flex-1.pt-16  ;; pt-16 para compensar la altura del nav  ;; flex-1 hace que main ocupe todo el espacio disponible
     [main-content]]

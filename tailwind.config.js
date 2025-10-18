@@ -11,8 +11,5 @@ module.exports = {
   theme: {
     extend: {},
   },
-    safelist: [
-    { pattern: /katex/ },  // Preserva todas las clases de KaTeX
-  ],
   plugins: [],
 }
