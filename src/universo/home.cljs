@@ -7,33 +7,29 @@
 
 ;; seccion principal variable con atomo de reagent, dinamico
 
-
 (defn navigation []
-  [:nav.fixed.top-0.left-0.right-0.z-50.bg-white.border-b.border-gray-100
+  [:nav.fixed.top-0.left-0.right-0.z-50.bg-white.border-b.border-gray-200
    [:div.max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8
     [:div.flex.justify-between.items-center.h-16
-     ;; Logo con vinculo a la sección principal
-
      [:div.flex.items-center
-      ;; Logo con integral animada
       [:a.text-gray-800.font-bold.text-xl.flex.items-center
        {:href "#"
-        :on-click #(re-frame/dispatch [:set-section :main])} ; Cambia a la sección principal
-       [:span.bg-gradient-to-r.from-blue-600.to-purple-600.bg-clip-text.text-transparent "Academia"]
+        :on-click #(re-frame/dispatch [:set-section :main])}
+       [:span.bg-gradient-to-r.from-blue-600.to-purple-600.bg-clip-text.text-transparent
+        "Academia"]
        [:span.mx-2.text-3xl.font-light.text-indigo-600 "∫"]
-       [:span.bg-gradient-to-r.from-purple-600.to-indigo-700.bg-clip-text.text-transparent "Integral"]]]
+       [:span.bg-gradient-to-r.from-purple-600.to-indigo-700.bg-clip-text.text-transparent
+        "Integral"]]]
 
-     ;; Botones
      [:div.flex.items-center.gap-3
       (if @(re-frame/subscribe [:visitor-email])
-        [:a.bg-indigo-600.text-white.text-sm.px-5.py-2.5.rounded-full.hover:bg-indigo-700.transition.shadow-sm.hover:shadow-md
-         ;; Botón de acceso
-         {:on-click #(re-frame/dispatch [:set-section :dashboard])} ; Cambia a la sección de login
-         "Mi tablero"]
-        [:a.bg-indigo-600.text-white.text-sm.px-5.py-2.5.rounded-full.hover:bg-indigo-700.transition.shadow-sm.hover:shadow-md
-         ;; Botón de acceso
-         {:on-click #(re-frame/dispatch [:set-section :login])} ; Cambia a la sección de login
+        [:a.bg-gradient-to-r.from-indigo-600.to-purple-600.text-white.text-sm.font-medium.px-6.py-2.5.rounded-full.hover:opacity-90.transition.cursor-pointer
+         {:on-click #(re-frame/dispatch [:set-section :dashboard])}
+         "Mi Tablero"]
+        [:a.bg-gradient-to-r.from-indigo-600.to-purple-600.text-white.text-sm.font-medium.px-6.py-2.5.rounded-full.hover:opacity-90.transition.cursor-pointer
+         {:on-click #(re-frame/dispatch [:set-section :login])}
          "Iniciar Sesión"])]]]])
+
 
 
 (defn presentacion []
@@ -63,50 +59,6 @@
 
     [:p {:class "italic text-blue-700 font-semibold mt-4"}
      "¡Éxito en tu preparación para la PAES!"]]])
-
-
-
-#_(defn presentacion []
-    [:section.bg-gray-100.py-20
-     [:div.container.mx-auto.px-4.text-center
-      [:h2.text-3xl.font-bold.mb-4 "Hola soy el profesor Jacobo Córdova"]
-      [:p.text-xl.text-gray-600 "Bienvenido a mi portal Web "]
-      [:p.text-xl.text-gray-600 "Ofrezco cursos de matemática, adaptados a perfiles de estudiantes"]
-      [:p.text-xl.text-gray-600 "Te invito a que realices el test interactivo, que podrá perfilar cuál es tu nivel matemático, indicándote cuáles son los temas que necesitas
-                               abordar. Se identifican rápidamente tus puntos débiles y ¡se te entrega un resultado diagnóstico personalizado totalmente gratis!"]
-      [:p.text-xl.text-gray-600 "Actualmente cuento con un test de Álgebra, dentro del temario de la PAES"]
-      [:p.text-xl.text-gray-600 "Para entregarte el resultado del test necesitaré que me dejes un correo electrónico"]
-
-      ;; Aquí está el input funcional
-      #_[:input.border.rounded-lg.p-2.w-full
-         {:type "email"
-          :placeholder "Tu correo electrónico"
-          :required true
-          :value @(re-frame/subscribe [:visitor-email])
-          :on-change #(re-frame/dispatch [:set-visitor-email (.. % -target -value)])}]
-
-      ;; Botón para iniciar test
-      #_[:button.mt-8.bg-blue-600.text-white.px-8.py-3.rounded-lg.hover:bg-blue-700
-         {:on-click #(re-frame/dispatch [:set-section :login])}
-         "Iniciar Sesión"]]])
-
-
-#_(defn practica-paes []
-    [:section.bg-gray-100.py-20
-     [:div.container.mx-auto.px-4.text-center
-      [:h2.text-5xl.font-bold.mb-4 "Practica la PAES ooo"]
-      [:p.text-xl.text-gray-600 "Con el test interactivo, se identifican rapidamente cuales son tus puntos debiles, y !se te entrega un resultado diagnostico personalizado totalmente gratis!"]
-      [:button.mt-8.bg-blue-600.text-white.px-8.py-3.rounded-lg.hover:bg-blue-700
-
-       {:href "#"
-        :on-click #(re-frame/dispatch [:set-section :diagnostic-test])} ; Cambia a la sección de test diagnóstico
-       "Comenzar test"]]])
-
-#_(defn guestbook-section []
-    [:section.bg-gray-100.py-16
-     [:div.container.mx-auto.px-4
-
-      [mathacademy/math-academy-component]]])
 
 (defn footer []
   [:footer.bg-gradient-to-r.from-gray-900.to-gray-800.text-white.mt-auto
@@ -142,7 +94,10 @@
       :login [login/login-form]
       :diagnostic-test [diagnostic-test/diagnostic-test]
       :dashboard [dashboard/dashboard]
-      [:div "Sección no encontrada (404)"])))
+      [:div.flex.items-center.justify-center.min-h-screen
+       [:div.text-center
+        [:h1.text-6xl.font-bold.text-gray-300.mb-4 "404"]
+        [:p.text-xl.text-gray-600 "Sección no encontrada"]]])))
 
 
 ;; Componente principal (equivalente a Home)

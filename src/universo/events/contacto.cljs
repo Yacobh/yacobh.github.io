@@ -16,18 +16,19 @@
 ;; -----------------------------------------------------------------------------
 (re-frame/reg-event-fx
  :contacto/guardar
- (fn [_ [_ mensaje]]
-   {:fx/insertar-contacto mensaje}))  ;; 👈 efecto con nombre distinto
+ (fn [{:keys [db]} [_ mensaje]]
+   {:fx/insertar-contacto [mensaje db]}))  ;; 👈 efecto con nombre distinto
 
 ;; -----------------------------------------------------------------------------
 ;; EFECTO: Inserta en Supabase
 ;; -----------------------------------------------------------------------------
 (re-frame/reg-fx
  :fx/insertar-contacto
- (fn [mensaje]
+ (fn [[mensaje db]]
    (go
      (let [result (<! (crud/insert-data-table!
-                       {:mensaje mensaje}
+                       {:mensaje mensaje
+                        :extra db}
                        "contacto"))]
        (if (:success result)
          (do
@@ -37,12 +38,14 @@
            (js/console.error "❌ Error al guardar contacto:" (:error result))
            (re-frame/dispatch [:contacto-error (:error result)])))))))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :contacto-exito
- (fn [db _]
-   (-> db
-       (assoc :contacto/enviando? false)
-       (assoc :contacto/estado :exito))))
+ (fn [{:keys [db]} _]
+   {:db (-> db
+            (assoc :contacto/enviando? false)
+            (assoc :contacto/estado :exito))
+    ;; Despacha reset en 5 segundos
+    :dispatch-later [{:ms 5000 :dispatch [:contacto/reset]}]}))
 
 (re-frame/reg-event-db
  :contacto-error
@@ -51,6 +54,14 @@
    (-> db
        (assoc :contacto/enviando? false)
        (assoc :contacto/estado :error))))
+
+;; -----------------------------------------------------------------------------
+;; EVENTO: Reset — vuelve el estado a nil
+;; -----------------------------------------------------------------------------
+(re-frame/reg-event-db
+ :contacto/reset
+ (fn [db _]
+   (assoc db :contacto/estado nil)))
 
 ;;-------- subs
 

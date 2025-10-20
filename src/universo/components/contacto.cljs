@@ -7,9 +7,10 @@
   (let [mensaje (r/atom "")]
     (fn []
       (let [estado @(re-frame/subscribe [:contacto/estado])
-            enviando? @(re-frame/subscribe [:contacto/enviando?])]
+            enviando? @(re-frame/subscribe [:contacto/enviando?])
+            visitor-email @(re-frame/subscribe [:visitor-email])]
         [:div
-         [:form.flex.flex-col.gap-4
+         [:form.flex.flex-col.gap-2
           [:textarea.w-full.p-2.rounded.text-gray-800
            {:rows 2
             :placeholder "¿Tienes alguna pregunta o comentario?"
