@@ -9,7 +9,7 @@
       (let [estado @(re-frame/subscribe [:contacto/estado])
             enviando? @(re-frame/subscribe [:contacto/enviando?])]
         [:div
-         [:form.flex.flex-col.gap-2
+         [:form.flex.flex-col.gap-4
           [:textarea.w-full.p-2.rounded.text-gray-800
            {:rows 2
             :placeholder "¿Tienes alguna pregunta o comentario?"

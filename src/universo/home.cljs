@@ -38,10 +38,8 @@
 
 (defn presentacion []
   [:div {:class "flex justify-center py-8"}
-   [:div {:class "max-w-3xl p-8 text-left font-serif leading-relaxed text-gray-800 shadow-lg bg-white rounded-2xl"}
-
-    [:h1 {:class "text-3xl font-bold text-blue-900 mb-6"}
-     "Portal de Tutorías Matemáticas"]
+   [:div {:class "w-full sm:w-11/12 md:w-3/4 max-w-3xl p-4 sm:p-8 rounded-2xl shadow-lg sm:shadow-2xl bg-white mx-auto"}
+    [:h1 {:class "text-2xl sm:text-3xl md:text-4xl font-bold text-blue-900 mb-4"} "Portal de Tutorías Matemáticas"]
 
     [:p {:class "mb-4 text-lg"}
      "Plataforma de práctica para la Prueba de Admisión a la Educación Superior (PAES) de Matemática 1."]
@@ -124,7 +122,7 @@
        "Transformando el aprendizaje de las matemáticas con métodos innovadores y personalizados."]]
 
      ;; Contacto
-     [:div
+     [:div.col-span-1.md:col-span-2
       [:h4.text-lg.font-semibold.mb-4 "Contacto"]
       [contacto-form]]]]
 
