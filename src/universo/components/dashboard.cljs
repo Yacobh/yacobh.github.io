@@ -46,12 +46,3 @@
                         (re-frame/dispatch [:set-section :diagnostic-test]))
            #_(re-frame/dispatch [:set-section :diagnostic-test])} ; Cambia a la sección de login
           "Realizar evaluación"]]]]]))
-
-#_(defn dashboard []
-  (let [dashboard @(re-frame/subscribe [:dashboard])
-        correo @(re-frame/subscribe [:visitor-email])]
-    [:div {:class "py-12 px-4"}
-     [:p (str "Email: " correo)]
-     [:p (str "Nivel actual: " (:level dashboard))]
-     [:p (str "Frecuencia: " (:frecuencia dashboard))]
-     [:p (str "Evaluaciones realizadas: " (:tests dashboard))]]))

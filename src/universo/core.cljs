@@ -6,6 +6,7 @@
    #_[universo.test-subs]
    [universo.events.test]
    [universo.events.contacto]
+   [universo.events.dashboard]
    [universo.views :as views]
    [universo.visitor-tracker :as tracker]
    [universo.components.mathacademy.events]

@@ -34,7 +34,7 @@
                              (reset! error nil)
                              (reset! success nil)
 
-                             (-> (sb/sign-in "jacobocordova@gmail.com" "Jacobo.1")
+                             (-> (sb/sign-in @email @password)
                                  (.then (fn [response]
                                           (reset! loading false)
                                           (if (.-error response)
@@ -44,7 +44,9 @@
                                               (js/console.log "Usuario:" (.-user (.-data response)))
                                               (re-frame/dispatch [:set-dashboard-user-id (.-id (.-user (.-data response)))])
                                               (re-frame/dispatch [:set-visitor-email @email])
-                                              (re-frame/dispatch [:set-section :dashboard])))))
+                                              (re-frame/dispatch [:set-section :dashboard])
+                                              (js/console.log "Email:" (.-email (.-user (.-data response))))
+                                              (re-frame/dispatch [:dashboard/cargar (.-email (.-user (.-data response)))])))))
                                  (.catch (fn [err]
                                            (reset! loading false)
                                            (reset! error "Error de conexión")))))}

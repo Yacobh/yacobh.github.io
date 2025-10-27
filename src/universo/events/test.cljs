@@ -66,13 +66,6 @@
 ;; -----------------------------------------------------------------------------
 ;; - Usa el valor actual de `theta` para estimar una dificultad objetivo.
 ;; - Consulta Supabase con un filtro (tema + dificultad).
-;; - Cuando obtiene una pregunta, dispara el evento `:test/add-question`.
-
-;; -----------------------------------------------------------------------------
-;; 🔹 EFECTO: Obtiene la siguiente pregunta desde Supabase
-;; -----------------------------------------------------------------------------
-;; - Usa el valor actual de `theta` para estimar una dificultad objetivo.
-;; - Consulta Supabase con un filtro (tema + dificultad).
 ;; - Filtra las preguntas que ya han sido respondidas.
 ;; - Cuando obtiene una pregunta, dispara el evento `:test/add-question`.
 
@@ -111,23 +104,6 @@
                (js/console.log "⚠️ No hay más preguntas disponibles, finalizando test")
                (re-frame/dispatch [:test/complete]))))
          (js/console.error "❌ Error obteniendo pregunta:" result))))))
-
-#_(re-frame/reg-fx
- :test/fetch-next-question
- (fn [_]
-   (go
-     (let [theta @(re-frame/subscribe [:test/theta])
-           _ (js/console.log "Difficultty: " theta)
-           ;; 🔸 Aquí podrías ajustar la lógica de selección (por ejemplo, aleatorizar)
-           result (<! (crud/get-table "questions"
-                                      {"difficulty" [:lt (+ 0.01 theta)]}))]
-       (if (:success result)
-         (let [next-q (normalize-question (first (:data result)))]
-           (if next-q
-             (re-frame/dispatch [:test/add-question next-q])
-             (re-frame/dispatch [:test/complete])))
-         (js/console.error "❌ Error obteniendo pregunta:" result))))))
-
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EVENTO: El usuario responde una pregunta
