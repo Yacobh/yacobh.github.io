@@ -1497,3 +1497,97 @@ nil
 cljs꞉universo.components.math-render꞉> 
 #object [Function]
 cljs꞉universo.events.test꞉> 
+; Connecting using "deps.edn + shadow-cljs" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+;
+; Connecting ...
+; Reading port file: file:///Users/yacobh/Documents/GitHub/yacobh.github.io/.nrepl-port ...
+; No nrepl port file found.
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
+nil
+clj꞉shadow.user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: deps.edn + shadow-cljs...
+; Starting cljs repl for: deps.edn + shadow-cljs...
+; Cljs builds started
+; Connected shadow-cljs runtime: 8, Chrome 537.36 [MacIntel], host: browser
+; Connected session: cljs, repl: :app
+; TIPS: You can choose which REPL to use (clj or cljs):
+;    *Calva: Toggle REPL connection*
+;    (There is a button in the status bar for this)
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
+nil
+"Please see https://calva.io/output/#about-stdout-in-the-repl-window
+about why stdout printed to this file is prepended with `;` to be line comments."
+cljs꞉user꞉> 
+; shadow-cljs remote notificatuons not supported with shadow-cljs version < 3.2.1
+; Evaluating file: crud.cljs
+nil
+cljs꞉universo.db.crud꞉> 
+(let [a (<! (get-table "tests" {"email-user" "jacobocordova@gmail.com"}))]
+  a)
+nil
+;
+; ------ WARNING - :undeclared-ns ------------------------------------------------
+;  Resource: <eval>:1:14
+;  No such namespace: crud, could not locate crud.cljs, crud.cljc, or JavaScript source providing "crud"
+; --------------------------------------------------------------------------------
+;
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:14
+;  Use of undeclared Var crud/get-table
+; --------------------------------------------------------------------------------
+;
+cljs꞉universo.db.crud꞉> 
+; Evaluating file: dashboard.cljs
+#object [re_frame$subs$subs_handler_fn]
+cljs꞉universo.events.dashboard꞉> 
+#object [Function]
+cljs꞉universo.events.dashboard꞉> 
+; Evaluating file: crud.cljs
+nil
+cljs꞉universo.db.crud꞉> 
+#'universo.db.crud/get-table
+cljs꞉universo.db.crud꞉> 
+nil
+;
+; ------ WARNING - :undeclared-ns ------------------------------------------------
+;  Resource: <eval>:1:14
+;  No such namespace: crud, could not locate crud.cljs, crud.cljc, or JavaScript source providing "crud"
+; --------------------------------------------------------------------------------
+;
+;
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:14
+;  Use of undeclared Var crud/get-table
+; --------------------------------------------------------------------------------
+;
+cljs꞉universo.db.crud꞉> 
+:repl/exception!
+;
+;
+; Execution error (Error) at (<cljs repl>:1).
+; <! used not in (go ...) block
+cljs꞉universo.db.crud꞉> 
+(go (let [res (<! (get-table "tests" {"email-user" "jacobocordova@gmail.com"}))]
+      (js/console.log res)))
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+#'universo.db.crud/get-latest
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 
+#object [cljs.core.async.impl.channels.ManyToManyChannel]
+cljs꞉universo.db.crud꞉> 

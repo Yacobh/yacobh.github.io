@@ -55,11 +55,11 @@
             (assoc-in [:test :topic] topic)
             (assoc-in [:test :responses] [])
             (assoc-in [:test :questions] [])
+            (assoc-in [:test :start-time] (.now js/Date))
             (assoc-in [:test :theta] -3.0)
             (assoc-in [:test :theta-history] [])
             (assoc-in [:test :current-question] 0))
     :dispatch [:test/fetch-next-question]}))
-
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EFECTO: Obtiene la siguiente pregunta desde Supabase
@@ -214,7 +214,9 @@
  (fn [{:keys [db]} _]
    (let [test (:test db)
          email-user (get-in db [:visitor :email])]
-     {:db (assoc-in db [:test :status] :completed)
+     {:db (-> db
+              (assoc-in [:test :status] :completed)
+              (assoc-in [:test :end-time] (.now js/Date)))
       :dispatch [:save-test {:test test :email-user email-user}]})))
 
 ;; -----------------------------------------------------------------------------
