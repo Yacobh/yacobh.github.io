@@ -2,7 +2,7 @@
   (:require
    [re-frame.core :as re-frame]
    [cljs.core.async :refer [go <!]]
-   [universo.db.crud :as crud]))  ;; ← asumo que aquí tienes la función para llamar a Supabase
+   [universo.db.crud :as crud]))
 
 (re-frame/reg-event-fx
  :enviar-contacto

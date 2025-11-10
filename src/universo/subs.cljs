@@ -76,7 +76,6 @@
  (fn [db [_ section]]
    (assoc-in db [:ui :current-section] section)))
 
-
 (re-frame/reg-sub
  :modal
  (fn [db _]

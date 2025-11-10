@@ -27,3 +27,5 @@ node_modules/
 .clj-kondo
 .lsp
 public/js/cljs-runtime/*
+.calva/output-window/output.calva-repl
+src/universo/user.cljs

@@ -69,16 +69,17 @@
 ;; - Filtra las preguntas que ya han sido respondidas.
 ;; - Cuando obtiene una pregunta, dispara el evento `:test/add-question`.
 
+
 (re-frame/reg-fx
  :test/fetch-next-question
- (fn [_]
+ (fn [{:keys [db]} _]
    (go
-     (let [theta @(re-frame/subscribe [:test/theta])
+     (let [theta (get-in db [:test :theta])
            ;; Obtener las preguntas ya realizadas
-           answered-questions @(re-frame/subscribe [:test/questions])
+           answered-questions (get-in db [:test :questions])
            ;; Extraer los IDs de las preguntas ya respondidas
            answered-ids (set (map :id answered-questions))
-
+           _ (js/console.log "Theta actual:" theta)
            _ (js/console.log "Theta actual:" theta)
            _ (js/console.log "Preguntas ya respondidas:" answered-ids)
 
@@ -122,11 +123,16 @@
                        :time-ms time-ms}
          updated-db (update-in db [:test :responses] conj new-response)
          new-theta (tetha/calculate-theta (:test updated-db))
-         _ (js/console.log "new-theta: " new-theta)]
+         questions (get-in db [:test :questions])
+         question (some #(when (= (:id %) question-id) %) questions)
+         _ (js/console.log "new-theta: " new-theta)
+         ]
      {:db (-> updated-db
               (assoc-in [:test :theta] new-theta)
               (update-in [:test :theta-history] conj new-theta))
-      :dispatch [:test/fetch-next-question]})))
+      :dispatch-n [[:show-modal {:question question
+                                 :response new-response}]
+                   [:test/fetch-next-question new-theta questions]]})))
 
 
 ;; -----------------------------------------------------------------------------
@@ -174,8 +180,8 @@
 
 (re-frame/reg-event-fx
  :test/fetch-next-question
- (fn [_ _]
-   {:test/fetch-next-question nil}))
+ (fn [db _]
+   {:test/fetch-next-question db}))
 
 
 ;; -----------------------------------------------------------------------------
