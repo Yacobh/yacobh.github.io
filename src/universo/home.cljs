@@ -103,7 +103,7 @@
 ;; Componente principal (equivalente a Home)
 
 (defn home []
-  [:div.flex.min-h-screen.flex-col.bg-gray-200
+  [:div.flex.min-h-screen.flex-col {:class "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"}
    [navigation]
    [:main.flex-1.pt-16  ;; pt-16 para compensar la altura del nav  ;; flex-1 hace que main ocupe todo el espacio disponible
     [main-content]]

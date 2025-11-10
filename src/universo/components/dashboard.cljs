@@ -57,7 +57,7 @@
   [ultimo-test]
   (when ultimo-test
     (let [{:keys [tema fecha correctas total porcentaje completado? current-question theta]} ultimo-test]
-      [:div.bg-gradient-to-br.from-indigo-50.to-purple-50.rounded-lg.shadow-lg.p-6
+      [:div
        [:div.flex.items-center.justify-between.mb-4
         [:h3.text-xl.font-bold.text-gray-800 "Última Evaluación"]
         (when-not completado?
@@ -74,15 +74,6 @@
         [:div
          [:p.text-sm.text-gray-600.font-medium "Fecha"]
          [:p.text-sm.text-gray-700 (formatear-fecha fecha)]]
-
-        ;; Progreso de preguntas
-        [:div
-         [:div.flex.justify-between.items-center.mb-2
-          [:p.text-sm.text-gray-600.font-medium "Progreso"]
-          [:p.text-sm.font-semibold.text-gray-700 (str current-question "/" total)]]
-         [:div.w-full.bg-gray-200.rounded-full.h-2.overflow-hidden
-          [:div.bg-indigo-500.h-2.rounded-full.transition-all
-           {:style {:width (str (min (* (/ current-question total) 100) 100) "%")}}]]]
 
         ;; Resultado
         [:div
@@ -108,14 +99,14 @@
         promedio @(re-frame/subscribe [:dashboard/promedio-nota])
         theta-promedio @(re-frame/subscribe [:dashboard/theta-promedio])]
 
-    [:div {:class "min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4"}
+    [:div{:class "py-8 px-4"}
      [:div {:class "max-w-6xl mx-auto"}
 
       ;; Header
       [:div.bg-white.rounded-xl.shadow-lg.p-6.mb-8
        [:div.flex.items-center.justify-between
         [:div
-         [:h1.text-3xl.font-bold.text-gray-800.mb-2 "Dashboard de Aprendizaje"]
+         [:h1.text-3xl.font-bold.text-gray-800.mb-2 "Tablero de Aprendizaje"]
          [:p.text-gray-600 (str "Bienvenido, " correo)]]
         [:div.text-5xl "📊"]]]
 
@@ -126,80 +117,36 @@
 
         [:div
          ;; Grid de estadísticas principales
-         [:div.grid.grid-cols-1.md:grid-cols-2.lg:grid-cols-4.gap-6.mb-8
+         [tarjeta-estadistica
+          "Total Evaluaciones"
+          total-tests
+          "Realizadas hasta ahora"
+          "📝"
+          "border-blue-500"
+          "text-blue-600"]
 
-          ;; Total de tests
-          [tarjeta-estadistica
-           "Total Evaluaciones"
-           total-tests
-           "Realizadas hasta ahora"
-           "📝"
-           "border-blue-500"
-           "text-blue-600"]
+         ;; Detalle último test realizado
+         (let [{:keys [tema fecha completado? correctas total porcentaje nota theta
+                       duracion-min promedio-seg-pregunta]} ultimo-test]
+           [:div.bg-white.rounded-xl.shadow-lg.p-8.mt-6.max-w-2xl.mx-auto
+            [:h3.text-xl.font-bold.text-indigo-700.mb-4 "Último test realizado"]
+            [:div.grid.grid-cols-1.sm:grid-cols-2.gap-x-8.gap-y-2
+             [:div [:span.font-semibold "Tema: "] (str tema)]
+             [:div [:span.font-semibold "Fecha: "] (formatear-fecha fecha)]
+             [:div [:span.font-semibold "Completado: "] (if completado? "Sí" "No")]
+             [:div [:span.font-semibold "Correctas: "] (str correctas "/" total)]
+             [:div [:span.font-semibold "Porcentaje: "] (str porcentaje "%")]
+             [:div [:span.font-semibold "Nota: "] (str nota)]
+             [:div [:span.font-semibold "Theta final: "] (str theta)]
+             [:div [:span.font-semibold "Duración total: "] (if duracion-min (str duracion-min " min") "-")]
+             [:div [:span.font-semibold "Promedio por pregunta: "] (if promedio-seg-pregunta (str promedio-seg-pregunta " seg") "-")]]])
 
-          ;; Tests completados
-          [tarjeta-estadistica
-           "Completadas"
-           tests-completados
-           (str (- total-tests tests-completados) " en progreso")
-           "✅"
-           "border-green-500"
-           "text-green-600"]
-
-          ;; Promedio
-          [tarjeta-estadistica
-           "Promedio General"
-           (if (pos? tests-completados) (str promedio "%") "N/A")
-           (when (pos? tests-completados)
-             (cond
-               (>= promedio 90) "¡Excelente!"
-               (>= promedio 70) "Muy bien"
-               (>= promedio 50) "Sigue practicando"
-               :else "Necesitas mejorar"))
-           "🎯"
-           "border-purple-500"
-           "text-purple-600"]
-
-          ;; Nivel promedio
-          [tarjeta-estadistica
-           "Nivel Promedio"
-           (if (pos? tests-completados) (str theta-promedio "/100") "N/A")
-           (when (pos? tests-completados) "Basado en θ promedio")
-           "⭐"
-           "border-yellow-500"
-           "text-yellow-600"]]
-
-         ;; Grid de contenido detallado
-         [:div.grid.grid-cols-1.lg:grid-cols-3.gap-6
-
-          ;; Columna izquierda (2/3) - Último test
-          [:div.lg:col-span-2
-           [tarjeta-ultimo-test ultimo-test]]
-
-          ;; Columna derecha (1/3) - Acciones rápidas
-          [:div.space-y-6
-           ;; Tarjeta de acción principal
-           [:div.bg-white.rounded-lg.shadow-lg.p-6
-            [:h3.text-lg.font-bold.text-gray-800.mb-4 "Acciones Rápidas"]
-            [:div.space-y-3
-             [:button.w-full.bg-indigo-600.text-white.font-semibold.py-3.px-4.rounded-lg.hover:bg-indigo-700.transition.shadow-md.hover:shadow-lg.flex.items-center.justify-center.gap-2
-              {:type "button"
-               :on-click #(do
-                            (re-frame/dispatch [:test/start "Números"])
-                            (re-frame/dispatch [:set-section :diagnostic-test]))}
-              [:span "🚀"]
-              [:span "Nueva Evaluación"]]
-
-             [:button.w-full.bg-gray-100.text-gray-700.font-semibold.py-3.px-4.rounded-lg.hover:bg-gray-200.transition.flex.items-center.justify-center.gap-2
-              {:type "button"
-               :on-click #(js/console.log "Ver historial")}
-              [:span "📈"]
-              [:span "Ver Historial"]]]]
-
-           ;; Tarjeta de tips
-           [:div.bg-gradient-to-br.from-green-50.to-emerald-50.rounded-lg.shadow-md.p-6
-            [:h3.text-lg.font-bold.text-gray-800.mb-3.flex.items-center.gap-2
-             [:span "💡"]
-             [:span "Consejo del día"]]
-            [:p.text-sm.text-gray-700.leading-relaxed
-             "La práctica constante es clave para mejorar. Intenta realizar al menos una evaluación cada semana para mantener tu progreso."]]]]])]]))
+         ;; Acciones rápidas
+         [:div.flex.flex-row.flex-wrap.gap-4.justify-center.mt-10
+          [:button.bg-indigo-600.text-white.font-semibold.py-3.px-5.rounded-lg.hover:bg-indigo-700.transition.shadow-md.flex.items-center.gap-2
+           {:type "button"
+            :on-click #(do
+                         (re-frame/dispatch [:test/start "Números"])
+                         (re-frame/dispatch [:set-section :diagnostic-test]))}
+           [:span "🚀"]
+           [:span "Nueva Evaluación"]]]])]]))

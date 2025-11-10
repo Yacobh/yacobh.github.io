@@ -17,9 +17,9 @@ return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMP
 universo.home.main_content = (function universo$home$main_content(){
 var current_section = cljs.core.deref(re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"current-section","current-section",1519906460)], null)));
 var _ = console.log("Current section:",current_section);
-var G__29007 = current_section;
-var G__29007__$1 = (((G__29007 instanceof cljs.core.Keyword))?G__29007.fqn:null);
-switch (G__29007__$1) {
+var G__29600 = current_section;
+var G__29600__$1 = (((G__29600 instanceof cljs.core.Keyword))?G__29600.fqn:null);
+switch (G__29600__$1) {
 case "main":
 return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [universo.home.presentacion], null);
 
@@ -42,7 +42,7 @@ return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMP
 }
 });
 universo.home.home = (function universo$home$home(){
-return new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.flex.min-h-screen.flex-col.bg-gray-200","div.flex.min-h-screen.flex-col.bg-gray-200",1805638172),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [universo.home.navigation], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"main.flex-1.pt-16","main.flex-1.pt-16",191165006),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [universo.home.main_content], null)], null),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [universo.home.footer], null)], null);
+return new cljs.core.PersistentVector(null, 5, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.flex.min-h-screen.flex-col","div.flex.min-h-screen.flex-col",538935850),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"class","class",-2030961996),"bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"], null),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [universo.home.navigation], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"main.flex-1.pt-16","main.flex-1.pt-16",191165006),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [universo.home.main_content], null)], null),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [universo.home.footer], null)], null);
 });
 
 //# sourceMappingURL=universo.home.js.map

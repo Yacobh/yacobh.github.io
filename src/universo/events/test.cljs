@@ -218,12 +218,14 @@
 (re-frame/reg-event-fx
  :test/complete
  (fn [{:keys [db]} _]
-   (let [test (:test db)
-         email-user (get-in db [:visitor :email])]
-     {:db (-> db
-              (assoc-in [:test :status] :completed)
-              (assoc-in [:test :end-time] (.now js/Date)))
-      :dispatch [:save-test {:test test :email-user email-user}]})))
+   (let [email-user (get-in db [:visitor :email])
+         new-db     (-> db
+                        (assoc-in [:test :status]    :completed)
+                        (assoc-in [:test :end-time] (.now js/Date)))
+         test       (:test new-db)]
+     {:db       new-db
+      :dispatch-n [[:save-test {:test test :email-user email-user}]
+                   [:dashboard/consultar email-user]]})))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 SUSCRIPCIONES

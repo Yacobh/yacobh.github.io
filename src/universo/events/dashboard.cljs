@@ -7,6 +7,29 @@
 ;; -----------------------------------------------------------------------------
 ;; FUNCIONES AUXILIARES PARA PROCESAR TESTS
 ;; -----------------------------------------------------------------------------
+(defn duracion-test-ms [test]
+  ;; Devuelve la duración en milisegundos o nil si falta algún dato
+  (let [start (:start-time test)
+        end   (:end-time test)]
+    (when (and start end)
+      (- end start))))
+
+(defn duracion-test-min [test]
+  ;; Devuelve la duración en minutos (redondeado a 1 decimal)
+  (when-let [ms (duracion-test-ms test)]
+    (/ (js/Math.round (/ ms 6000)) 10))) ;; 6000 para dar 1 decimal, 60000 sería sin decimales
+
+(defn promedio-tiempo-por-pregunta-ms [test]
+  (let [duracion (duracion-test-ms test)
+        total    (count (:responses test))]
+    (when (and duracion (pos? total))
+      (/ duracion total))))
+
+(defn promedio-tiempo-por-pregunta-seg [test]
+  (when-let [ms (promedio-tiempo-por-pregunta-ms test)]
+    (/ (js/Math.round (/ ms 100)) 10))) ;; 100 para 1 decimal, 1000 sólo segundos enteros
+
+
 
 (defn calcular-nota
   "Calcula la nota del test basada en el array de responses"
@@ -39,29 +62,43 @@
        :porcentaje (:porcentaje stats)
        :nota (:nota stats)
        :theta theta-final
-       :current-question (get-in ultimo-test [:test :current-question])})))
+       :current-question (get-in ultimo-test [:test :current-question])
+       :duracion-min (duracion-test-min test-info)
+       :promedio-seg-pregunta (promedio-tiempo-por-pregunta-seg test-info)})))
+
+
+(defn test-completado? [test]
+  (some? (:end-time test)))
+
+(defn nota-de-test [test]
+  (:nota (calcular-nota test)))
+
+(defn theta-final [test]
+  (last (:theta-history test)))
+
+(defn promediar
+  "Calcula el promedio de una secuencia de números, retorna 0 si está vacía."
+  [nums]
+  (if (seq nums)
+    (/ (reduce + nums) (count nums))
+    0))
 
 (defn calcular-estadisticas-generales
   "Calcula estadísticas generales de todos los tests"
   [tests-data]
-  (let [tests-completados (filter #(some? (get-in % [:test :end-time])) tests-data)
+  (let [tests-completados (filter test-completado? tests-data)
         total-tests (count tests-data)
-        total-completados (count tests-completados)]
-    (if (pos? total-completados)
-      (let [notas (map #(get (calcular-nota %) :nota) tests-completados)
-            promedio (/ (reduce + notas) total-completados)
-            theta-promedio (/ (reduce + (keep #(last (get-in % [:test :theta-history])) tests-completados))
-                              total-completados)]
-        {:total-tests total-tests
-         :tests-completados total-completados
-         :promedio-nota (js/Math.round promedio)
-         :theta-promedio (js/Math.round (* theta-promedio 100)) ; escalado para mostrar
-         :ultimo-test (procesar-ultimo-test tests-data)})
-      {:total-tests total-tests
-       :tests-completados 0
-       :promedio-nota 0
-       :theta-promedio 0
-       :ultimo-test (procesar-ultimo-test tests-data)})))
+        total-completados (count tests-completados)
+        notas (keep nota-de-test tests-completados)
+        thetas (keep theta-final tests-completados)
+        promedio-nota (Math/round (promediar notas))
+        theta-promedio (Math/round (* 100 (promediar thetas)))]
+    {:total-tests total-tests
+     :tests-completados total-completados
+     :promedio-nota (if (pos? total-completados) promedio-nota 0)
+     :theta-promedio (if (pos? total-completados) theta-promedio 0)
+     :ultimo-test (procesar-ultimo-test tests-data)}))
+
 
 (defn formatear-fecha
   "Formatea la fecha de created_at a formato legible"
