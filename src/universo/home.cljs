@@ -88,7 +88,6 @@
 (defn main-content []
   (let [current-section @(re-frame/subscribe [:current-section])
         _ (js/console.log "Current section:" current-section)]
-
     (case current-section
       :main [presentacion]
       :login [login/login-form]

@@ -80,7 +80,6 @@
            ;; Extraer los IDs de las preguntas ya respondidas
            answered-ids (set (map :id answered-questions))
            _ (js/console.log "Theta actual:" theta)
-           _ (js/console.log "Theta actual:" theta)
            _ (js/console.log "Preguntas ya respondidas:" answered-ids)
 
            ;; Consultar Supabase
@@ -103,8 +102,23 @@
              (re-frame/dispatch [:test/add-question next-q])
              (do
                (js/console.log "⚠️ No hay más preguntas disponibles, finalizando test")
+               #_(re-frame/dispatch [:test/add-question nil])
                (re-frame/dispatch [:test/complete]))))
          (js/console.error "❌ Error obteniendo pregunta:" result))))))
+
+;; -----------------------------------------------------------------------------
+;; 🔹 EVENTO: El feedback se le muestra al usuario
+;; -----------------------------------------------------------------------------
+;; -.
+(re-frame/reg-event-db
+ :test/show-feedback
+ (fn [db [_ {:keys [question response]}]]
+   (-> db
+       (assoc-in [:test :feedback] {:question question
+                                    :response response})
+       (assoc-in [:test :status] :feedback))))
+
+
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EVENTO: El usuario responde una pregunta
@@ -113,6 +127,31 @@
 ;; - Calcula un nuevo valor de `theta` (habilidad estimada).
 ;; - Guarda el nuevo valor en el historial.
 ;; - Dispara la obtención de la siguiente pregunta.
+(re-frame/reg-event-fx
+ :test/continue
+ (fn [{:keys [db]} _]
+   {:db (assoc-in db [:test :status] :questions)
+    :dispatch [:test/fetch-next-question]}))
+
+
+
+#_(re-frame/reg-event-fx
+ :test/answer
+ (fn [{:keys [db]} [_ {:keys [question-id selected correct? time-ms]}]]
+   (let [new-response {:question-id    question-id
+                       :selected-option selected
+                       :correct?        correct?
+                       :time-ms         time-ms}
+         updated-db (update-in db [:test :responses] conj new-response)
+         new-theta (tetha/calculate-theta (:test updated-db))
+         questions (get-in db [:test :questions])
+         question  (some #(when (= (:id %) question-id) %) questions)]
+     {:db (-> updated-db
+              (assoc-in [:test :theta] new-theta)
+              (update-in [:test :theta-history] conj new-theta))
+      :dispatch-n [[:test/show-feedback {:question question
+                                         :response new-response}]
+                   [:test/fetch-next-question new-theta question]]})))
 
 (re-frame/reg-event-fx
  :test/answer
@@ -130,9 +169,8 @@
      {:db (-> updated-db
               (assoc-in [:test :theta] new-theta)
               (update-in [:test :theta-history] conj new-theta))
-      :dispatch-n [[:show-modal {:question question
-                                 :response new-response}]
-                   [:test/fetch-next-question new-theta questions]]})))
+      :dispatch [:test/show-feedback {:question question
+                                      :response new-response}]})))
 
 
 ;; -----------------------------------------------------------------------------
@@ -155,9 +193,8 @@
 ;; -----------------------------------------------------------------------------
 ;; - cambia el estado a questions
 
-
 (re-frame/reg-event-fx
- :test/open
+ :test/question
  (fn [{:keys [db]} _]
    {:db (assoc-in db [:test :status] :questions)}))
 
@@ -165,7 +202,7 @@
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EVENTO: Abre los resultados
 ;; -----------------------------------------------------------------------------
-;; - cambia el estado a questions
+;; - cambia el estado a results
 
 
 (re-frame/reg-event-fx
@@ -233,6 +270,7 @@
 ;; - Para acceder fácilmente al estado del test desde los componentes UI
 
 (re-frame/reg-sub :test/status (fn [db _] (get-in db [:test :status])))
+(re-frame/reg-sub :test/feedback (fn [db _] (get-in db [:test :feedback])))
 (re-frame/reg-sub :test/topic (fn [db _] (get-in db [:test :topic])))
 (re-frame/reg-sub :test/theta (fn [db _] (get-in db [:test :theta])))
 (re-frame/reg-sub :test/questions (fn [db _] (get-in db [:test :questions])))
