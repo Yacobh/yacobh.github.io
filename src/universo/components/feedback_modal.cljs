@@ -108,10 +108,10 @@
 
 (defn selected-badge [value selected correct]
   (when (= value selected)
-    [:div {:class (str "absolute -top-2 -right-2 px-2 sm:px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap "
-                       (if (= value correct)
-                         "bg-green-500 text-white"
-                         "bg-red-500 text-white"))}
+    [:span {:class (str "ml-2 relative -translate-y-[2px] inline-block px-2 py-1 rounded-full text-xs font-semibold align-middle "
+                        (if (= value correct)
+                          "bg-green-500 text-white"
+                          "bg-red-500 text-white"))}
      (if (= value correct) "Tu respuesta ✓" "Tu respuesta")]))
 
 ;; ============================================================================
@@ -143,8 +143,7 @@
   [:div {:class (option-classes value selected correct)}
    [option-indicator value selected correct]
    [:div {:class "flex-1 leading-relaxed min-w-0 overflow-x-auto"}
-    [math/latex label]]
-   [selected-badge value selected correct]])
+    [math/latex label] [selected-badge value selected correct]]])
 
 ;; ============================================================================
 ;; SECCIÓN DE OPCIONES
@@ -180,20 +179,14 @@
 (defn action-buttons []
   [:button {:class "mt-6 bg-indigo-600 text-white px-6 py-2 rounded-full text-sm hover:bg-indigo-700 transition"
             :on-click #(re-frame/dispatch [:test/continue])}
-   "Continuar →"]
-  #_[:div {:class "flex justify-center gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-100"}
-   [:button {:class "w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-sm sm:text-lg shadow-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-200 active:scale-95"
-            :on-click #(re-frame/dispatch [:test/fetch-next-question])}
-    "Continuar"]])
+   "Continuar →"])
 
 ;; ============================================================================
 ;; CONTENEDOR PRINCIPAL DEL MODAL
 ;; ============================================================================
 
 (defn modal-content [question response selected correct is-correct?]
-  [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6 #_{:class "bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 w-full max-w-2xl md:max-w-4xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 ease-out"
-         ;:on-click #(.stopPropagation %)
-         }
+  [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6
    #_[modal-header is-correct?]
    [question-section question]
    [options-section question selected correct]
