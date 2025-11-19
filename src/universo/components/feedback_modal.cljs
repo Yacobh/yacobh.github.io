@@ -150,12 +150,21 @@
 ;; ============================================================================
 
 (defn options-section [question selected correct]
-  [:div {:class "mb-6 sm:mb-8 space-y-2 sm:space-y-3"}
-   [:h3 {:class "text-xs sm:text-sm font-semibold text-gray-600 mb-3 sm:mb-4 uppercase tracking-wide"}
-    "Opciones de respuesta"]
-   (for [{:keys [value label]} (:options question)]
-     ^{:key value}
-     [option-item value selected correct label])])
+  (let [relevant-options (if (= selected correct)
+                           ;; Si acertó, solo muestra la correcta
+                           (filter #(= (:value %) correct) (:options question))
+                           ;; Si falló, ordena: primero la seleccionada, luego la correcta
+                           (let [selected-opt (first (filter #(= (:value %) selected) (:options question)))
+                                 correct-opt (first (filter #(= (:value %) correct) (:options question)))]
+                             [selected-opt correct-opt]))]
+    [:div {:class "mb-6 sm:mb-8 space-y-2 sm:space-y-3"}
+     [:h3 {:class "text-xs sm:text-sm font-semibold text-gray-600 mb-3 sm:mb-4 uppercase tracking-wide"}
+      (if (= selected correct)
+        "Tu respuesta correcta"
+        "Comparación de respuestas")]
+     (for [{:keys [value label]} relevant-options]
+       ^{:key value}
+       [option-item value selected correct label])]))
 
 ;; ============================================================================
 ;; SECCIÓN DE EXPLICACIÓN

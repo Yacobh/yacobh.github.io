@@ -57,7 +57,12 @@
 
 (defn question-component []
   (let [question @(re-frame/subscribe [:test/current-question])
-        question-index (count @(re-frame/subscribe [:test/questions]))]
+        question-index (count @(re-frame/subscribe [:test/questions]))
+        ;; 🎲 Rotar opciones basado en el ID (0, 1, 2, o 3 posiciones)
+        shift (mod (:id question) 4)
+        rotated-options (when question
+                         (let [opts (:options question)]
+                           (concat (drop shift opts) (take shift opts))))]
 
     (if question
       [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6
@@ -72,7 +77,7 @@
 
        ;; 🔹 Opciones
        [:div.space-y-3.mt-6
-        (for [{:keys [value label]} (:options question)]
+        (for [{:keys [value label]} rotated-options]
           ^{:key value}
           [:button.w-full.bg-blue-50.hover:bg-blue-100.text-blue-700.font-medium.py-2.px-4.rounded-lg.transition
            {:on-click #(re-frame/dispatch

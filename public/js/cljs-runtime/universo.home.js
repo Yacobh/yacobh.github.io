@@ -17,9 +17,9 @@ return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMP
 universo.home.main_content = (function universo$home$main_content(){
 var current_section = cljs.core.deref(re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"current-section","current-section",1519906460)], null)));
 var _ = console.log("Current section:",current_section);
-var G__33548 = current_section;
-var G__33548__$1 = (((G__33548 instanceof cljs.core.Keyword))?G__33548.fqn:null);
-switch (G__33548__$1) {
+var G__29144 = current_section;
+var G__29144__$1 = (((G__29144 instanceof cljs.core.Keyword))?G__29144.fqn:null);
+switch (G__29144__$1) {
 case "main":
 return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [universo.home.presentacion], null);
 
