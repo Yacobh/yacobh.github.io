@@ -1,4 +1,8 @@
 
+### Notas del proyecto
+
+- Ejecuta el proyecto con: `clojure -M:shadow-cljs watch app`
+
 ### Development mode
 ```
 clojure -M:shadow-cljs watch app

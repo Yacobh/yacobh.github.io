@@ -57,10 +57,7 @@ goog.loadModule(function(exports) {
   const CONSTRUCTOR_TOKEN_PRIVATE = {};
   class SafeHtml {
     constructor(value, token) {
-      if (goog.DEBUG && token !== CONSTRUCTOR_TOKEN_PRIVATE) {
-        throw Error("SafeHtml is not meant to be built directly");
-      }
-      this.privateDoNotAccessOrElseSafeHtmlWrappedValue_ = value;
+      this.privateDoNotAccessOrElseSafeHtmlWrappedValue_ = token === CONSTRUCTOR_TOKEN_PRIVATE ? value : "";
       this.implementsGoogStringTypedString = true;
     }
     getTypedStringValue() {

@@ -29,3 +29,4 @@ node_modules/
 public/js/cljs-runtime/*
 .calva/output-window/output.calva-repl
 src/universo/user.cljs
+/public/js/cljs-runtime/*

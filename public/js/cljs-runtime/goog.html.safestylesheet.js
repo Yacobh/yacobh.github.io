@@ -11,10 +11,7 @@ goog.loadModule(function(exports) {
   const CONSTRUCTOR_TOKEN_PRIVATE = {};
   class SafeStyleSheet {
     constructor(value, token) {
-      if (goog.DEBUG && token !== CONSTRUCTOR_TOKEN_PRIVATE) {
-        throw Error("SafeStyleSheet is not meant to be built directly");
-      }
-      this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = value;
+      this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = token === CONSTRUCTOR_TOKEN_PRIVATE ? value : "";
       this.implementsGoogStringTypedString = true;
     }
     toString() {
@@ -25,8 +22,8 @@ goog.loadModule(function(exports) {
         throw new Error(`Selector does not allow '<', got: ${selector}`);
       }
       const selectorToCheck = selector.replace(/('|")((?!\1)[^\r\n\f\\]|\\[\s\S])*\1/g, "");
-      if (!/^[-_a-zA-Z0-9#.:* ,>+~[\]()=\\^$|]+$/.test(selectorToCheck)) {
-        throw new Error("Selector allows only [-_a-zA-Z0-9#.:* ,\x3e+~[\\]()\x3d\\^$|] and " + "strings, got: " + selector);
+      if (!/^[-_a-zA-Z0-9#.:* ,>+~[\]()=^$|]+$/.test(selectorToCheck)) {
+        throw new Error("Selector allows only [-_a-zA-Z0-9#.:* ,\x3e+~[\\]()\x3d^$|] and " + "strings, got: " + selector);
       }
       if (!SafeStyleSheet.hasBalancedBrackets_(selectorToCheck)) {
         throw new Error("() and [] in selector must be balanced, got: " + selector);

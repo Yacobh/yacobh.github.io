@@ -1,5 +1,8 @@
-{:deps true
- :builds       {:app {:target     :browser
+{ :source-paths ["src" "test"]
+  :dependencies [[reagent "1.2.0"]
+                 [re-frame "1.4.3"]
+                 [binaryage/devtools "1.0.7"]]
+  :builds       {:app {:target     :browser
                       :output-dir "./public/js"
                       :asset-path "/js"
                       :modules    {:app {:entries [universo.core]}}
@@ -13,4 +16,4 @@
                  :compiler-options {:warnings {:fn-deprecated false}} ; Opcional: suprime warnings específicos si es necesario
                  }}
 
- :dev-http     {3000 {:root "public"}}}
+  :dev-http     {3000 {:root "public"}}}

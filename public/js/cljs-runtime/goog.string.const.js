@@ -11,7 +11,7 @@ goog.string.Const.prototype.getTypedStringValue = function() {
 };
 if (goog.DEBUG) {
   goog.string.Const.prototype.toString = function() {
-    return this.stringConstValueWithSecurityContract__googStringSecurityPrivate_;
+    return "Const{" + this.stringConstValueWithSecurityContract__googStringSecurityPrivate_ + "}";
   };
 }
 goog.string.Const.unwrap = function(stringConst) {
