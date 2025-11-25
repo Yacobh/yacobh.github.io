@@ -170,7 +170,25 @@
 ;; SECCIÓN DE EXPLICACIÓN
 ;; ============================================================================
 
-(defn explanation-section [question selected]
+(defn explanation-section [question selected is-correct?]
+  (when-let [err-msg (get-in question [:errors (keyword selected)])]
+    [:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl"}
+     [:div {:class "flex items-start gap-3"}
+      [icon-warning]
+      [:div {:class "min-w-0"}
+       [:h4 {:class "font-semibold text-amber-800 mb-1 text-sm sm:text-base"}
+        "Explicación:"]
+       [:p {:class "text-amber-700 leading-relaxed text-sm sm:text-base"}
+        err-msg]]]]
+    #_[:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl"}
+     [:div {:class "flex items-start gap-3"}
+      [icon-warning]
+      [:div {:class "min-w-0"}
+       [:h4 {:class "font-semibold text-amber-800 mb-1 text-sm sm:text-base"}
+        (if is-correct? "¡Excelente!" "Explicación:")]
+       [:p {:class "text-amber-700 leading-relaxed text-sm sm:text-base"}
+        err-msg]]]]))
+#_(defn explanation-section [question selected]
   (when-let [err-msg (get-in question [:errors selected])]
     [:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl"}
      [:div {:class "flex items-start gap-3"}
@@ -196,6 +214,13 @@
 
 (defn modal-content [question response selected correct is-correct?]
   [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6
+   [question-section question]
+   [options-section question selected correct]
+   [explanation-section question selected is-correct?]  ;; Ahora pasa is-correct?
+   [action-buttons]])
+
+#_(defn modal-content [question response selected correct is-correct?]
+  [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6
    #_[modal-header is-correct?]
    [question-section question]
    [options-section question selected correct]
@@ -215,6 +240,20 @@
 ;; ============================================================================
 
 (defn feedback []
+  (let [modal @(re-frame/subscribe [:test/feedback])]
+    (when modal
+      (let [{:keys [question response]} modal
+            selected (:selected-option response)  ;; ← Aquí está el problema probable
+            correct (:correct-option question)
+            is-correct? (:correct? response)]
+        (js/console.log "Modal data:" (clj->js modal))
+        (js/console.log "Selected:" selected)
+        (js/console.log "Errors:" (clj->js (:errors question)))
+        (js/console.log "Error para selected:" (get-in question [:errors (keyword selected)]))
+        [modal-content question response selected correct is-correct?]))))
+
+
+#_(defn feedback []
   (let [modal @(re-frame/subscribe [:test/feedback])]
     (when modal
       (let [{:keys [question response]} modal
