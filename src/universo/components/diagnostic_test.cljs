@@ -86,7 +86,7 @@
                           :selected value
                           :correct? (= value (:correct-option question))
                           :time-ms 0}])}
-           (math/render-latex-math label)])]
+           (math/latex label)])]
 
        ;; 🔹 Botón para finalizar test manualmente (opcional)
        [:div.mt-8.text-center

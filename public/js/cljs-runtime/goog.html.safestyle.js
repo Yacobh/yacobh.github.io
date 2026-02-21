@@ -83,7 +83,10 @@ goog.loadModule(function(exports) {
   const CONSTRUCTOR_TOKEN_PRIVATE = {};
   class SafeStyle {
     constructor(value, token) {
-      this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = token === CONSTRUCTOR_TOKEN_PRIVATE ? value : "";
+      if (goog.DEBUG && token !== CONSTRUCTOR_TOKEN_PRIVATE) {
+        throw Error("SafeStyle is not meant to be built directly");
+      }
+      this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = value;
       this.implementsGoogStringTypedString = true;
     }
     static fromConstant(style) {

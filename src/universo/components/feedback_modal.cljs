@@ -170,7 +170,23 @@
 ;; SECCIÓN DE EXPLICACIÓN
 ;; ============================================================================
 
-(defn explanation-section [question selected is-correct?]
+
+;; ============================================================================
+;; SECCIÓN DE EXPLICACIÓN
+;; ============================================================================
+
+(defn explanation-section [question selected]
+  (when-let [err-msg (get-in question [:errors (keyword selected)])]
+    [:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-slate-50 border-l-4 border-slate-300 rounded-r-xl"}
+     [:div {:class "flex items-start gap-3"}
+      [icon-warning]
+      [:div {:class "min-w-0"}
+       [:h4 {:class "font-semibold text-slate-700 mb-1 text-base sm:text-lg"}
+        "Explicación:"]
+       [:div {:class "text-slate-600 leading-relaxed text-base sm:text-lg"}
+        (math/parse-markdown-latex err-msg)]]]]))
+
+#_(defn explanation-section [question selected is-correct?]
   (when-let [err-msg (get-in question [:errors (keyword selected)])]
     [:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl"}
      [:div {:class "flex items-start gap-3"}
@@ -179,7 +195,7 @@
        [:h4 {:class "font-semibold text-amber-800 mb-1 text-sm sm:text-base"}
         "Explicación:"]
        [:p {:class "text-amber-700 leading-relaxed text-sm sm:text-base"}
-        err-msg]]]]
+        (math/parse-markdown-latex err-msg)]]]]
     #_[:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl"}
      [:div {:class "flex items-start gap-3"}
       [icon-warning]

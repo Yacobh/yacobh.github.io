@@ -184,11 +184,31 @@
               :single true}))
 
 (comment
-  ;; Obtener las últimas 5 preguntas de enteros
-  (go (let [res (<! (get-table "questions"
-                               {"topic" "enteros"}
-                               {:order-by [:created_at :desc]
-                                :limit 5}))]
+  (def result (atom {}))
+  (def test-tetha (atom {}))
+  (def my-user '("eluque@estudiantesunap.cl" "anarayas@estudiantesunap.cl" "karevaloo@estudiantesunap.cl" "dasotoc@estudiantesunap.cl" "yenmamanic@estudiantesunap.cl" "alavargass@estudiantesunap.cl" "latineos@estudiantesunap.cl" "aespinar@estudiantesunap.cl" "maccarvajal@estudiantesunap.cl" "naromeros@estudiantesunap.cl" "vlemus@estudiantesunap.cl" "cmoyao@estudiantesunap.cl" "jechoquec@estudiantesunap.cl" "baespinoza@unap.cl" "kjelves@estudiantesunap.cl" "avaldivial@estudiantesunap.cl"))
+  (count my-user)
+  (defn conteo-test! [user-email] (go (let [res (<! (get-table "tests"
+                                                               {"email-user" user-email}
+                                                               {:order-by [:created_at :desc]}))]
+                                        #_(reset! result res)
+                                        (swap! test-tetha assoc (str user-email) (:data res))
+                                        (swap! result assoc (str user-email) (count (:data res)))
+                                        (js/console.log res))))
+
+  (map conteo-test! my-user)
+  @result
+  (count @result)
+  (reduce + (map #(val %) @result))
+  (/ 34.0 16)
+  @test-tetha
+  (count (keys (:test (first (val (first @test-tetha))))))
+  (keys (:test (first (val (first @test-tetha)))))
+  (:start-time (:test (first (val (first @test-tetha)))))
+  
+  (go (let [res (<! (get-table "test"
+                               {"email-user" "eluque@estudiantesunap.cl"}
+                               {:order-by [:created_at :desc]}))]
         (js/console.log res)))
 
   ;; Obtener la pregunta más reciente
@@ -208,11 +228,13 @@
                                {"topic" "enteros"}
                                {:order-by [:difficulty :desc]
                                 :limit 10}))]
-        (js/console.log res))))
+        (js/console.log res)))
+  )
 
 (comment
   (go (let [res (<! (get-table "questions" {"topic" "enteros"
                                             "difficulty" [:lt 30]}))]
-        (js/console.log res)))
+        (js/console.log res)
+        (print res)))
 
   ,)

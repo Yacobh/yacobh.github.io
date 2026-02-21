@@ -8,13 +8,13 @@ devtools.munging.get_global_scope = (function devtools$munging$get_global_scope(
 return devtools.context.get_root.call(null);
 });
 devtools.munging.js_reserved_QMARK_ = (function devtools$munging$js_reserved_QMARK_(x){
-var temp__5802__auto__ = (function (){var temp__5802__auto__ = (devtools.munging.get_global_scope.call(null)["cljs"]);
-if(cljs.core.truth_(temp__5802__auto__)){
-var o12779 = temp__5802__auto__;
-var temp__5802__auto____$1 = (o12779["core"]);
-if(cljs.core.truth_(temp__5802__auto____$1)){
-var o12780 = temp__5802__auto____$1;
-return (o12780["js_reserved_QMARK_"]);
+var temp__5821__auto__ = (function (){var temp__5821__auto__ = (devtools.munging.get_global_scope.call(null)["cljs"]);
+if(cljs.core.truth_(temp__5821__auto__)){
+var o29053 = temp__5821__auto__;
+var temp__5821__auto____$1 = (o29053["core"]);
+if(cljs.core.truth_(temp__5821__auto____$1)){
+var o29054 = temp__5821__auto____$1;
+return (o29054["js_reserved_QMARK_"]);
 } else {
 return null;
 }
@@ -22,8 +22,8 @@ return null;
 return null;
 }
 })();
-if(cljs.core.truth_(temp__5802__auto__)){
-var js_reserved_fn = temp__5802__auto__;
+if(cljs.core.truth_(temp__5821__auto__)){
+var js_reserved_fn = temp__5821__auto__;
 return (js_reserved_fn.cljs$core$IFn$_invoke$arity$1 ? js_reserved_fn.cljs$core$IFn$_invoke$arity$1(x) : js_reserved_fn.call(null,x));
 } else {
 return null;
@@ -31,12 +31,12 @@ return null;
 });
 devtools.munging.get_fn_source_safely = (function devtools$munging$get_fn_source_safely(f){
 try{if(cljs.core.truth_("toString" in f)){
-var o__12467__auto__ = f;
-return (o__12467__auto__["toString"]).call(o__12467__auto__);
+var o__28185__auto__ = f;
+return (o__28185__auto__["toString"]).call(o__28185__auto__);
 } else {
 return "";
 }
-}catch (e12799){var _ = e12799;
+}catch (e29058){var _ = e29058;
 return "";
 }});
 devtools.munging.get_fn_fixed_arity = (function devtools$munging$get_fn_fixed_arity(f,n){
@@ -51,9 +51,9 @@ return (f["cljs$lang$maxFixedArity"]);
 devtools.munging.get_type_name = (function devtools$munging$get_type_name(t){
 var sb = (new goog.string.StringBuffer());
 var writer = (new cljs.core.StringBufferWriter(sb));
-try{var o__12467__auto___13046 = t;
-(o__12467__auto___13046["cljs$lang$ctorPrWriter"]).call(o__12467__auto___13046,t,writer);
-}catch (e12807){var __13047 = e12807;
+try{var o__28185__auto___29322 = t;
+(o__28185__auto___29322["cljs$lang$ctorPrWriter"]).call(o__28185__auto___29322,t,writer);
+}catch (e29062){var __29323 = e29062;
 }
 writer.cljs$core$IWriter$_flush$arity$1(null);
 
@@ -74,13 +74,13 @@ if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.count(char$),(1))){
 throw (new Error("Assert failed: (= (count char) 1)"));
 }
 
-var char_code = (function (){var o__12467__auto__ = (new String(char$));
-return (o__12467__auto__["charCodeAt"]).call(o__12467__auto__,(0));
+var char_code = (function (){var o__28185__auto__ = (new String(char$));
+return (o__28185__auto__["charCodeAt"]).call(o__28185__auto__,(0));
 })();
 var num_code = (char_code - (48));
 var subscript_code = ((8320) + num_code);
-var o__12467__auto__ = String;
-return (o__12467__auto__["fromCharCode"]).call(o__12467__auto__,subscript_code);
+var o__28185__auto__ = String;
+return (o__28185__auto__["fromCharCode"]).call(o__28185__auto__,subscript_code);
 });
 /**
  * Given a subscript number converts it into a string representation consisting of unicode subscript characters (digits).
@@ -108,12 +108,12 @@ if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.count(char$),(1))){
 throw (new Error("Assert failed: (= (count char) 1)"));
 }
 
-var char_code = (function (){var o__12467__auto__ = (new String(char$));
-return (o__12467__auto__["charCodeAt"]).call(o__12467__auto__,(0));
+var char_code = (function (){var o__28185__auto__ = (new String(char$));
+return (o__28185__auto__["charCodeAt"]).call(o__28185__auto__,(0));
 })();
 var num_code = (char_code - (48));
-var superscript_code = (function (){var G__12824 = num_code;
-switch (G__12824) {
+var superscript_code = (function (){var G__29077 = num_code;
+switch (G__29077) {
 case (1):
 return (185);
 
@@ -131,8 +131,8 @@ return ((8304) + num_code);
 
 }
 })();
-var o__12467__auto__ = String;
-return (o__12467__auto__["fromCharCode"]).call(o__12467__auto__,superscript_code);
+var o__28185__auto__ = String;
+return (o__28185__auto__["fromCharCode"]).call(o__28185__auto__,superscript_code);
 });
 /**
  * Given a superscript number converts it into a string representation consisting of unicode superscript characters (digits).
@@ -169,12 +169,12 @@ return null;
  *   
  */
 devtools.munging.parse_fn_source = (function devtools$munging$parse_fn_source(fn_source){
-var temp__5802__auto__ = cljs.core.second(cljs.core.re_find(/function\s(.*?)\{/,fn_source));
-if(cljs.core.truth_(temp__5802__auto__)){
-var meat = temp__5802__auto__;
-var temp__5802__auto____$1 = cljs.core.re_find(/(.*?)\((.*)\)/,meat);
-if(cljs.core.truth_(temp__5802__auto____$1)){
-var match = temp__5802__auto____$1;
+var temp__5821__auto__ = cljs.core.second(cljs.core.re_find(/function\s(.*?)\{/,fn_source));
+if(cljs.core.truth_(temp__5821__auto__)){
+var meat = temp__5821__auto__;
+var temp__5821__auto____$1 = cljs.core.re_find(/(.*?)\((.*)\)/,meat);
+if(cljs.core.truth_(temp__5821__auto____$1)){
+var match = temp__5821__auto____$1;
 return cljs.core.rest(match);
 } else {
 return null;
@@ -201,7 +201,7 @@ return (((!((cljs.core.re_matches(/function\s*\(\s*\)\s*\{\s*\}\s*/,fn_source) =
  */
 devtools.munging.cljs_fn_QMARK_ = (function devtools$munging$cljs_fn_QMARK_(f){
 if(cljs.core.truth_((function (){try{return cljs.core.fn_QMARK_(f);
-}catch (e12838){var _e__12476__auto__ = e12838;
+}catch (e29097){var _e__28210__auto__ = e29097;
 return false;
 }})())){
 var name = (f[cljs.core.name]);
@@ -209,8 +209,8 @@ if((!(cljs.core.empty_QMARK_(name)))){
 return devtools.munging.cljs_fn_name_QMARK_(name);
 } else {
 var fn_source = devtools.munging.get_fn_source_safely(f);
-var vec__12839 = devtools.munging.parse_fn_source(fn_source);
-var name__$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12839,(0),null);
+var vec__29098 = devtools.munging.parse_fn_source(fn_source);
+var name__$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29098,(0),null);
 if((!(cljs.core.empty_QMARK_(name__$1)))){
 return devtools.munging.cljs_fn_name_QMARK_(name__$1);
 } else {
@@ -229,9 +229,9 @@ devtools.munging.dollar_preserving_demunge = (function devtools$munging$dollar_p
 return clojure.string.replace(cljs.core.demunge(clojure.string.replace(munged_name,"$",devtools.munging.dollar_replacement)),devtools.munging.dollar_replacement,"$");
 });
 devtools.munging.revert_reserved = (function devtools$munging$revert_reserved(s){
-var or__5002__auto__ = (function (){var temp__5802__auto__ = cljs.core.re_matches(/(.*)\$/,s);
-if(cljs.core.truth_(temp__5802__auto__)){
-var m = temp__5802__auto__;
+var or__5025__auto__ = (function (){var temp__5821__auto__ = cljs.core.re_matches(/(.*)\$/,s);
+if(cljs.core.truth_(temp__5821__auto__)){
+var m = temp__5821__auto__;
 if(cljs.core.truth_(devtools.munging.js_reserved_QMARK_(cljs.core.second(m)))){
 return cljs.core.second(m);
 } else {
@@ -241,8 +241,8 @@ return null;
 return null;
 }
 })();
-if(cljs.core.truth_(or__5002__auto__)){
-return or__5002__auto__;
+if(cljs.core.truth_(or__5025__auto__)){
+return or__5025__auto__;
 } else {
 return s;
 }
@@ -265,11 +265,11 @@ if(typeof ns_module_name === 'string'){
 throw (new Error("Assert failed: (string? ns-module-name)"));
 }
 
-var temp__5806__auto__ = devtools.munging.goog$module$goog$object.getValueByKeys(devtools.munging.get_global_scope.call(null),ns_module_name.split("."));
-if((temp__5806__auto__ == null)){
+var temp__5825__auto__ = devtools.munging.goog$module$goog$object.getValueByKeys(devtools.munging.get_global_scope.call(null),ns_module_name.split("."));
+if((temp__5825__auto__ == null)){
 return null;
 } else {
-var ns_obj = temp__5806__auto__;
+var ns_obj = temp__5825__auto__;
 return cljs.core.object_QMARK_(ns_obj);
 }
 });
@@ -281,31 +281,31 @@ return cljs.core.object_QMARK_(ns_obj);
  *   For given input ["cljs" "core" "first"] returns ["cljs.core" ["first"]] (assuming cljs.core exists)
  */
 devtools.munging.detect_namespace_prefix = (function devtools$munging$detect_namespace_prefix(var_args){
-var args__5732__auto__ = [];
-var len__5726__auto___13071 = arguments.length;
-var i__5727__auto___13072 = (0);
+var args__5755__auto__ = [];
+var len__5749__auto___29339 = arguments.length;
+var i__5750__auto___29340 = (0);
 while(true){
-if((i__5727__auto___13072 < len__5726__auto___13071)){
-args__5732__auto__.push((arguments[i__5727__auto___13072]));
+if((i__5750__auto___29340 < len__5749__auto___29339)){
+args__5755__auto__.push((arguments[i__5750__auto___29340]));
 
-var G__13073 = (i__5727__auto___13072 + (1));
-i__5727__auto___13072 = G__13073;
+var G__29341 = (i__5750__auto___29340 + (1));
+i__5750__auto___29340 = G__29341;
 continue;
 } else {
 }
 break;
 }
 
-var argseq__5733__auto__ = ((((1) < args__5732__auto__.length))?(new cljs.core.IndexedSeq(args__5732__auto__.slice((1)),(0),null)):null);
-return devtools.munging.detect_namespace_prefix.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),argseq__5733__auto__);
+var argseq__5756__auto__ = ((((1) < args__5755__auto__.length))?(new cljs.core.IndexedSeq(args__5755__auto__.slice((1)),(0),null)):null);
+return devtools.munging.detect_namespace_prefix.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),argseq__5756__auto__);
 });
 
-(devtools.munging.detect_namespace_prefix.cljs$core$IFn$_invoke$arity$variadic = (function (tokens,p__12854){
-var vec__12855 = p__12854;
-var ns_detector = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12855,(0),null);
-var effective_detector = (function (){var or__5002__auto__ = ns_detector;
-if(cljs.core.truth_(or__5002__auto__)){
-return or__5002__auto__;
+(devtools.munging.detect_namespace_prefix.cljs$core$IFn$_invoke$arity$variadic = (function (tokens,p__29110){
+var vec__29111 = p__29110;
+var ns_detector = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29111,(0),null);
+var effective_detector = (function (){var or__5025__auto__ = ns_detector;
+if(cljs.core.truth_(or__5025__auto__)){
+return or__5025__auto__;
 } else {
 return devtools.munging.ns_exists_QMARK_;
 }
@@ -320,10 +320,10 @@ var ns_name = clojure.string.join.cljs$core$IFn$_invoke$arity$2(".",remaining_to
 if(cljs.core.truth_((effective_detector.cljs$core$IFn$_invoke$arity$1 ? effective_detector.cljs$core$IFn$_invoke$arity$1(ns_name) : effective_detector.call(null,ns_name)))){
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [ns_name,name_tokens], null);
 } else {
-var G__13074 = cljs.core.concat.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.last(remaining_tokens)], null),name_tokens);
-var G__13075 = cljs.core.butlast(remaining_tokens);
-name_tokens = G__13074;
-remaining_tokens = G__13075;
+var G__29343 = cljs.core.concat.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.last(remaining_tokens)], null),name_tokens);
+var G__29344 = cljs.core.butlast(remaining_tokens);
+name_tokens = G__29343;
+remaining_tokens = G__29344;
 continue;
 }
 }
@@ -334,18 +334,18 @@ break;
 (devtools.munging.detect_namespace_prefix.cljs$lang$maxFixedArity = (1));
 
 /** @this {Function} */
-(devtools.munging.detect_namespace_prefix.cljs$lang$applyTo = (function (seq12848){
-var G__12850 = cljs.core.first(seq12848);
-var seq12848__$1 = cljs.core.next(seq12848);
-var self__5711__auto__ = this;
-return self__5711__auto__.cljs$core$IFn$_invoke$arity$variadic(G__12850,seq12848__$1);
+(devtools.munging.detect_namespace_prefix.cljs$lang$applyTo = (function (seq29107){
+var G__29108 = cljs.core.first(seq29107);
+var seq29107__$1 = cljs.core.next(seq29107);
+var self__5734__auto__ = this;
+return self__5734__auto__.cljs$core$IFn$_invoke$arity$variadic(G__29108,seq29107__$1);
 }));
 
 devtools.munging.normalize_arity = (function devtools$munging$normalize_arity(arity_tokens){
 if((!(cljs.core.empty_QMARK_(arity_tokens)))){
 var arity = cljs.core.first(arity_tokens);
-var G__12865 = arity;
-switch (G__12865) {
+var G__29118 = arity;
+switch (G__29118) {
 case "variadic":
 return arity;
 
@@ -359,11 +359,11 @@ return null;
 }
 });
 devtools.munging.strip_arity = (function devtools$munging$strip_arity(tokens){
-var vec__12868 = cljs.core.split_with((function (p1__12867_SHARP_){
-return cljs.core.not_EQ_.cljs$core$IFn$_invoke$arity$2(p1__12867_SHARP_,"arity");
+var vec__29123 = cljs.core.split_with((function (p1__29120_SHARP_){
+return cljs.core.not_EQ_.cljs$core$IFn$_invoke$arity$2(p1__29120_SHARP_,"arity");
 }),tokens);
-var prefix_tokens = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12868,(0),null);
-var arity_tokens = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12868,(1),null);
+var prefix_tokens = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29123,(0),null);
+var arity_tokens = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29123,(1),null);
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [prefix_tokens,devtools.munging.normalize_arity(cljs.core.rest(arity_tokens))], null);
 });
 devtools.munging.parse_protocol = (function devtools$munging$parse_protocol(tokens,detector){
@@ -373,14 +373,14 @@ while(true){
 if(cljs.core.empty_QMARK_(remaining_tokens)){
 return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [name_tokens], null);
 } else {
-var vec__12880 = devtools.munging.detect_namespace_prefix.cljs$core$IFn$_invoke$arity$variadic(remaining_tokens,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([detector], 0));
-var protocol_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12880,(0),null);
-var name_and_method_tokens = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12880,(1),null);
+var vec__29140 = devtools.munging.detect_namespace_prefix.cljs$core$IFn$_invoke$arity$variadic(remaining_tokens,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([detector], 0));
+var protocol_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29140,(0),null);
+var name_and_method_tokens = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29140,(1),null);
 if(cljs.core.empty_QMARK_(protocol_ns)){
-var G__13078 = cljs.core.rest(remaining_tokens);
-var G__13079 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(name_tokens,cljs.core.first(remaining_tokens));
-remaining_tokens = G__13078;
-name_tokens = G__13079;
+var G__29354 = cljs.core.rest(remaining_tokens);
+var G__29355 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(name_tokens,cljs.core.first(remaining_tokens));
+remaining_tokens = G__29354;
+name_tokens = G__29355;
 continue;
 } else {
 return new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [name_tokens,protocol_ns,cljs.core.first(name_and_method_tokens),cljs.core.rest(name_and_method_tokens)], null);
@@ -400,8 +400,8 @@ break;
  *  cljs.core.reduce$cljs$core$IFn$_invoke$arity$3 => ['cljs.core' 'reduce' 'cljs.core' 'IFn' '_invoke' 3]
  */
 devtools.munging.break_munged_name = (function devtools$munging$break_munged_name(var_args){
-var G__12887 = arguments.length;
-switch (G__12887) {
+var G__29166 = arguments.length;
+switch (G__29166) {
 case 1:
 return devtools.munging.break_munged_name.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -424,25 +424,25 @@ return devtools.munging.break_munged_name.cljs$core$IFn$_invoke$arity$2(munged_n
 if(cljs.core.empty_QMARK_(munged_name)){
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["",""], null);
 } else {
-var effective_detector = (function (){var or__5002__auto__ = ns_detector;
-if(cljs.core.truth_(or__5002__auto__)){
-return or__5002__auto__;
+var effective_detector = (function (){var or__5025__auto__ = ns_detector;
+if(cljs.core.truth_(or__5025__auto__)){
+return or__5025__auto__;
 } else {
 return devtools.munging.ns_exists_QMARK_;
 }
 })();
 var tokens = cljs.core.vec(munged_name.split(/[$.]/));
-var vec__12890 = devtools.munging.strip_arity(tokens);
-var tokens__$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12890,(0),null);
-var arity = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12890,(1),null);
-var vec__12893 = devtools.munging.detect_namespace_prefix.cljs$core$IFn$_invoke$arity$variadic(tokens__$1,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([effective_detector], 0));
-var fn_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12893,(0),null);
-var tokens__$2 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12893,(1),null);
-var vec__12896 = devtools.munging.parse_protocol(tokens__$2,effective_detector);
-var fn_name_tokens = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12896,(0),null);
-var protocol_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12896,(1),null);
-var protocol_name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12896,(2),null);
-var protocol_method_tokens = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12896,(3),null);
+var vec__29172 = devtools.munging.strip_arity(tokens);
+var tokens__$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29172,(0),null);
+var arity = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29172,(1),null);
+var vec__29175 = devtools.munging.detect_namespace_prefix.cljs$core$IFn$_invoke$arity$variadic(tokens__$1,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([effective_detector], 0));
+var fn_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29175,(0),null);
+var tokens__$2 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29175,(1),null);
+var vec__29178 = devtools.munging.parse_protocol(tokens__$2,effective_detector);
+var fn_name_tokens = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29178,(0),null);
+var protocol_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29178,(1),null);
+var protocol_name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29178,(2),null);
+var protocol_method_tokens = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29178,(3),null);
 var fn_name = clojure.string.join.cljs$core$IFn$_invoke$arity$2("$",fn_name_tokens);
 var protocol_method = (cljs.core.truth_(protocol_method_tokens)?clojure.string.join.cljs$core$IFn$_invoke$arity$2("$",protocol_method_tokens):null);
 return new cljs.core.PersistentVector(null, 6, 5, cljs.core.PersistentVector.EMPTY_NODE, [fn_ns,fn_name,protocol_ns,protocol_name,protocol_method,arity], null);
@@ -456,8 +456,8 @@ return new cljs.core.PersistentVector(null, 6, 5, cljs.core.PersistentVector.EMP
  *   Then applies appropriate demunging on them and returns ClojureScript versions of the names.
  */
 devtools.munging.break_and_demunge_name = (function devtools$munging$break_and_demunge_name(var_args){
-var G__12903 = arguments.length;
-switch (G__12903) {
+var G__29194 = arguments.length;
+switch (G__29194) {
 case 1:
 return devtools.munging.break_and_demunge_name.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -478,13 +478,13 @@ return devtools.munging.break_and_demunge_name.cljs$core$IFn$_invoke$arity$2(mun
 
 (devtools.munging.break_and_demunge_name.cljs$core$IFn$_invoke$arity$2 = (function (munged_name,ns_detector){
 var result = devtools.munging.break_munged_name.cljs$core$IFn$_invoke$arity$2(munged_name,ns_detector);
-var vec__12909 = result;
-var munged_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12909,(0),null);
-var munged_name__$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12909,(1),null);
-var munged_protocol_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12909,(2),null);
-var munged_protocol_name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12909,(3),null);
-var munged_protocol_method = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12909,(4),null);
-var arity = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12909,(5),null);
+var vec__29196 = result;
+var munged_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29196,(0),null);
+var munged_name__$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29196,(1),null);
+var munged_protocol_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29196,(2),null);
+var munged_protocol_name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29196,(3),null);
+var munged_protocol_method = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29196,(4),null);
+var arity = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29196,(5),null);
 return new cljs.core.PersistentVector(null, 6, 5, cljs.core.PersistentVector.EMPTY_NODE, [devtools.munging.proper_ns_demunge(munged_ns),devtools.munging.proper_demunge(munged_name__$1),(cljs.core.truth_(munged_protocol_ns)?devtools.munging.proper_ns_demunge(munged_protocol_ns):null),(cljs.core.truth_(munged_protocol_name)?devtools.munging.proper_demunge(munged_protocol_name):null),(cljs.core.truth_(munged_protocol_method)?devtools.munging.proper_demunge(munged_protocol_method):null),arity], null);
 }));
 
@@ -500,14 +500,14 @@ return new cljs.core.PersistentVector(null, 6, 5, cljs.core.PersistentVector.EMP
  *   
  */
 devtools.munging.parse_fn_source_info = (function devtools$munging$parse_fn_source_info(fn_source){
-var temp__5802__auto__ = devtools.munging.parse_fn_source(fn_source);
-if(cljs.core.truth_(temp__5802__auto__)){
-var vec__12917 = temp__5802__auto__;
-var munged_name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12917,(0),null);
-var args = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12917,(1),null);
-var vec__12921 = devtools.munging.break_and_demunge_name.cljs$core$IFn$_invoke$arity$1(munged_name);
-var ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12921,(0),null);
-var name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12921,(1),null);
+var temp__5821__auto__ = devtools.munging.parse_fn_source(fn_source);
+if(cljs.core.truth_(temp__5821__auto__)){
+var vec__29202 = temp__5821__auto__;
+var munged_name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29202,(0),null);
+var args = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29202,(1),null);
+var vec__29205 = devtools.munging.break_and_demunge_name.cljs$core$IFn$_invoke$arity$1(munged_name);
+var ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29205,(0),null);
+var name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29205,(1),null);
 var demunged_args = cljs.core.map.cljs$core$IFn$_invoke$arity$2(cljs.core.comp.cljs$core$IFn$_invoke$arity$2(devtools.munging.proper_arg_demunge,clojure.string.trim),clojure.string.split.cljs$core$IFn$_invoke$arity$2(args,/,/));
 return cljs.core.concat.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [ns,name], null),demunged_args);
 } else {
@@ -539,8 +539,8 @@ if((!((arities == null)))){
 if((cljs.core.count(arities) > (1))){
 return cljs.core.concat.cljs$core$IFn$_invoke$arity$2(cljs.core.take.cljs$core$IFn$_invoke$arity$2((2),fn_info),new cljs.core.Keyword("devtools.munging","multi-arity","devtools.munging/multi-arity",-2011705837));
 } else {
-return cljs.core.concat.cljs$core$IFn$_invoke$arity$2(cljs.core.take.cljs$core$IFn$_invoke$arity$2((2),fn_info),cljs.core.drop.cljs$core$IFn$_invoke$arity$2((2),(function (){var G__12925 = cljs.core.second(cljs.core.first(arities));
-return (devtools.munging.parse_fn_info_deep.cljs$core$IFn$_invoke$arity$1 ? devtools.munging.parse_fn_info_deep.cljs$core$IFn$_invoke$arity$1(G__12925) : devtools.munging.parse_fn_info_deep.call(null,G__12925));
+return cljs.core.concat.cljs$core$IFn$_invoke$arity$2(cljs.core.take.cljs$core$IFn$_invoke$arity$2((2),fn_info),cljs.core.drop.cljs$core$IFn$_invoke$arity$2((2),(function (){var G__29222 = cljs.core.second(cljs.core.first(arities));
+return (devtools.munging.parse_fn_info_deep.cljs$core$IFn$_invoke$arity$1 ? devtools.munging.parse_fn_info_deep.cljs$core$IFn$_invoke$arity$1(G__29222) : devtools.munging.parse_fn_info_deep.call(null,G__29222));
 })()));
 }
 } else {
@@ -573,9 +573,9 @@ return null;
 devtools.munging.humanize_name = (function devtools$munging$humanize_name(state,name){
 var index = devtools.munging.find_index_of_human_prefix(name);
 var prefix = (((index > (0)))?name.substring((0),index):name);
-var temp__5802__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(state,prefix);
-if(cljs.core.truth_(temp__5802__auto__)){
-var subscript = temp__5802__auto__;
+var temp__5821__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(state,prefix);
+if(cljs.core.truth_(temp__5821__auto__)){
+var subscript = temp__5821__auto__;
 return cljs.core.update.cljs$core$IFn$_invoke$arity$3(cljs.core.update.cljs$core$IFn$_invoke$arity$4(state,new cljs.core.Keyword("devtools.munging","result","devtools.munging/result",1642759166),cljs.core.conj,[cljs.core.str.cljs$core$IFn$_invoke$arity$1(prefix),devtools.munging.make_subscript(subscript)].join('')),prefix,cljs.core.inc);
 } else {
 return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(cljs.core.update.cljs$core$IFn$_invoke$arity$4(state,new cljs.core.Keyword("devtools.munging","result","devtools.munging/result",1642759166),cljs.core.conj,prefix),prefix,(2));
@@ -598,35 +598,35 @@ while(true){
 if((arity > max_arity)){
 return collection;
 } else {
-var G__13100 = (arity + (1));
-var G__13101 = (function (){var temp__5802__auto__ = devtools.munging.get_fn_fixed_arity(f,arity);
-if(cljs.core.truth_(temp__5802__auto__)){
-var arity_fn = temp__5802__auto__;
+var G__29375 = (arity + (1));
+var G__29376 = (function (){var temp__5821__auto__ = devtools.munging.get_fn_fixed_arity(f,arity);
+if(cljs.core.truth_(temp__5821__auto__)){
+var arity_fn = temp__5821__auto__;
 return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(collection,arity,arity_fn);
 } else {
 return collection;
 }
 })();
-arity = G__13100;
-collection = G__13101;
+arity = G__29375;
+collection = G__29376;
 continue;
 }
 break;
 }
 });
 devtools.munging.collect_fn_variadic_arities = (function devtools$munging$collect_fn_variadic_arities(f){
-var temp__5802__auto__ = devtools.munging.get_fn_variadic_arity(f);
-if(cljs.core.truth_(temp__5802__auto__)){
-var variadic_arity = temp__5802__auto__;
+var temp__5821__auto__ = devtools.munging.get_fn_variadic_arity(f);
+if(cljs.core.truth_(temp__5821__auto__)){
+var variadic_arity = temp__5821__auto__;
 return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword("devtools.munging","variadic","devtools.munging/variadic",1596047908),variadic_arity], null);
 } else {
 return null;
 }
 });
-devtools.munging.review_arity = (function devtools$munging$review_arity(p__12943){
-var vec__12944 = p__12943;
-var arity = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12944,(0),null);
-var arity_fn = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12944,(1),null);
+devtools.munging.review_arity = (function devtools$munging$review_arity(p__29239){
+var vec__29240 = p__29239;
+var arity = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29240,(0),null);
+var arity_fn = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29240,(1),null);
 var sub_arities = (devtools.munging.collect_fn_arities.cljs$core$IFn$_invoke$arity$1 ? devtools.munging.collect_fn_arities.cljs$core$IFn$_invoke$arity$1(arity_fn) : devtools.munging.collect_fn_arities.call(null,arity_fn));
 if(cljs.core.truth_(new cljs.core.Keyword("devtools.munging","variadic","devtools.munging/variadic",1596047908).cljs$core$IFn$_invoke$arity$1(sub_arities))){
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("devtools.munging","variadic","devtools.munging/variadic",1596047908),arity_fn], null);
@@ -651,9 +651,9 @@ return cljs.core.into.cljs$core$IFn$_invoke$arity$2(cljs.core.PersistentArrayMap
  */
 devtools.munging.collect_fn_arities = (function devtools$munging$collect_fn_arities(f){
 var max_fixed_arity = devtools.munging.get_fn_max_fixed_arity(f);
-var fixed_arities = devtools.munging.collect_fn_fixed_arities(f,(function (){var or__5002__auto__ = max_fixed_arity;
-if(cljs.core.truth_(or__5002__auto__)){
-return or__5002__auto__;
+var fixed_arities = devtools.munging.collect_fn_fixed_arities(f,(function (){var or__5025__auto__ = max_fixed_arity;
+if(cljs.core.truth_(or__5025__auto__)){
+return or__5025__auto__;
 } else {
 return devtools.munging.max_fixed_arity_to_scan;
 }
@@ -704,12 +704,12 @@ return cljs.core.compare(x,y);
 });
 devtools.munging.arities_to_args_lists_STAR_ = (function devtools$munging$arities_to_args_lists_STAR_(arities){
 var sorted_keys = cljs.core.sort.cljs$core$IFn$_invoke$arity$2(devtools.munging.arities_key_comparator,cljs.core.keys(arities));
-var sorted_fns = cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__12950_SHARP_){
-return cljs.core.get.cljs$core$IFn$_invoke$arity$2(arities,p1__12950_SHARP_);
+var sorted_fns = cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__29249_SHARP_){
+return cljs.core.get.cljs$core$IFn$_invoke$arity$2(arities,p1__29249_SHARP_);
 }),sorted_keys);
 var sorted_infos = cljs.core.map.cljs$core$IFn$_invoke$arity$2(devtools.munging.parse_fn_info_deep,sorted_fns);
-var sorted_args_lists = cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__12951_SHARP_){
-return cljs.core.drop.cljs$core$IFn$_invoke$arity$2((2),p1__12951_SHARP_);
+var sorted_args_lists = cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__29250_SHARP_){
+return cljs.core.drop.cljs$core$IFn$_invoke$arity$2((2),p1__29250_SHARP_);
 }),sorted_infos);
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.last(sorted_keys),new cljs.core.Keyword("devtools.munging","variadic","devtools.munging/variadic",1596047908))){
 return cljs.core.concat.cljs$core$IFn$_invoke$arity$2(cljs.core.butlast(sorted_args_lists),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.vary_meta.cljs$core$IFn$_invoke$arity$4(cljs.core.last(sorted_args_lists),cljs.core.assoc,new cljs.core.Keyword("devtools.munging","variadic","devtools.munging/variadic",1596047908),true)], null));
@@ -724,28 +724,28 @@ return sorted_args_lists;
  *   The function also optionally humanizes argument names in each arguments list if requested.
  */
 devtools.munging.arities_to_args_lists = (function devtools$munging$arities_to_args_lists(var_args){
-var args__5732__auto__ = [];
-var len__5726__auto___13111 = arguments.length;
-var i__5727__auto___13112 = (0);
+var args__5755__auto__ = [];
+var len__5749__auto___29388 = arguments.length;
+var i__5750__auto___29389 = (0);
 while(true){
-if((i__5727__auto___13112 < len__5726__auto___13111)){
-args__5732__auto__.push((arguments[i__5727__auto___13112]));
+if((i__5750__auto___29389 < len__5749__auto___29388)){
+args__5755__auto__.push((arguments[i__5750__auto___29389]));
 
-var G__13113 = (i__5727__auto___13112 + (1));
-i__5727__auto___13112 = G__13113;
+var G__29390 = (i__5750__auto___29389 + (1));
+i__5750__auto___29389 = G__29390;
 continue;
 } else {
 }
 break;
 }
 
-var argseq__5733__auto__ = ((((1) < args__5732__auto__.length))?(new cljs.core.IndexedSeq(args__5732__auto__.slice((1)),(0),null)):null);
-return devtools.munging.arities_to_args_lists.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),argseq__5733__auto__);
+var argseq__5756__auto__ = ((((1) < args__5755__auto__.length))?(new cljs.core.IndexedSeq(args__5755__auto__.slice((1)),(0),null)):null);
+return devtools.munging.arities_to_args_lists.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),argseq__5756__auto__);
 });
 
-(devtools.munging.arities_to_args_lists.cljs$core$IFn$_invoke$arity$variadic = (function (arities,p__12962){
-var vec__12963 = p__12962;
-var humanize_QMARK_ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12963,(0),null);
+(devtools.munging.arities_to_args_lists.cljs$core$IFn$_invoke$arity$variadic = (function (arities,p__29259){
+var vec__29260 = p__29259;
+var humanize_QMARK_ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29260,(0),null);
 var args_lists = devtools.munging.arities_to_args_lists_STAR_(arities);
 if(cljs.core.truth_(humanize_QMARK_)){
 return cljs.core.map.cljs$core$IFn$_invoke$arity$2(devtools.munging.humanize_names,args_lists);
@@ -757,11 +757,11 @@ return args_lists;
 (devtools.munging.arities_to_args_lists.cljs$lang$maxFixedArity = (1));
 
 /** @this {Function} */
-(devtools.munging.arities_to_args_lists.cljs$lang$applyTo = (function (seq12958){
-var G__12959 = cljs.core.first(seq12958);
-var seq12958__$1 = cljs.core.next(seq12958);
-var self__5711__auto__ = this;
-return self__5711__auto__.cljs$core$IFn$_invoke$arity$variadic(G__12959,seq12958__$1);
+(devtools.munging.arities_to_args_lists.cljs$lang$applyTo = (function (seq29253){
+var G__29254 = cljs.core.first(seq29253);
+var seq29253__$1 = cljs.core.next(seq29253);
+var self__5734__auto__ = this;
+return self__5734__auto__.cljs$core$IFn$_invoke$arity$variadic(G__29254,seq29253__$1);
 }));
 
 /**
@@ -769,9 +769,9 @@ return self__5711__auto__.cljs$core$IFn$_invoke$arity$variadic(G__12959,seq12958
  */
 devtools.munging.args_lists_to_strings = (function devtools$munging$args_lists_to_strings(args_lists,spacer_symbol,multi_arity_symbol,rest_symbol){
 var string_mapper = (function (arg){
-var G__12973 = arg;
-var G__12973__$1 = (((G__12973 instanceof cljs.core.Keyword))?G__12973.fqn:null);
-switch (G__12973__$1) {
+var G__29267 = arg;
+var G__29267__$1 = (((G__29267 instanceof cljs.core.Keyword))?G__29267.fqn:null);
+switch (G__29267__$1) {
 case "devtools.munging/multi-arity":
 return multi_arity_symbol;
 
@@ -789,9 +789,9 @@ return [clojure.string.join.cljs$core$IFn$_invoke$arity$2(spacer_symbol,cljs.cor
 return cljs.core.map.cljs$core$IFn$_invoke$arity$2(clojure.string.trim,cljs.core.map.cljs$core$IFn$_invoke$arity$2(printer,args_lists));
 });
 devtools.munging.extract_arities = (function devtools$munging$extract_arities(f,humanize_QMARK_,spacer_symbol,multi_arity_symbol,rest_symbol){
-return devtools.munging.args_lists_to_strings(devtools.munging.arities_to_args_lists.cljs$core$IFn$_invoke$arity$variadic((function (){var or__5002__auto__ = devtools.munging.collect_fn_arities(f);
-if(cljs.core.truth_(or__5002__auto__)){
-return or__5002__auto__;
+return devtools.munging.args_lists_to_strings(devtools.munging.arities_to_args_lists.cljs$core$IFn$_invoke$arity$variadic((function (){var or__5025__auto__ = devtools.munging.collect_fn_arities(f);
+if(cljs.core.truth_(or__5025__auto__)){
+return or__5025__auto__;
 } else {
 return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"naked","naked",373474222),f], null);
 }
@@ -801,18 +801,18 @@ devtools.munging.common_protocol_QMARK_ = (function devtools$munging$common_prot
 return ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(protocol_ns,"cljs.core")) && (cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(protocol_name,"IFn")));
 });
 devtools.munging.present_fn_part = (function devtools$munging$present_fn_part(fn_ns,fn_name,include_ns_QMARK_){
-return [(cljs.core.truth_((function (){var and__5000__auto__ = include_ns_QMARK_;
-if(cljs.core.truth_(and__5000__auto__)){
+return [(cljs.core.truth_((function (){var and__5023__auto__ = include_ns_QMARK_;
+if(cljs.core.truth_(and__5023__auto__)){
 return (!(cljs.core.empty_QMARK_(fn_ns)));
 } else {
-return and__5000__auto__;
+return and__5023__auto__;
 }
 })())?[cljs.core.str.cljs$core$IFn$_invoke$arity$1(fn_ns),"/"].join(''):null),cljs.core.str.cljs$core$IFn$_invoke$arity$1(fn_name)].join('');
 });
 devtools.munging.present_protocol_part = (function devtools$munging$present_protocol_part(protocol_ns,protocol_name,protocol_method,include_protocol_ns_QMARK_){
-return [cljs.core.str.cljs$core$IFn$_invoke$arity$1((cljs.core.truth_(include_protocol_ns_QMARK_)?protocol_ns:null)),(((!(cljs.core.empty_QMARK_(protocol_name))))?[(cljs.core.truth_(include_protocol_ns_QMARK_)?".":null),cljs.core.str.cljs$core$IFn$_invoke$arity$1(protocol_name)].join(''):null),(((!(cljs.core.empty_QMARK_(protocol_method))))?[(cljs.core.truth_((function (){var or__5002__auto__ = include_protocol_ns_QMARK_;
-if(cljs.core.truth_(or__5002__auto__)){
-return or__5002__auto__;
+return [cljs.core.str.cljs$core$IFn$_invoke$arity$1((cljs.core.truth_(include_protocol_ns_QMARK_)?protocol_ns:null)),(((!(cljs.core.empty_QMARK_(protocol_name))))?[(cljs.core.truth_(include_protocol_ns_QMARK_)?".":null),cljs.core.str.cljs$core$IFn$_invoke$arity$1(protocol_name)].join(''):null),(((!(cljs.core.empty_QMARK_(protocol_method))))?[(cljs.core.truth_((function (){var or__5025__auto__ = include_protocol_ns_QMARK_;
+if(cljs.core.truth_(or__5025__auto__)){
+return or__5025__auto__;
 } else {
 return (!(cljs.core.empty_QMARK_(protocol_name)));
 }
@@ -822,40 +822,40 @@ return (!(cljs.core.empty_QMARK_(protocol_name)));
  * Given javascript function name tries to present it as plain string for display in UI on best effort basis.
  */
 devtools.munging.present_function_name = (function devtools$munging$present_function_name(munged_name,options){
-var map__12987 = options;
-var map__12987__$1 = cljs.core.__destructure_map(map__12987);
-var include_ns_QMARK_ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__12987__$1,new cljs.core.Keyword(null,"include-ns?","include-ns?",-341372810));
-var include_protocol_ns_QMARK_ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__12987__$1,new cljs.core.Keyword(null,"include-protocol-ns?","include-protocol-ns?",989250951));
-var silence_common_protocols_QMARK_ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__12987__$1,new cljs.core.Keyword(null,"silence-common-protocols?","silence-common-protocols?",2012431893));
-var ns_detector = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__12987__$1,new cljs.core.Keyword(null,"ns-detector","ns-detector",-2041592760));
-var vec__12988 = devtools.munging.break_and_demunge_name.cljs$core$IFn$_invoke$arity$2(munged_name,ns_detector);
-var fn_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12988,(0),null);
-var fn_name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12988,(1),null);
-var protocol_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12988,(2),null);
-var protocol_name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12988,(3),null);
-var protocol_method = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12988,(4),null);
-var arity = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12988,(5),null);
+var map__29277 = options;
+var map__29277__$1 = cljs.core.__destructure_map(map__29277);
+var include_ns_QMARK_ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__29277__$1,new cljs.core.Keyword(null,"include-ns?","include-ns?",-341372810));
+var include_protocol_ns_QMARK_ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__29277__$1,new cljs.core.Keyword(null,"include-protocol-ns?","include-protocol-ns?",989250951));
+var silence_common_protocols_QMARK_ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__29277__$1,new cljs.core.Keyword(null,"silence-common-protocols?","silence-common-protocols?",2012431893));
+var ns_detector = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__29277__$1,new cljs.core.Keyword(null,"ns-detector","ns-detector",-2041592760));
+var vec__29278 = devtools.munging.break_and_demunge_name.cljs$core$IFn$_invoke$arity$2(munged_name,ns_detector);
+var fn_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29278,(0),null);
+var fn_name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29278,(1),null);
+var protocol_ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29278,(2),null);
+var protocol_name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29278,(3),null);
+var protocol_method = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29278,(4),null);
+var arity = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29278,(5),null);
 var arity_str = (((!((arity == null))))?((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(arity,"variadic"))?"\u207F":devtools.munging.make_superscript(arity)):null);
 if(cljs.core.empty_QMARK_(fn_name)){
 return munged_name;
 } else {
 var fn_part = devtools.munging.present_fn_part(fn_ns,fn_name,include_ns_QMARK_);
-var protocol_part = (cljs.core.truth_((function (){var and__5000__auto__ = protocol_ns;
-if(cljs.core.truth_(and__5000__auto__)){
-return cljs.core.not((function (){var and__5000__auto____$1 = silence_common_protocols_QMARK_;
-if(cljs.core.truth_(and__5000__auto____$1)){
+var protocol_part = (cljs.core.truth_((function (){var and__5023__auto__ = protocol_ns;
+if(cljs.core.truth_(and__5023__auto__)){
+return cljs.core.not((function (){var and__5023__auto____$1 = silence_common_protocols_QMARK_;
+if(cljs.core.truth_(and__5023__auto____$1)){
 return devtools.munging.common_protocol_QMARK_(protocol_ns,protocol_name);
 } else {
-return and__5000__auto____$1;
+return and__5023__auto____$1;
 }
 })());
 } else {
-return and__5000__auto__;
+return and__5023__auto__;
 }
 })())?devtools.munging.present_protocol_part(protocol_ns,protocol_name,protocol_method,include_protocol_ns_QMARK_):null);
-return [(function (){var or__5002__auto__ = protocol_part;
-if(cljs.core.truth_(or__5002__auto__)){
-return or__5002__auto__;
+return [(function (){var or__5025__auto__ = protocol_part;
+if(cljs.core.truth_(or__5025__auto__)){
+return or__5025__auto__;
 } else {
 return fn_part;
 }
@@ -863,24 +863,24 @@ return fn_part;
 }
 });
 devtools.munging.get_basis = (function devtools$munging$get_basis(f){
-var o__12467__auto__ = f;
-return (o__12467__auto__["getBasis"]).call(o__12467__auto__);
+var o__28185__auto__ = f;
+return (o__28185__auto__["getBasis"]).call(o__28185__auto__);
 });
 /**
  * Given a Javascript constructor function tries to retrieve [ns name basis]. Returns nil if not a cljs type.
  */
 devtools.munging.parse_constructor_info = (function devtools$munging$parse_constructor_info(f){
-if(cljs.core.truth_((function (){var and__5000__auto__ = goog.isObject(f);
-if(cljs.core.truth_(and__5000__auto__)){
+if(cljs.core.truth_((function (){var and__5023__auto__ = goog.isObject(f);
+if(cljs.core.truth_(and__5023__auto__)){
 return f.cljs$lang$type;
 } else {
-return and__5000__auto__;
+return and__5023__auto__;
 }
 })())){
 var type_name = devtools.munging.get_type_name(f);
 var parts = type_name.split(/\//);
 var basis = (function (){try{return devtools.munging.get_basis(f);
-}catch (e12997){var _e__12476__auto__ = e12997;
+}catch (e29285){var _e__28210__auto__ = e29285;
 return cljs.core.PersistentVector.EMPTY;
 }})();
 if((cljs.core.count(parts) <= (2))){
@@ -914,10 +914,10 @@ if(cljs.core.empty_QMARK_(path)){
 return obj;
 } else {
 if(cljs.core.truth_(goog.isObject(obj))){
-var G__13128 = (obj[cljs.core.first(path)]);
-var G__13129 = cljs.core.rest(path);
-obj = G__13128;
-path = G__13129;
+var G__29400 = (obj[cljs.core.first(path)]);
+var G__29401 = cljs.core.rest(path);
+obj = G__29400;
+path = G__29401;
 continue;
 } else {
 return null;
@@ -930,9 +930,9 @@ devtools.munging.protocol_exists_QMARK_ = (function devtools$munging$protocol_ex
 return (!((devtools.munging.get_protocol_object(protocol_selector) == null)));
 });
 devtools.munging.get_protocol_selector = (function devtools$munging$get_protocol_selector(key){
-var temp__5802__auto__ = cljs.core.re_matches(/(.*)\$$/,key);
-if(cljs.core.truth_(temp__5802__auto__)){
-var m = temp__5802__auto__;
+var temp__5821__auto__ = cljs.core.re_matches(/(.*)\$$/,key);
+if(cljs.core.truth_(temp__5821__auto__)){
+var m = temp__5821__auto__;
 if((!(clojure.string.includes_QMARK_(key,"cljs$lang$protocol_mask$partition")))){
 var protocol_selector = clojure.string.replace(cljs.core.second(m),"$",".");
 if(devtools.munging.protocol_exists_QMARK_(protocol_selector)){
@@ -967,9 +967,9 @@ throw (new Error("Assert failed: (number? partition)"));
 }
 
 var partition_key = devtools.munging.key_for_protocol_partition(partition);
-var partition_bits = (function (){var or__5002__auto__ = (obj[partition_key]);
-if(cljs.core.truth_(or__5002__auto__)){
-return or__5002__auto__;
+var partition_bits = (function (){var or__5025__auto__ = (obj[partition_key]);
+if(cljs.core.truth_(or__5025__auto__)){
+return or__5025__auto__;
 } else {
 return (0);
 }
@@ -977,10 +977,10 @@ return (0);
 if((partition_bits > (0))){
 var lookup_table = cljs.core.get.cljs$core$IFn$_invoke$arity$2(cljs.core.deref(devtools.munging.fast_path_protocols_lookup_table),partition);
 var _ = ((cljs.core.map_QMARK_(lookup_table))?null:(function(){throw (new Error(["Assert failed: ",["fast-path-protocols-lookup-table does not contain lookup table for partition ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(partition)].join(''),"\n","(map? lookup-table)"].join('')))})());
-var _STAR_ = (function (accum,p__13015){
-var vec__13016 = p__13015;
-var bit = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13016,(0),null);
-var protocol = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13016,(1),null);
+var _STAR_ = (function (accum,p__29293){
+var vec__29294 = p__29293;
+var bit = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29294,(0),null);
+var protocol = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29294,(1),null);
 if(((partition_bits & bit) === (0))){
 return accum;
 } else {
@@ -1003,11 +1003,11 @@ return cljs.core.map.cljs$core$IFn$_invoke$arity$2(devtools.munging.demunge_prot
 devtools.munging.make_protocol_descriptor = (function devtools$munging$make_protocol_descriptor(ns,name,selector,fast_QMARK_){
 return new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"ns","ns",441598760),ns,new cljs.core.Keyword(null,"name","name",1843675177),name,new cljs.core.Keyword(null,"selector","selector",762528866),selector,new cljs.core.Keyword(null,"fast?","fast?",-1813307150),fast_QMARK_], null);
 });
-devtools.munging.convert_to_protocol_descriptor = (function devtools$munging$convert_to_protocol_descriptor(fast_QMARK_,p__13025){
-var vec__13026 = p__13025;
-var ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13026,(0),null);
-var name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13026,(1),null);
-var selector = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13026,(2),null);
+devtools.munging.convert_to_protocol_descriptor = (function devtools$munging$convert_to_protocol_descriptor(fast_QMARK_,p__29297){
+var vec__29298 = p__29297;
+var ns = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29298,(0),null);
+var name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29298,(1),null);
+var selector = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29298,(2),null);
 return devtools.munging.make_protocol_descriptor(ns,name,selector,fast_QMARK_);
 });
 devtools.munging.protocol_descriptors_comparator = (function devtools$munging$protocol_descriptors_comparator(a,b){
@@ -1032,14 +1032,14 @@ return parseInt(arity,(10));
 var match_arity_comparator = (function (a,b){
 return cljs.core.compare(match_to_arity(a),match_to_arity(b));
 });
-var post_process = (function (p__13034){
-var vec__13038 = p__13034;
-var munged_name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13038,(0),null);
-var matches__$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13038,(1),null);
+var post_process = (function (p__29302){
+var vec__29303 = p__29302;
+var munged_name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29303,(0),null);
+var matches__$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__29303,(1),null);
 var name = devtools.munging.proper_demunge(munged_name);
 var sorted_matches = cljs.core.sort.cljs$core$IFn$_invoke$arity$2(match_arity_comparator,matches__$1);
-var sorted_fns = cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__13031_SHARP_){
-return (obj[cljs.core.first(p1__13031_SHARP_)]);
+var sorted_fns = cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__29301_SHARP_){
+return (obj[cljs.core.first(p1__29301_SHARP_)]);
 }),sorted_matches);
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [name,sorted_fns], null);
 });

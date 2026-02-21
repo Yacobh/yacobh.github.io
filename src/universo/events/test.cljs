@@ -85,7 +85,7 @@
            ;; Consultar Supabase
            result (<! (crud/get-table "questions"
                                       {"difficulty" [:between (- theta 0.5 ) (+ 0.5 theta)]
-                                       "topic" "diagnostico"}))]
+                                       "topic" "numbers_V1"}))]
        (if (:success result)
          (let [;; Filtrar preguntas que NO han sido respondidas
                available-questions (filter
