@@ -1,9 +1,11 @@
 (ns universo.home
-  (:require [universo.components.contacto :refer [contacto-form]]
-            [re-frame.core :as re-frame]
-            [universo.components.login :as login]
-            [universo.components.diagnostic-test :as diagnostic-test]
-            [universo.components.dashboard :as dashboard]))
+  (:require
+   [re-frame.core :as re-frame]
+   [universo.components.resume :as resume]
+   [universo.components.contacto :refer [contacto-form]]
+   [universo.components.dashboard :as dashboard]
+   [universo.components.diagnostic-test :as diagnostic-test]
+   [universo.components.login :as login]))
 
 ;; seccion principal variable con atomo de reagent, dinamico
 
@@ -14,7 +16,7 @@
      [:div.flex.items-center
       [:a.text-gray-800.font-bold.text-xl.flex.items-center
        {:href "#"
-        :on-click #(re-frame/dispatch [:set-section :main])}
+        :on-click #(re-frame/dispatch [:navigate-to :main])}
        [:span.bg-gradient-to-r.from-blue-600.to-purple-600.bg-clip-text.text-transparent
         "Academia"]
        [:span.mx-2.text-3xl.font-light.text-indigo-600 "∫"]
@@ -24,10 +26,10 @@
      [:div.flex.items-center.gap-3
       (if @(re-frame/subscribe [:visitor-email])
         [:a.bg-gradient-to-r.from-indigo-600.to-purple-600.text-white.text-sm.font-medium.px-6.py-2.5.rounded-full.hover:opacity-90.transition.cursor-pointer
-         {:on-click #(re-frame/dispatch [:set-section :dashboard])}
+         {:on-click #(re-frame/dispatch [:navigate-to :dashboard])}
          "Mi Tablero"]
         [:a.bg-gradient-to-r.from-indigo-600.to-purple-600.text-white.text-sm.font-medium.px-6.py-2.5.rounded-full.hover:opacity-90.transition.cursor-pointer
-         {:on-click #(re-frame/dispatch [:set-section :login])}
+         {:on-click #(re-frame/dispatch [:navigate-to :login])}
          "Iniciar Sesión"])]]]])
 
 
@@ -54,8 +56,18 @@
       [:li "No uses calculadora ni ayudas externas"]
       [:li "El tiempo de respuesta es considerado en la evaluación"]]]
 
-    [:p {:class "text-sm text-gray-600 mt-6"}
-     "Iniciativa de la Universidad Nacional Arturo Prat en conjunto con el profesor Jacobo Córdova."]
+    [:p {:class "text-sm text-gray-500 mt-6 leading-relaxed"}
+     "Iniciativa de la Universidad Nacional Arturo Prat en conjunto con el profesor "
+     [:a {:href "#"
+          :on-click #(re-frame/dispatch [:navigate-to :jacobocordova])
+          :class "ml-1 inline-flex items-center gap-1
+                  text-indigo-600 font-semibold
+                  hover:text-indigo-800
+                  transition-colors duration-200
+                  border-b border-transparent
+                  hover:border-indigo-600"}
+      "Jacobo Córdova"]]
+
 
     [:p {:class "italic text-blue-700 font-semibold mt-4"}
      "¡Éxito en tu preparación para la PAES!"]]])
@@ -84,6 +96,10 @@
      [:div.flex.flex-col.md:flex-row.justify-between.items-center.text-sm.text-gray-400
       [:p "© 2025 Academia Integral. Todos los derechos reservados."]]]]])
 
+
+
+
+
 ;; main content por atomo de reagent
 (defn main-content []
   (let [current-section @(re-frame/subscribe [:current-section])
@@ -93,10 +109,19 @@
       :login [login/login-form]
       :diagnostic-test [diagnostic-test/diagnostic-test]
       :dashboard [dashboard/dashboard]
+      :jacobocordova [resume/jacobo]
       [:div.flex.items-center.justify-center.min-h-screen
        [:div.text-center
         [:h1.text-6xl.font-bold.text-gray-300.mb-4 "404"]
         [:p.text-xl.text-gray-600 "Sección no encontrada"]]])))
+
+;; 1. Envolver main-content con la opacidad reactiva
+(defn main-content-wrapper []
+  (let [transitioning @(re-frame/subscribe [:transitioning])]
+    [:div.flex-1
+     {:style {:opacity    (if transitioning 0 1)
+              :transition "opacity 200ms ease-in-out"}}
+     [main-content]]))
 
 
 ;; Componente principal (equivalente a Home)
@@ -105,5 +130,5 @@
   [:div.flex.min-h-screen.flex-col {:class "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"}
    [navigation]
    [:main.flex-1.pt-16  ;; pt-16 para compensar la altura del nav  ;; flex-1 hace que main ocupe todo el espacio disponible
-    [main-content]]
+    [main-content-wrapper]]
    [footer]])

@@ -3,9 +3,19 @@
    [re-frame.core :as re-frame]
    [universo.db :as udb]))
 
-;; Subscriptions and events
+;;;; Subscriptions and events
+
+
+
 
 ;; Subscriptions
+
+
+;; 1. Suscripción al estado de transición
+(re-frame/reg-sub
+ :transitioning
+ (fn [db _]
+   (get-in db [:ui :transitioning])))
 
 ;; dashboard- subscriptions
 (re-frame/reg-sub
@@ -52,6 +62,23 @@
 
 
 ;; Events
+
+;transition events
+;; 2. Evento que inicia la transición (reemplaza :set-section en los on-click)
+(re-frame/reg-event-fx
+ :navigate-to
+ (fn [{:keys [db]} [_ section]]
+   {:db             (assoc-in db [:ui :transitioning] true)
+    :dispatch-later [{:ms 240 :dispatch [:complete-navigation section]}]}))
+
+;; 3. Evento que cambia la sección y apaga la transición
+(re-frame/reg-event-db
+ :complete-navigation
+ (fn [db [_ section]]
+   (-> db
+       (assoc-in [:ui :current-section] section)
+       (assoc-in [:ui :transitioning] false))))
+
 
 ;; dashboard events
 (re-frame/reg-event-db

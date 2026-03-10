@@ -147,6 +147,6 @@
            {:type "button"
             :on-click #(do
                          (re-frame/dispatch [:test/start "Números"])
-                         (re-frame/dispatch [:set-section :diagnostic-test]))}
+                         (re-frame/dispatch [:navigate-to :diagnostic-test]))}
            [:span "🚀"]
            [:span "Nueva Evaluación"]]]])]]))
