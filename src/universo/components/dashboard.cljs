@@ -117,13 +117,28 @@
 
         [:div
          ;; Grid de estadísticas principales
-         [tarjeta-estadistica
-          "Total Evaluaciones"
-          total-tests
-          "Realizadas hasta ahora"
-          "📝"
-          "border-blue-500"
-          "text-blue-600"]
+         [:div.grid.grid-cols-1.sm:grid-cols-3.gap-4.mb-2
+          [tarjeta-estadistica
+           "Total Evaluaciones"
+           total-tests
+           "Realizadas hasta ahora"
+           "📝"
+           "border-blue-500"
+           "text-blue-600"]
+          [tarjeta-estadistica
+           "Completadas"
+           tests-completados
+           "Evaluaciones finalizadas"
+           "✅"
+           "border-green-500"
+           "text-green-600"]
+          [tarjeta-estadistica
+           "Promedio"
+           (str promedio "%")
+           (str "Theta avg: " theta-promedio)
+           "📈"
+           "border-indigo-500"
+           "text-indigo-600"]]
 
          ;; Detalle último test realizado
          (let [{:keys [tema fecha completado? correctas total porcentaje nota theta

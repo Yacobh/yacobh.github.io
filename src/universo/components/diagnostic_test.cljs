@@ -1,5 +1,6 @@
 (ns universo.components.diagnostic-test
   (:require [re-frame.core :as re-frame]
+            [reagent.core :as r]
             [universo.components.feedback-modal :refer [feedback]]
             [universo.components.math-render :as math]))
 
@@ -35,6 +36,15 @@
       "Tal vez más tarde"]]]])
 
 ;; -------------------------------
+;; Componente de carga
+;; -------------------------------
+
+(defn loading-component []
+  [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg text-center"}
+   [:div {:class "inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600 mb-4"}]
+   [:p {:class "text-gray-600 text-lg"} "Cargando siguiente pregunta..."]])
+
+;; -------------------------------
 ;; Componente de finalización
 ;; -------------------------------
 
@@ -56,48 +66,55 @@
 ;; -------------------------------
 
 (defn question-component []
-  (let [question @(re-frame/subscribe [:test/current-question])
-        question-index (count @(re-frame/subscribe [:test/questions]))
-        ;; 🎲 Rotar opciones basado en el ID (0, 1, 2, o 3 posiciones)
-        shift (mod (:id question) 4)
-        rotated-options (when question
-                         (let [opts (:options question)]
-                           (concat (drop shift opts) (take shift opts))))]
+  (r/with-let [started-at (r/atom nil)
+               last-id (r/atom nil)]
+    (let [question @(re-frame/subscribe [:test/current-question])
+          question-index (count @(re-frame/subscribe [:test/questions]))
+          ;; 🎲 Rotar opciones basado en el ID (0, 1, 2, o 3 posiciones)
+          shift (when question (mod (:id question) 4))
+          rotated-options (when question
+                            (let [opts (:options question)]
+                              (concat (drop shift opts) (take shift opts))))]
 
-    (if question
-      [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6
+      ;; Reinicia cronómetro al cambiar de pregunta
+      (when (and question (not= @last-id (:id question)))
+        (reset! last-id (:id question))
+        (reset! started-at (.now js/Date)))
 
-       ;; 🔹 Título / encabezado
-       [:h2.text-2xl.font-bold.text-gray-800.text-center
-        (str "Pregunta " question-index)]
+      (if question
+        [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6
 
-       ;; 🔹 Texto de la pregunta
-       [:p.text-lg.text-gray-700.text-center.mt-4
-        (math/latex (:question question))]
+         ;; 🔹 Título / encabezado
+         [:h2.text-2xl.font-bold.text-gray-800.text-center
+          (str "Pregunta " question-index)]
 
-       ;; 🔹 Opciones
-       [:div.space-y-3.mt-6
-        (for [{:keys [value label]} rotated-options]
-          ^{:key value}
-          [:button.w-full.bg-blue-50.hover:bg-blue-100.text-blue-700.font-medium.py-2.px-4.rounded-lg.transition
-           {:on-click #(re-frame/dispatch
-                        [:test/answer
-                         {:question-id (:id question)
-                          :selected value
-                          :correct? (= value (:correct-option question))
-                          :time-ms 0}])}
-           (math/latex label)])]
+         ;; 🔹 Texto de la pregunta
+         [:p.text-lg.text-gray-700.text-center.mt-4
+          (math/latex (:question question))]
 
-       ;; 🔹 Botón para finalizar test manualmente (opcional)
-       [:div.mt-8.text-center
-        [:button.bg-gray-200.hover:bg-gray-300.text-gray-700.font-semibold.py-2.px-6.rounded-lg
-         {:on-click #(re-frame/dispatch [:test/complete])}
-         "Finalizar Test"]]]
+         ;; 🔹 Opciones
+         [:div.space-y-3.mt-6
+          (for [{:keys [value label]} rotated-options]
+            ^{:key value}
+            [:button.w-full.bg-blue-50.hover:bg-blue-100.text-blue-700.font-medium.py-2.px-4.rounded-lg.transition
+             {:on-click #(re-frame/dispatch
+                          [:test/answer
+                           {:question-id (:id question)
+                            :selected value
+                            :correct? (= value (:correct-option question))
+                            :time-ms (if @started-at
+                                       (- (.now js/Date) @started-at)
+                                       0)}])}
+             (math/latex label)])]
 
-      ;; 🔹 Si no hay pregunta cargada todavía
-      [completion-component])))
+         ;; 🔹 Botón para finalizar test manualmente (opcional)
+         [:div.mt-8.text-center
+          [:button.bg-gray-200.hover:bg-gray-300.text-gray-700.font-semibold.py-2.px-6.rounded-lg
+           {:on-click #(re-frame/dispatch [:test/complete])}
+           "Finalizar Test"]]]
 
-
+        ;; 🔹 Esperando pregunta (fetch en curso)
+        [loading-component]))))
 
 ;; -------------------------------
 ;; Resultados finales
@@ -105,7 +122,7 @@
 
 (defn results-component []
   (let [answers @(re-frame/subscribe [:test/answers])
-        questions @(re-frame/subscribe [:test/questions])
+        topic @(re-frame/subscribe [:test/topic])
         total (count answers)
         correct (count (filter :correct? answers))
         score (if (pos? total)
@@ -121,7 +138,7 @@
 
      [:button
       {:class "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
-       :on-click #(re-frame/dispatch [:test/start])}
+       :on-click #(re-frame/dispatch [:test/start (or topic "Números")])}
       "Repetir evaluación"]]))
 
 ;; -------------------------------
