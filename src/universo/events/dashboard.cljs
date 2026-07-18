@@ -68,13 +68,13 @@
 
 
 (defn test-completado? [test]
-  (some? (:end-time test)))
+  (some? (:end-time (:test test))))
 
 (defn nota-de-test [test]
   (:nota (calcular-nota test)))
 
 (defn theta-final [test]
-  (last (:theta-history test)))
+  (last (:theta-history (:test test))))
 
 (defn promediar
   "Calcula el promedio de una secuencia de números, retorna 0 si está vacía."
