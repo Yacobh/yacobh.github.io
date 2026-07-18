@@ -53,7 +53,7 @@
           [:input {:type "email"
                    :placeholder "tu@email.com"
                    :value @email
-                   :on-change #(reset! email (.. % -target .-value))
+                   :on-change #(reset! email (-> % .-target .-value))
                    :required true
                    :disabled @loading
                    :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"}]]
@@ -64,7 +64,7 @@
           [:input {:type "password"
                    :placeholder "Tu contraseña"
                    :value @password
-                   :on-change #(reset! password (.. % -target .-value))
+                   :on-change #(reset! password (-> % .-target .-value))
                    :required true
                    :disabled @loading
                    :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"}]]
