@@ -41,8 +41,15 @@
           :status :not-started
           :start-time nil
           :end-time nil
-          :topic "algebra"
-          :current-question 0}
+          :topic nil
+          :current-question nil
+          ;; Prefetch de la siguiente pregunta (mientras se muestra feedback)
+          :prefetched-question nil ; nil | mapa-pregunta | :exhausted
+          :prefetching? false
+          ;; Catálogo de evaluaciones (topics distintos en questions)
+          :available-topics []
+          :topics-loading? false
+          :topics-error nil}
 
    :bookings {:by-id {}        ;; id -> booking info
               :all-ids []}})   ;; to preserve insertion order

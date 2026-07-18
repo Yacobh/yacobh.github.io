@@ -161,7 +161,7 @@
           [:button.bg-indigo-600.text-white.font-semibold.py-3.px-5.rounded-lg.hover:bg-indigo-700.transition.shadow-md.flex.items-center.gap-2
            {:type "button"
             :on-click #(do
-                         (re-frame/dispatch [:test/start "Números"])
+                         (re-frame/dispatch [:test/open-selection])
                          (re-frame/dispatch [:navigate-to :diagnostic-test]))}
            [:span "🚀"]
            [:span "Nueva Evaluación"]]]])]]))
