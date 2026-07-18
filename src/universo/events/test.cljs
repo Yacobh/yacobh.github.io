@@ -326,8 +326,10 @@
 
 (re-frame/reg-event-fx
  :save-test
- (fn [_ [_ data]]
-   {:save-test data}))
+ (fn [{:keys [db]} [_ data]]
+   {:save-test {:data data
+                :email (or (:email-user data)
+                           (get-in db [:visitor :email]))}}))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EFECTO: Guarda el test en Supabase
@@ -335,20 +337,24 @@
 ;; - Usa tu función existente crud/insert-data-table!
 ;; - Registra logs en consola (se puede extender con notificaciones)(est
  (re-frame/reg-fx
-  :save-test                                   ; nombre del efecto
-  (fn [data]                                   ; data = mapa con los datos del test
+  :save-test
+  (fn [{:keys [data email]}]
     (go
       (let [result (<! (crud/insert-data-table! data "tests"))]
         (if (:success result)
-          (js/console.log "✅ Test guardado exitosamente:" (clj->js (:data result)))
-          (js/console.error "❌ Error al guardar test:"  (clj->js (:error result))))))))
+          (do
+            (js/console.log "✅ Test guardado exitosamente:" (clj->js (:data result)))
+            ;; Recargar dashboard solo DESPUÉS del insert (evita mostrar la penúltima)
+            (when email
+              (re-frame/dispatch [:dashboard/consultar email])))
+          (js/console.error "❌ Error al guardar test:" (clj->js (:error result))))))))
 
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EVENTO: Finaliza el test
 ;; -----------------------------------------------------------------------------
 ;; - Cambia el estado a :completed
-;; - Guarda los resultados en Supabase mediante el evento :save-test
+;; - Guarda los resultados; el dashboard se refresca al confirmar el save
 
 (re-frame/reg-event-fx
  :test/complete
@@ -358,9 +364,9 @@
                         (assoc-in [:test :status]    :completed)
                         (assoc-in [:test :end-time] (.now js/Date)))
          test       (:test new-db)]
-     {:db       new-db
-      :dispatch-n [[:save-test {:test test :email-user email-user}]
-                   [:dashboard/consultar email-user]]})))
+     {:db new-db
+      :save-test {:data {:test test :email-user email-user}
+                  :email email-user}})))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 SUSCRIPCIONES
