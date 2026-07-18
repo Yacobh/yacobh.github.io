@@ -32,7 +32,7 @@
 
      [:button
       {:class "text-gray-500 hover:text-gray-700 text-sm transition-colors duration-200"
-       :on-click #(re-frame/dispatch [:set-section :dashboard])}
+       :on-click #(re-frame/dispatch [:navigate-to :dashboard])}
       "Tal vez más tarde"]]]])
 
 ;; -------------------------------

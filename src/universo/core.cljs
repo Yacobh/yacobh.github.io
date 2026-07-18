@@ -4,6 +4,7 @@
    [reagent.dom :as d]
    [universo.subs]
    #_[universo.test-subs]
+   [universo.events.auth]
    [universo.events.test]
    [universo.events.contacto]
    [universo.events.dashboard]
@@ -12,15 +13,15 @@
    [universo.components.mathacademy.events]
    [universo.components.mathacademy.subs]))
 
-  (defn mount-root []
+(defn mount-root []
+  (re-frame/clear-subscription-cache!)
+  (d/render
+   [views/main-panel]
+   (.getElementById js/document "app")))
 
-    (re-frame/clear-subscription-cache!)
-    (d/render
-     [views/main-panel]
-     (.getElementById js/document "app")))
-
-  (defn ^:export init! []
-    (re-frame/dispatch-sync [:initialize-db])
-    #_(re-frame/dispatch-sync [:mathacademy/init])
-    (tracker/start-tracking!)
-    (mount-root))
+(defn ^:export init! []
+  (re-frame/dispatch-sync [:initialize-db])
+  (re-frame/dispatch [:auth/init])
+  #_(re-frame/dispatch-sync [:mathacademy/init])
+  (tracker/start-tracking!)
+  (mount-root))

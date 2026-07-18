@@ -30,21 +30,11 @@
       .-auth
       (.signOut)))
 
-;; Obtener sesión actual
+;; Obtener sesión actual (Promise → {data: {session}, error})
 (defn get-session []
-  (js/console.log "1. supabase object:" supabase)
-  (js/console.log "2. supabase.auth:" (.-auth supabase-client))
-  (js/console.log "3. auth methods:" (when (.-auth supabase-client)
-                                       (js/Object.keys (.-auth supabase-client))))
-
-  ;; Intentar llamar el método solo si existe
-  (if-let [auth (.-auth supabase-client)]
-    (if-let [get-session-fn (.-getSession auth)]
-      (do
-        (js/console.log "4. Calling getSession...")
-        (.getSession auth))
-      (js/console.error "getSession method not found!"))
-    (js/console.error "auth property not found!")))
+  (-> supabase-client
+      .-auth
+      .getSession))
 
 
 

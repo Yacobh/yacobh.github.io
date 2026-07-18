@@ -3,15 +3,22 @@
 (def default-db
   {:ui {:current-page :home
         :current-section :main
-        :modal nil}
+        :modal nil
+        :transitioning false}
 
-   :visitor {:id 1
-             :ciudad "Iquique"
-             :pais "Chile"
-             :idioma "es"
-             :browser "Chrome"
-             :os "Windows"
-             :logged-in true}
+   ;; Sesión Supabase (rehidratada en :auth/init)
+   :auth {:ready? false
+          :user nil
+          :redirect-after-login nil}
+
+   :visitor {:id nil
+             :email nil
+             :ciudad nil
+             :pais nil
+             :idioma nil
+             :browser nil
+             :os nil
+             :logged-in false}
 
    :dashboard {:user-id nil
                :level 0
