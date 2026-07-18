@@ -53,7 +53,7 @@
 (defn close-button []
   [:button {:class "text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             :aria-label "Cerrar modal"
-            :on-click #(re-frame/dispatch [:test/question])}
+            :on-click #(re-frame/dispatch [:test/continue])}
    [icon-close-button]])
 
 ;; ============================================================================
@@ -170,50 +170,21 @@
 ;; SECCIÓN DE EXPLICACIÓN
 ;; ============================================================================
 
-
-;; ============================================================================
-;; SECCIÓN DE EXPLICACIÓN
-;; ============================================================================
-
-(defn explanation-section [question selected]
-  (when-let [err-msg (get-in question [:errors (keyword selected)])]
-    [:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-slate-50 border-l-4 border-slate-300 rounded-r-xl"}
-     [:div {:class "flex items-start gap-3"}
-      [icon-warning]
-      [:div {:class "min-w-0"}
-       [:h4 {:class "font-semibold text-slate-700 mb-1 text-base sm:text-lg"}
-        "Explicación:"]
-       [:div {:class "text-slate-600 leading-relaxed text-base sm:text-lg"}
-        (math/parse-markdown-latex err-msg)]]]]))
-
-#_(defn explanation-section [question selected is-correct?]
-  (when-let [err-msg (get-in question [:errors (keyword selected)])]
-    [:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl"}
-     [:div {:class "flex items-start gap-3"}
-      [icon-warning]
-      [:div {:class "min-w-0"}
-       [:h4 {:class "font-semibold text-amber-800 mb-1 text-sm sm:text-base"}
-        "Explicación:"]
-       [:p {:class "text-amber-700 leading-relaxed text-sm sm:text-base"}
-        (math/parse-markdown-latex err-msg)]]]]
-    #_[:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl"}
-     [:div {:class "flex items-start gap-3"}
-      [icon-warning]
-      [:div {:class "min-w-0"}
-       [:h4 {:class "font-semibold text-amber-800 mb-1 text-sm sm:text-base"}
-        (if is-correct? "¡Excelente!" "Explicación:")]
-       [:p {:class "text-amber-700 leading-relaxed text-sm sm:text-base"}
-        err-msg]]]]))
-#_(defn explanation-section [question selected]
-  (when-let [err-msg (get-in question [:errors selected])]
-    [:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl"}
-     [:div {:class "flex items-start gap-3"}
-      [icon-warning]
-      [:div {:class "min-w-0"}
-       [:h4 {:class "font-semibold text-amber-800 mb-1 text-sm sm:text-base"}
-        "Explicación:"]
-       [:p {:class "text-amber-700 leading-relaxed text-sm sm:text-base"}
-        err-msg]]]]))
+(defn explanation-section
+  "Muestra la explicación del error de la opción seleccionada.
+   is-correct? es opcional (compatibilidad con callers de 2 o 3 args)."
+  ([question selected]
+   (explanation-section question selected false))
+  ([question selected _is-correct?]
+   (when-let [err-msg (get-in question [:errors (keyword selected)])]
+     [:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-slate-50 border-l-4 border-slate-300 rounded-r-xl"}
+      [:div {:class "flex items-start gap-3"}
+       [icon-warning]
+       [:div {:class "min-w-0"}
+        [:h4 {:class "font-semibold text-slate-700 mb-1 text-base sm:text-lg"}
+         "Explicación:"]
+        [:div {:class "text-slate-600 leading-relaxed text-base sm:text-lg"}
+         (math/parse-markdown-latex err-msg)]]]])))
 
 ;; ============================================================================
 ;; BOTONES DE ACCIÓN
@@ -232,15 +203,7 @@
   [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6
    [question-section question]
    [options-section question selected correct]
-   [explanation-section question selected is-correct?]  ;; Ahora pasa is-correct?
-   [action-buttons]])
-
-#_(defn modal-content [question response selected correct is-correct?]
-  [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6
-   #_[modal-header is-correct?]
-   [question-section question]
-   [options-section question selected correct]
-   [explanation-section question selected]
+   [explanation-section question selected is-correct?]
    [action-buttons]])
 
 ;; ============================================================================

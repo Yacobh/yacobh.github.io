@@ -25,20 +25,25 @@
    :position (:order_index q)})
 
 ;; -----------------------------------------------------------------------------
-;; 🔹 FUNCIÓN AUXILIAR: Calcula el nuevo theta
+;; 🔹 FUNCIÓN AUXILIAR: Mapea label de UI → id de topic en Supabase
 ;; -----------------------------------------------------------------------------
-;; Esto puede crecer más adelante, pero por ahora se usa una estimación simple.
 
-(defn calculate-theta [test]
-  (let [responses (:responses test)
-        total (count responses)
-        corrects (count (filter :correct? responses))]
-    (if (zero? total)
-      0.0
-      ;; Escala de -1 a +1 según proporción de aciertos
-      (- (* 2 (/ corrects total)) 1))))
+(def topic-aliases
+  {"Números"   "numbers_V1"
+   "Numeros"   "numbers_V1"
+   "números"   "numbers_V1"
+   "numbers"   "numbers_V1"
+   "numbers_V1" "numbers_V1"
+   "Álgebra"   "algebra"
+   "Algebra"   "algebra"
+   "algebra"   "algebra"})
 
-
+(defn resolve-topic
+  "Normaliza el topic del test al identificador usado en Supabase."
+  [topic]
+  (or (get topic-aliases topic)
+      topic
+      "numbers_V1"))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EVENTO: Inicia el test
@@ -50,16 +55,18 @@
 (re-frame/reg-event-fx
  :test/start
  (fn [{:keys [db]} [_ topic]]
-   {:db (-> db
-            (assoc-in [:test :status] :intro)
-            (assoc-in [:test :topic] topic)
-            (assoc-in [:test :responses] [])
-            (assoc-in [:test :questions] [])
-            (assoc-in [:test :start-time] (.now js/Date))
-            (assoc-in [:test :theta] -3.0)
-            (assoc-in [:test :theta-history] [])
-            (assoc-in [:test :current-question] 0))
-    :dispatch [:test/fetch-next-question]}))
+   (let [resolved (resolve-topic topic)]
+     {:db (-> db
+              (assoc-in [:test :status] :intro)
+              (assoc-in [:test :topic] resolved)
+              (assoc-in [:test :responses] [])
+              (assoc-in [:test :questions] [])
+              (assoc-in [:test :feedback] nil)
+              (assoc-in [:test :start-time] (.now js/Date))
+              (assoc-in [:test :theta] -3.0)
+              (assoc-in [:test :theta-history] [])
+              (assoc-in [:test :current-question] nil))
+      :dispatch [:test/fetch-next-question]})))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EFECTO: Obtiene la siguiente pregunta desde Supabase
@@ -72,29 +79,26 @@
 
 (re-frame/reg-fx
  :test/fetch-next-question
- (fn [{:keys [db]} _]
+ (fn [{:keys [db]}]
    (go
      (let [theta (get-in db [:test :theta])
-           ;; Obtener las preguntas ya realizadas
+           topic (resolve-topic (get-in db [:test :topic]))
            answered-questions (get-in db [:test :questions])
-           ;; Extraer los IDs de las preguntas ya respondidas
            answered-ids (set (map :id answered-questions))
            _ (js/console.log "Theta actual:" theta)
+           _ (js/console.log "Topic:" topic)
            _ (js/console.log "Preguntas ya respondidas:" answered-ids)
 
-           ;; Consultar Supabase
            result (<! (crud/get-table "questions"
-                                      {"difficulty" [:between (- theta 0.5 ) (+ 0.5 theta)]
-                                       "topic" "numbers_V1"}))]
+                                      {"difficulty" [:between (- theta 0.5) (+ 0.5 theta)]
+                                       "topic" topic}))]
        (if (:success result)
-         (let [;; Filtrar preguntas que NO han sido respondidas
-               available-questions (filter
+         (let [available-questions (filter
                                      #(not (contains? answered-ids (:id %)))
                                      (:data result))
 
                _ (js/console.log "Preguntas disponibles:" (count available-questions))
 
-               ;; Seleccionar una pregunta (puedes aleatorizar aquí)
                next-q (when (seq available-questions)
                         (normalize-question (first available-questions)))]
 
@@ -102,7 +106,6 @@
              (re-frame/dispatch [:test/add-question next-q])
              (do
                (js/console.log "⚠️ No hay más preguntas disponibles, finalizando test")
-               #_(re-frame/dispatch [:test/add-question nil])
                (re-frame/dispatch [:test/complete]))))
          (js/console.error "❌ Error obteniendo pregunta:" result))))))
 
@@ -130,42 +133,27 @@
 (re-frame/reg-event-fx
  :test/continue
  (fn [{:keys [db]} _]
-   {:db (assoc-in db [:test :status] :questions)
+   ;; Limpia current-question para mostrar loading mientras llega la siguiente
+   {:db (-> db
+            (assoc-in [:test :status] :questions)
+            (assoc-in [:test :feedback] nil)
+            (assoc-in [:test :current-question] nil))
     :dispatch [:test/fetch-next-question]}))
-
-
-
-#_(re-frame/reg-event-fx
- :test/answer
- (fn [{:keys [db]} [_ {:keys [question-id selected correct? time-ms]}]]
-   (let [new-response {:question-id    question-id
-                       :selected-option selected
-                       :correct?        correct?
-                       :time-ms         time-ms}
-         updated-db (update-in db [:test :responses] conj new-response)
-         new-theta (tetha/calculate-theta (:test updated-db))
-         questions (get-in db [:test :questions])
-         question  (some #(when (= (:id %) question-id) %) questions)]
-     {:db (-> updated-db
-              (assoc-in [:test :theta] new-theta)
-              (update-in [:test :theta-history] conj new-theta))
-      :dispatch-n [[:test/show-feedback {:question question
-                                         :response new-response}]
-                   [:test/fetch-next-question new-theta question]]})))
 
 (re-frame/reg-event-fx
  :test/answer
  (fn [{:keys [db]} [_ {:keys [question-id selected correct? time-ms]}]]
-   (let [new-response {:question-id question-id
+   (let [questions (get-in db [:test :questions])
+         question (some #(when (= (:id %) question-id) %) questions)
+         new-response {:question-id question-id
                        :selected-option selected
                        :correct? correct?
-                       :time-ms time-ms}
+                       :time-ms (or time-ms 0)
+                       :difficulty (or (:difficulty question) 0.0)}
          updated-db (update-in db [:test :responses] conj new-response)
-         new-theta (tetha/calculate-theta (:test updated-db))
-         questions (get-in db [:test :questions])
-         question (some #(when (= (:id %) question-id) %) questions)
-         _ (js/console.log "new-theta: " new-theta)
-         ]
+         ;; Usa IRT 1PL con dificultad del ítem (enrich automático de respaldo)
+         new-theta (tetha/calculate-theta-auto (:test updated-db))
+         _ (js/console.log "new-theta:" new-theta)]
      {:db (-> updated-db
               (assoc-in [:test :theta] new-theta)
               (update-in [:test :theta-history] conj new-theta))
@@ -217,8 +205,8 @@
 
 (re-frame/reg-event-fx
  :test/fetch-next-question
- (fn [db _]
-   {:test/fetch-next-question db}))
+ (fn [{:keys [db]} _]
+   {:test/fetch-next-question {:db db}}))
 
 
 ;; -----------------------------------------------------------------------------
@@ -279,4 +267,5 @@
                   (fn [db _]
                     (let [qid (get-in db [:test :current-question])
                           questions (get-in db [:test :questions])]
-                      (nth questions (dec qid) nil))))
+                      (when (and qid (pos? qid))
+                        (nth questions (dec qid) nil)))))
