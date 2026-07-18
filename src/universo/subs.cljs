@@ -63,15 +63,7 @@
 
 ;; Events
 
-;transition events
-;; 2. Evento que inicia la transición (reemplaza :set-section en los on-click)
-(re-frame/reg-event-fx
- :navigate-to
- (fn [{:keys [db]} [_ section]]
-   {:db             (assoc-in db [:ui :transitioning] true)
-    :dispatch-later [{:ms 240 :dispatch [:complete-navigation section]}]}))
-
-;; 3. Evento que cambia la sección y apaga la transición
+;; Completa la navegación tras la transición (el guard está en events.auth)
 (re-frame/reg-event-db
  :complete-navigation
  (fn [db [_ section]]
@@ -79,14 +71,11 @@
        (assoc-in [:ui :current-section] section)
        (assoc-in [:ui :transitioning] false))))
 
-
 ;; dashboard events
 (re-frame/reg-event-db
  :set-dashboard-user-id
  (fn [db [_ user-id]]
    (assoc-in db [:dashboard :user-id] user-id)))
-;-----
-
 
 (re-frame/reg-event-db
  :initialize-db
@@ -97,11 +86,6 @@
  :set-page
  (fn [db [_ new-page]]
    (assoc-in db [:ui :current-page] new-page)))
-
-(re-frame/reg-event-db
- :set-section
- (fn [db [_ section]]
-   (assoc-in db [:ui :current-section] section)))
 
 (re-frame/reg-sub
  :modal

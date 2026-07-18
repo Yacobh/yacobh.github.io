@@ -163,6 +163,30 @@
                                    :error (.-message error)}))))
      ch)))
 
+(defn get-distinct-topics
+  "Obtiene los valores distintos de `topic` desde la tabla questions."
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "questions")
+        (.select "topic")
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (let [rows (js->clj (.-data result) :keywordize-keys true)
+                         topics (->> rows
+                                     (map :topic)
+                                     (remove #(or (nil? %) (= % "")))
+                                     distinct
+                                     sort
+                                     vec)]
+                     (async/put! ch {:success true
+                                     :data topics})))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false
+                                  :error (.-message error)}))))
+    ch))
+
 ;; Función helper para obtener el último registro
 (defn get-latest
   "Obtiene el registro más reciente de una tabla basado en created_at"

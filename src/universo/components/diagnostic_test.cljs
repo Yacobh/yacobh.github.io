@@ -1,39 +1,77 @@
 (ns universo.components.diagnostic-test
-  (:require [re-frame.core :as re-frame]
+  (:require [clojure.string :as str]
+            [re-frame.core :as re-frame]
             [reagent.core :as r]
             [universo.components.feedback-modal :refer [feedback]]
             [universo.components.math-render :as math]))
 
 ;; -------------------------------
-;; Componente de introducción
+;; Helpers de presentación
 ;; -------------------------------
 
-(defn intro-component []
-  [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
-   [:div {:class "text-center"}
-    [:h2 {:class "text-3xl font-bold text-gray-800 mb-6"}
-     "Evaluación Diagnóstica Gratuita"]
+(def topic-labels
+  {"numbers_V1" "Números"
+   "enteros"    "Enteros"
+   "algebra"    "Álgebra"
+   "geometria"  "Geometría"
+   "fracciones" "Fracciones"
+   "potencias"  "Potencias"})
 
-    [:div {:class "mb-8"}
-     [:div {:class "w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"}
-      [:svg {:class "w-8 h-8 text-blue-600" :fill "currentColor" :viewBox "0 0 20 20"}
-       [:path {:d "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"}]]]
-     [:p {:class "text-lg text-gray-600 leading-relaxed"}
-      "Esta evaluación nos ayudará a entender tu nivel actual y diseñar un plan de estudios personalizado para ti."]
-     [:p {:class "text-sm text-gray-500 mt-4"}
-      "📝 5-6 preguntas • ⏱️ Aproximadamente 3 minutos • 🎯 Resultados inmediatos"]]
+(defn topic-label
+  "Etiqueta legible para un topic de Supabase."
+  [topic]
+  (or (get topic-labels topic)
+      (str/replace (str topic) #"_" " ")))
+;; -------------------------------
+;; Selección de evaluación (topics)
+;; -------------------------------
 
-    [:div {:class "space-y-4"}
-     ;; Botón principal
-     [:button
-      {:class "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-       :on-click #(re-frame/dispatch [:test/question])}
-      "Comenzar Evaluación"]
+(defn selection-component []
+  (let [topics @(re-frame/subscribe [:test/available-topics])
+        loading? @(re-frame/subscribe [:test/topics-loading?])
+        error @(re-frame/subscribe [:test/topics-error])]
+    [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
+     [:div {:class "text-center mb-8"}
+      [:h2 {:class "text-3xl font-bold text-gray-800 mb-3"}
+       "Elige una evaluación"]
+      [:p {:class "text-gray-600"}
+       "Selecciona el tema que quieres practicar. Las opciones se cargan desde el banco de preguntas."]]
 
-     [:button
-      {:class "text-gray-500 hover:text-gray-700 text-sm transition-colors duration-200"
-       :on-click #(re-frame/dispatch [:set-section :dashboard])}
-      "Tal vez más tarde"]]]])
+     (cond
+       loading?
+       [:div {:class "text-center py-10"}
+        [:div {:class "inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-600 mb-4"}]
+        [:p {:class "text-gray-600"} "Cargando evaluaciones disponibles..."]]
+
+       error
+       [:div {:class "text-center py-8 space-y-4"}
+        [:p {:class "text-red-600"} error]
+        [:button {:class "bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-5 rounded-lg"
+                  :type "button"
+                  :on-click #(re-frame/dispatch [:test/load-topics])}
+         "Reintentar"]]
+
+       (empty? topics)
+       [:div {:class "text-center py-8"}
+        [:p {:class "text-gray-600"} "No hay evaluaciones disponibles por ahora."]]
+
+       :else
+       [:div {:class "space-y-3"}
+        (for [topic topics]
+          ^{:key topic}
+          [:button
+           {:type "button"
+            :class "w-full text-left bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 text-indigo-900 font-semibold py-4 px-5 rounded-xl transition flex items-center justify-between"
+            :on-click #(re-frame/dispatch [:test/start topic])}
+           [:span {:class "text-lg"} (topic-label topic)]
+           [:span {:class "text-sm font-normal text-indigo-500"} "Comenzar →"]])])
+
+     [:div {:class "mt-8 text-center"}
+      [:button
+       {:class "text-gray-500 hover:text-gray-700 text-sm transition-colors duration-200"
+        :type "button"
+        :on-click #(re-frame/dispatch [:navigate-to :dashboard])}
+       "Volver al tablero"]]]))
 
 ;; -------------------------------
 ;; Componente de carga
@@ -70,6 +108,7 @@
                last-id (r/atom nil)]
     (let [question @(re-frame/subscribe [:test/current-question])
           question-index (count @(re-frame/subscribe [:test/questions]))
+          topic @(re-frame/subscribe [:test/topic])
           ;; 🎲 Rotar opciones basado en el ID (0, 1, 2, o 3 posiciones)
           shift (when question (mod (:id question) 4))
           rotated-options (when question
@@ -87,6 +126,9 @@
          ;; 🔹 Título / encabezado
          [:h2.text-2xl.font-bold.text-gray-800.text-center
           (str "Pregunta " question-index)]
+         (when topic
+           [:p.text-sm.text-indigo-600.text-center
+            (topic-label topic)])
 
          ;; 🔹 Texto de la pregunta
          [:p.text-lg.text-gray-700.text-center.mt-4
@@ -131,15 +173,22 @@
 
     [:div {:class "max-w-md mx-auto bg-white p-6 rounded-lg shadow text-center"}
      [:h2 {:class "text-2xl font-bold text-gray-800 mb-4"} "Resultados"]
+     (when topic
+       [:p {:class "text-sm text-indigo-600 mb-2"} (topic-label topic)])
      [:p {:class "text-lg text-gray-700 mb-2"}
       (str "Preguntas correctas: " correct " de " total)]
      [:p {:class "text-xl font-semibold text-blue-600 mb-6"}
       (str "Puntaje: " score "%")]
 
-     [:button
-      {:class "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
-       :on-click #(re-frame/dispatch [:test/start (or topic "Números")])}
-      "Repetir evaluación"]]))
+     [:div {:class "space-y-3"}
+      [:button
+       {:class "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
+        :on-click #(re-frame/dispatch [:test/start topic])}
+       "Repetir evaluación"]
+      [:button
+       {:class "w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-2 px-4 rounded-lg"
+        :on-click #(re-frame/dispatch [:test/open-selection])}
+       "Elegir otra evaluación"]]]))
 
 ;; -------------------------------
 ;; Componente principal
@@ -149,9 +198,11 @@
   (let [current-step @(re-frame/subscribe [:test/status])]
     [:div {:class "py-12 px-4"}
      (case current-step
-       :intro [intro-component]
+       :select [selection-component]
+       :intro [selection-component] ;; compatibilidad: intro redirige a selección
        :questions [question-component]
        :feedback [feedback]
        :completed [completion-component]
        :results [results-component]
-       nil)]))
+       ;; Estado inicial / desconocido → selección
+       [selection-component])]))

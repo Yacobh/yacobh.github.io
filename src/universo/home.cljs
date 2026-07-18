@@ -24,13 +24,26 @@
         "Integral"]]]
 
      [:div.flex.items-center.gap-3
-      (if @(re-frame/subscribe [:visitor-email])
-        [:a.bg-gradient-to-r.from-indigo-600.to-purple-600.text-white.text-sm.font-medium.px-6.py-2.5.rounded-full.hover:opacity-90.transition.cursor-pointer
-         {:on-click #(re-frame/dispatch [:navigate-to :dashboard])}
-         "Mi Tablero"]
-        [:a.bg-gradient-to-r.from-indigo-600.to-purple-600.text-white.text-sm.font-medium.px-6.py-2.5.rounded-full.hover:opacity-90.transition.cursor-pointer
-         {:on-click #(re-frame/dispatch [:navigate-to :login])}
-         "Iniciar Sesión"])]]]])
+      (let [ready? @(re-frame/subscribe [:auth/ready?])
+            logged-in? @(re-frame/subscribe [:auth/logged-in?])]
+        (cond
+          (not ready?)
+          [:span.text-sm.text-gray-400.px-4 "…"]
+
+          logged-in?
+          [:div.flex.items-center.gap-2
+           [:a.bg-gradient-to-r.from-indigo-600.to-purple-600.text-white.text-sm.font-medium.px-6.py-2.5.rounded-full.hover:opacity-90.transition.cursor-pointer
+            {:on-click #(re-frame/dispatch [:navigate-to :dashboard])}
+            "Mi Tablero"]
+           [:button.text-sm.font-medium.text-gray-600.hover:text-gray-900.px-3.py-2.transition.cursor-pointer
+            {:type "button"
+             :on-click #(re-frame/dispatch [:auth/logout])}
+            "Salir"]]
+
+          :else
+          [:a.bg-gradient-to-r.from-indigo-600.to-purple-600.text-white.text-sm.font-medium.px-6.py-2.5.rounded-full.hover:opacity-90.transition.cursor-pointer
+           {:on-click #(re-frame/dispatch [:navigate-to :login])}
+           "Iniciar Sesión"]))]]]])
 
 
 

@@ -146,4 +146,16 @@
       (is (some? (:ultimo-test stats)))
       (is (= 42 (get-in stats [:ultimo-test :id])))
       (is (= "geometria" (get-in stats [:ultimo-test :tema]))))))
+
+(deftest procesar-ultimo-elige-el-mas-reciente
+  (testing "aunque el vector venga desordenado, gana el created_at más nuevo"
+    (let [rows [(sample-test-row {:id 1 :created-at "2026-01-01T00:00:00.000Z" :topic "viejo"})
+                (sample-test-row {:id 3 :created-at "2026-06-01T00:00:00.000Z" :topic "nuevo"})
+                (sample-test-row {:id 2 :created-at "2026-03-01T00:00:00.000Z" :topic "medio"})]
+          ultimo (dashboard/procesar-ultimo-test rows)
+          historial (dashboard/procesar-historial rows)]
+      (is (= 3 (:id ultimo)))
+      (is (= "nuevo" (:tema ultimo)))
+      (is (= [3 2 1] (mapv :id historial))))))
+
 (run-tests)

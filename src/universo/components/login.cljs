@@ -33,7 +33,6 @@
                              (reset! loading true)
                              (reset! error nil)
                              (reset! success nil)
-
                              (-> (sb/sign-in @email @password)
                                  (.then (fn [response]
                                           (reset! loading false)
@@ -41,13 +40,10 @@
                                             (reset! error (.. response -error -message))
                                             (do
                                               (reset! success "¡Login exitoso!")
-                                              (js/console.log "Usuario:" (.-user (.-data response)))
-                                              (re-frame/dispatch [:set-dashboard-user-id (.-id (.-user (.-data response)))])
-                                              (re-frame/dispatch [:set-visitor-email @email])
-                                              (re-frame/dispatch [:navigate-to :dashboard])
-                                              (js/console.log "Email:" (.-email (.-user (.-data response))))
-                                              (re-frame/dispatch [:dashboard/cargar (.-email (.-user (.-data response)))])))))
-                                 (.catch (fn [err]
+                                              (re-frame/dispatch
+                                               [:auth/login-success
+                                                (.-user (.-data response))])))))
+                                 (.catch (fn [_err]
                                            (reset! loading false)
                                            (reset! error "Error de conexión")))))}
 
@@ -57,7 +53,7 @@
           [:input {:type "email"
                    :placeholder "tu@email.com"
                    :value @email
-                   :on-change #(reset! email (.. % -target -value))
+                   :on-change #(reset! email (-> % .-target .-value))
                    :required true
                    :disabled @loading
                    :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"}]]
@@ -68,7 +64,7 @@
           [:input {:type "password"
                    :placeholder "Tu contraseña"
                    :value @password
-                   :on-change #(reset! password (.. % -target -value))
+                   :on-change #(reset! password (-> % .-target .-value))
                    :required true
                    :disabled @loading
                    :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"}]]

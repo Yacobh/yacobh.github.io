@@ -3,15 +3,22 @@
 (def default-db
   {:ui {:current-page :home
         :current-section :main
-        :modal nil}
+        :modal nil
+        :transitioning false}
 
-   :visitor {:id 1
-             :ciudad "Iquique"
-             :pais "Chile"
-             :idioma "es"
-             :browser "Chrome"
-             :os "Windows"
-             :logged-in true}
+   ;; Sesión Supabase (rehidratada en :auth/init)
+   :auth {:ready? false
+          :user nil
+          :redirect-after-login nil}
+
+   :visitor {:id nil
+             :email nil
+             :ciudad nil
+             :pais nil
+             :idioma nil
+             :browser nil
+             :os nil
+             :logged-in false}
 
    :dashboard {:user-id nil
                :level 0
@@ -34,8 +41,15 @@
           :status :not-started
           :start-time nil
           :end-time nil
-          :topic "algebra"
-          :current-question 0}
+          :topic nil
+          :current-question nil
+          ;; Prefetch de la siguiente pregunta (mientras se muestra feedback)
+          :prefetched-question nil ; nil | mapa-pregunta | :exhausted
+          :prefetching? false
+          ;; Catálogo de evaluaciones (topics distintos en questions)
+          :available-topics []
+          :topics-loading? false
+          :topics-error nil}
 
    :bookings {:by-id {}        ;; id -> booking info
               :all-ids []}})   ;; to preserve insertion order

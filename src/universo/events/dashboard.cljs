@@ -45,27 +45,51 @@
      :porcentaje (js/Math.round porcentaje)
      :nota porcentaje}))
 
-(defn procesar-ultimo-test
-  "Procesa el test más reciente para mostrar en el dashboard"
+(defn- created-at-ms
+  "Timestamp ms de created_at; 0 si no hay fecha."
+  [row]
+  (if-let [s (:created_at row)]
+    (.getTime (js/Date. s))
+    0))
+
+(defn sort-tests-newest-first
+  "Ordena por created_at desc, luego por id desc (más reciente primero)."
   [tests-data]
-  (when (seq tests-data)
-    (let [ultimo-test (first tests-data)
-          test-info (:test ultimo-test)
-          stats (calcular-nota ultimo-test)
-          theta-final (last (get-in ultimo-test [:test :theta-history]))]
-      {:id (:id ultimo-test)
-       :fecha (:created_at ultimo-test)
-       :tema (get-in ultimo-test [:test :topic])
-       :completado? (some? (get-in ultimo-test [:test :end-time]))
+  (vec (sort-by (fn [t]
+                  [(- (created-at-ms t))
+                   (- (or (:id t) 0))])
+                tests-data)))
+
+(defn procesar-test-resumen
+  "Normaliza una fila de Supabase para la UI del dashboard."
+  [row]
+  (when row
+    (let [test-info (:test row)
+          stats (calcular-nota row)
+          theta (last (get-in row [:test :theta-history]))]
+      {:id (:id row)
+       :fecha (:created_at row)
+       :tema (get-in row [:test :topic])
+       :completado? (some? (get-in row [:test :end-time]))
        :correctas (:correctas stats)
        :total (:total stats)
        :porcentaje (:porcentaje stats)
        :nota (:nota stats)
-       :theta theta-final
-       :current-question (get-in ultimo-test [:test :current-question])
+       :theta theta
+       :current-question (get-in row [:test :current-question])
        :duracion-min (duracion-test-min test-info)
        :promedio-seg-pregunta (promedio-tiempo-por-pregunta-seg test-info)})))
 
+(defn procesar-ultimo-test
+  "Procesa el test más reciente (por fecha/id) para mostrar en el dashboard."
+  [tests-data]
+  (when-let [sorted (seq (sort-tests-newest-first tests-data))]
+    (procesar-test-resumen (first sorted))))
+
+(defn procesar-historial
+  "Lista de resúmenes, más reciente primero."
+  [tests-data]
+  (mapv procesar-test-resumen (sort-tests-newest-first tests-data)))
 
 (defn test-completado? [test]
   (some? (:end-time (:test test))))
@@ -86,18 +110,21 @@
 (defn calcular-estadisticas-generales
   "Calcula estadísticas generales de todos los tests"
   [tests-data]
-  (let [tests-completados (filter test-completado? tests-data)
-        total-tests (count tests-data)
+  (let [sorted (sort-tests-newest-first tests-data)
+        tests-completados (filter test-completado? sorted)
+        total-tests (count sorted)
         total-completados (count tests-completados)
         notas (keep nota-de-test tests-completados)
         thetas (keep theta-final tests-completados)
         promedio-nota (Math/round (promediar notas))
-        theta-promedio (Math/round (* 100 (promediar thetas)))]
+        theta-promedio (Math/round (* 100 (promediar thetas)))
+        historial (procesar-historial sorted)]
     {:total-tests total-tests
      :tests-completados total-completados
      :promedio-nota (if (pos? total-completados) promedio-nota 0)
      :theta-promedio (if (pos? total-completados) theta-promedio 0)
-     :ultimo-test (procesar-ultimo-test tests-data)}))
+     :ultimo-test (first historial)
+     :historial historial}))
 
 
 (defn formatear-fecha
@@ -115,6 +142,13 @@
 ;; -----------------------------------------------------------------------------
 ;; EVENTOS PRINCIPALES
 ;; -----------------------------------------------------------------------------
+
+(re-frame/reg-event-fx
+ :dashboard/refresh
+ (fn [{:keys [db]} _]
+   (if-let [email (get-in db [:visitor :email])]
+     {:dispatch [:dashboard/cargar email]}
+     {:db db})))
 
 (re-frame/reg-event-fx
  :dashboard/cargar
@@ -139,7 +173,7 @@
  (fn [[email]]
    (go
      (try
-       ;; Obtener tests ordenados por fecha descendente (más reciente primero)
+       ;; Pedimos desc; además reordenamos en cliente por fecha/id
        (let [tests-resp (<! (crud/get-table "tests"
                                             {"email-user" email}
                                             {:order-by [:created_at :desc]}))
@@ -148,8 +182,8 @@
          (if (:success tests-resp)
            (do
              (js/console.log "📊 Tests cargados:" (count tests-data))
-             (let [stats (calcular-estadisticas-generales tests-data)]
-               (js/console.log "📈 Estadísticas calculadas:" stats)
+             (let [stats (calcular-estadisticas-generales (or tests-data []))]
+               (js/console.log "📈 Estadísticas calculadas:" (clj->js stats))
                (re-frame/dispatch [:dashboard/exito stats])))
            (do
              (js/console.error "❌ Error al cargar tests:" tests-resp)
@@ -187,6 +221,10 @@
 (re-frame/reg-sub
  :dashboard/ultimo-test
  (fn [db _] (get-in db [:dashboard/stats :ultimo-test])))
+
+(re-frame/reg-sub
+ :dashboard/historial
+ (fn [db _] (get-in db [:dashboard/stats :historial] [])))
 
 (re-frame/reg-sub
  :dashboard/total-tests

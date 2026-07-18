@@ -1,5 +1,7 @@
 (ns universo.components.dashboard
-  (:require [re-frame.core :as re-frame]))
+  (:require [re-frame.core :as re-frame]
+            [reagent.core :as r]))
+
 (defn formatear-fecha
   "Formatea la fecha de created_at a formato legible"
   [fecha-str]
@@ -90,78 +92,109 @@
            [:p.text-sm.text-gray-600.font-medium.mb-2 "Nivel estimado"]
            [nivel-theta theta]])]])))
 
+(defn fila-historial
+  "Fila compacta de una evaluación en el historial."
+  [{:keys [tema fecha completado? correctas total porcentaje theta]}]
+  [:div {:class "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-4 border-b border-gray-100 last:border-0"}
+   [:div
+    [:p {:class "font-semibold text-gray-800"} (or tema "Sin tema")]
+    [:p {:class "text-sm text-gray-500"} (formatear-fecha fecha)]]
+   [:div {:class "flex flex-wrap items-center gap-3 text-sm"}
+    [:span {:class (str "font-semibold "
+                        (if (>= (or porcentaje 0) 70) "text-green-600" "text-red-600"))}
+     (str correctas "/" total " (" porcentaje "%)")]
+    (when theta
+      [:span {:class "text-indigo-600"} (str "θ " theta)])
+    [:span {:class (if completado?
+                     "text-green-700 bg-green-50 px-2 py-0.5 rounded-full text-xs font-medium"
+                     "text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full text-xs font-medium")}
+     (if completado? "Completado" "Incompleto")]]])
+
 (defn dashboard []
-  (let [correo @(re-frame/subscribe [:visitor-email])
-        cargando? @(re-frame/subscribe [:dashboard/cargando?])
-        ultimo-test @(re-frame/subscribe [:dashboard/ultimo-test])
-        total-tests @(re-frame/subscribe [:dashboard/total-tests])
-        tests-completados @(re-frame/subscribe [:dashboard/tests-completados])
-        promedio @(re-frame/subscribe [:dashboard/promedio-nota])
-        theta-promedio @(re-frame/subscribe [:dashboard/theta-promedio])]
+  (r/with-let [_ (re-frame/dispatch [:dashboard/refresh])]
+    (let [correo @(re-frame/subscribe [:visitor-email])
+          cargando? @(re-frame/subscribe [:dashboard/cargando?])
+          historial @(re-frame/subscribe [:dashboard/historial])
+          total-tests @(re-frame/subscribe [:dashboard/total-tests])
+          tests-completados @(re-frame/subscribe [:dashboard/tests-completados])
+          promedio @(re-frame/subscribe [:dashboard/promedio-nota])
+          theta-promedio @(re-frame/subscribe [:dashboard/theta-promedio])
+          ultimo (first historial)]
 
-    [:div{:class "py-8 px-4"}
-     [:div {:class "max-w-6xl mx-auto"}
+      [:div {:class "py-8 px-4"}
+       [:div {:class "max-w-6xl mx-auto"}
 
-      ;; Header
-      [:div.bg-white.rounded-xl.shadow-lg.p-6.mb-8
-       [:div.flex.items-center.justify-between
-        [:div
-         [:h1.text-3xl.font-bold.text-gray-800.mb-2 "Tablero de Aprendizaje"]
-         [:p.text-gray-600 (str "Bienvenido, " correo)]]
-        [:div.text-5xl "📊"]]]
+        ;; Header
+        [:div.bg-white.rounded-xl.shadow-lg.p-6.mb-8
+         [:div.flex.items-center.justify-between
+          [:div
+           [:h1.text-3xl.font-bold.text-gray-800.mb-2 "Tablero de Aprendizaje"]
+           [:p.text-gray-600 (str "Bienvenido, " correo)]]
+          [:div.text-5xl "📊"]]]
 
-      (if cargando?
-        [:div.text-center.py-20
-         [:div.inline-block.animate-spin.rounded-full.h-16.w-16.border-t-4.border-b-4.border-indigo-600]
-         [:p.text-gray-600.mt-4.text-lg "Cargando tus datos..."]]
+        (if cargando?
+          [:div.text-center.py-20
+           [:div.inline-block.animate-spin.rounded-full.h-16.w-16.border-t-4.border-b-4.border-indigo-600]
+           [:p.text-gray-600.mt-4.text-lg "Cargando tus datos..."]]
 
-        [:div
-         ;; Grid de estadísticas principales
-         [:div.grid.grid-cols-1.sm:grid-cols-3.gap-4.mb-2
-          [tarjeta-estadistica
-           "Total Evaluaciones"
-           total-tests
-           "Realizadas hasta ahora"
-           "📝"
-           "border-blue-500"
-           "text-blue-600"]
-          [tarjeta-estadistica
-           "Completadas"
-           tests-completados
-           "Evaluaciones finalizadas"
-           "✅"
-           "border-green-500"
-           "text-green-600"]
-          [tarjeta-estadistica
-           "Promedio"
-           (str promedio "%")
-           (str "Theta avg: " theta-promedio)
-           "📈"
-           "border-indigo-500"
-           "text-indigo-600"]]
+          [:div
+           ;; Grid de estadísticas principales
+           [:div.grid.grid-cols-1.sm:grid-cols-3.gap-4.mb-2
+            [tarjeta-estadistica
+             "Total Evaluaciones"
+             total-tests
+             "Realizadas hasta ahora"
+             "📝"
+             "border-blue-500"
+             "text-blue-600"]
+            [tarjeta-estadistica
+             "Completadas"
+             tests-completados
+             "Evaluaciones finalizadas"
+             "✅"
+             "border-green-500"
+             "text-green-600"]
+            [tarjeta-estadistica
+             "Promedio"
+             (str promedio "%")
+             (str "Theta avg: " theta-promedio)
+             "📈"
+             "border-indigo-500"
+             "text-indigo-600"]]
 
-         ;; Detalle último test realizado
-         (let [{:keys [tema fecha completado? correctas total porcentaje nota theta
-                       duracion-min promedio-seg-pregunta]} ultimo-test]
+           ;; Último test (el más reciente por fecha/id)
+           (when ultimo
+             (let [{:keys [tema fecha completado? correctas total porcentaje nota theta
+                           duracion-min promedio-seg-pregunta]} ultimo]
+               [:div.bg-white.rounded-xl.shadow-lg.p-8.mt-6.max-w-2xl.mx-auto
+                [:h3.text-xl.font-bold.text-indigo-700.mb-4 "Última evaluación"]
+                [:div.grid.grid-cols-1.sm:grid-cols-2.gap-x-8.gap-y-2
+                 [:div [:span.font-semibold "Tema: "] (str tema)]
+                 [:div [:span.font-semibold "Fecha: "] (formatear-fecha fecha)]
+                 [:div [:span.font-semibold "Completado: "] (if completado? "Sí" "No")]
+                 [:div [:span.font-semibold "Correctas: "] (str correctas "/" total)]
+                 [:div [:span.font-semibold "Porcentaje: "] (str porcentaje "%")]
+                 [:div [:span.font-semibold "Nota: "] (str nota)]
+                 [:div [:span.font-semibold "Theta final: "] (str theta)]
+                 [:div [:span.font-semibold "Duración total: "] (if duracion-min (str duracion-min " min") "-")]
+                 [:div [:span.font-semibold "Promedio por pregunta: "] (if promedio-seg-pregunta (str promedio-seg-pregunta " seg") "-")]]]))
+
+           ;; Historial completo
            [:div.bg-white.rounded-xl.shadow-lg.p-8.mt-6.max-w-2xl.mx-auto
-            [:h3.text-xl.font-bold.text-indigo-700.mb-4 "Último test realizado"]
-            [:div.grid.grid-cols-1.sm:grid-cols-2.gap-x-8.gap-y-2
-             [:div [:span.font-semibold "Tema: "] (str tema)]
-             [:div [:span.font-semibold "Fecha: "] (formatear-fecha fecha)]
-             [:div [:span.font-semibold "Completado: "] (if completado? "Sí" "No")]
-             [:div [:span.font-semibold "Correctas: "] (str correctas "/" total)]
-             [:div [:span.font-semibold "Porcentaje: "] (str porcentaje "%")]
-             [:div [:span.font-semibold "Nota: "] (str nota)]
-             [:div [:span.font-semibold "Theta final: "] (str theta)]
-             [:div [:span.font-semibold "Duración total: "] (if duracion-min (str duracion-min " min") "-")]
-             [:div [:span.font-semibold "Promedio por pregunta: "] (if promedio-seg-pregunta (str promedio-seg-pregunta " seg") "-")]]])
+            [:h3.text-xl.font-bold.text-indigo-700.mb-2 "Historial de evaluaciones"]
+            (if (seq historial)
+              [:div
+               (for [row historial]
+                 ^{:key (:id row)}
+                 [fila-historial row])]
+              [:p.text-gray-500.text-sm "Aún no hay evaluaciones registradas."])]
 
-         ;; Acciones rápidas
-         [:div.flex.flex-row.flex-wrap.gap-4.justify-center.mt-10
-          [:button.bg-indigo-600.text-white.font-semibold.py-3.px-5.rounded-lg.hover:bg-indigo-700.transition.shadow-md.flex.items-center.gap-2
-           {:type "button"
-            :on-click #(do
-                         (re-frame/dispatch [:test/start "Números"])
-                         (re-frame/dispatch [:navigate-to :diagnostic-test]))}
-           [:span "🚀"]
-           [:span "Nueva Evaluación"]]]])]]))
+           ;; Acciones rápidas
+           [:div.flex.flex-row.flex-wrap.gap-4.justify-center.mt-10
+            [:button.bg-indigo-600.text-white.font-semibold.py-3.px-5.rounded-lg.hover:bg-indigo-700.transition.shadow-md.flex.items-center.gap-2
+             {:type "button"
+              :on-click #(do
+                           (re-frame/dispatch [:test/open-selection])
+                           (re-frame/dispatch [:navigate-to :diagnostic-test]))}
+             [:span "🚀"]
+             [:span "Nueva Evaluación"]]]])]])))
