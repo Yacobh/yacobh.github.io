@@ -2,7 +2,8 @@
   (:require
    [re-frame.core :as re-frame]
    [cljs.core.async :refer [go <!]]
-   [universo.db.crud :as crud]))
+   [universo.db.crud :as crud]
+   [universo.supabase :as sb]))
 
 ;; -----------------------------------------------------------------------------
 ;; FUNCIONES AUXILIARES PARA PROCESAR TESTS
@@ -146,52 +147,105 @@
 (re-frame/reg-event-fx
  :dashboard/refresh
  (fn [{:keys [db]} _]
-   (if-let [email (get-in db [:visitor :email])]
-     {:dispatch [:dashboard/cargar email]}
-     {:db db})))
+   (let [email (get-in db [:visitor :email])
+         user-id (or (get-in db [:auth :user :id])
+                     (get-in db [:dashboard :user-id]))]
+     (if (or email user-id)
+       {:dispatch [:dashboard/cargar email]}
+       {:db db}))))
+
+(defn- own-test?
+  "Fila propia por user_id o email-user (defensa si RLS está demasiado abierta)."
+  [row uid email]
+  (let [row-uid (some-> (or (:user_id row) (get row "user_id")) str)
+        row-email (or (:email-user row)
+                      (get row "email-user"))]
+    (boolean
+     (or (and uid row-uid (= (str uid) row-uid))
+         (and email row-email (= (str email) (str row-email)))))))
+
+(defn- filter-own-tests [rows uid email]
+  (if (or uid email)
+    (vec (filter #(own-test? % uid email) (or rows [])))
+    (vec (or rows []))))
 
 (re-frame/reg-event-fx
  :dashboard/cargar
  (fn [{:keys [db]} [_ email]]
-   (if (or (nil? email)
-           (:dashboard/cargando? db))
-     (do (js/console.warn "⚠️ :dashboard/cargar llamado sin email o mientras cargaba")
-         {:db db})
-     {:db (assoc db :dashboard/cargando? true)
-      :dispatch [:dashboard/consultar email]})))
+   (let [email (or email (get-in db [:visitor :email]))
+         user-id (or (get-in db [:auth :user :id])
+                     (get-in db [:dashboard :user-id]))]
+     (cond
+       (and (nil? email) (nil? user-id))
+       (do (js/console.warn "⚠️ :dashboard/cargar sin identidad")
+           {:db db})
+
+       (:dashboard/cargando? db)
+       {:db db}
+
+       :else
+       {:db (assoc db :dashboard/cargando? true)
+        :dispatch [:dashboard/consultar email]}))))
 
 (re-frame/reg-event-fx
  :dashboard/consultar
- (fn [_ [_ email]]
-   {:fx/cargar-dashboard [email]}))
+ (fn [{:keys [db]} [_ email]]
+   (let [user-id (or (get-in db [:auth :user :id])
+                     (get-in db [:dashboard :user-id]))]
+     {:fx/cargar-dashboard {:email email :user-id user-id}})))
 
 ;; -----------------------------------------------------------------------------
 ;; EFECTO: Cargar datos de Supabase
+;; Preferir filtro user_id; si RLS/policies fallan, probar email y sin filtro.
+;; Siempre se recorta en cliente a filas del usuario actual.
 ;; -----------------------------------------------------------------------------
 (re-frame/reg-fx
  :fx/cargar-dashboard
- (fn [[email]]
-   (go
-     (try
-       ;; Pedimos desc; además reordenamos en cliente por fecha/id
-       (let [tests-resp (<! (crud/get-table "tests"
-                                            {"email-user" email}
-                                            {:order-by [:created_at :desc]}))
-             tests-data (:data tests-resp)]
-
-         (if (:success tests-resp)
-           (do
-             (js/console.log "📊 Tests cargados:" (count tests-data))
-             (let [stats (calcular-estadisticas-generales (or tests-data []))]
-               (js/console.log "📈 Estadísticas calculadas:" (clj->js stats))
-               (re-frame/dispatch [:dashboard/exito stats])))
-           (do
-             (js/console.error "❌ Error al cargar tests:" tests-resp)
-             (re-frame/dispatch [:dashboard/error "Error al obtener datos."]))))
-
-       (catch :default e
-         (js/console.error "❌ Excepción al cargar dashboard:" e)
-         (re-frame/dispatch [:dashboard/error e]))))))
+ (fn [{:keys [email user-id]}]
+   (-> (sb/current-user-id)
+       (.then
+        (fn [session-uid]
+          (go
+            (try
+              (let [uid (some-> (or session-uid user-id) str)
+                    _ (js/console.log "📊 Dashboard load"
+                                      #js {:session-uid session-uid
+                                           :app-uid user-id
+                                           :email email})
+                    attempts (cond-> []
+                               uid (conj [:user uid])
+                               email (conj [:email email])
+                               true (conj [:none nil]))
+                    resp (loop [xs attempts]
+                           (if-let [[mode val] (first xs)]
+                             (let [r (<! (crud/fetch-tests mode val))]
+                               (cond
+                                 (not (:success r)) r
+                                 (seq (:data r)) r
+                                 :else (do
+                                         (when (next xs)
+                                           (js/console.warn "⚠️ 0 filas mode=" (name mode)
+                                                            "→ siguiente"))
+                                         (recur (next xs)))))
+                             {:success true :data []}))
+                    raw (or (:data resp) [])
+                    tests-data (filter-own-tests raw uid email)]
+                (if (:success resp)
+                  (do
+                    (js/console.log "📊 Tests cargados:" (count tests-data)
+                                    "(de" (count raw) "visibles)")
+                    (re-frame/dispatch
+                     [:dashboard/exito (calcular-estadisticas-generales tests-data)]))
+                  (do
+                    (js/console.error "❌ Error al cargar tests:" (clj->js resp))
+                    (re-frame/dispatch [:dashboard/error (or (:error resp)
+                                                             "Error al obtener datos.")]))))
+              (catch :default e
+                (js/console.error "❌ Excepción al cargar dashboard:" e)
+                (re-frame/dispatch [:dashboard/error e]))))))
+       (.catch (fn [err]
+                 (js/console.error "❌ No se pudo leer sesión para dashboard:" err)
+                 (re-frame/dispatch [:dashboard/error "Sesión no disponible"]))))))
 
 ;; -----------------------------------------------------------------------------
 ;; ÉXITO / ERROR
@@ -249,3 +303,4 @@
 (re-frame/reg-sub
  :dashboard/error
  (fn [db _] (:dashboard/error db)))
+

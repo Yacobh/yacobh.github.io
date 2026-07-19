@@ -11,31 +11,39 @@
    :idioma (.-language js/navigator)})
 
 (defn insert-data-table!
-  "Inserta data entregada en un mapa a la tabla"
-  [data-to-insert table-name]
-  (let [ch (async/chan)]
-    (js/console.log "📤 Enviando datos a Supabase:" data-to-insert)
-
-    (-> (.from supabase-client table-name)
-        (.insert (clj->js data-to-insert) #js {:returning "representation"})
-        (.select "*")  ; Selecciona todos los campos después de insertar
-        (.single)  ; Asegura que solo se espera un único resultado
-        (.then (fn [result]
-                 (js/console.log "📡 Respuesta de Supabase:" result)
-                 (if (.-error result)
-                   (do
-                     (js/console.error "❌ Error de Supabase:" (.-error result))
-                     (async/put! ch {:success false
-                                     :error (.-message (.-error result))}))
-                   (do
-                     (js/console.log "✅ Datos guardados exitosamente:" (.-data result))
-                     (async/put! ch {:success true
-                                     :data (js->clj (.-data result) :keywordize-keys true)})))))
-        (.catch (fn [error]
-                  (js/console.error "💥 Error capturado:" error)
-                  (async/put! ch {:success false
-                                  :error (.-message error)}))))
-    ch))
+  "Inserta data en una tabla.
+   opts:
+   - :returning? (default true) — si true, hace .select tras insert.
+     Con RLS, .select requiere policy SELECT; para tests usa false si solo tienes INSERT."
+  ([data-to-insert table-name]
+   (insert-data-table! data-to-insert table-name {:returning? true}))
+  ([data-to-insert table-name {:keys [returning?] :or {returning? true}}]
+   (let [ch (async/chan)
+         ;; Preferir claves string para columnas con guiones (email-user)
+         payload (clj->js data-to-insert)
+         _ (js/console.log "📤 Enviando datos a Supabase:" table-name payload)
+         base (-> (.from supabase-client table-name)
+                  (.insert payload))
+         query (if returning?
+                 (-> base (.select "*") (.single))
+                 base)]
+     (-> query
+         (.then (fn [result]
+                  (js/console.log "📡 Respuesta de Supabase:" result)
+                  (if (.-error result)
+                    (do
+                      (js/console.error "❌ Error de Supabase:" (.-error result))
+                      (async/put! ch {:success false
+                                      :error (.-message (.-error result))}))
+                    (do
+                      (js/console.log "✅ Datos guardados exitosamente:" (.-data result))
+                      (async/put! ch {:success true
+                                      :data (js->clj (.-data result) :keywordize-keys true)})))))
+         (.catch (fn [error]
+                   (js/console.error "💥 Error capturado:" error)
+                   (async/put! ch {:success false
+                                   :error (.-message error)}))))
+     ch)))
 
 
 
@@ -163,6 +171,51 @@
                                    :error (.-message error)}))))
      ch)))
 
+(defn fetch-tests
+  "Obtiene tests visibles (RLS). Opcionalmente filtra en servidor.
+   filter-mode:
+   - :none  → sin .eq (solo RLS)
+   - :user  → .eq user_id
+   - :email → .eq email-user"
+  ([filter-mode value]
+   (let [ch (async/chan)
+         q0 (-> (.from supabase-client "tests")
+                (.select "*")
+                (.order "created_at" #js {:ascending false}))
+         q (case filter-mode
+             :user (if (and value (pos? (count (str value))))
+                      (.eq q0 "user_id" (str value))
+                      q0)
+             :email (if (and value (pos? (count (str value))))
+                      (.eq q0 "email-user" (str value))
+                      q0)
+             q0)]
+     (js/console.log "🔎 fetch-tests"
+                     #js {:mode (name filter-mode) :value (str value)})
+     (-> q
+         (.then (fn [result]
+                  (let [err (.-error result)
+                        data (.-data result)
+                        n (if data (alength data) 0)]
+                    (js/console.log "🔎 fetch-tests respuesta"
+                                    #js {:mode (name filter-mode)
+                                         :count n
+                                         :error (when err (.-message err))
+                                         :sample (when (pos? n) (aget data 0))})
+                    (if err
+                      (async/put! ch {:success false :error (.-message err)})
+                      (async/put! ch {:success true
+                                      :data (or (js->clj data :keywordize-keys true) [])})))))
+         (.catch (fn [error]
+                   (js/console.error "🔎 fetch-tests exception:" error)
+                   (async/put! ch {:success false :error (.-message error)}))))
+     ch)))
+
+(defn fetch-user-tests
+  "Compat: carga por user_id (string UUID)."
+  [user-id]
+  (fetch-tests :user user-id))
+
 (defn get-distinct-topics
   "Obtiene los valores distintos de `topic` desde la tabla questions."
   []
@@ -262,3 +315,4 @@
         (print res)))
 
   ,)
+
