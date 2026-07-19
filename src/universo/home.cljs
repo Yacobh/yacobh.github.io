@@ -5,6 +5,7 @@
    [universo.components.contacto :refer [contacto-form]]
    [universo.components.dashboard :as dashboard]
    [universo.components.diagnostic-test :as diagnostic-test]
+   [universo.components.guestbook :as guestbook]
    [universo.components.login :as login]))
 
 ;; seccion principal variable con atomo de reagent, dinamico
@@ -24,6 +25,9 @@
         "Integral"]]]
 
      [:div.flex.items-center.gap-3
+      [:a.text-sm.font-medium.text-gray-600.hover:text-indigo-700.px-3.py-2.transition.cursor-pointer
+       {:on-click #(re-frame/dispatch [:navigate-to :guestbook])}
+       "Libro de visitas"]
       (let [ready? @(re-frame/subscribe [:auth/ready?])
             logged-in? @(re-frame/subscribe [:auth/logged-in?])]
         (cond
@@ -122,6 +126,7 @@
       :login [login/login-form]
       :diagnostic-test [diagnostic-test/diagnostic-test]
       :dashboard [dashboard/dashboard]
+      :guestbook [guestbook/guestbook-component]
       :jacobocordova [resume/jacobo]
       [:div.flex.items-center.justify-center.min-h-screen
        [:div.text-center
