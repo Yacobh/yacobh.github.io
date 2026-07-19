@@ -36,6 +36,14 @@
       .-auth
       .getSession))
 
+(defn current-user-id
+  "Promise → uuid string del usuario autenticado, o nil.
+   Usa la sesión real del cliente (la que lleva el JWT en los requests)."
+  []
+  (-> (get-session)
+      (.then (fn [response]
+               (some-> response .-data .-session .-user .-id)))))
+
 
 
 

@@ -2,8 +2,9 @@
   (:require
    [re-frame.core :as re-frame]
    [universo.components.tetha :as tetha]
-   [cljs.core.async :refer [go <!]]
-   [universo.db.crud :as crud]))
+   [cljs.core.async :as async :refer [go <!]]
+   [universo.db.crud :as crud]
+   [universo.supabase :as sb]))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 FUNCIÓN AUXILIAR: Normaliza la pregunta
@@ -328,26 +329,44 @@
  :save-test
  (fn [{:keys [db]} [_ data]]
    {:save-test {:data data
-                :email (or (:email-user data)
+                :email (or (get data "email-user")
+                           (:email-user data)
                            (get-in db [:visitor :email]))}}))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EFECTO: Guarda el test en Supabase
 ;; -----------------------------------------------------------------------------
-;; - Usa tu función existente crud/insert-data-table!
-;; - Registra logs en consola (se puede extender con notificaciones)(est
- (re-frame/reg-fx
-  :save-test
-  (fn [{:keys [data email]}]
-    (go
-      (let [result (<! (crud/insert-data-table! data "tests"))]
-        (if (:success result)
-          (do
-            (js/console.log "✅ Test guardado exitosamente:" (clj->js (:data result)))
-            ;; Recargar dashboard solo DESPUÉS del insert (evita mostrar la penúltima)
-            (when email
-              (re-frame/dispatch [:dashboard/consultar email])))
-          (js/console.error "❌ Error al guardar test:" (clj->js (:error result))))))))
+;; Resuelve user_id desde la sesión JWT real y evita .select() post-insert
+;; (sin policy SELECT, .insert().select() falla con error de RLS).
+
+(re-frame/reg-fx
+ :save-test
+ (fn [{:keys [data email]}]
+   (-> (sb/current-user-id)
+       (.then
+        (fn [session-uid]
+          (go
+            (let [app-uid (or (get data "user_id") (:user_id data))
+                  uid (or session-uid app-uid)
+                  email* (or email (get data "email-user") (:email-user data))
+                  test-payload (or (get data "test") (:test data))
+                  ;; Claves string = nombres exactos de columnas en Postgres
+                  row {"test" test-payload
+                       "email-user" email*
+                       "user_id" uid}
+                  _ (js/console.log "💾 Guardando test user_id:" uid
+                                    "desde-sesión?" (boolean session-uid))]
+              (if-not uid
+                (js/console.error "❌ Sin sesión Supabase (auth.uid vacío); vuelve a iniciar sesión")
+                (let [result (<! (crud/insert-data-table! row "tests" {:returning? false}))]
+                  (if (:success result)
+                    (do
+                      (js/console.log "✅ Test guardado exitosamente")
+                      (when email*
+                        (re-frame/dispatch [:dashboard/consultar email*])))
+                    (js/console.error "❌ Error al guardar test:" (clj->js (:error result))))))))))
+       (.catch (fn [err]
+                 (js/console.error "❌ No se pudo leer la sesión:" err))))))
 
 
 ;; -----------------------------------------------------------------------------
@@ -360,12 +379,16 @@
  :test/complete
  (fn [{:keys [db]} _]
    (let [email-user (get-in db [:visitor :email])
+         user-id    (or (get-in db [:auth :user :id])
+                        (get-in db [:dashboard :user-id]))
          new-db     (-> db
-                        (assoc-in [:test :status]    :completed)
+                        (assoc-in [:test :status] :completed)
                         (assoc-in [:test :end-time] (.now js/Date)))
          test       (:test new-db)]
      {:db new-db
-      :save-test {:data {:test test :email-user email-user}
+      :save-test {:data {"test" test
+                         "email-user" email-user
+                         "user_id" user-id}
                   :email email-user}})))
 
 ;; -----------------------------------------------------------------------------

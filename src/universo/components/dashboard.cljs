@@ -162,6 +162,16 @@
              "border-indigo-500"
              "text-indigo-600"]]
 
+           ;; Acciones rápidas
+           [:div.flex.flex-row.flex-wrap.gap-4.justify-center.mt-10
+            [:button.bg-indigo-600.text-white.font-semibold.py-3.px-5.rounded-lg.hover:bg-indigo-700.transition.shadow-md.flex.items-center.gap-2
+             {:type "button"
+              :on-click #(do
+                           (re-frame/dispatch [:test/open-selection])
+                           (re-frame/dispatch [:navigate-to :diagnostic-test]))}
+             [:span "🚀"]
+             [:span "Nueva Evaluación"]]]
+
            ;; Último test (el más reciente por fecha/id)
            (when ultimo
              (let [{:keys [tema fecha completado? correctas total porcentaje nota theta
@@ -187,14 +197,4 @@
                (for [row historial]
                  ^{:key (:id row)}
                  [fila-historial row])]
-              [:p.text-gray-500.text-sm "Aún no hay evaluaciones registradas."])]
-
-           ;; Acciones rápidas
-           [:div.flex.flex-row.flex-wrap.gap-4.justify-center.mt-10
-            [:button.bg-indigo-600.text-white.font-semibold.py-3.px-5.rounded-lg.hover:bg-indigo-700.transition.shadow-md.flex.items-center.gap-2
-             {:type "button"
-              :on-click #(do
-                           (re-frame/dispatch [:test/open-selection])
-                           (re-frame/dispatch [:navigate-to :diagnostic-test]))}
-             [:span "🚀"]
-             [:span "Nueva Evaluación"]]]])]])))
+              [:p.text-gray-500.text-sm "Aún no hay evaluaciones registradas."])]])]])))
