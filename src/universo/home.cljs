@@ -5,6 +5,7 @@
    [universo.components.contacto :refer [contacto-form]]
    [universo.components.dashboard :as dashboard]
    [universo.components.diagnostic-test :as diagnostic-test]
+   [universo.components.guestbook :as guestbook]
    [universo.components.login :as login]))
 
 ;; seccion principal variable con atomo de reagent, dinamico
@@ -96,7 +97,10 @@
        [:span.text-2xl.mr-2 "∫"]
        [:h3.text-xl.font-bold "Academia Integral"]]
       [:p.text-gray-400.mb-4
-       "Transformando el aprendizaje de las matemáticas con métodos innovadores y personalizados."]]
+       "Transformando el aprendizaje de las matemáticas con métodos innovadores y personalizados."]
+      [:a.text-gray-400.hover:text-indigo-700.py-2.transition.cursor-pointer
+       {:on-click #(re-frame/dispatch [:navigate-to :guestbook])}
+       "Libro de visitas"]]
 
      ;; Contacto
      [:div.col-span-1.md:col-span-2
@@ -122,6 +126,7 @@
       :login [login/login-form]
       :diagnostic-test [diagnostic-test/diagnostic-test]
       :dashboard [dashboard/dashboard]
+      :guestbook [guestbook/guestbook-component]
       :jacobocordova [resume/jacobo]
       [:div.flex.items-center.justify-center.min-h-screen
        [:div.text-center

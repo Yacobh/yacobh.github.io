@@ -216,6 +216,34 @@
   [user-id]
   (fetch-tests :user user-id))
 
+(defn insert-guestbook!
+  "Inserta firma en guestbook sin .select() post-insert (compatible con RLS
+   que solo deja SELECT de filas is_approved = true)."
+  [row]
+  (insert-data-table! row "guestbook" {:returning? false}))
+
+(defn fetch-guestbook-entries
+  "Lista pública: solo entradas aprobadas, más recientes primero."
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "guestbook")
+        (.select "id,created_at,name,message")
+        (.eq "is_approved" true)
+        (.order "created_at" #js {:ascending false})
+        (.limit 50)
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true
+                                   :data (or (js->clj (.-data result)
+                                                      :keywordize-keys true)
+                                             [])}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false
+                                  :error (.-message error)}))))
+    ch))
+
 (defn get-distinct-topics
   "Obtiene los valores distintos de `topic` desde la tabla questions."
   []
