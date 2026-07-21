@@ -35,14 +35,3 @@
          (if (:success result)
            (resolve true)
            (reject (or (:error result) "Error al guardar en guestbook"))))))))
-
-(defn get-guestbook-entries
-  "Promise → vector de entradas aprobadas."
-  []
-  (js/Promise.
-   (fn [resolve reject]
-     (go
-       (let [result (<! (crud/fetch-guestbook-entries))]
-         (if (:success result)
-           (resolve (:data result))
-           (reject (or (:error result) "Error al cargar guestbook"))))))))
