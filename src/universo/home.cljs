@@ -25,9 +25,6 @@
         "Integral"]]]
 
      [:div.flex.items-center.gap-3
-      [:a.text-sm.font-medium.text-gray-600.hover:text-indigo-700.px-3.py-2.transition.cursor-pointer
-       {:on-click #(re-frame/dispatch [:navigate-to :guestbook])}
-       "Libro de visitas"]
       (let [ready? @(re-frame/subscribe [:auth/ready?])
             logged-in? @(re-frame/subscribe [:auth/logged-in?])]
         (cond
@@ -100,7 +97,10 @@
        [:span.text-2xl.mr-2 "∫"]
        [:h3.text-xl.font-bold "Academia Integral"]]
       [:p.text-gray-400.mb-4
-       "Transformando el aprendizaje de las matemáticas con métodos innovadores y personalizados."]]
+       "Transformando el aprendizaje de las matemáticas con métodos innovadores y personalizados."]
+      [:a.text-gray-400.hover:text-indigo-700.py-2.transition.cursor-pointer
+       {:on-click #(re-frame/dispatch [:navigate-to :guestbook])}
+       "Libro de visitas"]]
 
      ;; Contacto
      [:div.col-span-1.md:col-span-2
