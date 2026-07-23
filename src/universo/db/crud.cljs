@@ -244,6 +244,94 @@
                                   :error (.-message error)}))))
     ch))
 
+(defn fetch-admin-profiles
+  "Lista profiles (requiere is_admin vía RLS)."
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "profiles")
+        (.select "id,email,role,created_at")
+        (.order "created_at" #js {:ascending false})
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true
+                                   :data (or (js->clj (.-data result)
+                                                      :keywordize-keys true)
+                                             [])}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false
+                                  :error (.-message error)}))))
+    ch))
+
+(defn fetch-admin-tests
+  "Lista tests recientes para admin (RLS is_admin)."
+  ([]
+   (fetch-admin-tests 100))
+  ([limit]
+   (let [ch (async/chan)]
+     (-> (.from supabase-client "tests")
+         (.select "id,created_at,email-user,user_id,test")
+         (.order "created_at" #js {:ascending false})
+         (.limit limit)
+         (.then (fn [result]
+                  (if (.-error result)
+                    (async/put! ch {:success false
+                                    :error (.-message (.-error result))})
+                    (async/put! ch {:success true
+                                    :data (or (js->clj (.-data result)
+                                                       :keywordize-keys true)
+                                              [])}))))
+         (.catch (fn [error]
+                   (async/put! ch {:success false
+                                   :error (.-message error)}))))
+     ch)))
+
+(defn fetch-admin-guestbook
+  "Guestbook para moderación. filter: :pending | :all | :approved"
+  ([]
+   (fetch-admin-guestbook :pending))
+  ([filter-mode]
+   (let [ch (async/chan)
+         q0 (-> (.from supabase-client "guestbook")
+                (.select "id,created_at,name,email,message,is_approved")
+                (.order "created_at" #js {:ascending false})
+                (.limit 100))
+         q (case filter-mode
+             :pending (.eq q0 "is_approved" false)
+             :approved (.eq q0 "is_approved" true)
+             q0)]
+     (-> q
+         (.then (fn [result]
+                  (if (.-error result)
+                    (async/put! ch {:success false
+                                    :error (.-message (.-error result))})
+                    (async/put! ch {:success true
+                                    :data (or (js->clj (.-data result)
+                                                       :keywordize-keys true)
+                                              [])}))))
+         (.catch (fn [error]
+                   (async/put! ch {:success false
+                                   :error (.-message error)}))))
+     ch)))
+
+(defn update-guestbook-approval!
+  "Actualiza is_approved de una entrada del guestbook (admin)."
+  [entry-id approved?]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "guestbook")
+        (.update #js {:is_approved (boolean approved?)})
+        (.eq "id" entry-id)
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true :data nil}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false
+                                  :error (.-message error)}))))
+    ch))
+
 (defn get-distinct-topics
   "Obtiene los valores distintos de `topic` desde la tabla questions."
   []
