@@ -1,7 +1,8 @@
 (ns universo.components.feedback-modal
   (:require
    [re-frame.core :as re-frame]
-   [universo.components.math-render :as math]))
+   [universo.components.math-render :as math]
+   [universo.components.irt-chart :as irt-chart]))
 
 ;; ============================================================================
 ;; ICONOS REUTILIZABLES
@@ -190,21 +191,23 @@
 ;; BOTONES DE ACCIÓN
 ;; ============================================================================
 
-(defn action-buttons []
+(defn action-buttons [stop-reason]
   [:button {:class "mt-6 bg-indigo-600 text-white px-6 py-2 rounded-full text-sm hover:bg-indigo-700 transition"
             :on-click #(re-frame/dispatch [:test/continue])}
-   "Continuar →"])
+   (if stop-reason "Ver resultados →" "Continuar →")])
 
 ;; ============================================================================
 ;; CONTENEDOR PRINCIPAL DEL MODAL
 ;; ============================================================================
 
-(defn modal-content [question response selected correct is-correct?]
+(defn modal-content [question response selected correct is-correct? points stop-reason]
   [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6
    [question-section question]
    [options-section question selected correct]
    [explanation-section question selected is-correct?]
-   [action-buttons]])
+   [:div {:class "pt-2 border-t border-stone-100"}
+    [irt-chart/irt-progress-chart points stop-reason]]
+   [action-buttons stop-reason]])
 
 ;; ============================================================================
 ;; OVERLAY/BACKDROP
@@ -219,17 +222,16 @@
 ;; ============================================================================
 
 (defn feedback []
-  (let [modal @(re-frame/subscribe [:test/feedback])]
+  (let [modal @(re-frame/subscribe [:test/feedback])
+        points @(re-frame/subscribe [:test/progress-points])
+        stop-reason @(re-frame/subscribe [:test/stop-reason])]
     (when modal
       (let [{:keys [question response]} modal
-            selected (:selected-option response)  ;; ← Aquí está el problema probable
+            selected (:selected-option response)
             correct (:correct-option question)
             is-correct? (:correct? response)]
-        (js/console.log "Modal data:" (clj->js modal))
-        (js/console.log "Selected:" selected)
-        (js/console.log "Errors:" (clj->js (:errors question)))
-        (js/console.log "Error para selected:" (get-in question [:errors (keyword selected)]))
-        [modal-content question response selected correct is-correct?]))))
+        [modal-content question response selected correct is-correct?
+         points stop-reason]))))
 
 
 #_(defn feedback []

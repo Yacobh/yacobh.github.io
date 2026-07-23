@@ -1,8 +1,14 @@
 (ns universo.components.tetha)
 
 ;; -----------------------------------------------------------------------------
-;; 🔹 MODELO 1PL (RASCH)
+;; 🔹 MODELO 1PL (RASCH) + MAP con prior N(0,1)
 ;; -----------------------------------------------------------------------------
+
+(def prior-mean 0.0)
+;; Precisión del prior = 1/σ². N(0,1) ⇒ 1.0 (encoge θ hacia 0 con pocas respuestas).
+(def prior-precision 1.0)
+;; Máximo cambio de θ entre ítems (logits). Evita saltos de −3 a +3.
+(def max-theta-step 0.4)
 
 (defn probability-1pl
   "Calcula la probabilidad de responder correctamente usando modelo 1PL/Rasch
@@ -16,12 +22,7 @@
      (+ 1.0 (Math/exp (- (- theta difficulty))))))
 
 (defn first-derivative
-  "Primera derivada de la log-verosimilitud
-   Σ(observado - P(θ))
-
-   Parámetros:
-   - theta: valor actual de habilidad
-   - responses: vector de respuestas con :correct? y :difficulty"
+  "Primera derivada de la log-verosimilitud Σ(observado - P(θ))."
   [theta responses]
   (reduce
    (fn [sum response]
@@ -33,12 +34,7 @@
    responses))
 
 (defn second-derivative
-  "Segunda derivada de la log-verosimilitud
-   -Σ(P(θ) * (1 - P(θ)))
-
-   Parámetros:
-   - theta: valor actual de habilidad
-   - responses: vector de respuestas con :difficulty"
+  "Segunda derivada de la log-verosimilitud -Σ(P(θ) * (1 - P(θ)))."
   [theta responses]
   (reduce
    (fn [sum response]
@@ -48,14 +44,23 @@
    0.0
    responses))
 
-(defn newton-raphson-iteration
-  "Realiza una iteración del método Newton-Raphson
-   θ_nuevo = θ_actual - (f'(θ) / f''(θ))
-
-   Protegido contra división por cero y valores NaN."
+(defn map-first-derivative
+  "Score MAP = verosimilitud + prior N(μ, σ²)."
   [theta responses]
-  (let [d1 (first-derivative theta responses)
-        d2 (second-derivative theta responses)]
+  (+ (first-derivative theta responses)
+     (* (- prior-precision) (- theta prior-mean))))
+
+(defn map-second-derivative
+  "Hessiano MAP = verosimilitud + (−1/σ²)."
+  [theta responses]
+  (- (second-derivative theta responses) prior-precision))
+
+(defn newton-raphson-iteration
+  "Una iteración Newton-Raphson sobre el posterior MAP.
+   θ_nuevo = θ_actual - (f'(θ) / f''(θ))"
+  [theta responses]
+  (let [d1 (map-first-derivative theta responses)
+        d2 (map-second-derivative theta responses)]
     (if (or (zero? d2) (js/isNaN d1) (js/isNaN d2))
       theta
       (- theta (/ d1 d2)))))
@@ -65,30 +70,43 @@
   [theta]
   (max -3.0 (min 3.0 theta)))
 
+(defn limit-theta-step
+  "Limita |Δθ| respecto al valor previo para una subida/bajada gradual."
+  ([prev-theta new-theta]
+   (limit-theta-step prev-theta new-theta max-theta-step))
+  ([prev-theta new-theta max-step]
+   (let [prev (double (or prev-theta 0.0))
+         raw (double (or new-theta prev))
+         delta (- raw prev)
+         step (double (or max-step max-theta-step))
+         capped (max (- step) (min step delta))]
+     (clamp-theta (+ prev capped)))))
+
 (defn calculate-theta
-  "Estima θ (habilidad del estudiante) usando máxima verosimilitud con Newton-Raphson
+  "Estima θ con MAP (prior N(0,1)) + Newton-Raphson, partiendo del θ previo
+   y limitando el paso entre ítems.
 
    Parámetros:
-   - test: mapa con estructura {:responses [...]}
-           donde cada respuesta tiene :correct? y :difficulty
+   - test: {:responses [...] :theta prev?}
+           cada respuesta tiene :correct? y :difficulty
 
-   Retorna:
-   - θ estimado en el rango [-3, 3]"
+   Retorna θ en [-3, 3]."
   [test]
-  (let [responses (:responses test)]
+  (let [responses (:responses test)
+        prev-theta (or (:theta test) 0.0)]
     (if (empty? responses)
       0.0
-      (loop [theta          0.0
+      (loop [theta          (double prev-theta)
              iteration      0
              max-iterations 20
              tolerance      0.001]
         (if (>= iteration max-iterations)
-          (clamp-theta theta)
+          (limit-theta-step prev-theta (clamp-theta theta))
           (let [new-theta (-> (newton-raphson-iteration theta responses)
-                              clamp-theta)          ;; clamp en cada iteración
+                              clamp-theta)
                 diff      (Math/abs (- new-theta theta))]
             (if (< diff tolerance)
-              new-theta
+              (limit-theta-step prev-theta new-theta)
               (recur new-theta
                      (inc iteration)
                      max-iterations
@@ -99,10 +117,7 @@
 ;; -----------------------------------------------------------------------------
 
 (defn enrich-responses-with-difficulty
-  "Añade el campo :difficulty a cada respuesta buscándolo en las preguntas
-
-   Uso en caso de que las respuestas no tengan dificultad:
-   (enrich-responses-with-difficulty responses questions)"
+  "Añade el campo :difficulty a cada respuesta buscándolo en las preguntas."
   [responses questions]
   (map (fn [response]
          (let [question-id (:question-id response)
@@ -116,24 +131,22 @@
 ;; -----------------------------------------------------------------------------
 
 (defn calculate-theta-auto
-  "Versión que automáticamente enriquece las respuestas con dificultad
-   si alguna no la tiene."
+  "Enriquece respuestas con dificultad si falta y estima θ (usa :theta previo)."
   [test]
   (let [responses (:responses test)
         questions (:questions test)
-        ;; ✅ Enriquecer si ALGUNA respuesta no tiene :difficulty
         enriched-responses (if (every? :difficulty responses)
                              responses
                              (enrich-responses-with-difficulty responses questions))]
-    (calculate-theta {:responses enriched-responses})))
+    (calculate-theta {:responses enriched-responses
+                      :theta (:theta test)})))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 FUNCIÓN DE DEBUGGING
 ;; -----------------------------------------------------------------------------
 
 (defn debug-theta-calculation
-  "Muestra información detallada del cálculo de theta.
-   Solo activo en modo desarrollo (goog.DEBUG)."
+  "Muestra información detallada del cálculo de theta (solo goog.DEBUG)."
   [test]
   (when ^boolean goog.DEBUG
     (let [responses (:responses test)]
