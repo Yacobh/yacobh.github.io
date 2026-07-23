@@ -2,6 +2,7 @@
   (:require
    [re-frame.core :as re-frame]
    [universo.components.tetha :as tetha]
+   [universo.irt.progress :as progress]
    [cljs.core.async :as async :refer [go <!]]
    [universo.db.crud :as crud]
    [universo.supabase :as sb]))
@@ -115,8 +116,9 @@
               (assoc-in [:test :prefetched-question] nil)
               (assoc-in [:test :prefetching?] false)
               (assoc-in [:test :start-time] (.now js/Date))
-              (assoc-in [:test :theta] -3.0)
+              (assoc-in [:test :theta] 0.0)
               (assoc-in [:test :theta-history] [])
+              (assoc-in [:test :stop-reason] nil)
               (assoc-in [:test :current-question] nil))
       :dispatch [:test/fetch-next-question]})))
 
@@ -125,6 +127,22 @@
 ;; -----------------------------------------------------------------------------
 ;; mode :immediate → instala la pregunta (inicio del test)
 ;; mode :prefetch  → la guarda para al Continuar (mientras hay feedback)
+
+(defn- fetch-candidates
+  "Preguntas del topic en [θ−w, θ+w] aún no respondidas."
+  [theta topic answered-ids half-width]
+  (go
+    (let [result (<! (crud/get-table "questions"
+                                     {"difficulty" [:between (- theta half-width)
+                                                    (+ theta half-width)]
+                                      "topic" topic}))]
+      (if (:success result)
+        (->> (:data result)
+             (filter #(not (contains? answered-ids (:id %))))
+             vec)
+        (do
+          (js/console.error "❌ Error obteniendo pregunta:" result)
+          :error)))))
 
 (re-frame/reg-fx
  :test/fetch-next-question
@@ -138,16 +156,21 @@
              _ (js/console.log "Theta actual:" theta)
              _ (js/console.log "Topic:" topic)
              _ (js/console.log "Fetch mode:" (name mode))
+             narrow (<! (fetch-candidates theta topic answered-ids
+                                          progress/selection-half-width))
+             candidates (cond
+                          (= narrow :error) :error
+                          (seq narrow) narrow
+                          :else (<! (fetch-candidates theta topic answered-ids
+                                                      progress/selection-half-width-wide)))]
+         (cond
+           (= candidates :error)
+           (when (= mode :prefetch)
+             (re-frame/dispatch [:test/prefetch-exhausted]))
 
-             result (<! (crud/get-table "questions"
-                                        {"difficulty" [:between (- theta 0.5) (+ 0.5 theta)]
-                                         "topic" topic}))]
-         (if (:success result)
-           (let [available-questions (filter
-                                       #(not (contains? answered-ids (:id %)))
-                                       (:data result))
-                 next-q (when (seq available-questions)
-                          (normalize-question (first available-questions)))]
+           :else
+           (let [next-q (some-> (progress/closest-question theta candidates)
+                                normalize-question)]
              (if next-q
                (if (= mode :prefetch)
                  (re-frame/dispatch [:test/prefetch-ready next-q])
@@ -156,11 +179,7 @@
                  (re-frame/dispatch [:test/prefetch-exhausted])
                  (do
                    (js/console.log "⚠️ No hay más preguntas, finalizando test")
-                   (re-frame/dispatch [:test/complete])))))
-           (do
-             (js/console.error "❌ Error obteniendo pregunta:" result)
-             (when (= mode :prefetch)
-               (re-frame/dispatch [:test/prefetch-exhausted])))))))))
+                   (re-frame/dispatch [:test/bank-exhausted])))))))))))
 
 ;; -----------------------------------------------------------------------------
 ;; Prefetch: carga la siguiente pregunta en paralelo al feedback
@@ -196,14 +215,23 @@
          (assoc-in [:test :prefetching?] false)))))
 
 (re-frame/reg-event-fx
+ :test/bank-exhausted
+ (fn [{:keys [db]} _]
+   {:db (assoc-in db [:test :stop-reason] :exhausted)
+    :dispatch [:test/complete]}))
+
+(re-frame/reg-event-fx
  :test/prefetch-exhausted
  (fn [{:keys [db]} _]
    (if (= (get-in db [:test :status]) :questions)
-     {:db (assoc-in db [:test :prefetching?] false)
+     {:db (-> db
+              (assoc-in [:test :prefetching?] false)
+              (assoc-in [:test :stop-reason] :exhausted))
       :dispatch [:test/complete]}
      {:db (-> db
               (assoc-in [:test :prefetched-question] :exhausted)
-              (assoc-in [:test :prefetching?] false))})))
+              (assoc-in [:test :prefetching?] false)
+              (assoc-in [:test :stop-reason] :exhausted))})))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EVENTO: El feedback se le muestra al usuario
@@ -225,12 +253,21 @@
  :test/continue
  (fn [{:keys [db]} _]
    (let [prefetched (get-in db [:test :prefetched-question])
-         prefetching? (get-in db [:test :prefetching?])]
+         prefetching? (get-in db [:test :prefetching?])
+         stop-reason (get-in db [:test :stop-reason])]
      (cond
+       (some? stop-reason)
+       {:db (-> db
+                (assoc-in [:test :feedback] nil)
+                (assoc-in [:test :prefetched-question] nil)
+                (assoc-in [:test :prefetching?] false))
+        :dispatch [:test/complete]}
+
        (= prefetched :exhausted)
        {:db (-> db
                 (assoc-in [:test :feedback] nil)
-                (assoc-in [:test :prefetched-question] nil))
+                (assoc-in [:test :prefetched-question] nil)
+                (assoc-in [:test :stop-reason] :exhausted))
         :dispatch [:test/complete]}
 
        (map? prefetched)
@@ -265,17 +302,20 @@
                        :difficulty (or (:difficulty question) 0.0)}
          updated-db (update-in db [:test :responses] conj new-response)
          new-theta (tetha/calculate-theta-auto (:test updated-db))
+         responses (get-in updated-db [:test :responses])
+         reason (progress/stop-reason responses new-theta)
          db-with-theta (-> updated-db
                            (assoc-in [:test :theta] new-theta)
                            (update-in [:test :theta-history] conj new-theta)
-                           (assoc-in [:test :prefetching?] true)
-                           (assoc-in [:test :prefetched-question] nil))
-         _ (js/console.log "new-theta:" new-theta)]
-     ;; Feedback + prefetch en paralelo (la red corre mientras lee la explicación)
-     {:db db-with-theta
-      :dispatch [:test/show-feedback {:question question
-                                      :response new-response}]
-      :test/fetch-next-question {:db db-with-theta :mode :prefetch}})))
+                           (assoc-in [:test :stop-reason] reason)
+                           (assoc-in [:test :prefetched-question] nil)
+                           (assoc-in [:test :prefetching?] (nil? reason)))
+         _ (js/console.log "new-theta:" new-theta "stop-reason:" (clj->js reason))]
+     (cond-> {:db db-with-theta
+              :dispatch [:test/show-feedback {:question question
+                                              :response new-response}]}
+       (nil? reason)
+       (assoc :test/fetch-next-question {:db db-with-theta :mode :prefetch})))))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EVENTO: Agrega la nueva pregunta al test
@@ -400,6 +440,8 @@
 (re-frame/reg-sub :test/feedback (fn [db _] (get-in db [:test :feedback])))
 (re-frame/reg-sub :test/topic (fn [db _] (get-in db [:test :topic])))
 (re-frame/reg-sub :test/theta (fn [db _] (get-in db [:test :theta])))
+(re-frame/reg-sub :test/theta-history (fn [db _] (get-in db [:test :theta-history] [])))
+(re-frame/reg-sub :test/stop-reason (fn [db _] (get-in db [:test :stop-reason])))
 (re-frame/reg-sub :test/questions (fn [db _] (get-in db [:test :questions])))
 (re-frame/reg-sub :test/answers (fn [db _] (get-in db [:test :responses])))
 (re-frame/reg-sub :test/available-topics (fn [db _] (get-in db [:test :available-topics] [])))
@@ -411,3 +453,10 @@
                           questions (get-in db [:test :questions])]
                       (when (and qid (pos? qid))
                         (nth questions (dec qid) nil)))))
+
+(re-frame/reg-sub
+ :test/progress-points
+ (fn [db _]
+   (progress/progress-points
+    (get-in db [:test :responses])
+    (get-in db [:test :theta-history]))))

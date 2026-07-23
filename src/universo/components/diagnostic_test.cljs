@@ -3,6 +3,7 @@
             [re-frame.core :as re-frame]
             [reagent.core :as r]
             [universo.components.feedback-modal :refer [feedback]]
+            [universo.components.irt-chart :as irt-chart]
             [universo.components.math-render :as math]))
 
 ;; -------------------------------
@@ -165,28 +166,40 @@
 (defn results-component []
   (let [answers @(re-frame/subscribe [:test/answers])
         topic @(re-frame/subscribe [:test/topic])
+        theta @(re-frame/subscribe [:test/theta])
+        points @(re-frame/subscribe [:test/progress-points])
+        stop-reason @(re-frame/subscribe [:test/stop-reason])
         total (count answers)
         correct (count (filter :correct? answers))
         score (if (pos? total)
                 (Math/round (* (/ correct total) 100))
                 0)]
 
-    [:div {:class "max-w-md mx-auto bg-white p-6 rounded-lg shadow text-center"}
-     [:h2 {:class "text-2xl font-bold text-gray-800 mb-4"} "Resultados"]
-     (when topic
-       [:p {:class "text-sm text-indigo-600 mb-2"} (topic-label topic)])
-     [:p {:class "text-lg text-gray-700 mb-2"}
-      (str "Preguntas correctas: " correct " de " total)]
-     [:p {:class "text-xl font-semibold text-blue-600 mb-6"}
-      (str "Puntaje: " score "%")]
+    [:div {:class "max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-lg shadow"}
+     [:div {:class "text-center mb-6"}
+      [:h2 {:class "text-2xl font-bold text-gray-800 mb-2"} "Resultados"]
+      (when topic
+        [:p {:class "text-sm text-indigo-600 mb-2"} (topic-label topic)])
+      [:p {:class "text-lg text-gray-700 mb-1"}
+       (str "Preguntas correctas: " correct " de " total)]
+      [:p {:class "text-xl font-semibold text-blue-600"}
+       (str "Puntaje: " score "%")]
+      (when (number? theta)
+        [:p {:class "text-sm text-stone-600 mt-2 tabular-nums"}
+         (str "Nivel estimado (θ): " (.toFixed theta 2))])]
+
+     [:div {:class "mb-8 text-left"}
+      [irt-chart/irt-progress-chart points stop-reason]]
 
      [:div {:class "space-y-3"}
       [:button
        {:class "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
+        :type "button"
         :on-click #(re-frame/dispatch [:test/start topic])}
        "Repetir evaluación"]
       [:button
        {:class "w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-2 px-4 rounded-lg"
+        :type "button"
         :on-click #(re-frame/dispatch [:test/open-selection])}
        "Elegir otra evaluación"]]]))
 

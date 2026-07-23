@@ -1,32 +1,44 @@
+# --- Dependencias y caché de build ---
+node_modules/
+.shadow-cljs/
 .cpcache/
-out/cljs/
-out/clojure/
-out/goog/
-out/process/
-out/universo/
-out/cljs_deps.js
-out/cljsc_opts.edn
-/target
-/classes
-/checkouts
-profiles.clj
+out/
+target/
+classes/
+checkouts/
+
+# --- Artefactos shadow-cljs / ClojureScript (dev) ---
+# El sitio en GitHub Pages usa public/js/app.js (+ CSS).
+# No versionar el runtime de desarrollo ni metadatos de compile.
+public/js/cljs-runtime/
+public/js/manifest.edn
+public/js/*.js.map
+*.js.map
+
+# --- Herramientas / IDE ---
+.clj-kondo/
+.lsp/
+.calva/
+.nrepl-port
+.lein-*
+.repl/
+*.log
+
+# --- Entorno y secretos ---
+.env
+.env.*
+!.env.example
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Clojure / Lein residual ---
 pom.xml
 pom.xml.asc
+profiles.clj
 *.jar
 *.class
-/.lein-*
-/.nrepl-port
-/resources/public/js
-/out
-/.repl
-*.log
-/.env
-.shadow-cljs/
-node_modules/
-!/public/js/app.js
-.clj-kondo
-.lsp
-public/js/cljs-runtime/*
-.calva/output-window/output.calva-repl
+
+# --- Local / personal ---
 src/universo/user.cljs
-/public/js/cljs-runtime/*
