@@ -9,7 +9,17 @@
    ;; Sesión Supabase (rehidratada en :auth/init)
    :auth {:ready? false
           :user nil
+          :admin? false
+          :role nil
           :redirect-after-login nil}
+
+   :admin {:tab :users
+           :loading? false
+           :error nil
+           :profiles []
+           :tests []
+           :guestbook []
+           :guestbook-filter :pending}
 
    :visitor {:id nil
              :email nil

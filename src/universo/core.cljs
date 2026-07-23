@@ -5,6 +5,7 @@
    [universo.subs]
    #_[universo.test-subs]
    [universo.events.auth]
+   [universo.events.admin]
    [universo.events.test]
    [universo.events.contacto]
    [universo.events.dashboard]

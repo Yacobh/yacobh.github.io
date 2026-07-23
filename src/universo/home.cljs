@@ -3,6 +3,7 @@
    [re-frame.core :as re-frame]
    [universo.components.resume :as resume]
    [universo.components.contacto :refer [contacto-form]]
+   [universo.components.admin :as admin]
    [universo.components.dashboard :as dashboard]
    [universo.components.diagnostic-test :as diagnostic-test]
    [universo.components.guestbook :as guestbook]
@@ -26,13 +27,18 @@
 
      [:div.flex.items-center.gap-3
       (let [ready? @(re-frame/subscribe [:auth/ready?])
-            logged-in? @(re-frame/subscribe [:auth/logged-in?])]
+            logged-in? @(re-frame/subscribe [:auth/logged-in?])
+            admin? @(re-frame/subscribe [:auth/admin?])]
         (cond
           (not ready?)
           [:span.text-sm.text-gray-400.px-4 "…"]
 
           logged-in?
           [:div.flex.items-center.gap-2
+           (when admin?
+             [:a.text-sm.font-medium.text-indigo-700.hover:text-indigo-900.px-3.py-2.transition.cursor-pointer
+              {:on-click #(re-frame/dispatch [:navigate-to :admin])}
+              "Admin"])
            [:a.bg-gradient-to-r.from-indigo-600.to-purple-600.text-white.text-sm.font-medium.px-6.py-2.5.rounded-full.hover:opacity-90.transition.cursor-pointer
             {:on-click #(re-frame/dispatch [:navigate-to :dashboard])}
             "Mi Tablero"]
@@ -126,6 +132,7 @@
       :login [login/login-form]
       :diagnostic-test [diagnostic-test/diagnostic-test]
       :dashboard [dashboard/dashboard]
+      :admin [admin/admin-panel]
       :guestbook [guestbook/guestbook-component]
       :jacobocordova [resume/jacobo]
       [:div.flex.items-center.justify-center.min-h-screen
