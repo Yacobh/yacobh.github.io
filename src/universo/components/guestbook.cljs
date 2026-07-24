@@ -25,7 +25,8 @@
              "message" (str/trim (:message form-data))
              "email" (blank->nil (:email form-data))
              "phone" (blank->nil (:phone form-data))
-             "is_approved" false}
+             ;; null = pendiente de moderación (no false)
+             "is_approved" nil}
       vid (assoc "id_visitor" vid))))
 
 (defn- field-class [has-error?]

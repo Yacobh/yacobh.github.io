@@ -193,12 +193,32 @@
  (fn [_ [_ entry-id]]
    {:admin/update-guestbook-approval [entry-id false]}))
 
+(re-frame/reg-event-fx
+ :admin/restore-guestbook
+ (fn [_ [_ entry-id]]
+   {:admin/update-guestbook-approval [entry-id nil]}))
+
 (re-frame/reg-fx
  :admin/update-guestbook-approval
- (fn [[entry-id approved?]]
+ (fn [[entry-id approved]]
    (go
-     (let [result (<! (crud/update-guestbook-approval! entry-id approved?))]
+     (let [result (<! (crud/update-guestbook-approval! entry-id approved))]
        (if (:success result)
          (re-frame/dispatch [:admin/load-guestbook])
          (re-frame/dispatch [:admin/set-error (or (:error result)
                                                  "No se pudo actualizar la entrada")]))))))
+
+(re-frame/reg-event-fx
+ :admin/delete-guestbook
+ (fn [_ [_ entry-id]]
+   {:admin/remove-guestbook entry-id}))
+
+(re-frame/reg-fx
+ :admin/remove-guestbook
+ (fn [entry-id]
+   (go
+     (let [result (<! (crud/delete-admin-guestbook! entry-id))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/load-guestbook])
+         (re-frame/dispatch [:admin/set-error (or (:error result)
+                                                 "No se pudo eliminar la entrada")]))))))

@@ -288,18 +288,20 @@
      ch)))
 
 (defn fetch-admin-guestbook
-  "Guestbook para moderación. filter: :pending | :all | :approved"
+  "Guestbook para moderación.
+   filter: :pending (null) | :approved (true) | :trash (false)"
   ([]
    (fetch-admin-guestbook :pending))
   ([filter-mode]
    (let [ch (async/chan)
          q0 (-> (.from supabase-client "guestbook")
-                (.select "id,created_at,name,email,message,is_approved")
+                (.select "id,created_at,name,email,phone,message,is_approved")
                 (.order "created_at" #js {:ascending false})
                 (.limit 100))
          q (case filter-mode
-             :pending (.eq q0 "is_approved" false)
+             :pending (.is q0 "is_approved" nil)
              :approved (.eq q0 "is_approved" true)
+             :trash (.eq q0 "is_approved" false)
              q0)]
      (-> q
          (.then (fn [result]
@@ -316,11 +318,29 @@
      ch)))
 
 (defn update-guestbook-approval!
-  "Actualiza is_approved de una entrada del guestbook (admin)."
-  [entry-id approved?]
+  "Actualiza is_approved: true | false | nil (pendiente)."
+  [entry-id approved]
+  (let [ch (async/chan)
+        payload #js {:is_approved (if (nil? approved) nil (boolean approved))}]
+    (-> (.from supabase-client "guestbook")
+        (.update payload)
+        (.eq "id" entry-id)
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true :data nil}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false
+                                  :error (.-message error)}))))
+    ch))
+
+(defn delete-admin-guestbook!
+  "Elimina permanentemente una entrada del guestbook (admin)."
+  [entry-id]
   (let [ch (async/chan)]
     (-> (.from supabase-client "guestbook")
-        (.update #js {:is_approved (boolean approved?)})
+        (.delete)
         (.eq "id" entry-id)
         (.then (fn [result]
                  (if (.-error result)
@@ -398,7 +418,7 @@
   (count (keys (:test (first (val (first @test-tetha))))))
   (keys (:test (first (val (first @test-tetha)))))
   (:start-time (:test (first (val (first @test-tetha)))))
-  
+
   (go (let [res (<! (get-table "test"
                                {"email-user" "eluque@estudiantesunap.cl"}
                                {:order-by [:created_at :desc]}))]
@@ -431,4 +451,3 @@
         (print res)))
 
   ,)
-
