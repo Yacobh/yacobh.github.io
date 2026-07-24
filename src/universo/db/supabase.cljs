@@ -20,8 +20,7 @@
     (cond-> {"name" (str (:name m))
              "message" (blank->nil (:message m))
              "email" (blank->nil (:email m))
-             "phone" (blank->nil (:phone m))
-             "is_approved" false}
+             "phone" (blank->nil (:phone m))}
       vid (assoc "id_visitor" vid))))
 
 (defn add-guestbook-entry

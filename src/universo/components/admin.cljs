@@ -75,14 +75,20 @@
           [:td.px-3.py-6.text-gray-400.text-center {:col-span 5}
            "Sin tests"]])]]]))
 
+(defn- guestbook-status [is-approved]
+  (cond
+    (true? is-approved) {:label "Aprobada" :class "text-green-700"}
+    (false? is-approved) {:label "Papelera" :class "text-gray-500"}
+    :else {:label "Pendiente" :class "text-amber-700"}))
+
 (defn- guestbook-panel []
   (let [rows @(re-frame/subscribe [:admin/guestbook])
         filter @(re-frame/subscribe [:admin/guestbook-filter])]
     [:div.space-y-4
-     [:div.flex.gap-2
+     [:div.flex.gap-2.flex-wrap
       (for [[mode label] [[:pending "Pendientes"]
                           [:approved "Aprobadas"]
-                          [:all "Todas"]]]
+                          [:trash "Papelera"]]]
         ^{:key mode}
         [:button
          {:type "button"
@@ -95,31 +101,50 @@
      [:div.space-y-3
       (if (seq rows)
         (for [e rows]
-          ^{:key (:id e)}
-          [:div.border.border-gray-200.rounded-lg.p-4.bg-white
-           [:div.flex.flex-wrap.justify-between.gap-2.mb-2
-            [:div
-             [:span.font-semibold.text-gray-800 (or (:name e) "Anónimo")]
-             (when (:email e)
-               [:span.text-sm.text-gray-500.ml-2 (:email e)])]
-            [:span.text-xs.text-gray-400 (format-date (:created_at e))]]
-           [:p.text-gray-700.mb-3.whitespace-pre-wrap (or (:message e) "")]
-           [:div.flex.items-center.gap-2
-            [:span.text-xs
-             {:class (if (:is_approved e)
-                       "text-green-700"
-                       "text-amber-700")}
-             (if (:is_approved e) "Aprobada" "Pendiente")]
-            (when-not (:is_approved e)
-              [:button.px-3.py-1.text-xs.font-medium.rounded.bg-green-600.text-white.hover:bg-green-700
-               {:type "button"
-                :on-click #(re-frame/dispatch [:admin/approve-guestbook (:id e)])}
-               "Aprobar"])
-            [:button.px-3.py-1.text-xs.font-medium.rounded.bg-gray-200.text-gray-700.hover:bg-gray-300
-             {:type "button"
-              :on-click #(re-frame/dispatch [:admin/reject-guestbook (:id e)])}
-             "Rechazar"]]])
-        [:p.text-gray-400.text-center.py-8 "No hay entradas en este filtro"])]]))
+          (let [st (guestbook-status (:is_approved e))
+                pending? (nil? (:is_approved e))
+                approved? (true? (:is_approved e))
+                trash? (false? (:is_approved e))]
+            ^{:key (:id e)}
+            [:div.border.border-gray-200.rounded-lg.p-4.bg-white
+             [:div.flex.flex-wrap.justify-between.gap-2.mb-2
+              [:div
+               [:span.font-semibold.text-gray-800 (or (:name e) "Anónimo")]
+               (when (:email e)
+                 [:span.text-sm.text-gray-500.ml-2 (:email e)])
+               (when (:phone e)
+                 [:span.text-sm.text-gray-500.ml-2 (:phone e)])]
+              [:span.text-xs.text-gray-400 (format-date (:created_at e))]]
+             [:p.text-gray-700.mb-3.whitespace-pre-wrap (or (:message e) "")]
+             [:div.flex.items-center.gap-2.flex-wrap
+              [:span.text-xs {:class (:class st)} (:label st)]
+              (when (or pending? trash?)
+                [:button.px-3.py-1.text-xs.font-medium.rounded.bg-green-600.text-white.hover:bg-green-700
+                 {:type "button"
+                  :on-click #(re-frame/dispatch [:admin/approve-guestbook (:id e)])}
+                 "Aprobar"])
+              (when (or pending? approved?)
+                [:button.px-3.py-1.text-xs.font-medium.rounded.bg-gray-200.text-gray-700.hover:bg-gray-300
+                 {:type "button"
+                  :on-click #(re-frame/dispatch [:admin/reject-guestbook (:id e)])}
+                 (if approved? "A papelera" "Rechazar")])
+              (when trash?
+                [:button.px-3.py-1.text-xs.font-medium.rounded.bg-amber-100.text-amber-800.hover:bg-amber-200
+                 {:type "button"
+                  :on-click #(re-frame/dispatch [:admin/restore-guestbook (:id e)])}
+                 "Restaurar"])
+              (when trash?
+                [:button.px-3.py-1.text-xs.font-medium.rounded.bg-red-50.text-red-700.hover:bg-red-100
+                 {:type "button"
+                  :on-click (fn []
+                              (when (js/confirm "¿Eliminar permanentemente esta entrada?")
+                                (re-frame/dispatch [:admin/delete-guestbook (:id e)])))}
+                 "Eliminar"])]]))
+        [:p.text-gray-400.text-center.py-8
+         (case filter
+           :trash "La papelera está vacía"
+           :approved "No hay entradas aprobadas"
+           "No hay entradas pendientes")])]]))
 
 (defn admin-panel []
   (r/create-class

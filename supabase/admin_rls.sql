@@ -116,3 +116,9 @@ create policy "guestbook_update_admin"
   to authenticated
   using (public.is_admin())
   with check (public.is_admin());
+
+drop policy if exists "guestbook_delete_admin" on public.guestbook;
+create policy "guestbook_delete_admin"
+  on public.guestbook for delete
+  to authenticated
+  using (public.is_admin());
