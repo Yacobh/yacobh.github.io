@@ -179,7 +179,7 @@
            [test-results @test-score (:correct @test-score) (:total @test-score) (:weak-areas @test-score)]
            [:div.text-center.mt-6.space-x-4
             [:button.btn.bg-green-600.text-white.px-6.py-3.rounded-lg.font-semibold.hover:bg-green-700.transition-colors
-             {:on-click #(js/console.log "Ir a agendar clase")} ; Aquí conectarías con la función de booking
+             {:on-click #(js/console.warn "Usa el funnel Academia Integral: diagnóstico → Cupos")}
              "Agendar Clase Personalizada"]
             [:button.btn.bg-gray-500.text-white.px-6.py-3.rounded-lg.font-semibold.hover:bg-gray-600.transition-colors
              {:on-click restart-test}

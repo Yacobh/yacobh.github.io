@@ -56,6 +56,8 @@
                 :users [:admin/load-profiles]
                 :tests [:admin/load-tests]
                 :guestbook [:admin/load-guestbook]
+                :resources [:admin/load-resources]
+                :slots [:admin/load-slots]
                 [:admin/load-profiles])}))
 
 (re-frame/reg-event-fx

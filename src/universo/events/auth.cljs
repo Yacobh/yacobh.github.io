@@ -7,7 +7,7 @@
 ;; Secciones que requieren sesión Supabase válida
 ;; -----------------------------------------------------------------------------
 
-(def protected-sections #{:dashboard :diagnostic-test :admin})
+(def protected-sections #{:dashboard :diagnostic-test :admin :plan :cupos})
 
 (defn logged-in?
   "True si hay usuario de sesión en app-db."
@@ -76,7 +76,9 @@
               (assoc-in [:visitor :email] email)
               (assoc-in [:visitor :logged-in] true)
               (assoc-in [:dashboard :user-id] id))
-      :dispatch-n (cond-> [[:auth/load-profile id]]
+      :dispatch-n (cond-> [[:auth/load-profile id]
+                           [:profile/load id]
+                           [:notifications/load]]
                     load-dashboard? (conj [:dashboard/cargar email])
                     target (conj [:navigate-to target]))})))
 
