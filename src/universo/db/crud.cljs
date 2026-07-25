@@ -21,7 +21,6 @@
    (let [ch (async/chan)
          ;; Preferir claves string para columnas con guiones (email-user)
          payload (clj->js data-to-insert)
-         _ (js/console.log "📤 Enviando datos a Supabase:" table-name payload)
          base (-> (.from supabase-client table-name)
                   (.insert payload))
          query (if returning?
@@ -29,18 +28,15 @@
                  base)]
      (-> query
          (.then (fn [result]
-                  (js/console.log "📡 Respuesta de Supabase:" result)
                   (if (.-error result)
                     (do
-                      (js/console.error "❌ Error de Supabase:" (.-error result))
+                      (js/console.error "Error de Supabase:" table-name (.-error result))
                       (async/put! ch {:success false
                                       :error (.-message (.-error result))}))
-                    (do
-                      (js/console.log "✅ Datos guardados exitosamente:" (.-data result))
-                      (async/put! ch {:success true
-                                      :data (js->clj (.-data result) :keywordize-keys true)})))))
+                    (async/put! ch {:success true
+                                    :data (js->clj (.-data result) :keywordize-keys true)}))))
          (.catch (fn [error]
-                   (js/console.error "💥 Error capturado:" error)
+                   (js/console.error "Error capturado:" table-name error)
                    (async/put! ch {:success false
                                    :error (.-message error)}))))
      ch)))
