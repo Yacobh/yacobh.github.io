@@ -2,7 +2,8 @@
   (:require
    [re-frame.core :as re-frame]
    [reagent.core :as r]
-   [universo.profile :as profile]))
+   [universo.profile :as profile])
+  )
 
 (defn- format-dt [iso]
   (when iso
