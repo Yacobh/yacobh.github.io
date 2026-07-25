@@ -13,16 +13,36 @@
           :role nil
           :redirect-after-login nil}
 
-   :admin {:tab :users
-           :loading? false
-           :error nil
+   :admin {:tab :overview
+           ;; Estado por sección: evita que el spinner/error de una pestaña
+           ;; contamine a las demás y permite cachear entre cambios de pestaña.
+           ;; {:loading? bool :error str :loaded-at ms}
+           :status {}
+           :toast nil
+           :overview nil
            :profiles []
+           :users-query ""
+           :users-page 0
            :tests []
+           :tests-query ""
+           :tests-page 0
            :guestbook []
            :guestbook-filter :pending
+           :guestbook-counts {}
            :resources []
+           :resources-module-filter ""
+           :editing-resource nil
            :modules []
-           :slots []}
+           :slots []
+           :editing-slot nil
+           :expanded-slot nil
+           :rosters {}}
+
+   ;; Landing pública
+   :landing {:testimonials []
+             :loading? false
+             :loaded? false
+             :faq-open nil}
 
    :visitor {:id nil
              :email nil

@@ -12,6 +12,7 @@
    [universo.events.slots]
    [universo.events.contacto]
    [universo.events.dashboard]
+   [universo.events.landing]
    [universo.views :as views]
    [universo.visitor-tracker :as tracker]
    [universo.components.mathacademy.events]

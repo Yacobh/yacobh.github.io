@@ -1,20 +1,179 @@
 <!DOCTYPE html>
-<html>
+<html lang="es-CL">
   <head>
-    <title>Academia Integral</title>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
+
+    <title>Preparación PAES Matemática 1 — diagnóstico y plan personalizado | Academia Integral</title>
+    <meta name="description" content="Diagnóstico adaptativo gratuito que detecta qué errores estás cometiendo en Matemática 1, plan de estudio personalizado y grupos de preparación PAES online y presenciales en Iquique. Iniciativa UNAP con el profesor Jacobo Córdova.">
+    <meta name="author" content="Jacobo Córdova">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://jacobocordova.com/">
+    <meta name="theme-color" content="#4f46e5">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_CL">
+    <meta property="og:site_name" content="Academia Integral">
+    <meta property="og:url" content="https://jacobocordova.com/">
+    <meta property="og:title" content="Prepara la PAES de Matemática estudiando solo lo que te falta">
+    <meta property="og:description" content="Diagnóstico adaptativo gratuito, plan de estudio personalizado y grupos de preparación PAES Matemática 1 online y presenciales en Iquique.">
+    <meta property="og:image" content="https://jacobocordova.com/public/android-chrome-512x512.png">
+    <meta property="og:image:alt" content="Academia Integral — preparación PAES Matemática">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Prepara la PAES de Matemática estudiando solo lo que te falta">
+    <meta name="twitter:description" content="Diagnóstico adaptativo gratuito, plan de estudio personalizado y grupos de preparación PAES Matemática 1.">
+    <meta name="twitter:image" content="https://jacobocordova.com/public/android-chrome-512x512.png">
+
     <link href="./public/css/app.css" rel="stylesheet" type="text/css">
-     <link rel="icon" type="image/x-icon" href="./public/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./public/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="./public/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="./public/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./public/favicon-16x16.png">
     <link rel="manifest" href="./public/site.webmanifest">
+
+    <link rel="preconnect" href="https://jmnqklhxcdccvdhuuiji.supabase.co" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "EducationalOrganization",
+          "@id": "https://jacobocordova.com/#organization",
+          "name": "Academia Integral",
+          "url": "https://jacobocordova.com/",
+          "description": "Preparación de PAES Matemática 1 mediante diagnóstico adaptativo basado en Teoría de Respuesta al Ítem, planes de estudio personalizados y grupos de estudio por nivel.",
+          "inLanguage": "es-CL",
+          "areaServed": "CL",
+          "founder": {
+            "@type": "Person",
+            "name": "Jacobo Córdova",
+            "jobTitle": "Profesor de Matemática"
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Iquique",
+            "addressRegion": "Tarapacá",
+            "addressCountry": "CL"
+          }
+        },
+        {
+          "@type": "Course",
+          "name": "Preparación PAES Matemática 1",
+          "description": "Diagnóstico adaptativo que estima el nivel de habilidad del estudiante y detecta errores conceptuales específicos, seguido de un plan de estudio personalizado y grupos de preparación online o presenciales.",
+          "inLanguage": "es-CL",
+          "isAccessibleForFree": true,
+          "educationalLevel": "Educación media / preparación universitaria",
+          "teaches": "Aritmética, álgebra y geometría para la Prueba de Acceso a la Educación Superior de Matemática 1",
+          "provider": { "@id": "https://jacobocordova.com/#organization" },
+          "hasCourseInstance": [
+            {
+              "@type": "CourseInstance",
+              "courseMode": "online",
+              "description": "Clases sincrónicas por videollamada, agrupadas por banda de nivel."
+            },
+            {
+              "@type": "CourseInstance",
+              "courseMode": "onsite",
+              "description": "Sesiones presenciales en Iquique, en grupos reducidos por banda de nivel.",
+              "location": {
+                "@type": "Place",
+                "address": {
+                  "@type": "PostalAddress",
+                  "addressLocality": "Iquique",
+                  "addressCountry": "CL"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "¿Cuánto cuesta?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "El diagnóstico, tu perfil y el plan de estudio no tienen costo. Es una iniciativa académica de la Universidad Arturo Prat junto al profesor Jacobo Córdova."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Qué necesito para empezar?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Solo una cuenta con tu correo. El diagnóstico se hace desde el navegador, en computador o teléfono, y toma alrededor de 20 minutos."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Puedo usar calculadora en el diagnóstico?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. El diagnóstico busca reflejar tus habilidades tal como las usarás en la PAES, así que no debes usar calculadora ni ayudas externas. El tiempo de respuesta también se considera en la estimación."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Qué pasa si me va mal en el diagnóstico?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "El diagnóstico no es una nota ni queda en ningún registro académico: es la herramienta que define tu punto de partida. Mientras más honesto sea el resultado, más útil será tu plan."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Las clases son online o presenciales?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ambas. Al publicar cupos indicamos la modalidad, el horario y el lugar o enlace. Los cupos presenciales se realizan en Iquique."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Por qué mi cupo dice pendiente de confirmación?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Cada grupo necesita un mínimo de inscritos para funcionar. Cuando se alcanza ese mínimo, el cupo pasa a confirmado y recibes un aviso en la plataforma."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Puedo repetir el diagnóstico más adelante?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Sí, y es recomendable. Repetirlo después de trabajar tu plan te muestra cómo se movió tu nivel y actualiza tus prioridades de estudio."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="app"></div>
+
+    <noscript>
+      <h1>Academia Integral — Preparación PAES Matemática 1</h1>
+      <p>
+        Diagnóstico adaptativo que identifica qué errores estás cometiendo en Matemática 1,
+        plan de estudio personalizado y grupos de preparación online y presenciales en Iquique.
+        Iniciativa de la Universidad Arturo Prat junto al profesor Jacobo Córdova.
+      </p>
+      <p>
+        Esta plataforma necesita JavaScript para funcionar. Actívalo en tu navegador para
+        comenzar tu diagnóstico.
+      </p>
+    </noscript>
+
     <script src="./public/js/app.js" type="text/javascript"></script>
     <script type="text/javascript">universo.core.init_BANG_();</script>
   </body>
