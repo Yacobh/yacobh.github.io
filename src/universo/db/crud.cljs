@@ -372,6 +372,121 @@
                                   :error (.-message error)}))))
     ch))
 
+(def ^:private question-select-cols
+  (str "id,created_at,question,option_a,option_b,option_c,option_d,"
+       "correct_option,error_a,error_b,error_c,error_d,topic,order_index,difficulty,module_id"))
+
+(defn fetch-admin-questions
+  "Lista questions para admin. topic nil → todas."
+  ([]
+   (fetch-admin-questions nil))
+  ([topic]
+   (let [ch (async/chan)
+         q0 (-> (.from supabase-client "questions")
+                (.select question-select-cols)
+                (.order "topic" #js {:ascending true})
+                (.order "order_index" #js {:ascending true})
+                (.order "id" #js {:ascending true}))
+         q (if (and topic (pos? (count (str topic))))
+             (.eq q0 "topic" (str topic))
+             q0)]
+     (-> q
+         (.then (fn [result]
+                  (if (.-error result)
+                    (async/put! ch {:success false
+                                    :error (.-message (.-error result))})
+                    (async/put! ch {:success true
+                                    :data (or (js->clj (.-data result)
+                                                       :keywordize-keys true)
+                                              [])}))))
+         (.catch (fn [error]
+                   (async/put! ch {:success false
+                                   :error (.-message error)}))))
+     ch)))
+
+(defn- question-payload
+  "Mapa CLJS → JS para insert/update (sin id ni created_at)."
+  [row]
+  (let [parse-num (fn [v f]
+                    (when-let [x v]
+                      (if (string? x)
+                        (when (pos? (count x)) (f x))
+                        x)))]
+    (clj->js
+     {:question (or (:question row) "")
+      :option_a (or (:option_a row) "")
+      :option_b (or (:option_b row) "")
+      :option_c (or (:option_c row) "")
+      :option_d (or (:option_d row) "")
+      :correct_option (or (:correct_option row) "A")
+      :error_a (:error_a row)
+      :error_b (:error_b row)
+      :error_c (:error_c row)
+      :error_d (:error_d row)
+      :topic (or (:topic row) "")
+      :order_index (parse-num (:order_index row) #(js/parseInt % 10))
+      :difficulty (parse-num (:difficulty row) js/parseFloat)
+      :module_id (let [m (:module_id row)]
+                   (cond
+                     (or (nil? m) (= m "") (= m "null")) nil
+                     (string? m) (js/parseInt m 10)
+                     :else m))})))
+
+(defn insert-admin-question!
+  [row]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "questions")
+        (.insert (question-payload row))
+        (.select question-select-cols)
+        (.single)
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true
+                                   :data (js->clj (.-data result)
+                                                  :keywordize-keys true)}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false
+                                  :error (.-message error)}))))
+    ch))
+
+(defn update-admin-question!
+  [question-id row]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "questions")
+        (.update (question-payload row))
+        (.eq "id" question-id)
+        (.select question-select-cols)
+        (.single)
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true
+                                   :data (js->clj (.-data result)
+                                                  :keywordize-keys true)}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false
+                                  :error (.-message error)}))))
+    ch))
+
+(defn delete-admin-question!
+  [question-id]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "questions")
+        (.delete)
+        (.eq "id" question-id)
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true :data nil}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false
+                                  :error (.-message error)}))))
+    ch))
+
 (defn- put-result [ch result]
   (if (.-error result)
     (async/put! ch {:success false :error (.-message (.-error result))})
