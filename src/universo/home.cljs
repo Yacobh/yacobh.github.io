@@ -6,6 +6,8 @@
    [universo.components.admin :as admin]
    [universo.components.dashboard :as dashboard]
    [universo.components.diagnostic-test :as diagnostic-test]
+   [universo.components.plan :as plan]
+   [universo.components.slots :as slots]
    [universo.components.guestbook :as guestbook]
    [universo.components.login :as login]))
 
@@ -34,11 +36,17 @@
           [:span.text-sm.text-gray-400.px-4 "…"]
 
           logged-in?
-          [:div.flex.items-center.gap-2
+          [:div.flex.items-center.gap-2.flex-wrap.justify-end
            (when admin?
              [:a.text-sm.font-medium.text-indigo-700.hover:text-indigo-900.px-3.py-2.transition.cursor-pointer
               {:on-click #(re-frame/dispatch [:navigate-to :admin])}
               "Admin"])
+           [:a.text-sm.font-medium.text-gray-700.hover:text-indigo-700.px-2.py-2.cursor-pointer
+            {:on-click #(re-frame/dispatch [:navigate-to :plan])}
+            "Plan"]
+           [:a.text-sm.font-medium.text-gray-700.hover:text-indigo-700.px-2.py-2.cursor-pointer
+            {:on-click #(re-frame/dispatch [:navigate-to :cupos])}
+            "Cupos"]
            [:a.bg-gradient-to-r.from-indigo-600.to-purple-600.text-white.text-sm.font-medium.px-6.py-2.5.rounded-full.hover:opacity-90.transition.cursor-pointer
             {:on-click #(re-frame/dispatch [:navigate-to :dashboard])}
             "Mi Tablero"]
@@ -65,9 +73,9 @@
     [:div {:class "mb-4"}
      [:h2 {:class "text-xl font-semibold text-blue-800 mb-2"} "¿Cómo funciona?"]
      [:ul {:class "list-disc list-inside space-y-1 text-gray-700"}
-      [:li "Evaluaciones diagnósticas que identifican contenidos a reforzar"]
-      [:li "Sistema progresivo basado en niveles de aprendizaje"]
-      [:li "Seguimiento personalizado de tu avance"]]]
+      [:li "Diagnóstico adaptativo (IRT) que estima tu nivel y déficits"]
+      [:li "Plan de estudio con explicaciones y recursos por módulo"]
+      [:li "Cupos online/presencial que se confirman al llegar al mínimo de inscritos"]]]
 
     [:div {:class "mb-4"}
      [:h2 {:class "text-xl font-semibold text-blue-800 mb-2"} "Instrucciones"]
@@ -132,6 +140,8 @@
       :login [login/login-form]
       :diagnostic-test [diagnostic-test/diagnostic-test]
       :dashboard [dashboard/dashboard]
+      :plan [plan/plan-panel]
+      :cupos [slots/slots-panel]
       :admin [admin/admin-panel]
       :guestbook [guestbook/guestbook-component]
       :jacobocordova [resume/jacobo]

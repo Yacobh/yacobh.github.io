@@ -110,8 +110,52 @@
                      "text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full text-xs font-medium")}
      (if completado? "Completado" "Incompleto")]]])
 
+(defn- profile-block []
+  (let [sp @(re-frame/subscribe [:student-profile])
+        built (or (:profile sp) {})
+        band (or (:theta_band sp) (:theta-band built))
+        theta (or (:theta sp) (:theta built))
+        deficits (take 4 (or (:deficits built) []))
+        unread @(re-frame/subscribe [:notifications/unread])]
+    [:div.bg-white.rounded-xl.shadow-lg.p-6.mt-6.max-w-2xl.mx-auto
+     [:h3.text-xl.font-bold.text-indigo-700.mb-3 "Perfil de aprendizaje"]
+     (when (seq unread)
+       [:div.mb-4.rounded-lg.bg-green-50.border.border-green-200.p-3
+        [:p.text-sm.font-semibold.text-green-800.mb-1 "Tienes novedades de grupos"]
+        (for [n (take 3 unread)]
+          ^{:key (:id n)}
+          [:p.text-sm.text-green-900 (:message n)])
+        [:button.text-xs.text-green-700.underline.mt-1
+         {:type "button"
+          :on-click #(re-frame/dispatch [:notifications/dismiss])}
+         "Marcar leídas"]])
+     (if (or band (number? theta) (seq deficits))
+       [:div.space-y-2
+        (when (number? theta)
+          [:p.text-sm.text-gray-700
+           (str "θ = " (.toFixed (js/Number theta) 2)
+                (when band (str " · banda " band)))])
+        (if (seq deficits)
+          [:ul.space-y-1
+           (for [d deficits]
+             ^{:key (:module-slug d)}
+             [:li.text-sm.text-gray-700
+              (str "• " (:module-slug d) " (" (:errors d) " errores)")])]
+          [:p.text-sm.text-gray-500 "Sin déficits destacados en el último diagnóstico."])]
+       [:div.text-center.py-2
+        [:p.text-sm.text-gray-600.mb-3
+         "Aún no hay perfil. Haz un diagnóstico para ver tu nivel y déficits."]
+        [:button.bg-indigo-600.text-white.text-sm.font-semibold.py-2.px-4.rounded-lg
+         {:type "button"
+          :on-click #(do
+                       (re-frame/dispatch [:test/open-selection])
+                       (re-frame/dispatch [:navigate-to :diagnostic-test]))}
+         "Comenzar diagnóstico"]])]))
+
 (defn dashboard []
-  (r/with-let [_ (re-frame/dispatch [:dashboard/refresh])]
+  (r/with-let [_ (do (re-frame/dispatch [:dashboard/refresh])
+                     (re-frame/dispatch [:profile/load])
+                     (re-frame/dispatch [:notifications/load]))]
     (let [correo @(re-frame/subscribe [:visitor-email])
           cargando? @(re-frame/subscribe [:dashboard/cargando?])
           historial @(re-frame/subscribe [:dashboard/historial])
@@ -162,6 +206,8 @@
              "border-indigo-500"
              "text-indigo-600"]]
 
+           [profile-block]
+
            ;; Acciones rápidas
            [:div.flex.flex-row.flex-wrap.gap-4.justify-center.mt-10
             [:button.bg-indigo-600.text-white.font-semibold.py-3.px-5.rounded-lg.hover:bg-indigo-700.transition.shadow-md.flex.items-center.gap-2
@@ -170,7 +216,15 @@
                            (re-frame/dispatch [:test/open-selection])
                            (re-frame/dispatch [:navigate-to :diagnostic-test]))}
              [:span "🚀"]
-             [:span "Nueva Evaluación"]]]
+             [:span "Nueva Evaluación"]]
+            [:button.bg-white.border.border-indigo-200.text-indigo-700.font-semibold.py-3.px-5.rounded-lg.hover:bg-indigo-50.transition.shadow-sm
+             {:type "button"
+              :on-click #(re-frame/dispatch [:navigate-to :plan])}
+             "Mi plan"]
+            [:button.bg-green-600.text-white.font-semibold.py-3.px-5.rounded-lg.hover:bg-green-700.transition.shadow-md
+             {:type "button"
+              :on-click #(re-frame/dispatch [:navigate-to :cupos])}
+             "Cupos / Grupos"]]
 
            ;; Último test (el más reciente por fecha/id)
            (when ultimo

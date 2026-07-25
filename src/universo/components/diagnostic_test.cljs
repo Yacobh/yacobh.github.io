@@ -4,7 +4,8 @@
             [reagent.core :as r]
             [universo.components.feedback-modal :refer [feedback]]
             [universo.components.irt-chart :as irt-chart]
-            [universo.components.math-render :as math]))
+            [universo.components.math-render :as math]
+            [universo.profile :as profile]))
 
 ;; -------------------------------
 ;; Helpers de presentación
@@ -169,14 +170,19 @@
         theta @(re-frame/subscribe [:test/theta])
         points @(re-frame/subscribe [:test/progress-points])
         stop-reason @(re-frame/subscribe [:test/stop-reason])
+        sp @(re-frame/subscribe [:student-profile])
+        built (or (:profile sp) {})
+        band (or (:theta_band sp) (:theta-band built) (profile/theta-band theta))
+        deficits (or (:deficits built) [])
+        misconceptions (take 5 (or (:misconceptions built) []))
         total (count answers)
         correct (count (filter :correct? answers))
         score (if (pos? total)
                 (Math/round (* (/ correct total) 100))
                 0)]
 
-    [:div {:class "max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-lg shadow"}
-     [:div {:class "text-center mb-6"}
+    [:div {:class "max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-lg shadow space-y-6"}
+     [:div {:class "text-center"}
       [:h2 {:class "text-2xl font-bold text-gray-800 mb-2"} "Resultados"]
       (when topic
         [:p {:class "text-sm text-indigo-600 mb-2"} (topic-label topic)])
@@ -186,12 +192,44 @@
        (str "Puntaje: " score "%")]
       (when (number? theta)
         [:p {:class "text-sm text-stone-600 mt-2 tabular-nums"}
-         (str "Nivel estimado (θ): " (.toFixed theta 2))])]
+         (str "Nivel estimado (θ): " (.toFixed theta 2))])
+      [:p {:class "text-sm font-semibold text-indigo-700 mt-1"}
+       (str "Banda de cupo: " (profile/band-label band))]]
 
-     [:div {:class "mb-8 text-left"}
+     [:div {:class "text-left"}
       [irt-chart/irt-progress-chart points stop-reason]]
 
+     (when (seq deficits)
+       [:div.text-left.border.border-gray-100.rounded-lg.p-4
+        [:h3.font-bold.text-gray-800.mb-2 "Dónde necesitas ayuda"]
+        [:ul.space-y-1
+         (for [d (take 5 deficits)]
+           ^{:key (:module-slug d)}
+           [:li.text-sm.text-gray-700
+            (str (:module-slug d) ": " (:errors d) "/" (:total d))])]])
+
+     (when (seq misconceptions)
+       [:div.text-left.border.border-amber-100.bg-amber-50.rounded-lg.p-4
+        [:h3.font-bold.text-gray-800.mb-2 "Ideas a corregir"]
+        [:ul.space-y-2
+         (for [[i m] (map-indexed vector misconceptions)]
+           ^{:key (str i "-" (:question-id m))}
+           [:li.text-sm.text-gray-700
+            (if (:explanation m)
+              (math/latex (:explanation m))
+              (str "Opción " (:selected m)))])]])
+
      [:div {:class "space-y-3"}
+      [:button
+       {:class "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg"
+        :type "button"
+        :on-click #(re-frame/dispatch [:navigate-to :plan])}
+       "Ver mi plan"]
+      [:button
+       {:class "w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg"
+        :type "button"
+        :on-click #(re-frame/dispatch [:navigate-to :cupos])}
+       "Ver cupos para mi nivel"]
       [:button
        {:class "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
         :type "button"

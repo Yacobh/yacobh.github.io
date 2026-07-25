@@ -376,6 +376,240 @@
                                   :error (.-message error)}))))
     ch))
 
+(defn- put-result [ch result]
+  (if (.-error result)
+    (async/put! ch {:success false :error (.-message (.-error result))})
+    (async/put! ch {:success true
+                    :data (js->clj (.-data result) :keywordize-keys true)})))
+
+(defn upsert-student-profile!
+  "Upsert por user_id."
+  [row]
+  (let [ch (async/chan)
+        payload (clj->js row)]
+    (-> (.from supabase-client "student_profiles")
+        (.upsert payload #js {:onConflict "user_id"})
+        (.select "*")
+        (.single)
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-student-profile
+  [user-id]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "student_profiles")
+        (.select "*")
+        (.eq "user_id" (str user-id))
+        (.maybeSingle)
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-modules
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "modules")
+        (.select "*")
+        (.order "order_index" #js {:ascending true})
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-published-resources
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "resources")
+        (.select "*, modules(slug, title, track)")
+        (.eq "published" true)
+        (.order "order_index" #js {:ascending true})
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (let [rows (js->clj (.-data result) :keywordize-keys true)
+                         enriched (mapv (fn [r]
+                                          (assoc r :module_slug
+                                                 (or (get-in r [:modules :slug])
+                                                     (:module_slug r))))
+                                        (or rows []))]
+                     (async/put! ch {:success true :data enriched})))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-resources-for-modules
+  [module-ids]
+  (fetch-published-resources))
+
+(defn fetch-admin-resources
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "resources")
+        (.select "*, modules(slug, title, track)")
+        (.order "created_at" #js {:ascending false})
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn upsert-resource!
+  [row]
+  (let [ch (async/chan)
+        payload (clj->js row)
+        id (or (get row "id") (:id row))]
+    (-> (if id
+          (-> (.from supabase-client "resources")
+              (.update payload)
+              (.eq "id" (str id))
+              (.select "*")
+              (.single))
+          (-> (.from supabase-client "resources")
+              (.insert payload)
+              (.select "*")
+              (.single)))
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn delete-resource!
+  [id]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "resources")
+        (.delete)
+        (.eq "id" (str id))
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true :data nil}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-class-slots
+  "Cupos open/confirmed. Si band, filtra por theta_band."
+  [band]
+  (let [ch (async/chan)
+        q0 (-> (.from supabase-client "class_slots")
+               (.select "*")
+               (.in "status" #js ["open" "confirmed"])
+               (.order "starts_at" #js {:ascending true}))
+        q (if (and band (pos? (count (str band))))
+            (.eq q0 "theta_band" (str band))
+            q0)]
+    (-> q
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-admin-class-slots
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "class_slots")
+        (.select "*, enrollments(id,user_id,status)")
+        (.order "starts_at" #js {:ascending true})
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn upsert-class-slot!
+  [row]
+  (let [ch (async/chan)
+        payload (clj->js row)
+        id (or (get row "id") (:id row))]
+    (-> (if id
+          (-> (.from supabase-client "class_slots")
+              (.update payload)
+              (.eq "id" (str id))
+              (.select "*")
+              (.single))
+          (-> (.from supabase-client "class_slots")
+              (.insert payload)
+              (.select "*")
+              (.single)))
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn delete-class-slot!
+  [id]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "class_slots")
+        (.delete)
+        (.eq "id" (str id))
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true :data nil}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-my-enrollments
+  [user-id]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "enrollments")
+        (.select "*, class_slots(*)")
+        (.eq "user_id" (str user-id))
+        (.neq "status" "cancelled")
+        (.order "created_at" #js {:ascending false})
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn enroll-in-slot!
+  [slot-id user-id]
+  (let [ch (async/chan)
+        payload #js {:slot_id (str slot-id)
+                     :user_id (str user-id)
+                     :status "pending"}]
+    (-> (.from supabase-client "enrollments")
+        (.upsert payload #js {:onConflict "slot_id,user_id"})
+        (.select "*")
+        (.single)
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-notifications
+  [user-id]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "notifications")
+        (.select "*")
+        (.eq "user_id" (str user-id))
+        (.order "created_at" #js {:ascending false})
+        (.limit 20)
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn mark-notification-read!
+  [id]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "notifications")
+        (.update #js {:read true})
+        (.eq "id" (str id))
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true :data nil}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
 ;; Función helper para obtener el último registro
 (defn get-latest
   "Obtiene el registro más reciente de una tabla basado en created_at"

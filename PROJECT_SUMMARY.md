@@ -190,8 +190,42 @@ Proporcionar una plataforma educativa moderna que:
 - Recopile métricas detalladas de aprendizaje
 - Mejore la experiencia educativa mediante tecnología adaptativa basada en IRT
 
+## 🧭 Funnel MVP (operable)
+
+```
+Login → Diagnóstico IRT → Perfil (θ, banda, déficits, misconceptions)
+      → Mi plan (capa 0: error_* + capa 1: resources)
+      → Cupos por theta_band (online/presencial)
+      → Inscripción → confirmación al min_enrollments + notificación in-app
+```
+
+### Cómo cargar contenido (admin)
+
+1. Aplicar SQL: `supabase/admin_rls.sql` → `migrations/001_mvp_schema.sql` → `migrations/002_seed_modules.sql` (ver `supabase/SCHEMA.md`).
+2. En **Admin → Recursos**: crear recursos por módulo (`text` / `video_url` / etc.) y publicar.
+3. En **Admin → Cupos**: publicar horarios con `theta_band`, modalidad, capacidad y mínimo de inscritos.
+4. Los estudiantes ven cupos filtrados por la banda de su `student_profiles`.
+
+### Archivos clave nuevos
+
+| Área | Path |
+|------|------|
+| Perfil puro | `src/universo/profile.cljs` |
+| Plan / cupos UI | `src/universo/components/plan.cljs`, `slots.cljs` |
+| Eventos | `src/universo/events/{profile,plan,slots}.cljs` |
+| Schema | `supabase/migrations/`, `supabase/SCHEMA.md` |
+
+### Checklist go-live
+
+- [ ] Migraciones MVP aplicadas en Supabase
+- [ ] Seed de módulos Baldor ejecutado
+- [ ] Cuenta admin (`profiles.role = 'admin'`)
+- [ ] 2–3 cupos demo (online + presencial) en bandas distintas
+- [ ] RLS verificado (estudiante solo ve su perfil / sus enrollments)
+- [ ] Al menos un recurso publicado por módulo prioritario
+
 ---
 
 **Autor**: yacobh  
 **Repositorio**: https://github.com/Yacobh/yacobh.github.io  
-**Versión**: 1.0.0
+**Versión**: 1.1.0-mvp

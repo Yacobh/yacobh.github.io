@@ -67,27 +67,11 @@
 
             (submit-booking [e]
                             (.preventDefault e)
-                            (reset! form-submitted true)
-
-                            ;; Mapea los datos del formulario a los campos de la tabla
-                            (let [booking-data {:name (:name @form-data)
-                                                :email (:email @form-data)
-                                                :phone (:phone @form-data)
-                                                :message (str "Tipo: " (:class-type @form-data)
-                                                              "\nNivel: " (:level @form-data)
-                                                              "\nTemas: " (:topics @form-data))}]
-
-                              (js/console.log "Booking data to submit:" booking-data)
-
-                              (-> (supabase/add-guestbook-entry booking-data)
-                                  (.then (fn [response]
-                                           (js/console.log "Booking submitted successfully: " response)
-                                           (reset! form-submitted false)
-                                           (reset! current-section :main)
-                                           (reset! form-data {:name "" :email "" :phone ""
-                                                              :class-type "" :level "" :topics ""})))
-                                  (.catch #(do (js/console.error "Error submitting:" %)
-                                               (reset! form-submitted false))))))
+                            ;; Legacy: ya no escribe en guestbook.
+                            ;; El funnel real es diagnóstico IRT → plan → cupos.
+                            (js/console.warn "MathAcademy booking desconectado. Usa Cupos en Academia Integral.")
+                            (reset! form-submitted false)
+                            (reset! current-section :main))
 
             (get-recommendation [percentage]
               (cond

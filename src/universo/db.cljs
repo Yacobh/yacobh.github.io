@@ -19,7 +19,10 @@
            :profiles []
            :tests []
            :guestbook []
-           :guestbook-filter :pending}
+           :guestbook-filter :pending
+           :resources []
+           :modules []
+           :slots []}
 
    :visitor {:id nil
              :email nil
@@ -34,6 +37,24 @@
                :level 0
                :frecuencia 0
                :tests 0}
+
+   :student-profile {:loading? false
+                     :profile nil
+                     :theta nil
+                     :theta_band nil}
+
+   :plan {:loading? false
+          :resources []
+          :error nil
+          :deficit-slugs []}
+
+   :slots {:loading? false
+           :items []
+           :enrollments []
+           :error nil
+           :message nil}
+
+   :notifications {:items []}
 
    :test {:questions []
           :question-ids []

@@ -146,6 +146,185 @@
            :approved "No hay entradas aprobadas"
            "No hay entradas pendientes")])]]))
 
+(defn- resources-panel []
+  (let [form (r/atom {:title ""
+                      :type "text"
+                      :module_id ""
+                      :body ""
+                      :media_url ""
+                      :historical_context ""
+                      :published true
+                      :order_index 1})]
+    (fn []
+      (let [rows @(re-frame/subscribe [:admin/resources])
+            modules @(re-frame/subscribe [:admin/modules])]
+        [:div.space-y-6
+         [:div.bg-gray-50.rounded-lg.p-4.space-y-3
+          [:h3.font-semibold.text-gray-800 "Nuevo recurso"]
+        [:div.grid.grid-cols-1.sm:grid-cols-2.gap-3
+         [:input.border.rounded.px-3.py-2.text-sm
+          {:placeholder "Título"
+           :value (:title @form)
+           :on-change #(swap! form assoc :title (.. % -target -value))}]
+         [:select.border.rounded.px-3.py-2.text-sm
+          {:value (:type @form)
+           :on-change #(swap! form assoc :type (.. % -target -value))}
+          [:option {:value "text"} "text"]
+          [:option {:value "video_url"} "video_url"]
+          [:option {:value "audio_url"} "audio_url"]
+          [:option {:value "pdf_url"} "pdf_url"]
+          [:option {:value "exercise"} "exercise"]]
+         [:select.border.rounded.px-3.py-2.text-sm
+          {:value (:module_id @form)
+           :on-change #(swap! form assoc :module_id (.. % -target -value))}
+          [:option {:value ""} "Módulo…"]
+          (for [m modules]
+            ^{:key (:id m)}
+            [:option {:value (:id m)} (str (:slug m) " — " (:title m))])]
+         [:input.border.rounded.px-3.py-2.text-sm
+          {:placeholder "URL media (opcional)"
+           :value (:media_url @form)
+           :on-change #(swap! form assoc :media_url (.. % -target -value))}]]
+        [:textarea.border.rounded.px-3.py-2.text-sm.w-full.h-24
+         {:placeholder "Cuerpo / markdown KaTeX"
+          :value (:body @form)
+          :on-change #(swap! form assoc :body (.. % -target -value))}]
+        [:label.flex.items-center.gap-2.text-sm
+         [:input {:type "checkbox"
+                  :checked (boolean (:published @form))
+                  :on-change #(swap! form assoc :published (.. % -target -checked))}]
+         "Publicado"]
+        [:button.bg-indigo-600.text-white.text-sm.font-semibold.px-4.py-2.rounded
+         {:type "button"
+          :on-click (fn []
+                      (when (and (seq (:title @form)) (seq (:module_id @form)))
+                        (re-frame/dispatch
+                         [:admin/save-resource
+                          {"title" (:title @form)
+                           "type" (:type @form)
+                           "module_id" (:module_id @form)
+                           "body" (:body @form)
+                           "media_url" (when (seq (:media_url @form)) (:media_url @form))
+                           "historical_context" (:historical_context @form)
+                           "order_index" (js/parseInt (str (:order_index @form)) 10)
+                           "published" (boolean (:published @form))}])
+                        (reset! form {:title "" :type "text" :module_id "" :body ""
+                                      :media_url "" :historical_context ""
+                                      :published true :order_index 1})))}
+         "Guardar recurso"]]
+       [:div.space-y-2
+        (if (seq rows)
+          (for [r rows]
+            ^{:key (:id r)}
+            [:div.border.rounded.p-3.flex.justify-between.gap-3.items-start
+             [:div
+              [:p.font-medium.text-sm (:title r)]
+              [:p.text-xs.text-gray-500
+               (str (:type r) " · "
+                    (or (get-in r [:modules :slug]) "")
+                    (when (:published r) " · publicado"))]]
+             [:button.text-xs.text-red-600
+              {:type "button"
+               :on-click #(when (js/confirm "¿Eliminar recurso?")
+                            (re-frame/dispatch [:admin/delete-resource (:id r)]))}
+              "Eliminar"]])
+          [:p.text-gray-400.text-sm "Sin recursos"])]]))))
+
+(defn- slots-admin-panel []
+  (let [form (r/atom {:theta_band "basico"
+                      :modality "online"
+                      :track ""
+                      :starts_at ""
+                      :location_or_link ""
+                      :capacity "8"
+                      :min_enrollments "3"
+                      :title ""
+                      :status "open"})]
+    (fn []
+      (let [rows @(re-frame/subscribe [:admin/slots])]
+      [:div.space-y-6
+       [:div.bg-gray-50.rounded-lg.p-4.space-y-3
+        [:h3.font-semibold.text-gray-800 "Nuevo cupo"]
+        [:div.grid.grid-cols-1.sm:grid-cols-2.gap-3
+         [:input.border.rounded.px-3.py-2.text-sm
+          {:placeholder "Título"
+           :value (:title @form)
+           :on-change #(swap! form assoc :title (.. % -target -value))}]
+         [:select.border.rounded.px-3.py-2.text-sm
+          {:value (:theta_band @form)
+           :on-change #(swap! form assoc :theta_band (.. % -target -value))}
+          [:option {:value "inicial"} "inicial"]
+          [:option {:value "basico"} "basico"]
+          [:option {:value "intermedio"} "intermedio"]
+          [:option {:value "avanzado"} "avanzado"]]
+         [:select.border.rounded.px-3.py-2.text-sm
+          {:value (:modality @form)
+           :on-change #(swap! form assoc :modality (.. % -target -value))}
+          [:option {:value "online"} "online"]
+          [:option {:value "presencial"} "presencial"]]
+         [:select.border.rounded.px-3.py-2.text-sm
+          {:value (:track @form)
+           :on-change #(swap! form assoc :track (.. % -target -value))}
+          [:option {:value ""} "(cualquier track)"]
+          [:option {:value "aritmetica"} "aritmetica"]
+          [:option {:value "algebra"} "algebra"]
+          [:option {:value "geometria"} "geometria"]]
+         [:input.border.rounded.px-3.py-2.text-sm
+          {:type "datetime-local"
+           :value (:starts_at @form)
+           :on-change #(swap! form assoc :starts_at (.. % -target -value))}]
+         [:input.border.rounded.px-3.py-2.text-sm
+          {:placeholder "Lugar o link"
+           :value (:location_or_link @form)
+           :on-change #(swap! form assoc :location_or_link (.. % -target -value))}]
+         [:input.border.rounded.px-3.py-2.text-sm
+          {:placeholder "Capacidad"
+           :value (:capacity @form)
+           :on-change #(swap! form assoc :capacity (.. % -target -value))}]
+         [:input.border.rounded.px-3.py-2.text-sm
+          {:placeholder "Mínimo inscritos"
+           :value (:min_enrollments @form)
+           :on-change #(swap! form assoc :min_enrollments (.. % -target -value))}]]
+        [:button.bg-indigo-600.text-white.text-sm.font-semibold.px-4.py-2.rounded
+         {:type "button"
+          :on-click (fn []
+                      (when (seq (:starts_at @form))
+                        (let [iso (try
+                                    (.toISOString (js/Date. (:starts_at @form)))
+                                    (catch :default _ (:starts_at @form)))]
+                          (re-frame/dispatch
+                           [:admin/save-slot
+                            {"title" (:title @form)
+                             "theta_band" (:theta_band @form)
+                             "modality" (:modality @form)
+                             "track" (when (seq (:track @form)) (:track @form))
+                             "starts_at" iso
+                             "location_or_link" (:location_or_link @form)
+                             "capacity" (js/parseInt (:capacity @form) 10)
+                             "min_enrollments" (js/parseInt (:min_enrollments @form) 10)
+                             "status" "open"}]))))}
+         "Publicar cupo"]]
+       [:div.space-y-2
+        (if (seq rows)
+          (for [s rows]
+            (let [n (count (filter #(not= (:status %) "cancelled")
+                                   (or (:enrollments s) [])))]
+              ^{:key (:id s)}
+              [:div.border.rounded.p-3.flex.justify-between.gap-3
+               [:div.text-sm
+                [:p.font-medium
+                 (str (or (:title s) (:theta_band s)) " · " (:modality s)
+                      " · " (:status s))]
+                [:p.text-xs.text-gray-500
+                 (str (format-date (:starts_at s)) " · " n " inscritos"
+                      " (mín " (:min_enrollments s) ")")]]
+               [:button.text-xs.text-red-600
+                {:type "button"
+                 :on-click #(when (js/confirm "¿Eliminar cupo?")
+                              (re-frame/dispatch [:admin/delete-slot (:id s)]))}
+                "Eliminar"]]))
+          [:p.text-gray-400.text-sm "Sin cupos"])]]))))
+
 (defn admin-panel []
   (r/create-class
    {:display-name "admin-panel"
@@ -162,7 +341,7 @@
         [:div.max-w-5xl.mx-auto.px-4.py-8
          [:h1.text-2xl.font-bold.text-gray-900.mb-1 "Administración"]
          [:p.text-sm.text-gray-500.mb-6
-          "Usuarios, tests y moderación del libro de visitas."]
+          "Usuarios, tests, recursos, cupos y libro de visitas."]
 
          (cond
            (nil? role)
@@ -173,9 +352,11 @@
 
            :else
            [:div
-            [:div.flex.gap-1.border-b.border-gray-200.mb-6
+            [:div.flex.gap-1.border-b.border-gray-200.mb-6.flex-wrap
              [tab-btn :users "Usuarios" tab]
              [tab-btn :tests "Tests" tab]
+             [tab-btn :resources "Recursos" tab]
+             [tab-btn :slots "Cupos" tab]
              [tab-btn :guestbook "Libro de visitas" tab]]
 
             (when error
@@ -187,5 +368,7 @@
             (case tab
               :users [users-panel]
               :tests [tests-panel]
+              :resources [resources-panel]
+              :slots [slots-admin-panel]
               :guestbook [guestbook-panel]
               [users-panel])])]))}))

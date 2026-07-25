@@ -12,19 +12,26 @@
 ;; -----------------------------------------------------------------------------
 
 (defn normalize-question [q]
-  {:id (:id q)
-   :question (:question q)
-   :options [{:value "A" :label (:option_a q)}
-             {:value "B" :label (:option_b q)}
-             {:value "C" :label (:option_c q)}
-             {:value "D" :label (:option_d q)}]
-   :correct-option (:correct_option q)
-   :errors {:A (:error_a q)
-            :B (:error_b q)
-            :C (:error_c q)
-            :D (:error_d q)}
-   :difficulty (:difficulty q)
-   :position (:order_index q)})
+  (let [module-join (:modules q)
+        module-slug (or (:module_slug q)
+                        (:slug module-join)
+                        (get-in q [:modules :slug]))]
+    {:id (:id q)
+     :question (:question q)
+     :options [{:value "A" :label (:option_a q)}
+               {:value "B" :label (:option_b q)}
+               {:value "C" :label (:option_c q)}
+               {:value "D" :label (:option_d q)}]
+     :correct-option (:correct_option q)
+     :errors {:A (:error_a q)
+              :B (:error_b q)
+              :C (:error_c q)
+              :D (:error_d q)}
+     :difficulty (:difficulty q)
+     :position (:order_index q)
+     :topic (:topic q)
+     :module-id (or (:module_id q) (:module-id module-join))
+     :module-slug module-slug}))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 FUNCIÓN AUXILIAR: Mapea label de UI → id de topic en Supabase
@@ -132,17 +139,29 @@
   "Preguntas del topic en [θ−w, θ+w] aún no respondidas."
   [theta topic answered-ids half-width]
   (go
-    (let [result (<! (crud/get-table "questions"
-                                     {"difficulty" [:between (- theta half-width)
-                                                    (+ theta half-width)]
-                                      "topic" topic}))]
-      (if (:success result)
-        (->> (:data result)
-             (filter #(not (contains? answered-ids (:id %))))
-             vec)
-        (do
-          (js/console.error "❌ Error obteniendo pregunta:" result)
-          :error)))))
+    (let [ch (async/chan)
+          lo (- theta half-width)
+          hi (+ theta half-width)]
+      (-> (.from sb/supabase-client "questions")
+          (.select "*, modules(slug, title, track)")
+          (.eq "topic" topic)
+          (.gte "difficulty" lo)
+          (.lte "difficulty" hi)
+          (.then (fn [result]
+                   (if (.-error result)
+                     (async/put! ch {:success false :error (.-message (.-error result))})
+                     (async/put! ch {:success true
+                                     :data (js->clj (.-data result) :keywordize-keys true)}))))
+          (.catch (fn [error]
+                    (async/put! ch {:success false :error (.-message error)}))))
+      (let [result (<! ch)]
+        (if (:success result)
+          (->> (:data result)
+               (filter #(not (contains? answered-ids (:id %))))
+               vec)
+          (do
+            (js/console.error "❌ Error obteniendo pregunta:" result)
+            :error))))))
 
 (re-frame/reg-fx
  :test/fetch-next-question
@@ -295,11 +314,17 @@
  (fn [{:keys [db]} [_ {:keys [question-id selected correct? time-ms]}]]
    (let [questions (get-in db [:test :questions])
          question (some #(when (= (:id %) question-id) %) questions)
+         sel-key (when selected (keyword selected))
          new-response {:question-id question-id
                        :selected-option selected
                        :correct? correct?
                        :time-ms (or time-ms 0)
-                       :difficulty (or (:difficulty question) 0.0)}
+                       :difficulty (or (:difficulty question) 0.0)
+                       :topic (or (:topic question) (get-in db [:test :topic]))
+                       :module-id (:module-id question)
+                       :module-slug (:module-slug question)
+                       :selected-error (get-in question [:errors sel-key])
+                       :question-text (:question question)}
          updated-db (update-in db [:test :responses] conj new-response)
          new-theta (tetha/calculate-theta-auto (:test updated-db))
          responses (get-in updated-db [:test :responses])
@@ -429,7 +454,9 @@
       :save-test {:data {"test" test
                          "email-user" email-user
                          "user_id" user-id}
-                  :email email-user}})))
+                  :email email-user}
+      ;; Perfil derivado; el usuario abre resultados desde la pantalla de cierre
+      :dispatch [:profile/save-from-test]})))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 SUSCRIPCIONES
