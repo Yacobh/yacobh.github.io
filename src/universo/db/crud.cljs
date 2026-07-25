@@ -21,7 +21,6 @@
    (let [ch (async/chan)
          ;; Preferir claves string para columnas con guiones (email-user)
          payload (clj->js data-to-insert)
-         _ (js/console.log "📤 Enviando datos a Supabase:" table-name payload)
          base (-> (.from supabase-client table-name)
                   (.insert payload))
          query (if returning?
@@ -29,18 +28,15 @@
                  base)]
      (-> query
          (.then (fn [result]
-                  (js/console.log "📡 Respuesta de Supabase:" result)
                   (if (.-error result)
                     (do
-                      (js/console.error "❌ Error de Supabase:" (.-error result))
+                      (js/console.error "Error de Supabase:" table-name (.-error result))
                       (async/put! ch {:success false
                                       :error (.-message (.-error result))}))
-                    (do
-                      (js/console.log "✅ Datos guardados exitosamente:" (.-data result))
-                      (async/put! ch {:success true
-                                      :data (js->clj (.-data result) :keywordize-keys true)})))))
+                    (async/put! ch {:success true
+                                    :data (js->clj (.-data result) :keywordize-keys true)}))))
          (.catch (fn [error]
-                   (js/console.error "💥 Error capturado:" error)
+                   (js/console.error "Error capturado:" table-name error)
                    (async/put! ch {:success false
                                    :error (.-message error)}))))
      ch)))
@@ -601,6 +597,183 @@
     (-> (.from supabase-client "notifications")
         (.update #js {:read true})
         (.eq "id" (str id))
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true :data nil}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+;; -----------------------------------------------------------------------------
+;; Admin: métricas, roles y gestión de inscripciones
+;; -----------------------------------------------------------------------------
+
+(defn count-rows
+  "Cuenta filas sin traerlas (count exact + head). apply-filters recibe la query."
+  ([table] (count-rows table identity))
+  ([table apply-filters]
+   (let [ch (async/chan)]
+     (-> (apply-filters (-> (.from supabase-client table)
+                            (.select "*" #js {:count "exact" :head true})))
+         (.then (fn [result]
+                  (if (.-error result)
+                    (async/put! ch {:success false
+                                    :error (.-message (.-error result))})
+                    (async/put! ch {:success true :data (or (.-count result) 0)}))))
+         (.catch (fn [error]
+                   (async/put! ch {:success false :error (.-message error)}))))
+     ch)))
+
+(defn- days-ago-iso
+  [n]
+  (.toISOString (js/Date. (- (.now js/Date) (* n 24 60 60 1000)))))
+
+(defn fetch-admin-overview
+  "Métricas agregadas del panel. Un solo canal con todos los contadores."
+  []
+  (let [ch (async/chan)]
+    (go
+      (let [since-7d (days-ago-iso 7)
+            users (<! (count-rows "profiles"))
+            admins (<! (count-rows "profiles" (fn [^js q] (.eq q "role" "admin"))))
+            tests (<! (count-rows "tests"))
+            tests-7d (<! (count-rows "tests" (fn [^js q] (.gte q "created_at" since-7d))))
+            gb-pending (<! (count-rows "guestbook" (fn [^js q] (.is q "is_approved" nil))))
+            gb-approved (<! (count-rows "guestbook" (fn [^js q] (.eq q "is_approved" true))))
+            resources (<! (count-rows "resources"))
+            published (<! (count-rows "resources" (fn [^js q] (.eq q "published" true))))
+            profiles-band (<! (let [c (async/chan)]
+                                (-> (.from supabase-client "student_profiles")
+                                    (.select "theta_band")
+                                    (.then (fn [r] (put-result c r)))
+                                    (.catch (fn [e]
+                                              (async/put! c {:success false
+                                                             :error (.-message e)}))))
+                                c))
+            slots (<! (fetch-admin-class-slots))
+            results [users admins tests tests-7d gb-pending gb-approved
+                     resources published slots profiles-band]
+            first-error (->> results (remove :success) (map :error) (remove nil?) first)]
+        (async/put!
+         ch
+         (if first-error
+           {:success false :error first-error}
+           {:success true
+            :data {:users (:data users)
+                   :admins (:data admins)
+                   :tests (:data tests)
+                   :tests-7d (:data tests-7d)
+                   :guestbook-pending (:data gb-pending)
+                   :guestbook-approved (:data gb-approved)
+                   :resources (:data resources)
+                   :resources-published (:data published)
+                   :slots (or (:data slots) [])
+                   :bands (frequencies (keep :theta_band (or (:data profiles-band) [])))}}))))
+    ch))
+
+(defn fetch-guestbook-counts
+  "Contadores por estado de moderación, para los filtros del panel."
+  []
+  (let [ch (async/chan)]
+    (go
+      (let [pending (<! (count-rows "guestbook" (fn [^js q] (.is q "is_approved" nil))))
+            approved (<! (count-rows "guestbook" (fn [^js q] (.eq q "is_approved" true))))
+            trash (<! (count-rows "guestbook" (fn [^js q] (.eq q "is_approved" false))))]
+        (async/put! ch {:success true
+                        :data {:pending (or (:data pending) 0)
+                               :approved (or (:data approved) 0)
+                               :trash (or (:data trash) 0)}})))
+    ch))
+
+(defn update-profile-role!
+  "Cambia el rol de un usuario. Requiere policy profiles_update_admin
+   (migración 006); un admin no puede cambiar su propio rol."
+  [user-id role]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "profiles")
+        (.update #js {:role role})
+        (.eq "id" (str user-id))
+        (.select "id,email,role,created_at")
+        (.maybeSingle)
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (if-let [data (.-data result)]
+                     (async/put! ch {:success true
+                                     :data (js->clj data :keywordize-keys true)})
+                     ;; RLS devuelve 0 filas cuando la policy bloquea el update.
+                     (async/put! ch {:success false
+                                     :error (str "No se pudo cambiar el rol. Verifica que la "
+                                                 "migración 006_admin_role_management.sql "
+                                                 "esté aplicada.")})))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-profiles-by-ids
+  [ids]
+  (let [ch (async/chan)]
+    (if-not (seq ids)
+      (async/put! ch {:success true :data []})
+      (-> (.from supabase-client "profiles")
+          (.select "id,email,role")
+          (.in "id" (clj->js (mapv str ids)))
+          (.then (fn [result] (put-result ch result)))
+          (.catch (fn [error]
+                    (async/put! ch {:success false :error (.-message error)})))))
+    ch))
+
+(defn fetch-slot-roster
+  "Inscritos de un cupo con su email.
+   enrollments.user_id apunta a auth.users, no a profiles, así que PostgREST no
+   puede hacer el embed: el join se resuelve en el cliente."
+  [slot-id]
+  (let [ch (async/chan)]
+    (go
+      (let [enr (<! (let [c (async/chan)]
+                      (-> (.from supabase-client "enrollments")
+                          (.select "id,user_id,status,created_at")
+                          (.eq "slot_id" (str slot-id))
+                          (.order "created_at" #js {:ascending true})
+                          (.then (fn [r] (put-result c r)))
+                          (.catch (fn [e]
+                                    (async/put! c {:success false
+                                                   :error (.-message e)}))))
+                      c))]
+        (if-not (:success enr)
+          (async/put! ch enr)
+          (let [rows (or (:data enr) [])
+                profs (<! (fetch-profiles-by-ids (map :user_id rows)))
+                email-by-id (into {} (map (juxt :id :email)) (or (:data profs) []))]
+            (async/put! ch {:success true
+                            :data (mapv #(assoc % :email (get email-by-id (:user_id %)))
+                                        rows)})))))
+    ch))
+
+(defn update-enrollment-status!
+  [enrollment-id status]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "enrollments")
+        (.update #js {:status status})
+        (.eq "id" (str enrollment-id))
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true :data nil}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn update-slot-status!
+  [slot-id status]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "class_slots")
+        (.update #js {:status status})
+        (.eq "id" (str slot-id))
         (.then (fn [result]
                  (if (.-error result)
                    (async/put! ch {:success false

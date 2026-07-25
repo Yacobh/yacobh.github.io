@@ -418,20 +418,16 @@
                   ;; Claves string = nombres exactos de columnas en Postgres
                   row {"test" test-payload
                        "email-user" email*
-                       "user_id" uid}
-                  _ (js/console.log "💾 Guardando test user_id:" uid
-                                    "desde-sesión?" (boolean session-uid))]
+                       "user_id" uid}]
               (if-not uid
-                (js/console.error "❌ Sin sesión Supabase (auth.uid vacío); vuelve a iniciar sesión")
+                (js/console.error "Sin sesión Supabase; vuelve a iniciar sesión")
                 (let [result (<! (crud/insert-data-table! row "tests" {:returning? false}))]
                   (if (:success result)
-                    (do
-                      (js/console.log "✅ Test guardado exitosamente")
-                      (when email*
-                        (re-frame/dispatch [:dashboard/consultar email*])))
-                    (js/console.error "❌ Error al guardar test:" (clj->js (:error result))))))))))
+                    (when email*
+                      (re-frame/dispatch [:dashboard/consultar email*]))
+                    (js/console.error "Error al guardar test:" (clj->js (:error result))))))))))
        (.catch (fn [err]
-                 (js/console.error "❌ No se pudo leer la sesión:" err))))))
+                 (js/console.error "No se pudo leer la sesión:" err))))))
 
 
 ;; -----------------------------------------------------------------------------

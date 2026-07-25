@@ -2,8 +2,8 @@
   (:require
    [re-frame.core :as re-frame]
    [reagent.core :as r]
-   [universo.profile :as profile])
-  )
+   [universo.profile :as profile]
+   [universo.slots.logic :as logic]))
 
 (defn- format-dt [iso]
   (when iso
@@ -18,15 +18,14 @@
 (defn- enrollment-count [slot]
   (or (:active_enrollments slot)
       (:enrollment_count slot)
-      (count (filter #(not= (:status %) "cancelled")
-                     (or (:enrollments slot) [])))
+      (logic/active-enrollment-count (:enrollments slot))
       0))
 
 (defn- slot-card [slot enrolled?]
   (let [active (enrollment-count slot)
         min-n (or (:min_enrollments slot) 3)
         cap (or (:capacity slot) 8)
-        remaining (max 0 (- min-n active))
+        remaining (logic/remaining-to-confirm active min-n)
         confirmed? (= (:status slot) "confirmed")
         full? (>= active cap)]
     [:div.border.border-gray-200.rounded-lg.p-4.bg-white.space-y-2
@@ -85,9 +84,7 @@
      [:p.text-sm.text-gray-500 "Todavía no te has inscrito a ningún cupo."])])
 
 (defn- slots-body []
-  (let [profile @(re-frame/subscribe [:student-profile])
-        band (or (:theta_band profile)
-                 (get-in profile [:profile :theta-band]))
+  (let [band @(re-frame/subscribe [:slots/band])
         items @(re-frame/subscribe [:slots/items])
         enrollments @(re-frame/subscribe [:slots/my-enrollments])
         loading? @(re-frame/subscribe [:slots/loading?])

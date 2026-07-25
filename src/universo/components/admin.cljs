@@ -1,374 +1,1057 @@
 (ns universo.components.admin
+  "Panel de administración: resumen, usuarios, tests, recursos, cupos y moderación."
   (:require
+   [clojure.string :as str]
    [re-frame.core :as re-frame]
    [reagent.core :as r]))
+
+;; -----------------------------------------------------------------------------
+;; Utilidades de formato
+;; -----------------------------------------------------------------------------
+
+(defn- format-date-time [iso]
+  (when iso
+    (try
+      (.toLocaleString (js/Date. iso) "es-CL"
+                       #js {:day "2-digit" :month "2-digit" :year "numeric"
+                            :hour "2-digit" :minute "2-digit"})
+      (catch :default _ (str iso)))))
 
 (defn- format-date [iso]
   (when iso
     (try
-      (.toLocaleString (js/Date. iso) "es-CL")
-      (catch :default _
-        (str iso)))))
+      (.toLocaleDateString (js/Date. iso) "es-CL"
+                           #js {:day "2-digit" :month "short" :year "numeric"})
+      (catch :default _ (str iso)))))
 
-(defn- tab-btn [id label current]
+(defn- relative-time
+  "«hace 3 min» para indicar la frescura de los datos cargados."
+  [ms]
+  (when ms
+    (let [secs (js/Math.round (/ (- (.now js/Date) ms) 1000))]
+      (cond
+        (< secs 10) "recién"
+        (< secs 60) (str "hace " secs " s")
+        (< secs 3600) (str "hace " (js/Math.floor (/ secs 60)) " min")
+        :else (str "hace " (js/Math.floor (/ secs 3600)) " h")))))
+
+(defn- to-int
+  "Parseo tolerante: devuelve nil si no es un entero válido."
+  [v]
+  (let [n (js/parseInt (str v) 10)]
+    (when-not (js/isNaN n) n)))
+
+(defn- iso-for-input
+  "timestamptz → valor para <input type=datetime-local> en hora local."
+  [iso]
+  (when iso
+    (try
+      (let [d (js/Date. iso)
+            pad #(if (< % 10) (str "0" %) (str %))]
+        (str (.getFullYear d) "-" (pad (inc (.getMonth d))) "-" (pad (.getDate d))
+             "T" (pad (.getHours d)) ":" (pad (.getMinutes d))))
+      (catch :default _ nil))))
+
+;; -----------------------------------------------------------------------------
+;; Primitivas de UI
+;; -----------------------------------------------------------------------------
+
+(defn- btn
+  [{:keys [variant on-click disabled? title]} label]
   [:button
    {:type "button"
-    :class (str "px-4 py-2 text-sm font-medium border-b-2 transition "
-                (if (= id current)
-                  "border-indigo-600 text-indigo-700"
-                  "border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300"))
-    :on-click #(re-frame/dispatch [:admin/set-tab id])}
+    :title title
+    :disabled (boolean disabled?)
+    :on-click on-click
+    :class (str "inline-flex items-center justify-center rounded-lg text-sm font-medium "
+                "transition disabled:cursor-not-allowed disabled:opacity-50 "
+                "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 "
+                (case variant
+                  :primary "bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus-visible:ring-indigo-500"
+                  :danger "bg-red-50 px-3 py-1.5 text-red-700 hover:bg-red-100 focus-visible:ring-red-400"
+                  :success "bg-green-600 px-3 py-1.5 text-white hover:bg-green-700 focus-visible:ring-green-500"
+                  :ghost "px-3 py-1.5 text-gray-600 hover:bg-gray-100 focus-visible:ring-gray-400"
+                  "border border-gray-300 bg-white px-3 py-1.5 text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-400"))}
    label])
 
+(def ^:private input-class
+  (str "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 "
+       "placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none "
+       "focus:ring-1 focus:ring-indigo-500"))
+
+(defn- field
+  [label & body]
+  [:label {:class "block"}
+   [:span {:class "mb-1 block text-xs font-medium text-gray-600"} label]
+   (into [:<>] body)])
+
+(defn- badge
+  [tone label]
+  [:span {:class (str "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium "
+                      (case tone
+                        :green "bg-green-100 text-green-800"
+                        :amber "bg-amber-100 text-amber-800"
+                        :red "bg-red-100 text-red-700"
+                        :indigo "bg-indigo-100 text-indigo-700"
+                        :gray "bg-gray-100 text-gray-600"
+                        "bg-gray-100 text-gray-600"))}
+   label])
+
+(defn- empty-state
+  [message]
+  [:div {:class "rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center"}
+   [:p {:class "text-sm text-gray-500"} message]])
+
+(defn- spinner []
+  [:div {:class "flex items-center justify-center py-10"}
+   [:div {:class "h-7 w-7 animate-spin rounded-full border-2 border-gray-200 border-b-indigo-600"
+          :role "status"
+          :aria-label "Cargando"}]])
+
+(defn- section-frame
+  "Encabezado común: título, frescura de datos, botón de refresco y estados."
+  [{:keys [section title description]} & body]
+  (let [loading? @(re-frame/subscribe [:admin/section-loading? section])
+        error @(re-frame/subscribe [:admin/section-error section])
+        loaded-at @(re-frame/subscribe [:admin/section-loaded-at section])]
+    [:div
+     [:div {:class "mb-5 flex flex-wrap items-start justify-between gap-3"}
+      [:div
+       [:h2 {:class "text-lg font-semibold text-gray-900"} title]
+       (when description
+         [:p {:class "mt-0.5 text-sm text-gray-500"} description])]
+      [:div {:class "flex items-center gap-3"}
+       (when loaded-at
+         [:span {:class "text-xs text-gray-400"}
+          (str "Actualizado " (relative-time loaded-at))])
+       [btn {:on-click #(re-frame/dispatch [:admin/refresh section])
+             :disabled? loading?}
+        (if loading? "Actualizando…" "Actualizar")]]]
+
+     (when error
+       [:div {:class "mb-4 flex items-start justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3"}
+        [:p {:class "text-sm text-red-700"} error]
+        [btn {:variant :ghost
+              :on-click #(re-frame/dispatch [:admin/refresh section])}
+         "Reintentar"]])
+
+     (cond
+       (and loading? (not loaded-at)) [spinner]
+       :else (into [:div] body))]))
+
+(defn- toast-view []
+  (when-let [{:keys [kind message]} @(re-frame/subscribe [:admin/toast])]
+    [:div {:class "fixed bottom-6 left-1/2 z-50 -translate-x-1/2 px-4"
+           :role "status"
+           :aria-live "polite"}
+     [:div {:class (str "flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg "
+                        (if (= kind :error)
+                          "bg-red-600 text-white"
+                          "bg-gray-900 text-white"))}
+      [:span {:aria-hidden "true"} (if (= kind :error) "!" "✓")]
+      [:span {:class "text-sm font-medium"} message]
+      [:button {:type "button"
+                :class "ml-2 text-white/70 hover:text-white"
+                :aria-label "Cerrar aviso"
+                :on-click #(re-frame/dispatch [:admin/clear-toast nil])}
+       "✕"]]]))
+
+(defn- pagination
+  [{:keys [page pages total on-page]}]
+  (when (> pages 1)
+    [:div {:class "mt-4 flex flex-wrap items-center justify-between gap-3"}
+     [:p {:class "text-xs text-gray-500"}
+      (str "Página " (inc page) " de " pages " · " total " registros")]
+     [:div {:class "flex gap-2"}
+      [btn {:on-click #(on-page (dec page)) :disabled? (zero? page)} "Anterior"]
+      [btn {:on-click #(on-page (inc page)) :disabled? (>= (inc page) pages)} "Siguiente"]]]))
+
+(defn- search-input
+  [{:keys [value placeholder on-change]}]
+  [:div {:class "relative max-w-sm"}
+   [:input {:type "search"
+            :class (str input-class " pl-9")
+            :placeholder placeholder
+            :value value
+            :aria-label placeholder
+            :on-change #(on-change (.. % -target -value))}]
+   [:span {:class "pointer-events-none absolute left-3 top-2.5 text-gray-400"
+           :aria-hidden "true"}
+    "⌕"]])
+
+;; -----------------------------------------------------------------------------
+;; Resumen
+;; -----------------------------------------------------------------------------
+
+(defn- metric-card
+  [{:keys [label value hint tone]}]
+  [:div {:class "rounded-xl border border-gray-200 bg-white p-5"}
+   [:p {:class "text-xs font-medium uppercase tracking-wide text-gray-500"} label]
+   [:p {:class (str "mt-2 text-3xl font-bold "
+                    (case tone
+                      :amber "text-amber-600"
+                      :indigo "text-indigo-600"
+                      "text-gray-900"))}
+    value]
+   (when hint
+     [:p {:class "mt-1 text-xs text-gray-500"} hint])])
+
+(defn- slot-metrics
+  "Deriva salud de cohortes desde los cupos ya cargados."
+  [slots]
+  (let [active (remove #(#{"cancelled" "completed"} (:status %)) slots)
+        enrolled (fn [s] (count (remove #(= (:status %) "cancelled")
+                                        (or (:enrollments s) []))))
+        seats (reduce + 0 (map :capacity active))
+        taken (reduce + 0 (map enrolled active))]
+    {:open (count (filter #(= (:status %) "open") slots))
+     :confirmed (count (filter #(= (:status %) "confirmed") slots))
+     :enrolled taken
+     :fill (if (pos? seats) (js/Math.round (* 100 (/ taken seats))) 0)
+     :almost (->> active
+                  (filter #(= (:status %) "open"))
+                  (filter #(let [n (enrolled %)
+                                 need (:min_enrollments %)]
+                             (and (pos? n) (< n need))))
+                  count)}))
+
+(defn- band-distribution
+  [bands]
+  (let [order ["inicial" "basico" "intermedio" "avanzado"]
+        total (reduce + 0 (vals bands))]
+    [:div {:class "rounded-xl border border-gray-200 bg-white p-5"}
+     [:h3 {:class "text-sm font-semibold text-gray-900"} "Estudiantes por banda"]
+     (if (zero? total)
+       [:p {:class "mt-3 text-sm text-gray-500"}
+        "Todavía no hay diagnósticos con perfil calculado."]
+       [:ul {:class "mt-4 space-y-3"}
+        (for [b order
+              :let [n (get bands b 0)
+                    pct (if (pos? total) (js/Math.round (* 100 (/ n total))) 0)]]
+          ^{:key b}
+          [:li
+           [:div {:class "flex justify-between text-xs text-gray-600"}
+            [:span {:class "capitalize"} b]
+            [:span (str n " · " pct "%")]]
+           [:div {:class "mt-1 h-2 overflow-hidden rounded-full bg-gray-100"}
+            [:div {:class "h-full rounded-full bg-indigo-500"
+                   :style {:width (str (max pct 1) "%")}}]]])])]))
+
+(defn- overview-panel []
+  (let [data @(re-frame/subscribe [:admin/overview])]
+    [section-frame
+     {:section :overview
+      :title "Resumen"
+      :description "Estado general de la plataforma."}
+     (if-not data
+       [empty-state "Sin datos todavía."]
+       (let [sm (slot-metrics (:slots data))]
+         [:div {:class "space-y-6"}
+          ;; Acciones que requieren atención
+          (when (pos? (or (:guestbook-pending data) 0))
+            [:div {:class "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3"}
+             [:p {:class "text-sm text-amber-900"}
+              [:strong (:guestbook-pending data)]
+              (if (= 1 (:guestbook-pending data))
+                " mensaje espera moderación."
+                " mensajes esperan moderación.")]
+             [btn {:on-click #(re-frame/dispatch [:admin/set-tab :guestbook])}
+              "Moderar ahora"]])
+
+          (when (pos? (:almost sm))
+            [:div {:class "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3"}
+             [:p {:class "text-sm text-indigo-900"}
+              [:strong (:almost sm)]
+              " cupo(s) con inscritos pero aún sin alcanzar el mínimo para confirmarse."]
+             [btn {:on-click #(re-frame/dispatch [:admin/set-tab :slots])}
+              "Ver cupos"]])
+
+          [:div {:class "grid grid-cols-2 gap-4 lg:grid-cols-4"}
+           [metric-card {:label "Usuarios"
+                         :value (:users data)
+                         :hint (str (:admins data) " con rol admin")}]
+           [metric-card {:label "Diagnósticos"
+                         :value (:tests data)
+                         :hint (str (:tests-7d data) " en los últimos 7 días")
+                         :tone :indigo}]
+           [metric-card {:label "Inscritos activos"
+                         :value (:enrolled sm)
+                         :hint (str (:fill sm) "% de los asientos publicados")}]
+           [metric-card {:label "Pendientes de moderar"
+                         :value (:guestbook-pending data)
+                         :hint (str (:guestbook-approved data) " publicados")
+                         :tone (if (pos? (or (:guestbook-pending data) 0)) :amber :gray)}]]
+
+          [:div {:class "grid grid-cols-1 gap-4 lg:grid-cols-2"}
+           [band-distribution (:bands data)]
+           [:div {:class "rounded-xl border border-gray-200 bg-white p-5"}
+            [:h3 {:class "text-sm font-semibold text-gray-900"} "Cupos y contenido"]
+            [:dl {:class "mt-4 space-y-3 text-sm"}
+             (for [[k v] [["Cupos abiertos" (:open sm)]
+                          ["Cupos confirmados" (:confirmed sm)]
+                          ["Recursos publicados"
+                           (str (:resources-published data) " de " (:resources data))]]]
+               ^{:key k}
+               [:div {:class "flex justify-between border-b border-gray-100 pb-2 last:border-0"}
+                [:dt {:class "text-gray-600"} k]
+                [:dd {:class "font-semibold text-gray-900"} v]])]
+            (when (and (pos? (or (:resources data) 0))
+                       (zero? (or (:resources-published data) 0)))
+              [:p {:class "mt-3 text-xs text-amber-700"}
+               "Hay recursos creados pero ninguno publicado: los estudiantes no los ven."])]]]))]))
+
+;; -----------------------------------------------------------------------------
+;; Usuarios
+;; -----------------------------------------------------------------------------
+
 (defn- users-panel []
-  (let [rows @(re-frame/subscribe [:admin/profiles])]
-    [:div.overflow-x-auto
-     [:table.w-full.text-sm.text-left
-      [:thead.bg-gray-50.text-gray-600
-       [:tr
-        [:th.px-3.py-2 "Email"]
-        [:th.px-3.py-2 "Rol"]
-        [:th.px-3.py-2 "Creado"]]]
-      [:tbody.divide-y.divide-gray-100
-       (if (seq rows)
-         (for [p rows]
-           ^{:key (:id p)}
-           [:tr.hover:bg-gray-50
-            [:td.px-3.py-2 (or (:email p) "—")]
-            [:td.px-3.py-2
-             [:span {:class (if (= (:role p) "admin")
-                              "text-indigo-700 font-semibold"
-                              "text-gray-700")}
-              (or (:role p) "user")]]
-            [:td.px-3.py-2.text-gray-500 (format-date (:created_at p))]])
-         [:tr
-          [:td.px-3.py-6.text-gray-400.text-center {:col-span 3}
-           "Sin usuarios"]])]]]))
+  (let [{:keys [rows total page pages]} @(re-frame/subscribe [:admin/users-view])
+        query @(re-frame/subscribe [:admin/users-query])
+        me @(re-frame/subscribe [:auth/user])]
+    [section-frame
+     {:section :users
+      :title "Usuarios"
+      :description "Cuentas registradas y sus permisos."}
+     [:div
+      [:div {:class "mb-4"}
+       [search-input {:value query
+                      :placeholder "Buscar por correo o rol"
+                      :on-change #(re-frame/dispatch [:admin/set-users-query %])}]]
+
+      (if-not (seq rows)
+        [empty-state (if (str/blank? query)
+                       "Sin usuarios registrados."
+                       (str "Ningún usuario coincide con «" query "»."))]
+        [:div
+         [:div {:class "overflow-x-auto rounded-xl border border-gray-200"}
+          [:table {:class "w-full text-left text-sm"}
+           [:thead {:class "bg-gray-50 text-xs uppercase tracking-wide text-gray-500"}
+            [:tr
+             [:th {:scope "col" :class "px-4 py-3"} "Correo"]
+             [:th {:scope "col" :class "px-4 py-3"} "Rol"]
+             [:th {:scope "col" :class "px-4 py-3"} "Registrado"]
+             [:th {:scope "col" :class "px-4 py-3 text-right"} "Acciones"]]]
+           [:tbody {:class "divide-y divide-gray-100 bg-white"}
+            (for [p rows]
+              (let [self? (= (:id p) (:id me))
+                    admin? (= (:role p) "admin")]
+                ^{:key (:id p)}
+                [:tr {:class "hover:bg-gray-50"}
+                 [:td {:class "px-4 py-3 font-medium text-gray-900"}
+                  (or (:email p) "—")
+                  (when self?
+                    [:span {:class "ml-2"} [badge :gray "tú"]])]
+                 [:td {:class "px-4 py-3"}
+                  (if admin?
+                    [badge :indigo "admin"]
+                    [badge :gray "user"])]
+                 [:td {:class "px-4 py-3 text-gray-500"} (format-date (:created_at p))]
+                 [:td {:class "px-4 py-3 text-right"}
+                  (if self?
+                    [:span {:class "text-xs text-gray-400"} "—"]
+                    [btn {:variant (if admin? :default :ghost)
+                          :title (if admin?
+                                   "Quitar permisos de administrador"
+                                   "Dar permisos de administrador")
+                          :on-click
+                          (fn []
+                            (let [next-role (if admin? "user" "admin")]
+                              (when (js/confirm
+                                     (str "¿Cambiar el rol de " (:email p)
+                                          " a «" next-role "»?"))
+                                (re-frame/dispatch [:admin/set-role (:id p) next-role]))))}
+                     (if admin? "Quitar admin" "Hacer admin")])]]))]]]
+         [pagination {:page page :pages pages :total total
+                      :on-page #(re-frame/dispatch [:admin/set-users-page %])}]])]]))
+
+;; -----------------------------------------------------------------------------
+;; Tests
+;; -----------------------------------------------------------------------------
+
+(defn- score-bar
+  [pct]
+  (let [p (or pct 0)]
+    [:div {:class "flex items-center gap-2"}
+     [:div {:class "h-1.5 w-16 overflow-hidden rounded-full bg-gray-100"}
+      [:div {:class (str "h-full rounded-full "
+                         (cond
+                           (>= p 70) "bg-green-500"
+                           (>= p 40) "bg-amber-500"
+                           :else "bg-red-400"))
+             :style {:width (str (max p 2) "%")}}]]
+     [:span {:class "text-xs text-gray-500"} (str p "%")]]))
 
 (defn- tests-panel []
-  (let [rows @(re-frame/subscribe [:admin/tests])]
-    [:div.overflow-x-auto
-     [:table.w-full.text-sm.text-left
-      [:thead.bg-gray-50.text-gray-600
-       [:tr
-        [:th.px-3.py-2 "Email"]
-        [:th.px-3.py-2 "Fecha"]
-        [:th.px-3.py-2 "Tema"]
-        [:th.px-3.py-2 "θ"]
-        [:th.px-3.py-2 "Score"]]]
-      [:tbody.divide-y.divide-gray-100
-       (if (seq rows)
-         (for [t rows]
-           ^{:key (:id t)}
-           [:tr.hover:bg-gray-50
-            [:td.px-3.py-2 (or (:email t) "—")]
-            [:td.px-3.py-2.text-gray-500 (format-date (:fecha t))]
-            [:td.px-3.py-2 (or (:tema t) "—")]
-            [:td.px-3.py-2
-             (if (:theta t)
-               (.toFixed (js/Number (:theta t)) 2)
-               "—")]
-            [:td.px-3.py-2
-             (str (or (:correctas t) 0) "/" (or (:total t) 0)
-                  " (" (or (:porcentaje t) 0) "%)")]])
-         [:tr
-          [:td.px-3.py-6.text-gray-400.text-center {:col-span 5}
-           "Sin tests"]])]]]))
+  (let [{:keys [rows total page pages]} @(re-frame/subscribe [:admin/tests-view])
+        query @(re-frame/subscribe [:admin/tests-query])]
+    [section-frame
+     {:section :tests
+      :title "Diagnósticos"
+      :description "Resultados de los tests adaptativos, del más reciente al más antiguo."}
+     [:div
+      [:div {:class "mb-4"}
+       [search-input {:value query
+                      :placeholder "Buscar por correo o tema"
+                      :on-change #(re-frame/dispatch [:admin/set-tests-query %])}]]
 
-(defn- guestbook-status [is-approved]
-  (cond
-    (true? is-approved) {:label "Aprobada" :class "text-green-700"}
-    (false? is-approved) {:label "Papelera" :class "text-gray-500"}
-    :else {:label "Pendiente" :class "text-amber-700"}))
+      (if-not (seq rows)
+        [empty-state (if (str/blank? query)
+                       "Todavía no hay diagnósticos rendidos."
+                       (str "Ningún diagnóstico coincide con «" query "»."))]
+        [:div
+         [:div {:class "overflow-x-auto rounded-xl border border-gray-200"}
+          [:table {:class "w-full text-left text-sm"}
+           [:thead {:class "bg-gray-50 text-xs uppercase tracking-wide text-gray-500"}
+            [:tr
+             [:th {:scope "col" :class "px-4 py-3"} "Estudiante"]
+             [:th {:scope "col" :class "px-4 py-3"} "Fecha"]
+             [:th {:scope "col" :class "px-4 py-3"} "Tema"]
+             [:th {:scope "col" :class "px-4 py-3"} "θ"]
+             [:th {:scope "col" :class "px-4 py-3"} "Aciertos"]
+             [:th {:scope "col" :class "px-4 py-3"} "Estado"]]]
+           [:tbody {:class "divide-y divide-gray-100 bg-white"}
+            (for [t rows]
+              ^{:key (:id t)}
+              [:tr {:class "hover:bg-gray-50"}
+               [:td {:class "px-4 py-3 font-medium text-gray-900"} (or (:email t) "—")]
+               [:td {:class "px-4 py-3 text-gray-500"} (format-date-time (:fecha t))]
+               [:td {:class "px-4 py-3 text-gray-700"} (or (:tema t) "—")]
+               [:td {:class "px-4 py-3 font-mono text-gray-900"}
+                (if (:theta t)
+                  (.toFixed (js/Number (:theta t)) 2)
+                  "—")]
+               [:td {:class "px-4 py-3"}
+                [:div
+                 [:span {:class "text-gray-700"}
+                  (str (or (:correctas t) 0) "/" (or (:total t) 0))]
+                 [score-bar (:porcentaje t)]]]
+               [:td {:class "px-4 py-3"}
+                (if (:completado? t)
+                  [badge :green "completado"]
+                  [badge :amber "incompleto"])]])]]]
+         [pagination {:page page :pages pages :total total
+                      :on-page #(re-frame/dispatch [:admin/set-tests-page %])}]])]]))
+
+;; -----------------------------------------------------------------------------
+;; Libro de visitas (moderación)
+;; -----------------------------------------------------------------------------
 
 (defn- guestbook-panel []
   (let [rows @(re-frame/subscribe [:admin/guestbook])
-        filter @(re-frame/subscribe [:admin/guestbook-filter])]
-    [:div.space-y-4
-     [:div.flex.gap-2.flex-wrap
-      (for [[mode label] [[:pending "Pendientes"]
-                          [:approved "Aprobadas"]
-                          [:trash "Papelera"]]]
-        ^{:key mode}
-        [:button
-         {:type "button"
-          :class (str "px-3 py-1.5 text-xs font-medium rounded-full transition "
-                      (if (= mode filter)
-                        "bg-indigo-600 text-white"
-                        "bg-gray-100 text-gray-600 hover:bg-gray-200"))
-          :on-click #(re-frame/dispatch [:admin/set-guestbook-filter mode])}
-         label])]
-     [:div.space-y-3
-      (if (seq rows)
-        (for [e rows]
-          (let [st (guestbook-status (:is_approved e))
-                pending? (nil? (:is_approved e))
-                approved? (true? (:is_approved e))
-                trash? (false? (:is_approved e))]
-            ^{:key (:id e)}
-            [:div.border.border-gray-200.rounded-lg.p-4.bg-white
-             [:div.flex.flex-wrap.justify-between.gap-2.mb-2
-              [:div
-               [:span.font-semibold.text-gray-800 (or (:name e) "Anónimo")]
-               (when (:email e)
-                 [:span.text-sm.text-gray-500.ml-2 (:email e)])
-               (when (:phone e)
-                 [:span.text-sm.text-gray-500.ml-2 (:phone e)])]
-              [:span.text-xs.text-gray-400 (format-date (:created_at e))]]
-             [:p.text-gray-700.mb-3.whitespace-pre-wrap (or (:message e) "")]
-             [:div.flex.items-center.gap-2.flex-wrap
-              [:span.text-xs {:class (:class st)} (:label st)]
-              (when (or pending? trash?)
-                [:button.px-3.py-1.text-xs.font-medium.rounded.bg-green-600.text-white.hover:bg-green-700
-                 {:type "button"
-                  :on-click #(re-frame/dispatch [:admin/approve-guestbook (:id e)])}
-                 "Aprobar"])
-              (when (or pending? approved?)
-                [:button.px-3.py-1.text-xs.font-medium.rounded.bg-gray-200.text-gray-700.hover:bg-gray-300
-                 {:type "button"
-                  :on-click #(re-frame/dispatch [:admin/reject-guestbook (:id e)])}
-                 (if approved? "A papelera" "Rechazar")])
-              (when trash?
-                [:button.px-3.py-1.text-xs.font-medium.rounded.bg-amber-100.text-amber-800.hover:bg-amber-200
-                 {:type "button"
-                  :on-click #(re-frame/dispatch [:admin/restore-guestbook (:id e)])}
-                 "Restaurar"])
-              (when trash?
-                [:button.px-3.py-1.text-xs.font-medium.rounded.bg-red-50.text-red-700.hover:bg-red-100
-                 {:type "button"
-                  :on-click (fn []
-                              (when (js/confirm "¿Eliminar permanentemente esta entrada?")
-                                (re-frame/dispatch [:admin/delete-guestbook (:id e)])))}
-                 "Eliminar"])]]))
-        [:p.text-gray-400.text-center.py-8
-         (case filter
-           :trash "La papelera está vacía"
-           :approved "No hay entradas aprobadas"
-           "No hay entradas pendientes")])]]))
+        mode @(re-frame/subscribe [:admin/guestbook-filter])
+        counts @(re-frame/subscribe [:admin/guestbook-counts])]
+    [section-frame
+     {:section :guestbook
+      :title "Libro de visitas"
+      :description "Los mensajes aprobados se publican como testimonios en la portada."}
+     [:div
+      [:div {:class "mb-5 flex flex-wrap gap-2"}
+       (for [[k label] [[:pending "Pendientes"]
+                        [:approved "Aprobadas"]
+                        [:trash "Papelera"]]]
+         ^{:key k}
+         [:button
+          {:type "button"
+           :aria-pressed (if (= k mode) "true" "false")
+           :class (str "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition "
+                       (if (= k mode)
+                         "bg-indigo-600 text-white"
+                         "bg-gray-100 text-gray-600 hover:bg-gray-200"))
+           :on-click #(re-frame/dispatch [:admin/set-guestbook-filter k])}
+          label
+          (when-let [n (get counts k)]
+            [:span {:class (str "rounded-full px-1.5 text-xs "
+                                (if (= k mode) "bg-white/25" "bg-white"))}
+             n])])]
 
-(defn- resources-panel []
-  (let [form (r/atom {:title ""
-                      :type "text"
-                      :module_id ""
-                      :body ""
-                      :media_url ""
-                      :historical_context ""
-                      :published true
-                      :order_index 1})]
+      (if-not (seq rows)
+        [empty-state (case mode
+                       :trash "La papelera está vacía."
+                       :approved "Todavía no hay mensajes aprobados."
+                       "No hay mensajes pendientes. Todo al día.")]
+        [:ul {:class "space-y-3"}
+         (for [e rows]
+           (let [approved? (true? (:is_approved e))
+                 trash? (false? (:is_approved e))
+                 pending? (nil? (:is_approved e))]
+             ^{:key (:id e)}
+             [:li {:class "rounded-xl border border-gray-200 bg-white p-5"}
+              [:div {:class "mb-3 flex flex-wrap items-start justify-between gap-2"}
+               [:div
+                [:p {:class "font-semibold text-gray-900"} (or (:name e) "Anónimo")]
+                [:p {:class "mt-0.5 space-x-3 text-xs text-gray-500"}
+                 (when (:email e) [:span (:email e)])
+                 (when (:phone e) [:span (:phone e)])]]
+               [:div {:class "flex items-center gap-2"}
+                (cond
+                  approved? [badge :green "publicada"]
+                  trash? [badge :gray "papelera"]
+                  :else [badge :amber "pendiente"])
+                [:span {:class "text-xs text-gray-400"} (format-date-time (:created_at e))]]]
+
+              [:p {:class "whitespace-pre-wrap text-sm leading-relaxed text-gray-700"}
+               (or (:message e) "")]
+
+              [:div {:class "mt-4 flex flex-wrap gap-2 border-t border-gray-100 pt-4"}
+               (when (or pending? trash?)
+                 [btn {:variant :success
+                       :on-click #(re-frame/dispatch [:admin/approve-guestbook (:id e)])}
+                  "Publicar"])
+               (when (or pending? approved?)
+                 [btn {:on-click #(re-frame/dispatch [:admin/reject-guestbook (:id e)])}
+                  (if approved? "Despublicar" "A la papelera")])
+               (when trash?
+                 [btn {:on-click #(re-frame/dispatch [:admin/restore-guestbook (:id e)])}
+                  "Volver a pendientes"])
+               (when trash?
+                 [btn {:variant :danger
+                       :on-click #(when (js/confirm "¿Eliminar permanentemente esta entrada? No se puede deshacer.")
+                                    (re-frame/dispatch [:admin/delete-guestbook (:id e)]))}
+                  "Eliminar"])]]))])]]))
+
+;; -----------------------------------------------------------------------------
+;; Recursos
+;; -----------------------------------------------------------------------------
+
+(def ^:private resource-types
+  [["text" "Texto / apuntes"]
+   ["video_url" "Video"]
+   ["audio_url" "Audio"]
+   ["pdf_url" "PDF"]
+   ["exercise" "Ejercicio"]])
+
+(def ^:private blank-resource
+  {:title "" :type "text" :module_id "" :body "" :media_url ""
+   :historical_context "" :published true :order_index "1"})
+
+(defn- resource-form
+  "Crea o edita un recurso. `editing` viene del app-db al pulsar «Editar»."
+  []
+  (let [form (r/atom blank-resource)
+        synced (r/atom ::none)]
     (fn []
-      (let [rows @(re-frame/subscribe [:admin/resources])
-            modules @(re-frame/subscribe [:admin/modules])]
-        [:div.space-y-6
-         [:div.bg-gray-50.rounded-lg.p-4.space-y-3
-          [:h3.font-semibold.text-gray-800 "Nuevo recurso"]
-        [:div.grid.grid-cols-1.sm:grid-cols-2.gap-3
-         [:input.border.rounded.px-3.py-2.text-sm
-          {:placeholder "Título"
-           :value (:title @form)
-           :on-change #(swap! form assoc :title (.. % -target -value))}]
-         [:select.border.rounded.px-3.py-2.text-sm
-          {:value (:type @form)
-           :on-change #(swap! form assoc :type (.. % -target -value))}
-          [:option {:value "text"} "text"]
-          [:option {:value "video_url"} "video_url"]
-          [:option {:value "audio_url"} "audio_url"]
-          [:option {:value "pdf_url"} "pdf_url"]
-          [:option {:value "exercise"} "exercise"]]
-         [:select.border.rounded.px-3.py-2.text-sm
-          {:value (:module_id @form)
-           :on-change #(swap! form assoc :module_id (.. % -target -value))}
-          [:option {:value ""} "Módulo…"]
-          (for [m modules]
-            ^{:key (:id m)}
-            [:option {:value (:id m)} (str (:slug m) " — " (:title m))])]
-         [:input.border.rounded.px-3.py-2.text-sm
-          {:placeholder "URL media (opcional)"
-           :value (:media_url @form)
-           :on-change #(swap! form assoc :media_url (.. % -target -value))}]]
-        [:textarea.border.rounded.px-3.py-2.text-sm.w-full.h-24
-         {:placeholder "Cuerpo / markdown KaTeX"
-          :value (:body @form)
-          :on-change #(swap! form assoc :body (.. % -target -value))}]
-        [:label.flex.items-center.gap-2.text-sm
-         [:input {:type "checkbox"
-                  :checked (boolean (:published @form))
-                  :on-change #(swap! form assoc :published (.. % -target -checked))}]
-         "Publicado"]
-        [:button.bg-indigo-600.text-white.text-sm.font-semibold.px-4.py-2.rounded
-         {:type "button"
-          :on-click (fn []
-                      (when (and (seq (:title @form)) (seq (:module_id @form)))
+      (let [modules @(re-frame/subscribe [:admin/modules])
+            editing @(re-frame/subscribe [:admin/editing-resource])
+            editing-id (:id editing)]
+        ;; Sincroniza el formulario local cuando cambia el recurso en edición.
+        (when-not (= @synced editing-id)
+          (reset! synced editing-id)
+          (reset! form (if editing
+                         (merge blank-resource
+                                (-> editing
+                                    (select-keys [:id :title :type :module_id :body
+                                                  :media_url :historical_context :published])
+                                    (assoc :order_index (str (or (:order_index editing) 1)))))
+                         blank-resource)))
+        (let [{:keys [title module_id type]} @form
+              media-required? (not= type "text")
+              errors (cond-> []
+                       (str/blank? (str title)) (conj "El título es obligatorio.")
+                       (str/blank? (str module_id)) (conj "Debes elegir un módulo.")
+                       (and media-required? (str/blank? (str (:media_url @form))))
+                       (conj "Este tipo de recurso necesita una URL."))
+              valid? (empty? errors)]
+          [:div {:class "rounded-xl border border-gray-200 bg-gray-50 p-5"}
+           [:div {:class "mb-4 flex items-center justify-between"}
+            [:h3 {:class "font-semibold text-gray-900"}
+             (if editing-id "Editar recurso" "Nuevo recurso")]
+            (when editing-id
+              [btn {:variant :ghost
+                    :on-click #(re-frame/dispatch [:admin/cancel-edit-resource])}
+               "Cancelar edición"])]
+
+           [:div {:class "grid grid-cols-1 gap-4 sm:grid-cols-2"}
+            [field "Título"
+             [:input {:class input-class
+                      :placeholder "Ej: Fracciones equivalentes"
+                      :value (:title @form)
+                      :on-change #(swap! form assoc :title (.. % -target -value))}]]
+            [field "Tipo"
+             [:select {:class input-class
+                       :value (:type @form)
+                       :on-change #(swap! form assoc :type (.. % -target -value))}
+              (for [[v label] resource-types]
+                ^{:key v} [:option {:value v} label])]]
+            [field "Módulo"
+             [:select {:class input-class
+                       :value (:module_id @form)
+                       :on-change #(swap! form assoc :module_id (.. % -target -value))}
+              [:option {:value ""} "Selecciona un módulo…"]
+              (for [m modules]
+                ^{:key (:id m)}
+                [:option {:value (:id m)} (str (:slug m) " — " (:title m))])]]
+            [field (str "URL del material" (when-not media-required? " (opcional)"))
+             [:input {:class input-class
+                      :type "url"
+                      :placeholder "https://…"
+                      :value (:media_url @form)
+                      :on-change #(swap! form assoc :media_url (.. % -target -value))}]]
+            [field "Orden"
+             [:input {:class input-class
+                      :type "number"
+                      :min "0"
+                      :value (:order_index @form)
+                      :on-change #(swap! form assoc :order_index (.. % -target -value))}]]
+            [field "Contexto histórico (opcional)"
+             [:input {:class input-class
+                      :placeholder "Dato o anécdota para enganchar"
+                      :value (:historical_context @form)
+                      :on-change #(swap! form assoc :historical_context (.. % -target -value))}]]]
+
+           [:div {:class "mt-4"}
+            [field "Contenido (admite KaTeX)"
+             [:textarea {:class (str input-class " h-28")
+                         :placeholder "Explicación, pasos, ejemplos…"
+                         :value (:body @form)
+                         :on-change #(swap! form assoc :body (.. % -target -value))}]]]
+
+           [:label {:class "mt-4 flex items-center gap-2 text-sm text-gray-700"}
+            [:input {:type "checkbox"
+                     :class "h-4 w-4 rounded border-gray-300 text-indigo-600"
+                     :checked (boolean (:published @form))
+                     :on-change #(swap! form assoc :published (.. % -target -checked))}]
+            "Publicado (visible para estudiantes)"]
+
+           (when (seq errors)
+             [:ul {:class "mt-3 space-y-1"}
+              (for [e errors]
+                ^{:key e} [:li {:class "text-xs text-amber-700"} (str "• " e)])])
+
+           [:div {:class "mt-5"}
+            [btn {:variant :primary
+                  :disabled? (not valid?)
+                  :on-click
+                  (fn []
+                    (when valid?
+                      (let [f @form]
                         (re-frame/dispatch
                          [:admin/save-resource
-                          {"title" (:title @form)
-                           "type" (:type @form)
-                           "module_id" (:module_id @form)
-                           "body" (:body @form)
-                           "media_url" (when (seq (:media_url @form)) (:media_url @form))
-                           "historical_context" (:historical_context @form)
-                           "order_index" (js/parseInt (str (:order_index @form)) 10)
-                           "published" (boolean (:published @form))}])
-                        (reset! form {:title "" :type "text" :module_id "" :body ""
-                                      :media_url "" :historical_context ""
-                                      :published true :order_index 1})))}
-         "Guardar recurso"]]
-       [:div.space-y-2
-        (if (seq rows)
-          (for [r rows]
-            ^{:key (:id r)}
-            [:div.border.rounded.p-3.flex.justify-between.gap-3.items-start
-             [:div
-              [:p.font-medium.text-sm (:title r)]
-              [:p.text-xs.text-gray-500
-               (str (:type r) " · "
-                    (or (get-in r [:modules :slug]) "")
-                    (when (:published r) " · publicado"))]]
-             [:button.text-xs.text-red-600
-              {:type "button"
-               :on-click #(when (js/confirm "¿Eliminar recurso?")
-                            (re-frame/dispatch [:admin/delete-resource (:id r)]))}
-              "Eliminar"]])
-          [:p.text-gray-400.text-sm "Sin recursos"])]]))))
+                          (cond-> {"title" (str/trim (str (:title f)))
+                                   "type" (:type f)
+                                   "module_id" (:module_id f)
+                                   "body" (:body f)
+                                   "media_url" (when (seq (str (:media_url f))) (:media_url f))
+                                   "historical_context" (:historical_context f)
+                                   "order_index" (or (to-int (:order_index f)) 0)
+                                   "published" (boolean (:published f))}
+                            (:id f) (assoc "id" (:id f)))]))))}
+             (if editing-id "Guardar cambios" "Crear recurso")]]])))))
+
+(defn- resources-panel []
+  (let [rows @(re-frame/subscribe [:admin/resources-view])
+        modules @(re-frame/subscribe [:admin/modules])
+        module-filter @(re-frame/subscribe [:admin/resources-module-filter])]
+    [section-frame
+     {:section :resources
+      :title "Recursos"
+      :description "Material de apoyo que aparece en el plan de estudio de cada módulo."}
+     [:div {:class "space-y-6"}
+      [resource-form]
+
+      [:div
+       [:div {:class "mb-4 flex flex-wrap items-center justify-between gap-3"}
+        [:div {:class "max-w-xs flex-1"}
+         [field "Filtrar por módulo"
+          [:select {:class input-class
+                    :value module-filter
+                    :on-change #(re-frame/dispatch
+                                 [:admin/set-resources-module-filter (.. % -target -value)])}
+           [:option {:value ""} "Todos los módulos"]
+           (for [m modules]
+             ^{:key (:id m)}
+             [:option {:value (:id m)} (str (:slug m) " — " (:title m))])]]]
+        [:p {:class "text-sm text-gray-500"} (str (count rows) " recurso(s)")]]
+
+       (if-not (seq rows)
+         [empty-state "No hay recursos con este filtro."]
+         [:ul {:class "space-y-2"}
+          (for [res rows]
+            ^{:key (:id res)}
+            [:li {:class "flex flex-wrap items-start justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4"}
+             [:div {:class "min-w-0 flex-1"}
+              [:div {:class "flex flex-wrap items-center gap-2"}
+               [:p {:class "font-medium text-gray-900"} (:title res)]
+               (if (:published res)
+                 [badge :green "publicado"]
+                 [badge :amber "borrador"])]
+              [:p {:class "mt-1 text-xs text-gray-500"}
+               (str (:type res)
+                    (when-let [slug (get-in res [:modules :slug])] (str " · " slug))
+                    " · orden " (or (:order_index res) 0))]
+              (when-let [url (:media_url res)]
+                [:a {:href url
+                     :target "_blank"
+                     :rel "noopener noreferrer"
+                     :class "mt-1 inline-block truncate text-xs text-indigo-600 hover:underline"}
+                 url])]
+             [:div {:class "flex shrink-0 gap-2"}
+              [btn {:on-click #(re-frame/dispatch [:admin/toggle-resource-published res])}
+               (if (:published res) "Despublicar" "Publicar")]
+              [btn {:on-click (fn []
+                                (re-frame/dispatch [:admin/edit-resource res])
+                                (.scrollTo js/window #js {:top 0 :behavior "smooth"}))}
+               "Editar"]
+              [btn {:variant :danger
+                    :on-click #(when (js/confirm (str "¿Eliminar «" (:title res) "»?"))
+                                 (re-frame/dispatch [:admin/delete-resource (:id res)]))}
+               "Eliminar"]]])])]]]))
+
+;; -----------------------------------------------------------------------------
+;; Cupos
+;; -----------------------------------------------------------------------------
+
+(def ^:private blank-slot
+  {:title "" :theta_band "basico" :modality "online" :track ""
+   :starts_at "" :location_or_link "" :capacity "8" :min_enrollments "3"})
+
+(defn- slot-form []
+  (let [form (r/atom blank-slot)
+        synced (r/atom ::none)]
+    (fn []
+      (let [editing @(re-frame/subscribe [:admin/editing-slot])
+            editing-id (:id editing)]
+        (when-not (= @synced editing-id)
+          (reset! synced editing-id)
+          (reset! form (if editing
+                         (merge blank-slot
+                                {:id (:id editing)
+                                 :title (or (:title editing) "")
+                                 :theta_band (:theta_band editing)
+                                 :modality (:modality editing)
+                                 :track (or (:track editing) "")
+                                 :starts_at (or (iso-for-input (:starts_at editing)) "")
+                                 :location_or_link (or (:location_or_link editing) "")
+                                 :capacity (str (:capacity editing))
+                                 :min_enrollments (str (:min_enrollments editing))})
+                         blank-slot)))
+        (let [{:keys [starts_at capacity min_enrollments]} @form
+              cap (to-int capacity)
+              minimum (to-int min_enrollments)
+              errors (cond-> []
+                       (str/blank? (str starts_at))
+                       (conj "Falta la fecha y hora de inicio.")
+
+                       (or (nil? cap) (< cap 1))
+                       (conj "La capacidad debe ser un número mayor que 0.")
+
+                       (or (nil? minimum) (< minimum 1))
+                       (conj "El mínimo de inscritos debe ser un número mayor que 0.")
+
+                       (and cap minimum (> minimum cap))
+                       (conj "El mínimo no puede superar la capacidad."))
+              ;; Una fecha pasada no bloquea: hace falta poder corregir el lugar
+              ;; o el enlace de un cupo que ya ocurrió.
+              past? (and (seq (str starts_at))
+                         (try (< (.getTime (js/Date. starts_at)) (.now js/Date))
+                              (catch :default _ false)))
+              valid? (empty? errors)]
+          [:div {:class "rounded-xl border border-gray-200 bg-gray-50 p-5"}
+           [:div {:class "mb-4 flex items-center justify-between"}
+            [:h3 {:class "font-semibold text-gray-900"}
+             (if editing-id "Editar cupo" "Nuevo cupo")]
+            (when editing-id
+              [btn {:variant :ghost
+                    :on-click #(re-frame/dispatch [:admin/cancel-edit-slot])}
+               "Cancelar edición"])]
+
+           [:div {:class "grid grid-cols-1 gap-4 sm:grid-cols-2"}
+            [field "Título (opcional)"
+             [:input {:class input-class
+                      :placeholder "Ej: Taller de álgebra — sábados"
+                      :value (:title @form)
+                      :on-change #(swap! form assoc :title (.. % -target -value))}]]
+            [field "Banda de nivel"
+             [:select {:class input-class
+                       :value (:theta_band @form)
+                       :on-change #(swap! form assoc :theta_band (.. % -target -value))}
+              (for [b ["inicial" "basico" "intermedio" "avanzado"]]
+                ^{:key b} [:option {:value b} b])]]
+            [field "Modalidad"
+             [:select {:class input-class
+                       :value (:modality @form)
+                       :on-change #(swap! form assoc :modality (.. % -target -value))}
+              [:option {:value "online"} "Online"]
+              [:option {:value "presencial"} "Presencial"]]]
+            [field "Eje temático"
+             [:select {:class input-class
+                       :value (:track @form)
+                       :on-change #(swap! form assoc :track (.. % -target -value))}
+              [:option {:value ""} "Cualquiera"]
+              (for [t ["aritmetica" "algebra" "geometria"]]
+                ^{:key t} [:option {:value t} t])]]
+            [field "Inicio"
+             [:input {:class input-class
+                      :type "datetime-local"
+                      :value (:starts_at @form)
+                      :on-change #(swap! form assoc :starts_at (.. % -target -value))}]]
+            [field (if (= (:modality @form) "online") "Enlace de la videollamada" "Lugar")
+             [:input {:class input-class
+                      :placeholder (if (= (:modality @form) "online")
+                                     "https://meet…"
+                                     "Sala, dirección…")
+                      :value (:location_or_link @form)
+                      :on-change #(swap! form assoc :location_or_link (.. % -target -value))}]]
+            [field "Capacidad"
+             [:input {:class input-class
+                      :type "number" :min "1"
+                      :value (:capacity @form)
+                      :on-change #(swap! form assoc :capacity (.. % -target -value))}]]
+            [field "Mínimo para confirmar"
+             [:input {:class input-class
+                      :type "number" :min "1"
+                      :value (:min_enrollments @form)
+                      :on-change #(swap! form assoc :min_enrollments (.. % -target -value))}]]]
+
+           (when (seq errors)
+             [:ul {:class "mt-3 space-y-1"}
+              (for [e errors]
+                ^{:key e} [:li {:class "text-xs text-amber-700"} (str "• " e)])])
+
+           (when (and past? valid?)
+             [:p {:class "mt-3 text-xs text-gray-500"}
+              "Aviso: la fecha de inicio está en el pasado."])
+
+           [:div {:class "mt-5"}
+            [btn {:variant :primary
+                  :disabled? (not valid?)
+                  :on-click
+                  (fn []
+                    (when valid?
+                      (let [f @form
+                            iso (try (.toISOString (js/Date. (:starts_at f)))
+                                     (catch :default _ (:starts_at f)))]
+                        (re-frame/dispatch
+                         [:admin/save-slot
+                          (cond-> {"title" (str/trim (str (:title f)))
+                                   "theta_band" (:theta_band f)
+                                   "modality" (:modality f)
+                                   "track" (when (seq (str (:track f))) (:track f))
+                                   "starts_at" iso
+                                   "location_or_link" (:location_or_link f)
+                                   "capacity" (to-int (:capacity f))
+                                   "min_enrollments" (to-int (:min_enrollments f))}
+                            (:id f) (assoc "id" (:id f))
+                            (nil? (:id f)) (assoc "status" "open"))]))))}
+             (if editing-id "Guardar cambios" "Publicar cupo")]]])))))
+
+(defn- enrollment-count
+  [slot]
+  (count (remove #(= (:status %) "cancelled") (or (:enrollments slot) []))))
+
+(defn- slot-status-badge
+  [status]
+  (case status
+    "open" [badge :amber "abierto"]
+    "confirmed" [badge :green "confirmado"]
+    "cancelled" [badge :red "cancelado"]
+    "completed" [badge :gray "finalizado"]
+    [badge :gray (str status)]))
+
+(defn- roster-view
+  [slot-id]
+  (let [{:keys [loading? error rows]} @(re-frame/subscribe [:admin/roster slot-id])]
+    [:div {:class "mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4"}
+     [:h4 {:class "mb-3 text-sm font-semibold text-gray-900"} "Inscritos"]
+     (cond
+       loading?
+       [:p {:class "text-sm text-gray-500"} "Cargando inscritos…"]
+
+       error
+       [:p {:class "text-sm text-red-700"} error]
+
+       (empty? rows)
+       [:p {:class "text-sm text-gray-500"} "Nadie se ha inscrito en este cupo todavía."]
+
+       :else
+       [:ul {:class "divide-y divide-gray-200"}
+        (for [e rows]
+          ^{:key (:id e)}
+          [:li {:class "flex flex-wrap items-center justify-between gap-2 py-2.5"}
+           [:div
+            [:p {:class "text-sm font-medium text-gray-900"}
+             (or (:email e) (str "usuario " (subs (str (:user_id e)) 0 8)))]
+            [:p {:class "text-xs text-gray-500"}
+             (str "Inscrito " (format-date-time (:created_at e)))]]
+           [:div {:class "flex items-center gap-2"}
+            (case (:status e)
+              "confirmed" [badge :green "confirmado"]
+              "cancelled" [badge :red "cancelado"]
+              [badge :amber "pendiente"])
+            (if (= (:status e) "cancelled")
+              [btn {:on-click #(re-frame/dispatch
+                                [:admin/set-enrollment-status slot-id (:id e) "pending"])}
+               "Reactivar"]
+              [btn {:variant :danger
+                    :on-click #(when (js/confirm "¿Cancelar la inscripción de este estudiante?")
+                                 (re-frame/dispatch
+                                  [:admin/set-enrollment-status slot-id (:id e) "cancelled"]))}
+               "Cancelar"])]])])]))
 
 (defn- slots-admin-panel []
-  (let [form (r/atom {:theta_band "basico"
-                      :modality "online"
-                      :track ""
-                      :starts_at ""
-                      :location_or_link ""
-                      :capacity "8"
-                      :min_enrollments "3"
-                      :title ""
-                      :status "open"})]
-    (fn []
-      (let [rows @(re-frame/subscribe [:admin/slots])]
-      [:div.space-y-6
-       [:div.bg-gray-50.rounded-lg.p-4.space-y-3
-        [:h3.font-semibold.text-gray-800 "Nuevo cupo"]
-        [:div.grid.grid-cols-1.sm:grid-cols-2.gap-3
-         [:input.border.rounded.px-3.py-2.text-sm
-          {:placeholder "Título"
-           :value (:title @form)
-           :on-change #(swap! form assoc :title (.. % -target -value))}]
-         [:select.border.rounded.px-3.py-2.text-sm
-          {:value (:theta_band @form)
-           :on-change #(swap! form assoc :theta_band (.. % -target -value))}
-          [:option {:value "inicial"} "inicial"]
-          [:option {:value "basico"} "basico"]
-          [:option {:value "intermedio"} "intermedio"]
-          [:option {:value "avanzado"} "avanzado"]]
-         [:select.border.rounded.px-3.py-2.text-sm
-          {:value (:modality @form)
-           :on-change #(swap! form assoc :modality (.. % -target -value))}
-          [:option {:value "online"} "online"]
-          [:option {:value "presencial"} "presencial"]]
-         [:select.border.rounded.px-3.py-2.text-sm
-          {:value (:track @form)
-           :on-change #(swap! form assoc :track (.. % -target -value))}
-          [:option {:value ""} "(cualquier track)"]
-          [:option {:value "aritmetica"} "aritmetica"]
-          [:option {:value "algebra"} "algebra"]
-          [:option {:value "geometria"} "geometria"]]
-         [:input.border.rounded.px-3.py-2.text-sm
-          {:type "datetime-local"
-           :value (:starts_at @form)
-           :on-change #(swap! form assoc :starts_at (.. % -target -value))}]
-         [:input.border.rounded.px-3.py-2.text-sm
-          {:placeholder "Lugar o link"
-           :value (:location_or_link @form)
-           :on-change #(swap! form assoc :location_or_link (.. % -target -value))}]
-         [:input.border.rounded.px-3.py-2.text-sm
-          {:placeholder "Capacidad"
-           :value (:capacity @form)
-           :on-change #(swap! form assoc :capacity (.. % -target -value))}]
-         [:input.border.rounded.px-3.py-2.text-sm
-          {:placeholder "Mínimo inscritos"
-           :value (:min_enrollments @form)
-           :on-change #(swap! form assoc :min_enrollments (.. % -target -value))}]]
-        [:button.bg-indigo-600.text-white.text-sm.font-semibold.px-4.py-2.rounded
-         {:type "button"
-          :on-click (fn []
-                      (when (seq (:starts_at @form))
-                        (let [iso (try
-                                    (.toISOString (js/Date. (:starts_at @form)))
-                                    (catch :default _ (:starts_at @form)))]
-                          (re-frame/dispatch
-                           [:admin/save-slot
-                            {"title" (:title @form)
-                             "theta_band" (:theta_band @form)
-                             "modality" (:modality @form)
-                             "track" (when (seq (:track @form)) (:track @form))
-                             "starts_at" iso
-                             "location_or_link" (:location_or_link @form)
-                             "capacity" (js/parseInt (:capacity @form) 10)
-                             "min_enrollments" (js/parseInt (:min_enrollments @form) 10)
-                             "status" "open"}]))))}
-         "Publicar cupo"]]
-       [:div.space-y-2
-        (if (seq rows)
-          (for [s rows]
-            (let [n (count (filter #(not= (:status %) "cancelled")
-                                   (or (:enrollments s) [])))]
-              ^{:key (:id s)}
-              [:div.border.rounded.p-3.flex.justify-between.gap-3
-               [:div.text-sm
-                [:p.font-medium
-                 (str (or (:title s) (:theta_band s)) " · " (:modality s)
-                      " · " (:status s))]
-                [:p.text-xs.text-gray-500
-                 (str (format-date (:starts_at s)) " · " n " inscritos"
-                      " (mín " (:min_enrollments s) ")")]]
-               [:button.text-xs.text-red-600
-                {:type "button"
-                 :on-click #(when (js/confirm "¿Eliminar cupo?")
-                              (re-frame/dispatch [:admin/delete-slot (:id s)]))}
-                "Eliminar"]]))
-          [:p.text-gray-400.text-sm "Sin cupos"])]]))))
+  (let [rows @(re-frame/subscribe [:admin/slots])
+        expanded @(re-frame/subscribe [:admin/expanded-slot])]
+    [section-frame
+     {:section :slots
+      :title "Cupos"
+      :description "Grupos de estudio publicados. Se confirman solos al alcanzar el mínimo de inscritos."}
+     [:div {:class "space-y-6"}
+      [slot-form]
+
+      (if-not (seq rows)
+        [empty-state "Aún no has publicado cupos."]
+        [:ul {:class "space-y-3"}
+         (for [s rows]
+           (let [n (enrollment-count s)
+                 cap (or (:capacity s) 0)
+                 minimum (or (:min_enrollments s) 0)
+                 pct (if (pos? cap) (js/Math.round (* 100 (/ n cap))) 0)
+                 open? (= (:status s) "open")
+                 expanded? (= expanded (:id s))]
+             ^{:key (:id s)}
+             [:li {:class "rounded-xl border border-gray-200 bg-white p-5"}
+              [:div {:class "flex flex-wrap items-start justify-between gap-3"}
+               [:div {:class "min-w-0"}
+                [:div {:class "flex flex-wrap items-center gap-2"}
+                 [:p {:class "font-semibold text-gray-900"}
+                  (or (when (seq (str (:title s))) (:title s))
+                      (str "Cupo " (:theta_band s)))]
+                 [slot-status-badge (:status s)]
+                 [badge :indigo (:modality s)]
+                 [badge :gray (:theta_band s)]]
+                [:p {:class "mt-1 text-sm text-gray-600"}
+                 (format-date-time (:starts_at s))]
+                (when-let [loc (:location_or_link s)]
+                  (when (seq (str loc))
+                    [:p {:class "mt-0.5 truncate text-xs text-gray-500"} loc]))]
+
+               [:div {:class "text-right"}
+                [:p {:class "text-sm font-semibold text-gray-900"}
+                 (str n " / " cap)]
+                [:p {:class "text-xs text-gray-500"} (str "mínimo " minimum)]]]
+
+              ;; Progreso hacia el mínimo
+              [:div {:class "mt-3"}
+               [:div {:class "h-2 w-full overflow-hidden rounded-full bg-gray-100"}
+                (when (pos? n)
+                  [:div {:class (str "h-full rounded-full "
+                                     (if (>= n minimum) "bg-green-500" "bg-amber-400"))
+                         :style {:width (str (min 100 (max pct 3)) "%")}}])]
+               [:p {:class "mt-1.5 text-xs text-gray-500"}
+                (case (:status s)
+                  "cancelled" "Cupo cancelado: ya no aparece para los estudiantes."
+                  "completed" "Cupo finalizado."
+                  "confirmed" (str "Confirmado con " n " inscrito(s).")
+                  (cond
+                    (>= n minimum) "Mínimo alcanzado: se confirmará automáticamente."
+                    (zero? n) (str "Sin inscritos. Faltan " minimum " para confirmar.")
+                    :else (str "Faltan " (- minimum n) " inscrito(s) para confirmar.")))]]
+
+              [:div {:class "mt-4 flex flex-wrap gap-2 border-t border-gray-100 pt-4"}
+               [btn {:on-click #(re-frame/dispatch [:admin/toggle-roster (:id s)])}
+                (if expanded? "Ocultar inscritos" (str "Ver inscritos (" n ")"))]
+               [btn {:on-click (fn []
+                                 (re-frame/dispatch [:admin/edit-slot s])
+                                 (.scrollTo js/window #js {:top 0 :behavior "smooth"}))}
+                "Editar"]
+               (when open?
+                 [btn {:variant :success
+                       :title "Confirmar manualmente sin esperar el mínimo"
+                       :on-click #(when (js/confirm "¿Confirmar este cupo ahora?")
+                                    (re-frame/dispatch [:admin/set-slot-status (:id s) "confirmed"]))}
+                  "Confirmar"])
+               (when (#{"open" "confirmed"} (:status s))
+                 [btn {:on-click #(when (js/confirm "¿Cancelar este cupo? Los inscritos dejarán de verlo.")
+                                    (re-frame/dispatch [:admin/set-slot-status (:id s) "cancelled"]))}
+                  "Cancelar cupo"])
+               (when (= (:status s) "confirmed")
+                 [btn {:on-click #(re-frame/dispatch [:admin/set-slot-status (:id s) "completed"])}
+                  "Marcar finalizado"])
+               [btn {:variant :danger
+                     :title (when (pos? n) "Este cupo tiene inscritos")
+                     :on-click #(when (js/confirm
+                                       (if (pos? n)
+                                         (str "Este cupo tiene " n " inscrito(s). "
+                                              "Eliminarlo borrará también sus inscripciones. ¿Continuar?")
+                                         "¿Eliminar este cupo?"))
+                                  (re-frame/dispatch [:admin/delete-slot (:id s)]))}
+                "Eliminar"]]
+
+              (when expanded?
+                [roster-view (:id s)])]))])]]))
+
+;; -----------------------------------------------------------------------------
+;; Panel
+;; -----------------------------------------------------------------------------
+
+(def ^:private tabs
+  [[:overview "Resumen"]
+   [:users "Usuarios"]
+   [:tests "Diagnósticos"]
+   [:resources "Recursos"]
+   [:slots "Cupos"]
+   [:guestbook "Moderación"]])
+
+(defn- tab-btn
+  [id label current]
+  (let [active? (= id current)
+        pending @(re-frame/subscribe [:admin/guestbook-counts])
+        n (when (= id :guestbook) (:pending pending))]
+    [:button
+     {:type "button"
+      :aria-current (when active? "page")
+      :class (str "-mb-px inline-flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 "
+                  "text-sm font-medium transition focus:outline-none "
+                  "focus-visible:ring-2 focus-visible:ring-indigo-400 "
+                  (if active?
+                    "border-indigo-600 text-indigo-700"
+                    "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800"))
+      :on-click #(re-frame/dispatch [:admin/set-tab id])}
+     label
+     (when (and n (pos? n))
+       [:span {:class "rounded-full bg-amber-100 px-1.5 text-xs font-semibold text-amber-800"}
+        n])]))
 
 (defn admin-panel []
   (r/create-class
    {:display-name "admin-panel"
     :component-did-mount
-    (fn [_]
-      (re-frame/dispatch [:admin/enter]))
+    (fn [_] (re-frame/dispatch [:admin/enter]))
     :reagent-render
     (fn []
       (let [tab @(re-frame/subscribe [:admin/tab])
-            loading? @(re-frame/subscribe [:admin/loading?])
-            error @(re-frame/subscribe [:admin/error])
             is-admin? @(re-frame/subscribe [:auth/admin?])
             role @(re-frame/subscribe [:auth/role])]
-        [:div.max-w-5xl.mx-auto.px-4.py-8
-         [:h1.text-2xl.font-bold.text-gray-900.mb-1 "Administración"]
-         [:p.text-sm.text-gray-500.mb-6
-          "Usuarios, tests, recursos, cupos y libro de visitas."]
+        [:div {:class "mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8"}
+         [:header {:class "mb-8"}
+          [:h1 {:class "text-2xl font-bold text-gray-900"} "Administración"]
+          [:p {:class "mt-1 text-sm text-gray-500"}
+           "Usuarios, diagnósticos, contenido, cupos y moderación."]]
 
          (cond
            (nil? role)
-           [:p.text-gray-500 "Cargando permisos…"]
+           [:div {:class "rounded-xl border border-gray-200 bg-white px-6 py-10 text-center"}
+            [:p {:class "text-sm text-gray-500"} "Verificando permisos…"]]
 
            (not is-admin?)
-           [:p.text-amber-700 "No tienes permisos de administrador."]
+           [:div {:class "rounded-xl border border-amber-200 bg-amber-50 px-6 py-10 text-center"}
+            [:p {:class "text-sm font-medium text-amber-900"}
+             "No tienes permisos de administrador."]]
 
            :else
            [:div
-            [:div.flex.gap-1.border-b.border-gray-200.mb-6.flex-wrap
-             [tab-btn :users "Usuarios" tab]
-             [tab-btn :tests "Tests" tab]
-             [tab-btn :resources "Recursos" tab]
-             [tab-btn :slots "Cupos" tab]
-             [tab-btn :guestbook "Libro de visitas" tab]]
-
-            (when error
-              [:div.mb-4.rounded.bg-red-50.text-red-700.text-sm.px-3.py-2 error])
-
-            (when loading?
-              [:p.text-sm.text-gray-400.mb-3 "Cargando…"])
+            [:div {:class "mb-8 overflow-x-auto border-b border-gray-200"}
+             [:nav {:class "flex gap-1" :aria-label "Secciones de administración"}
+              (for [[id label] tabs]
+                ^{:key id}
+                [tab-btn id label tab])]]
 
             (case tab
+              :overview [overview-panel]
               :users [users-panel]
               :tests [tests-panel]
               :resources [resources-panel]
               :slots [slots-admin-panel]
               :guestbook [guestbook-panel]
-              [users-panel])])]))}))
+              [overview-panel])])
+
+         [toast-view]]))}))

@@ -2,12 +2,30 @@
   (:require
    [re-frame.core :as re-frame]
    [cljs.core.async :refer [go <!]]
-   [universo.db.crud :as crud]))
+   [universo.db.crud :as crud]
+   [universo.slots.logic :as logic]))
 
 (re-frame/reg-sub
- :slots/items
+ :slots/all-items
  (fn [db _]
    (get-in db [:slots :items] [])))
+
+(re-frame/reg-sub
+ :slots/band
+ (fn [db _]
+   (let [band (or (get-in db [:student-profile :theta_band])
+                  (get-in db [:student-profile :profile :theta-band]))]
+     (when (seq (str (or band ""))) band))))
+
+;; El filtro por banda se deriva, no se aplica al cargar: el perfil se pide en
+;; paralelo a los cupos y suele llegar después, así que filtrar en :slots/loaded
+;; dejaba la lista vacía para siempre aunque hubiera cupos de la banda.
+(re-frame/reg-sub
+ :slots/items
+ :<- [:slots/all-items]
+ :<- [:slots/band]
+ (fn [[items band] _]
+   (logic/filter-slots-for-band items band)))
 
 (re-frame/reg-sub
  :slots/my-enrollments
@@ -109,11 +127,29 @@
  (fn [db [_ msg]]
    (assoc-in db [:slots :error] msg)))
 
-;; Admin slot CRUD
+;; -----------------------------------------------------------------------------
+;; Admin: cupos
+;; -----------------------------------------------------------------------------
+
 (re-frame/reg-sub
  :admin/slots
  (fn [db _]
    (get-in db [:admin :slots] [])))
+
+(re-frame/reg-sub
+ :admin/editing-slot
+ (fn [db _]
+   (get-in db [:admin :editing-slot])))
+
+(re-frame/reg-sub
+ :admin/expanded-slot
+ (fn [db _]
+   (get-in db [:admin :expanded-slot])))
+
+(re-frame/reg-sub
+ :admin/roster
+ (fn [db [_ slot-id]]
+   (get-in db [:admin :rosters slot-id])))
 
 (re-frame/reg-fx
  :admin/fetch-slots!
@@ -122,40 +158,63 @@
      (let [result (<! (crud/fetch-admin-class-slots))]
        (if (:success result)
          (re-frame/dispatch [:admin/slots-loaded (:data result)])
-         (re-frame/dispatch [:admin/set-error
-                             (or (:error result) "Error cargando cupos")]))))))
+         (re-frame/dispatch [:admin/section-fail :slots
+                             (or (:error result) "No se pudieron cargar los cupos")]))))))
 
 (re-frame/reg-event-fx
  :admin/load-slots
- (fn [{:keys [db]} _]
-   {:db (assoc-in db [:admin :loading?] true)
+ (fn [_ _]
+   {:dispatch [:admin/section-start :slots]
     :admin/fetch-slots! nil}))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :admin/slots-loaded
- (fn [db [_ rows]]
-   (-> db
-       (assoc-in [:admin :slots] (or rows []))
-       (assoc-in [:admin :loading?] false))))
+ (fn [{:keys [db]} [_ rows]]
+   {:db (assoc-in db [:admin :slots] (or rows []))
+    :dispatch [:admin/section-ok :slots]}))
+
+(re-frame/reg-event-db
+ :admin/edit-slot
+ (fn [db [_ slot]]
+   (assoc-in db [:admin :editing-slot] slot)))
+
+(re-frame/reg-event-db
+ :admin/cancel-edit-slot
+ (fn [db _]
+   (assoc-in db [:admin :editing-slot] nil)))
 
 (re-frame/reg-fx
  :admin/save-slot!
- (fn [row]
+ (fn [{:keys [row update?]}]
    (go
      (let [result (<! (crud/upsert-class-slot! row))]
        (if (:success result)
-         (re-frame/dispatch [:admin/load-slots])
-         (re-frame/dispatch [:admin/set-error
-                             (or (:error result) "Error guardando cupo")]))))))
+         (re-frame/dispatch [:admin/slot-saved update?])
+         (re-frame/dispatch [:admin/slot-save-failed
+                             (or (:error result) "No se pudo guardar el cupo")]))))))
 
 (re-frame/reg-event-fx
  :admin/save-slot
  (fn [{:keys [db]} [_ row]]
    (let [uid (get-in db [:auth :user :id])
+         update? (some? (get row "id"))
          payload (cond-> row
                    (and uid (nil? (get row "created_by")))
                    (assoc "created_by" uid))]
-     {:admin/save-slot! payload})))
+     {:admin/save-slot! {:row payload :update? update?}})))
+
+(re-frame/reg-event-fx
+ :admin/slot-saved
+ (fn [{:keys [db]} [_ update?]]
+   {:db (assoc-in db [:admin :editing-slot] nil)
+    :dispatch-n [[:admin/toast :success (if update? "Cupo actualizado." "Cupo publicado.")]
+                 [:admin/load-slots]
+                 [:admin/invalidate :overview]]}))
+
+(re-frame/reg-event-fx
+ :admin/slot-save-failed
+ (fn [_ [_ msg]]
+   {:dispatch [:admin/toast :error msg]}))
 
 (re-frame/reg-fx
  :admin/delete-slot!
@@ -163,16 +222,114 @@
    (go
      (let [result (<! (crud/delete-class-slot! slot-id))]
        (if (:success result)
-         (re-frame/dispatch [:admin/load-slots])
-         (re-frame/dispatch [:admin/set-error
-                             (or (:error result) "Error eliminando cupo")]))))))
+         (re-frame/dispatch [:admin/slot-deleted])
+         (re-frame/dispatch [:admin/slot-save-failed
+                             (or (:error result) "No se pudo eliminar el cupo")]))))))
 
 (re-frame/reg-event-fx
  :admin/delete-slot
  (fn [_ [_ slot-id]]
    {:admin/delete-slot! slot-id}))
 
-;; Admin resources
+(re-frame/reg-event-fx
+ :admin/slot-deleted
+ (fn [_ _]
+   {:dispatch-n [[:admin/toast :success "Cupo eliminado."]
+                 [:admin/load-slots]
+                 [:admin/invalidate :overview]]}))
+
+;; Estado del cupo (abrir / confirmar / cancelar / completar) ------------------
+
+(re-frame/reg-fx
+ :admin/set-slot-status!
+ (fn [{:keys [slot-id status]}]
+   (go
+     (let [result (<! (crud/update-slot-status! slot-id status))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/slot-status-changed status])
+         (re-frame/dispatch [:admin/slot-save-failed
+                             (or (:error result) "No se pudo cambiar el estado")]))))))
+
+(re-frame/reg-event-fx
+ :admin/set-slot-status
+ (fn [_ [_ slot-id status]]
+   {:admin/set-slot-status! {:slot-id slot-id :status status}}))
+
+(re-frame/reg-event-fx
+ :admin/slot-status-changed
+ (fn [_ [_ status]]
+   {:dispatch-n [[:admin/toast :success (str "Cupo marcado como " status ".")]
+                 [:admin/load-slots]
+                 [:admin/invalidate :overview]]}))
+
+;; Lista de inscritos ---------------------------------------------------------
+
+(re-frame/reg-fx
+ :admin/fetch-roster!
+ (fn [slot-id]
+   (go
+     (let [result (<! (crud/fetch-slot-roster slot-id))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/roster-loaded slot-id (:data result)])
+         (re-frame/dispatch [:admin/roster-failed slot-id
+                             (or (:error result) "No se pudo cargar la lista de inscritos")]))))))
+
+(re-frame/reg-event-fx
+ :admin/toggle-roster
+ (fn [{:keys [db]} [_ slot-id]]
+   (if (= (get-in db [:admin :expanded-slot]) slot-id)
+     {:db (assoc-in db [:admin :expanded-slot] nil)}
+     {:db (-> db
+              (assoc-in [:admin :expanded-slot] slot-id)
+              (assoc-in [:admin :rosters slot-id :loading?] true))
+      :admin/fetch-roster! slot-id})))
+
+(re-frame/reg-event-db
+ :admin/roster-loaded
+ (fn [db [_ slot-id rows]]
+   (assoc-in db [:admin :rosters slot-id]
+             {:loading? false :error nil :rows (or rows [])})))
+
+(re-frame/reg-event-db
+ :admin/roster-failed
+ (fn [db [_ slot-id msg]]
+   (assoc-in db [:admin :rosters slot-id]
+             {:loading? false :error msg :rows []})))
+
+(re-frame/reg-fx
+ :admin/set-enrollment-status!
+ (fn [{:keys [enrollment-id status slot-id]}]
+   (go
+     (let [result (<! (crud/update-enrollment-status! enrollment-id status))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/enrollment-status-changed slot-id status])
+         (re-frame/dispatch [:admin/roster-failed slot-id
+                             (or (:error result) "No se pudo actualizar la inscripción")]))))))
+
+(re-frame/reg-event-fx
+ :admin/set-enrollment-status
+ (fn [_ [_ slot-id enrollment-id status]]
+   {:admin/set-enrollment-status! {:enrollment-id enrollment-id
+                                   :status status
+                                   :slot-id slot-id}}))
+
+(re-frame/reg-event-fx
+ :admin/enrollment-status-changed
+ (fn [_ [_ slot-id status]]
+   {:dispatch-n [[:admin/toast :success (str "Inscripción marcada como " status ".")]
+                 [:admin/fetch-roster slot-id]
+                 ;; El contador de inscritos del cupo cambió.
+                 [:admin/load-slots]]}))
+
+(re-frame/reg-event-fx
+ :admin/fetch-roster
+ (fn [_ [_ slot-id]]
+   {:admin/fetch-roster! slot-id}))
+
+;; -----------------------------------------------------------------------------
+;; Admin: recursos
+;; -----------------------------------------------------------------------------
+
 (re-frame/reg-sub
  :admin/resources
  (fn [db _]
@@ -183,46 +340,100 @@
  (fn [db _]
    (get-in db [:admin :modules] [])))
 
+(re-frame/reg-sub
+ :admin/editing-resource
+ (fn [db _]
+   (get-in db [:admin :editing-resource])))
+
+(re-frame/reg-sub
+ :admin/resources-module-filter
+ (fn [db _]
+   (get-in db [:admin :resources-module-filter] "")))
+
+(re-frame/reg-sub
+ :admin/resources-view
+ :<- [:admin/resources]
+ :<- [:admin/resources-module-filter]
+ (fn [[rows module-id] _]
+   (if (seq (str module-id))
+     (filterv #(= (:module_id %) module-id) rows)
+     rows)))
+
+(re-frame/reg-event-db
+ :admin/set-resources-module-filter
+ (fn [db [_ module-id]]
+   (assoc-in db [:admin :resources-module-filter] module-id)))
+
 (re-frame/reg-fx
  :admin/fetch-resources!
  (fn [_]
    (go
      (let [mods (<! (crud/fetch-modules))
            res (<! (crud/fetch-admin-resources))]
-       (re-frame/dispatch [:admin/resources-bundle
-                           (or (:data mods) [])
-                           (or (:data res) [])
-                           (or (:error res) (:error mods))])))))
+       (if-let [err (or (:error res) (:error mods))]
+         (re-frame/dispatch [:admin/section-fail :resources err])
+         (re-frame/dispatch [:admin/resources-bundle
+                             (or (:data mods) [])
+                             (or (:data res) [])]))))))
 
 (re-frame/reg-event-fx
  :admin/load-resources
- (fn [{:keys [db]} _]
-   {:db (assoc-in db [:admin :loading?] true)
+ (fn [_ _]
+   {:dispatch [:admin/section-start :resources]
     :admin/fetch-resources! nil}))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :admin/resources-bundle
- (fn [db [_ modules resources err]]
-   (-> db
-       (assoc-in [:admin :modules] modules)
-       (assoc-in [:admin :resources] resources)
-       (assoc-in [:admin :loading?] false)
-       (assoc-in [:admin :error] err))))
+ (fn [{:keys [db]} [_ modules resources]]
+   {:db (-> db
+            (assoc-in [:admin :modules] modules)
+            (assoc-in [:admin :resources] resources))
+    :dispatch [:admin/section-ok :resources]}))
+
+(re-frame/reg-event-db
+ :admin/edit-resource
+ (fn [db [_ resource]]
+   (assoc-in db [:admin :editing-resource] resource)))
+
+(re-frame/reg-event-db
+ :admin/cancel-edit-resource
+ (fn [db _]
+   (assoc-in db [:admin :editing-resource] nil)))
 
 (re-frame/reg-fx
  :admin/save-resource!
- (fn [row]
+ (fn [{:keys [row update?]}]
    (go
      (let [result (<! (crud/upsert-resource! row))]
        (if (:success result)
-         (re-frame/dispatch [:admin/load-resources])
-         (re-frame/dispatch [:admin/set-error
-                             (or (:error result) "Error guardando recurso")]))))))
+         (re-frame/dispatch [:admin/resource-saved update?])
+         (re-frame/dispatch [:admin/resource-save-failed
+                             (or (:error result) "No se pudo guardar el recurso")]))))))
 
 (re-frame/reg-event-fx
  :admin/save-resource
  (fn [_ [_ row]]
-   {:admin/save-resource! row}))
+   {:admin/save-resource! {:row row :update? (some? (get row "id"))}}))
+
+(re-frame/reg-event-fx
+ :admin/resource-saved
+ (fn [{:keys [db]} [_ update?]]
+   {:db (assoc-in db [:admin :editing-resource] nil)
+    :dispatch-n [[:admin/toast :success (if update? "Recurso actualizado." "Recurso creado.")]
+                 [:admin/load-resources]
+                 [:admin/invalidate :overview]]}))
+
+(re-frame/reg-event-fx
+ :admin/resource-save-failed
+ (fn [_ [_ msg]]
+   {:dispatch [:admin/toast :error msg]}))
+
+(re-frame/reg-event-fx
+ :admin/toggle-resource-published
+ (fn [_ [_ resource]]
+   {:dispatch [:admin/save-resource
+               {"id" (:id resource)
+                "published" (not (boolean (:published resource)))}]}))
 
 (re-frame/reg-fx
  :admin/delete-resource!
@@ -230,11 +441,18 @@
    (go
      (let [result (<! (crud/delete-resource! id))]
        (if (:success result)
-         (re-frame/dispatch [:admin/load-resources])
-         (re-frame/dispatch [:admin/set-error
-                             (or (:error result) "Error eliminando recurso")]))))))
+         (re-frame/dispatch [:admin/resource-deleted])
+         (re-frame/dispatch [:admin/resource-save-failed
+                             (or (:error result) "No se pudo eliminar el recurso")]))))))
 
 (re-frame/reg-event-fx
  :admin/delete-resource
  (fn [_ [_ id]]
    {:admin/delete-resource! id}))
+
+(re-frame/reg-event-fx
+ :admin/resource-deleted
+ (fn [_ _]
+   {:dispatch-n [[:admin/toast :success "Recurso eliminado."]
+                 [:admin/load-resources]
+                 [:admin/invalidate :overview]]}))

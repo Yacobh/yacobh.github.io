@@ -42,7 +42,7 @@
        (let [result (<! (crud/upsert-student-profile! row))]
          (if (:success result)
            (re-frame/dispatch [:profile/upserted (:data result)])
-           (js/console.error "❌ Error upsert perfil:" (:error result))))))))
+           (js/console.error "Error upsert perfil:" (:error result))))))))
 
 (re-frame/reg-event-db
  :profile/upserted
@@ -75,9 +75,7 @@
               "profile" (clj->js built)
               "updated_at" (.toISOString (js/Date.))}]
      (if-not user-id
-       (do
-         (js/console.warn "⚠️ Sin user_id; perfil no guardado")
-         {:db (assoc-in db [:student-profile :profile] built)})
+       {:db (assoc-in db [:student-profile :profile] built)}
        {:db (-> db
                 (assoc-in [:student-profile :profile] built)
                 (assoc-in [:student-profile :theta] (:theta built))

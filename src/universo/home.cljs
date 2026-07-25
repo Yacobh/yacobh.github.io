@@ -1,11 +1,13 @@
 (ns universo.home
   (:require
+   [reagent.core :as r]
    [re-frame.core :as re-frame]
    [universo.components.resume :as resume]
    [universo.components.contacto :refer [contacto-form]]
    [universo.components.admin :as admin]
    [universo.components.dashboard :as dashboard]
    [universo.components.diagnostic-test :as diagnostic-test]
+   [universo.components.landing :as landing]
    [universo.components.plan :as plan]
    [universo.components.slots :as slots]
    [universo.components.guestbook :as guestbook]
@@ -13,130 +15,185 @@
 
 ;; seccion principal variable con atomo de reagent, dinamico
 
-(defn navigation []
-  [:nav.fixed.top-0.left-0.right-0.z-50.bg-white.border-b.border-gray-200
-   [:div.max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8
-    [:div.flex.justify-between.items-center.h-16
-     [:div.flex.items-center
-      [:a.text-gray-800.font-bold.text-xl.flex.items-center
-       {:href "#"
-        :on-click #(re-frame/dispatch [:navigate-to :main])}
-       [:span.bg-gradient-to-r.from-blue-600.to-purple-600.bg-clip-text.text-transparent
-        "Academia"]
-       [:span.mx-2.text-3xl.font-light.text-indigo-600 "∫"]
-       [:span.bg-gradient-to-r.from-purple-600.to-indigo-700.bg-clip-text.text-transparent
-        "Integral"]]]
+(defn- brand []
+  [:a.flex.items-center.text-xl.font-bold.text-gray-800
+   {:href "#"
+    :aria-label "Academia Integral — inicio"
+    :on-click (fn [e]
+                (.preventDefault e)
+                (re-frame/dispatch [:navigate-to :main]))}
+   [:span.bg-gradient-to-r.from-blue-600.to-purple-600.bg-clip-text.text-transparent
+    "Academia"]
+   [:span.mx-2.text-3xl.font-light.text-indigo-600 "∫"]
+   [:span.bg-gradient-to-r.from-purple-600.to-indigo-700.bg-clip-text.text-transparent
+    "Integral"]])
 
-     [:div.flex.items-center.gap-3
+(def ^:private link-class
+  (str "rounded px-2 py-2 text-sm font-medium text-gray-700 transition "
+       "hover:text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"))
+
+(def ^:private cta-class
+  (str "inline-flex items-center rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 "
+       "px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 "
+       "focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300"))
+
+(defn- scroll-to-section!
+  "Navega al inicio y luego hace scroll al ancla (la landing debe estar montada)."
+  [element-id]
+  (re-frame/dispatch [:navigate-to :main])
+  (js/setTimeout
+   (fn []
+     (when-let [el (.getElementById js/document element-id)]
+       (.scrollIntoView el #js {:behavior "smooth" :block "start"})))
+   320))
+
+(defn- authed-links
+  "Enlaces de sesión. on-navigate permite cerrar el menú móvil."
+  [{:keys [admin? on-navigate stacked?]}]
+  (let [go (fn [section]
+             (fn []
+               (when on-navigate (on-navigate))
+               (re-frame/dispatch [:navigate-to section])))]
+    [:<>
+     (when admin?
+       [:button {:type "button"
+                 :class (str link-class " font-semibold text-indigo-700 hover:text-indigo-900 "
+                             (when stacked? "text-left w-full"))
+                 :on-click (go :admin)}
+        "Admin"])
+     [:button {:type "button"
+               :class (str link-class (when stacked? " text-left w-full"))
+               :on-click (go :plan)}
+      "Mi plan"]
+     [:button {:type "button"
+               :class (str link-class (when stacked? " text-left w-full"))
+               :on-click (go :cupos)}
+      "Cupos"]
+     [:button {:type "button"
+               :class (str cta-class (when stacked? " w-full justify-center"))
+               :on-click (go :dashboard)}
+      "Mi tablero"]
+     [:button {:type "button"
+               :class (str link-class " text-gray-500 hover:text-gray-900"
+                           (when stacked? " text-left w-full"))
+               :on-click (fn []
+                           (when on-navigate (on-navigate))
+                           (re-frame/dispatch [:auth/logout]))}
+      "Salir"]]))
+
+(defn- guest-links
+  [{:keys [on-navigate stacked?]}]
+  (let [close (fn [] (when on-navigate (on-navigate)))]
+    [:<>
+     [:button {:type "button"
+               :class (str link-class (when stacked? " text-left w-full"))
+               :on-click (fn [] (close) (scroll-to-section! "como-funciona"))}
+      "Cómo funciona"]
+     [:button {:type "button"
+               :class (str link-class (when stacked? " text-left w-full"))
+               :on-click (fn [] (close) (scroll-to-section! "preguntas"))}
+      "Preguntas"]
+     [:button {:type "button"
+               :class (str link-class (when stacked? " text-left w-full"))
+               :on-click (fn []
+                           (close)
+                           (re-frame/dispatch [:navigate-to :login]))}
+      "Iniciar sesión"]
+     [:button {:type "button"
+               :class (str cta-class (when stacked? " w-full justify-center"))
+               :on-click (fn []
+                           (close)
+                           (re-frame/dispatch [:landing/start]))}
+      "Comenzar gratis"]]))
+
+(defn navigation []
+  (let [menu-open? (r/atom false)]
+    (fn []
       (let [ready? @(re-frame/subscribe [:auth/ready?])
             logged-in? @(re-frame/subscribe [:auth/logged-in?])
-            admin? @(re-frame/subscribe [:auth/admin?])]
-        (cond
-          (not ready?)
-          [:span.text-sm.text-gray-400.px-4 "…"]
+            admin? @(re-frame/subscribe [:auth/admin?])
+            close! #(reset! menu-open? false)
+            links (fn [stacked?]
+                    (cond
+                      (not ready?)
+                      [:span.px-4.text-sm.text-gray-400 "…"]
 
-          logged-in?
-          [:div.flex.items-center.gap-2.flex-wrap.justify-end
-           (when admin?
-             [:a.text-sm.font-medium.text-indigo-700.hover:text-indigo-900.px-3.py-2.transition.cursor-pointer
-              {:on-click #(re-frame/dispatch [:navigate-to :admin])}
-              "Admin"])
-           [:a.text-sm.font-medium.text-gray-700.hover:text-indigo-700.px-2.py-2.cursor-pointer
-            {:on-click #(re-frame/dispatch [:navigate-to :plan])}
-            "Plan"]
-           [:a.text-sm.font-medium.text-gray-700.hover:text-indigo-700.px-2.py-2.cursor-pointer
-            {:on-click #(re-frame/dispatch [:navigate-to :cupos])}
-            "Cupos"]
-           [:a.bg-gradient-to-r.from-indigo-600.to-purple-600.text-white.text-sm.font-medium.px-6.py-2.5.rounded-full.hover:opacity-90.transition.cursor-pointer
-            {:on-click #(re-frame/dispatch [:navigate-to :dashboard])}
-            "Mi Tablero"]
-           [:button.text-sm.font-medium.text-gray-600.hover:text-gray-900.px-3.py-2.transition.cursor-pointer
+                      logged-in?
+                      [authed-links {:admin? admin?
+                                     :on-navigate close!
+                                     :stacked? stacked?}]
+
+                      :else
+                      [guest-links {:on-navigate close!
+                                    :stacked? stacked?}]))]
+        [:nav
+         {:class "fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur"}
+         [:div.mx-auto.max-w-7xl.px-4.sm:px-6.lg:px-8
+          [:div.flex.h-16.items-center.justify-between
+           [brand]
+
+           ;; Escritorio
+           [:div.hidden.items-center.gap-2.md:flex
+            [links false]]
+
+           ;; Móvil
+           [:button.inline-flex.items-center.justify-center.rounded.p-2.text-gray-600.md:hidden
             {:type "button"
-             :on-click #(re-frame/dispatch [:auth/logout])}
-            "Salir"]]
+             :aria-label (if @menu-open? "Cerrar menú" "Abrir menú")
+             :aria-expanded (if @menu-open? "true" "false")
+             :on-click #(swap! menu-open? not)}
+            [:span.text-2xl.leading-none (if @menu-open? "✕" "☰")]]]]
 
-          :else
-          [:a.bg-gradient-to-r.from-indigo-600.to-purple-600.text-white.text-sm.font-medium.px-6.py-2.5.rounded-full.hover:opacity-90.transition.cursor-pointer
-           {:on-click #(re-frame/dispatch [:navigate-to :login])}
-           "Iniciar Sesión"]))]]]])
-
-
-
-(defn presentacion []
-  [:div {:class "flex justify-center py-8"}
-   [:div {:class "w-full sm:w-11/12 md:w-3/4 max-w-3xl p-4 sm:p-8 rounded-2xl shadow-lg sm:shadow-2xl bg-white mx-auto"}
-    [:h1 {:class "text-2xl sm:text-3xl md:text-4xl font-bold text-blue-900 mb-4"} "Portal de Tutorías Matemáticas"]
-
-    [:p {:class "mb-4 text-lg"}
-     "Plataforma de práctica para la Prueba de Admisión a la Educación Superior (PAES) de Matemática 1."]
-
-    [:div {:class "mb-4"}
-     [:h2 {:class "text-xl font-semibold text-blue-800 mb-2"} "¿Cómo funciona?"]
-     [:ul {:class "list-disc list-inside space-y-1 text-gray-700"}
-      [:li "Diagnóstico adaptativo (IRT) que estima tu nivel y déficits"]
-      [:li "Plan de estudio con explicaciones y recursos por módulo"]
-      [:li "Cupos online/presencial que se confirman al llegar al mínimo de inscritos"]]]
-
-    [:div {:class "mb-4"}
-     [:h2 {:class "text-xl font-semibold text-blue-800 mb-2"} "Instrucciones"]
-     [:ul {:class "list-disc list-inside space-y-1 text-gray-700"}
-      [:li "Ingresa con tu usuario y contraseña"]
-      [:li "No uses calculadora ni ayudas externas"]
-      [:li "El tiempo de respuesta es considerado en la evaluación"]]]
-
-    [:p {:class "text-sm text-gray-500 mt-6 leading-relaxed"}
-     "Iniciativa de la Universidad Nacional Arturo Prat en conjunto con el profesor "
-     [:a {:href "#"
-          :on-click #(re-frame/dispatch [:navigate-to :jacobocordova])
-          :class "ml-1 inline-flex items-center gap-1
-                  text-indigo-600 font-semibold
-                  hover:text-indigo-800
-                  transition-colors duration-200
-                  border-b border-transparent
-                  hover:border-indigo-600"}
-      "Jacobo Córdova"]]
-
-
-    [:p {:class "italic text-blue-700 font-semibold mt-4"}
-     "¡Éxito en tu preparación para la PAES!"]]])
+         (when @menu-open?
+           [:div.border-t.border-gray-200.bg-white.md:hidden
+            [:div.mx-auto.flex.max-w-7xl.flex-col.gap-1.px-4.py-4
+             [links true]]])]))))
 
 (defn footer []
-  [:footer.bg-gradient-to-r.from-gray-900.to-gray-800.text-white.mt-auto
-   ;; Sección principal
-   [:div.container.mx-auto.px-2.py-4
-    [:div.grid.grid-cols-1.md:grid-cols-4.gap-8
-     ;; Logo y descripción
-     [:div.col-span-1.md:col-span-2
-      [:div.flex.items-center.mb-4
-       [:span.text-2xl.mr-2 "∫"]
+  [:footer.mt-auto.bg-gradient-to-r.from-gray-900.to-gray-800.text-white
+   [:div.mx-auto.max-w-7xl.px-4.py-12.sm:px-6.lg:px-8
+    [:div.grid.grid-cols-1.gap-10.md:grid-cols-3
+     ;; Marca
+     [:div
+      [:div.mb-4.flex.items-center
+       [:span.mr-2.text-2xl "∫"]
        [:h3.text-xl.font-bold "Academia Integral"]]
-      [:p.text-gray-400.mb-4
-       "Transformando el aprendizaje de las matemáticas con métodos innovadores y personalizados."]
-      [:a.text-gray-400.hover:text-indigo-700.py-2.transition.cursor-pointer
-       {:on-click #(re-frame/dispatch [:navigate-to :guestbook])}
-       "Libro de visitas"]]
+      [:p.max-w-sm.text-sm.leading-relaxed.text-gray-400
+       "Preparación de PAES Matemática 1 con diagnóstico adaptativo, plan personalizado "
+       "y grupos de estudio por nivel. Iniciativa de la Universidad Arturo Prat junto al "
+       "profesor Jacobo Córdova."]]
+
+     ;; Enlaces
+     [:div
+      [:h4.mb-4.text-sm.font-semibold.uppercase.tracking-wider.text-gray-300 "Explorar"]
+      [:ul.space-y-2.text-sm
+       (for [[label handler]
+             [["Comenzar diagnóstico" #(re-frame/dispatch [:landing/start])]
+              ["Cómo funciona" #(scroll-to-section! "como-funciona")]
+              ["Preguntas frecuentes" #(scroll-to-section! "preguntas")]
+              ["Libro de visitas" #(re-frame/dispatch [:navigate-to :guestbook])]
+              ["Sobre el profesor" #(re-frame/dispatch [:navigate-to :jacobocordova])]]]
+         ^{:key label}
+         [:li
+          [:button.text-gray-400.transition.hover:text-white
+           {:type "button" :on-click handler}
+           label]])]]
 
      ;; Contacto
-     [:div.col-span-1.md:col-span-2
-      [:h4.text-lg.font-semibold.mb-4 "Contacto"]
+     [:div
+      [:h4.mb-4.text-sm.font-semibold.uppercase.tracking-wider.text-gray-300 "Contacto"]
       [contacto-form]]]]
 
-   ;; Barra inferior
    [:div.border-t.border-gray-700
-    [:div.container.mx-auto.px-4.py-4
-     [:div.flex.flex-col.md:flex-row.justify-between.items-center.text-sm.text-gray-400
-      [:p "© 2025 Academia Integral. Todos los derechos reservados."]]]]])
-
-
-
-
+    [:div.mx-auto.max-w-7xl.px-4.py-5.sm:px-6.lg:px-8
+     [:p.text-center.text-sm.text-gray-400
+      (str "© " (.getFullYear (js/Date.)) " Academia Integral. Todos los derechos reservados.")]]]])
 
 ;; main content por atomo de reagent
 (defn main-content []
-  (let [current-section @(re-frame/subscribe [:current-section])
-        _ (js/console.log "Current section:" current-section)]
+  (let [current-section @(re-frame/subscribe [:current-section])]
     (case current-section
-      :main [presentacion]
+      :main [landing/landing]
       :login [login/login-form]
       :diagnostic-test [diagnostic-test/diagnostic-test]
       :dashboard [dashboard/dashboard]
@@ -145,9 +202,9 @@
       :admin [admin/admin-panel]
       :guestbook [guestbook/guestbook-component]
       :jacobocordova [resume/jacobo]
-      [:div.flex.items-center.justify-center.min-h-screen
+      [:div.flex.min-h-screen.items-center.justify-center
        [:div.text-center
-        [:h1.text-6xl.font-bold.text-gray-300.mb-4 "404"]
+        [:h1.mb-4.text-6xl.font-bold.text-gray-300 "404"]
         [:p.text-xl.text-gray-600 "Sección no encontrada"]]])))
 
 ;; 1. Envolver main-content con la opacidad reactiva
@@ -158,12 +215,11 @@
               :transition "opacity 200ms ease-in-out"}}
      [main-content]]))
 
-
 ;; Componente principal (equivalente a Home)
 
 (defn home []
   [:div.flex.min-h-screen.flex-col {:class "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"}
    [navigation]
-   [:main.flex-1.pt-16  ;; pt-16 para compensar la altura del nav  ;; flex-1 hace que main ocupe todo el espacio disponible
+   [:main.flex-1.pt-16  ;; pt-16 compensa la altura del nav fijo
     [main-content-wrapper]]
    [footer]])

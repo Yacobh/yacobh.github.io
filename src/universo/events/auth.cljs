@@ -100,7 +100,11 @@
               (assoc-in [:dashboard/ultimo-test] nil)
               (assoc-in [:admin :profiles] [])
               (assoc-in [:admin :tests] [])
-              (assoc-in [:admin :guestbook] []))
+              (assoc-in [:admin :guestbook] [])
+              (assoc-in [:admin :overview] nil)
+              (assoc-in [:admin :rosters] {})
+              ;; Invalida la caché por sección: al volver a entrar se recarga.
+              (assoc-in [:admin :status] {}))
       :dispatch-n (cond-> []
                     navigate-to-login?
                     (conj [:navigate-to :login])
@@ -144,11 +148,15 @@
    (let [role (or (:role profile) "user")
          admin? (= role "admin")
          section (get-in db [:ui :current-section])
-         kick? (and (= section :admin) (not admin?))]
+         on-admin? (= section :admin)
+         kick? (and on-admin? (not admin?))]
      (cond-> {:db (-> db
                       (assoc-in [:auth :role] role)
                       (assoc-in [:auth :admin?] admin?))}
-       kick? (assoc :dispatch [:navigate-to :dashboard])))))
+       kick? (assoc :dispatch [:navigate-to :dashboard])
+       ;; El panel puede haberse montado antes de conocer el rol: sus consultas
+       ;; habrían chocado con RLS. Ahora que el rol está confirmado, se cargan.
+       (and on-admin? admin?) (assoc :dispatch [:admin/enter])))))
 
 ;; -----------------------------------------------------------------------------
 ;; Init: rehidratar getSession + escuchar cambios

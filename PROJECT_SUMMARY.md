@@ -217,12 +217,19 @@ Login → Diagnóstico IRT → Perfil (θ, banda, déficits, misconceptions)
 
 ### Checklist go-live
 
-- [ ] Migraciones MVP aplicadas en Supabase
-- [ ] Seed de módulos Baldor ejecutado
-- [ ] Cuenta admin (`profiles.role = 'admin'`)
-- [ ] 2–3 cupos demo (online + presencial) en bandas distintas
-- [ ] RLS verificado (estudiante solo ve su perfil / sus enrollments)
-- [ ] Al menos un recurso publicado por módulo prioritario
+- [x] Migraciones MVP aplicadas en Supabase
+- [x] Seed de módulos Baldor ejecutado
+- [x] Cuenta admin (`profiles.role = 'admin'`)
+- [x] 2–3 cupos demo (online + presencial) en bandas distintas
+- [x] RLS verificado (estudiante solo ve su perfil / sus enrollments)
+- [ ] Al menos un recurso publicado por módulo prioritario (`004` + Admin)
+- [ ] `005_email_outbox.sql` + Edge Function Resend (`supabase/functions/README.md`)
+
+### Post-MVP (parcial)
+
+- Endurecimiento: `universo.slots.logic` + tests; MathAcademy fuera del build.
+- Contenido: ver `supabase/CONTENT.md`.
+- Email cohort: outbox + Resend (sin pagos / rol profesor aún).
 
 ---
 
