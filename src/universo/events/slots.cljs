@@ -2,12 +2,30 @@
   (:require
    [re-frame.core :as re-frame]
    [cljs.core.async :refer [go <!]]
-   [universo.db.crud :as crud]))
+   [universo.db.crud :as crud]
+   [universo.slots.logic :as logic]))
 
 (re-frame/reg-sub
- :slots/items
+ :slots/all-items
  (fn [db _]
    (get-in db [:slots :items] [])))
+
+(re-frame/reg-sub
+ :slots/band
+ (fn [db _]
+   (let [band (or (get-in db [:student-profile :theta_band])
+                  (get-in db [:student-profile :profile :theta-band]))]
+     (when (seq (str (or band ""))) band))))
+
+;; El filtro por banda se deriva, no se aplica al cargar: el perfil se pide en
+;; paralelo a los cupos y suele llegar después, así que filtrar en :slots/loaded
+;; dejaba la lista vacía para siempre aunque hubiera cupos de la banda.
+(re-frame/reg-sub
+ :slots/items
+ :<- [:slots/all-items]
+ :<- [:slots/band]
+ (fn [[items band] _]
+   (logic/filter-slots-for-band items band)))
 
 (re-frame/reg-sub
  :slots/my-enrollments
