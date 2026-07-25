@@ -29,6 +29,13 @@
            :guestbook []
            :guestbook-filter :pending
            :guestbook-counts {}
+           :questions []
+           :question-topics []
+           :question-topic-filter nil
+           :question-sort :default
+           :question-editing? false
+           :question-saving? false
+           :question-draft nil
            :resources []
            :resources-module-filter ""
            :editing-resource nil

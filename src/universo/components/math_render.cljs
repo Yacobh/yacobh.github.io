@@ -201,9 +201,13 @@
                      (case type
                        :display-math [:div.math-display
                                       {:style {:margin "0.5rem 0"
-                                               :text-align "center"}}
+                                               :text-align "center"
+                                               :font-size "1.4em"}}
                                       (render-latex-math content)]
-                       :inline-math  (render-latex-math content)
+                       :inline-math  [:span {:style {:font-size "1.3em"
+                                                     :margin "0 0.25em"
+                                                     :display "inline-block"}}
+                                      (render-latex-math content)]
                        :text         (into [:span] (parse-inline-markdown content))
                        [:span content]))
                    parts))))))

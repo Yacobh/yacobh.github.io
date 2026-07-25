@@ -1,9 +1,10 @@
 (ns universo.components.admin
-  "Panel de administración: resumen, usuarios, tests, recursos, cupos y moderación."
+  "Panel de administración: resumen, usuarios, tests, preguntas, recursos, cupos y moderación."
   (:require
    [clojure.string :as str]
    [re-frame.core :as re-frame]
-   [reagent.core :as r]))
+   [reagent.core :as r]
+   [universo.components.admin-questions :as admin-q]))
 
 ;; -----------------------------------------------------------------------------
 ;; Utilidades de formato
@@ -987,6 +988,7 @@
   [[:overview "Resumen"]
    [:users "Usuarios"]
    [:tests "Diagnósticos"]
+   [:questions "Preguntas"]
    [:resources "Recursos"]
    [:slots "Cupos"]
    [:guestbook "Moderación"]])
@@ -1049,6 +1051,7 @@
               :overview [overview-panel]
               :users [users-panel]
               :tests [tests-panel]
+              :questions [admin-q/questions-panel]
               :resources [resources-panel]
               :slots [slots-admin-panel]
               :guestbook [guestbook-panel]

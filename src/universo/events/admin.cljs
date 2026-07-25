@@ -20,6 +20,7 @@
   {:overview :admin/load-overview
    :users :admin/load-profiles
    :tests :admin/load-tests
+   :questions :admin/load-questions
    :resources :admin/load-resources
    :slots :admin/load-slots
    :guestbook :admin/load-guestbook})
@@ -503,3 +504,235 @@
    {:dispatch-n [[:admin/toast :success "Entrada eliminada permanentemente."]
                  [:admin/refresh-guestbook-counts]
                  [:admin/invalidate :overview]]}))
+
+;; -----------------------------------------------------------------------------
+;; Preguntas (banco IRT)
+;; -----------------------------------------------------------------------------
+
+(def empty-question-draft
+  {:id nil
+   :question ""
+   :option_a ""
+   :option_b ""
+   :option_c ""
+   :option_d ""
+   :correct_option "A"
+   :error_a ""
+   :error_b ""
+   :error_c ""
+   :error_d ""
+   :topic ""
+   :order_index nil
+   :difficulty nil
+   :module_id nil})
+
+(re-frame/reg-sub
+ :admin/questions
+ (fn [db _]
+   (get-in db [:admin :questions] [])))
+
+(re-frame/reg-sub
+ :admin/question-topics
+ (fn [db _]
+   (get-in db [:admin :question-topics] [])))
+
+(re-frame/reg-sub
+ :admin/question-topic-filter
+ (fn [db _]
+   (get-in db [:admin :question-topic-filter])))
+
+(re-frame/reg-sub
+ :admin/question-sort
+ (fn [db _]
+   (get-in db [:admin :question-sort] :default)))
+
+(re-frame/reg-sub
+ :admin/question-editing?
+ (fn [db _]
+   (get-in db [:admin :question-editing?] false)))
+
+(re-frame/reg-sub
+ :admin/question-saving?
+ (fn [db _]
+   (get-in db [:admin :question-saving?] false)))
+
+(re-frame/reg-sub
+ :admin/question-draft
+ (fn [db _]
+   (get-in db [:admin :question-draft])))
+
+(defn- difficulty-sort-key
+  [q ascending?]
+  (let [d (:difficulty q)
+        missing? (nil? d)
+        n (if missing? 0 (js/Number d))
+        id (or (:id q) 0)]
+    (if ascending?
+      [(if missing? 1 0) n id]
+      [(if missing? 1 0) (- n) (- id)])))
+
+(re-frame/reg-sub
+ :admin/questions-view
+ :<- [:admin/questions]
+ :<- [:admin/question-sort]
+ (fn [[rows sort-mode] _]
+   (case sort-mode
+     :difficulty-asc (vec (sort-by #(difficulty-sort-key % true) rows))
+     :difficulty-desc (vec (sort-by #(difficulty-sort-key % false) rows))
+     (or rows []))))
+
+(re-frame/reg-event-fx
+ :admin/set-question-topic-filter
+ (fn [{:keys [db]} [_ topic]]
+   {:db (-> db
+            (assoc-in [:admin :question-topic-filter]
+                      (when (and topic (pos? (count topic))) topic))
+            (update-in [:admin :status :questions] dissoc :loaded-at))
+    :dispatch [:admin/load-questions]}))
+
+(re-frame/reg-event-db
+ :admin/set-question-sort
+ (fn [db [_ sort-mode]]
+   (assoc-in db [:admin :question-sort] (or sort-mode :default))))
+
+(re-frame/reg-fx
+ :admin/fetch-questions
+ (fn [topic]
+   (go
+     (let [topics-result (<! (crud/get-distinct-topics))
+           qs-result (<! (crud/fetch-admin-questions topic))]
+       (when (:success topics-result)
+         (re-frame/dispatch [:admin/question-topics-loaded (:data topics-result)]))
+       (if (:success qs-result)
+         (re-frame/dispatch [:admin/questions-loaded (:data qs-result)])
+         (re-frame/dispatch [:admin/section-fail :questions
+                             (or (:error qs-result)
+                                 "No se pudieron cargar preguntas")]))))))
+
+(re-frame/reg-event-fx
+ :admin/load-questions
+ (fn [{:keys [db]} _]
+   {:dispatch [:admin/section-start :questions]
+    :admin/fetch-questions (get-in db [:admin :question-topic-filter])}))
+
+(re-frame/reg-event-db
+ :admin/question-topics-loaded
+ (fn [db [_ topics]]
+   (assoc-in db [:admin :question-topics] (or topics []))))
+
+(re-frame/reg-event-fx
+ :admin/questions-loaded
+ (fn [{:keys [db]} [_ rows]]
+   {:db (assoc-in db [:admin :questions] (or rows []))
+    :dispatch [:admin/section-ok :questions]}))
+
+(re-frame/reg-event-db
+ :admin/new-question
+ (fn [db _]
+   (let [filter-topic (get-in db [:admin :question-topic-filter])]
+     (-> db
+         (assoc-in [:admin :question-editing?] true)
+         (assoc-in [:admin :question-draft]
+                   (cond-> empty-question-draft
+                     filter-topic (assoc :topic filter-topic)))))))
+
+(re-frame/reg-event-db
+ :admin/edit-question
+ (fn [db [_ row]]
+   (let [draft (-> (merge empty-question-draft
+                          (select-keys row
+                                       [:id :question :option_a :option_b :option_c :option_d
+                                        :correct_option :error_a :error_b :error_c :error_d
+                                        :topic :order_index :difficulty :module_id]))
+                   (update :correct_option #(some-> % str str/trim)))]
+     (-> db
+         (assoc-in [:admin :question-editing?] true)
+         (assoc-in [:admin :question-draft] draft)))))
+
+(re-frame/reg-event-db
+ :admin/cancel-question-edit
+ (fn [db _]
+   (-> db
+       (assoc-in [:admin :question-editing?] false)
+       (assoc-in [:admin :question-draft] nil)
+       (assoc-in [:admin :question-saving?] false))))
+
+(re-frame/reg-event-db
+ :admin/update-question-draft
+ (fn [db [_ k v]]
+   (assoc-in db [:admin :question-draft k] v)))
+
+(defn- question-draft-valid? [draft]
+  (and (pos? (count (str/trim (or (:question draft) ""))))
+       (pos? (count (str/trim (or (:option_a draft) ""))))
+       (pos? (count (str/trim (or (:option_b draft) ""))))
+       (pos? (count (str/trim (or (:option_c draft) ""))))
+       (pos? (count (str/trim (or (:option_d draft) ""))))
+       (pos? (count (str/trim (or (:topic draft) ""))))
+       (#{"A" "B" "C" "D"} (str/trim (str (:correct_option draft))))))
+
+(re-frame/reg-event-fx
+ :admin/save-question
+ (fn [{:keys [db]} _]
+   (let [draft (get-in db [:admin :question-draft])]
+     (if-not (question-draft-valid? draft)
+       {:dispatch [:admin/toast :error
+                   "Completa enunciado, opciones A–D, tema y respuesta correcta."]}
+       {:db (assoc-in db [:admin :question-saving?] true)
+        :admin/persist-question draft}))))
+
+(re-frame/reg-fx
+ :admin/persist-question
+ (fn [draft]
+   (go
+     (let [result (if (:id draft)
+                    (<! (crud/update-admin-question! (:id draft) draft))
+                    (<! (crud/insert-admin-question! draft)))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/question-saved])
+         (re-frame/dispatch [:admin/question-save-failed
+                             (or (:error result) "No se pudo guardar")]))))))
+
+(re-frame/reg-event-fx
+ :admin/question-saved
+ (fn [{:keys [db]} _]
+   {:db (-> db
+            (assoc-in [:admin :question-saving?] false)
+            (assoc-in [:admin :question-editing?] false)
+            (assoc-in [:admin :question-draft] nil)
+            (update-in [:admin :status :questions] dissoc :loaded-at))
+    :dispatch-n [[:admin/toast :success "Pregunta guardada."]
+                 [:admin/load-questions]]}))
+
+(re-frame/reg-event-fx
+ :admin/question-save-failed
+ (fn [{:keys [db]} [_ msg]]
+   {:db (assoc-in db [:admin :question-saving?] false)
+    :dispatch [:admin/toast :error msg]}))
+
+(re-frame/reg-event-fx
+ :admin/delete-question
+ (fn [{:keys [db]} [_ question-id]]
+   {:db (assoc-in db [:admin :question-saving?] true)
+    :admin/remove-question question-id}))
+
+(re-frame/reg-fx
+ :admin/remove-question
+ (fn [question-id]
+   (go
+     (let [result (<! (crud/delete-admin-question! question-id))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/question-deleted])
+         (re-frame/dispatch [:admin/question-save-failed
+                             (or (:error result) "No se pudo eliminar")]))))))
+
+(re-frame/reg-event-fx
+ :admin/question-deleted
+ (fn [{:keys [db]} _]
+   {:db (-> db
+            (assoc-in [:admin :question-saving?] false)
+            (assoc-in [:admin :question-editing?] false)
+            (assoc-in [:admin :question-draft] nil)
+            (update-in [:admin :status :questions] dissoc :loaded-at))
+    :dispatch-n [[:admin/toast :success "Pregunta eliminada."]
+                 [:admin/load-questions]]}))
