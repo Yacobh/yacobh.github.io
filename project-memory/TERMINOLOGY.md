@@ -1,0 +1,307 @@
+# TERMINOLOGY
+
+Última actualización: **2026-07-26**
+
+Glosario del proyecto. Incluye términos del dominio (psicometría, PAES), del producto y del código.
+**Si un término aparece en el código con un nombre distinto al del negocio, aquí se registran ambos.**
+
+---
+
+## Dominio: psicometría e IRT
+
+**IRT / TRI — Item Response Theory / Teoría de Respuesta al Ítem**
+Familia de modelos psicométricos que relacionan la probabilidad de responder correctamente un ítem
+con la habilidad del examinado y las propiedades del ítem. Es el enfoque de las pruebas
+estandarizadas y el fundamento del diagnóstico de este producto.
+
+**θ (theta) — habilidad estimada**
+Parámetro continuo que representa el nivel del estudiante, en logits. En este proyecto se acota a
+`[-3, 3]` y arranca en `0.0`. En el código: `:theta` en `app-db`, `theta` en `student_profiles`.
+No es una nota ni un puntaje PAES: es una **estimación** en escala logística.
+
+**b — dificultad del ítem**
+Parámetro del ítem en la misma escala que θ. En la base de datos es `questions.difficulty`.
+En el modelo 1PL, cuando `θ = b`, la probabilidad de acierto es 0,5.
+
+**1PL / Modelo de Rasch**
+Modelo IRT de un parámetro: `P(correcto | θ, b) = 1 / (1 + e^-(θ-b))`. Solo la dificultad
+distingue a los ítems (no se modela discriminación ni azar). Implementado en
+`universo.components.tetha/probability-1pl`. Ver [[../adr/ADR-004-irt-1pl-map-y-regla-de-parada]].
+
+**MAP — Maximum A Posteriori**
+Método de estimación que combina la verosimilitud de las respuestas con un **prior** sobre θ. Aquí
+el prior es N(0, 1) (precisión 1.0), lo que **encoge θ hacia 0 cuando hay pocas respuestas** y evita
+estimaciones extremas al inicio del test. Funciones: `map-first-derivative`, `map-second-derivative`.
+
+**Newton-Raphson**
+Método iterativo para encontrar el máximo del posterior: `θ' = θ − f'(θ)/f''(θ)`. Una iteración por
+respuesta (`newton-raphson-iteration`).
+
+**Δθ máximo (`max-theta-step`)**
+Límite de 0,4 logits al cambio de θ entre ítems consecutivos. Motivo: que la experiencia no salte de
+"muy fácil" a "imposible" por una sola respuesta. Función: `limit-theta-step`.
+
+**Información de Fisher — I(θ)**
+Cantidad de información que las respuestas aportan sobre θ. En 1PL, `I(θ) = Σ P(1−P) = −f''(θ)`.
+Función: `universo.irt.progress/fisher-information`.
+
+**SE(θ) — error estándar de la estimación**
+`SE = 1/√I(θ)`. Mide la precisión de θ: más bajo = más preciso. Cuando no hay información, es `##Inf`.
+Es el criterio de parada del test.
+
+**Regla de parada (`stop-reason`)**
+El diagnóstico termina cuando: `n ≥ 12` → `:max-items`; `n ≥ 5` y `SE ≤ 0,35` → `:precision`; o no
+quedan ítems → `:exhausted`. Configurable vía `default-stop-config`.
+
+**Estabilidad de θ (`stability`)**
+Varianza de los últimos 3 valores de `theta-history`; se considera estable si es `< 0,15`. Producida
+por `universo.profile/build`.
+
+**Banda de θ (`theta_band`)**
+Discretización de θ en cuatro niveles usada para agrupar cohortes:
+
+| Banda | Rango | Etiqueta visible |
+|-------|-------|------------------|
+| `inicial` | θ < 0 | Inicial |
+| `basico` | 0 ≤ θ < 1 | Básico |
+| `intermedio` | 1 ≤ θ < 2 | Intermedio |
+| `avanzado` | θ ≥ 2 | Avanzado |
+
+Definida en `universo.profile/theta-band` y en el `check` de `class_slots.theta_band`.
+**Ojo:** los valores en base de datos van **sin acento** (`basico`); la etiqueta con acento se
+produce con `band-label`.
+
+**Distractor**
+Alternativa incorrecta de un ítem de selección múltiple. En este producto cada distractor debe
+corresponder a una idea errónea identificable, no a un relleno.
+
+**Misconception — idea errónea**
+El error conceptual concreto detrás de haber elegido un distractor determinado. Se almacena como
+texto en `questions.error_a` … `error_d` y se muestra al estudiante como explicación.
+Es **el diferencial del producto**: no "te equivocaste", sino *por qué*.
+
+**Déficit (`deficits`)**
+Agrupación de errores por módulo: `{:module-slug … :errors N :total M}`. Ordenados por tasa de error
+descendente. Producidos por `universo.profile/deficits-from-responses`. Son el insumo del plan.
+
+**Calibración**
+Estimar los parámetros de los ítems (aquí, `difficulty`) a partir de respuestas reales, en lugar de
+asignarlos a criterio. **Pendiente en este proyecto** ([[OPEN_QUESTIONS]] Q-05, [[RISKS]] R-17).
+
+---
+
+## Dominio: educación chilena
+
+**PAES — Prueba de Acceso a la Educación Superior**
+Sistema de pruebas de admisión universitaria en Chile, sucesor de la PSU. Se rinde hacia fin de año.
+
+**Matemática 1 (M1)**
+Prueba obligatoria de la PAES que cubre números, álgebra y funciones, geometría y probabilidad. **Es
+el único alcance del producto** (M2 está fuera).
+
+**Baldor**
+Referencia al *Álgebra de Baldor*, texto clásico latinoamericano. Aquí se usa como **criterio de
+descomposición del contenido en skills atómicas** (los `modules`), no como fuente literal de
+material. De ahí "módulos Baldor-aligned" en las migraciones.
+
+**Track**
+Área temática de un módulo. Solo tres valores permitidos: `aritmetica`, `algebra`, `geometria`
+(check en `modules.track`).
+
+**Módulo (`modules`)**
+Skill atómica identificada por `slug` con formato `track/tema`, p. ej. `aritmetica/fracciones`.
+Tiene `title`, `order_index` y `historical_blurb`.
+
+**`historical_blurb`**
+Párrafo breve de contexto histórico del módulo (de dónde viene el concepto). Recurso pedagógico y
+diferenciador de tono, sembrado en `002` y enriquecido en `004`.
+
+**Capa 0 / Capa 1**
+Las dos capas de contenido pedagógico ([[../adr/ADR-005-banco-de-items-en-vez-de-cms]]):
+
+- **Capa 0** — las explicaciones de error en `questions.error_a..d`. Es lo que aparece en el
+  feedback del diagnóstico y en la primera parte de "Mi plan". Barata de producir, alto valor.
+- **Capa 1** — los `resources` por módulo (`text`, `video_url`, `audio_url`, `exercise`). Material
+  de estudio propiamente tal.
+
+---
+
+## Producto
+
+**Academia Integral**
+Nombre comercial y de marca del producto. Aparece en la landing, el JSON-LD y el footer.
+
+**Universo**
+Nombre **interno** del código: el namespace raíz es `universo.*`. Es un nombre histórico anterior al
+producto actual; no aparece de cara al usuario. **No confundir**: `universo.profile` es código de
+Academia Integral.
+
+**Funnel MVP**
+El recorrido operable completo: `Login → Diagnóstico IRT → Perfil → Mi plan → Cupos → Inscripción →
+Confirmación → Notificación`.
+
+**Diagnóstico**
+El test adaptativo. En el código: sección `:diagnostic-test`, estado `:test` en `app-db`, componente
+`components/diagnostic_test.cljs`. **No es una evaluación calificada** y así se comunica.
+
+**Perfil (de aprendizaje)**
+Resultado del diagnóstico: θ, SE, banda, track, déficits, misconceptions, estabilidad. Se materializa
+en `student_profiles.profile` (JSONB). **No confundir con `profiles`** (tabla de cuentas y roles).
+
+**Mi plan**
+La sección que muestra los déficits priorizados con capa 0 + capa 1. Sección `:plan`.
+
+**Cupo (`class_slots`)**
+Una instancia de clase publicada: banda, track, modalidad, fecha/hora, lugar o enlace, capacidad,
+mínimo de inscritos, estado, título. En la UI, sección `:cupos`.
+
+**Modalidad (`modality`)**
+`online` (videollamada) o `presencial` (Iquique).
+
+**`min_enrollments` — mínimo de inscritos**
+Umbral que un cupo debe alcanzar para pasar de `open` a `confirmed`. Es la regla que hace viable una
+cohorte ([[../adr/ADR-006-cohortes-por-banda-con-minimo-de-inscritos]]).
+
+**Estado de cupo (`status`)**
+`open` (abierto a inscripción) · `confirmed` (alcanzó el mínimo, el grupo va) · otros estados de
+cierre/cancelación. El estudiante solo ve `open` y `confirmed`.
+
+**Inscripción (`enrollments`)**
+Relación estudiante ↔ cupo, con `status`. Se consideran **activos** los `pending` y `confirmed`.
+
+**Roster**
+Lista de inscritos de un cupo, visible para el admin.
+
+**Outbox (`email_outbox`)**
+Cola de correos pendientes de envío, con `status` (`pending`/`sent`/`failed`), `attempts` y
+`last_error`. Patrón *transactional outbox*: la DB encola, un proceso aparte envía
+([[../adr/ADR-007-email-outbox-con-edge-function]]).
+
+**Guestbook / libro de visitas**
+Firmas públicas moderadas. Su moderación es **tri-state**: `is_approved = null` pendiente,
+`true` aprobado (visible como testimonio en la landing), `false` papelera.
+
+**MathAcademy**
+Producto anterior/paralelo dentro del mismo repositorio, **archivado** y fuera del build. Ver
+`src/universo/components/mathacademy/ARCHIVE.md` y
+[[../adr/ADR-008-archivar-mathacademy]].
+
+---
+
+## Código y arquitectura
+
+**re-frame**
+Framework de arquitectura del cliente. Vocabulario:
+
+- **`app-db`** — el átomo único con **todo** el estado de la aplicación. Su forma canónica está en
+  `universo.db/default-db`.
+- **evento (`reg-event-db` / `reg-event-fx`)** — la única forma de cambiar el estado. `-db` para
+  cambios puros, `-fx` cuando además hay efectos.
+- **efecto (`reg-fx`)** — la frontera con el mundo exterior (Supabase, `js/Date`, timers).
+- **suscripción (`reg-sub`)** — lectura derivada del `app-db`; lo único que consumen los componentes.
+- **`dispatch` / `dispatch-sync`** — enviar un evento (asíncrono / inmediato, este último solo para
+  la inicialización).
+
+**Reagent**
+Envoltorio ClojureScript de React. Los componentes son funciones que devuelven **Hiccup**
+(`[:div {:class "…"} …]`).
+
+**Namespace puro**
+Namespace sin I/O ni estado: solo funciones de datos a datos. Aquí: `universo.profile`,
+`universo.slots.logic`, `universo.irt.progress`, `universo.components.tetha`. Son los namespaces con
+tests ([[../adr/ADR-009-logica-pura-testeable]]).
+
+**Espejo (regla espejo)**
+Regla de negocio implementada **dos veces a propósito**: en SQL (fuente de verdad) y en
+ClojureScript puro (para que la UI pueda anticipar el resultado sin esperar al servidor). Caso
+principal: la confirmación de cupo. Si se cambia una, hay que cambiar la otra ([[RISKS]] R-08).
+
+**`db.crud`**
+`universo.db.crud`: capa **canónica** de acceso a datos. Todas las funciones devuelven
+`{:success bool :data … :error …}` sobre `core.async`.
+
+**RLS — Row Level Security**
+Mecanismo de PostgreSQL que filtra filas por usuario mediante policies. En este proyecto es el
+**único** control de autorización.
+
+**`is_admin()`**
+Función SQL que indica si el usuario actual tiene `profiles.role = 'admin'`. Se usa en las policies
+de administración.
+
+**Sección (`:current-section`)**
+Unidad de navegación de la SPA (`:main`, `:login`, `:diagnostic-test`, `:dashboard`, `:plan`,
+`:cupos`, `:admin`, `:guestbook`, `:jacobocordova`). **No hay URLs**: la navegación es estado
+([[ARCHITECTURE]] §2.1).
+
+**`protected-sections`**
+Conjunto de secciones que exigen sesión: `:dashboard :diagnostic-test :admin :plan :cupos`.
+Es **UX, no seguridad** — la seguridad es RLS.
+
+**Prefetch**
+Cargar la siguiente pregunta mientras el estudiante lee el feedback de la actual, para que no haya
+espera al continuar. Estado: `:prefetched-question`, `:prefetching?`.
+
+**`normalize-question`**
+Traduce una fila de `questions` (columnas SQL) al mapa del dominio (`:options`, `:errors {:A …}`,
+`:difficulty`, `:module-slug`).
+
+**Topic / alias de topic**
+`questions.topic` es el identificador real del banco (p. ej. `numbers_V1`). La UI usa etiquetas
+legibles ("Números"), traducidas por `topic-aliases` en `events/test.cljs`. Además
+`profile/topic->module-slug` mapea topic → módulo; lo no mapeado cae en `unknown/*`.
+
+**Bundle (`public/js/app.js`)**
+El artefacto compilado por shadow-cljs. **Está versionado en Git y es el mecanismo de despliegue**
+([[../adr/ADR-003-github-pages-artefacto-versionado]]).
+
+---
+
+## Metodología y herramientas
+
+**PMF — Project Memory First**
+La metodología de este repositorio: la memoria del proyecto (Markdown versionado en Git) es la
+fuente de verdad; Obsidian y Graphify son capas complementarias.
+Ver [[../adr/ADR-010-adopcion-project-memory-first]].
+
+**Project Memory**
+El contenido de `project-memory/` + `adr/` + `sessions/` + `prompts/`.
+
+**ADR — Architecture Decision Record**
+Documento inmutable que registra una decisión: contexto, decisión, alternativas, consecuencias,
+riesgos y seguimiento. Un ADR no se edita para cambiar la decisión: se **reemplaza** por otro.
+
+**Session log (`SESSION-XXX.md`)**
+Bitácora de una sesión de trabajo: objetivo, actividades, archivos, decisiones, riesgos, próximos
+pasos y qué se actualizó en la memoria.
+
+**Handoff**
+`HANDOFF.md`: el documento que permite a una persona o agente nuevo continuar el proyecto sin
+acceso al historial de conversaciones.
+
+**Obsidian**
+Aplicación de notas usada como **Knowledge Workspace** (navegación, Graph View, Canvas) sobre los
+mismos archivos Markdown. **No es** fuente de verdad ([[OBSIDIAN_WORKSPACE_GUIDE]]).
+
+**Graphify**
+Herramienta CLI que construye un **grafo de conocimiento del repositorio** (nodos, aristas,
+comunidades, god nodes) y genera `GRAPH_REPORT.md`, `graph.json` y `graph.html`. Herramienta de
+análisis, **no** fuente de verdad ([[GRAPHIFY_INTEGRATION_GUIDE]]).
+
+**God node**
+En Graphify, nodo con más conexiones: candidato a abstracción central del sistema.
+
+**Comunidad (Graphify)**
+Grupo de nodos densamente interconectados detectado automáticamente; aproxima un subsistema.
+
+**Hiperarista (Graphify)**
+Relación entre **más de dos** nodos, que representa un flujo o proceso completo (p. ej. el funnel
+MVP como un solo hecho).
+
+**`graphify update` / `cluster-only`**
+`update`: re-extrae archivos cambiados y actualiza el grafo (AST, sin costo de API).
+`cluster-only`: re-agrupa el grafo existente y regenera reporte y visualización.
+
+---
+
+Relacionado: [[ARCHITECTURE]] · [[REQUIREMENTS]] · [[PROJECT_BRIEF]] · `supabase/SCHEMA.md` ·
+`supabase/CONTENT.md`
