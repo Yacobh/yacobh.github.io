@@ -24,6 +24,15 @@ public/js/*.js.map
 .repl/
 *.log
 
+# --- Herramientas de agente / ahorro de tokens ---
+# graphify-out/ es el directorio de TRABAJO de la herramienta (se regenera con
+# `graphify update .`); el snapshot citable vive en project-memory/graph/.
+# Ver project-memory/GRAPHIFY_INTEGRATION_GUIDE.md.
+graphify-out/
+# .obsidian/ es configuración personal del Vault (un solo desarrollador hoy).
+# Ver project-memory/OBSIDIAN_WORKSPACE_GUIDE.md §3.
+.obsidian/
+
 # --- Entorno y secretos ---
 .env
 .env.*
