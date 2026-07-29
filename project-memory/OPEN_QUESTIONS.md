@@ -146,10 +146,17 @@ el tiempo al modelo (lo segundo es un cambio de dominio → ADR).
 
 ## Técnicas
 
-### 🔴 Q-04 · ¿La inscripción respeta `capacity`?
-`class_slots.capacity` existe, pero no está verificado si hay check o trigger que impida superarla.
-**Bloquea:** T-03, cierre de F3. **Cómo responderla:** leer los triggers de
-`001_mvp_schema.sql` sobre `enrollments`.
+### ✅ Q-04 · ¿La inscripción respeta `capacity`? — Respondida 2026-07-29
+**No.** `001_mvp_schema.sql` solo define un trigger `enrollments_confirm_threshold`
+(`AFTER INSERT OR UPDATE OF status ON enrollments`) que ejecuta
+`confirm_slot_if_threshold()`: recalcula `active_enrollments` y confirma el cupo cuando llega a
+`min_enrollments`. No hay ningún `BEFORE INSERT` ni `CHECK` que impida que los enrollments activos
+superen `class_slots.capacity`. La policy `enrollments_insert_own` (`001`) solo exige
+`user_id = auth.uid()`, sin condición de cupo. El único límite es de UI:
+`components/slots.cljs` oculta el botón "Inscribirme" cuando `active >= capacity` (muestra "Cupo
+lleno"), pero eso no es un control de seguridad — una llamada directa a la API de Supabase con un
+usuario autenticado puede insertar el enrollment N+1 sin error.
+**Bloquea:** T-03, cierre de F3 → **sigue bloqueando**, ahora con causa raíz confirmada.
 
 ### 🟠 Q-12 · ¿Qué policy usa el estudiante para leer `questions`?
 `007_questions_admin_rls.sql` restringe SELECT a `is_admin()`, pero el diagnóstico necesita leer

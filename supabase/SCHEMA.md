@@ -95,6 +95,16 @@ Agrega `profiles.full_name` y `profiles.phone` (nullable). Editables por el prop
 "Configuración de cuenta" (`components/cuenta.cljs`) sin policy nueva: `profiles_update_own`
 (`admin_rls.sql`) ya permite tocar cualquier columna de la propia fila salvo `role`.
 
+## Control de capacidad en inscripciones (`011_enrollments_capacity_check.sql`)
+
+`001` solo confirma el cupo al llegar a `min_enrollments` (trigger `AFTER INSERT/UPDATE`); no
+había ningún control que impidiera superar `class_slots.capacity` — el único límite era de UI
+(ver [[../project-memory/OPEN_QUESTIONS]] Q-04). Esta migración agrega un trigger
+`BEFORE INSERT OR UPDATE OF status` (`enforce_slot_capacity`) que cuenta los enrollments
+`pending|confirmed` del cupo (excluyendo la propia fila) y rechaza con `raise exception` si ya
+alcanzó `capacity`. Espejo puro: `universo.slots.logic/capacity-reached?`
+(`test/universo/slots/logic_test.cljs`).
+
 ## Orden de aplicación
 
 1. `admin_rls.sql` (si aún no)
@@ -109,4 +119,5 @@ Agrega `profiles.full_name` y `profiles.phone` (nullable). Editables por el prop
 10. `migrations/008_fix_profiles_created_at.sql`
 11. `migrations/009_account_deletion_requests.sql`
 12. `migrations/010_profile_name_phone.sql`
-13. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+13. `migrations/011_enrollments_capacity_check.sql`
+14. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`

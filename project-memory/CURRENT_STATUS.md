@@ -21,6 +21,29 @@
 > rings en preguntas del admin); código muerto eliminado (`math_render.cljs` parser duplicado,
 > tres borradores de `clojure-watermark` en `resume.cljs`). `clj -M:test` sigue en
 > **34 tests / 129 assertions / 0 failures**. Ver [[DECISIONS]] D-24/D-25.
+>
+> **Rama `visual-fixes` (2026-07-29):** un commit (`520ff79` "minor fixes") sobre `4998785`, árbol
+> limpio, `git log main..visual-fixes` = solo ese commit. La preocupación de BL-04/T-08 sobre
+> `public/js/app.js` sin commitear **ya no aplica tal como está descrita**: hoy no hay cambios sin
+> commitear en ninguna rama activa (verificar igual antes de publicar, T-08 sigue abierta como
+> checklist de recompilación de rutina).
+>
+> **T-03 revisada e implementada (2026-07-29):** se leyó `001_mvp_schema.sql` completo para
+> responder Q-04. **Confirmado: `class_slots.capacity` no se controlaba en la base de datos** — el
+> único trigger sobre `enrollments` (`enrollments_confirm_threshold`, `AFTER INSERT/UPDATE OF
+> status`) confirma el cupo al llegar a `min_enrollments` pero corre después del insert y no
+> rechaza nada; la policy `enrollments_insert_own` solo exige `user_id = auth.uid()`; el único
+> límite era de UI (`components/slots.cljs` ocultaba el botón sin respaldo en datos). Se agregó:
+> - `supabase/migrations/011_enrollments_capacity_check.sql` — trigger `BEFORE INSERT OR UPDATE OF
+>   status` que rechaza con `raise exception 'Cupo lleno'` si el cupo ya alcanzó `capacity`.
+> - `universo.slots.logic/capacity-reached?` — espejo puro, con test.
+> - `components/slots.cljs` refactorizado para usar la función pura en vez de calcular `full?`
+>   inline.
+> - `clj -M:test`: **34 tests / 133 assertions / 0 failures** (antes 129).
+>
+> **Pendiente:** la migración `011` está escrita pero **no aplicada** en el proyecto Supabase real
+> (se aplican a mano, §9 de `CLAUDE.md`). Hasta que se aplique, el control sigue siendo solo de UI
+> en producción. Detalle en [[OPEN_QUESTIONS]] Q-04 (respondida) y [[BACKLOG]] T-03 (`en curso`).
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
@@ -83,6 +106,7 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 - [x] `007_questions_admin_rls.sql` aplicada (CRUD admin de preguntas)
 - [ ] **Al menos un recurso publicado por módulo prioritario** (`004` + Admin → Recursos)
 - [ ] **`005_email_outbox.sql` aplicada + Edge Function desplegada con `RESEND_API_KEY`**
+- [ ] `011_enrollments_capacity_check.sql` aplicada (control de capacidad en inscripciones, T-03)
 - [ ] Cupos reales (no demo) publicados con fecha, sala/enlace y mínimo definidos
 - [ ] Recompilar (`shadow-cljs release app` + `build:css`) y publicar en `main`
 

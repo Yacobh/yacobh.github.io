@@ -26,6 +26,13 @@
   (max 0 (- (long (or min-enrollments 0))
             (long (or active-count 0)))))
 
+(defn capacity-reached?
+  "Espejo del trigger enforce_slot_capacity: true si el cupo ya no admite más
+   inscripciones activas."
+  [active-count capacity]
+  (>= (long (or active-count 0))
+      (long (or capacity 0))))
+
 (defn should-confirm-slot?
   "Espejo del trigger: confirma si hay al menos min_enrollments activos
    y el cupo sigue open."

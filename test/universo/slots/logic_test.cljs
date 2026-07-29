@@ -25,6 +25,12 @@
               [{:status "pending"} {:status "confirmed"} {:status "cancelled"}])))
     (is (= 0 (logic/active-enrollment-count []))))
 
+  (testing "capacity-reached?"
+    (is (false? (logic/capacity-reached? 2 3)))
+    (is (true? (logic/capacity-reached? 3 3)))
+    (is (true? (logic/capacity-reached? 5 3)))
+    (is (false? (logic/capacity-reached? 0 3))))
+
   (testing "remaining"
     (is (= 2 (logic/remaining-to-confirm 1 3)))
     (is (= 0 (logic/remaining-to-confirm 3 3)))

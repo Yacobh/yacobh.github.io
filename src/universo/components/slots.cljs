@@ -28,7 +28,7 @@
         cap (or (:capacity slot) 8)
         remaining (logic/remaining-to-confirm active min-n)
         confirmed? (= (:status slot) "confirmed")
-        full? (>= active cap)]
+        full? (logic/capacity-reached? active cap)]
     [:div.border.border-gray-200.rounded-lg.p-4.bg-white.space-y-2
      [:div.flex.flex-wrap.justify-between.gap-2
       [:h3.font-semibold.text-gray-900

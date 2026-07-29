@@ -34,15 +34,32 @@ Publicar al menos un `resource` por cada módulo prioritario de `supabase/CONTEN
   con `sent_at` poblado y el correo llega a una bandeja real (no spam).
 - **Relacionado:** [[ROADMAP]] F5/H5, [[RISKS]] R-12, [[../adr/ADR-007-email-outbox-con-edge-function]].
 
-### T-03 · Verificar control de capacidad en la inscripción — **P0** · `abierto`
+### T-03 · Agregar control de capacidad en la inscripción — **P0** · `en curso` (falta aplicar en Supabase)
 
-Confirmar en `001_mvp_schema.sql` si existe check/trigger que impida que los enrollments activos
-superen `class_slots.capacity`. Si no existe, agregarlo **y** su espejo puro en
-`universo.slots.logic` con test.
+**2026-07-29:** confirmado que **no existía** ningún check/trigger que impidiera que los
+enrollments activos superaran `class_slots.capacity` — ver detalle en
+[[OPEN_QUESTIONS]] Q-04 (respondida).
 
-- **Terminado cuando:** intentar la inscripción N+1 en un cupo con `capacity = N` falla en la DB
-  con un error legible, la UI lo comunica, y hay test de `slots.logic` para el caso "cupo lleno".
-- **Relacionado:** [[OPEN_QUESTIONS]] Q-04, [[REQUIREMENTS]] RF-5.10.
+**Código listo, migración aún no aplicada al proyecto real:**
+- `supabase/migrations/011_enrollments_capacity_check.sql` — trigger
+  `BEFORE INSERT OR UPDATE OF status` (`enforce_slot_capacity`) que cuenta enrollments
+  `pending|confirmed` del cupo (excluyendo la propia fila) y rechaza con `raise exception 'Cupo
+  lleno'` si ya alcanzó `capacity`.
+- `universo.slots.logic/capacity-reached?` — espejo puro, con test en
+  `test/universo/slots/logic_test.cljs` (4 assertions nuevas).
+- `components/slots.cljs` refactorizado para usar `logic/capacity-reached?` en vez de calcular
+  `full?` inline (regla del proyecto: lógica de negocio en namespace puro).
+- `clj -M:test`: **34 tests / 133 assertions / 0 failures**.
+- La UI ya comunicaba "Cupo lleno" (existía antes, solo era UI sin respaldo en DB); con la
+  migración aplicada, un intento directo a la API que la sortee también falla, y
+  `crud/enroll-in-slot!` ya propaga `error.message` → `:slots/enroll-fail` sin cambios adicionales.
+
+- **Falta para cerrar:** aplicar `011_enrollments_capacity_check.sql` en el proyecto Supabase real
+  (SQL Editor, después de `010`) y verificar en vivo que la inscripción N+1 en un cupo con
+  `capacity = N` falla con error legible.
+- **Terminado cuando:** lo anterior está hecho y verificado contra el proyecto real.
+- **Relacionado:** [[OPEN_QUESTIONS]] Q-04 (respondida), [[REQUIREMENTS]] RF-5.10,
+  `supabase/SCHEMA.md` §Control de capacidad.
 
 ### T-04 · Publicar cupos reales y retirar los demo — **P0** · `bloqueado` (negocio)
 
