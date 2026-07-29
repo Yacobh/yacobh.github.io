@@ -3,7 +3,8 @@
    [re-frame.core :as re-frame]
    [reagent.core :as r]
    [universo.profile :as profile]
-   [universo.slots.logic :as logic]))
+   [universo.slots.logic :as logic]
+   [universo.components.ui :as ui]))
 
 (defn- format-dt [iso]
   (when iso
@@ -56,7 +57,7 @@
        [:p.text-sm.text-gray-500 "Cupo lleno"]
 
        :else
-       [:button.bg-indigo-600.text-white.text-sm.font-semibold.py-2.px-4.rounded-lg.hover:bg-indigo-700
+       [:button.bg-indigo-600.text-white.text-sm.font-semibold.py-2.px-4.rounded-lg.hover:bg-indigo-700.transition
         {:type "button"
          :on-click #(re-frame/dispatch [:slots/enroll (:id slot)])}
         "Inscribirme"])]))
@@ -111,7 +112,7 @@
            (for [n unread]
              ^{:key (:id n)}
              [:p.text-sm.text-green-900.mb-1 (:message n)])]
-          [:button.text-xs.text-green-700.underline
+          [:button.text-xs.text-green-700.underline.hover:text-green-900.transition
            {:type "button"
             :on-click #(re-frame/dispatch [:notifications/dismiss])}
            "Marcar leídas"]]])
@@ -123,7 +124,7 @@
 
       (cond
         loading?
-        [:p.text-center.text-gray-500.py-10 "Cargando cupos…"]
+        [ui/loading-block "Cargando cupos…"]
 
         (nil? band)
         [:div.bg-white.rounded-xl.shadow.p-8.text-center

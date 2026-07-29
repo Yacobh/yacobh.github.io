@@ -84,6 +84,15 @@
 
    :notifications {:items []}
 
+   ;; Diálogo de confirmación global (reemplaza js/confirm nativo).
+   ;; :variant → nil | :danger (paleta roja para acciones destructivas)
+   :confirm {:open? false
+             :title nil
+             :message nil
+             :confirm-label nil
+             :variant nil
+             :on-confirm nil}
+
    :account {:profile nil
              :profile-loading? false
              ;; :save-status → nil | :saving | :saved | :error

@@ -1,6 +1,6 @@
 # ARCHITECTURE
 
-Última actualización: **2026-07-28** · Verificado contra `src/`, `supabase/`, `shadow-cljs.edn`,
+Última actualización: **2026-07-29** · Verificado contra `src/`, `supabase/`, `shadow-cljs.edn`,
 `index.html` y `project-memory/graph/GRAPH_REPORT.md`
 
 ---
@@ -122,6 +122,7 @@ fácil" a "imposible"; parada por SE en lugar de número fijo de preguntas.
 | Plan | `events/plan.cljs` + `components/plan.cljs` | Capa 0 (errores explicados) desde las respuestas; capa 1 = `resources` publicados de los `deficit-slugs` |
 | Cupos | `events/slots.cljs` + `components/slots.cljs` + `universo.slots.logic` | `slots.logic` es el **espejo puro** de reglas que la DB también impone: filtro por banda, conteo activo, faltantes, confirmación |
 | Cuenta | `events/account.cljs` + `components/cuenta.cljs` | Sección propia (`:cuenta`, protegida por sesión): editar `full_name`/`phone` en `profiles` y solicitar eliminación de cuenta (inserta una `notifications` con `kind = 'account_deletion_request'`; el admin la atiende desde `components/admin.cljs`, pestaña Usuarios) |
+| UI compartida | `events/ui.cljs` + `components/ui.cljs` | Piezas transversales (2026-07-29): `ui/spinner`/`ui/loading-block` (spinner único con `role="status"`, usado por dashboard, plan, cupos, cuenta, diagnóstico, guestbook y admin) y `ui/confirm-dialog` (diálogo de confirmación global vía `[:confirm/ask {...}]`, reemplaza `js/confirm` nativo; montado una sola vez en `home.cljs`) |
 
 > **Duplicación deliberada:** la regla de confirmación existe en el trigger SQL (fuente de verdad)
 > y en `slots.logic/should-confirm-slot?` (para que la UI pueda anticipar sin round-trip). Si se

@@ -1,6 +1,6 @@
 # DECISIONS
 
-Última actualización: **2026-07-28** (D-20 a D-22)
+Última actualización: **2026-07-29** (D-24, D-25)
 
 Registro central de decisiones. Cada decisión con consecuencias arquitectónicas o de producto tiene
 un **ADR** en `../adr/`. Este archivo es el índice y el lugar donde viven las decisiones **menores**
@@ -59,6 +59,8 @@ alternativas relevantes o (d) alguien podría cuestionar en seis meses → **ADR
 | D-21 | 2026-07-28 | Edad mínima de cuenta: **declaración propia** al registrarse ("14 años o más, o autorización de mi representante"), sin campo de fecha de nacimiento ni bloqueo duro | Ley 21.719 (vigencia 1/12/2026) exige distinto tratamiento por edad; una declaración autoafirmada es proporcional al tamaño y riesgo actual del proyecto, frente a construir un flujo de verificación/consentimiento parental completo | [[OPEN_QUESTIONS]] Q-03, `login.cljs` |
 | D-22 | 2026-07-28 | Eliminación de cuenta es **semi-manual**: el usuario solicita desde "Configuración de cuenta", el admin ve la alerta en Admin → Usuarios y borra la cuenta a mano en Supabase; no hay autoservicio ni automatización | El borrado real de `auth.users` requiere `service_role`, que por seguridad nunca vive en el cliente (regla §7 de CLAUDE.md); automatizarlo entero es desproporcionado al volumen actual | [[OPEN_QUESTIONS]] Q-03, `events/account.cljs`, migración `009` |
 | D-23 | 2026-07-28 | "Configuración de cuenta" es una **sección propia** (`:cuenta`, protegida, enlazada desde la navegación), no una tarjeta dentro del tablero; incluye editar `full_name`/`phone` (nuevas columnas en `profiles`, migración `010`) además de la eliminación de cuenta | El owner pidió explícitamente un apartado aparte, y `full_name`/`phone` no tenían dónde vivir — se agregaron a `profiles` (no a `auth.users` directamente) porque ya es el perfil público que admin y el resto de la app leen, y `profiles_update_own` ya permite que el usuario edite su propia fila sin policy nueva | `components/cuenta.cljs`, migración `010` |
+| D-24 | 2026-07-29 | Color de marca unificado a **indigo** en toda la app (antes `login.cljs`/`cuenta.cljs`/`guestbook.cljs`/`diagnostic_test.cljs` usaban `blue-*` por herencia de código más viejo) | Indigo ya era el color dominante (logo, CTA principal, landing/dashboard/plan/cupos/admin); la app se sentía como dos productos distintos según la página | `login.cljs`, `cuenta.cljs`, `guestbook.cljs`, `diagnostic_test.cljs`, `contacto.cljs` |
+| D-25 | 2026-07-29 | Los `js/confirm()` nativos del navegador se reemplazaron por un **diálogo de confirmación propio** (`universo.components.ui/confirm-dialog` + `universo.events.ui`, eventos `:confirm/ask`/`:confirm/accept`/`:confirm/cancel`), montado una sola vez en `home.cljs` | 10 sitios (8 en `admin.cljs`, 1 en `admin_questions.cljs`, 1 en `cuenta.cljs`) usaban el diálogo nativo del navegador, que rompe visualmente con el resto de la app justo en las acciones más destructivas (eliminar, cancelar) | `components/ui.cljs`, `events/ui.cljs` |
 
 ---
 

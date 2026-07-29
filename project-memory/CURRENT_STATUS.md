@@ -2,6 +2,26 @@
 
 **Fecha de corte: 2026-07-26** · Commit `48bf525` · Rama `cursor/mvp-operable-funnel`
 
+> ⚠️ **Nota 2026-07-29:** el cuerpo de este archivo (secciones 1–9) sigue describiendo el corte del
+> 26-07. Desde entonces se mergeó a `main` (commit `4998785`, PR #15 "Configuracion") el trabajo de
+> UNAP/privacidad/pricing y la sección "Configuración de cuenta" (nombre, teléfono, solicitud de
+> eliminación — migraciones `009`/`010`), y hoy se hizo una pasada de pulido visual (ver abajo). No
+> se reescribió todo el archivo para no inventar certeza sobre partes no re-verificadas en esta
+> sesión (contenido pedagógico, email de cohorte, cupos reales) — verificar esos puntos antes de
+> asumirlos vigentes.
+>
+> **Pulido visual y fluidez (2026-07-29, rama `main`, commit base `4998785`):** nuevo kit de UI
+> compartido `universo.components.ui` + `universo.events.ui` (spinner unificado con `role="status"`,
+> diálogo de confirmación global que reemplaza los 10 `js/confirm()` nativos del panel admin y de
+> Configuración de cuenta); color de marca unificado a indigo (antes mezclaba blue/indigo en
+> login, cuenta, guestbook y el diagnóstico); overlay real (backdrop) para el modal de feedback del
+> diagnóstico, que antes se renderizaba sin fondo; estados de carga agregados donde faltaban
+> (`cuenta.cljs`, `plan.cljs`, `slots.cljs`); guestbook distingue error de fetch vs. lista vacía;
+> accesibilidad puntual (`role="alert"` en banners de login, label del textarea de contacto, focus
+> rings en preguntas del admin); código muerto eliminado (`math_render.cljs` parser duplicado,
+> tres borradores de `clojure-watermark` en `resume.cljs`). `clj -M:test` sigue en
+> **34 tests / 129 assertions / 0 failures**. Ver [[DECISIONS]] D-24/D-25.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

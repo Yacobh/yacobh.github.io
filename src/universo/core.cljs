@@ -14,6 +14,7 @@
    [universo.events.contacto]
    [universo.events.dashboard]
    [universo.events.landing]
+   [universo.events.ui]
    [universo.views :as views]
    [universo.visitor-tracker :as tracker]))
 

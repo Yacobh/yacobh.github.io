@@ -3,7 +3,8 @@
    [re-frame.core :as re-frame]
    [reagent.core :as r]
    [universo.profile :as profile]
-   [universo.components.math-render :as math]))
+   [universo.components.math-render :as math]
+   [universo.components.ui :as ui]))
 
 (defn- empty-no-profile []
   [:div.bg-white.rounded-xl.shadow.p-8.text-center.max-w-xl.mx-auto
@@ -81,7 +82,7 @@
 
           (cond
             (and loading? (not has-profile?))
-            [:p.text-gray-500.text-center.py-10 "Cargando plan…"]
+            [ui/loading-block "Cargando plan…"]
 
             (not has-profile?)
             [empty-no-profile]
@@ -121,11 +122,11 @@
                  "Aún no hay recursos publicados para tus módulos. Las explicaciones de arriba ya te orientan."])]
 
              [:div.flex.flex-wrap.gap-3.justify-center
-              [:button.bg-indigo-600.text-white.font-semibold.py-2.px-5.rounded-lg.hover:bg-indigo-700
+              [:button.bg-indigo-600.text-white.font-semibold.py-2.px-5.rounded-lg.hover:bg-indigo-700.transition
                {:type "button"
                 :on-click #(re-frame/dispatch [:navigate-to :cupos])}
                "Ver cupos para mi nivel"]
-              [:button.bg-white.border.border-gray-300.text-gray-700.font-semibold.py-2.px-5.rounded-lg.hover:bg-gray-50
+              [:button.bg-white.border.border-gray-300.text-gray-700.font-semibold.py-2.px-5.rounded-lg.hover:bg-gray-50.transition
                {:type "button"
                 :on-click #(re-frame/dispatch [:navigate-to :dashboard])}
                "Volver al tablero"]]])]]))}))

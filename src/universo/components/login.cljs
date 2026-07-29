@@ -45,10 +45,12 @@
 
           (when @success
             [:div.bg-green-100.text-green-700.p-3.rounded.mb-4.text-sm
+             {:role "alert"}
              @success])
 
           (when @error
             [:div.bg-red-100.text-red-700.p-3.rounded.mb-4.text-sm
+             {:role "alert"}
              @error])
 
           [:form
@@ -103,7 +105,7 @@
                      :required true
                      :disabled @loading
                      :auto-complete "email"
-                     :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"}]]
+                     :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"}]]
 
            [:div.mb-6
             [:label.block.text-sm.font-medium.text-gray-700.mb-1 "Contraseña"]
@@ -115,7 +117,7 @@
                      :min-length (when register? 6)
                      :disabled @loading
                      :auto-complete (if register? "new-password" "current-password")
-                     :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"}]]
+                     :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"}]]
 
            (when register?
              ;; No usamos <label> envolvente: el link de abajo quedaría anidado
@@ -146,7 +148,7 @@
                      :class (str "w-full py-2 px-4 text-white font-semibold rounded-md transition-colors "
                                  (if @loading
                                    "bg-gray-400 cursor-not-allowed"
-                                   "bg-blue-600 hover:bg-blue-700"))}
+                                   "bg-indigo-600 hover:bg-indigo-700"))}
             (cond
               @loading (if register? "Creando cuenta..." "Iniciando sesión...")
               register? "Registrarse"

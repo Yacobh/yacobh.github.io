@@ -13,7 +13,8 @@
    [universo.components.privacidad :as privacidad]
    [universo.components.slots :as slots]
    [universo.components.guestbook :as guestbook]
-   [universo.components.login :as login]))
+   [universo.components.login :as login]
+   [universo.components.ui :as ui]))
 
 ;; seccion principal variable con atomo de reagent, dinamico
 
@@ -232,4 +233,6 @@
    [navigation]
    [:main.flex-1.pt-16  ;; pt-16 compensa la altura del nav fijo
     [main-content-wrapper]]
-   [footer]])
+   [footer]
+   ;; Montado una sola vez: reacciona a [:confirm/ask ...] sin importar la sección activa.
+   [ui/confirm-dialog]])

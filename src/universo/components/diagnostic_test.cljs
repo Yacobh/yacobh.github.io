@@ -5,6 +5,7 @@
             [universo.components.feedback-modal :refer [feedback]]
             [universo.components.irt-chart :as irt-chart]
             [universo.components.math-render :as math]
+            [universo.components.ui :as ui]
             [universo.profile :as profile]))
 
 ;; -------------------------------
@@ -41,14 +42,12 @@
 
      (cond
        loading?
-       [:div {:class "text-center py-10"}
-        [:div {:class "inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-600 mb-4"}]
-        [:p {:class "text-gray-600"} "Cargando evaluaciones disponibles..."]]
+       [ui/loading-block "Cargando evaluaciones disponibles..."]
 
        error
        [:div {:class "text-center py-8 space-y-4"}
         [:p {:class "text-red-600"} error]
-        [:button {:class "bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-5 rounded-lg"
+        [:button {:class "bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-5 rounded-lg transition"
                   :type "button"
                   :on-click #(re-frame/dispatch [:test/load-topics])}
          "Reintentar"]]
@@ -80,9 +79,8 @@
 ;; -------------------------------
 
 (defn loading-component []
-  [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg text-center"}
-   [:div {:class "inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600 mb-4"}]
-   [:p {:class "text-gray-600 text-lg"} "Cargando siguiente pregunta..."]])
+  [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
+   [ui/loading-block "Cargando siguiente pregunta..."]])
 
 ;; -------------------------------
 ;; Componente de finalización
@@ -97,7 +95,7 @@
    [:p {:class "text-gray-600 mb-8"} "Gracias por completar la evaluación. Estamos procesando tus respuestas para crear tu plan personalizado."]
 
    [:button
-    {:class "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+    {:class "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
      :on-click #(re-frame/dispatch [:test/results])}
     "Ver Mis Resultados"]])
 
@@ -140,7 +138,7 @@
          [:div.space-y-3.mt-6
           (for [{:keys [value label]} rotated-options]
             ^{:key value}
-            [:button.w-full.bg-blue-50.hover:bg-blue-100.text-blue-700.font-medium.py-2.px-4.rounded-lg.transition
+            [:button.w-full.bg-indigo-50.hover:bg-indigo-100.text-indigo-700.font-medium.py-2.px-4.rounded-lg.transition
              {:on-click #(re-frame/dispatch
                           [:test/answer
                            {:question-id (:id question)
@@ -188,7 +186,7 @@
         [:p {:class "text-sm text-indigo-600 mb-2"} (topic-label topic)])
       [:p {:class "text-lg text-gray-700 mb-1"}
        (str "Preguntas correctas: " correct " de " total)]
-      [:p {:class "text-xl font-semibold text-blue-600"}
+      [:p {:class "text-xl font-semibold text-indigo-600"}
        (str "Puntaje: " score "%")]
       (when (number? theta)
         [:p {:class "text-sm text-stone-600 mt-2 tabular-nums"}
@@ -231,7 +229,7 @@
         :on-click #(re-frame/dispatch [:navigate-to :cupos])}
        "Ver cupos para mi nivel"]
       [:button
-       {:class "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
+       {:class "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg"
         :type "button"
         :on-click #(re-frame/dispatch [:test/start topic])}
        "Repetir evaluación"]

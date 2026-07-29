@@ -111,18 +111,28 @@
        (when-not new?
          [:button {:type "button"
                    :disabled saving?
-                   :class "rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
-                   :on-click #(when (js/confirm "¿Eliminar esta pregunta?")
-                                (re-frame/dispatch [:admin/delete-question (:id draft)]))}
+                   :class (str "rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition "
+                               "hover:bg-red-100 disabled:opacity-50 focus:outline-none "
+                               "focus-visible:ring-2 focus-visible:ring-red-400")
+                   :on-click #(re-frame/dispatch
+                               [:confirm/ask
+                                {:message "¿Eliminar esta pregunta?"
+                                 :confirm-label "Eliminar"
+                                 :variant :danger
+                                 :on-confirm [:admin/delete-question (:id draft)]}])}
           "Eliminar"])
        [:button {:type "button"
                  :disabled saving?
-                 :class "rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                 :class (str "rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 transition "
+                             "hover:bg-gray-200 disabled:opacity-50 focus:outline-none "
+                             "focus-visible:ring-2 focus-visible:ring-gray-400")
                  :on-click #(re-frame/dispatch [:admin/cancel-question-edit])}
         "Cancelar"]
        [:button {:type "button"
                  :disabled saving?
-                 :class "rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                 :class (str "rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition "
+                             "hover:bg-indigo-700 disabled:opacity-50 focus:outline-none "
+                             "focus-visible:ring-2 focus-visible:ring-indigo-400")
                  :on-click #(re-frame/dispatch [:admin/save-question])}
         (if saving? "Guardando…" "Guardar")]]]
 

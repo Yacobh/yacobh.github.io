@@ -4,7 +4,8 @@
    [clojure.string :as str]
    [re-frame.core :as re-frame]
    [reagent.core :as r]
-   [universo.components.admin-questions :as admin-q]))
+   [universo.components.admin-questions :as admin-q]
+   [universo.components.ui :as ui]))
 
 ;; -----------------------------------------------------------------------------
 ;; Utilidades de formato
@@ -103,11 +104,7 @@
   [:div {:class "rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center"}
    [:p {:class "text-sm text-gray-500"} message]])
 
-(defn- spinner []
-  [:div {:class "flex items-center justify-center py-10"}
-   [:div {:class "h-7 w-7 animate-spin rounded-full border-2 border-gray-200 border-b-indigo-600"
-          :role "status"
-          :aria-label "Cargando"}]])
+(defn- spinner [] [ui/loading-block])
 
 (defn- section-frame
   "Encabezado común: título, frescura de datos, botón de refresco y estados."
@@ -321,9 +318,11 @@
             [:span {:class "ml-2 text-xs text-gray-500"} (format-date-time (:created_at r))]]
            [btn {:variant :success
                  :title "Marcar como atendida (esto no borra la cuenta: hazlo desde Supabase)"
-                 :on-click #(when (js/confirm
-                                   "¿Marcar esta solicitud como atendida? Esto no elimina la cuenta: recuerda borrarla también en Supabase Auth.")
-                              (re-frame/dispatch [:admin/mark-deletion-attended (:id r)]))}
+                 :on-click #(re-frame/dispatch
+                             [:confirm/ask
+                              {:message "¿Marcar esta solicitud como atendida? Esto no elimina la cuenta: recuerda borrarla también en Supabase Auth."
+                               :confirm-label "Marcar atendida"
+                               :on-confirm [:admin/mark-deletion-attended (:id r)]}])}
             "Marcar atendida"]])]])))
 
 (defn- users-panel []
@@ -379,10 +378,12 @@
                           :on-click
                           (fn []
                             (let [next-role (if admin? "user" "admin")]
-                              (when (js/confirm
-                                     (str "¿Cambiar el rol de " (:email p)
-                                          " a «" next-role "»?"))
-                                (re-frame/dispatch [:admin/set-role (:id p) next-role]))))}
+                              (re-frame/dispatch
+                               [:confirm/ask
+                                {:message (str "¿Cambiar el rol de " (:email p)
+                                               " a «" next-role "»?")
+                                 :confirm-label "Cambiar rol"
+                                 :on-confirm [:admin/set-role (:id p) next-role]}])))}
                      (if admin? "Quitar admin" "Hacer admin")])]]))]]]
          [pagination {:page page :pages pages :total total
                       :on-page #(re-frame/dispatch [:admin/set-users-page %])}]])]]))
@@ -528,8 +529,12 @@
                   "Volver a pendientes"])
                (when trash?
                  [btn {:variant :danger
-                       :on-click #(when (js/confirm "¿Eliminar permanentemente esta entrada? No se puede deshacer.")
-                                    (re-frame/dispatch [:admin/delete-guestbook (:id e)]))}
+                       :on-click #(re-frame/dispatch
+                                   [:confirm/ask
+                                    {:message "¿Eliminar permanentemente esta entrada? No se puede deshacer."
+                                     :confirm-label "Eliminar"
+                                     :variant :danger
+                                     :on-confirm [:admin/delete-guestbook (:id e)]}])}
                   "Eliminar"])]]))])]]))
 
 ;; -----------------------------------------------------------------------------
@@ -715,8 +720,12 @@
                                 (.scrollTo js/window #js {:top 0 :behavior "smooth"}))}
                "Editar"]
               [btn {:variant :danger
-                    :on-click #(when (js/confirm (str "¿Eliminar «" (:title res) "»?"))
-                                 (re-frame/dispatch [:admin/delete-resource (:id res)]))}
+                    :on-click #(re-frame/dispatch
+                                [:confirm/ask
+                                 {:message (str "¿Eliminar «" (:title res) "»?")
+                                  :confirm-label "Eliminar"
+                                  :variant :danger
+                                  :on-confirm [:admin/delete-resource (:id res)]}])}
                "Eliminar"]]])])]]]))
 
 ;; -----------------------------------------------------------------------------
@@ -905,9 +914,12 @@
                                 [:admin/set-enrollment-status slot-id (:id e) "pending"])}
                "Reactivar"]
               [btn {:variant :danger
-                    :on-click #(when (js/confirm "¿Cancelar la inscripción de este estudiante?")
-                                 (re-frame/dispatch
-                                  [:admin/set-enrollment-status slot-id (:id e) "cancelled"]))}
+                    :on-click #(re-frame/dispatch
+                                [:confirm/ask
+                                 {:message "¿Cancelar la inscripción de este estudiante?"
+                                  :confirm-label "Cancelar inscripción"
+                                  :variant :danger
+                                  :on-confirm [:admin/set-enrollment-status slot-id (:id e) "cancelled"]}])}
                "Cancelar"])]])])]))
 
 (defn- slots-admin-panel []
@@ -979,24 +991,34 @@
                (when open?
                  [btn {:variant :success
                        :title "Confirmar manualmente sin esperar el mínimo"
-                       :on-click #(when (js/confirm "¿Confirmar este cupo ahora?")
-                                    (re-frame/dispatch [:admin/set-slot-status (:id s) "confirmed"]))}
+                       :on-click #(re-frame/dispatch
+                                   [:confirm/ask
+                                    {:message "¿Confirmar este cupo ahora?"
+                                     :confirm-label "Confirmar"
+                                     :on-confirm [:admin/set-slot-status (:id s) "confirmed"]}])}
                   "Confirmar"])
                (when (#{"open" "confirmed"} (:status s))
-                 [btn {:on-click #(when (js/confirm "¿Cancelar este cupo? Los inscritos dejarán de verlo.")
-                                    (re-frame/dispatch [:admin/set-slot-status (:id s) "cancelled"]))}
+                 [btn {:on-click #(re-frame/dispatch
+                                   [:confirm/ask
+                                    {:message "¿Cancelar este cupo? Los inscritos dejarán de verlo."
+                                     :confirm-label "Cancelar cupo"
+                                     :variant :danger
+                                     :on-confirm [:admin/set-slot-status (:id s) "cancelled"]}])}
                   "Cancelar cupo"])
                (when (= (:status s) "confirmed")
                  [btn {:on-click #(re-frame/dispatch [:admin/set-slot-status (:id s) "completed"])}
                   "Marcar finalizado"])
                [btn {:variant :danger
                      :title (when (pos? n) "Este cupo tiene inscritos")
-                     :on-click #(when (js/confirm
-                                       (if (pos? n)
-                                         (str "Este cupo tiene " n " inscrito(s). "
-                                              "Eliminarlo borrará también sus inscripciones. ¿Continuar?")
-                                         "¿Eliminar este cupo?"))
-                                  (re-frame/dispatch [:admin/delete-slot (:id s)]))}
+                     :on-click #(re-frame/dispatch
+                                 [:confirm/ask
+                                  {:message (if (pos? n)
+                                              (str "Este cupo tiene " n " inscrito(s). "
+                                                   "Eliminarlo borrará también sus inscripciones. ¿Continuar?")
+                                              "¿Eliminar este cupo?")
+                                   :confirm-label "Eliminar"
+                                   :variant :danger
+                                   :on-confirm [:admin/delete-slot (:id s)]}])}
                 "Eliminar"]]
 
               (when expanded?

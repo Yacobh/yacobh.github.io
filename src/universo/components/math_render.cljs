@@ -62,69 +62,6 @@
 
             :else
             (recur rest-text result in-display? in-inline? (str current c))))))))
-#_(defn split-by-latex-improved [text]
-  "Separa texto en bloques: texto plano, math inline ($...$) y display ($$...$$)"
-  (if (or (nil? text) (empty? text))
-    []
-    (loop [remaining text
-           result []
-           in-display? false
-           in-inline? false
-           current ""]
-      (if (empty? remaining)
-        ;; Terminar: agregar último fragmento
-        (if (empty? current)
-          result
-          (conj result {:type (cond in-display? :display-math
-                                    in-inline? :inline-math
-                                    :else :text)
-                        :content current}))
-
-        (let [c (first remaining)
-              next-c (second remaining)
-              rest-text (subs remaining 1)]
-
-          (cond
-            ;; Detectar $$
-            (and (= c \$) (= next-c \$) (not in-inline?))
-            (if in-display?
-              ;; Cerrar display math
-              (recur (subs remaining 2)
-                     (conj result {:type :display-math :content current})
-                     false
-                     false
-                     "")
-              ;; Abrir display math (guardar texto previo)
-              (recur (subs remaining 2)
-                     (if (empty? current)
-                       result
-                       (conj result {:type :text :content current}))
-                     true
-                     false
-                     ""))
-
-            ;; Detectar $ (inline)
-            (and (= c \$) (not in-display?))
-            (if in-inline?
-              ;; Cerrar inline math
-              (recur rest-text
-                     (conj result {:type :inline-math :content current})
-                     false
-                     false
-                     "")
-              ;; Abrir inline math (guardar texto previo)
-              (recur rest-text
-                     (if (empty? current)
-                       result
-                       (conj result {:type :text :content current}))
-                     false
-                     true
-                     ""))
-
-            ;; Carácter normal
-            :else
-            (recur rest-text result in-display? in-inline? (str current c))))))))
-
 ;; ========================================
 ;; 2.5️⃣ PARSER: Bold e Italic dentro de texto
 ;; ========================================

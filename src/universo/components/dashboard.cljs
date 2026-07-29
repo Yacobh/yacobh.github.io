@@ -1,6 +1,7 @@
 (ns universo.components.dashboard
   (:require [re-frame.core :as re-frame]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [universo.components.ui :as ui]))
 
 (defn formatear-fecha
   "Formatea la fecha de created_at a formato legible"
@@ -125,7 +126,7 @@
         (for [n (take 3 unread)]
           ^{:key (:id n)}
           [:p.text-sm.text-green-900 (:message n)])
-        [:button.text-xs.text-green-700.underline.mt-1
+        [:button.text-xs.text-green-700.underline.hover:text-green-900.transition.mt-1
          {:type "button"
           :on-click #(re-frame/dispatch [:notifications/dismiss])}
          "Marcar leídas"]])
@@ -187,9 +188,9 @@
           [:div.text-5xl "📊"]]]
 
         (if cargando?
-          [:div.text-center.py-20
-           [:div.inline-block.animate-spin.rounded-full.h-16.w-16.border-t-4.border-b-4.border-indigo-600]
-           [:p.text-gray-600.mt-4.text-lg "Cargando tus datos..."]]
+          [:div.py-20
+           [ui/loading-block]
+           [:p.text-gray-600.mt-2.text-lg.text-center "Cargando tus datos..."]]
 
           [:div
            ;; Grid de estadísticas principales

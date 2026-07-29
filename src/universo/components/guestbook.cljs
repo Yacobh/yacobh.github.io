@@ -3,7 +3,8 @@
             [re-frame.core :as re-frame]
             [clojure.string :as str]
             [cljs.core.async :refer [go <!]]
-            [universo.db.crud :as crud]))
+            [universo.db.crud :as crud]
+            [universo.components.ui :as ui]))
 
 (defn validate-form [form-data]
   (let [{:keys [name message email]} form-data]
@@ -30,11 +31,11 @@
       vid (assoc "id_visitor" vid))))
 
 (defn- field-class [has-error?]
-  (str "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 "
+  (str "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 "
        (if has-error? "border-red-500" "border-gray-300")))
 
 (defn guestbook-entry [entry]
-  [:div {:class "bg-gray-50 rounded-lg p-4 mb-4 border-l-4 border-blue-500"}
+  [:div {:class "bg-gray-50 rounded-lg p-4 mb-4 border-l-4 border-indigo-500"}
    [:div {:class "flex justify-between items-start mb-2"}
     [:h4 {:class "font-semibold text-gray-800"} (:name entry)]
     (when (:created_at entry)
@@ -42,14 +43,21 @@
        (.toLocaleDateString (js/Date. (:created_at entry)) "es-ES")])]
    [:p {:class "text-gray-700 leading-relaxed"} (:message entry)]])
 
-(defn guestbook-list [entries loading?]
+(defn guestbook-list [entries loading? error on-retry]
   [:div {:class "guestbook-list"}
    [:h3 {:class "text-xl font-bold text-gray-800 mb-4 text-center"}
     "Mensajes publicados"]
    (cond
      loading?
-     [:div {:class "text-center py-8"}
-      [:div {:class "inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"}]]
+     [ui/loading-block]
+
+     error
+     [:div {:class "text-center py-8 space-y-3"}
+      [:p {:class "text-red-600"} error]
+      [:button {:type "button"
+                :class "px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+                :on-click on-retry}
+       "Reintentar"]]
 
      (empty? entries)
      [:div {:class "text-center py-8 text-gray-500"}
@@ -68,18 +76,25 @@
         submit-error (r/atom nil)
         entries (r/atom [])
         loading-entries? (r/atom true)
-        loading-submit? (r/atom false)]
+        entries-error (r/atom nil)
+        loading-submit? (r/atom false)
+        fetch-entries!
+        (fn []
+          (reset! loading-entries? true)
+          (reset! entries-error nil)
+          (go
+            (let [result (<! (crud/fetch-guestbook-entries))]
+              (reset! loading-entries? false)
+              (if (:success result)
+                (reset! entries (or (:data result) []))
+                (reset! entries-error
+                        (or (:error result)
+                            "No se pudieron cargar los mensajes. Intenta de nuevo."))))))]
     (r/create-class
      {:display-name "guestbook-component"
 
       :component-did-mount
-      (fn [_]
-        (go
-          (let [result (<! (crud/fetch-guestbook-entries))]
-            (reset! loading-entries? false)
-            (if (:success result)
-              (reset! entries (or (:data result) []))
-              (js/console.error "Error loading guestbook:" (:error result))))))
+      (fn [_] (fetch-entries!))
 
       :reagent-render
       (fn [_]
@@ -99,7 +114,7 @@
                 "Tu mensaje quedó pendiente de aprobación y aparecerá aquí cuando sea publicado."]
                [:button
                 {:type "button"
-                 :class "mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                 :class "mt-4 px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition"
                  :on-click (fn []
                              (reset! success? false)
                              (reset! submit-error nil)
@@ -169,7 +184,7 @@
                 [:button
                  {:type "submit"
                   :disabled @loading-submit?
-                  :class "px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"}
+                  :class "px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition"}
                  (if @loading-submit? "Enviando..." "Firmar el libro de visitas")]]])]
 
-           [guestbook-list @entries @loading-entries?]]))})))
+           [guestbook-list @entries @loading-entries? @entries-error fetch-entries!]]))})))

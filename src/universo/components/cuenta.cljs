@@ -3,7 +3,8 @@
    eliminación de la cuenta. Sección aparte del tablero (no una tarjeta más
    dentro de dashboard), enlazada desde la navegación."
   (:require [re-frame.core :as re-frame]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [universo.components.ui :as ui]))
 
 (defn- campo-nombre-telefono []
   (r/with-let [_ (re-frame/dispatch [:account/load-profile])
@@ -22,7 +23,7 @@
       [:div.bg-white.rounded-xl.shadow-lg.p-6
        [:h3.text-lg.font-bold.text-gray-800.mb-4 "Tus datos"]
        (if cargando?
-         [:p.text-sm.text-gray-500 "Cargando…"]
+         [ui/loading-block]
          [:form
           {:on-submit (fn [e]
                         (.preventDefault e)
@@ -41,7 +42,7 @@
                     :value @full-name
                     :on-change #(reset! full-name (-> % .-target .-value))
                     :placeholder "Tu nombre completo"
-                    :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"}]]
+                    :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"}]]
 
           [:div.mb-6
            [:label.block.text-sm.font-medium.text-gray-700.mb-1 "Teléfono"]
@@ -49,7 +50,7 @@
                     :value @phone
                     :on-change #(reset! phone (-> % .-target .-value))
                     :placeholder "+56 9 1234 5678"
-                    :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"}]]
+                    :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"}]]
 
           [:div.flex.items-center.gap-3
            [:button {:type "submit"
@@ -57,7 +58,7 @@
                      :class (str "py-2 px-5 text-white font-semibold rounded-md transition-colors "
                                  (if (= estado :saving)
                                    "bg-gray-400 cursor-not-allowed"
-                                   "bg-blue-600 hover:bg-blue-700"))}
+                                   "bg-indigo-600 hover:bg-indigo-700"))}
             (if (= estado :saving) "Guardando…" "Guardar")]
            (case estado
              :saved [:span.text-sm.text-green-700 "Guardado."]
@@ -84,10 +85,13 @@
         {:type "button"
          :disabled (= estado :sending)
          :on-click (fn []
-                     (when (js/confirm
-                            (str "¿Solicitar la eliminación de tu cuenta? Un administrador la "
-                                 "revisará y eliminará tus datos."))
-                       (re-frame/dispatch [:account/request-deletion])))}
+                     (re-frame/dispatch
+                      [:confirm/ask
+                       {:message (str "¿Solicitar la eliminación de tu cuenta? Un administrador la "
+                                      "revisará y eliminará tus datos.")
+                        :confirm-label "Solicitar eliminación"
+                        :variant :danger
+                        :on-confirm [:account/request-deletion]}]))}
         (if (= estado :sending) "Enviando…" "Solicitar eliminación de mi cuenta")])]))
 
 (defn cuenta-page []

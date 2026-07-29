@@ -213,9 +213,14 @@
 ;; OVERLAY/BACKDROP
 ;; ============================================================================
 
-(defn modal-overlay [open?]
+(defn modal-overlay
+  "Backdrop del modal de feedback. El click afuera dispara :test/continue —
+   el mismo evento que ya usan el botón X y 'Continuar', no hay lógica nueva."
+  [content]
   [:div {:class "fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto"
-         :on-click #(re-frame/dispatch [:hide-modal])}])
+         :on-click #(re-frame/dispatch [:test/continue])}
+   [:div {:on-click #(.stopPropagation %)}
+    content]])
 
 ;; ============================================================================
 ;; COMPONENTE PRINCIPAL
@@ -230,15 +235,6 @@
             selected (:selected-option response)
             correct (:correct-option question)
             is-correct? (:correct? response)]
-        [modal-content question response selected correct is-correct?
-         points stop-reason]))))
-
-
-#_(defn feedback []
-  (let [modal @(re-frame/subscribe [:test/feedback])]
-    (when modal
-      (let [{:keys [question response]} modal
-            selected (:selected-option response)
-            correct (:correct-option question)
-            is-correct? (:correct? response)]
-         [modal-content question response selected correct is-correct?]))))
+        [modal-overlay
+         [modal-content question response selected correct is-correct?
+          points stop-reason]]))))
