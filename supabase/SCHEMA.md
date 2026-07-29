@@ -4,7 +4,7 @@
 
 | Tabla | Uso |
 |-------|-----|
-| `profiles` | `id`, `email`, `role` (`user`\|`admin`) — ver `admin_rls.sql` |
+| `profiles` | `id`, `email`, `role` (`user`\|`admin`), `full_name`, `phone` (`010`) — ver `admin_rls.sql` |
 | `questions` | Banco IRT: opciones, `error_*`, `difficulty`, `topic`, `order_index` |
 | `tests` | Resultado JSON del diagnóstico (`test`, `email-user`, `user_id`) |
 | `guestbook` | Firmas públicas + moderación tri-state |
@@ -21,7 +21,7 @@
 | `resources` | Contenido externo por módulo (`published`) |
 | `class_slots` | Cupos por `theta_band` + modalidad + umbral |
 | `enrollments` | Inscripción estudiante ↔ cupo |
-| `notifications` | Banner in-app (confirmación de grupo) |
+| `notifications` | Banner in-app (confirmación de grupo); también solicitudes de eliminación de cuenta (`kind = 'account_deletion_request'`, ver `009`) |
 
 ### `profile` JSONB (forma esperada)
 
@@ -75,6 +75,26 @@ Sin esta migración, el botón «Hacer admin» del panel falla: `profiles_update
 solo permite auto-actualizarse y sin cambiar de rol, así que el `UPDATE` afecta
 0 filas. La UI muestra un aviso explícito en ese caso.
 
+## Solicitudes de eliminación de cuenta (`009_account_deletion_requests.sql`)
+
+No hay tabla nueva: la solicitud es una fila más en `notifications` con
+`kind = 'account_deletion_request'`, insertada por el propio usuario (ya
+permitido por `notifications_insert_admin`, que acepta `user_id = auth.uid()`)
+y visible para el admin porque `notifications_select_own` ya incluye
+`is_admin()`. Esta migración solo agrega `notifications_update_admin`, para que
+el admin pueda marcarla como atendida (`read = true`) sin poder tocar las
+notificaciones de otro usuario salvo esta.
+
+**Importante:** marcar "atendida" no borra la cuenta. El borrado real de
+`auth.users` requiere `service_role` (fuera del cliente) y hoy se hace a mano
+en el dashboard de Supabase — ver [[../project-memory/BACKLOG]].
+
+## Nombre y teléfono del perfil (`010_profile_name_phone.sql`)
+
+Agrega `profiles.full_name` y `profiles.phone` (nullable). Editables por el propio usuario desde
+"Configuración de cuenta" (`components/cuenta.cljs`) sin policy nueva: `profiles_update_own`
+(`admin_rls.sql`) ya permite tocar cualquier columna de la propia fila salvo `role`.
+
 ## Orden de aplicación
 
 1. `admin_rls.sql` (si aún no)
@@ -87,4 +107,6 @@ solo permite auto-actualizarse y sin cambiar de rol, así que el `UPDATE` afecta
 8. `migrations/006_admin_role_management.sql`
 9. `migrations/007_questions_admin_rls.sql`
 10. `migrations/008_fix_profiles_created_at.sql`
-11. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+11. `migrations/009_account_deletion_requests.sql`
+12. `migrations/010_profile_name_phone.sql`
+13. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`

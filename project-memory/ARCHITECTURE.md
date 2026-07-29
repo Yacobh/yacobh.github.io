@@ -1,6 +1,6 @@
 # ARCHITECTURE
 
-Última actualización: **2026-07-26** · Verificado contra `src/`, `supabase/`, `shadow-cljs.edn`,
+Última actualización: **2026-07-28** · Verificado contra `src/`, `supabase/`, `shadow-cljs.edn`,
 `index.html` y `project-memory/graph/GRAPH_REPORT.md`
 
 ---
@@ -121,6 +121,7 @@ fácil" a "imposible"; parada por SE en lugar de número fijo de preguntas.
 | Perfil | `events/profile.cljs` + `universo.profile` | Construye el perfil puro y lo materializa en `student_profiles` (θ, `theta_band`, `profile` JSONB) |
 | Plan | `events/plan.cljs` + `components/plan.cljs` | Capa 0 (errores explicados) desde las respuestas; capa 1 = `resources` publicados de los `deficit-slugs` |
 | Cupos | `events/slots.cljs` + `components/slots.cljs` + `universo.slots.logic` | `slots.logic` es el **espejo puro** de reglas que la DB también impone: filtro por banda, conteo activo, faltantes, confirmación |
+| Cuenta | `events/account.cljs` + `components/cuenta.cljs` | Sección propia (`:cuenta`, protegida por sesión): editar `full_name`/`phone` en `profiles` y solicitar eliminación de cuenta (inserta una `notifications` con `kind = 'account_deletion_request'`; el admin la atiende desde `components/admin.cljs`, pestaña Usuarios) |
 
 > **Duplicación deliberada:** la regla de confirmación existe en el trigger SQL (fuente de verdad)
 > y en `slots.logic/should-confirm-slot?` (para que la UI pueda anticipar sin round-trip). Si se
@@ -342,8 +343,19 @@ entorno hoy.
 
 Se almacenan: email, IP, ciudad, país, idioma, navegador, SO, nivel de batería (`visitor`),
 mensajes de contacto, firmas del guestbook (nombre, mensaje, email, teléfono) y resultados de
-diagnóstico. El público objetivo es mayoritariamente **menor de edad**. No hay política de
-privacidad publicada ni flujo de consentimiento. Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]] Q-03/Q-08.
+diagnóstico. El público objetivo es mayoritariamente **menor de edad**.
+
+**2026-07-28:** hay Aviso de Privacidad publicado (`universo.components.privacidad`, enlazado
+desde el footer) y consentimiento explícito al registrarse (`login.cljs`: checkbox obligatorio +
+declaración de tener 14 años o más / autorización de representante). `profiles` ahora también
+guarda `full_name` y `phone` (`010`), editables por el propio usuario desde la sección
+**Configuración de cuenta** (`:cuenta`, sección protegida, `components/cuenta.cljs`) — separada
+del tablero, enlazada desde la navegación. Esa misma sección concentra la eliminación de cuenta:
+autoservicio que crea una notificación (`kind = 'account_deletion_request'` en `notifications`);
+el admin la ve como alerta en Admin → Usuarios y la marca atendida, pero **el borrado real en
+`auth.users` sigue siendo manual** (requiere `service_role`, fuera del cliente por diseño de
+seguridad). Retención: la política publicada dice 12 meses de inactividad, pero **no hay job que
+la ejecute todavía** ([[BACKLOG]] T-34). Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]] Q-03/Q-08.
 
 ### 7.5 Superficie de ataque conocida
 

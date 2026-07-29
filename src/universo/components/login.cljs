@@ -26,6 +26,7 @@
   (let [mode (r/atom :login) ; :login | :register
         email (r/atom "")
         password (r/atom "")
+        consent (r/atom false)
         loading (r/atom false)
         error (r/atom nil)
         success (r/atom nil)]
@@ -115,6 +116,30 @@
                      :disabled @loading
                      :auto-complete (if register? "new-password" "current-password")
                      :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"}]]
+
+           (when register?
+             ;; No usamos <label> envolvente: el link de abajo quedaría anidado
+             ;; dentro y un click ahí también alternaría el checkbox (comportamiento
+             ;; nativo de <label>).
+             [:div.mb-6.flex.items-start.gap-2.text-xs.text-gray-600
+              [:input {:type "checkbox"
+                       :id "consent-privacidad"
+                       :checked @consent
+                       :on-change #(reset! consent (-> % .-target .-checked))
+                       :required true
+                       :disabled @loading
+                       :class "mt-0.5"}]
+              [:label {:for "consent-privacidad"}
+               "He leído y acepto el "
+               [:button {:type "button"
+                         :class "text-indigo-600 underline hover:text-indigo-800"
+                         :on-click (fn [e]
+                                     (.preventDefault e)
+                                     (.stopPropagation e)
+                                     (re-frame/dispatch [:navigate-to :privacidad]))}
+                "Aviso de Privacidad"]
+               ". Declaro tener 14 años o más, o contar con la autorización de mi madre, "
+               "padre o tutor."]])
 
            [:button {:type "submit"
                      :disabled @loading

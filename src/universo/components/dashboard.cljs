@@ -152,6 +152,16 @@
                        (re-frame/dispatch [:navigate-to :diagnostic-test]))}
          "Comenzar diagnóstico"]])]))
 
+(defn- enlace-configuracion-cuenta []
+  [:div.bg-white.rounded-xl.shadow-lg.p-6.mt-6.max-w-2xl.mx-auto.flex.items-center.justify-between
+   [:div
+    [:h3.text-lg.font-bold.text-gray-800 "Configuración de cuenta"]
+    [:p.text-sm.text-gray-500 "Edita tu nombre y teléfono, o solicita eliminar tu cuenta."]]
+   [:button.text-sm.font-semibold.text-indigo-700.border.border-indigo-200.rounded-lg.px-4.py-2.hover:bg-indigo-50.transition
+    {:type "button"
+     :on-click #(re-frame/dispatch [:navigate-to :cuenta])}
+    "Ir a configuración →"]])
+
 (defn dashboard []
   (r/with-let [_ (do (re-frame/dispatch [:dashboard/refresh])
                      (re-frame/dispatch [:profile/load])
@@ -251,4 +261,6 @@
                (for [row historial]
                  ^{:key (:id row)}
                  [fila-historial row])]
-              [:p.text-gray-500.text-sm "Aún no hay evaluaciones registradas."])]])]])))
+              [:p.text-gray-500.text-sm "Aún no hay evaluaciones registradas."])]
+
+           [enlace-configuracion-cuenta]])]])))

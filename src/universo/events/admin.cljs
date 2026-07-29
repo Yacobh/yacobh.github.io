@@ -229,13 +229,50 @@
  :admin/load-profiles
  (fn [_ _]
    {:dispatch [:admin/section-start :users]
-    :admin/fetch-profiles nil}))
+    :admin/fetch-profiles nil
+    :admin/fetch-deletion-requests nil}))
 
 (re-frame/reg-event-fx
  :admin/profiles-loaded
  (fn [{:keys [db]} [_ rows]]
    {:db (assoc-in db [:admin :profiles] (or rows []))
     :dispatch [:admin/section-ok :users]}))
+
+;; Solicitudes de eliminación de cuenta --------------------------------------
+;; Reutilizan `notifications` (kind = "account_deletion_request"); ver
+;; migración 009 y [[project-memory/OPEN_QUESTIONS]] Q-03.
+
+(re-frame/reg-sub
+ :admin/deletion-requests
+ (fn [db _]
+   (get-in db [:admin :deletion-requests] [])))
+
+(re-frame/reg-fx
+ :admin/fetch-deletion-requests
+ (fn [_]
+   (go
+     (let [result (<! (crud/fetch-account-deletion-requests))]
+       (when (:success result)
+         (re-frame/dispatch [:admin/deletion-requests-loaded (:data result)]))))))
+
+(re-frame/reg-event-db
+ :admin/deletion-requests-loaded
+ (fn [db [_ rows]]
+   (assoc-in db [:admin :deletion-requests] (or rows []))))
+
+(re-frame/reg-fx
+ :admin/mark-deletion-attended!
+ (fn [id]
+   (go
+     (<! (crud/mark-notification-read! id))
+     (re-frame/dispatch [:admin/fetch-deletion-requests]))))
+
+(re-frame/reg-event-fx
+ :admin/mark-deletion-attended
+ (fn [{:keys [db]} [_ id]]
+   {:db (update-in db [:admin :deletion-requests]
+                   (fn [rows] (vec (remove #(= (:id %) id) rows))))
+    :admin/mark-deletion-attended! id}))
 
 ;; Cambio de rol -------------------------------------------------------------
 

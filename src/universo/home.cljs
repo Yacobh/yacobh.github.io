@@ -5,10 +5,12 @@
    [universo.components.resume :as resume]
    [universo.components.contacto :refer [contacto-form]]
    [universo.components.admin :as admin]
+   [universo.components.cuenta :as cuenta]
    [universo.components.dashboard :as dashboard]
    [universo.components.diagnostic-test :as diagnostic-test]
    [universo.components.landing :as landing]
    [universo.components.plan :as plan]
+   [universo.components.privacidad :as privacidad]
    [universo.components.slots :as slots]
    [universo.components.guestbook :as guestbook]
    [universo.components.login :as login]))
@@ -73,6 +75,11 @@
                :class (str cta-class (when stacked? " w-full justify-center"))
                :on-click (go :dashboard)}
       "Mi tablero"]
+     [:button {:type "button"
+               :class (str link-class " text-gray-500 hover:text-gray-900"
+                           (when stacked? " text-left w-full"))
+               :on-click (go :cuenta)}
+      "Configuración"]
      [:button {:type "button"
                :class (str link-class " text-gray-500 hover:text-gray-900"
                            (when stacked? " text-left w-full"))
@@ -172,7 +179,8 @@
               ["Cómo funciona" #(scroll-to-section! "como-funciona")]
               ["Preguntas frecuentes" #(scroll-to-section! "preguntas")]
               ["Libro de visitas" #(re-frame/dispatch [:navigate-to :guestbook])]
-              ["Sobre el profesor" #(re-frame/dispatch [:navigate-to :jacobocordova])]]]
+              ["Sobre el profesor" #(re-frame/dispatch [:navigate-to :jacobocordova])]
+              ["Aviso de privacidad" #(re-frame/dispatch [:navigate-to :privacidad])]]]
          ^{:key label}
          [:li
           [:button.text-gray-400.transition.hover:text-white
@@ -180,7 +188,7 @@
            label]])]]
 
      ;; Contacto
-     [:div
+     [:div {:id "contacto"}
       [:h4.mb-4.text-sm.font-semibold.uppercase.tracking-wider.text-gray-300 "Contacto"]
       [contacto-form]]]]
 
@@ -197,11 +205,13 @@
       :login [login/login-form]
       :diagnostic-test [diagnostic-test/diagnostic-test]
       :dashboard [dashboard/dashboard]
+      :cuenta [cuenta/cuenta-page]
       :plan [plan/plan-panel]
       :cupos [slots/slots-panel]
       :admin [admin/admin-panel]
       :guestbook [guestbook/guestbook-component]
       :jacobocordova [resume/jacobo]
+      :privacidad [privacidad/privacidad-page]
       [:div.flex.min-h-screen.items-center.justify-center
        [:div.text-center
         [:h1.mb-4.text-6xl.font-bold.text-gray-300 "404"]

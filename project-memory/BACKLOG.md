@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-07-28**
 
 Prioridad: **P0** bloquea go-live · **P1** necesario a corto plazo · **P2** deseable · **P3** idea.
 Estado: `abierto` · `en curso` · `bloqueado` · `hecho` · `descartado`.
@@ -98,12 +98,41 @@ Workflow que en cada push/PR ejecute `clj -M:test` (JDK + Clojure CLI + cache de
   `src/universo/supabase.cljs`, así que esto **requiere una decisión de configuración → ADR**).
 - **Relacionado:** [[RISKS]] R-02, [[../adr/ADR-002-supabase-como-unico-backend]].
 
-### T-10 · Publicar aviso de privacidad y revisar la recolección de datos — **P1** · `abierto`
+### T-10 · Publicar aviso de privacidad y revisar la recolección de datos — **P1** · `en curso`
 
-- **Terminado cuando:** hay una página/sección accesible desde el footer que explica qué datos se
-  recolectan (email, IP, ciudad/país, navegador, SO, batería, respuestas), para qué y cómo
-  solicitar su borrado; y se ha eliminado toda recolección que no tenga uso justificado.
-- **Relacionado:** [[RISKS]] R-06, [[OPEN_QUESTIONS]] Q-03/Q-08.
+- **2026-07-28:** publicado `universo.components.privacidad` (enlazado desde el footer), checkbox
+  obligatorio de aceptación + declaración de edad (≥14 o autorización de representante) en el
+  registro (`login.cljs`), y flujo de solicitud de eliminación de cuenta (notificación al admin →
+  alerta en Admin/Usuarios, migración `009`). Texto revisado solo por el owner, sin abogado
+  (decisión explícita, ver [[OPEN_QUESTIONS]] Q-03).
+- **2026-07-28 (2):** la eliminación de cuenta se movió a una sección propia **Configuración de
+  cuenta** (`:cuenta`, `components/cuenta.cljs`, enlazada desde la navegación, no una tarjeta
+  dentro del tablero), que también permite editar `full_name`/`phone` en `profiles`
+  (migración `010_profile_name_phone.sql`).
+- **Falta para cerrar:** (a) aplicar `009_account_deletion_requests.sql` y
+  `010_profile_name_phone.sql` en el proyecto Supabase real; (b) eliminar la recolección de nivel
+  de batería en `visitor` (sin uso justificado); (c) T-34 (retención automática a los 12 meses) —
+  hoy la política está en el texto público pero no se aplica sola.
+- **Terminado cuando:** todo lo anterior está hecho y no queda ninguna recolección sin uso
+  justificado documentado.
+- **Relacionado:** [[RISKS]] R-06, [[OPEN_QUESTIONS]] Q-03/Q-08, T-34.
+
+### T-34 · Automatizar retención de datos a los 12 meses de inactividad — **P2** · `abierto`
+
+El Aviso de Privacidad (publicado en T-10) promete que, tras 12 meses de inactividad, se eliminan
+los datos que identifican a la persona, conservando solo estadísticas ya anonimizadas
+(no vinculables a un individuo) de las respuestas del diagnóstico. Hoy esto es solo texto: no hay
+job ni proceso que lo ejecute.
+
+- **Pendiente de diseño:** qué cuenta como "inactividad" (¿último login? ¿último test?), qué
+  columnas se anonimizan vs. se borran, y cómo se ejecuta (pg_cron en Supabase, Edge Function
+  programada, o proceso manual periódico mientras el volumen sea bajo).
+- **Terminado cuando:** existe un proceso documentado y probado que, para una cuenta de prueba
+  marcada como inactiva hace >12 meses, anonimiza sus respuestas y borra sus datos identificables.
+- **Relacionado:** [[RISKS]] R-06, [[OPEN_QUESTIONS]] Q-03, T-10.
+
+> Nota: ya existía un T-15 distinto ("Descomponer los monolitos"); este ticket se numeró T-34 para
+> no chocar con él.
 
 ### T-11 · Verificación automatizada de policies RLS — **P2** · `abierto`
 
@@ -319,7 +348,7 @@ desactualizados (lista de módulos previa al MVP).
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30 |
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-27, T-28 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-25, T-26, T-31, T-33 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-25, T-26, T-31, T-33, T-34 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32 |
 
 ---

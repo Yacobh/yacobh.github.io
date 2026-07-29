@@ -26,19 +26,52 @@ repositorio público — queda solo con el owner.
 **Impacto:** el copy publicado ya no afirma un vínculo institucional vigente; revisar R-06 si
 cambian las obligaciones de privacidad derivadas de esta afirmación.
 
-### 🔴 Q-02 · ¿Las clases de los cupos tienen costo?
-El commit `b6ae903` acotó deliberadamente la gratuidad al diagnóstico, perfil y plan. No está dicho
-qué ocurre con las clases.
-**Bloquea:** copy definitivo, JSON-LD, [[BACKLOG]] T-04. **Decisión pendiente:** P-03.
-**Nota 2026-07-27:** [[VISION_LIBRO_PROYECTO]] §4.4 propone explícitamente **pago por clase o
-paquete** — pero es la visión de negocio de largo plazo del fundador en un borrador, no una
-decisión aplicada al producto ni al copy publicado (que sigue afirmando gratuidad total). No se
-marca esta pregunta como respondida por eso solo; falta que el owner confirme que quiere aplicarla.
+### 🟠 Q-02 · ¿Las clases de los cupos tienen costo?
+**Respondida (política) 2026-07-28 (owner):** sí, las clases tendrán costo, **salvo la primera
+clase** después de rendir el diagnóstico, que es gratuita. El precio de las clases pagadas debe
+quedar **significativamente por debajo** de alternativas comparables (preuniversitario tradicional
+o clases particulares).
+**Referencia de mercado (2026-07-28, búsqueda web, no vinculante):** preuniversitario presencial
+tradicional en Chile ≈ $80.000–$120.000 CLP/mes; clases particulares de matemática por hora ≈
+$8.000–$20.000 CLP (online más barato, $8.000–$12.000; presencial hasta $30.000 en algunas
+ciudades); planes online tipo preu desde ≈ $19.900 CLP/mes. Grupos pequeños presenciales (p. ej.
+Preuniversitario Tesla, máx. 12 alumnos) se mueven dentro del rango de preu tradicional, no del de
+clase particular 1:1. Fuentes: [2x3.cl](https://www.2x3.cl/p/precios-clases-particulares-matematicas),
+[Cronoshare](https://www.cronoshare.cl/cuanto-cuesta/clases-particulares-matematicas),
+[Tutorali](https://tutorali.cl/que-valor-tiene-un-preuniversitario-en-chile/),
+[Superprof](https://www.superprof.cl/blog/precio-clases-particulares-matematicas/).
+**Aún pendiente (P-03 sigue abierta para esto):** el número exacto (precio por clase vs. paquete
+mensual), y si se cobra por sesión o por banda/cupo completo. **Bloquea:** copy definitivo, JSON-LD,
+[[BACKLOG]] T-04.
+**Nota 2026-07-27:** [[VISION_LIBRO_PROYECTO]] §4.4 ya proponía pago por clase o paquete; esta
+respuesta del owner confirma esa dirección general (con la primera clase gratis como matiz nuevo),
+pero el número aún no está fijado.
 
-### 🟠 Q-03 · ¿Hay requisito de consentimiento o aviso de privacidad?
-Público mayoritariamente menor de edad + respaldo universitario + recolección de datos personales
-(email, IP, geo, dispositivo, respuestas).
+### ✅ Q-03 · ¿Hay requisito de consentimiento o aviso de privacidad?
+Público mayoritariamente menor de edad + recolección de datos personales (email, IP, geo,
+dispositivo, respuestas). Ya no hay respaldo universitario vigente que mostrar (ver Q-01).
 **Bloquea moralmente:** apertura a estudiantes reales (F8). **Relacionado:** R-06, T-10, Q-08.
+**Nota 2026-07-28:** la **Ley 21.719** (nueva ley chilena de protección de datos) entra en plena
+vigencia el **1 de diciembre de 2026** — ~4 meses desde hoy — con reglas escalonadas por edad
+(consentimiento parental obligatorio <14 años; solo para datos sensibles entre 14–15; reglas
+generales ≥16). El signup actual no pide edad, así que no hay forma de distinguir a un usuario
+<14. Se dejó un primer borrador de Aviso de Privacidad + checklist de decisiones pendientes en
+[[AVISO_PRIVACIDAD_BORRADOR]] (no publicado, no revisado legalmente). **Respondida 2026-07-28 (owner):** (1) canal de solicitudes = flujo en la app: el usuario pide la
+eliminación desde una sección propia "Configuración de cuenta", un admin la ve como alerta en
+Admin → Usuarios (no un email dedicado); (2) retención = 12 meses de inactividad, luego se borran
+los datos identificables y se conservan solo estadísticas ya anonimizadas — política publicada,
+pero el job automático que la ejecuta **no existe todavía** (ticket [[BACKLOG]] T-34); (3) edad =
+declaración propia al registrarse ("tengo 14 años o más, o cuento con autorización de mi
+representante"), sin campo de fecha de nacimiento ni bloqueo duro — cualquier caso especial se
+deriva al formulario de contacto; (4) revisión legal = el owner mismo por ahora, se contratará
+abogado cuando el negocio crezca — **riesgo aceptado explícitamente**, no un olvido.
+**Implementado 2026-07-28:** Aviso de Privacidad publicado (`universo.components.privacidad`,
+enlazado desde el footer), checkbox obligatorio + declaración de edad en el registro
+(`login.cljs`), y sección **Configuración de cuenta** (`:cuenta`, `components/cuenta.cljs`,
+protegida por sesión, enlazada desde la navegación — no una tarjeta dentro del tablero) con dos
+cosas: editar `full_name`/`phone` en `profiles` (migración `010`) y solicitar la eliminación de
+cuenta (→ notificación → alerta en Admin/Usuarios, migración `009`). Ver [[BACKLOG]] T-10 (qué
+falta para cerrarlo del todo) y T-34 (automatizar la retención).
 
 ### 🟠 Q-09 · ¿Qué `capacity` y `min_enrollments` corresponden a un cupo real?
 Los datos demo usan capacidad 6–8 y mínimo 3, valores elegidos para probar. No hay criterio de
