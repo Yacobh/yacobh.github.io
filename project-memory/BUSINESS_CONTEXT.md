@@ -1,6 +1,6 @@
 # BUSINESS_CONTEXT
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-07-27**
 
 ## 1. Contexto
 
@@ -125,6 +125,23 @@ del repositorio ([[RISKS]] R-05):
 - Cupo pendiente: "Cada grupo necesita un mínimo de inscritos para funcionar."
 - Repetir diagnóstico: "Sí, y es recomendable."
 
+## 9. Visión de negocio ampliada (no implementada)
+
+El fundador redactó un documento de visión de largo plazo — "Libro del Proyecto", borrador v0.1,
+2026-07-27 — con un modelo de negocio **más amplio y en tensión** con lo descrito arriba. Detalle
+completo en [[VISION_LIBRO_PROYECTO]]; resumen de la tensión:
+
+| Aquí (MVP, implementado) | Libro del Proyecto (visión, no implementado) |
+|---|---|
+| Sin ingresos; pagos fuera de alcance por definición (§5, [[PROJECT_BRIEF]] §6) | Pago por clase o paquete; suscripción evaluada en una fase 3 propia |
+| Una sola materia (PAES Matemática 1) | Expansión a otras materias y, a largo plazo, otros países hispanohablantes |
+| Cuatro bandas de θ (`inicial/basico/intermedio/avanzado`) | Tres "grupos de conocimiento" + un eje de frecuencia (λ) + un eje futuro de estilo de aprendizaje |
+| Iniciativa académica (UNAP) | Startup con tesis de inversión, uso de fondos y roles a contratar |
+
+**No se resuelve esta tensión aquí.** Ver [[OPEN_QUESTIONS]] Q-21 y Q-22, y la decisión pendiente
+**P-03** en [[DECISIONS]] (a la que el libro propone una respuesta, sin que esté aplicada).
+
 ---
 
-Relacionado: [[PROJECT_BRIEF]] · [[REQUIREMENTS]] · [[RISKS]] · [[ROADMAP]] · [[OPEN_QUESTIONS]]
+Relacionado: [[PROJECT_BRIEF]] · [[REQUIREMENTS]] · [[RISKS]] · [[ROADMAP]] · [[OPEN_QUESTIONS]] ·
+[[VISION_LIBRO_PROYECTO]]

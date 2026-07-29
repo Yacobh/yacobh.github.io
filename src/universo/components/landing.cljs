@@ -50,7 +50,7 @@
 
 (def ^:private faqs
   [{:q "¿Cuánto cuesta?"
-    :a "El diagnóstico, tu perfil y el plan de estudio no tienen costo. Es una iniciativa académica de la Universidad Arturo Prat junto al profesor Jacobo Córdova."}
+    :a "El diagnóstico, tu perfil y el plan de estudio no tienen costo. Es un proyecto personal del profesor Jacobo Córdova, que se originó en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat."}
    {:q "¿Qué necesito para empezar?"
     :a "Solo una cuenta con tu correo. El diagnóstico se hace desde el navegador, en computador o teléfono, y toma alrededor de 20 minutos."}
    {:q "¿Puedo usar calculadora en el diagnóstico?"
@@ -142,7 +142,7 @@
      [:div
       [:div {:class "inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white/80 px-3.5 py-1.5 text-xs font-medium text-indigo-700 backdrop-blur"}
        [:span {:class "h-1.5 w-1.5 rounded-full bg-green-500" :aria-hidden "true"}]
-       "Iniciativa UNAP · Prof. Jacobo Córdova"]
+       "Diagnóstico gratuito · Prof. Jacobo Córdova"]
 
       [:h1 {:class "mt-6 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-[3.4rem] lg:leading-[1.08]"}
        "Prepara la PAES de Matemática"
@@ -165,7 +165,7 @@
         "Ver cómo funciona"]]
 
       [:dl {:class "mt-10 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4"}
-       (for [[k v] [["Sin costo" "Iniciativa académica"]
+       (for [[k v] [["Sin costo" "Diagnóstico y plan"]
                     ["~20 min" "Dura el diagnóstico"]
                     ["Online" "y presencial en Iquique"]
                     ["Método IRT" "Psicometría aplicada"]]]
@@ -396,7 +396,7 @@
        :on-click #(scroll-to! "preguntas")}
       "Tengo dudas"]]
     [:p {:class "mt-8 text-sm text-indigo-200"}
-     "Iniciativa de la Universidad Arturo Prat junto al profesor "
+     "Un proyecto del profesor "
      [:button
       {:type "button"
        :class "font-semibold text-white underline underline-offset-4 hover:text-indigo-100"

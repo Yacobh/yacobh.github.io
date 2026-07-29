@@ -1,6 +1,6 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-07-28**
 
 > **Regla fundamental de PMF: si falta información, no se asume — se registra aquí.**
 > Ninguna pregunta se borra: cuando se responde, se marca ✅ con la fecha y la respuesta, y si
@@ -12,23 +12,66 @@ Estado: 🔴 abierta y bloqueante · 🟠 abierta e importante · 🟡 abierta m
 
 ## Producto y negocio
 
-### 🟠 Q-01 · ¿Cuál es el vínculo formal con la UNAP?
-La landing, el JSON-LD y el footer afirman que es una "iniciativa de la Universidad Arturo Prat".
-No hay en el repositorio evidencia de un contacto institucional, un convenio ni una autorización de
-uso de marca.
-**Por qué importa:** el respaldo institucional es el principal argumento de credibilidad y de
-gratuidad; también condiciona las obligaciones de privacidad (R-06).
-**Para quién:** owner. **Impacto si se ignora:** reputacional/institucional.
+### ✅ Q-01 · ¿Cuál es el vínculo formal con la UNAP?
+**Respondida 2026-07-28 (owner):** hubo un convenio a honorarios entre el owner y la Universidad
+Arturo Prat (oct–nov 2025, ya terminado), de alcance acotado: diseño de una plataforma de tutorías
+para la comunidad universitaria, como Proyecto de Desarrollo Institucional. No es un convenio de
+marca ni una alianza institucional vigente; el convenio terminó sin que la plataforma quedara
+finalizada, aunque fue dado por aprobado. No hay autorización de uso de marca ni vínculo activo hoy.
+**Decisión:** ver D-18 en [[DECISIONS]] — se bajó la mención de UNAP de "iniciativa" (badge del
+hero, stat del hero, CTA banner) a nota histórica en el FAQ y el footer ("proyecto personal...
+que se originó en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat").
+El detalle del convenio (folio, montos, datos personales) no se documenta aquí por ser un
+repositorio público — queda solo con el owner.
+**Impacto:** el copy publicado ya no afirma un vínculo institucional vigente; revisar R-06 si
+cambian las obligaciones de privacidad derivadas de esta afirmación.
 
-### 🔴 Q-02 · ¿Las clases de los cupos tienen costo?
-El commit `b6ae903` acotó deliberadamente la gratuidad al diagnóstico, perfil y plan. No está dicho
-qué ocurre con las clases.
-**Bloquea:** copy definitivo, JSON-LD, [[BACKLOG]] T-04. **Decisión pendiente:** P-03.
+### 🟠 Q-02 · ¿Las clases de los cupos tienen costo?
+**Respondida (política) 2026-07-28 (owner):** sí, las clases tendrán costo, **salvo la primera
+clase** después de rendir el diagnóstico, que es gratuita. El precio de las clases pagadas debe
+quedar **significativamente por debajo** de alternativas comparables (preuniversitario tradicional
+o clases particulares).
+**Referencia de mercado (2026-07-28, búsqueda web, no vinculante):** preuniversitario presencial
+tradicional en Chile ≈ $80.000–$120.000 CLP/mes; clases particulares de matemática por hora ≈
+$8.000–$20.000 CLP (online más barato, $8.000–$12.000; presencial hasta $30.000 en algunas
+ciudades); planes online tipo preu desde ≈ $19.900 CLP/mes. Grupos pequeños presenciales (p. ej.
+Preuniversitario Tesla, máx. 12 alumnos) se mueven dentro del rango de preu tradicional, no del de
+clase particular 1:1. Fuentes: [2x3.cl](https://www.2x3.cl/p/precios-clases-particulares-matematicas),
+[Cronoshare](https://www.cronoshare.cl/cuanto-cuesta/clases-particulares-matematicas),
+[Tutorali](https://tutorali.cl/que-valor-tiene-un-preuniversitario-en-chile/),
+[Superprof](https://www.superprof.cl/blog/precio-clases-particulares-matematicas/).
+**Aún pendiente (P-03 sigue abierta para esto):** el número exacto (precio por clase vs. paquete
+mensual), y si se cobra por sesión o por banda/cupo completo. **Bloquea:** copy definitivo, JSON-LD,
+[[BACKLOG]] T-04.
+**Nota 2026-07-27:** [[VISION_LIBRO_PROYECTO]] §4.4 ya proponía pago por clase o paquete; esta
+respuesta del owner confirma esa dirección general (con la primera clase gratis como matiz nuevo),
+pero el número aún no está fijado.
 
-### 🟠 Q-03 · ¿Hay requisito de consentimiento o aviso de privacidad?
-Público mayoritariamente menor de edad + respaldo universitario + recolección de datos personales
-(email, IP, geo, dispositivo, respuestas).
+### ✅ Q-03 · ¿Hay requisito de consentimiento o aviso de privacidad?
+Público mayoritariamente menor de edad + recolección de datos personales (email, IP, geo,
+dispositivo, respuestas). Ya no hay respaldo universitario vigente que mostrar (ver Q-01).
 **Bloquea moralmente:** apertura a estudiantes reales (F8). **Relacionado:** R-06, T-10, Q-08.
+**Nota 2026-07-28:** la **Ley 21.719** (nueva ley chilena de protección de datos) entra en plena
+vigencia el **1 de diciembre de 2026** — ~4 meses desde hoy — con reglas escalonadas por edad
+(consentimiento parental obligatorio <14 años; solo para datos sensibles entre 14–15; reglas
+generales ≥16). El signup actual no pide edad, así que no hay forma de distinguir a un usuario
+<14. Se dejó un primer borrador de Aviso de Privacidad + checklist de decisiones pendientes en
+[[AVISO_PRIVACIDAD_BORRADOR]] (no publicado, no revisado legalmente). **Respondida 2026-07-28 (owner):** (1) canal de solicitudes = flujo en la app: el usuario pide la
+eliminación desde una sección propia "Configuración de cuenta", un admin la ve como alerta en
+Admin → Usuarios (no un email dedicado); (2) retención = 12 meses de inactividad, luego se borran
+los datos identificables y se conservan solo estadísticas ya anonimizadas — política publicada,
+pero el job automático que la ejecuta **no existe todavía** (ticket [[BACKLOG]] T-34); (3) edad =
+declaración propia al registrarse ("tengo 14 años o más, o cuento con autorización de mi
+representante"), sin campo de fecha de nacimiento ni bloqueo duro — cualquier caso especial se
+deriva al formulario de contacto; (4) revisión legal = el owner mismo por ahora, se contratará
+abogado cuando el negocio crezca — **riesgo aceptado explícitamente**, no un olvido.
+**Implementado 2026-07-28:** Aviso de Privacidad publicado (`universo.components.privacidad`,
+enlazado desde el footer), checkbox obligatorio + declaración de edad en el registro
+(`login.cljs`), y sección **Configuración de cuenta** (`:cuenta`, `components/cuenta.cljs`,
+protegida por sesión, enlazada desde la navegación — no una tarjeta dentro del tablero) con dos
+cosas: editar `full_name`/`phone` en `profiles` (migración `010`) y solicitar la eliminación de
+cuenta (→ notificación → alerta en Admin/Usuarios, migración `009`). Ver [[BACKLOG]] T-10 (qué
+falta para cerrarlo del todo) y T-34 (automatizar la retención).
 
 ### 🟠 Q-09 · ¿Qué `capacity` y `min_enrollments` corresponden a un cupo real?
 Los datos demo usan capacidad 6–8 y mínimo 3, valores elegidos para probar. No hay criterio de
@@ -44,6 +87,27 @@ pero no hay consulta ni dato que lo respalde en el repo.
 ### 🟠 Q-16 · ¿Qué pasa con un cupo que no alcanza el mínimo?
 No hay plazo, cancelación automática ni comunicación definida. El estudiante queda esperando.
 **Bloquea:** T-25. **Decisión pendiente:** P-08. **Relacionado:** R-11.
+
+### 🟠 Q-21 · ¿El owner confirma la visión de negocio del "Libro del Proyecto"?
+[[VISION_LIBRO_PROYECTO]] (2026-07-27) propone un modelo de negocio de pago, expansión
+multi-materia e internacionalización que contradice el alcance y las exclusiones ya decididas en
+[[PROJECT_BRIEF]] y [[BUSINESS_CONTEXT]]. Es un borrador v0.1, no una decisión.
+**Por qué importa:** define si F8–F11 siguen siendo el único horizonte o si corresponde abrir una
+épica de negocio nueva en [[BACKLOG]]. **Para quién:** owner.
+
+### 🟡 Q-22 · ¿"Grupos de conocimiento" (3, libro) reemplazan a las bandas de θ (4, código)?
+El libro clasifica en Básico/Medio/Avanzado; el código ya implementado usa
+`inicial/basico/intermedio/avanzado`. No está dicho si son la misma idea con nombres distintos, si
+el libro simplifica a propósito, o si se espera migrar `class_slots.theta_band` a un esquema nuevo.
+**Bloquea:** cualquier trabajo futuro sobre el Eje 2 (frecuencia λ) o el Eje 3 (estilo de
+aprendizaje). **Relacionado:** [[VISION_LIBRO_PROYECTO]] §3.4.
+
+### 🟡 Q-23 · ¿"Academia Online de Matemáticas" y "Academia Integral" son el mismo proyecto?
+El libro usa un nombre de marca distinto al ya publicado en producción (landing, JSON-LD, footer).
+No está dicho si es un rebranding planeado, un nombre de trabajo interno, o dos iniciativas
+relacionadas pero separadas (una académica/UNAP, otra comercial/startup).
+**Por qué importa:** afecta copy, dominio, JSON-LD y la relación declarada con UNAP (Q-01) si el
+proyecto se reposiciona como startup con inversión externa.
 
 ---
 
@@ -147,6 +211,7 @@ Ninguna está documentada. Puede haber trabajo valioso sin mergear.
 | X-05 | `shadow-cljs` 3.0.4 en `deps.edn` vs `^2.19.2` en `package.json` | `deps.edn` vs `package.json` | T-13 |
 | X-06 | KaTeX `^0.16.22` por npm vs CSS 0.16.9 por CDN | `package.json` vs `index.html` | T-13 |
 | X-07 | `PROJECT_SUMMARY.md` describe una estructura de módulos previa al MVP (menciona `views.cljs` con componentes principales, `jardin`, `voz`… como parte del producto) que ya no refleja el sistema | `PROJECT_SUMMARY.md` vs [[ARCHITECTURE]] | T-33: reducir a puntero o archivar |
+| X-08 | El "Libro del Proyecto" propone pago por clase, multi-materia e internacionalización | [[VISION_LIBRO_PROYECTO]] vs [[PROJECT_BRIEF]] §6, [[BUSINESS_CONTEXT]] §5 | Q-21: confirmación del owner antes de tocar copy, JSON-LD o alcance |
 
 ---
 
@@ -164,4 +229,5 @@ Formato:
 
 ---
 
-Relacionado: [[ASSUMPTIONS]] · [[DECISIONS]] · [[RISKS]] · [[REQUIREMENTS]] §7 · [[CURRENT_STATUS]]
+Relacionado: [[ASSUMPTIONS]] · [[DECISIONS]] · [[RISKS]] · [[REQUIREMENTS]] §7 · [[CURRENT_STATUS]] ·
+[[VISION_LIBRO_PROYECTO]]

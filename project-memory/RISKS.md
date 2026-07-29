@@ -1,6 +1,6 @@
 # RISKS
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-07-28**
 
 Escala de **impacto** y **probabilidad**: Baja / Media / Alta.
 **Severidad** = combinación (Alta si impacto Alto y probabilidad ≥ Media).
@@ -92,12 +92,19 @@ FAQ o de la oferta, cambiarlo en los tres lugares en el mismo commit** ([[LESSON
 ### R-06 · Datos personales de menores sin aviso de privacidad
 **Descripción:** se recolectan email, IP, ciudad/país, idioma, navegador, SO, nivel de batería,
 mensajes y resultados de diagnóstico de un público mayoritariamente menor de edad, sin política de
-privacidad publicada ni consentimiento explícito, y con el respaldo visible de una universidad.
-**Impacto:** Alto (reputacional e institucional, además de normativo).
-**Probabilidad:** Media — **se convierte en Alta al abrir a estudiantes reales (F8)**.
-**Mitigación:** T-10 — publicar aviso de privacidad, eliminar la recolección sin uso justificado
-(el nivel de batería es el caso más claro), y definir el proceso de borrado a solicitud.
-**Estado:** activo. **Bloquea moralmente F8.**
+privacidad publicada ni consentimiento explícito. Ya no hay respaldo universitario que mostrar
+(ver [[OPEN_QUESTIONS]] Q-01), así que ese factor de impacto reputacional/institucional baja, pero
+el riesgo normativo sube: la **Ley 21.719** entra en plena vigencia el 1/12/2026 con reglas de
+consentimiento por edad (ver [[OPEN_QUESTIONS]] Q-03), y hoy el signup no captura edad.
+**Impacto:** Alto (normativo; reputacional si se filtra o denuncia una mala práctica con menores).
+**Probabilidad:** Media — **se convierte en Alta al abrir a estudiantes reales (F8)**, y sube más
+cerca del 1/12/2026.
+**Mitigación:** T-10 — **2026-07-28: aviso de privacidad publicado**, checkbox de aceptación +
+declaración de edad en el registro, y flujo de solicitud de eliminación de cuenta (ver
+[[OPEN_QUESTIONS]] Q-03). **Queda pendiente:** eliminar la recolección de batería en `visitor`
+(sin uso justificado), aplicar la migración `009` en producción, y automatizar la retención a 12
+meses (T-34, hoy es solo una promesa en el texto).
+**Estado:** activo, mitigación en curso. **Bloquea moralmente F8** hasta que T-10 y T-34 cierren.
 
 ### R-07 · Monolitos
 **Descripción:** `components/admin.cljs` (1060), `db/crud.cljs` (975), `events/admin.cljs` (738)

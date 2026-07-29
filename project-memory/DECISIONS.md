@@ -1,6 +1,6 @@
 # DECISIONS
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-07-28** (D-20 a D-22)
 
 Registro central de decisiones. Cada decisión con consecuencias arquitectónicas o de producto tiene
 un **ADR** en `../adr/`. Este archivo es el índice y el lugar donde viven las decisiones **menores**
@@ -53,6 +53,12 @@ alternativas relevantes o (d) alguien podría cuestionar en seis meses → **ADR
 | D-15 | 2026-07-26 | La documentación de la memoria se escribe **en español** | Es el idioma del proyecto, del producto y del owner | [[../CLAUDE]] §6 |
 | D-16 | 2026-07-26 | Enlaces internos estilo `[[ARCHIVO]]` en toda la memoria | Compatibles con Obsidian y legibles como Markdown plano en GitHub | [[OBSIDIAN_WORKSPACE_GUIDE]] |
 | D-17 | 2026-07-27 | Adoptar **rtk** (compresor de salida de comandos) con hook global de Claude Code + filtro propio `.rtk/filters.toml` para `clj -M:test` | Reducir tokens de contexto gastados en salida verbosa de comandos (tests, git, grep); extiende la adopción de tooling de [[../adr/ADR-010-adopcion-project-memory-first]] | [[RTK_INTEGRATION_GUIDE]] |
+| D-18 | 2026-07-28 | Bajar la mención de UNAP de "iniciativa" (badge del hero, stat del hero, CTA banner) a **nota histórica** en el FAQ y el footer ("proyecto personal... que se originó en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat") | El vínculo fue un convenio a honorarios de alcance acotado (oct–nov 2025, ya terminado), sin autorización de marca ni alianza institucional vigente; mantenerlo como bandera activa sobrerrepresentaba el vínculo actual (ver [[OPEN_QUESTIONS]] Q-01) | `index.html`, `public/index.html`, `src/universo/home.cljs`, `src/universo/components/landing.cljs` |
+| D-19 | 2026-07-28 | Las clases de los cupos **tendrán costo**, salvo la **primera clase** tras el diagnóstico (gratis); el precio de las pagadas debe quedar significativamente bajo el mercado comparable | El diagnóstico/perfil/plan se mantienen gratis (D-01) como puerta de entrada, pero el negocio necesita monetizar las clases; la primera clase gratis reduce fricción de conversión. Número exacto aún no fijado — ver P-03 | [[OPEN_QUESTIONS]] Q-02 |
+| D-20 | 2026-07-28 | Aviso de Privacidad revisado solo por el **owner**, sin abogado, dado el tamaño del proyecto; se contratará asesoría legal cuando el negocio crezca | Riesgo aceptado explícitamente en lugar de bloquear la publicación esperando revisión legal que hoy no es viable | [[OPEN_QUESTIONS]] Q-03, [[AVISO_PRIVACIDAD_BORRADOR]] |
+| D-21 | 2026-07-28 | Edad mínima de cuenta: **declaración propia** al registrarse ("14 años o más, o autorización de mi representante"), sin campo de fecha de nacimiento ni bloqueo duro | Ley 21.719 (vigencia 1/12/2026) exige distinto tratamiento por edad; una declaración autoafirmada es proporcional al tamaño y riesgo actual del proyecto, frente a construir un flujo de verificación/consentimiento parental completo | [[OPEN_QUESTIONS]] Q-03, `login.cljs` |
+| D-22 | 2026-07-28 | Eliminación de cuenta es **semi-manual**: el usuario solicita desde "Configuración de cuenta", el admin ve la alerta en Admin → Usuarios y borra la cuenta a mano en Supabase; no hay autoservicio ni automatización | El borrado real de `auth.users` requiere `service_role`, que por seguridad nunca vive en el cliente (regla §7 de CLAUDE.md); automatizarlo entero es desproporcionado al volumen actual | [[OPEN_QUESTIONS]] Q-03, `events/account.cljs`, migración `009` |
+| D-23 | 2026-07-28 | "Configuración de cuenta" es una **sección propia** (`:cuenta`, protegida, enlazada desde la navegación), no una tarjeta dentro del tablero; incluye editar `full_name`/`phone` (nuevas columnas en `profiles`, migración `010`) además de la eliminación de cuenta | El owner pidió explícitamente un apartado aparte, y `full_name`/`phone` no tenían dónde vivir — se agregaron a `profiles` (no a `auth.users` directamente) porque ya es el perfil público que admin y el resto de la app leen, y `profiles_update_own` ya permite que el usuario edite su propia fila sin policy nueva | `components/cuenta.cljs`, migración `010` |
 
 ---
 
@@ -64,7 +70,7 @@ Requieren decisión antes de poder avanzar en la tarea asociada. **No asumir la 
 |---|--------------------|---------|-------------------|
 | P-01 | ¿Qué pasa cuando un estudiante **repite** el diagnóstico: sobrescribir el perfil, versionarlo o guardar histórico? | T-26 | [[OPEN_QUESTIONS]] Q-07 |
 | P-02 | ¿Se controla la **capacidad** del cupo al inscribirse, y qué se muestra cuando está lleno? | T-03 | Q-04 |
-| P-03 | ¿Las **clases** de los cupos son gratuitas o tienen costo? Define el copy y el JSON-LD | T-04, copy | Q-02 |
+| P-03 | Política decidida 2026-07-28: clases **con costo salvo la primera** (gratis tras el diagnóstico), precio por debajo del mercado. Falta fijar el **número** (por clase o paquete) — ver benchmark en [[OPEN_QUESTIONS]] Q-02 | T-04, copy | Q-02, Q-21 |
 | P-04 | ¿Instrumentación del funnel con **solución propia en Postgres** o herramienta externa? (implica privacidad) | T-20 | Q-15 |
 | P-05 | ¿Se introduce **router de URL** con history API? (deep links, medición, fallback de GitHub Pages) | T-05 | — |
 | P-06 | ¿Cómo se configura la URL de Supabase si se crea **staging**? Hoy está inline en el código | T-09 | — |

@@ -7,7 +7,7 @@
 ;; Secciones que requieren sesión Supabase válida
 ;; -----------------------------------------------------------------------------
 
-(def protected-sections #{:dashboard :diagnostic-test :admin :plan :cupos})
+(def protected-sections #{:dashboard :diagnostic-test :admin :plan :cupos :cuenta})
 
 (defn logged-in?
   "True si hay usuario de sesión en app-db."
@@ -96,9 +96,13 @@
               (assoc-in [:visitor :email] nil)
               (assoc-in [:visitor :logged-in] false)
               (assoc-in [:dashboard :user-id] nil)
+              (assoc-in [:account :profile] nil)
+              (assoc-in [:account :save-status] nil)
+              (assoc-in [:account :deletion-request-status] nil)
               (assoc-in [:dashboard/stats] nil)
               (assoc-in [:dashboard/ultimo-test] nil)
               (assoc-in [:admin :profiles] [])
+              (assoc-in [:admin :deletion-requests] [])
               (assoc-in [:admin :tests] [])
               (assoc-in [:admin :guestbook] [])
               (assoc-in [:admin :overview] nil)

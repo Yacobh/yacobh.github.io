@@ -305,6 +305,27 @@
 ;; Usuarios
 ;; -----------------------------------------------------------------------------
 
+(defn- deletion-requests-alert []
+  (let [requests @(re-frame/subscribe [:admin/deletion-requests])]
+    (when (seq requests)
+      [:div {:class "mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4"}
+       [:p {:class "mb-2 text-sm font-semibold text-amber-900"}
+        (str (count requests) " solicitud(es) de eliminación de cuenta pendiente(s)")]
+       [:ul {:class "space-y-2"}
+        (for [r requests]
+          ^{:key (:id r)}
+          [:li {:class "flex flex-col gap-1 rounded-lg bg-white px-3 py-2 text-sm sm:flex-row sm:items-center sm:justify-between"}
+           [:span
+            [:span {:class "font-medium text-gray-900"}
+             (or (get-in r [:meta :email]) (:message r))]
+            [:span {:class "ml-2 text-xs text-gray-500"} (format-date-time (:created_at r))]]
+           [btn {:variant :success
+                 :title "Marcar como atendida (esto no borra la cuenta: hazlo desde Supabase)"
+                 :on-click #(when (js/confirm
+                                   "¿Marcar esta solicitud como atendida? Esto no elimina la cuenta: recuerda borrarla también en Supabase Auth.")
+                              (re-frame/dispatch [:admin/mark-deletion-attended (:id r)]))}
+            "Marcar atendida"]])]])))
+
 (defn- users-panel []
   (let [{:keys [rows total page pages]} @(re-frame/subscribe [:admin/users-view])
         query @(re-frame/subscribe [:admin/users-query])
@@ -314,6 +335,7 @@
       :title "Usuarios"
       :description "Cuentas registradas y sus permisos."}
      [:div
+      [deletion-requests-alert]
       [:div {:class "mb-4"}
        [search-input {:value query
                       :placeholder "Buscar por correo o rol"

@@ -1,6 +1,6 @@
 # ROADMAP
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-07-27**
 
 > Las fases F0–F6 son **reconstruidas** desde el historial de commits y el estado del código: no
 > existía un roadmap escrito. Las fases F8+ son propuestas y requieren confirmación del owner
@@ -253,6 +253,29 @@ Candidatos, **no comprometidos** — requieren decisión del owner (Q-14):
 el riesgo en lugar del valor.
 
 ---
+
+## Roadmap de negocio del fundador (documento fuente, no verificado en código)
+
+El "Libro del Proyecto" (borrador v0.1, 2026-07-27 — ver [[VISION_LIBRO_PROYECTO]] §6) declara su
+propio roadmap, con fases y horizontes de tiempo **distintos** a las fases F0–F11 de arriba. Se deja
+por separado en vez de fusionarlo porque tiene otra procedencia (intención del fundador, no
+historial de commits) y otro grado de certeza:
+
+- **Fases del libro:** 1 Prototipo, 2 Motor adaptativo, 3 Contenido narrativo histórico,
+  4 Paneles y métricas, 5 Escalabilidad. Las fases 1 y 2 ya están superadas por el código actual
+  (F0–F1); la 3, 4 y 5 no tienen trabajo iniciado.
+- **Corto plazo (0–6 meses):** banco de 200+ preguntas de álgebra validadas, primeras 5 lecturas
+  narrativas, 100 usuarios activos en piloto, primer dashboard de métricas.
+- **Mediano plazo (6–18 meses):** geometría/funciones/estadística, modelo freemium →
+  suscripción, primer piloto institucional, equipo mínimo (fundador + 1 dev + 1 redactor),
+  búsqueda de inversión semilla o CORFO/Start-Up Chile.
+- **Largo plazo (18+ meses):** otras asignaturas, internacionalización, IA generativa para
+  personalización, certificaciones propias, tutores en vivo.
+
+**Relación con F8–F11:** el roadmap del libro asume una expansión de negocio (multi-materia, pago,
+inversión) que hoy no está decidida ni reflejada en ninguna tarea de [[BACKLOG]]. Si el owner
+confirma esta dirección, corresponde crear una épica nueva y tareas T- propias en lugar de
+forzarlas dentro de F8–F11 (que son estrictamente "MVP actual → en uso").
 
 ## Hitos, resumidos
 

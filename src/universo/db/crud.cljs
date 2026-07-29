@@ -721,6 +721,64 @@
                   (async/put! ch {:success false :error (.-message error)}))))
     ch))
 
+(defn request-account-deletion!
+  "El usuario deja una notificación sobre sí mismo pidiendo que un admin
+   elimine su cuenta. No borra nada: es solo la alerta que ve el admin en el
+   panel (pestaña Usuarios)."
+  [user-id email]
+  (insert-data-table!
+   {:user_id (str user-id)
+    :kind "account_deletion_request"
+    :message (str "Solicitud de eliminación de cuenta: " email)
+    :meta {:email email}}
+   "notifications"
+   {:returning? false}))
+
+(defn fetch-account-deletion-requests
+  "Solicitudes de eliminación de cuenta sin atender. RLS deja verlas todas
+   solo a un admin (notifications_select_own incluye is_admin())."
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "notifications")
+        (.select "*")
+        (.eq "kind" "account_deletion_request")
+        (.eq "read" false)
+        (.order "created_at" #js {:ascending false})
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-own-profile
+  "Nombre, teléfono y correo del perfil propio, para la sección
+   Configuración de cuenta."
+  [user-id]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "profiles")
+        (.select "id,email,full_name,phone")
+        (.eq "id" (str user-id))
+        (.maybeSingle)
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn update-own-profile!
+  "Actualiza nombre/teléfono de la propia fila en profiles. Permitido por
+   profiles_update_own (admin_rls.sql): un usuario puede tocar cualquier
+   columna de su propia fila salvo `role`."
+  [user-id {:keys [full-name phone]}]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "profiles")
+        (.update #js {:full_name full-name :phone phone})
+        (.eq "id" (str user-id))
+        (.select "id,email,full_name,phone")
+        (.single)
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
 ;; -----------------------------------------------------------------------------
 ;; Admin: métricas, roles y gestión de inscripciones
 ;; -----------------------------------------------------------------------------

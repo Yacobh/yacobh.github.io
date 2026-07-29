@@ -23,6 +23,7 @@
            :profiles []
            :users-query ""
            :users-page 0
+           :deletion-requests []
            :tests []
            :tests-query ""
            :tests-page 0
@@ -82,6 +83,13 @@
            :message nil}
 
    :notifications {:items []}
+
+   :account {:profile nil
+             :profile-loading? false
+             ;; :save-status → nil | :saving | :saved | :error
+             :save-status nil
+             ;; :deletion-request-status → nil | :sending | :sent | :error
+             :deletion-request-status nil}
 
    :test {:questions []
           :question-ids []

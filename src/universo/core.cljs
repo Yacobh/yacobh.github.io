@@ -8,6 +8,7 @@
    [universo.events.admin]
    [universo.events.test]
    [universo.events.profile]
+   [universo.events.account]
    [universo.events.plan]
    [universo.events.slots]
    [universo.events.contacto]

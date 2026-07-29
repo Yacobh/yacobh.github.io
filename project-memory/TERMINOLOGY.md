@@ -1,6 +1,6 @@
 # TERMINOLOGY
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-07-27**
 
 Glosario del proyecto. Incluye términos del dominio (psicometría, PAES), del producto y del código.
 **Si un término aparece en el código con un nombre distinto al del negocio, aquí se registran ambos.**
@@ -253,6 +253,59 @@ legibles ("Números"), traducidas por `topic-aliases` en `events/test.cljs`. Ade
 **Bundle (`public/js/app.js`)**
 El artefacto compilado por shadow-cljs. **Está versionado en Git y es el mecanismo de despliegue**
 ([[../adr/ADR-003-github-pages-artefacto-versionado]]).
+
+---
+
+## Visión de negocio (Libro del Proyecto — no implementado)
+
+Términos introducidos por [[VISION_LIBRO_PROYECTO]], el documento de visión de largo plazo del
+fundador. **Ninguno de estos existe en el código hoy**; se registran para que no se confundan con
+los términos ya implementados de arriba, que cubren un concepto relacionado pero distinto.
+
+**Academia Online de Matemáticas**
+Nombre usado en el "Libro del Proyecto" para la visión de negocio ampliada. **No confundir** con
+**Academia Integral**, el nombre comercial ya implementado y publicado (PAES Matemática 1, UNAP).
+Relación entre ambos nombres sin aclarar — ver [[OPEN_QUESTIONS]] Q-23.
+
+**Motor Adaptativo**
+Nombre que usa el libro para el mecanismo de selección de dificultad. En el código, el mecanismo
+equivalente es el motor IRT 1PL/MAP (`universo.components.tetha`, `universo.irt.progress`) — más
+específico de lo que el libro describe.
+
+**Grupo de Conocimiento**
+Clasificación estática del estudiante al momento del diagnóstico inicial, en tres niveles
+(básico/medio/avanzado) según dificultad `[-3, 3]`. Distinto de la **banda de θ** ya implementada
+(cuatro niveles: `inicial/basico/intermedio/avanzado`, ver "Dominio: psicometría e IRT" arriba).
+
+**Grupo de Aprendizaje**
+Clasificación dinámica propuesta, que evolucionaría con el ritmo, la frecuencia (λ) y el estilo de
+aprendizaje observado. No tiene tabla, evento ni concepto equivalente en el código.
+
+**Frecuencia (λ) — Eje 2**
+`λ = n_respuestas / Δt_sesión`, en respuestas por minuto. Se propone como segundo eje de
+clasificación, junto al conocimiento (θ). El código guarda `time-ms` por respuesta pero no lo
+convierte en una frecuencia de sesión ni lo usa para clasificar (ver [[OPEN_QUESTIONS]] Q-17).
+
+**Control Retroalimentado**
+Marco conceptual del libro: el estudiante es medido continuamente y el sistema ajusta contenido,
+dificultad y ritmo en consecuencia. Es una descripción de alto nivel de lo que el motor IRT ya
+hace; el libro no propone un mecanismo técnico distinto.
+
+**Freemium**
+Modelo de negocio propuesto para el mediano plazo del libro (acceso básico gratis, funciones
+avanzadas de pago). No implementado; el modelo actual no tiene ningún tramo de pago.
+
+**MAU — Monthly Active Users**
+Métrica de usuarios activos mensuales citada en el libro. No instrumentada (ver
+[[BUSINESS_CONTEXT]] §6, sin analytics conectado).
+
+**NPS — Net Promoter Score**
+Métrica de lealtad ("¿qué tan probable es que recomiendes esto?") propuesta como métrica de
+negocio en el libro. No instrumentada.
+
+**BaaS — Backend as a Service**
+Término genérico que usa el libro para describir el rol de Supabase en la arquitectura. Ya
+documentado con más precisión en [[ARCHITECTURE]] y [[TECH_STACK]].
 
 ---
 
