@@ -160,8 +160,8 @@
        [:h3.text-xl.font-bold "Academia Integral"]]
       [:p.max-w-sm.text-sm.leading-relaxed.text-gray-400
        "Preparación de PAES Matemática 1 con diagnóstico adaptativo, plan personalizado "
-       "y grupos de estudio por nivel. Iniciativa de la Universidad Arturo Prat junto al "
-       "profesor Jacobo Córdova."]]
+       "y grupos de estudio por nivel. Un proyecto del profesor Jacobo Córdova, que se originó "
+       "en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat."]]
 
      ;; Enlaces
      [:div

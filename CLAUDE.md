@@ -162,6 +162,7 @@ clj -M:test                          # suite de tests (node-test)
 | [[project-memory/ARCHITECTURE]] | Componentes, flujos, infra, seguridad |
 | [[project-memory/CURRENT_STATUS]] | Estado real hoy, bloqueos, próximos pasos |
 | [[project-memory/ROADMAP]] | Fases, hitos, entregables |
+| [[project-memory/VISION_LIBRO_PROYECTO]] | Visión de negocio de largo plazo del fundador (no implementada; en tensión con el alcance del MVP) |
 | [[project-memory/BACKLOG]] | Épicas, features, tareas priorizadas |
 | [[project-memory/RISKS]] | Riesgos con severidad y mitigación |
 | [[project-memory/DECISIONS]] | Índice de decisiones → ADRs |

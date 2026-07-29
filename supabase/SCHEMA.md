@@ -85,4 +85,6 @@ solo permite auto-actualizarse y sin cambiar de rol, así que el `UPDATE` afecta
 6. `migrations/004_enrich_baldor_resources.sql`
 7. `migrations/005_email_outbox.sql`
 8. `migrations/006_admin_role_management.sql`
-9. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+9. `migrations/007_questions_admin_rls.sql`
+10. `migrations/008_fix_profiles_created_at.sql`
+11. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`

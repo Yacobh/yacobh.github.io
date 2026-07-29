@@ -1,6 +1,11 @@
 # PROJECT_BRIEF
 
-Última actualización: **2026-07-26** · Fuente: código, migraciones SQL, landing y `PROJECT_SUMMARY.md`
+Última actualización: **2026-07-27** · Fuente: código, migraciones SQL, landing y `PROJECT_SUMMARY.md`
+
+> Este archivo describe el **alcance del MVP tal como está implementado**. El fundador tiene además
+> una visión de negocio de largo plazo más amplia (multi-materia, pago por clase, contenido
+> narrativo-histórico) documentada en [[VISION_LIBRO_PROYECTO]] — **no implementada**, y en
+> tensión directa con las exclusiones de §6. No asumir que ese documento ya rige el producto.
 
 ## 1. Nombre del proyecto
 

@@ -1,6 +1,6 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-07-28**
 
 > **Regla fundamental de PMF: si falta información, no se asume — se registra aquí.**
 > Ninguna pregunta se borra: cuando se responde, se marca ✅ con la fecha y la respuesta, y si
@@ -12,18 +12,28 @@ Estado: 🔴 abierta y bloqueante · 🟠 abierta e importante · 🟡 abierta m
 
 ## Producto y negocio
 
-### 🟠 Q-01 · ¿Cuál es el vínculo formal con la UNAP?
-La landing, el JSON-LD y el footer afirman que es una "iniciativa de la Universidad Arturo Prat".
-No hay en el repositorio evidencia de un contacto institucional, un convenio ni una autorización de
-uso de marca.
-**Por qué importa:** el respaldo institucional es el principal argumento de credibilidad y de
-gratuidad; también condiciona las obligaciones de privacidad (R-06).
-**Para quién:** owner. **Impacto si se ignora:** reputacional/institucional.
+### ✅ Q-01 · ¿Cuál es el vínculo formal con la UNAP?
+**Respondida 2026-07-28 (owner):** hubo un convenio a honorarios entre el owner y la Universidad
+Arturo Prat (oct–nov 2025, ya terminado), de alcance acotado: diseño de una plataforma de tutorías
+para la comunidad universitaria, como Proyecto de Desarrollo Institucional. No es un convenio de
+marca ni una alianza institucional vigente; el convenio terminó sin que la plataforma quedara
+finalizada, aunque fue dado por aprobado. No hay autorización de uso de marca ni vínculo activo hoy.
+**Decisión:** ver D-18 en [[DECISIONS]] — se bajó la mención de UNAP de "iniciativa" (badge del
+hero, stat del hero, CTA banner) a nota histórica en el FAQ y el footer ("proyecto personal...
+que se originó en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat").
+El detalle del convenio (folio, montos, datos personales) no se documenta aquí por ser un
+repositorio público — queda solo con el owner.
+**Impacto:** el copy publicado ya no afirma un vínculo institucional vigente; revisar R-06 si
+cambian las obligaciones de privacidad derivadas de esta afirmación.
 
 ### 🔴 Q-02 · ¿Las clases de los cupos tienen costo?
 El commit `b6ae903` acotó deliberadamente la gratuidad al diagnóstico, perfil y plan. No está dicho
 qué ocurre con las clases.
 **Bloquea:** copy definitivo, JSON-LD, [[BACKLOG]] T-04. **Decisión pendiente:** P-03.
+**Nota 2026-07-27:** [[VISION_LIBRO_PROYECTO]] §4.4 propone explícitamente **pago por clase o
+paquete** — pero es la visión de negocio de largo plazo del fundador en un borrador, no una
+decisión aplicada al producto ni al copy publicado (que sigue afirmando gratuidad total). No se
+marca esta pregunta como respondida por eso solo; falta que el owner confirme que quiere aplicarla.
 
 ### 🟠 Q-03 · ¿Hay requisito de consentimiento o aviso de privacidad?
 Público mayoritariamente menor de edad + respaldo universitario + recolección de datos personales
@@ -44,6 +54,27 @@ pero no hay consulta ni dato que lo respalde en el repo.
 ### 🟠 Q-16 · ¿Qué pasa con un cupo que no alcanza el mínimo?
 No hay plazo, cancelación automática ni comunicación definida. El estudiante queda esperando.
 **Bloquea:** T-25. **Decisión pendiente:** P-08. **Relacionado:** R-11.
+
+### 🟠 Q-21 · ¿El owner confirma la visión de negocio del "Libro del Proyecto"?
+[[VISION_LIBRO_PROYECTO]] (2026-07-27) propone un modelo de negocio de pago, expansión
+multi-materia e internacionalización que contradice el alcance y las exclusiones ya decididas en
+[[PROJECT_BRIEF]] y [[BUSINESS_CONTEXT]]. Es un borrador v0.1, no una decisión.
+**Por qué importa:** define si F8–F11 siguen siendo el único horizonte o si corresponde abrir una
+épica de negocio nueva en [[BACKLOG]]. **Para quién:** owner.
+
+### 🟡 Q-22 · ¿"Grupos de conocimiento" (3, libro) reemplazan a las bandas de θ (4, código)?
+El libro clasifica en Básico/Medio/Avanzado; el código ya implementado usa
+`inicial/basico/intermedio/avanzado`. No está dicho si son la misma idea con nombres distintos, si
+el libro simplifica a propósito, o si se espera migrar `class_slots.theta_band` a un esquema nuevo.
+**Bloquea:** cualquier trabajo futuro sobre el Eje 2 (frecuencia λ) o el Eje 3 (estilo de
+aprendizaje). **Relacionado:** [[VISION_LIBRO_PROYECTO]] §3.4.
+
+### 🟡 Q-23 · ¿"Academia Online de Matemáticas" y "Academia Integral" son el mismo proyecto?
+El libro usa un nombre de marca distinto al ya publicado en producción (landing, JSON-LD, footer).
+No está dicho si es un rebranding planeado, un nombre de trabajo interno, o dos iniciativas
+relacionadas pero separadas (una académica/UNAP, otra comercial/startup).
+**Por qué importa:** afecta copy, dominio, JSON-LD y la relación declarada con UNAP (Q-01) si el
+proyecto se reposiciona como startup con inversión externa.
 
 ---
 
@@ -147,6 +178,7 @@ Ninguna está documentada. Puede haber trabajo valioso sin mergear.
 | X-05 | `shadow-cljs` 3.0.4 en `deps.edn` vs `^2.19.2` en `package.json` | `deps.edn` vs `package.json` | T-13 |
 | X-06 | KaTeX `^0.16.22` por npm vs CSS 0.16.9 por CDN | `package.json` vs `index.html` | T-13 |
 | X-07 | `PROJECT_SUMMARY.md` describe una estructura de módulos previa al MVP (menciona `views.cljs` con componentes principales, `jardin`, `voz`… como parte del producto) que ya no refleja el sistema | `PROJECT_SUMMARY.md` vs [[ARCHITECTURE]] | T-33: reducir a puntero o archivar |
+| X-08 | El "Libro del Proyecto" propone pago por clase, multi-materia e internacionalización | [[VISION_LIBRO_PROYECTO]] vs [[PROJECT_BRIEF]] §6, [[BUSINESS_CONTEXT]] §5 | Q-21: confirmación del owner antes de tocar copy, JSON-LD o alcance |
 
 ---
 
@@ -164,4 +196,5 @@ Formato:
 
 ---
 
-Relacionado: [[ASSUMPTIONS]] · [[DECISIONS]] · [[RISKS]] · [[REQUIREMENTS]] §7 · [[CURRENT_STATUS]]
+Relacionado: [[ASSUMPTIONS]] · [[DECISIONS]] · [[RISKS]] · [[REQUIREMENTS]] §7 · [[CURRENT_STATUS]] ·
+[[VISION_LIBRO_PROYECTO]]

@@ -1,6 +1,6 @@
 # DECISIONS
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-07-28**
 
 Registro central de decisiones. Cada decisión con consecuencias arquitectónicas o de producto tiene
 un **ADR** en `../adr/`. Este archivo es el índice y el lugar donde viven las decisiones **menores**
@@ -53,6 +53,7 @@ alternativas relevantes o (d) alguien podría cuestionar en seis meses → **ADR
 | D-15 | 2026-07-26 | La documentación de la memoria se escribe **en español** | Es el idioma del proyecto, del producto y del owner | [[../CLAUDE]] §6 |
 | D-16 | 2026-07-26 | Enlaces internos estilo `[[ARCHIVO]]` en toda la memoria | Compatibles con Obsidian y legibles como Markdown plano en GitHub | [[OBSIDIAN_WORKSPACE_GUIDE]] |
 | D-17 | 2026-07-27 | Adoptar **rtk** (compresor de salida de comandos) con hook global de Claude Code + filtro propio `.rtk/filters.toml` para `clj -M:test` | Reducir tokens de contexto gastados en salida verbosa de comandos (tests, git, grep); extiende la adopción de tooling de [[../adr/ADR-010-adopcion-project-memory-first]] | [[RTK_INTEGRATION_GUIDE]] |
+| D-18 | 2026-07-28 | Bajar la mención de UNAP de "iniciativa" (badge del hero, stat del hero, CTA banner) a **nota histórica** en el FAQ y el footer ("proyecto personal... que se originó en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat") | El vínculo fue un convenio a honorarios de alcance acotado (oct–nov 2025, ya terminado), sin autorización de marca ni alianza institucional vigente; mantenerlo como bandera activa sobrerrepresentaba el vínculo actual (ver [[OPEN_QUESTIONS]] Q-01) | `index.html`, `public/index.html`, `src/universo/home.cljs`, `src/universo/components/landing.cljs` |
 
 ---
 
@@ -64,7 +65,7 @@ Requieren decisión antes de poder avanzar en la tarea asociada. **No asumir la 
 |---|--------------------|---------|-------------------|
 | P-01 | ¿Qué pasa cuando un estudiante **repite** el diagnóstico: sobrescribir el perfil, versionarlo o guardar histórico? | T-26 | [[OPEN_QUESTIONS]] Q-07 |
 | P-02 | ¿Se controla la **capacidad** del cupo al inscribirse, y qué se muestra cuando está lleno? | T-03 | Q-04 |
-| P-03 | ¿Las **clases** de los cupos son gratuitas o tienen costo? Define el copy y el JSON-LD | T-04, copy | Q-02 |
+| P-03 | ¿Las **clases** de los cupos son gratuitas o tienen costo? Define el copy y el JSON-LD. [[VISION_LIBRO_PROYECTO]] propone pago por clase/paquete — propuesta sin confirmar, no aplicada | T-04, copy | Q-02, Q-21 |
 | P-04 | ¿Instrumentación del funnel con **solución propia en Postgres** o herramienta externa? (implica privacidad) | T-20 | Q-15 |
 | P-05 | ¿Se introduce **router de URL** con history API? (deep links, medición, fallback de GitHub Pages) | T-05 | — |
 | P-06 | ¿Cómo se configura la URL de Supabase si se crea **staging**? Hoy está inline en el código | T-09 | — |
