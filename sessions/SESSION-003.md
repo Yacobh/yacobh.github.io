@@ -130,20 +130,31 @@ lleno vía `full?`, así que no introduce un mensaje nuevo sin precedente).
 
 ## Próximos pasos
 
-1. **Aplicar `011_enrollments_capacity_check.sql`** en el proyecto Supabase real y verificar en
-   vivo que la inscripción N+1 en un cupo con `capacity = N` falla con error legible (cierra T-03).
-2. Antes de publicar a producción: recompilar (`npx shadow-cljs release app` + `npm run build:css`)
-   porque `components/slots.cljs` cambió — no dejar el bundle desincronizado del fuente (T-08).
-3. `graphify update .` para indexar el archivo SQL nuevo y refrescar `project-memory/graph/`.
+1. ~~Aplicar `011` y verificar en vivo~~ — aplicada por el owner; queda pendiente que alguien (owner
+   o agente con acceso) confirme el rechazo N+1 contra el proyecto real, aunque no bloquea cerrar
+   T-03.
+2. **Decidir cuándo mergear `visual-fixes` → `main`** y republicar (recompilar release + build:css
+   ya están hechos en el HEAD de `visual-fixes`, así que el merge sería directo) — cierra la brecha
+   nueva detectada entre lo que hay en la DB (trigger activo) y lo que sirve GitHub Pages.
+3. Seguir con T-19 (verificar qué versión sirve realmente `jacobocordova.com` hoy) para cerrar Q-13
+   del todo.
 4. Seguir con el resto de la lista de "Próximos pasos inmediatos" de
    [[../project-memory/CURRENT_STATUS]] §8 (T-01, T-02, T-04 siguen bloqueadas por humano/acceso/negocio).
 
 ## Pendientes
 
-- Migración `011` sin aplicar en Supabase real (bloqueo de acceso, no técnico).
-- Bundle de producción (`public/js/app.js`) no recompilado tras el cambio en `slots.cljs` — no
-  publicar sin recompilar.
-- `graphify update .` no corrido en esta sesión.
+- ~~Migración `011` sin aplicar en Supabase real~~ — **resuelto**: el owner confirmó haberla
+  aplicado el 2026-07-29 (mismo día, más tarde en la sesión). No verificado en vivo por el agente.
+- ~~Bundle de producción no recompilado~~ — **resuelto**: se detectó que un `shadow-cljs watch app`
+  corriendo en background había sobrescrito `public/js/app.js` con un build de desarrollo (8,5 MB)
+  al guardar los cambios en `.cljs`; se corrigió con `npx shadow-cljs release app` +
+  `npm run build:css` antes de commitear.
+- `graphify update .` corrido (898 nodos, 1121 edges, 65 comunidades) y snapshot copiado a
+  `project-memory/graph/`.
+- Commit `0fd5f79` creado y pusheado por el usuario a `origin/visual-fixes`.
+- **Nuevo pendiente:** rama `visual-fixes` (`520ff79` + `0fd5f79`) no está mergeada a `main` —
+  el trabajo de UI ("minor fixes") y el refactor de T-03 no están en producción todavía, aunque el
+  trigger de capacidad sí está activo en la DB real. Ver [[../project-memory/CURRENT_STATUS]] y T-19.
 
 ## Actualizaciones requeridas en Project Memory
 

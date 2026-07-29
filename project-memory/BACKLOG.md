@@ -34,13 +34,13 @@ Publicar al menos un `resource` por cada módulo prioritario de `supabase/CONTEN
   con `sent_at` poblado y el correo llega a una bandeja real (no spam).
 - **Relacionado:** [[ROADMAP]] F5/H5, [[RISKS]] R-12, [[../adr/ADR-007-email-outbox-con-edge-function]].
 
-### T-03 · Agregar control de capacidad en la inscripción — **P0** · `en curso` (falta aplicar en Supabase)
+### T-03 · Agregar control de capacidad en la inscripción — **P0** · `hecho` (2026-07-29)
 
 **2026-07-29:** confirmado que **no existía** ningún check/trigger que impidiera que los
 enrollments activos superaran `class_slots.capacity` — ver detalle en
 [[OPEN_QUESTIONS]] Q-04 (respondida).
 
-**Código listo, migración aún no aplicada al proyecto real:**
+**Implementado y desplegado:**
 - `supabase/migrations/011_enrollments_capacity_check.sql` — trigger
   `BEFORE INSERT OR UPDATE OF status` (`enforce_slot_capacity`) que cuenta enrollments
   `pending|confirmed` del cupo (excluyendo la propia fila) y rechaza con `raise exception 'Cupo
@@ -53,11 +53,15 @@ enrollments activos superaran `class_slots.capacity` — ver detalle en
 - La UI ya comunicaba "Cupo lleno" (existía antes, solo era UI sin respaldo en DB); con la
   migración aplicada, un intento directo a la API que la sortee también falla, y
   `crud/enroll-in-slot!` ya propaga `error.message` → `:slots/enroll-fail` sin cambios adicionales.
-
-- **Falta para cerrar:** aplicar `011_enrollments_capacity_check.sql` en el proyecto Supabase real
-  (SQL Editor, después de `010`) y verificar en vivo que la inscripción N+1 en un cupo con
-  `capacity = N` falla con error legible.
-- **Terminado cuando:** lo anterior está hecho y verificado contra el proyecto real.
+- Commit `0fd5f79` en rama `visual-fixes`, pusheado a `origin/visual-fixes`.
+- **2026-07-29:** el owner (Jacobo Córdova) confirma haber aplicado `011` en el proyecto Supabase
+  real. **Nota:** el agente no verificó en vivo la inscripción N+1 (sin acceso al proyecto real);
+  el criterio de "terminado" se da por cumplido según el reporte del owner, no por verificación
+  independiente del agente.
+- **Pendiente separado, no bloquea T-03:** la rama `visual-fixes` (este commit + `520ff79`) no está
+  mergeada a `main`, así que el código de UI (incluido el refactor de `slots.cljs`) todavía no está
+  en producción — aunque el trigger de la DB ya está activo y protege igual, independientemente de
+  qué build de frontend esté sirviendo GitHub Pages. Ver T-19.
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-04 (respondida), [[REQUIREMENTS]] RF-5.10,
   `supabase/SCHEMA.md` §Control de capacidad.
 
@@ -79,15 +83,31 @@ fuente actual.
   producción ejecuta el funnel completo.
 - **Relacionado:** [[RISKS]] R-13, [[../adr/ADR-003-github-pages-artefacto-versionado]].
 
-### T-19 · Verificar qué hay realmente en producción — **P0** · `abierto`
+### T-19 · Verificar qué hay realmente en producción — **P0** · `hecho` (2026-07-29), seguimiento en T-35
 
-`cursor/mvp-operable-funnel` puede no estar mergeada a `main`.
+**2026-07-29:** `git log main..cursor/mvp-operable-funnel` vacío (mergeada vía PR #14/#15).
+Verificado por hash que `https://jacobocordova.com/public/js/app.js` es byte-a-byte idéntico a
+`origin/main:public/js/app.js` (MD5 `da3cd5e1de8717d10bbc9bf602baf1c1`). Producción = `main` @
+`4998785`, sin desfase.
 
 - **Terminado cuando:** `git log main..cursor/mvp-operable-funnel --oneline` está vacío o su
-  contenido está documentado en [[CURRENT_STATUS]], y se confirma qué versión sirve el dominio.
-- **Relacionado:** [[OPEN_QUESTIONS]] Q-13.
+  contenido está documentado en [[CURRENT_STATUS]], y se confirma qué versión sirve el dominio. ✅
+- **Relacionado:** [[OPEN_QUESTIONS]] Q-13 (respondida). Sigue como T-35: mergear `visual-fixes`.
 
 ---
+
+### T-35 · Mergear `visual-fixes` a `main` y republicar — **P1** · `abierto`
+
+Detectado en T-19 (2026-07-29): producción sirve exactamente `origin/main` @ `4998785`, pero la
+rama `origin/visual-fixes` tiene dos commits sin mergear — `520ff79` ("minor fixes": unificación de
+estilos en `admin.cljs`, `admin_questions.cljs`, `contacto.cljs`, `cuenta.cljs`, `dashboard.cljs`,
+`diagnostic_test.cljs`, `feedback_modal.cljs` y otros) y `0fd5f79` (T-03: control de capacidad,
+incluye migración `011` ya aplicada en la DB real). El bundle de `visual-fixes` ya está recompilado
+en release (`npx shadow-cljs release app` + `build:css`), así que el merge sería directo.
+
+- **Terminado cuando:** `visual-fixes` está mergeada a `main`, GitHub Pages sirve el nuevo
+  `app.js`/`app.css` (verificar por hash como en T-19), y `git log main..visual-fixes` queda vacío.
+- **Relacionado:** [[OPEN_QUESTIONS]] Q-13, T-19, T-03.
 
 ## Épica E2 — Endurecimiento (F9)
 
@@ -364,7 +384,7 @@ desactualizados (lista de módulos previa al MVP).
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-27, T-28 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-27, T-28, T-35 |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-25, T-26, T-31, T-33, T-34 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32 |
 

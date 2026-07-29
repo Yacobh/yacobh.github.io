@@ -166,11 +166,21 @@ preguntas como estudiante. O existe otra policy previa más permisiva, o el fluj
 **Cómo responderla:** revisar todas las policies de `questions` en el proyecto real
 (`select * from pg_policies where tablename = 'questions';`).
 
-### 🔴 Q-13 · ¿Qué versión está realmente en producción?
-El trabajo del MVP operable está en `cursor/mvp-operable-funnel`; no se ha verificado que esté
-mergeado a `main` (la rama que GitHub Pages sirve). Además `public/js/app.js` tiene cambios sin
-commitear.
-**Bloquea:** cualquier afirmación sobre el estado de producción. **Tarea:** T-19.
+### ✅ Q-13 · ¿Qué versión está realmente en producción? — Respondida 2026-07-29
+`git log main..cursor/mvp-operable-funnel` está vacío: esa rama quedó **completamente mergeada** a
+`main` (PR #14, luego PR #15 "Configuracion"). Verificado además por hash: se descargó
+`https://jacobocordova.com/public/js/app.js` (`curl`, el `index.html` real referencia
+`./public/js/app.js`, no `./js/app.js`) y su MD5 (`da3cd5e1de8717d10bbc9bf602baf1c1`) coincide
+byte a byte con `git show origin/main:public/js/app.js`. **Producción sirve exactamente
+`origin/main` @ `4998785`**, sin desfase.
+
+**Pero surge una brecha nueva:** la rama `visual-fixes` (`520ff79` "minor fixes" — unifica estilos
+en varios componentes — y `0fd5f79`, el fix de capacidad de T-03) está pusheada a
+`origin/visual-fixes` pero **no mergeada a `main`**, así que ese trabajo todavía no está en
+producción. La migración `011` sí está aplicada en la base real (T-03), así que el control de
+capacidad ya protege en producción independientemente del frontend desplegado — pero el resto de
+`visual-fixes` (unificación de estilos, refactor de UI) no.
+**Tarea:** T-19 sigue abierta como seguimiento de "cuándo mergear `visual-fixes` → `main`".
 
 ### 🟡 Q-11 · ¿En qué región está el proyecto Supabase y en qué plan?
 Afecta latencia para usuarios en Iquique, límites del free tier y política de respaldos.

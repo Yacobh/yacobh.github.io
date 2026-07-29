@@ -41,9 +41,23 @@
 >   inline.
 > - `clj -M:test`: **34 tests / 133 assertions / 0 failures** (antes 129).
 >
-> **Pendiente:** la migración `011` está escrita pero **no aplicada** en el proyecto Supabase real
-> (se aplican a mano, §9 de `CLAUDE.md`). Hasta que se aplique, el control sigue siendo solo de UI
-> en producción. Detalle en [[OPEN_QUESTIONS]] Q-04 (respondida) y [[BACKLOG]] T-03 (`en curso`).
+> **Cerrado (2026-07-29):** commit `0fd5f79` pusheado a `origin/visual-fixes`, y el owner confirma
+> haber aplicado `011_enrollments_capacity_check.sql` en el proyecto Supabase real. [[BACKLOG]] T-03
+> pasa a `hecho`. El agente no verificó en vivo la inscripción N+1 (sin acceso al proyecto real) —
+> el cierre se basa en el reporte del owner. Detalle en [[OPEN_QUESTIONS]] Q-04 (respondida).
+>
+> **T-19 cerrada (2026-07-29):** `git log main..cursor/mvp-operable-funnel` vacío — esa rama quedó
+> completamente mergeada a `main` (PR #14/#15). Verificado además por hash:
+> `https://jacobocordova.com/public/js/app.js` (el `index.html` real referencia `./public/js/app.js`)
+> tiene MD5 `da3cd5e1de8717d10bbc9bf602baf1c1`, idéntico byte a byte a
+> `git show origin/main:public/js/app.js`. **Producción = `origin/main` @ `4998785`, sin desfase.**
+> Q-13 queda respondida.
+>
+> **Brecha nueva detectada (→ T-35):** `origin/visual-fixes` (`520ff79` "minor fixes" — unifica
+> estilos en `admin.cljs`, `cuenta.cljs`, `diagnostic_test.cljs` y otros — más `0fd5f79` de T-03)
+> está pusheada pero **no mergeada a `main`**, así que ese trabajo de UI todavía no está en
+> producción. El trigger de capacidad de T-03 sí protege ya en producción porque vive en la DB, no
+> en el frontend. Bundle de `visual-fixes` ya recompilado en release — el merge sería directo.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
@@ -106,7 +120,8 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 - [x] `007_questions_admin_rls.sql` aplicada (CRUD admin de preguntas)
 - [ ] **Al menos un recurso publicado por módulo prioritario** (`004` + Admin → Recursos)
 - [ ] **`005_email_outbox.sql` aplicada + Edge Function desplegada con `RESEND_API_KEY`**
-- [ ] `011_enrollments_capacity_check.sql` aplicada (control de capacidad en inscripciones, T-03)
+- [x] `011_enrollments_capacity_check.sql` aplicada (control de capacidad en inscripciones, T-03) —
+  aplicada por el owner el 2026-07-29, sin verificación en vivo por parte del agente
 - [ ] Cupos reales (no demo) publicados con fecha, sala/enlace y mínimo definidos
 - [ ] Recompilar (`shadow-cljs release app` + `build:css`) y publicar en `main`
 
@@ -187,12 +202,14 @@ En orden de ejecución recomendado:
    módulo prioritario de `supabase/CONTENT.md`.
 3. **Cerrar el email de cohorte** (BL-02, T-02): aplicar `005`, desplegar la function, setear el
    secret, invocarla una vez y verificar `email_outbox.status = 'sent'`.
-4. **Verificar el control de capacidad** en la inscripción (Q-04, T-03): leer el trigger de `001`
-   y, si no existe el control, agregarlo con test espejo en `slots.logic`.
+4. ~~Verificar el control de capacidad en la inscripción (Q-04, T-03)~~ — **hecho 2026-07-29**, ver
+   nota al inicio de este archivo.
 5. **Publicar cupos reales** (BL-03, T-04) y retirar/marcar los demo de `003`.
-6. **Responder las preguntas abiertas de producto** ([[OPEN_QUESTIONS]] Q-02, Q-04, Q-07, Q-08).
+6. **Responder las preguntas abiertas de producto** ([[OPEN_QUESTIONS]] Q-02, Q-07, Q-08).
 7. **Endurecimiento mínimo** (T-06, T-07): un workflow de GitHub Actions que corra `clj -M:test`, y
    un respaldo manual documentado de la base.
+8. **Mergear `visual-fixes` a `main` y republicar** (T-35, nuevo 2026-07-29): incluye el trabajo de
+   este paso 4 (T-03) y una unificación de estilos previa, ninguno de los dos en producción todavía.
 
 > Regla PMF: antes de empezar cualquiera de estos pasos, leer [[AGENT_INSTRUCTIONS]]; al
 > terminarlo, actualizar este archivo y crear/actualizar el `sessions/SESSION-XXX.md`.
@@ -201,11 +218,15 @@ En orden de ejecución recomendado:
 
 ## 9. Estado del repositorio
 
+> ⚠️ El bloque original de esta sección describía el corte del 26-07 (rama
+> `cursor/mvp-operable-funnel`, árbol sucio). Reemplazado 2026-07-29 con el estado verificado hoy:
+
 ```
-Rama actual : cursor/mvp-operable-funnel
-Rama deploy : main  (GitHub Pages)
-Sin commitear: public/js/app.js  (+73 / −24), .gitignore (+graphify-out/, +.obsidian/)
-Sin trackear : .claude/  .cursor/  .rtk/  (+ project-memory/ adr/ sessions/ prompts/ docs/ desde el 26 y 27-07-2026)
+Rama actual  : visual-fixes (2 commits sobre main: 520ff79, 0fd5f79)
+Rama deploy  : main  (GitHub Pages, dominio jacobocordova.com)
+Producción   : confirmada por hash = origin/main @ 4998785 (ver nota T-19 arriba)
+Árbol de trabajo: limpio
+visual-fixes → main: NO mergeada (T-35)
 ```
 
 **Tooling del agente (2026-07-27):** `graphify` (ya estaba) y **`rtk`** (nuevo, instalado hoy) como
@@ -217,9 +238,10 @@ versionado por diseño). Detalle: [[RTK_INTEGRATION_GUIDE]], [[GRAPHIFY_INTEGRAT
 `dashboard`, `dashboard2`, `develop`, `develop-pbx-01`, `explanation`, `guestbook-admin`, `mvp`,
 `test-selection`, `unifiying-re-frame`). Ninguna documentada. Ver [[BACKLOG]] T-18.
 
-**Pendiente de decisión:** `cursor/mvp-operable-funnel` no está mergeada a `main`, así que el
-trabajo del MVP operable **puede no estar publicado**. Verificar `git log main..HEAD` antes de
-prometer que algo está en producción ([[OPEN_QUESTIONS]] Q-13).
+**Resuelto (2026-07-29):** `cursor/mvp-operable-funnel` **sí** está mergeada a `main` (verificado
+por `git log` y por hash contra producción, ver T-19 arriba). La duda vigente ahora es la rama
+`visual-fixes`, no esa — ver T-35. Siempre verificar `git log main..HEAD` antes de prometer que algo
+está en producción; no asumir que el estado descrito acá sigue vigente sin repetir el check.
 
 ---
 
