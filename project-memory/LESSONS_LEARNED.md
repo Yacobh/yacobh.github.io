@@ -237,6 +237,23 @@ principio o distribuida uniformemente.
 la señal. Verificar siempre el resultado filtrado contra una corrida real antes de confiar en el
 ahorro reportado. Detalle: [[RTK_INTEGRATION_GUIDE]] §4.
 
+### L-30 · Un `shadow-cljs watch`/`tailwind --watch` en background ensucia `git checkout`/`merge`
+**Síntoma:** al hacer `git checkout main` y luego `git merge --ff-only visual-fixes` para publicar
+T-03/T-35, `public/js/app.js` y `public/css/app.css` aparecían "modificados" en `git status`
+segundos después de un checkout limpio, y un `git merge --ff-only` llegó a abortar con
+"Your local changes... would be overwritten by merge".
+**Causa:** procesos `shadow-cljs watch app` y `tailwindcss --watch` corriendo en background (fuera
+del control de esta sesión) detectan que `git checkout`/`merge` cambió archivos `.cljs`/CSS fuente
+y recompilan automáticamente — pero producen un **build de desarrollo sin minificar** (~8,5 MB,
+muy distinto en tamaño y contenido al build de release que sí debe commitearse, ver
+[[../adr/ADR-003-github-pages-artefacto-versionado]]), no el `release` que exige el proyecto.
+**Regla:** antes de cualquier commit o merge que toque `public/js/app.js`/`public/css/app.css`,
+correr `git status` inmediatamente antes del commit (no solo al principio); si aparecen sucios sin
+que uno mismo haya editado el fuente, es el watcher — `git restore public/css/app.css
+public/js/app.js` para volver al build de release ya commiteado antes de continuar. No asumir que
+un `git status` limpio sigue siéndolo unos comandos después si hay watchers activos. Ver
+[[BACKLOG]] T-08.
+
 ---
 
 Relacionado: [[AGENT_INSTRUCTIONS]] · [[RISKS]] · [[DECISIONS]] · [[OPEN_QUESTIONS]] · [[TECH_STACK]]

@@ -53,11 +53,20 @@
 > `git show origin/main:public/js/app.js`. **Producción = `origin/main` @ `4998785`, sin desfase.**
 > Q-13 queda respondida.
 >
-> **Brecha nueva detectada (→ T-35):** `origin/visual-fixes` (`520ff79` "minor fixes" — unifica
-> estilos en `admin.cljs`, `cuenta.cljs`, `diagnostic_test.cljs` y otros — más `0fd5f79` de T-03)
-> está pusheada pero **no mergeada a `main`**, así que ese trabajo de UI todavía no está en
-> producción. El trigger de capacidad de T-03 sí protege ya en producción porque vive en la DB, no
-> en el frontend. Bundle de `visual-fixes` ya recompilado en release — el merge sería directo.
+> **T-35 cerrada (2026-07-29):** `visual-fixes` mergeada a `main` (fast-forward `4998785` → `db724f3`)
+> y pusheada a `origin/main`. `clj -M:test` verde antes del push. `main` y `visual-fixes` apuntan al
+> mismo commit. **Al momento del push, GitHub Pages/CDN todavía servía el hash anterior**
+> (`da3cd5e1...`) — esperable, la propagación toma unos minutos (`cache-control: max-age=600` en el
+> `index.html`); re-verificar por hash antes de dar por sentado que el sitio ya sirve el build nuevo.
+>
+> **Hallazgo operativo (→ [[LESSONS_LEARNED]] L-30):** hay procesos `shadow-cljs watch app` y
+> `tailwindcss --watch` corriendo en background en la máquina de desarrollo que, al detectar que
+> `git checkout`/`merge` cambia archivos `.cljs`/CSS fuente, recompilan automáticamente un **build
+> de desarrollo sin minificar** (~8,5 MB) y sobreescriben `public/js/app.js`/`app.css` en el árbol
+> de trabajo — sin que haya ningún cambio de fuente real pendiente. Pasó dos veces durante el merge
+> de T-35 y se corrigió con `git restore public/css/app.css public/js/app.js` antes de cada commit.
+> Verificar `git status` **inmediatamente antes** de cualquier commit que toque esos dos archivos,
+> no solo al principio de la tarea.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para

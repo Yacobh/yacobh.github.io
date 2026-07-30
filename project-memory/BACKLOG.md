@@ -72,16 +72,24 @@ enrollments activos superaran `class_slots.capacity` — ver detalle en
   los cupos demo de `003` (con `meet.example.com`) están `cancelled` o borrados.
 - **Dependencias:** Q-09 (criterio de `capacity`/`min_enrollments`), logística UNAP.
 
-### T-08 · Limpiar el árbol y publicar el bundle correcto — **P0** · `abierto`
+### T-08 · Limpiar el árbol y publicar el bundle correcto — **P0** · `hecho` (2026-07-29)
 
-Hoy `public/js/app.js` tiene cambios sin commitear (+73/−24) y no hay certeza de que corresponda al
-fuente actual.
+La preocupación original (`public/js/app.js` con +73/−24 sin commitear, sin certeza de que
+correspondiera al fuente) ya no aplicaba desde `visual-fixes` (árbol limpio desde `520ff79`).
+Cerrada del todo al mergear `visual-fixes` → `main` (T-35): `clj -M:test` en verde, bundle
+recompilado con `shadow-cljs release app` + `build:css`, commit `db724f3` pusheado a `main`.
 
-- **Pasos:** `clj -M:test` → `npx shadow-cljs release app` → `npm run build:css` → commit del
-  bundle + CSS → merge/rebase a `main` → verificar en <https://jacobocordova.com>.
+**Nota operativa descubierta esta sesión:** hay procesos `shadow-cljs watch app` y
+`tailwindcss --watch` corriendo en background en la máquina de desarrollo. Cada vez que un
+`git checkout`/`merge` cambia archivos `.cljs` o el CSS fuente, el watcher recompila un **build de
+desarrollo sin minificar** (~8,5 MB) y sobreescribe `public/js/app.js`/`public/css/app.css` en el
+árbol de trabajo, aunque no haya ningún cambio de fuente real pendiente de commitear. Antes de
+cualquier commit que toque esos dos archivos, correr `git status` y, si aparecen sucios sin que
+uno mismo haya tocado el fuente, `git restore public/css/app.css public/js/app.js` para volver al
+build de release ya commiteado — nunca commitear el build de desarrollo.
 - **Terminado cuando:** `git status` limpio, `main` contiene el bundle recompilado y la app en
-  producción ejecuta el funnel completo.
-- **Relacionado:** [[RISKS]] R-13, [[../adr/ADR-003-github-pages-artefacto-versionado]].
+  producción ejecuta el funnel completo. ✅
+- **Relacionado:** [[RISKS]] R-13, [[../adr/ADR-003-github-pages-artefacto-versionado]], T-35.
 
 ### T-19 · Verificar qué hay realmente en producción — **P0** · `hecho` (2026-07-29), seguimiento en T-35
 
@@ -96,18 +104,23 @@ Verificado por hash que `https://jacobocordova.com/public/js/app.js` es byte-a-b
 
 ---
 
-### T-35 · Mergear `visual-fixes` a `main` y republicar — **P1** · `abierto`
+### T-35 · Mergear `visual-fixes` a `main` y republicar — **P1** · `hecho` (2026-07-29)
 
-Detectado en T-19 (2026-07-29): producción sirve exactamente `origin/main` @ `4998785`, pero la
-rama `origin/visual-fixes` tiene dos commits sin mergear — `520ff79` ("minor fixes": unificación de
-estilos en `admin.cljs`, `admin_questions.cljs`, `contacto.cljs`, `cuenta.cljs`, `dashboard.cljs`,
-`diagnostic_test.cljs`, `feedback_modal.cljs` y otros) y `0fd5f79` (T-03: control de capacidad,
-incluye migración `011` ya aplicada en la DB real). El bundle de `visual-fixes` ya está recompilado
-en release (`npx shadow-cljs release app` + `build:css`), así que el merge sería directo.
+Detectado en T-19: producción servía exactamente `origin/main` @ `4998785`, pero `origin/visual-fixes`
+tenía dos commits sin mergear — `520ff79` ("minor fixes": unificación de estilos en `admin.cljs`,
+`admin_questions.cljs`, `contacto.cljs`, `cuenta.cljs`, `dashboard.cljs`, `diagnostic_test.cljs`,
+`feedback_modal.cljs` y otros) y `0fd5f79` (T-03: control de capacidad, incluye migración `011` ya
+aplicada en la DB real).
 
-- **Terminado cuando:** `visual-fixes` está mergeada a `main`, GitHub Pages sirve el nuevo
-  `app.js`/`app.css` (verificar por hash como en T-19), y `git log main..visual-fixes` queda vacío.
-- **Relacionado:** [[OPEN_QUESTIONS]] Q-13, T-19, T-03.
+**Hecho:** `git merge --ff-only visual-fixes` sobre `main` (fast-forward, `4998785` → `db724f3`),
+`clj -M:test` en verde antes de pushear, `git push origin main`. `git log main..visual-fixes` vacío
+— ambas ramas apuntan al mismo commit. Ver [[LESSONS_LEARNED]] L-30 sobre el problema encontrado en
+el camino (watchers de `shadow-cljs`/`tailwind` en background ensuciando el árbol durante el
+checkout/merge, resuelto con `git restore` antes de cada commit).
+- **Pendiente de verificación:** confirmar por hash (como en T-19) que GitHub Pages/CDN ya sirve el
+  `app.js` nuevo — al momento de pushear todavía servía el hash anterior (`da3cd5e1...`), esperable
+  por la propagación de la CDN (`cache-control: max-age=600` visto en el `index.html`).
+- **Relacionado:** [[OPEN_QUESTIONS]] Q-13, T-19, T-03, [[LESSONS_LEARNED]] L-30.
 
 ## Épica E2 — Endurecimiento (F9)
 
