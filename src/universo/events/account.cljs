@@ -52,19 +52,23 @@
 
 (re-frame/reg-fx
  :account/save-profile!
- (fn [{:keys [user-id full-name phone]}]
+ (fn [{:keys [user-id full-name phone contact-preference]}]
    (go
-     (let [result (<! (crud/update-own-profile! user-id {:full-name full-name :phone phone}))]
+     (let [result (<! (crud/update-own-profile!
+                        user-id
+                        {:full-name full-name :phone phone
+                         :contact-preference contact-preference}))]
        (re-frame/dispatch [:account/profile-saved result])))))
 
 (re-frame/reg-event-fx
  :account/save-profile
- (fn [{:keys [db]} [_ {:keys [full-name phone]}]]
+ (fn [{:keys [db]} [_ {:keys [full-name phone contact-preference]}]]
    (let [user-id (get-in db [:auth :user :id])]
      (if-not user-id
        {}
        {:db (assoc-in db [:account :save-status] :saving)
-        :account/save-profile! {:user-id user-id :full-name full-name :phone phone}}))))
+        :account/save-profile! {:user-id user-id :full-name full-name :phone phone
+                                 :contact-preference contact-preference}}))))
 
 (re-frame/reg-event-db
  :account/profile-saved

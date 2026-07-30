@@ -879,6 +879,18 @@
     "completed" [badge :gray "finalizado"]
     [badge :gray (str status)]))
 
+(defn- contacto-preferido-label
+  [pref]
+  (case pref
+    "notification" "prefiere notificación en la plataforma"
+    "whatsapp" "prefiere WhatsApp"
+    "prefiere correo"))
+
+(defn- wa-me-href
+  [phone]
+  (when (seq (str phone))
+    (str "https://wa.me/" (str/replace (str phone) #"[^0-9]" ""))))
+
 (defn- roster-view
   [slot-id]
   (let [{:keys [loading? error rows]} @(re-frame/subscribe [:admin/roster slot-id])]
@@ -903,7 +915,12 @@
             [:p {:class "text-sm font-medium text-gray-900"}
              (or (:email e) (str "usuario " (subs (str (:user_id e)) 0 8)))]
             [:p {:class "text-xs text-gray-500"}
-             (str "Inscrito " (format-date-time (:created_at e)))]]
+             (str "Inscrito " (format-date-time (:created_at e))
+                  " · " (contacto-preferido-label (:contact_preference e)))]
+            (when-let [href (and (= (:contact_preference e) "whatsapp") (wa-me-href (:phone e)))]
+              [:a {:href href :target "_blank" :rel "noopener noreferrer"
+                   :class "text-xs text-green-700 underline hover:text-green-900"}
+               "Abrir WhatsApp"])]
            [:div {:class "flex items-center gap-2"}
             (case (:status e)
               "confirmed" [badge :green "confirmado"]

@@ -750,12 +750,12 @@
     ch))
 
 (defn fetch-own-profile
-  "Nombre, teléfono y correo del perfil propio, para la sección
-   Configuración de cuenta."
+  "Nombre, teléfono, correo y canal de contacto preferido del perfil propio,
+   para la sección Configuración de cuenta."
   [user-id]
   (let [ch (async/chan)]
     (-> (.from supabase-client "profiles")
-        (.select "id,email,full_name,phone")
+        (.select "id,email,full_name,phone,contact_preference")
         (.eq "id" (str user-id))
         (.maybeSingle)
         (.then (fn [result] (put-result ch result)))
@@ -764,15 +764,17 @@
     ch))
 
 (defn update-own-profile!
-  "Actualiza nombre/teléfono de la propia fila en profiles. Permitido por
-   profiles_update_own (admin_rls.sql): un usuario puede tocar cualquier
-   columna de su propia fila salvo `role`."
-  [user-id {:keys [full-name phone]}]
+  "Actualiza nombre/teléfono/canal de contacto de la propia fila en profiles.
+   Permitido por profiles_update_own (admin_rls.sql): un usuario puede tocar
+   cualquier columna de su propia fila salvo `role`."
+  [user-id {:keys [full-name phone contact-preference]}]
   (let [ch (async/chan)]
     (-> (.from supabase-client "profiles")
-        (.update #js {:full_name full-name :phone phone})
+        (.update #js {:full_name full-name
+                       :phone phone
+                       :contact_preference contact-preference})
         (.eq "id" (str user-id))
-        (.select "id,email,full_name,phone")
+        (.select "id,email,full_name,phone,contact_preference")
         (.single)
         (.then (fn [result] (put-result ch result)))
         (.catch (fn [error]
@@ -892,7 +894,7 @@
     (if-not (seq ids)
       (async/put! ch {:success true :data []})
       (-> (.from supabase-client "profiles")
-          (.select "id,email,role")
+          (.select "id,email,role,phone,contact_preference")
           (.in "id" (clj->js (mapv str ids)))
           (.then (fn [result] (put-result ch result)))
           (.catch (fn [error]
@@ -900,7 +902,7 @@
     ch))
 
 (defn fetch-slot-roster
-  "Inscritos de un cupo con su email.
+  "Inscritos de un cupo con su email, teléfono y canal de contacto preferido.
    enrollments.user_id apunta a auth.users, no a profiles, así que PostgREST no
    puede hacer el embed: el join se resuelve en el cliente."
   [slot-id]
@@ -920,9 +922,14 @@
           (async/put! ch enr)
           (let [rows (or (:data enr) [])
                 profs (<! (fetch-profiles-by-ids (map :user_id rows)))
-                email-by-id (into {} (map (juxt :id :email)) (or (:data profs) []))]
+                profile-by-id (into {} (map (juxt :id identity)) (or (:data profs) []))]
             (async/put! ch {:success true
-                            :data (mapv #(assoc % :email (get email-by-id (:user_id %)))
+                            :data (mapv (fn [row]
+                                          (let [p (get profile-by-id (:user_id row))]
+                                            (assoc row
+                                                   :email (:email p)
+                                                   :phone (:phone p)
+                                                   :contact_preference (:contact_preference p))))
                                         rows)})))))
     ch))
 

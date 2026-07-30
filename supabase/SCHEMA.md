@@ -105,6 +105,24 @@ había ningún control que impidiera superar `class_slots.capacity` — el únic
 alcanzó `capacity`. Espejo puro: `universo.slots.logic/capacity-reached?`
 (`test/universo/slots/logic_test.cljs`).
 
+## Notificar cancelación de cupo (`012_slot_cancellation_notification.sql`)
+
+T-25/D-31: la cancelación de un cupo sin `min_enrollments` es **manual** (el admin usa el botón que
+ya existía en `components/admin.cljs`, `:admin/set-slot-status` → `"cancelled"`) — lo único que
+faltaba era el aviso. Esta migración agrega un trigger `AFTER UPDATE OF status` sobre
+`class_slots` (`notify_slot_cancelled`) que, cuando el nuevo `status = 'cancelled'`, inserta una
+`notification` para cada enrollment `pending`/`confirmed` de ese cupo. Mismo patrón que
+`confirm_slot_if_threshold` de `001` (loop + `security definer`), sin mecanismo temporal nuevo.
+
+## Canal de contacto preferido (`013_profile_contact_preference.sql`)
+
+T-36/D-29/D-30: agrega `profiles.contact_preference` (`email`|`notification`|`whatsapp`, default
+`email`). Editable por el propio usuario desde "Configuración de cuenta"
+(`components/cuenta.cljs`, mismo patrón que `full_name`/`phone` de `010`, sin policy nueva). El
+admin lo ve en el roster de cada cupo (`components/admin.cljs`, `roster-view`) junto a un enlace
+`wa.me/<phone>` cuando el estudiante prefiere WhatsApp — **no** hay integración de API de WhatsApp,
+es un enlace manual que el admin abre él mismo (decisión explícita de simplicidad, D-30).
+
 ## Orden de aplicación
 
 1. `admin_rls.sql` (si aún no)
@@ -120,4 +138,6 @@ alcanzó `capacity`. Espejo puro: `universo.slots.logic/capacity-reached?`
 11. `migrations/009_account_deletion_requests.sql`
 12. `migrations/010_profile_name_phone.sql`
 13. `migrations/011_enrollments_capacity_check.sql`
-14. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+14. `migrations/012_slot_cancellation_notification.sql`
+15. `migrations/013_profile_contact_preference.sql`
+16. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`

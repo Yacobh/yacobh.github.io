@@ -294,7 +294,7 @@ Mientras T-01 y T-04 no estén hechas, un estudiante real puede ver pantallas va
   un mensaje claro de que el material está en preparación; sin cupos en su banda, "Cupos" explica
   qué significa y ofrece avisar cuando haya (o al menos contacto).
 
-### T-25 · Comunicar el estado del cupo pendiente y cancelarlo si no alcanza el mínimo — **P1** · `abierto`
+### T-25 · Comunicar el estado del cupo pendiente y cancelarlo si no alcanza el mínimo — **P1** · `en curso` (falta aplicar migración)
 
 Un cupo que no alcanza el mínimo deja al estudiante esperando sin novedades (R-11).
 
@@ -314,9 +314,19 @@ real pendiente, porque dos de las tres partes **ya existen**:
   con enrollment `pending`/`confirmed` en ese cupo — mismo patrón que el trigger existente, mucho
   más chico que lo que se pensaba originalmente (nada de scheduling).
 
+**Implementado 2026-07-30:** `supabase/migrations/012_slot_cancellation_notification.sql` — trigger
+`notify_slot_cancelled` (`AFTER UPDATE OF status`), mismo patrón `security definer` que
+`confirm_slot_if_threshold`. No requirió cambios en ClojureScript: el mensaje se inserta con texto
+listo y el banner de "novedades de grupos" en `dashboard.cljs` ya renderiza cualquier notificación
+no leída sin ramificar por `kind`. `clj -M:test` sigue en 34/133, sin tests nuevos (no hay lógica
+pura que probar, es un insert condicional puro de SQL). Falta aplicar la migración en el proyecto
+Supabase real y probar el flujo completo (cancelar un cupo de prueba, verificar que llega la
+notificación) — no verificado en vivo por el agente.
+
 - **Terminado cuando:** al cancelar un cupo desde el admin, cada estudiante inscrito recibe una
-  notificación in-app de la cancelación.
-- **Relacionado:** [[OPEN_QUESTIONS]] Q-16 (respondida), [[DECISIONS]] D-28, D-31, R-11.
+  notificación in-app de la cancelación. Falta: aplicar `012` y verificar en vivo.
+- **Relacionado:** [[OPEN_QUESTIONS]] Q-16 (respondida), [[DECISIONS]] D-28, D-31, R-11,
+  `supabase/SCHEMA.md`.
 
 ### T-26 · Semántica del re-diagnóstico — **P2** · `bloqueado` (decisión Q-07)
 
@@ -325,7 +335,7 @@ Hoy `student_profiles` es una materialización única: repetir el test sobrescri
 - **Terminado cuando:** está decidido (sobrescribir / versionar / histórico), implementado y el
   estudiante puede ver cómo se movió su θ entre diagnósticos.
 
-### T-36 · Preferencia de canal de contacto (email / notificación / WhatsApp) — **P2** · `abierto`
+### T-36 · Preferencia de canal de contacto (email / notificación / WhatsApp) — **P2** · `en curso` (falta aplicar migración)
 
 Pedido del owner (2026-07-30, D-29): el estudiante debe poder elegir cómo se le contacta —
 email, notificación in-app o WhatsApp — desde "Configuración de cuenta".
@@ -341,10 +351,26 @@ API de WhatsApp Business. Sin infraestructura nueva.
   qué canal contactar). No requiere tocar `email_outbox` ni Edge Functions — el envío automático de
   email/notificación in-app al confirmar cupo sigue igual; `contact_preference` es solo
   informativo para el admin en esta primera versión (no ramifica el envío automático).
+**Implementado 2026-07-30:**
+- `supabase/migrations/013_profile_contact_preference.sql` — columna
+  `profiles.contact_preference` (`check` constraint, default `email`).
+- `components/cuenta.cljs` — selector agregado al formulario de "Tus datos", mismo patrón que
+  `full_name`/`phone`; aviso si elige WhatsApp sin teléfono cargado.
+- `db/crud.cljs` — `fetch-own-profile`/`update-own-profile!` incluyen `contact_preference`;
+  `fetch-profiles-by-ids`/`fetch-slot-roster` incluyen `phone`/`contact_preference` para el admin.
+- `components/admin.cljs` — `roster-view` muestra el canal preferido de cada inscrito y un enlace
+  `wa.me/<phone>` cuando corresponde.
+- `events/account.cljs` — `contact-preference` viaja de punta a punta en `:account/save-profile`.
+- `clj -M:test`: 34/133 sin cambios (no hay lógica pura nueva que testear). Compilado en release
+  (`shadow-cljs release app` + `build:css`), sin warnings nuevos.
+- **No verificado en vivo:** requiere aplicar `013` en Supabase real y probar con una cuenta de
+  prueba (guardar preferencia, verla reflejada en el roster del admin).
+
 - **Terminado cuando:** el estudiante puede elegir y guardar su canal preferido, y el admin lo ve
   al revisar un cupo/notificación (incluyendo el enlace `wa.me` listo para abrir si eligió
-  WhatsApp).
-- **Relacionado:** [[OPEN_QUESTIONS]] Q-25 (respondida), [[DECISIONS]] D-29, D-30.
+  WhatsApp). Falta: aplicar `013` y verificar en vivo.
+- **Relacionado:** [[OPEN_QUESTIONS]] Q-25 (respondida), [[DECISIONS]] D-29, D-30,
+  `supabase/SCHEMA.md`.
 
 ---
 

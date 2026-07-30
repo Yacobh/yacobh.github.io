@@ -6,10 +6,16 @@
             [reagent.core :as r]
             [universo.components.ui :as ui]))
 
+(def ^:private opciones-contacto
+  [["email" "Correo"]
+   ["notification" "Notificación en la plataforma"]
+   ["whatsapp" "WhatsApp"]])
+
 (defn- campo-nombre-telefono []
   (r/with-let [_ (re-frame/dispatch [:account/load-profile])
                full-name (r/atom "")
                phone (r/atom "")
+               contact-preference (r/atom "email")
                synced-from (r/atom nil)]
     (let [perfil @(re-frame/subscribe [:account/profile])
           cargando? @(re-frame/subscribe [:account/profile-loading?])
@@ -19,6 +25,7 @@
       (when (and perfil (not= @synced-from perfil))
         (reset! full-name (or (:full_name perfil) ""))
         (reset! phone (or (:phone perfil) ""))
+        (reset! contact-preference (or (:contact_preference perfil) "email"))
         (reset! synced-from perfil))
       [:div.bg-white.rounded-xl.shadow-lg.p-6
        [:h3.text-lg.font-bold.text-gray-800.mb-4 "Tus datos"]
@@ -28,7 +35,8 @@
           {:on-submit (fn [e]
                         (.preventDefault e)
                         (re-frame/dispatch [:account/save-profile
-                                             {:full-name @full-name :phone @phone}]))}
+                                             {:full-name @full-name :phone @phone
+                                              :contact-preference @contact-preference}]))}
           [:div.mb-4
            [:label.block.text-sm.font-medium.text-gray-700.mb-1 "Correo"]
            [:input {:type "email"
@@ -51,6 +59,17 @@
                     :on-change #(reset! phone (-> % .-target .-value))
                     :placeholder "+56 9 1234 5678"
                     :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"}]]
+
+          [:div.mb-6
+           [:label.block.text-sm.font-medium.text-gray-700.mb-1 "¿Cómo prefieres que te contactemos?"]
+           [:select {:value @contact-preference
+                     :on-change #(reset! contact-preference (-> % .-target .-value))
+                     :class "w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"}
+            (for [[valor etiqueta] opciones-contacto]
+              ^{:key valor} [:option {:value valor} etiqueta])]
+           (when (and (= @contact-preference "whatsapp") (empty? @phone))
+             [:p.text-xs.text-amber-700.mt-1
+              "Agrega tu teléfono arriba para que podamos contactarte por WhatsApp."])]
 
           [:div.flex.items-center.gap-3
            [:button {:type "submit"

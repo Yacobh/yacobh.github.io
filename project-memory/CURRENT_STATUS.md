@@ -67,6 +67,16 @@
 > de T-35 y se corrigió con `git restore public/css/app.css public/js/app.js` antes de cada commit.
 > Verificar `git status` **inmediatamente antes** de cualquier commit que toque esos dos archivos,
 > no solo al principio de la tarea.
+>
+> **T-25 y T-36 implementadas (2026-07-30):** tras una ronda de decisiones de negocio con el owner
+> (precio, capacidad de cupos, Jitsi, WhatsApp, cancelación manual — ver D-26 a D-31, ADR-011), se
+> implementó código para T-25 (`012_slot_cancellation_notification.sql`, trigger que avisa a los
+> inscritos cuando el admin cancela un cupo) y T-36 (`013_profile_contact_preference.sql` +
+> selector en "Configuración de cuenta" + visibilidad en el roster del admin con enlace `wa.me`).
+> `clj -M:test` en verde (34/133), build de release recompilado. **Ninguna de las dos migraciones
+> está aplicada todavía en el proyecto Supabase real** — el trabajo de watchers ya no interfiere
+> porque el owner los detuvo esta sesión. No se probó en navegador contra datos reales (requeriría
+> aplicar las migraciones y usar una cuenta de prueba en producción).
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
@@ -131,7 +141,9 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 - [ ] **`005_email_outbox.sql` aplicada + Edge Function desplegada con `RESEND_API_KEY`**
 - [x] `011_enrollments_capacity_check.sql` aplicada (control de capacidad en inscripciones, T-03) —
   aplicada por el owner el 2026-07-29, sin verificación en vivo por parte del agente
-- [ ] Cupos reales (no demo) publicados con fecha, sala/enlace y mínimo definidos
+- [ ] `012_slot_cancellation_notification.sql` aplicada (aviso al cancelar un cupo, T-25)
+- [ ] `013_profile_contact_preference.sql` aplicada (canal de contacto preferido, T-36)
+- [ ] Cupos reales (no demo) publicados con fecha, sala de Jitsi y mínimo/capacidad definidos (D-27)
 - [ ] Recompilar (`shadow-cljs release app` + `build:css`) y publicar en `main`
 
 > Los ítems `006` y `007` se marcan como aplicados porque el panel depende de ellos y está
