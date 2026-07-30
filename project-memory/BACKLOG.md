@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-07-28**
+Última actualización: **2026-07-30**
 
 Prioridad: **P0** bloquea go-live · **P1** necesario a corto plazo · **P2** deseable · **P3** idea.
 Estado: `abierto` · `en curso` · `bloqueado` · `hecho` · `descartado`.
@@ -65,12 +65,20 @@ enrollments activos superaran `class_slots.capacity` — ver detalle en
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-04 (respondida), [[REQUIREMENTS]] RF-5.10,
   `supabase/SCHEMA.md` §Control de capacidad.
 
-### T-04 · Publicar cupos reales y retirar los demo — **P0** · `bloqueado` (negocio)
+### T-04 · Publicar cupos reales y retirar los demo — **P0** · `abierto` (desbloqueada, falta ejecución del owner)
+
+**2026-07-30:** Q-09 respondida (D-27) — criterio de negocio fijado: `min_enrollments = 3`,
+`capacity = 12`, modalidad **virtual**, día **sábado o domingo**, enlace de **Jitsi** (Q-24/D-30 —
+elegido sobre Google Meet por ser más simple de implementar: sala ad-hoc sin cuenta ni login). El
+owner define y agenda las fechas concretas y pega el enlace de Jitsi al crear el cupo. Ya no falta
+ninguna decisión de negocio para crear los primeros cupos reales desde el panel de administración —
+solo falta ejecutarlo (elegir fechas concretas de sábado/domingo, generar las salas de Jitsi,
+crear los cupos en Admin → Cupos).
 
 - **Terminado cuando:** existe ≥ 1 cupo `open` por banda con fecha futura real, `location_or_link`
-  válido (sala confirmada en Iquique o enlace real), `capacity` y `min_enrollments` justificados; y
-  los cupos demo de `003` (con `meet.example.com`) están `cancelled` o borrados.
-- **Dependencias:** Q-09 (criterio de `capacity`/`min_enrollments`), logística UNAP.
+  con un enlace de Jitsi real (no `meet.example.com`), `capacity = 12` y `min_enrollments = 3`; y
+  los cupos demo de `003` están `cancelled` o borrados.
+- **Relacionado:** [[OPEN_QUESTIONS]] Q-09, Q-24 (ambas respondidas).
 
 ### T-08 · Limpiar el árbol y publicar el bundle correcto — **P0** · `hecho` (2026-07-29)
 
@@ -286,12 +294,29 @@ Mientras T-01 y T-04 no estén hechas, un estudiante real puede ver pantallas va
   un mensaje claro de que el material está en preparación; sin cupos en su banda, "Cupos" explica
   qué significa y ofrece avisar cuando haya (o al menos contacto).
 
-### T-25 · Comunicar el estado del cupo pendiente — **P2** · `abierto`
+### T-25 · Comunicar el estado del cupo pendiente y cancelarlo si no alcanza el mínimo — **P1** · `abierto`
 
 Un cupo que no alcanza el mínimo deja al estudiante esperando sin novedades (R-11).
 
-- **Terminado cuando:** el estudiante ve cuántos faltan y desde cuándo espera, y existe un camino
-  definido (email o notificación) si el cupo se cancela por no alcanzar el mínimo.
+**2026-07-30:** Q-16 respondida del todo (D-28, D-31) — política: un cupo `open` sin
+`min_enrollments` se puede cancelar con **1 día de anticipación** a `starts_at`, **cancelación
+manual** por el admin (no automática — sin cron/Edge Function nueva). Esto reduce mucho el alcance
+real pendiente, porque dos de las tres partes **ya existen**:
+- ✅ "cuántos faltan" ya se muestra al estudiante — `components/slots.cljs` línea ~51:
+  `"Faltan " remaining " para confirmar · " active "/" cap " cupos"` (usa
+  `logic/remaining-to-confirm`, ver T-03).
+- ✅ el botón de cancelar cupo **ya existe** en el panel admin —
+  `components/admin.cljs`, `:admin/set-slot-status` → `"cancelled"`, con diálogo de confirmación.
+- ❌ **Lo único que falta:** cuando el admin cancela un cupo, nadie se entera. No hay ningún
+  trigger/notificación para "cupo cancelado" (solo existe para "cupo confirmado",
+  `confirm_slot_if_threshold` en `001`). Hace falta un trigger espejo (`AFTER UPDATE OF status ON
+  class_slots WHEN new.status = 'cancelled'`) que inserte una `notification` para cada estudiante
+  con enrollment `pending`/`confirmed` en ese cupo — mismo patrón que el trigger existente, mucho
+  más chico que lo que se pensaba originalmente (nada de scheduling).
+
+- **Terminado cuando:** al cancelar un cupo desde el admin, cada estudiante inscrito recibe una
+  notificación in-app de la cancelación.
+- **Relacionado:** [[OPEN_QUESTIONS]] Q-16 (respondida), [[DECISIONS]] D-28, D-31, R-11.
 
 ### T-26 · Semántica del re-diagnóstico — **P2** · `bloqueado` (decisión Q-07)
 
@@ -299,6 +324,27 @@ Hoy `student_profiles` es una materialización única: repetir el test sobrescri
 
 - **Terminado cuando:** está decidido (sobrescribir / versionar / histórico), implementado y el
   estudiante puede ver cómo se movió su θ entre diagnósticos.
+
+### T-36 · Preferencia de canal de contacto (email / notificación / WhatsApp) — **P2** · `abierto`
+
+Pedido del owner (2026-07-30, D-29): el estudiante debe poder elegir cómo se le contacta —
+email, notificación in-app o WhatsApp — desde "Configuración de cuenta".
+
+**Alcance fijado (2026-07-30, D-30/P-12):** WhatsApp es un enlace `wa.me/<phone>` que el admin abre
+a mano usando el `phone` que ya existe en `profiles` (migración `010`) — **no** una integración de
+API de WhatsApp Business. Sin infraestructura nueva.
+
+- **Trabajo:** agregar columna `profiles.contact_preference`
+  (`email`|`notification`|`whatsapp`, default `email`), selector en `components/cuenta.cljs`
+  (mismo patrón que el editor de `full_name`/`phone` ya existente ahí), y mostrarla junto al
+  `phone` en el panel de admin donde se gestionan cupos/notificaciones (para que el admin sepa por
+  qué canal contactar). No requiere tocar `email_outbox` ni Edge Functions — el envío automático de
+  email/notificación in-app al confirmar cupo sigue igual; `contact_preference` es solo
+  informativo para el admin en esta primera versión (no ramifica el envío automático).
+- **Terminado cuando:** el estudiante puede elegir y guardar su canal preferido, y el admin lo ve
+  al revisar un cupo/notificación (incluyendo el enlace `wa.me` listo para abrir si eligió
+  WhatsApp).
+- **Relacionado:** [[OPEN_QUESTIONS]] Q-25 (respondida), [[DECISIONS]] D-29, D-30.
 
 ---
 
@@ -397,8 +443,8 @@ desactualizados (lista de módulos previa al MVP).
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-27, T-28, T-35 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-25, T-26, T-31, T-33, T-34 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32 |
 
 ---

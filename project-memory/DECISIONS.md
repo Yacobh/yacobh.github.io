@@ -1,6 +1,6 @@
 # DECISIONS
 
-Última actualización: **2026-07-29** (D-24, D-25)
+Última actualización: **2026-07-30** (D-26–D-29, ADR-011)
 
 Registro central de decisiones. Cada decisión con consecuencias arquitectónicas o de producto tiene
 un **ADR** en `../adr/`. Este archivo es el índice y el lugar donde viven las decisiones **menores**
@@ -25,6 +25,7 @@ alternativas relevantes o (d) alguien podría cuestionar en seis meses → **ADR
 | [[../adr/ADR-008-archivar-mathacademy]] | Archivar MathAcademy y mantener un funnel único | Aprobada | 2026-07-24 (retro.) | Producto |
 | [[../adr/ADR-009-logica-pura-testeable]] | Reglas de negocio en namespaces puros y testeados | Aprobada | 2026-07-25 (retro.) | Ingeniería |
 | [[../adr/ADR-010-adopcion-project-memory-first]] | Adopción de Project Memory First (Markdown + Git + Claude Code + Obsidian + Graphify) | Aprobada | 2026-07-26 | Proceso |
+| [[../adr/ADR-011-vision-libro-como-norte-estrategico]] | La visión de [[../project-memory/VISION_LIBRO_PROYECTO]] es el norte estratégico; el MVP es una fase intermedia hacia ella, no el destino | Aprobada | 2026-07-30 | Producto/Negocio |
 
 > **(retro.)** = decisión tomada de facto en el código antes de existir este registro; el ADR la
 > documenta retroactivamente con la fecha aproximada del commit que la materializó. El contexto está
@@ -61,6 +62,12 @@ alternativas relevantes o (d) alguien podría cuestionar en seis meses → **ADR
 | D-23 | 2026-07-28 | "Configuración de cuenta" es una **sección propia** (`:cuenta`, protegida, enlazada desde la navegación), no una tarjeta dentro del tablero; incluye editar `full_name`/`phone` (nuevas columnas en `profiles`, migración `010`) además de la eliminación de cuenta | El owner pidió explícitamente un apartado aparte, y `full_name`/`phone` no tenían dónde vivir — se agregaron a `profiles` (no a `auth.users` directamente) porque ya es el perfil público que admin y el resto de la app leen, y `profiles_update_own` ya permite que el usuario edite su propia fila sin policy nueva | `components/cuenta.cljs`, migración `010` |
 | D-24 | 2026-07-29 | Color de marca unificado a **indigo** en toda la app (antes `login.cljs`/`cuenta.cljs`/`guestbook.cljs`/`diagnostic_test.cljs` usaban `blue-*` por herencia de código más viejo) | Indigo ya era el color dominante (logo, CTA principal, landing/dashboard/plan/cupos/admin); la app se sentía como dos productos distintos según la página | `login.cljs`, `cuenta.cljs`, `guestbook.cljs`, `diagnostic_test.cljs`, `contacto.cljs` |
 | D-25 | 2026-07-29 | Los `js/confirm()` nativos del navegador se reemplazaron por un **diálogo de confirmación propio** (`universo.components.ui/confirm-dialog` + `universo.events.ui`, eventos `:confirm/ask`/`:confirm/accept`/`:confirm/cancel`), montado una sola vez en `home.cljs` | 10 sitios (8 en `admin.cljs`, 1 en `admin_questions.cljs`, 1 en `cuenta.cljs`) usaban el diálogo nativo del navegador, que rompe visualmente con el resto de la app justo en las acciones más destructivas (eliminar, cancelar) | `components/ui.cljs`, `events/ui.cljs` |
+| D-26 | 2026-07-30 | Precio fijado: **$6.000 CLP por hora de clase**, tras la primera videollamada gratuita; se cobra **por hora**, no por paquete | Cierra el número que P-03 dejaba pendiente; queda bajo todo el rango de mercado relevado en Q-02 (mínimo ≈ $8.000/hora) | [[OPEN_QUESTIONS]] Q-02 |
+| D-27 | 2026-07-30 | Cupos reales: `min_enrollments = 3`, `capacity = 12`, **100% virtuales** por ahora, agendados **sábado o domingo**, con enlace de Google Meet o Jitsi pegado a mano en `location_or_link` | El owner confirma que lo virtual no tiene fricción logística; simplifica los primeros cupos reales sin descartar presencial a futuro | [[OPEN_QUESTIONS]] Q-09 |
+| D-28 | 2026-07-30 | Un cupo que no alcanzó `min_enrollments` se puede cancelar con **un día de anticipación** a `starts_at` | Evita dejar al estudiante esperando indefinidamente un grupo que no se va a formar | [[OPEN_QUESTIONS]] Q-16 |
+| D-29 | 2026-07-30 | El estudiante podrá elegir su **canal de contacto preferido** (email, notificación in-app o WhatsApp) desde "Configuración de cuenta" | Pedido explícito del owner; hoy el aviso de cupo confirmado solo sale por email + in-app, sin opción de WhatsApp ni de que el estudiante elija | [[OPEN_QUESTIONS]] Q-25, [[BACKLOG]] T-36 |
+| D-30 | 2026-07-30 | **Jitsi** como plataforma de videollamada por default (no Google Meet); WhatsApp se implementa como **enlace manual `wa.me`**, no como integración de API | Ambas elegidas por simplicidad de implementación: Jitsi evita cuentas/login y límites de participantes de Meet; `wa.me` no requiere proveedor ni secret nuevo — "la sencillez es clave" con pocos estudiantes todavía | [[OPEN_QUESTIONS]] Q-24, Q-25 |
+| D-31 | 2026-07-30 | La cancelación de un cupo sin mínimo (D-28) es **manual**: el admin la ejecuta a mano desde el panel, no hay proceso automático (cron/Edge Function) que la dispare | Coherente con D-26/D-30: simplicidad primero, con pocos cupos activos el admin puede revisarlos a mano; evita construir infraestructura de scheduling nueva sin necesidad probada | [[OPEN_QUESTIONS]] Q-16, [[BACKLOG]] T-25 |
 
 ---
 
@@ -71,15 +78,17 @@ Requieren decisión antes de poder avanzar en la tarea asociada. **No asumir la 
 | # | Decisión pendiente | Bloquea | Pregunta asociada |
 |---|--------------------|---------|-------------------|
 | P-01 | ¿Qué pasa cuando un estudiante **repite** el diagnóstico: sobrescribir el perfil, versionarlo o guardar histórico? | T-26 | [[OPEN_QUESTIONS]] Q-07 |
-| P-02 | ¿Se controla la **capacidad** del cupo al inscribirse, y qué se muestra cuando está lleno? | T-03 | Q-04 |
-| P-03 | Política decidida 2026-07-28: clases **con costo salvo la primera** (gratis tras el diagnóstico), precio por debajo del mercado. Falta fijar el **número** (por clase o paquete) — ver benchmark en [[OPEN_QUESTIONS]] Q-02 | T-04, copy | Q-02, Q-21 |
 | P-04 | ¿Instrumentación del funnel con **solución propia en Postgres** o herramienta externa? (implica privacidad) | T-20 | Q-15 |
 | P-05 | ¿Se introduce **router de URL** con history API? (deep links, medición, fallback de GitHub Pages) | T-05 | — |
 | P-06 | ¿Cómo se configura la URL de Supabase si se crea **staging**? Hoy está inline en el código | T-09 | — |
 | P-07 | ¿El flujo del estudiante debe recibir los ítems **sin** `correct_option` (validación en servidor)? | R-16 | Q-12 |
-| P-08 | ¿Qué pasa con un cupo que **no alcanza** el mínimo: se cancela, se posterga o se fusionan bandas? | T-25 | Q-16 |
 | P-09 | ¿Se conserva, mueve o borra el **código no alcanzable** (`mathacademy`, `jardin`, `physics`…)? | T-23 | — |
 | P-10 | ¿`PROJECT_SUMMARY.md` se archiva, se reduce a un puntero o se mantiene? | T-33 | — |
+| P-11 | ¿Se abre una **épica de negocio nueva** en [[BACKLOG]] para roadmapear el camino hacia [[../project-memory/VISION_LIBRO_PROYECTO]] (ADR-011), o se sigue agregando fase por fase a F8+? | Planificación de mediano plazo | Q-21 |
+
+**Resueltas esta ronda (2026-07-30):** P-02 (T-03, control de capacidad implementado y aplicado),
+P-03 (precio fijado, D-26), P-08 (política de cancelación fijada, D-28), P-12 (WhatsApp = enlace
+manual `wa.me`, D-30), P-13 (cancelación manual, no automática, D-31).
 
 Cuando una de estas se resuelva: crear el ADR correspondiente, moverla a §1 o §2, y quitarla de aquí.
 

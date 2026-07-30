@@ -8,10 +8,14 @@ Libro del Proyecto", Borrador v0.1, compartido por Jacobo Córdova el 2026-07-27
 > implementado en el código salvo donde se indica explícitamente.** No reemplaza a
 > [[PROJECT_BRIEF]] (alcance del MVP actual) ni a [[ROADMAP]] (fases reconstruidas del historial
 > de commits) — los complementa como el destino declarado hacia el que el owner quiere avanzar.
-> Varias afirmaciones de este documento **contradicen** hechos ya establecidos en
-> project-memory (gratuidad, alcance a una sola materia, cuatro bandas de θ). Esas tensiones están
-> registradas explícitamente en [[OPEN_QUESTIONS]] §"Producto y negocio" y no se dan por resueltas
-> aquí.
+>
+> **2026-07-30 (owner, Q-21, [[../adr/ADR-011-vision-libro-como-norte-estrategico]]):** esta visión
+> queda confirmada como el **norte estratégico**; el MVP es explícitamente "una versión menor que
+> busca llegar a ese objetivo", no un producto final alternativo. Esto resuelve la tensión de
+> *dirección* — pero **no** resuelve cada detalle puntual: varias afirmaciones concretas de este
+> documento (gratuidad, alcance a una sola materia, cuatro bandas de θ vs. "grupos de
+> conocimiento") siguen sin reconciliarse una por una con lo ya implementado. Esas tensiones
+> puntuales siguen registradas en [[OPEN_QUESTIONS]] Q-22/Q-23 y no se dan por resueltas aquí.
 
 ---
 

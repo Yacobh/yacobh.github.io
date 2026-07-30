@@ -1,6 +1,6 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-07-28**
+Última actualización: **2026-07-30**
 
 > **Regla fundamental de PMF: si falta información, no se asume — se registra aquí.**
 > Ninguna pregunta se borra: cuando se responde, se marca ✅ con la fecha y la respuesta, y si
@@ -26,7 +26,7 @@ repositorio público — queda solo con el owner.
 **Impacto:** el copy publicado ya no afirma un vínculo institucional vigente; revisar R-06 si
 cambian las obligaciones de privacidad derivadas de esta afirmación.
 
-### 🟠 Q-02 · ¿Las clases de los cupos tienen costo?
+### ✅ Q-02 · ¿Las clases de los cupos tienen costo? — Número fijado 2026-07-30
 **Respondida (política) 2026-07-28 (owner):** sí, las clases tendrán costo, **salvo la primera
 clase** después de rendir el diagnóstico, que es gratuita. El precio de las clases pagadas debe
 quedar **significativamente por debajo** de alternativas comparables (preuniversitario tradicional
@@ -40,12 +40,14 @@ clase particular 1:1. Fuentes: [2x3.cl](https://www.2x3.cl/p/precios-clases-part
 [Cronoshare](https://www.cronoshare.cl/cuanto-cuesta/clases-particulares-matematicas),
 [Tutorali](https://tutorali.cl/que-valor-tiene-un-preuniversitario-en-chile/),
 [Superprof](https://www.superprof.cl/blog/precio-clases-particulares-matematicas/).
-**Aún pendiente (P-03 sigue abierta para esto):** el número exacto (precio por clase vs. paquete
-mensual), y si se cobra por sesión o por banda/cupo completo. **Bloquea:** copy definitivo, JSON-LD,
-[[BACKLOG]] T-04.
+**Número fijado 2026-07-30 (owner):** **$6.000 CLP por hora de clase**, después de la primera
+videollamada gratuita. Se cobra **por hora**, no por paquete mensual. Queda por debajo de todo el
+rango de referencia de mercado relevado arriba (mínimo observado ≈ $8.000/hora).
+**Falta para implementar:** el precio no está en ningún lado del copy/UI/JSON-LD todavía — falta
+decidir dónde mostrarlo (landing, cupos, plan) y cómo se cobra en la práctica (no hay pasarela de
+pago; ver [[BACKLOG]] T-04 y el nuevo punto de cobro manual/transferencia a definir).
 **Nota 2026-07-27:** [[VISION_LIBRO_PROYECTO]] §4.4 ya proponía pago por clase o paquete; esta
-respuesta del owner confirma esa dirección general (con la primera clase gratis como matiz nuevo),
-pero el número aún no está fijado.
+respuesta del owner confirma esa dirección general (con la primera clase gratis como matiz nuevo).
 
 ### ✅ Q-03 · ¿Hay requisito de consentimiento o aviso de privacidad?
 Público mayoritariamente menor de edad + recolección de datos personales (email, IP, geo,
@@ -73,10 +75,17 @@ cosas: editar `full_name`/`phone` en `profiles` (migración `010`) y solicitar l
 cuenta (→ notificación → alerta en Admin/Usuarios, migración `009`). Ver [[BACKLOG]] T-10 (qué
 falta para cerrarlo del todo) y T-34 (automatizar la retención).
 
-### 🟠 Q-09 · ¿Qué `capacity` y `min_enrollments` corresponden a un cupo real?
-Los datos demo usan capacidad 6–8 y mínimo 3, valores elegidos para probar. No hay criterio de
-negocio (tamaño de sala, carga docente, viabilidad del grupo).
-**Bloquea:** T-04.
+### ✅ Q-09 · ¿Qué `capacity` y `min_enrollments` corresponden a un cupo real? — Respondida 2026-07-30
+**Respondida (owner):** para cupos **virtuales**, `min_enrollments = 3`, `capacity = 12`. Días:
+sábado o domingo. El owner define y agenda las fechas concretas él mismo — no hay problema
+logístico en hacerlas 100% virtuales (a diferencia de lo que sugería `class_slots.modality =
+'presencial'` como opción separada; no se descarta presencial a futuro, pero los primeros cupos
+reales serán virtuales).
+**Videollamada:** por Google Meet o Jitsi — el owner generará el enlace y lo pegará en
+`location_or_link` al crear el cupo desde el panel de administración (no requiere código nuevo, el
+campo ya es texto libre). **Pendiente menor:** decidir cuál de las dos plataformas usar por
+default, o si se elige caso a caso — no bloquea crear los primeros cupos.
+**Bloquea:** T-04 → **desbloqueada** para crear los primeros cupos reales.
 
 ### 🟡 Q-10 · ¿Qué define un "módulo prioritario" más allá de la lista de `supabase/CONTENT.md`?
 La lista actual (`aritmetica/enteros`, `fracciones`, `potencias`, `algebra/ecuaciones`,
@@ -84,16 +93,31 @@ La lista actual (`aritmetica/enteros`, `fracciones`, `potencias`, `algebra/ecuac
 pero no hay consulta ni dato que lo respalde en el repo.
 **Relacionado:** T-01, T-21.
 
-### 🟠 Q-16 · ¿Qué pasa con un cupo que no alcanza el mínimo?
-No hay plazo, cancelación automática ni comunicación definida. El estudiante queda esperando.
-**Bloquea:** T-25. **Decisión pendiente:** P-08. **Relacionado:** R-11.
+### ✅ Q-16 · ¿Qué pasa con un cupo que no alcanza el mínimo? — Respondida del todo 2026-07-30
+**Respondida (owner):** el cupo se puede cancelar con **un día de anticipación** a la fecha de la
+clase si no alcanzó `min_enrollments`. **Quién dispara la cancelación (P-13, respondida):**
+**manual** — el admin cancela a mano desde el panel cuando corresponda, no un proceso automático.
+Esto simplifica el trabajo: no hace falta ningún mecanismo temporal nuevo (cron/Edge Function),
+solo usar el botón de cancelar cupo que **ya existe** en `components/admin.cljs`
+(`:admin/set-slot-status` → `"cancelled"`).
+**Lo que sí falta:** cuando el admin cancela un cupo así, hoy **no se avisa a nadie** — el único
+trigger de `notifications` es para "cupo confirmado" (`confirm_slot_if_threshold` en `001`), no
+existe el equivalente para cancelación. Ver [[BACKLOG]] T-25 (alcance reducido a esto).
+**Relacionado:** R-11, [[DECISIONS]] D-28, D-31.
 
-### 🟠 Q-21 · ¿El owner confirma la visión de negocio del "Libro del Proyecto"?
-[[VISION_LIBRO_PROYECTO]] (2026-07-27) propone un modelo de negocio de pago, expansión
-multi-materia e internacionalización que contradice el alcance y las exclusiones ya decididas en
-[[PROJECT_BRIEF]] y [[BUSINESS_CONTEXT]]. Es un borrador v0.1, no una decisión.
-**Por qué importa:** define si F8–F11 siguen siendo el único horizonte o si corresponde abrir una
-épica de negocio nueva en [[BACKLOG]]. **Para quién:** owner.
+### ✅ Q-21 · ¿El owner confirma la visión de negocio del "Libro del Proyecto"? — Respondida 2026-07-30
+**Respondida (owner):** sí, confirmada como la dirección de largo plazo — **"esa es la
+dirección"**. El owner es explícito: **"el MVP es solo una versión menor que busca llegar a ese
+objetivo"**, y pide que la visión **"se debe nutrir aún más"** (no es un techo, es un punto de
+partida a expandir). Ver ADR-011.
+**Consecuencia:** [[VISION_LIBRO_PROYECTO]] deja de ser un borrador en tensión con el alcance del
+MVP y pasa a ser el **norte declarado**; el MVP actual (una materia, gratuito en diagnóstico/plan,
+alcance Iquique/UNAP) es una fase intermedia explícita, no el destino. Esto no cambia nada del
+código hoy, pero sí cómo se deben leer [[PROJECT_BRIEF]]/[[BUSINESS_CONTEXT]] (alcance **actual**,
+no alcance **final**) y abre la pregunta de si conviene una épica de negocio nueva en [[BACKLOG]]
+para roadmapear el camino hacia esa visión — **todavía sin decidir el cómo**, solo el hacia dónde.
+**Relacionado:** Q-22, Q-23 (siguen abiertas — nombre de marca y taxonomía de bandas del libro vs.
+el código no se resolvieron con esta confirmación, son decisiones de implementación separadas).
 
 ### 🟡 Q-22 · ¿"Grupos de conocimiento" (3, libro) reemplazan a las bandas de θ (4, código)?
 El libro clasifica en Básico/Medio/Avanzado; el código ya implementado usa
@@ -108,6 +132,23 @@ No está dicho si es un rebranding planeado, un nombre de trabajo interno, o dos
 relacionadas pero separadas (una académica/UNAP, otra comercial/startup).
 **Por qué importa:** afecta copy, dominio, JSON-LD y la relación declarada con UNAP (Q-01) si el
 proyecto se reposiciona como startup con inversión externa.
+
+### ✅ Q-24 · ¿Google Meet o Jitsi para las videollamadas de los cupos? — Respondida 2026-07-30
+**Jitsi**, elegido por ser la opción más fácil de implementar: sala ad-hoc por URL
+(`meet.jit.si/<nombre-sala>` o self-hosted a futuro), sin cuenta de Google ni límite de
+participantes de la capa gratuita de Meet, y sin fricción de login para el estudiante. Ver D-30.
+**Implementación:** sigue siendo `location_or_link` como texto libre — no requiere código nuevo,
+solo que el owner use consistentemente Jitsi al crear los cupos reales de T-04.
+**Relacionado:** Q-09, T-04.
+
+### ✅ Q-25 · ¿Cómo se implementa la preferencia de canal de contacto del estudiante? — Alcance de WhatsApp respondida 2026-07-30
+**Respondida (owner, P-12):** WhatsApp se implementa como **enlace manual `wa.me`**, no como
+integración automática — "la sencillez es clave, porque aún no tenemos muchos estudiantes". Ver
+D-30. Esto reduce el alcance de [[BACKLOG]] T-36 a: columna `contact_preference` en `profiles`,
+selector en `components/cuenta.cljs`, y que el admin vea el `wa.me/<phone>` del estudiante al
+gestionar cupos/notificaciones — sin proveedor de WhatsApp Business, sin secret nuevo, sin ramificar
+`email_outbox`.
+**Relacionado:** [[BACKLOG]] T-36.
 
 ---
 
