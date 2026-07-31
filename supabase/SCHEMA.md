@@ -148,6 +148,16 @@ bigint` que inserta y devuelve **solo el id**, sin exponer la fila completa. El 
 —el de `dispatch`— tapaba el `boolean` real), por lo que el tracker se disparaba en cada carga en
 vez de una sola vez por visitante.
 
+## Contexto de visitante para el admin (`015_visitor_select_admin.sql`)
+
+Mejora del flujo de comentarios (2026-07-31): el panel de moderación del guestbook
+(`components/admin.cljs`, `guestbook-panel`) ahora muestra país/ciudad/idioma/timezone del
+visitante junto a cada mensaje, resuelto vía `guestbook.id_visitor → visitor.id` (mismo patrón de
+join del lado del cliente que `fetch-slot-roster`, sin FK declarada para embed automático de
+PostgREST). Esto requería que el admin pudiera leer `visitor`, que hasta ahora no tenía **ninguna**
+policy SELECT (ni para admin) — se agrega `visitor_select_admin`, restringida a `is_admin()`.
+`visitor` sigue sin SELECT para nadie más: guarda datos personales (IP, ciudad, país).
+
 ## Orden de aplicación
 
 1. `admin_rls.sql` (si aún no)
@@ -166,4 +176,5 @@ vez de una sola vez por visitante.
 14. `migrations/012_slot_cancellation_notification.sql`
 15. `migrations/013_profile_contact_preference.sql`
 16. `migrations/014_visitor_track_rpc.sql`
-17. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+17. `migrations/015_visitor_select_admin.sql`
+18. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`

@@ -279,6 +279,36 @@ una policy SELECT amplia. El docstring de `insert-data-table!` ya advertía de e
 (2026-07-19) — la advertencia estaba escrita, pero `visitor_tracker.cljs` no se actualizó cuando
 esa función cambió de comportamiento.
 
+### L-32 · Un `defn` de ClojureScript que llama a otro definido más abajo compila con warning, no error
+**Síntoma:** al agregar `fetch-admin-guestbook` en `crud.cljs` y `visitor-context-label` en
+`admin.cljs`, `clj -M:test` (build `:test`, distinto de `:app`) seguía en verde — el problema solo
+apareció al levantar `shadow-cljs watch app` para el build `:app` y mirar el log: warning
+`:undeclared-var` (`Use of undeclared Var .../visitor-context-label`), porque la función se llamaba
+desde otra definida **antes** en el mismo archivo.
+**Causa:** ClojureScript compila top-a-abajo; una `defn` que referencia un var declarado más abajo
+en el mismo namespace compila igual (es solo un warning, no aborta el build) pero falla en
+**runtime** al invocarse — y el build de `:test` no necesariamente ejercita ese código path, así
+que los tests pueden quedar en verde con un bug real sin detectar.
+**Regla:** después de editar `.cljs`, no confiar solo en `clj -M:test` — revisar también la salida
+de `shadow-cljs release app` (o `watch app`) buscando `WARNING #N` antes de dar el cambio por
+terminado; `0 warnings` en esa salida es la señal real de que no hay funciones fuera de orden.
+Definir funciones auxiliares nuevas cerca del principio del archivo (junto a otras utilidades como
+`format-date-time`), no justo antes de donde se usan por primera vez.
+
+### L-33 · Un `/` dentro de la sintaxis abreviada de clases con puntos rompe el keyword de Clojure
+**Síntoma:** clases con modificador de opacidad de Tailwind (`text-indigo-100/70`) escritas como
+`:p.text-sm.text-indigo-100/70` no se aplicaban — Reagent no lanzaba error, simplemente el elemento
+no tenía la clase esperada.
+**Causa:** en un keyword de Clojure, `/` separa namespace de nombre (`:ns/name`). El lector procesa
+`:p.text-sm.text-indigo-100/70` como un keyword namespaced **antes** de que Reagent vea el string
+para parsear tag/clases — `(name kw)` devuelve solo `"70"`, y todo lo anterior al `/` se pierde en
+silencio (namespace ignorado). No hay excepción; el bug es puramente visual.
+**Regla:** cualquier clase de Tailwind con `/` (modificadores de opacidad `bg-black/50`,
+`text-white/70`, fracciones `w-1/2`, etc.) **no puede ir en la sintaxis abreviada** `:div.clase`;
+tiene que ir en un mapa `{:class "..."}` explícito, junto con el resto de las clases del elemento si
+hace falta. Verificar visualmente (screenshot) cualquier clase nueva con `/`, ya que el compilador
+no la va a señalar.
+
 ---
 
 Relacionado: [[AGENT_INSTRUCTIONS]] · [[RISKS]] · [[DECISIONS]] · [[OPEN_QUESTIONS]] · [[TECH_STACK]]

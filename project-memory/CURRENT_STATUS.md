@@ -85,8 +85,25 @@
 > en su lugar se agregó `014_visitor_track_rpc.sql` (función `security definer` que inserta y
 > devuelve solo el `id`, necesario como FK real en `guestbook.visitor_id`). De paso se corrigió un
 > bug en `visitor-saved?` que hacía que el tracker se disparara en cada carga de página en vez de
-> una vez por visitante. **Pendiente:** aplicar `014` en el proyecto Supabase real (no aplicada
-> todavía) y verificar que vuelvan a aparecer filas nuevas en `visitor`.
+> una vez por visitante. **Cerrado:** el owner aplicó `014` en el proyecto real y confirmó que
+> `visitor` vuelve a recibir filas.
+>
+> **Flujo de comentarios mejorado (2026-07-31):** pedido explícito del owner tras el fix de
+> `visitor` ("se ve poco profesional"). Cambios: (1) `015_visitor_select_admin.sql` — el panel de
+> moderación del guestbook (`admin.cljs`, `guestbook-panel`) ahora muestra país/ciudad/idioma/
+> timezone de cada visitante (join cliente `guestbook.id_visitor → visitor.id`, mismo patrón que
+> `fetch-slot-roster`); (2) `guestbook.cljs` rediseñado — layout de dos columnas (formulario +
+> lista) en vez de una sola columna centrada, tarjetas con avatar-inicial, copy de aseguramiento
+> ("Revisamos cada mensaje a mano antes de publicarlo"); (3) el correo pasa a ser **obligatorio**
+> si no hay sesión (antes opcional), y si hay sesión se autocompleta y bloquea con el correo de la
+> cuenta; (4) footer (`home.cljs`) cambia de gris a gradiente indigo oscuro (D-24) y reparte mejor
+> el ancho (`Academia Integral` ahora ocupa 2/4 columnas, antes 1/3, porque su párrafo lo necesita).
+> Verificado en navegador (dev server + Chrome): footer, formulario y validación (nombre/correo/
+> mensaje requeridos) se ven y funcionan bien en desktop; el panel admin **no** se probó en vivo
+> (requiere login real, sin credenciales en esta sesión). `clj -M:test` 34/133, `shadow-cljs release
+> app` en 0 warnings, build recompilado. Dos bugs de sintaxis de ClojureScript encontrados y
+> corregidos en el camino — ver [[LESSONS_LEARNED]] L-32 (orden de definición) y L-33 (`/` en
+> sintaxis abreviada de clases). **Pendiente:** aplicar `015` en el proyecto Supabase real.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para

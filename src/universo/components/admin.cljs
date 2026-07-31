@@ -19,6 +19,17 @@
                             :hour "2-digit" :minute "2-digit"})
       (catch :default _ (str iso)))))
 
+(defn- visitor-context-label
+  "Línea de contexto del visitante (país, ciudad, idioma, timezone) para el
+   panel de moderación del guestbook. nil si no hay id_visitor enlazado
+   (mensajes antiguos, o si el visitante no pudo geolocalizarse)."
+  [visitor]
+  (when visitor
+    (let [partes (remove str/blank? [(:ciudad visitor) (:pais visitor)
+                                      (:idioma visitor) (:timezone visitor)])]
+      (when (seq partes)
+        (str/join " · " partes)))))
+
 (defn- format-date [iso]
   (when iso
     (try
@@ -515,6 +526,9 @@
 
               [:p {:class "whitespace-pre-wrap text-sm leading-relaxed text-gray-700"}
                (or (:message e) "")]
+
+              (when-let [ctx (visitor-context-label (:visitor e))]
+                [:p {:class "mt-2 text-xs text-gray-400"} "📍 " ctx])
 
               [:div {:class "mt-4 flex flex-wrap gap-2 border-t border-gray-100 pt-4"}
                (when (or pending? trash?)

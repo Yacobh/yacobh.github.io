@@ -6,11 +6,13 @@
             [universo.db.crud :as crud]
             [universo.components.ui :as ui]))
 
-(defn validate-form [form-data]
+(defn validate-form [form-data logged-in?]
   (let [{:keys [name message email]} form-data]
     (cond-> {}
       (str/blank? name) (assoc :name "El nombre es requerido")
       (str/blank? message) (assoc :message "El mensaje es requerido")
+      (and (not logged-in?) (str/blank? email))
+      (assoc :email "Necesitamos un correo para avisarte cuando respondamos")
       (and (not (str/blank? email))
            (not (re-matches #".+@.+\..+" email)))
       (assoc :email "Email inválido"))))
@@ -31,40 +33,50 @@
       vid (assoc "id_visitor" vid))))
 
 (defn- field-class [has-error?]
-  (str "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 "
-       (if has-error? "border-red-500" "border-gray-300")))
+  (str "w-full px-3 py-2.5 border rounded-lg shadow-sm transition "
+       "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 "
+       (if has-error? "border-red-400" "border-gray-300")))
+
+(defn- initial-avatar [name]
+  [:div {:class (str "flex h-9 w-9 shrink-0 items-center justify-center rounded-full "
+                      "bg-indigo-100 text-sm font-semibold text-indigo-700")}
+   (str/upper-case (subs (or (blank->nil name) "?") 0 1))])
 
 (defn guestbook-entry [entry]
-  [:div {:class "bg-gray-50 rounded-lg p-4 mb-4 border-l-4 border-indigo-500"}
-   [:div {:class "flex justify-between items-start mb-2"}
-    [:h4 {:class "font-semibold text-gray-800"} (:name entry)]
-    (when (:created_at entry)
-      [:span {:class "text-sm text-gray-500"}
-       (.toLocaleDateString (js/Date. (:created_at entry)) "es-ES")])]
-   [:p {:class "text-gray-700 leading-relaxed"} (:message entry)]])
+  [:div {:class "rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100 transition hover:shadow-md"}
+   [:div {:class "flex items-start gap-3"}
+    [initial-avatar (:name entry)]
+    [:div {:class "min-w-0 flex-1"}
+     [:div {:class "flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1"}
+      [:h4 {:class "font-semibold text-gray-900"} (:name entry)]
+      (when (:created_at entry)
+        [:span {:class "text-xs text-gray-400"}
+         (.toLocaleDateString (js/Date. (:created_at entry)) "es-ES")])]
+     [:p {:class "mt-1 whitespace-pre-wrap text-sm leading-relaxed text-gray-700"}
+      (:message entry)]]]])
 
 (defn guestbook-list [entries loading? error on-retry]
   [:div {:class "guestbook-list"}
-   [:h3 {:class "text-xl font-bold text-gray-800 mb-4 text-center"}
-    "Mensajes publicados"]
+   [:h3 {:class "mb-4 text-lg font-bold text-gray-800"}
+    "Mensajes de la comunidad"]
    (cond
      loading?
      [ui/loading-block]
 
      error
-     [:div {:class "text-center py-8 space-y-3"}
+     [:div {:class "space-y-3 rounded-xl bg-white p-8 text-center shadow-sm"}
       [:p {:class "text-red-600"} error]
       [:button {:type "button"
-                :class "px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+                :class "rounded-lg bg-indigo-600 px-4 py-2 text-white transition hover:bg-indigo-700"
                 :on-click on-retry}
        "Reintentar"]]
 
      (empty? entries)
-     [:div {:class "text-center py-8 text-gray-500"}
+     [:div {:class "rounded-xl bg-white p-8 text-center text-gray-500 shadow-sm"}
       [:p "Aún no hay mensajes publicados. ¡Sé el primero en firmar!"]]
 
      :else
-     [:div
+     [:div {:class "space-y-3"}
       (for [entry entries]
         ^{:key (:id entry)}
         [guestbook-entry entry])])])
@@ -78,6 +90,7 @@
         loading-entries? (r/atom true)
         entries-error (r/atom nil)
         loading-submit? (r/atom false)
+        synced-email-from (r/atom nil)
         fetch-entries!
         (fn []
           (reset! loading-entries? true)
@@ -98,93 +111,121 @@
 
       :reagent-render
       (fn [_]
-        (let [visitor-id @(re-frame/subscribe [:visitor-id])]
-          [:div {:class "max-w-4xl mx-auto px-4 py-8"}
-           [:div {:class "bg-white rounded-lg shadow-lg p-6 mb-8"}
-            [:div {:class "text-center mb-6"}
-             [:h2 {:class "text-2xl font-bold text-gray-800 mb-2"} "Libro de visitas"]
-             [:p {:class "text-gray-600"}
-              "Deja un saludo. Los mensajes se publican tras una breve revisión."]]
+        (let [visitor-id @(re-frame/subscribe [:visitor-id])
+              user @(re-frame/subscribe [:auth/user])
+              logged-in? (boolean user)]
+          ;; Si hay sesión, el correo del formulario es el de la cuenta —se
+          ;; sincroniza una sola vez por usuario, sin pisar mientras escribe.
+          (when (and user (not= @synced-email-from (:id user)))
+            (swap! form-data assoc :email (or (:email user) ""))
+            (reset! synced-email-from (:id user)))
 
-            (if @success?
-              [:div {:class "text-center py-8"}
-               [:div {:class "text-green-600 text-6xl mb-4"} "✓"]
-               [:h3 {:class "text-xl font-semibold text-gray-800 mb-2"} "¡Gracias por firmar!"]
-               [:p {:class "text-gray-600"}
-                "Tu mensaje quedó pendiente de aprobación y aparecerá aquí cuando sea publicado."]
-               [:button
-                {:type "button"
-                 :class "mt-4 px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition"
-                 :on-click (fn []
-                             (reset! success? false)
-                             (reset! submit-error nil)
-                             (reset! form-data {:name "" :email "" :phone "" :message ""}))}
-                "Agregar otro mensaje"]]
+          [:div {:class "mx-auto max-w-6xl px-4 py-8"}
+           [:div {:class "mb-8 text-center"}
+            [:h2 {:class "text-2xl font-bold text-gray-800 sm:text-3xl"} "Libro de visitas"]
+            [:p {:class "mx-auto mt-2 max-w-xl text-gray-600"}
+             "Deja un saludo, una pregunta o una sugerencia. "
+             "Leemos cada mensaje personalmente antes de publicarlo."]]
 
-              [:form
-               {:on-submit
-                (fn [e]
-                  (.preventDefault e)
-                  (let [errs (validate-form @form-data)]
-                    (if (seq errs)
-                      (reset! errors errs)
-                      (do
-                        (reset! errors {})
-                        (reset! submit-error nil)
-                        (reset! loading-submit? true)
-                        (go
-                          (let [row (build-row @form-data visitor-id)
-                                result (<! (crud/insert-guestbook! row))]
-                            (reset! loading-submit? false)
-                            (if (:success result)
-                              (reset! success? true)
-                              (reset! submit-error
-                                      (or (:error result)
-                                          "No se pudo guardar el mensaje. Intenta de nuevo.")))))))))}
+           [:div {:class "grid grid-cols-1 gap-8 lg:grid-cols-5 lg:items-start"}
+            ;; Formulario
+            [:div {:class "lg:sticky lg:top-20 lg:col-span-2"}
+             [:div {:class "rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-100"}
+              (if @success?
+                [:div {:class "py-6 text-center"}
+                 [:div {:class "mb-3 text-5xl"} "✓"]
+                 [:h3 {:class "mb-2 text-lg font-semibold text-gray-800"} "¡Gracias por escribir!"]
+                 [:p {:class "text-sm text-gray-600"}
+                  "Tu mensaje quedó pendiente de revisión y aparecerá acá en cuanto lo aprobemos."]
+                 [:button
+                  {:type "button"
+                   :class "mt-5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                   :on-click (fn []
+                               (reset! success? false)
+                               (reset! submit-error nil)
+                               (reset! form-data {:name "" :email (if logged-in? (:email @form-data) "")
+                                                   :phone "" :message ""}))}
+                  "Dejar otro mensaje"]]
 
-               (when @submit-error
-                 [:div {:class "mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700"}
-                  @submit-error])
+                [:form
+                 {:on-submit
+                  (fn [e]
+                    (.preventDefault e)
+                    (let [errs (validate-form @form-data logged-in?)]
+                      (if (seq errs)
+                        (reset! errors errs)
+                        (do
+                          (reset! errors {})
+                          (reset! submit-error nil)
+                          (reset! loading-submit? true)
+                          (go
+                            (let [row (build-row @form-data visitor-id)
+                                  result (<! (crud/insert-guestbook! row))]
+                              (reset! loading-submit? false)
+                              (if (:success result)
+                                (do
+                                  (reset! success? true)
+                                  (fetch-entries!))
+                                (reset! submit-error
+                                        (or (:error result)
+                                            "No se pudo guardar el mensaje. Intenta de nuevo.")))))))))}
 
-               [:div {:class "grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"}
-                [:div
-                 [:label {:class "block text-sm font-medium text-gray-700 mb-1"} "Nombre *"]
-                 [:input {:type "text"
-                          :class (field-class (:name @errors))
-                          :value (:name @form-data)
-                          :on-change #(swap! form-data assoc :name (-> % .-target .-value))}]
-                 (when (:name @errors)
-                   [:p {:class "text-red-500 text-sm mt-1"} (:name @errors)])]
-                [:div
-                 [:label {:class "block text-sm font-medium text-gray-700 mb-1"} "Email (opcional)"]
-                 [:input {:type "email"
-                          :class (field-class (:email @errors))
-                          :value (:email @form-data)
-                          :on-change #(swap! form-data assoc :email (-> % .-target .-value))}]
-                 (when (:email @errors)
-                   [:p {:class "text-red-500 text-sm mt-1"} (:email @errors)])]]
+                 [:h3 {:class "mb-4 text-lg font-bold text-gray-800"} "Escribe tu mensaje"]
 
-               [:div {:class "mb-4"}
-                [:label {:class "block text-sm font-medium text-gray-700 mb-1"} "Teléfono (opcional)"]
-                [:input {:type "tel"
-                         :class (field-class false)
-                         :value (:phone @form-data)
-                         :on-change #(swap! form-data assoc :phone (-> % .-target .-value))}]]
+                 (when @submit-error
+                   [:div {:class "mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"}
+                    @submit-error])
 
-               [:div {:class "mb-6"}
-                [:label {:class "block text-sm font-medium text-gray-700 mb-1"} "Mensaje *"]
-                [:textarea {:class (str (field-class (:message @errors)) " h-24")
-                            :value (:message @form-data)
-                            :placeholder "Escribe aquí tu mensaje..."
-                            :on-change #(swap! form-data assoc :message (-> % .-target .-value))}]
-                (when (:message @errors)
-                  [:p {:class "text-red-500 text-sm mt-1"} (:message @errors)])]
+                 [:div {:class "mb-4"}
+                  [:label {:class "mb-1 block text-sm font-medium text-gray-700"} "Nombre *"]
+                  [:input {:type "text"
+                           :class (field-class (:name @errors))
+                           :value (:name @form-data)
+                           :on-change #(swap! form-data assoc :name (-> % .-target .-value))}]
+                  (when (:name @errors)
+                    [:p {:class "mt-1 text-sm text-red-600"} (:name @errors)])]
 
-               [:div {:class "text-center"}
-                [:button
-                 {:type "submit"
-                  :disabled @loading-submit?
-                  :class "px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition"}
-                 (if @loading-submit? "Enviando..." "Firmar el libro de visitas")]]])]
+                 [:div {:class "mb-4"}
+                  [:label {:class "mb-1 block text-sm font-medium text-gray-700"}
+                   (if logged-in? "Correo" "Correo *")]
+                  [:input {:type "email"
+                           :disabled logged-in?
+                           :class (str (field-class (:email @errors))
+                                       (when logged-in? " bg-gray-50 text-gray-500"))
+                           :value (:email @form-data)
+                           :placeholder (when-not logged-in? "para avisarte si respondemos")
+                           :on-change #(swap! form-data assoc :email (-> % .-target .-value))}]
+                  (when (:email @errors)
+                    [:p {:class "mt-1 text-sm text-red-600"} (:email @errors)])
+                  (when-not logged-in?
+                    [:p {:class "mt-1 text-xs text-gray-400"}
+                     "No lo publicamos. Solo lo usamos para responderte."])]
 
-           [guestbook-list @entries @loading-entries? @entries-error fetch-entries!]]))})))
+                 [:div {:class "mb-4"}
+                  [:label {:class "mb-1 block text-sm font-medium text-gray-700"} "Teléfono (opcional)"]
+                  [:input {:type "tel"
+                           :class (field-class false)
+                           :value (:phone @form-data)
+                           :on-change #(swap! form-data assoc :phone (-> % .-target .-value))}]]
+
+                 [:div {:class "mb-5"}
+                  [:label {:class "mb-1 block text-sm font-medium text-gray-700"} "Mensaje *"]
+                  [:textarea {:class (str (field-class (:message @errors)) " h-28")
+                              :value (:message @form-data)
+                              :placeholder "Escribe aquí tu mensaje..."
+                              :on-change #(swap! form-data assoc :message (-> % .-target .-value))}]
+                  (when (:message @errors)
+                    [:p {:class "mt-1 text-sm text-red-600"} (:message @errors)])]
+
+                 [:button
+                  {:type "submit"
+                   :disabled @loading-submit?
+                   :class "w-full rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"}
+                  (if @loading-submit? "Enviando..." "Firmar el libro de visitas")]
+
+                 [:p {:class "mt-3 flex items-center justify-center gap-1.5 text-xs text-gray-400"}
+                  "🔒 Revisamos cada mensaje a mano antes de publicarlo."]])]]
+
+            ;; Lista de mensajes
+            [:div {:class "lg:col-span-3"}
+             [guestbook-list @entries @loading-entries? @entries-error fetch-entries!]]]]))})))

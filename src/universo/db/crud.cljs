@@ -306,15 +306,38 @@
                                    :error (.-message error)}))))
      ch)))
 
+(defn fetch-visitors-by-ids
+  "Contexto de visitante (país/ciudad/idioma/timezone) para mostrar junto a
+   cada mensaje del guestbook en el panel admin. Requiere la policy SELECT de
+   015_visitor_select_admin.sql (solo admin puede leer visitor)."
+  [ids]
+  (let [ch (async/chan)]
+    (if-not (seq ids)
+      (async/put! ch {:success true :data []})
+      (-> (.from supabase-client "visitor")
+          (.select "id,pais,ciudad,idioma,timezone")
+          (.in "id" (clj->js (mapv int ids)))
+          (.then (fn [result]
+                   (if (.-error result)
+                     (async/put! ch {:success false :error (.-message (.-error result))})
+                     (async/put! ch {:success true
+                                     :data (js->clj (.-data result) :keywordize-keys true)}))))
+          (.catch (fn [error]
+                    (async/put! ch {:success false :error (.-message error)})))))
+    ch))
+
 (defn fetch-admin-guestbook
-  "Guestbook para moderación.
+  "Guestbook para moderación, con el contexto del visitante (país/ciudad/
+   idioma/timezone) resuelto del lado del cliente vía id_visitor → visitor.id
+   (mismo patrón que fetch-slot-roster: no hay FK declarada para embed
+   automático de PostgREST).
    filter: :pending (null) | :approved (true) | :trash (false)"
   ([]
    (fetch-admin-guestbook :pending))
   ([filter-mode]
    (let [ch (async/chan)
          q0 (-> (.from supabase-client "guestbook")
-                (.select "id,created_at,name,email,phone,message,is_approved")
+                (.select "id,created_at,name,email,phone,message,is_approved,id_visitor")
                 (.order "created_at" #js {:ascending false})
                 (.limit 100))
          q (case filter-mode
@@ -322,18 +345,25 @@
              :approved (.eq q0 "is_approved" true)
              :trash (.eq q0 "is_approved" false)
              q0)]
-     (-> q
-         (.then (fn [result]
-                  (if (.-error result)
-                    (async/put! ch {:success false
-                                    :error (.-message (.-error result))})
-                    (async/put! ch {:success true
-                                    :data (or (js->clj (.-data result)
-                                                       :keywordize-keys true)
-                                              [])}))))
-         (.catch (fn [error]
-                   (async/put! ch {:success false
-                                   :error (.-message error)}))))
+     (go
+       (let [result (<! (let [c (async/chan)]
+                           (-> q
+                               (.then (fn [r]
+                                        (if (.-error r)
+                                          (async/put! c {:success false :error (.-message (.-error r))})
+                                          (async/put! c {:success true
+                                                         :data (js->clj (.-data r) :keywordize-keys true)}))))
+                               (.catch (fn [e] (async/put! c {:success false :error (.-message e)}))))
+                           c))]
+         (if-not (:success result)
+           (async/put! ch result)
+           (let [rows (or (:data result) [])
+                 visitor-ids (->> rows (keep :id_visitor) distinct)
+                 visitors (<! (fetch-visitors-by-ids visitor-ids))
+                 visitor-by-id (into {} (map (juxt :id identity)) (or (:data visitors) []))]
+             (async/put! ch {:success true
+                             :data (mapv #(assoc % :visitor (get visitor-by-id (:id_visitor %)))
+                                         rows)})))))
      ch)))
 
 (defn update-guestbook-approval!

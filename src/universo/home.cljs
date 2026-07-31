@@ -158,22 +158,22 @@
              [links true]]])]))))
 
 (defn footer []
-  [:footer.mt-auto.bg-gradient-to-r.from-gray-900.to-gray-800.text-white
+  [:footer.mt-auto.bg-gradient-to-br.from-slate-900.via-indigo-950.to-slate-900.text-white
    [:div.mx-auto.max-w-7xl.px-4.py-12.sm:px-6.lg:px-8
-    [:div.grid.grid-cols-1.gap-10.md:grid-cols-3
-     ;; Marca
-     [:div
+    [:div.grid.grid-cols-1.gap-10.md:grid-cols-4
+     ;; Marca (más ancha: el párrafo necesita más espacio del que le daba 1/3)
+     [:div.md:col-span-2
       [:div.mb-4.flex.items-center
-       [:span.mr-2.text-2xl "∫"]
+       [:span.mr-2.text-2xl.text-indigo-300 "∫"]
        [:h3.text-xl.font-bold "Academia Integral"]]
-      [:p.max-w-sm.text-sm.leading-relaxed.text-gray-400
+      [:p {:class "max-w-md text-sm leading-relaxed text-indigo-100/70"}
        "Preparación de PAES Matemática 1 con diagnóstico adaptativo, plan personalizado "
        "y grupos de estudio por nivel. Un proyecto del profesor Jacobo Córdova, que se originó "
        "en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat."]]
 
      ;; Enlaces
      [:div
-      [:h4.mb-4.text-sm.font-semibold.uppercase.tracking-wider.text-gray-300 "Explorar"]
+      [:h4.mb-4.text-sm.font-semibold.uppercase.tracking-wider.text-indigo-300 "Explorar"]
       [:ul.space-y-2.text-sm
        (for [[label handler]
              [["Comenzar diagnóstico" #(re-frame/dispatch [:landing/start])]
@@ -184,18 +184,19 @@
               ["Aviso de privacidad" #(re-frame/dispatch [:navigate-to :privacidad])]]]
          ^{:key label}
          [:li
-          [:button.text-gray-400.transition.hover:text-white
-           {:type "button" :on-click handler}
+          [:button {:type "button"
+                    :class "text-indigo-100/70 transition hover:text-white"
+                    :on-click handler}
            label]])]]
 
      ;; Contacto
      [:div {:id "contacto"}
-      [:h4.mb-4.text-sm.font-semibold.uppercase.tracking-wider.text-gray-300 "Contacto"]
+      [:h4.mb-4.text-sm.font-semibold.uppercase.tracking-wider.text-indigo-300 "Contacto"]
       [contacto-form]]]]
 
-   [:div.border-t.border-gray-700
+   [:div {:class "border-t border-indigo-900/50"}
     [:div.mx-auto.max-w-7xl.px-4.py-5.sm:px-6.lg:px-8
-     [:p.text-center.text-sm.text-gray-400
+     [:p {:class "text-center text-sm text-indigo-100/50"}
       (str "© " (.getFullYear (js/Date.)) " Academia Integral. Todos los derechos reservados.")]]]])
 
 ;; main content por atomo de reagent
