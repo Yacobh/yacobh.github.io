@@ -23,7 +23,8 @@
    :questions :admin/load-questions
    :resources :admin/load-resources
    :slots :admin/load-slots
-   :guestbook :admin/load-guestbook})
+   :guestbook :admin/load-guestbook
+   :contacto :admin/load-contacto})
 
 ;; -----------------------------------------------------------------------------
 ;; Estado por sección
@@ -445,6 +446,37 @@
             (assoc-in [:admin :guestbook] (or rows []))
             (cond-> counts (assoc-in [:admin :guestbook-counts] counts)))
     :dispatch [:admin/section-ok :guestbook]}))
+
+;; -----------------------------------------------------------------------------
+;; Contacto
+;; -----------------------------------------------------------------------------
+
+(re-frame/reg-sub
+ :admin/contacto
+ (fn [db _]
+   (get-in db [:admin :contacto] [])))
+
+(re-frame/reg-fx
+ :admin/fetch-contacto
+ (fn [_]
+   (go
+     (let [result (<! (crud/fetch-admin-contacto))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/contacto-loaded (:data result)])
+         (re-frame/dispatch [:admin/section-fail :contacto
+                             (or (:error result) "No se pudieron cargar los mensajes de contacto")]))))))
+
+(re-frame/reg-event-fx
+ :admin/load-contacto
+ (fn [_ _]
+   {:dispatch [:admin/section-start :contacto]
+    :admin/fetch-contacto nil}))
+
+(re-frame/reg-event-fx
+ :admin/contacto-loaded
+ (fn [{:keys [db]} [_ rows]]
+   {:db (assoc-in db [:admin :contacto] (or rows []))
+    :dispatch [:admin/section-ok :contacto]}))
 
 (defn- moderation-label
   [approved]

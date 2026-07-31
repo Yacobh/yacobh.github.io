@@ -112,11 +112,17 @@
 > todos los demás llamadores de `insert-data-table!`: `guestbook`, `notifications` y `tests` ya
 > estaban bien: el único otro caso roto es código muerto sin ruta (`supabase_test.cljs`, T-23), sin
 > impacto. Ver [[LESSONS_LEARNED]] L-31 (actualizada).
-> **Hallazgo sin resolver, no bloqueante:** `contacto` guarda `{:mensaje ... :extra db}` — `extra`
-> es el **app-db completo de re-frame**, no un subconjunto curado; y no hay ninguna vista en el
-> panel de admin que lea la tabla `contacto` — los mensajes del formulario de contacto no se pueden
-> ver desde ningún lado hoy. No se tocó (fuera del alcance del bug reportado); queda para una
-> decisión del owner si vale la pena una vista de admin + limpiar qué se guarda en `extra`.
+> **Ambos hallazgos resueltos (2026-07-31):** el owner pidió cerrar los dos. (1) `extra` deja de
+> guardar el app-db completo — `events/contacto.cljs` arma un contexto curado (sección visitada, si
+> hay sesión y con qué correo), y se agrega `contacto.id_visitor` para sumar también el contexto de
+> `visitor` (país/ciudad/idioma/timezone), igual que ya se hace en `guestbook`. (2) Nueva pestaña
+> **Contacto** en el panel de admin (`components/admin.cljs`, `contacto-panel`, solo lectura) +
+> policy `contacto_select_admin` (`016_contacto_admin.sql`) — antes nadie podía leer esa tabla.
+> `fetch-admin-guestbook`/`fetch-admin-contacto` comparten ahora `db/crud.attach-visitor-context` en
+> vez de duplicar el join cliente-servidor. `clj -M:test` 34/133, `shadow-cljs release app` en
+> 0 warnings. **No verificado en vivo** (requiere login de admin real, sin credenciales en esta
+> sesión) — solo revisión de código + compilación limpia. **Pendiente:** aplicar `016` en el
+> proyecto Supabase real.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para

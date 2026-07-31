@@ -551,6 +551,37 @@
                                      :on-confirm [:admin/delete-guestbook (:id e)]}])}
                   "Eliminar"])]]))])]]))
 
+(defn- contacto-contexto-line
+  "Sección visitada y estado de sesión, del contexto curado que guarda
+   events/contacto.cljs (ya no es el app-db completo, ver LESSONS_LEARNED)."
+  [ctx]
+  (when (map? ctx)
+    (str "Sección: " (or (:seccion ctx) "—")
+         (if (:logueado? ctx)
+           (str " · con sesión" (when (:correo-cuenta ctx) (str " (" (:correo-cuenta ctx) ")")))
+           " · sin sesión"))))
+
+(defn- contacto-panel []
+  (let [rows @(re-frame/subscribe [:admin/contacto])]
+    [section-frame
+     {:section :contacto
+      :title "Mensajes de contacto"
+      :description "Enviados desde el formulario del pie de página. Solo lectura."}
+     (if-not (seq rows)
+       [empty-state "No hay mensajes de contacto todavía."]
+       [:ul {:class "space-y-3"}
+        (for [e rows]
+          ^{:key (:id e)}
+          [:li {:class "rounded-xl border border-gray-200 bg-white p-5"}
+           [:div {:class "mb-2 flex items-start justify-between gap-2"}
+            [:span {:class "text-xs text-gray-400"} (format-date-time (:created_at e))]]
+           [:p {:class "whitespace-pre-wrap text-sm leading-relaxed text-gray-700"}
+            (or (:mensaje e) "")]
+           (when-let [ctx-line (visitor-context-label (:visitor e))]
+             [:p {:class "mt-2 text-xs text-gray-400"} "📍 " ctx-line])
+           (when-let [line (contacto-contexto-line (:extra e))]
+             [:p {:class "mt-1 text-xs text-gray-400"} line])])])]))
+
 ;; -----------------------------------------------------------------------------
 ;; Recursos
 ;; -----------------------------------------------------------------------------
@@ -1066,7 +1097,8 @@
    [:questions "Preguntas"]
    [:resources "Recursos"]
    [:slots "Cupos"]
-   [:guestbook "Moderación"]])
+   [:guestbook "Moderación"]
+   [:contacto "Contacto"]])
 
 (defn- tab-btn
   [id label current]
@@ -1130,6 +1162,7 @@
               :resources [resources-panel]
               :slots [slots-admin-panel]
               :guestbook [guestbook-panel]
+              :contacto [contacto-panel]
               [overview-panel])])
 
          [toast-view]]))}))

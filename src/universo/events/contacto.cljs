@@ -4,6 +4,17 @@
    [cljs.core.async :refer [go <!]]
    [universo.db.crud :as crud]))
 
+(defn- contexto-curado
+  "Contexto útil para atender el mensaje (qué sección, si hay cuenta) sin
+   volcar el app-db completo de re-frame — lo que había antes era ruido, no
+   contexto: incluía todo el estado de UI de la sesión, sin curar."
+  [db]
+  (let [user (get-in db [:auth :user])]
+    (cond-> {:seccion (name (or (get-in db [:ui :current-section]) :desconocida))
+             :logueado? (boolean user)
+             :url (.-href js/window.location)}
+      user (assoc :correo-cuenta (:email user)))))
+
 (re-frame/reg-event-fx
  :enviar-contacto
  (fn [{:keys [db]} [_ mensaje]]
@@ -26,9 +37,13 @@
  :fx/insertar-contacto
  (fn [[mensaje db]]
    (go
-     (let [result (<! (crud/insert-data-table!
-                       {:mensaje mensaje
-                        :extra db}
+     (let [visitor-id (some-> (get-in db [:visitor :id]) str (js/parseInt 10))
+           payload (cond-> {:mensaje mensaje
+                             :extra (contexto-curado db)}
+                     (and visitor-id (not (js/isNaN visitor-id)))
+                     (assoc :id_visitor visitor-id))
+           result (<! (crud/insert-data-table!
+                       payload
                        "contacto"
                        {:returning? false}))]
        (if (:success result)

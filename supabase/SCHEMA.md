@@ -158,6 +158,19 @@ PostgREST). Esto requería que el admin pudiera leer `visitor`, que hasta ahora 
 policy SELECT (ni para admin) — se agrega `visitor_select_admin`, restringida a `is_admin()`.
 `visitor` sigue sin SELECT para nadie más: guarda datos personales (IP, ciudad, país).
 
+## Vista de admin y contexto curado para contacto (`016_contacto_admin.sql`)
+
+Arreglados dos hallazgos pendientes del flujo de comentarios (2026-07-31, pedido explícito del
+owner): (1) `contacto.extra` guardaba el **app-db completo de re-frame** en cada envío —
+`events/contacto.cljs` ahora guarda un contexto curado (`{:seccion ... :logueado? ... :url ...
+:correo-cuenta ...}, solo si hay sesión`), y agrega `contacto.id_visitor` (columna nueva, mismo
+patrón sin FK declarada que `guestbook.id_visitor`) para reusar el contexto de `visitor` (país/
+ciudad/idioma/timezone) igual que en el guestbook. (2) No existía ninguna vista de admin para leer
+`contacto` — se agrega la pestaña **Contacto** (`components/admin.cljs`, `contacto-panel`,
+solo lectura) y la policy `contacto_select_admin` (`is_admin()`), ya que antes nadie podía leerla
+tampoco. `fetch-admin-guestbook`/`fetch-admin-contacto` comparten ahora el helper
+`db/crud.attach-visitor-context` en vez de duplicar el join.
+
 ## Orden de aplicación
 
 1. `admin_rls.sql` (si aún no)
@@ -177,4 +190,5 @@ policy SELECT (ni para admin) — se agrega `visitor_select_admin`, restringida 
 15. `migrations/013_profile_contact_preference.sql`
 16. `migrations/014_visitor_track_rpc.sql`
 17. `migrations/015_visitor_select_admin.sql`
-18. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+18. `migrations/016_contacto_admin.sql`
+19. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
