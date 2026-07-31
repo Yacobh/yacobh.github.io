@@ -278,6 +278,12 @@ definer` que inserte y devuelva solo lo necesario (ver `014_visitor_track_rpc.sq
 una policy SELECT amplia. El docstring de `insert-data-table!` ya advertía de esto desde `7d1d307`
 (2026-07-19) — la advertencia estaba escrita, pero `visitor_tracker.cljs` no se actualizó cuando
 esa función cambió de comportamiento.
+**Recurrencia (2026-07-31):** el mismo bug apareció en `events/contacto.cljs` (`contacto`), reportado
+por el owner al probar el formulario del footer. Auditados todos los llamadores de
+`insert-data-table!`: `guestbook`, `notifications` y `tests` ya pasaban `{:returning? false}`;
+`contacto` no. El único otro caso roto es `supabase_test.cljs` (código muerto, sin ruta — T-23), sin
+impacto real. **Corolario:** cuando se agregue una tabla nueva o se toque `insert-data-table!` de
+nuevo, auditar TODOS sus llamadores (`grep insert-data-table!`), no solo el que motivó el cambio.
 
 ### L-32 · Un `defn` de ClojureScript que llama a otro definido más abajo compila con warning, no error
 **Síntoma:** al agregar `fetch-admin-guestbook` en `crud.cljs` y `visitor-context-label` en

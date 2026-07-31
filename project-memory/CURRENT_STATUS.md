@@ -103,7 +103,20 @@
 > (requiere login real, sin credenciales en esta sesión). `clj -M:test` 34/133, `shadow-cljs release
 > app` en 0 warnings, build recompilado. Dos bugs de sintaxis de ClojureScript encontrados y
 > corregidos en el camino — ver [[LESSONS_LEARNED]] L-32 (orden de definición) y L-33 (`/` en
-> sintaxis abreviada de clases). **Pendiente:** aplicar `015` en el proyecto Supabase real.
+> sintaxis abreviada de clases). **Cerrado:** el owner aplicó `015`.
+>
+> **Bug relacionado encontrado y corregido (2026-07-31):** al probar el formulario de contacto del
+> footer, el owner reportó el mismo error de RLS que `visitor` (L-31), pero en `contacto` —
+> `events/contacto.cljs` llamaba a `insert-data-table!` sin `{:returning? false}`. Corregido con el
+> mismo fix mínimo que ya usa `guestbook` (no necesitaba RPC: nada lee el id generado). Auditados
+> todos los demás llamadores de `insert-data-table!`: `guestbook`, `notifications` y `tests` ya
+> estaban bien: el único otro caso roto es código muerto sin ruta (`supabase_test.cljs`, T-23), sin
+> impacto. Ver [[LESSONS_LEARNED]] L-31 (actualizada).
+> **Hallazgo sin resolver, no bloqueante:** `contacto` guarda `{:mensaje ... :extra db}` — `extra`
+> es el **app-db completo de re-frame**, no un subconjunto curado; y no hay ninguna vista en el
+> panel de admin que lea la tabla `contacto` — los mensajes del formulario de contacto no se pueden
+> ver desde ningún lado hoy. No se tocó (fuera del alcance del bug reportado); queda para una
+> decisión del owner si vale la pena una vista de admin + limpiar qué se guarda en `extra`.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para

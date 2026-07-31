@@ -29,7 +29,8 @@
      (let [result (<! (crud/insert-data-table!
                        {:mensaje mensaje
                         :extra db}
-                       "contacto"))]
+                       "contacto"
+                       {:returning? false}))]
        (if (:success result)
          (do
            (js/console.log "✅ contacto guardado exitosamente:" (:data result))
