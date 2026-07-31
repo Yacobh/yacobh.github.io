@@ -43,6 +43,29 @@
 
 
 
+(defn track-visitor!
+  "Inserta un visitante vía RPC security definer (track_visitor, migración 014)
+   en vez de insert-data-table!: visitor guarda datos personales (IP/ciudad/
+   país) y no tiene policy SELECT, así que un insert con .select().single()
+   revierte por RLS. La función devuelve solo el id (necesario como FK real
+   al firmar el guestbook), sin exponer la fila completa."
+  [{:keys [pais ciudad idioma timezone]}]
+  (let [ch (async/chan)]
+    (-> (.rpc supabase-client "track_visitor"
+              #js {:p_pais pais :p_ciudad ciudad :p_idioma idioma :p_timezone timezone})
+        (.then (fn [result]
+                 (if (.-error result)
+                   (do
+                     (js/console.error "Error de Supabase:" "track_visitor" (.-error result))
+                     (async/put! ch {:success false
+                                     :error (.-message (.-error result))}))
+                   (async/put! ch {:success true :id (.-data result)}))))
+        (.catch (fn [error]
+                  (js/console.error "Error capturado:" "track_visitor" error)
+                  (async/put! ch {:success false
+                                  :error (.-message error)}))))
+    ch))
+
 (defn get-all-table "Obtiene todos los elementos de la tabla"
   [table-name]
   (let [ch (async/chan)]

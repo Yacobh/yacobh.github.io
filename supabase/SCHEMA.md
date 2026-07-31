@@ -123,6 +123,31 @@ admin lo ve en el roster de cada cupo (`components/admin.cljs`, `roster-view`) j
 `wa.me/<phone>` cuando el estudiante prefiere WhatsApp — **no** hay integración de API de WhatsApp,
 es un enlace manual que el admin abre él mismo (decisión explícita de simplicidad, D-30).
 
+## RPC para insertar visitantes (`014_visitor_track_rpc.sql`)
+
+**Incidente 2026-07-30:** `visitor` (tabla previa al MVP, sin migración propia hasta ahora) dejó de
+recibir filas desde 2026-07-19 07:24:12. Causa: `visitor` tiene policy `INSERT` para `anon`/
+`authenticated` pero **ninguna policy `SELECT`**; el cliente (`db/insert-data-table!`, default
+`returning? true`) hace `.insert(...).select("*").single()` en una sola sentencia
+`INSERT ... RETURNING *`. Si la policy SELECT no permite leer la fila insertada, Postgres revierte
+**la sentencia completa** (no solo el `RETURNING`) con `42501 — new row violates row-level security
+policy` — el insert nunca llega a persistir. Confirmado en producción reproduciendo el mismo patrón
+en el SQL Editor (`insert ... returning *` como rol `anon`).
+
+**Por qué no se arregló agregando una policy SELECT:** `visitor` guarda IP/ciudad/país (dato
+personal, ver `CLAUDE.md` §7.6, R-14/R-16 en `RISKS.md`); una policy SELECT abierta expondría todas
+las filas vía API pública. Además `guestbook.visitor_id` necesita el **id entero real** de la fila
+insertada como FK (`js/parseInt` en `components/guestbook.cljs`), así que tampoco alcanzaba con
+dejar de pedir el retorno (`{:returning? false}`) — se perdía el id necesario.
+
+**Fix:** función `security definer` `public.track_visitor(pais, ciudad, idioma, timezone) returns
+bigint` que inserta y devuelve **solo el id**, sin exponer la fila completa. El cliente ahora llama
+`db/crud.track-visitor!` (RPC) en vez de `insert-data-table!` para esta tabla. De paso se corrigió
+`universo.visitor-tracker/visitor-saved?`, que siempre devolvía `nil` sin importar si ya había un
+`visitor-id` en `localStorage` (dispatchaba `:set-visitor-id` pero el valor de retorno de la función
+—el de `dispatch`— tapaba el `boolean` real), por lo que el tracker se disparaba en cada carga en
+vez de una sola vez por visitante.
+
 ## Orden de aplicación
 
 1. `admin_rls.sql` (si aún no)
@@ -140,4 +165,5 @@ es un enlace manual que el admin abre él mismo (decisión explícita de simplic
 13. `migrations/011_enrollments_capacity_check.sql`
 14. `migrations/012_slot_cancellation_notification.sql`
 15. `migrations/013_profile_contact_preference.sql`
-16. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+16. `migrations/014_visitor_track_rpc.sql`
+17. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`

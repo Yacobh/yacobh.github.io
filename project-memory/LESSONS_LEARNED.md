@@ -254,6 +254,31 @@ public/js/app.js` para volver al build de release ya commiteado antes de continu
 un `git status` limpio sigue siéndolo unos comandos después si hay watchers activos. Ver
 [[BACKLOG]] T-08.
 
+### L-31 · `INSERT ... RETURNING` bajo RLS revierte todo el insert si falta la policy SELECT
+**Síntoma:** `visitor` dejó de recibir filas desde 2026-07-19, en silencio (sin ningún cambio de
+código ni de policy visible como causa directa). El único rastro era un `console.error` que nadie
+mira en producción.
+**Causa:** `db/insert-data-table!` (default `returning? true`) ejecuta `.insert(...).select("*")
+.single()`, que PostgREST traduce a una única sentencia `INSERT ... RETURNING *`. Bajo RLS, el
+`RETURNING` está sujeto a la policy **SELECT** de la tabla — si no hay ninguna (como en `visitor`,
+que solo tenía policy de `INSERT`), Postgres no solo omite la fila del resultado: **revierte la
+sentencia completa**, con el mismo código de error (`42501`) que una policy de INSERT mal
+configurada. El mensaje ("new row violates row-level security policy") es indistinguible entre
+ambas causas sin probarlo directamente en SQL.
+**Cómo se diagnosticó:** reproducir el mismo patrón exacto del cliente
+(`insert ... returning *` como el rol que usa la app) directamente en el SQL Editor — un
+`insert` simple sin `returning` funcionaba bien, aislando el problema al `RETURNING`, no al
+`INSERT` en sí.
+**Regla:** cualquier tabla que reciba escrituras de `anon`/`authenticated` vía `insert-data-table!`
+con el default (`returning? true`) **necesita una policy SELECT** que cubra esa fila, o hay que
+pasar `{:returning? false}` explícitamente (como ya hace `guestbook`). Si además se necesita el
+`id` generado de vuelta (p. ej. como FK, como pasa con `visitor.id` → `guestbook.visitor_id`) y la
+tabla guarda datos que no deberían quedar expuestos por SELECT abierto, usar una función `security
+definer` que inserte y devuelva solo lo necesario (ver `014_visitor_track_rpc.sql`) en vez de abrir
+una policy SELECT amplia. El docstring de `insert-data-table!` ya advertía de esto desde `7d1d307`
+(2026-07-19) — la advertencia estaba escrita, pero `visitor_tracker.cljs` no se actualizó cuando
+esa función cambió de comportamiento.
+
 ---
 
 Relacionado: [[AGENT_INSTRUCTIONS]] · [[RISKS]] · [[DECISIONS]] · [[OPEN_QUESTIONS]] · [[TECH_STACK]]

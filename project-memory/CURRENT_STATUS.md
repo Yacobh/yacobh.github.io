@@ -73,10 +73,20 @@
 > implementó código para T-25 (`012_slot_cancellation_notification.sql`, trigger que avisa a los
 > inscritos cuando el admin cancela un cupo) y T-36 (`013_profile_contact_preference.sql` +
 > selector en "Configuración de cuenta" + visibilidad en el roster del admin con enlace `wa.me`).
-> `clj -M:test` en verde (34/133), build de release recompilado. **Ninguna de las dos migraciones
-> está aplicada todavía en el proyecto Supabase real** — el trabajo de watchers ya no interfiere
-> porque el owner los detuvo esta sesión. No se probó en navegador contra datos reales (requeriría
-> aplicar las migraciones y usar una cuenta de prueba en producción).
+> `clj -M:test` en verde (34/133), build de release recompilado. **2026-07-30 (más tarde):** el
+> owner confirmó haber aplicado `012` y `013` en el proyecto Supabase real; se pusheó a `main`.
+> No se probó en navegador contra datos reales (no verificado en vivo por el agente).
+>
+> **Incidente resuelto: `visitor` no recibía filas desde 2026-07-19 (2026-07-30).** Diagnosticado en
+> conjunto con el owner (ver [[LESSONS_LEARNED]] L-31 para el detalle técnico completo): `visitor`
+> tiene policy `INSERT` pero ninguna `SELECT`, y `visitor_tracker.cljs` pedía de vuelta la fila
+> insertada (`returning? true` default) — bajo RLS eso revierte **todo el insert**, no solo el
+> retorno. Se descartó abrir una policy SELECT (expondría IP/ciudad/país de todos los visitantes) y
+> en su lugar se agregó `014_visitor_track_rpc.sql` (función `security definer` que inserta y
+> devuelve solo el `id`, necesario como FK real en `guestbook.visitor_id`). De paso se corrigió un
+> bug en `visitor-saved?` que hacía que el tracker se disparara en cada carga de página en vez de
+> una vez por visitante. **Pendiente:** aplicar `014` en el proyecto Supabase real (no aplicada
+> todavía) y verificar que vuelvan a aparecer filas nuevas en `visitor`.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
