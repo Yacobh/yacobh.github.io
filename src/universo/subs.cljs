@@ -63,13 +63,24 @@
 
 ;; Events
 
+;; Vuelve al tope de la página al completar cualquier navegación entre
+;; secciones — sin esto, cambiar de sección conserva el scroll de la
+;; anterior (ej. entrar al currículum desde el link del footer aterrizaba
+;; en el final de la página). Ocurre mientras el contenido está invisible
+;; (opacity 0 durante la transición), así que no hay salto visible.
+(re-frame/reg-fx
+ :fx/scroll-window-top
+ (fn [_]
+   (.scrollTo js/window #js {:top 0 :left 0 :behavior "auto"})))
+
 ;; Completa la navegación tras la transición (el guard está en events.auth)
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :complete-navigation
- (fn [db [_ section]]
-   (-> db
-       (assoc-in [:ui :current-section] section)
-       (assoc-in [:ui :transitioning] false))))
+ (fn [{:keys [db]} [_ section]]
+   {:db (-> db
+            (assoc-in [:ui :current-section] section)
+            (assoc-in [:ui :transitioning] false))
+    :fx/scroll-window-top nil}))
 
 ;; dashboard events
 (re-frame/reg-event-db
