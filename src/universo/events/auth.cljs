@@ -269,6 +269,11 @@
     {:db (assoc-in db [:ui :transitioning] true)
      :dispatch-later [{:ms 240 :dispatch [:complete-navigation :dashboard]}]}
 
+    ;; Currículum: transición de 350ms (más larga que el resto).
+    (= section :jacobocordova)
+    {:db (assoc-in db [:ui :transitioning] true)
+     :dispatch-later [{:ms 350 :dispatch [:complete-navigation section]}]}
+
     :else
     {:db (assoc-in db [:ui :transitioning] true)
      :dispatch-later [{:ms 240 :dispatch [:complete-navigation section]}]}))
