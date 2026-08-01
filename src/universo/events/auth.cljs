@@ -51,6 +51,16 @@
    (admin? db)))
 
 (re-frame/reg-sub
+ :auth/login-mode
+ (fn [db _]
+   (get-in db [:auth :login-mode])))
+
+(re-frame/reg-event-db
+ :auth/set-login-mode
+ (fn [db [_ mode]]
+   (assoc-in db [:auth :login-mode] mode)))
+
+(re-frame/reg-sub
  :auth/role
  (fn [db _]
    (get-in db [:auth :role])))

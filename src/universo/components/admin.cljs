@@ -577,6 +577,10 @@
             [:span {:class "text-xs text-gray-400"} (format-date-time (:created_at e))]]
            [:p {:class "whitespace-pre-wrap text-sm leading-relaxed text-gray-700"}
             (or (:mensaje e) "")]
+           (when (or (:telefono e) (:correo e))
+             [:p {:class "mt-2 text-xs text-gray-500"}
+              (when (:telefono e) (str "📞 " (:telefono e) "  "))
+              (when (:correo e) (str "✉️ " (:correo e)))])
            (when-let [ctx-line (visitor-context-label (:visitor e))]
              [:p {:class "mt-2 text-xs text-gray-400"} "📍 " ctx-line])
            (when-let [line (contacto-contexto-line (:extra e))]

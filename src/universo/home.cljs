@@ -3,7 +3,7 @@
    [reagent.core :as r]
    [re-frame.core :as re-frame]
    [universo.components.resume :as resume]
-   [universo.components.contacto :refer [contacto-form]]
+   [universo.components.contacto :refer [contacto-form contacto-fab contacto-panel]]
    [universo.components.admin :as admin]
    [universo.components.cuenta :as cuenta]
    [universo.components.dashboard :as dashboard]
@@ -105,6 +105,7 @@
                :class (str link-class (when stacked? " text-left w-full"))
                :on-click (fn []
                            (close)
+                           (re-frame/dispatch [:auth/set-login-mode :login])
                            (re-frame/dispatch [:navigate-to :login]))}
       "Iniciar sesión"]
      [:button {:type "button"
@@ -235,5 +236,8 @@
    [:main.flex-1.pt-16  ;; pt-16 compensa la altura del nav fijo
     [main-content-wrapper]]
    [footer]
-   ;; Montado una sola vez: reacciona a [:confirm/ask ...] sin importar la sección activa.
+   ;; Montados una sola vez: fab+panel de contacto y el diálogo de confirmación
+   ;; reaccionan a sus eventos globales sin importar la sección activa.
+   [contacto-fab]
+   [contacto-panel]
    [ui/confirm-dialog]])
