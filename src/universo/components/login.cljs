@@ -24,6 +24,9 @@
 
 (defn login-form []
   (let [mode (r/atom :login) ; :login | :register
+        ;; Último intent de :auth/login-mode ya aplicado — evita reaplicar el
+        ;; mismo valor en cada render.
+        applied-intent (r/atom nil)
         email (r/atom "")
         password (r/atom "")
         consent (r/atom false)
@@ -32,6 +35,17 @@
         success (r/atom nil)]
 
     (fn []
+      (let [intent @(re-frame/subscribe [:auth/login-mode])]
+        ;; :auth/login-mode es un intent de un solo uso (CTA "Crear cuenta
+        ;; gratis" en contacto.cljs y "Comenzar gratis"/"Iniciar sesión" del
+        ;; nav vía :landing/start). Se aplica apenas aparece y se limpia de
+        ;; inmediato — no se puede depender de que el componente se vuelva a
+        ;; montar, porque puede llegar el intent estando ya en :login (mismo
+        ;; patrón que synced-email-from en guestbook.cljs).
+        (when (and intent (not= intent @applied-intent))
+          (reset! mode intent)
+          (reset! applied-intent intent)
+          (re-frame/dispatch [:auth/set-login-mode nil])))
       (let [register? (= @mode :register)]
         [:div.flex.items-center.justify-center.p-20
          [:div.bg-white.shadow-md.rounded-lg.p-6.w-full.max-w-md

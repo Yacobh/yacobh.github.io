@@ -380,7 +380,7 @@
   []
   (let [ch (async/chan)
         q (-> (.from supabase-client "contacto")
-              (.select "id,created_at,mensaje,extra,id_visitor")
+              (.select "id,created_at,mensaje,extra,id_visitor,telefono,correo")
               (.order "created_at" #js {:ascending false})
               (.limit 100))]
     (go

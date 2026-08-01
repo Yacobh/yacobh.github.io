@@ -17,29 +17,31 @@
 
 (re-frame/reg-event-fx
  :enviar-contacto
- (fn [{:keys [db]} [_ mensaje]]
+ (fn [{:keys [db]} [_ {:keys [mensaje] :as datos}]]
    (when (seq mensaje)
      {:db (assoc db :contacto/enviando? true)
-      :dispatch [:contacto/guardar mensaje]})))
+      :dispatch [:contacto/guardar datos]})))
 
 ;; -----------------------------------------------------------------------------
 ;; EVENTO: Guarda el contacto en Supabase
 ;; -----------------------------------------------------------------------------
 (re-frame/reg-event-fx
  :contacto/guardar
- (fn [{:keys [db]} [_ mensaje]]
-   {:fx/insertar-contacto [mensaje db]}))  ;; 👈 efecto con nombre distinto
+ (fn [{:keys [db]} [_ datos]]
+   {:fx/insertar-contacto [datos db]}))  ;; 👈 efecto con nombre distinto
 
 ;; -----------------------------------------------------------------------------
 ;; EFECTO: Inserta en Supabase
 ;; -----------------------------------------------------------------------------
 (re-frame/reg-fx
  :fx/insertar-contacto
- (fn [[mensaje db]]
+ (fn [[{:keys [mensaje telefono correo]} db]]
    (go
      (let [visitor-id (some-> (get-in db [:visitor :id]) str (js/parseInt 10))
            payload (cond-> {:mensaje mensaje
                              :extra (contexto-curado db)}
+                     (seq telefono) (assoc :telefono telefono)
+                     (seq correo) (assoc :correo correo)
                      (and visitor-id (not (js/isNaN visitor-id)))
                      (assoc :id_visitor visitor-id))
            result (<! (crud/insert-data-table!

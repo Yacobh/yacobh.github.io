@@ -171,6 +171,18 @@ solo lectura) y la policy `contacto_select_admin` (`is_admin()`), ya que antes n
 tampoco. `fetch-admin-guestbook`/`fetch-admin-contacto` comparten ahora el helper
 `db/crud.attach-visitor-context` en vez de duplicar el join.
 
+## Alternativas de contacto (`017_contacto_alternativas.sql`)
+
+Pedido del owner (2026-07-31): el formulario de contacto pasa de vivir solo en el footer a tener
+también un botón flotante accesible durante toda la navegación (`components/contacto.cljs`,
+`contacto-fab`/`contacto-panel`). Cuando el visitante no tiene sesión, el panel ofrece —además del
+mensaje de siempre— dejar un teléfono o correo alternativo (opcional, no bloqueante) y, como opción
+destacada, crear una cuenta gratis. Se agregan las columnas `telefono` y `correo` (nullable) a
+`contacto`, como columnas explícitas —no mezcladas en `extra`, que sigue siendo metadata curada por
+el sistema (ver `016`)—, mismo criterio que `guestbook` ya usa para sus columnas `email`/`phone`.
+`fetch-admin-contacto` (`db/crud.cljs`) y `contacto-panel` en el admin (`components/admin.cljs`) se
+amplían para mostrar los datos nuevos cuando existen.
+
 ## Orden de aplicación
 
 1. `admin_rls.sql` (si aún no)
@@ -191,4 +203,5 @@ tampoco. `fetch-admin-guestbook`/`fetch-admin-contacto` comparten ahora el helpe
 16. `migrations/014_visitor_track_rpc.sql`
 17. `migrations/015_visitor_select_admin.sql`
 18. `migrations/016_contacto_admin.sql`
-19. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+19. `migrations/017_contacto_alternativas.sql`
+20. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`

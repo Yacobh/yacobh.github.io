@@ -11,7 +11,11 @@
           :user nil
           :admin? false
           :role nil
-          :redirect-after-login nil}
+          :redirect-after-login nil
+          ;; Modo con el que debe abrir login-form la próxima vez que se monte
+          ;; (nil | :register) — lo consume y limpia el propio componente, ver
+          ;; :auth/set-login-mode / :auth/login-mode.
+          :login-mode nil}
 
    :admin {:tab :overview
            ;; Estado por sección: evita que el spinner/error de una pestaña
@@ -92,6 +96,10 @@
              :confirm-label nil
              :variant nil
              :on-confirm nil}
+
+   ;; Panel de contacto flotante — accesible sin importar la sección activa
+   ;; (mismo patrón transversal que :confirm).
+   :contacto {:panel-open? false}
 
    :account {:profile nil
              :profile-loading? false

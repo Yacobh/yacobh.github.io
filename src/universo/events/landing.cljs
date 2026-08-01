@@ -78,4 +78,7 @@
    (if (get-in db [:auth :user])
      {:dispatch [:navigate-to :diagnostic-test]}
      {:db (assoc-in db [:auth :redirect-after-login] :diagnostic-test)
-      :dispatch [:navigate-to :login]})))
+      ;; Sin sesión no hay cuenta que iniciar: el CTA "Comenzar gratis" solo
+      ;; tiene sentido como registro.
+      :dispatch-n [[:auth/set-login-mode :register]
+                   [:navigate-to :login]]})))
