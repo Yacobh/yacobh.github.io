@@ -45,3 +45,5 @@ Módulos a priorizar (según déficits reales de tus tests):
 |---------|----------|
 | `002_seed_modules.sql` | Módulos + lecturas breves |
 | `004_enrich_baldor_resources.sql` | Blurbs enriquecidos + práctica guiada |
+| `018_baldor_resources.sql` | 20 recursos originales (track `aritmetica`), numeración Baldor como índice bibliográfico, no transcripción -- `published = false`, requieren revisión |
+| `019_baldor_algebra_resources.sql` | 19 recursos originales (track `algebra`) + cierre del hueco de enteros con signo en `aritmetica/enteros` -- mismo criterio que `018`, `published = false` |

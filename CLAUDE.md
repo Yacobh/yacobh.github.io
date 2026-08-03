@@ -15,8 +15,11 @@
 concretos** que comete, generar un **plan de estudio personalizado** y ubicarlo en un **grupo de
 estudio (cupo) de su misma banda de nivel**, online o presencial en Iquique.
 
-Es una iniciativa académica de la **Universidad Arturo Prat (UNAP)** junto al profesor
-**Jacobo Córdova**. El diagnóstico, el perfil y el plan **no tienen costo**.
+Es un **proyecto personal del profesor Jacobo Córdova**, que se originó en 2025 a partir de un
+convenio de desarrollo (a honorarios, de alcance acotado, oct–nov 2025, **ya terminado**) con la
+Universidad Arturo Prat — no hay alianza institucional ni autorización de marca vigente hoy (ver
+[[project-memory/OPEN_QUESTIONS]] Q-01, [[project-memory/DECISIONS]] D-18). El diagnóstico, el
+perfil y el plan **no tienen costo**.
 
 - Sitio en producción: <https://jacobocordova.com> (GitHub Pages + `CNAME`)
 - Estado: **MVP operable**, checklist de go-live parcialmente completo
@@ -129,7 +132,7 @@ clj -M:test                          # suite de tests (node-test)
 - Toda función pura nueva o modificada necesita test en `test/` (`*_test.cljs`, ns terminado en
   `-test`; el build `:test` los descubre con `:ns-regexp "-test$"`).
 - `clj -M:test` debe cerrar en **0 failures / 0 errors** antes de commitear. Estado de referencia
-  al 2026-07-26: **34 tests / 129 assertions / 0 failures**.
+  al 2026-07-26: **34 tests / 133 assertions / 0 failures**.
 - Reglas espejo de la base de datos (ej. confirmación de cupo) se testean en el namespace puro
   (`universo.slots.logic`) **y** se documenta que la fuente de verdad es el trigger SQL.
 - Los warnings `:infer-warning` de `events/auth.cljs` son conocidos y no rompen el build

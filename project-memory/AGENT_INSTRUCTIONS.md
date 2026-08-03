@@ -150,7 +150,7 @@ De esto se derivan cuatro consecuencias que no son negociables:
    confundas con fallos ni silencies los warnings globalmente para taparlos.
 6. Lo que **no** está cubierto y por lo tanto exige prueba manual: componentes de UI, `db/crud`,
    `events/admin`, efectos de `events/test`, la Edge Function y las policies RLS.
-7. Estado de referencia: **34 tests / 129 assertions / 0 failures** (2026-07-26). Si el número baja,
+7. Estado de referencia: **34 tests / 133 assertions / 0 failures** (2026-07-26). Si el número baja,
    explica por qué.
 
 ---

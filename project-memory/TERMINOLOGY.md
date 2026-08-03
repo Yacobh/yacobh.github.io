@@ -293,7 +293,10 @@ hace; el libro no propone un mecanismo técnico distinto.
 
 **Freemium**
 Modelo de negocio propuesto para el mediano plazo del libro (acceso básico gratis, funciones
-avanzadas de pago). No implementado; el modelo actual no tiene ningún tramo de pago.
+avanzadas de pago). Ese modelo específico sigue sin implementar, pero el modelo actual **ya no
+carece de tramo de pago**: D-19/D-26 (2026-07-28/30) fijaron que las clases de los cupos cuestan
+$10.000 CLP/hora (primera gratis) -- es pago por clase, no freemium, pero es un primer tramo de
+pago real, ya decidido.
 
 **MAU — Monthly Active Users**
 Métrica de usuarios activos mensuales citada en el libro. No instrumentada (ver

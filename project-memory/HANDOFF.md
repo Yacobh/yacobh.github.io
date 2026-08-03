@@ -16,8 +16,10 @@ de **errores conceptuales concretos** que comete, un **plan de estudio** prioriz
 de **inscribirse en un grupo de estudio de su mismo nivel**, online o presencial en Iquique. El
 grupo se confirma automáticamente al alcanzar un mínimo de inscritos.
 
-Es una **iniciativa académica** de la Universidad Arturo Prat (UNAP) con el profesor **Jacobo
-Córdova**, quien es además el único desarrollador. El diagnóstico, el perfil y el plan son gratuitos.
+Es un **proyecto personal** del profesor **Jacobo Córdova**, quien es además el único desarrollador
+-- originado en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat, ya
+terminado y sin alianza institucional vigente (ver [[DECISIONS]] D-18). El diagnóstico, el perfil y
+el plan son gratuitos; las clases de los cupos tendrán costo (ver más abajo).
 
 **Técnicamente:** SPA en **ClojureScript + re-frame** compilada con shadow-cljs, servida por
 **GitHub Pages** en <https://jacobocordova.com>, con **Supabase** (PostgreSQL + Auth + RLS + Edge
@@ -38,8 +40,9 @@ código**: es contenido pedagógico publicado y verificar el envío de emails.
 4. Operar con costo de infraestructura ≈ $0 (free tiers).
 5. Construir un activo reutilizable: el **banco de ítems** con dificultades y explicaciones de error.
 
-No hay ingresos ni pasarela de pago, y no está previsto agregarlos en el MVP. Detalle:
-[[BUSINESS_CONTEXT]].
+No hay ingresos operativos todavía (sin pasarela de pago en el MVP), pero **ya hay una decisión de
+precio tomada** (D-19/D-26): las clases de los cupos costarán $10.000 CLP/hora, con la primera
+gratis. El diagnóstico/perfil/plan siguen gratis. Detalle: [[BUSINESS_CONTEXT]] §5.
 
 ---
 
@@ -47,7 +50,8 @@ No hay ingresos ni pasarela de pago, y no está previsto agregarlos en el MVP. D
 
 **Operativo hoy:**
 
-- Registro/login (email+contraseña y Google OAuth), sesión rehidratada, secciones protegidas.
+- Registro/login (email+contraseña), sesión rehidratada, secciones protegidas. Google OAuth existe
+  como función (`sign-in-with-google`) pero **sin botón en la UI** -- no es una opción real hoy.
 - **Diagnóstico adaptativo IRT**: selección de ítem por cercanía a θ, feedback inmediato con
   explicación del error, prefetch de la siguiente pregunta, parada por precisión.
 - **Perfil**: θ, error estándar, banda (`inicial`/`basico`/`intermedio`/`avanzado`), track, déficits
@@ -60,9 +64,10 @@ No hay ingresos ni pasarela de pago, y no está previsto agregarlos en el MVP. D
 - **Landing pública** con SEO completo (Open Graph, JSON-LD, sitemap), testimonios reales tomados
   del guestbook aprobado, formulario de contacto.
 
-**Excluido a propósito:** pagos, rol "profesor" separado de admin, asistencia/notas/certificación,
+**Excluido a propósito:** rol "profesor" separado de admin, asistencia/notas/certificación,
 backend propio, app nativa, otras materias PAES, internacionalización, y el producto archivado
-"MathAcademy". Detalle: [[PROJECT_BRIEF]] §6.
+"MathAcademy". (Los pagos **ya no están excluidos** -- D-19/D-26 fijó $10.000 CLP/hora por clase,
+falta implementar el cobro.) Detalle: [[PROJECT_BRIEF]] §6.
 
 Requisitos con evidencia línea por línea: [[REQUIREMENTS]].
 
@@ -88,11 +93,12 @@ Edge Function (Deno) send-enrollment-emails → Resend
 - **Tablas:** `profiles`, `questions`, `tests`, `guestbook`, `visitor`, `contacto` (previas) +
   `modules`, `student_profiles`, `resources`, `class_slots`, `enrollments`, `notifications`,
   `email_outbox` (MVP).
-- **Migraciones:** 9 scripts SQL en `supabase/`, aplicados **a mano** en el SQL Editor, en el orden
-  de `supabase/SCHEMA.md`. No hay `db push`.
+- **Migraciones:** scripts SQL en `supabase/migrations/` (19 al 2026-08-02), aplicados **a mano**
+  en el SQL Editor, en el orden de `supabase/SCHEMA.md` -- esa es la lista que se mantiene al día,
+  no se duplica el número aquí. No hay `db push`.
 - **Deploy:** GitHub Pages sobre `main`. **El bundle `public/js/app.js` está versionado en Git**: sin
   `npx shadow-cljs release app` + commit, un cambio de código **no llega a producción**.
-- **Tests:** `clj -M:test` → **34 tests / 129 assertions / 0 failures** (verificado 2026-07-26).
+- **Tests:** `clj -M:test` → **34 tests / 133 assertions / 0 failures** (verificado 2026-07-26).
 - **No hay:** CI, staging, monitoreo, analytics, backups propios verificados, router de URL.
 
 Detalle: [[ARCHITECTURE]] · [[TECH_STACK]] · [[DEPENDENCIES]].

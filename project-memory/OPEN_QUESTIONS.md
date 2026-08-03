@@ -48,6 +48,11 @@ decidir dónde mostrarlo (landing, cupos, plan) y cómo se cobra en la práctica
 pago; ver [[BACKLOG]] T-04 y el nuevo punto de cobro manual/transferencia a definir).
 **Nota 2026-07-27:** [[VISION_LIBRO_PROYECTO]] §4.4 ya proponía pago por clase o paquete; esta
 respuesta del owner confirma esa dirección general (con la primera clase gratis como matiz nuevo).
+**Precio revisado 2026-08-02 (D-32):** el número de $6.000 se había anclado contra el piso de
+clases particulares 1:1 (~$8.000/hora) relevado arriba; el comparable correcto para un formato
+**grupal** es el preuniversitario tradicional (~$80.000–$120.000 CLP/mes ≈ $7.000–$15.000/hora
+equivalente), contra el cual $6.000 quedaba barato. Nuevo precio: **$10.000 CLP por hora**, misma
+estructura (por hora, primera videollamada gratis). Ver [[DECISIONS]] D-32.
 
 ### ✅ Q-03 · ¿Hay requisito de consentimiento o aviso de privacidad?
 Público mayoritariamente menor de edad + recolección de datos personales (email, IP, geo,
@@ -81,10 +86,9 @@ sábado o domingo. El owner define y agenda las fechas concretas él mismo — n
 logístico en hacerlas 100% virtuales (a diferencia de lo que sugería `class_slots.modality =
 'presencial'` como opción separada; no se descarta presencial a futuro, pero los primeros cupos
 reales serán virtuales).
-**Videollamada:** por Google Meet o Jitsi — el owner generará el enlace y lo pegará en
-`location_or_link` al crear el cupo desde el panel de administración (no requiere código nuevo, el
-campo ya es texto libre). **Pendiente menor:** decidir cuál de las dos plataformas usar por
-default, o si se elige caso a caso — no bloquea crear los primeros cupos.
+**Videollamada:** el owner generará el enlace y lo pegará en `location_or_link` al crear el cupo
+desde el panel de administración (no requiere código nuevo, el campo ya es texto libre).
+**Plataforma default resuelta en Q-24: Jitsi** (no Google Meet) — ya no es una decisión pendiente.
 **Bloquea:** T-04 → **desbloqueada** para crear los primeros cupos reales.
 
 ### 🟡 Q-10 · ¿Qué define un "módulo prioritario" más allá de la lista de `supabase/CONTENT.md`?
@@ -269,7 +273,7 @@ Ninguna está documentada. Puede haber trabajo valioso sin mergear.
 | X-05 | `shadow-cljs` 3.0.4 en `deps.edn` vs `^2.19.2` en `package.json` | `deps.edn` vs `package.json` | T-13 |
 | X-06 | KaTeX `^0.16.22` por npm vs CSS 0.16.9 por CDN | `package.json` vs `index.html` | T-13 |
 | X-07 | `PROJECT_SUMMARY.md` describe una estructura de módulos previa al MVP (menciona `views.cljs` con componentes principales, `jardin`, `voz`… como parte del producto) que ya no refleja el sistema | `PROJECT_SUMMARY.md` vs [[ARCHITECTURE]] | T-33: reducir a puntero o archivar |
-| X-08 | El "Libro del Proyecto" propone pago por clase, multi-materia e internacionalización | [[VISION_LIBRO_PROYECTO]] vs [[PROJECT_BRIEF]] §6, [[BUSINESS_CONTEXT]] §5 | Q-21: confirmación del owner antes de tocar copy, JSON-LD o alcance |
+| X-08 | *(Parcialmente resuelta 2026-07-30)* El "Libro del Proyecto" proponía pago por clase, multi-materia e internacionalización | [[VISION_LIBRO_PROYECTO]] §4.4 vs [[PROJECT_BRIEF]] §6, [[BUSINESS_CONTEXT]] §5 | **Pago por clase: resuelto** (D-19/D-26/D-32, $10.000 CLP/hora). **Multi-materia e internacionalización: siguen sin decidir** -- Q-21 confirmó la dirección general, pero no estas decisiones puntuales |
 
 ---
 

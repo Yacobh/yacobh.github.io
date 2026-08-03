@@ -12,7 +12,7 @@ Estado: `abierto` · `en curso` · `bloqueado` · `hecho` · `descartado`.
 
 ## Épica E1 — Go-live real (F8)
 
-### T-01 · Publicar contenido mínimo por módulo prioritario — **P0** · `bloqueado` (humano)
+### T-01 · Publicar contenido mínimo por módulo prioritario — **P0** · `bloqueado` (humano, revisión pendiente)
 
 Publicar al menos un `resource` por cada módulo prioritario de `supabase/CONTENT.md`:
 `aritmetica/enteros`, `aritmetica/fracciones`, `aritmetica/potencias`, `algebra/ecuaciones`,
@@ -23,6 +23,18 @@ Publicar al menos un `resource` por cada módulo prioritario de `supabase/CONTEN
   `published = true`, y "Mi plan" muestra al menos un recurso para el déficit principal de una
   cuenta de prueba en cada banda.
 - **Relacionado:** [[ROADMAP]] F2/H2, [[RISKS]] R-10.
+
+**2026-08-02:** el owner subió los volúmenes de Aritmética y Álgebra de Baldor (PDF, uso personal
+en el scratchpad, no versionados). Se generaron `018_baldor_resources.sql` (20 recursos, track
+`aritmetica`) y `019_baldor_algebra_resources.sql` (19 recursos, track `algebra`, + cierre del
+hueco de enteros con signo) -- **39 recursos redactados desde cero**, usando la numeración de
+Baldor solo como referencia bibliográfica en el título, nunca como transcripción (el libro sigue
+con derechos de autor vigentes; ver cabecera de `018`). Cubre los 11 módulos de `aritmetica` +
+`algebra`; quedan sin fuente los 7 de `geometria` (ningún volumen de Geometría subido todavía).
+**No cierra T-01 todavía:** todo quedó sembrado con `published = false` -- falta que el owner
+revise el contenido pedagógico, aplique ambas migraciones en el proyecto Supabase real, y publique
+selectivamente desde Admin → Recursos. Ver `supabase/SCHEMA.md` para el detalle de alcance/hueco
+por migración.
 
 ### T-02 · Cerrar el pipeline de email de cohorte — **P0** · `bloqueado` (acceso)
 
@@ -294,7 +306,7 @@ Mientras T-01 y T-04 no estén hechas, un estudiante real puede ver pantallas va
   un mensaje claro de que el material está en preparación; sin cupos en su banda, "Cupos" explica
   qué significa y ofrece avisar cuando haya (o al menos contacto).
 
-### T-25 · Comunicar el estado del cupo pendiente y cancelarlo si no alcanza el mínimo — **P1** · `en curso` (falta aplicar migración)
+### T-25 · Comunicar el estado del cupo pendiente y cancelarlo si no alcanza el mínimo — **P1** · `hecho` (2026-07-30, sin verificar en vivo)
 
 Un cupo que no alcanza el mínimo deja al estudiante esperando sin novedades (R-11).
 
@@ -321,10 +333,12 @@ listo y el banner de "novedades de grupos" en `dashboard.cljs` ya renderiza cual
 no leída sin ramificar por `kind`. `clj -M:test` sigue en 34/133, sin tests nuevos (no hay lógica
 pura que probar, es un insert condicional puro de SQL). Falta aplicar la migración en el proyecto
 Supabase real y probar el flujo completo (cancelar un cupo de prueba, verificar que llega la
-notificación) — no verificado en vivo por el agente.
+notificación) — no verificado en vivo por el agente. **2026-07-30 (más tarde):** el owner confirmó
+haber aplicado `012` en el proyecto Supabase real.
 
 - **Terminado cuando:** al cancelar un cupo desde el admin, cada estudiante inscrito recibe una
-  notificación in-app de la cancelación. Falta: aplicar `012` y verificar en vivo.
+  notificación in-app de la cancelación. Migración aplicada; falta solo verificar el flujo en vivo
+  contra datos reales (no bloquea T-01/go-live).
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-16 (respondida), [[DECISIONS]] D-28, D-31, R-11,
   `supabase/SCHEMA.md`.
 
@@ -335,7 +349,7 @@ Hoy `student_profiles` es una materialización única: repetir el test sobrescri
 - **Terminado cuando:** está decidido (sobrescribir / versionar / histórico), implementado y el
   estudiante puede ver cómo se movió su θ entre diagnósticos.
 
-### T-36 · Preferencia de canal de contacto (email / notificación / WhatsApp) — **P2** · `en curso` (falta aplicar migración)
+### T-36 · Preferencia de canal de contacto (email / notificación / WhatsApp) — **P2** · `hecho` (2026-07-30, sin verificar en vivo)
 
 Pedido del owner (2026-07-30, D-29): el estudiante debe poder elegir cómo se le contacta —
 email, notificación in-app o WhatsApp — desde "Configuración de cuenta".
@@ -363,12 +377,13 @@ API de WhatsApp Business. Sin infraestructura nueva.
 - `events/account.cljs` — `contact-preference` viaja de punta a punta en `:account/save-profile`.
 - `clj -M:test`: 34/133 sin cambios (no hay lógica pura nueva que testear). Compilado en release
   (`shadow-cljs release app` + `build:css`), sin warnings nuevos.
-- **No verificado en vivo:** requiere aplicar `013` en Supabase real y probar con una cuenta de
-  prueba (guardar preferencia, verla reflejada en el roster del admin).
+- **No verificado en vivo por el agente:** requiere probar con una cuenta de prueba (guardar
+  preferencia, verla reflejada en el roster del admin). **2026-07-30 (más tarde):** el owner
+  confirmó haber aplicado `013` en el proyecto Supabase real.
 
 - **Terminado cuando:** el estudiante puede elegir y guardar su canal preferido, y el admin lo ve
   al revisar un cupo/notificación (incluyendo el enlace `wa.me` listo para abrir si eligió
-  WhatsApp). Falta: aplicar `013` y verificar en vivo.
+  WhatsApp). Migración aplicada; falta solo verificar el flujo en vivo (no bloquea T-01/go-live).
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-25 (respondida), [[DECISIONS]] D-29, D-30,
   `supabase/SCHEMA.md`.
 
@@ -399,6 +414,31 @@ tanto **no genera déficit accionable ni recursos**.
   ítem a partir de `tests`/respuestas acumuladas y se documenta cuándo re-calibrar.
 - **Precondición:** volumen suficiente de diagnósticos (F10).
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-05, [[../adr/ADR-004-irt-1pl-map-y-regla-de-parada]].
+
+### T-37 · Dato de origen/fecha en cada recurso, para una futura línea de tiempo de conceptos — **P3** · `idea` (sin diseño)
+
+**2026-08-02 (pedido del owner):** aunque el Álgebra/Aritmética de Baldor no traiga contexto
+histórico en todos sus apartados, cualquier recurso nuevo debería venir acompañado de un dato
+curioso o una fecha de origen del concepto que se presenta -- incluso cuando hay que buscarlo
+aparte del libro. La motivación declarada: esto se alinea con ubicar los conceptos matemáticos en
+una **línea de tiempo**, funcionalidad que el owner quiere implementar más adelante.
+
+- **Relación con lo ya documentado:** el campo `resources.historical_context` (`001_mvp_schema.sql`)
+  ya existe y ya se usa para esto de forma libre (texto, sin fecha estructurada) -- ver `004` y los
+  blurbs de `002`. La idea nueva aquí es más específica: una fecha/época **estructurada**, no solo
+  prosa, pensada para ordenar y graficar una línea de tiempo -- no algo que `historical_context`
+  (texto libre) resuelva por sí solo.
+- **Se conecta con** [[VISION_LIBRO_PROYECTO]] §3.1 ("matemáticas como narrativa histórica"), que
+  ya declara la ambición de superponer historia a los conceptos matemáticos, pero sin la dimensión
+  de línea de tiempo/cronología explícita que pide este ítem -- son ideas complementarias, no la
+  misma.
+- **Sin diseño técnico todavía:** falta decidir si es una columna nueva (`origin_year`/`origin_era`
+  en `resources` o en `modules`), un rango con incertidumbre (muchos orígenes matemáticos no tienen
+  fecha exacta), y cómo se relaciona con la UI de línea de tiempo que el owner tiene en mente.
+- **Terminado cuando:** existe al menos un ADR o nota de diseño que decida el modelo de datos antes
+  de tocar `resources`/`modules`; no se implementa nada de esto sin esa decisión previa.
+- **Relacionado:** `018_baldor_resources.sql`, `019_baldor_algebra_resources.sql` (primeros
+  recursos que ya incluyen `historical_context` libre, precedente directo de este pedido).
 
 ---
 

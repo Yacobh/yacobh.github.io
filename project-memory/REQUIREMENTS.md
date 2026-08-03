@@ -18,7 +18,7 @@ Leyenda de estado: ✅ implementado y testeado · 🟡 implementado sin test aut
 | ID | Requisito | Estado | Evidencia |
 |----|-----------|--------|-----------|
 | RF-1.1 | El usuario puede registrarse e iniciar sesión con email y contraseña | 🟡 | `universo.supabase/sign-up`, `sign-in`; `components/login.cljs` |
-| RF-1.2 | El usuario puede iniciar sesión con Google (OAuth), volviendo a la URL actual | 🟡 | `universo.supabase/sign-in-with-google` |
+| RF-1.2 | El usuario puede iniciar sesión con Google (OAuth), volviendo a la URL actual | ⛔ | `universo.supabase/sign-in-with-google` existe pero no tiene ningún llamador en `components/login.cljs` ni en ningún otro componente -- código muerto, no una función parcial |
 | RF-1.3 | La sesión se rehidrata al cargar la página; la UI espera `:auth/ready?` antes de decidir qué mostrar | ✅ | `events/auth.cljs`, `test/universo/events/auth_test.cljs` |
 | RF-1.4 | Las secciones `dashboard`, `diagnostic-test`, `admin`, `plan`, `cupos` exigen sesión válida | ✅ | `events/auth.cljs` `protected-sections` |
 | RF-1.5 | Al intentar entrar a una sección protegida sin sesión, se recuerda el destino y se redirige tras el login | ✅ | `:auth/redirect-after-login` en `db.cljs` |
@@ -178,7 +178,7 @@ Leyenda de estado: ✅ implementado y testeado · 🟡 implementado sin test aut
 ### CU-01 — Estudiante nuevo obtiene su plan
 **Actor:** estudiante · **Precondición:** hay preguntas publicadas en al menos un topic.
 1. Entra a la landing y pulsa "Comenzar mi diagnóstico".
-2. Crea cuenta con email/contraseña (o Google).
+2. Crea cuenta con email/contraseña (Google OAuth no está disponible en la UI hoy, ver RF-1.2).
 3. Elige la evaluación disponible.
 4. Responde ítems; tras cada uno ve si acertó y la explicación si falló.
 5. El sistema detiene el test por precisión o por máximo de ítems.
@@ -248,7 +248,7 @@ en esa banda.
 | C-07 | Free tiers de Supabase y Resend (límites de filas, requests y emails/día) | [[DEPENDENCIES]] |
 | C-08 | Namespace ClojureScript debe coincidir con la ruta del archivo | shadow-cljs |
 | C-09 | Producto solo en español de Chile | [[BUSINESS_CONTEXT]] |
-| C-10 | Sin pagos ni rol profesor en el MVP | [[PROJECT_BRIEF]] §6 |
+| C-10 | Sin rol "profesor" separado de admin en el MVP; las clases de los cupos **sí** tendrán pago ($10.000 CLP/hora, D-19/D-26 -- ya no excluido, falta implementar el cobro) | [[PROJECT_BRIEF]] §6 |
 
 ---
 

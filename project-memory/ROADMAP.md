@@ -36,7 +36,8 @@ F11 Escala pedagógica    ░░░░░░░░░░░░   0%  (propuesta)
 | Entregable | Estado |
 |-----------|--------|
 | SPA ClojureScript + re-frame desplegada en GitHub Pages con dominio propio | ✅ |
-| Supabase Auth (email/password + Google) con rehidratación de sesión | ✅ |
+| Supabase Auth (email/password) con rehidratación de sesión | ✅ |
+| Google OAuth (`sign-in-with-google` en `universo.supabase`) | ⛔ definida pero sin botón en la UI |
 | `profiles` + `is_admin()` + RLS base (`admin_rls.sql`) | ✅ |
 | Secciones protegidas y redirección post-login | ✅ |
 
@@ -194,7 +195,7 @@ verificado (R-12).
 | Control de capacidad confirmado | T-03 |
 | Cupos reales publicados (fecha, sala/enlace, mínimo) | T-04 |
 | Árbol limpio y bundle recompilado y publicado en `main` | T-08 |
-| Preguntas de producto respondidas (Q-02, Q-04, Q-07) | — |
+| Preguntas de producto respondidas (Q-02 ✅, Q-04 ✅, Q-07 sigue abierta) | — |
 
 **Hito H8:** el primer estudiante externo completa el funnel y queda inscrito en un cupo real que
 se confirma.
