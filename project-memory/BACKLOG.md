@@ -153,12 +153,14 @@ Workflow que en cada push/PR ejecute `clj -M:test` (JDK + Clojure CLI + cache de
 con cache npm) + `DeLaGuardo/setup-clojure@13` (CLI `1.11.1.1435`, misma versión que el entorno
 local) + cache de `~/.m2/repository`, `~/.gitlibs`, `~/.deps.clj`, `.cpcache` + `npm ci` +
 `clj -M:test`. Corre en push y pull_request a cualquier rama (`branches: ["**"]`).
-**No verificado en vivo:** no se pusheó (regla del proyecto: nunca pushear sin pedirlo
-explícitamente) ni se vio correr en GitHub Actions real -- verificar el primer run apenas se
-pushee, en particular que `DeLaGuardo/setup-clojure@13` resuelva bien la versión de CLI pedida.
+**Primer run real (2026-08-03): falló.** `DeLaGuardo/setup-clojure@13` resolvió bien la versión de
+CLI -- el fallo fue `clj -M:test` en sí: `Please install rlwrap for command editing or use
+"clojure" instead.` (mismo mensaje que [[LESSONS_LEARNED]] L-28, causa distinta: el runner de
+GitHub nunca tuvo `rlwrap` instalado, no es que se lo hayan sacado). **Corregido:** el workflow usa
+`clojure -M:test` en vez de `clj -M:test` -- verificado localmente que ambos dan el mismo resultado.
 
 - **Terminado cuando:** un PR con un test roto queda marcado en rojo en GitHub y el badge/resultado
-  es visible. **Falta solo la verificación en vivo del primer push.**
+  es visible. **Falta verificar que el segundo run (con `clojure -M:test`) pase en verde.**
 - **Nota, sigue sin implementar:** un check que avise si `src/**.cljs` cambió sin cambiar
   `public/js/app.js` (recordatorio de recompilar) -- se dejó fuera por el riesgo de falsos
   positivos (hay `.cljs` archivado/no alcanzable que no requiere recompilar) sin poder probarlo en

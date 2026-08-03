@@ -225,6 +225,13 @@ listara como dependencia (lo usa `clj`, un script fuera del control de versiones
 que lo marcó como huérfano y lo borró.
 **Regla:** después de cualquier `brew install`/`brew cleanup`, correr `clj -M:test` (o el comando
 más sensible a herramientas de línea de comandos) antes de seguir. Ver [[RTK_INTEGRATION_GUIDE]] §6.
+**Recurrencia (2026-08-03, GitHub Actions):** el mismo mensaje exacto apareció en el primer run real
+de `.github/workflows/test.yml` (T-06) -- ahí la causa no es Homebrew, es que el runner de GitHub
+nunca tuvo `rlwrap` instalado. Mismo síntoma, causa distinta (entorno que nunca tuvo la dependencia,
+no una que se la sacaron). Solución en CI: usar `clojure -M:test` en vez de `clj -M:test` -- `clojure`
+es el mismo CLI sin la capa de `rlwrap`, y no la necesita para uso no interactivo. **Regla ampliada:**
+en cualquier entorno no interactivo (CI, scripts), preferir `clojure` sobre `clj` directamente, en vez
+de depender de que `rlwrap` esté instalado.
 
 ### L-29 · Un filtro de compresión de salida no debe truncar por conteo de líneas si la señal está al final
 **Síntoma:** el primer filtro `.rtk/filters.toml` para `clj -M:test` (con `max_lines = 60`) ocultaba

@@ -45,4 +45,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: clj -M:test
+        # `clj` requiere rlwrap para edición interactiva, ausente en el runner de GitHub
+        # (ver project-memory/LESSONS_LEARNED.md L-28). `clojure` es el mismo CLI sin esa
+        # dependencia -- correcto para uso no interactivo como CI.
+        run: clojure -M:test
