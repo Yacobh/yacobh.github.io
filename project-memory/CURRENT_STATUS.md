@@ -164,6 +164,19 @@
 > (`user.cljs`) y T-17 (`math_render_2`, huérfano confirmado) **sin borrar ni renombrar nada** --
 > quedan documentadas para que el owner decida. **No se tocó** T-13 (versiones), ninguna migración
 > de Supabase, ni se pusheó/mergeó nada a ninguna rama. Detalle completo en `sessions/SESSION-005.md`.
+>
+> **Bug en vivo arreglado, CI corregido, T-24 implementado (2026-08-03, mismo día, tras el regreso
+> del owner):** el owner reportó "Mi plan" en blanco -- causa encontrada y arreglada sin navegador
+> conectado, reproduciendo el parser de LaTeX + KaTeX real en Node antes de tocar código:
+> `\$` (montos en pesos) rompía `split-by-latex-improved`, y `render-latex-math` no manejaba el caso
+> en que KaTeX falla. Arreglo en dos capas, documentado en [[LESSONS_LEARNED]] L-34. **Pusheado a
+> `main`** (vía merge del owner). Primer run real de la CI (T-06) **falló** (`clj` necesita
+> `rlwrap`, ausente en el runner) -- corregido usando `clojure -M:test`, mismo mensaje que L-28 con
+> causa distinta, ampliado ahí. **T-24 implementado** (estado vacío honesto en "Mi plan" y "Cupos",
+> el riesgo de producto más urgente según R-10) en la rama `t-24-estado-vacio-honesto`, pusheada,
+> **sin mergear a `main` todavía** -- pendiente de que el owner la revise visualmente (el agente no
+> tiene credenciales de prueba ni navegador conectado; no se afirma que la UI se vea bien, solo que
+> compila limpio y pasa los tests). Detalle completo en `sessions/SESSION-006.md`.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
