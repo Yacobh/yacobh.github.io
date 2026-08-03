@@ -315,13 +315,28 @@ se puede medir por página.
 - **Nota:** decisión de diseño → **ADR**.
 - **Relacionado:** [[ARCHITECTURE]] A-07, habilita T-20.
 
-### T-24 · Estado vacío honesto en "Mi plan" y "Cupos" — **P1** · `abierto`
+### T-24 · Estado vacío honesto en "Mi plan" y "Cupos" — **P1** · `hecho` (2026-08-03, sin verificar en vivo)
 
 Mientras T-01 y T-04 no estén hechas, un estudiante real puede ver pantallas vacías.
 
+**Implementado 2026-08-03** (rama `t-24-estado-vacio-honesto`):
+- `components/plan.cljs`: capa 0 (explicaciones de errores) ya se mostraba siempre, independiente
+  de si hay recursos publicados -- eso ya cumplía la mitad del criterio. Se pulió el mensaje de la
+  sección de recursos ("Estamos preparando el material de estudio para tus módulos...") para que
+  sea explícito sobre que el material está en preparación, no que falta algo roto.
+- `components/slots.cljs`: el estado vacío de "Cupos" pasó de una sola línea genérica a explicar
+  qué es un cupo y por qué se necesita un mínimo de inscritos, más un botón "Avisarme cuando haya
+  cupo" que abre el panel de contacto ya existente (`:contacto/abrir-panel`, montado globalmente en
+  `home.cljs`) -- sin tabla ni backend nuevo, usando el fallback "o al menos contacto" que el propio
+  ticket permite.
+- `clj -M:test`: 34/133/0/0. `shadow-cljs release app`: 0 warnings.
+- **No verificado en vivo:** ambas pantallas son secciones protegidas (requieren login); el agente
+  no tiene credenciales de una cuenta de prueba. Falta que el owner las revise en el navegador.
+
 - **Terminado cuando:** sin recursos publicados, el plan muestra los errores explicados (capa 0) y
   un mensaje claro de que el material está en preparación; sin cupos en su banda, "Cupos" explica
-  qué significa y ofrece avisar cuando haya (o al menos contacto).
+  qué significa y ofrece avisar cuando haya (o al menos contacto). ✅ código listo, falta
+  verificación visual del owner.
 
 ### T-25 · Comunicar el estado del cupo pendiente y cancelarlo si no alcanza el mínimo — **P1** · `hecho` (2026-07-30, sin verificar en vivo)
 

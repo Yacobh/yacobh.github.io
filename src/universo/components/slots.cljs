@@ -138,9 +138,17 @@
           "Hacer diagnóstico"]]
 
         (empty? items)
-        [:div.bg-white.rounded-xl.shadow.p-8.text-center
-         [:p.text-gray-600
-          "No hay cupos abiertos para tu nivel por ahora. Vuelve pronto o revisa más tarde."]]
+        [:div.bg-white.rounded-xl.shadow.p-8.text-center.space-y-3
+         [:p.text-gray-800.font-medium
+          "Todavía no hay cupos abiertos para tu banda."]
+         [:p.text-sm.text-gray-600.max-w-md.mx-auto
+          (str "Un cupo es un grupo de estudio -- online o presencial -- con estudiantes de tu mismo "
+               "nivel. Se confirma recién cuando junta un mínimo de inscritos, para que nadie quede en "
+               "un grupo demasiado chico. Publicamos cupos nuevos a medida que se arman en tu banda.")]
+         [:button.bg-indigo-600.text-white.font-semibold.py-2.px-5.rounded-lg.hover:bg-indigo-700.transition
+          {:type "button"
+           :on-click #(re-frame/dispatch [:contacto/abrir-panel])}
+          "Avisarme cuando haya cupo"]]
 
         :else
         [:div.space-y-3

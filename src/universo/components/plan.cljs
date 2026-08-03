@@ -119,7 +119,8 @@
                    ^{:key (:id r)}
                    [resource-card r])]
                 [:p.text-sm.text-gray-500
-                 "Aún no hay recursos publicados para tus módulos. Las explicaciones de arriba ya te orientan."])]
+                 (str "Estamos preparando el material de estudio para tus módulos. Mientras tanto, "
+                      "las explicaciones de tus errores (arriba) ya te dicen exactamente qué repasar.")])]
 
              [:div.flex.flex-wrap.gap-3.justify-center
               [:button.bg-indigo-600.text-white.font-semibold.py-2.px-5.rounded-lg.hover:bg-indigo-700.transition
