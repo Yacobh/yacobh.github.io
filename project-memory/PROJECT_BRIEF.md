@@ -55,7 +55,9 @@ primero y con qué grupo hacerlo.
 
 **Incluido y operativo:**
 
-- Registro/login con email + contraseña y Google OAuth (Supabase Auth); rehidratación de sesión.
+- Registro/login con email + contraseña (Supabase Auth); rehidratación de sesión. `sign-in-with-google`
+  existe en `universo.supabase` pero no está conectado a ningún botón de la UI (`components/login.cljs`
+  solo ofrece email/contraseña) — es código muerto, no una opción real para el estudiante hoy.
 - Protección de secciones privadas (`:dashboard :diagnostic-test :admin :plan :cupos`).
 - Diagnóstico adaptativo IRT 1PL con selección de ítem por cercanía a θ, prefetch de la siguiente
   pregunta, feedback inmediato con explicación del error y regla de parada por precisión.
@@ -78,8 +80,12 @@ primero y con qué grupo hacerlo.
 
 ## 6. Exclusiones (fuera de alcance, decidido)
 
-- **Pagos / cobro** de cualquier tipo. El diagnóstico, perfil y plan son gratuitos por definición
-  de la iniciativa; no hay pasarela ni intención de agregarla en el MVP.
+- ~~Pagos / cobro de cualquier tipo~~ **Ya no excluido (D-19/D-26, 2026-07-28/30):** el
+  diagnóstico, perfil y plan **siguen gratis**, pero las clases de los cupos **tendrán costo**:
+  $10.000 CLP por hora, salvo la primera videollamada tras el diagnóstico, que es gratuita. Es una
+  **decisión tomada**, no solo una intención -- lo que falta es implementarla (no hay pasarela de
+  pago en el MVP todavía; ver [[BACKLOG]] T-04 y [[OPEN_QUESTIONS]] Q-02). Primer paso concreto
+  hacia el modelo de pago por clase de [[VISION_LIBRO_PROYECTO]] §4.4.
 - **Rol "profesor"** distinto de `admin`. Solo existen `user` y `admin`.
 - **Asistencia, notas o certificación** de las clases.
 - **Backend propio / API intermedia.** El cliente habla directo con Supabase
@@ -99,14 +105,15 @@ primero y con qué grupo hacerlo.
 | Rol | Quién | Interés / responsabilidad |
 |-----|-------|---------------------------|
 | Owner / desarrollador / profesor | **Jacobo Córdova** (`jacobocordova@gmail.com`) | Decide producto, escribe el código, dicta el contenido pedagógico. Único responsable técnico. |
-| Institución patrocinante | **Universidad Arturo Prat (UNAP)**, Iquique | Respaldo académico de la iniciativa; su nombre aparece en la landing y en el JSON-LD. |
+| Origen histórico del proyecto | **Universidad Arturo Prat (UNAP)**, Iquique | Convenio de desarrollo a honorarios, oct–nov 2025, **ya terminado**; sin alianza institucional ni autorización de marca vigente. Se menciona solo como nota histórica de origen en footer/FAQ (D-18), no como patrocinio activo. |
 | Estudiantes | Postulantes a la PAES M1, principalmente Iquique / región de Tarapacá y online en Chile | Usuarios finales: hacen el diagnóstico, siguen el plan, se inscriben en cupos. |
 | Administradores de plataforma | Cuentas con `profiles.role = 'admin'` | Cargan preguntas y recursos, publican cupos, moderan testimonios, gestionan roles. |
 | Proveedores | Supabase, GitHub Pages, Resend, jsDelivr (CDN KaTeX) | Servicios de los que depende la operación. Ver [[DEPENDENCIES]]. |
 | Agentes de IA | Claude Code CLI y otros | Ejecutan cambios técnicos bajo [[AGENT_INSTRUCTIONS]]. |
 
-> **Pendiente:** no hay evidencia en el repositorio de un contacto formal en UNAP ni de un
-> acuerdo escrito sobre uso de la marca. Registrado en [[OPEN_QUESTIONS]] (Q-01).
+> **Resuelto (D-18, 2026-07-28):** el vínculo con UNAP fue un convenio a honorarios de alcance
+> acotado (oct–nov 2025), ya terminado, sin autorización de marca ni alianza institucional
+> vigente. Ver [[OPEN_QUESTIONS]] Q-01 (respondida) y [[DECISIONS]] D-18.
 
 ## 8. Criterios de éxito
 
@@ -125,7 +132,7 @@ primero y con qué grupo hacerlo.
 
 | # | Criterio | Estado |
 |---|----------|--------|
-| S-07 | `clj -M:test` en verde | ✅ 34 tests / 129 assertions / 0 failures |
+| S-07 | `clj -M:test` en verde | ✅ 34 tests / 133 assertions / 0 failures |
 | S-08 | Reglas de negocio críticas en namespaces puros con test | ✅ `profile`, `slots.logic`, `irt.progress`, `tetha` |
 | S-09 | Costo de infraestructura ≈ 0 | ✅ GitHub Pages + Supabase free tier |
 | S-10 | Cualquier sesión nueva puede continuar el proyecto leyendo `project-memory/` | ✅ desde este framework (2026-07-26) |

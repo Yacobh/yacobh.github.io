@@ -204,4 +204,37 @@ amplían para mostrar los datos nuevos cuando existen.
 17. `migrations/015_visitor_select_admin.sql`
 18. `migrations/016_contacto_admin.sql`
 19. `migrations/017_contacto_alternativas.sql`
-20. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+20. `migrations/018_baldor_resources.sql`
+21. `migrations/019_baldor_algebra_resources.sql`
+22. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+
+## Recursos originales con numeración Baldor como índice (`018_baldor_resources.sql`)
+
+Contenido pedagógico (capa 1) para los 6 módulos del track `aritmetica`, redactado desde cero y
+calibrado a PAES M1 -- **no** transcrito de la Aritmética de Baldor, que sigue con derechos de
+autor vigentes (ver comentario de cabecera en la migración). La numeración de apartados de Baldor
+se usa solo como referencia bibliográfica en el `title` de cada recurso (ej. `"Baldor Aritmética
+§447 -- ..."`), igual que un "ver Baldor §N" en clase.
+
+De paso corrige el `historical_blurb` de `aritmetica/enteros`: la Aritmética de Baldor (a
+diferencia del Álgebra) solo cubre enteros no fraccionarios (positivos); el blurb sembrado en
+`002`/`004` prometía enteros con signo (deudas, temperaturas) sin contenido que lo respalde. Los
+negativos quedan pendientes de otra fuente.
+
+Los 20 recursos se siembran con `published = false` -- requieren revisión pedagógica del profesor
+en Admin → Recursos antes de publicarse (BL-01: la autoría de contenido es trabajo humano).
+
+## Recursos originales del Álgebra de Baldor (`019_baldor_algebra_resources.sql`)
+
+Mismo criterio que `018` (contenido redactado desde cero, numeración de Baldor solo como cita),
+aplicado a los 5 módulos del track `algebra`. Alcance acotado a PAES M1: expresiones, ecuaciones
+de primer y segundo grado, sistemas, factorización, funciones lineales/cuadráticas -- quedan fuera
+a propósito radicales complejos, ecuaciones de grado superior y logaritmos (están en el libro, no
+en el temario).
+
+Cierra el hueco dejado por `018`: el Álgebra sí trae "operaciones fundamentales con números
+relativos" (suma/resta/multiplicación/división con signo), así que se agrega un recurso a
+`aritmetica/enteros` y se corrige de nuevo su `historical_blurb` para reflejar ambos bloques
+(enteros no fraccionarios de la Aritmética + enteros con signo del Álgebra).
+
+19 recursos nuevos, todos `published = false` -- misma revisión pendiente que `018`.

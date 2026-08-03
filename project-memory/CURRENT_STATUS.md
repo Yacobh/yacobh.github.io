@@ -123,6 +123,37 @@
 > 0 warnings. **No verificado en vivo** (requiere login de admin real, sin credenciales en esta
 > sesión) — solo revisión de código + compilación limpia. **Pendiente:** aplicar `016` en el
 > proyecto Supabase real.
+>
+> **Contenido Baldor como índice, no transcripción (2026-08-02):** el owner subió los PDF de
+> Aritmética y Álgebra de Baldor al scratchpad (uso personal, no versionados en el repo — el libro
+> sigue con derechos de autor vigentes). Se generaron `018_baldor_resources.sql` (20 recursos,
+> track `aritmetica`) y `019_baldor_algebra_resources.sql` (19 recursos, track `algebra` + cierre
+> del hueco de enteros con signo dejado por `018`) — 39 recursos redactados desde cero, usando la
+> numeración de Baldor solo como referencia bibliográfica en el título. Cubre 11 de los 18 módulos
+> (`aritmetica` + `algebra`); los 7 de `geometria` siguen sin fuente (no se subió ese volumen).
+> Ambas migraciones quedaron con `published = false`. **Aplicadas por el owner el 2026-08-02**
+> (confirmado); falta revisar el contenido pedagógico y publicar selectivamente desde
+> Admin → Recursos. No mueve el checklist de go-live (§3) hasta que eso ocurra. Detalle en
+> [[BACKLOG]] T-01 y `supabase/SCHEMA.md`.
+>
+> **Auditoría de coherencia de la memoria + revisión de precio (2026-08-02, cierre de sesión):**
+> a pedido del owner, se revisó toda `project-memory/` buscando desincronizaciones entre lo
+> documentado y (a) el código real, (b) decisiones ya tomadas que no se habían propagado. Se
+> corrigieron ~25 archivos: **Google OAuth** descrito como funcional cuando es código muerto sin
+> UI (`sign-in-with-google` sin llamador); **UNAP** seguía descrita como iniciativa académica
+> activa en varios archivos pese a que D-18 (2026-07-28) ya la había bajado a nota histórica de un
+> convenio terminado (owner confirmó que D-18 sigue vigente); la **decisión de precio** (D-19/D-26)
+> no se había propagado a `PROJECT_BRIEF`/`BUSINESS_CONTEXT`/`VISION_LIBRO_PROYECTO` (que decía
+> explícitamente "no se marca como resuelta" sobre una tensión ya resuelta); conteo de tests
+> desactualizado (129 → **133**, verificado en vivo con `clj -M:test`); lista de migraciones
+> duplicada y desactualizada en `TECH_STACK`/`HANDOFF` (reemplazada por puntero a
+> `supabase/SCHEMA.md`); y los propios conteos de recursos de `018`/`019` que el agente había
+> sumado mal (19, no 21; 39, no 41; 7 módulos de geometría sin fuente, no 6). Además, el owner
+> revisó el precio de D-26 ($6.000 CLP/hora) y lo subió a **$10.000 CLP/hora** (D-32, 2026-08-02):
+> el número anterior se había anclado contra el piso de clases 1:1 en vez del comparable correcto
+> (preuniversitario grupal). **P-11** (¿abrir épica de negocio para roadmapear la visión de largo
+> plazo?) se presentó al owner, que decidió dejarla pendiente por ahora. Detalle completo en
+> `sessions/SESSION-004.md`.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
@@ -187,8 +218,10 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 - [ ] **`005_email_outbox.sql` aplicada + Edge Function desplegada con `RESEND_API_KEY`**
 - [x] `011_enrollments_capacity_check.sql` aplicada (control de capacidad en inscripciones, T-03) —
   aplicada por el owner el 2026-07-29, sin verificación en vivo por parte del agente
-- [ ] `012_slot_cancellation_notification.sql` aplicada (aviso al cancelar un cupo, T-25)
-- [ ] `013_profile_contact_preference.sql` aplicada (canal de contacto preferido, T-36)
+- [x] `012_slot_cancellation_notification.sql` aplicada (aviso al cancelar un cupo, T-25) —
+  aplicada por el owner el 2026-07-30, sin verificación en vivo por parte del agente
+- [x] `013_profile_contact_preference.sql` aplicada (canal de contacto preferido, T-36) —
+  aplicada por el owner el 2026-07-30, sin verificación en vivo por parte del agente
 - [ ] Cupos reales (no demo) publicados con fecha, sala de Jitsi y mínimo/capacidad definidos (D-27)
 - [ ] Recompilar (`shadow-cljs release app` + `build:css`) y publicar en `main`
 
@@ -239,7 +272,7 @@ Registradas hoy de forma retroactiva (las decisiones son previas; su documentaci
 |---|---------|------|------------------|
 | BL-01 | **Contenido pedagógico**: no hay recursos publicados por módulo prioritario ni `error_*` enriquecidos en todos los ítems. Es trabajo humano de autoría, no de código | Humano | Jacobo Córdova |
 | BL-02 | **Verificación del envío de email**: requiere acceso al proyecto Supabase (aplicar `005`, `functions deploy`, `secrets set RESEND_API_KEY`) | Acceso/operación | Jacobo Córdova |
-| BL-03 | **Cupos reales**: fechas, sala en Iquique y enlaces de videollamada no están definidos (los datos actuales son demo con `meet.example.com`) | Negocio | Jacobo Córdova / UNAP |
+| BL-03 | **Cupos reales**: fechas y enlaces de videollamada no están definidos (los datos actuales son demo con `meet.example.com`). Por D-27, los cupos reales son 100% virtuales por ahora (Jitsi/Meet) -- ya no depende de sala física en Iquique ni de UNAP (ver D-18) | Negocio | Jacobo Córdova |
 | BL-04 | **Árbol sucio**: `public/js/app.js` tiene 73 inserciones y 24 borrados sin commitear. No se sabe con certeza si corresponde al fuente actual | Técnico | Recompilar y commitear, o descartar |
 | BL-05 | **Preguntas abiertas de producto** sin responder (capacidad, repetición de diagnóstico, privacidad) | Decisión | Ver [[OPEN_QUESTIONS]] |
 

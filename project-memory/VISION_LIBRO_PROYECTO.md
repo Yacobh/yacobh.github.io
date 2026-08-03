@@ -135,7 +135,7 @@ banda.
 3. Adultos que retoman estudios o buscan certificación.
 4. Colegios e instituciones (cliente B2B).
 
-### 4.4 Oferta y modelo de pago — **contradice el MVP actual**
+### 4.4 Oferta y modelo de pago — ✅ **resuelto a favor del libro (D-19/D-26, 2026-07-28/30)**
 
 Formatos: clase en vivo, clase grabada, lectura narrativa, ejercicios guiados.
 
@@ -144,13 +144,14 @@ justificado por menor fricción de entrada y venta más concreta vía agentes. P
 individual, paquete de 4 clases, paquete completo de nivel, licencia institucional. La migración a
 suscripción mensual se evalúa recién en una "Fase 3" propia del libro, tras validar retención.
 
-> **Esto contradice directamente** [[PROJECT_BRIEF]] §6 ("Pagos/cobro de cualquier tipo" está
-> explícitamente fuera de alcance, "por definición de la iniciativa") y el copy ya publicado
-> (`isAccessibleForFree: true` en el JSON-LD, acotado a diagnóstico/perfil/plan — ver
-> [[BUSINESS_CONTEXT]] §5). El libro en realidad **propone una respuesta** a la decisión pendiente
-> **P-03** / pregunta **Q-02** ya registradas en [[DECISIONS]] y [[OPEN_QUESTIONS]], pero como
-> intención del fundador en un borrador, no como decisión aplicada al producto — no se marca
-> como resuelta. Ver [[OPEN_QUESTIONS]] Q-21.
+> **Ya no contradice al MVP.** El owner confirmó exactamente esta dirección: **pago por clase**
+> (D-19/D-26) a $10.000 CLP/hora, con la primera videollamada gratis tras el diagnóstico — el
+> diagnóstico/perfil/plan siguen gratis (`isAccessibleForFree: true` en el JSON-LD sigue acotado a
+> eso, ver [[BUSINESS_CONTEXT]] §5). La decisión pendiente **P-03** y la pregunta **Q-02** que
+> registraban esta tensión **ya están respondidas** — ver [[DECISIONS]] D-19/D-26,
+> [[OPEN_QUESTIONS]] Q-02, Q-21. Lo que el libro proponía como paquetes (4 clases, nivel completo,
+> licencia institucional) **no** está decidido todavía -- solo el precio por hora individual; eso
+> sigue siendo intención del libro, no decisión aplicada.
 
 ### 4.5 Métricas de negocio propuestas
 

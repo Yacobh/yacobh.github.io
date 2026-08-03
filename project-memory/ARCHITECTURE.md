@@ -38,7 +38,7 @@
 ┌───────────────────────────────────────────────────────────────────────────┐
 │ SUPABASE  (proyecto jmnqklhxcdccvdhuuiji)                                  │
 │                                                                           │
-│  Auth (email/password, Google OAuth) ──▶ auth.users                       │
+│  Auth (email/password; Google OAuth definido pero sin UI) ──▶ auth.users  │
 │                                                                           │
 │  PostgreSQL + ROW LEVEL SECURITY  ← único límite de autorización          │
 │    profiles · questions · tests · guestbook · visitor · contacto           │
@@ -141,7 +141,7 @@ Es el componente más grande del sistema y el de mayor riesgo de mantenimiento (
 
 | Namespace | Rol |
 |-----------|-----|
-| `universo.supabase` | Cliente `createClient(url, anon-key)` + auth (`sign-in`, `sign-up`, `sign-in-with-google`, `sign-out`, `get-session`, `current-user-id`, `on-auth-state-change`) |
+| `universo.supabase` | Cliente `createClient(url, anon-key)` + auth (`sign-in`, `sign-up`, `sign-out`, `get-session`, `current-user-id`, `on-auth-state-change`; también `sign-in-with-google`, definida pero **sin ningún llamador** — `components/login.cljs` no la usa, es código muerto hoy) |
 | `universo.db.crud` | **Capa de datos canónica** (975 líneas): todas las queries y mutaciones, con `core.async` (`go`/`<!`) devolviendo `{:success bool :data … :error …}` |
 | `universo.db.supabase` | API delgada legada basada en promises, solo guestbook. Su propio docstring dice *"Preferir universo.db.crud en código nuevo"* |
 
@@ -277,7 +277,7 @@ El cliente muestra el resultado esperado con `slots.logic/after-enrollment` sin 
 |-------------|------|---------------|-----------|-------------|
 | **Supabase PostgREST** | REST desde el navegador | JWT del usuario (anon key + sesión) | La app queda inutilizable | Ninguna: dependencia dura |
 | **Supabase Auth** | REST | anon key | No se puede entrar | La landing pública sigue visible |
-| **Google OAuth** | Redirect vía Supabase | Config en el dashboard de Supabase | Solo afecta ese botón | Login por email sigue |
+| **Google OAuth** *(no activa)* | Redirect vía Supabase | Config en el dashboard de Supabase | N/A — no hay botón en la UI que la dispare (`sign-in-with-google` sin llamador) | Login por email es el único camino real |
 | **Supabase Edge Function** | HTTP (invoke/cron) | `service_role` (env de la function) | No se envían emails | Notificaciones in-app siguen; outbox queda `pending` |
 | **Resend** | REST | `RESEND_API_KEY` (Supabase secret) | Emails `failed` con `last_error` | Reintento manual re-invocando |
 | **CDN jsDelivr (KaTeX CSS)** | `<link>` | — | Fórmulas sin estilo | Contenido legible pero feo |

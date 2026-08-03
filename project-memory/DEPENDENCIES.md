@@ -21,7 +21,7 @@ Cuatro tipos: **externas** (servicios de terceros), **de librería** (código), 
 | **DNS `jacobocordova.com`** | Dominio de producción | Alta | registrador (no documentado) | El sitio queda accesible solo por `*.github.io` | `CNAME` reversible |
 | **jsDelivr CDN** | CSS de KaTeX 0.16.9 | Baja | — | Fórmulas sin estilo, legibles | Servir KaTeX desde el propio bundle |
 | **API de IP / geolocalización** | `ip.cljs`, `geo.cljs` para tracking | Baja | — | Tracking incompleto | Prescindible (ver Q-19) |
-| **Google OAuth** (vía Supabase) | Login social | Baja | configurado en Supabase | Solo se cae ese botón | Login por email/contraseña |
+| **Google OAuth** (vía Supabase) *(no activa hoy)* | Login social | N/A | `sign-in-with-google` existe en `universo.supabase` sin llamador en la UI | No aplica -- no hay botón que pueda caerse | Login por email/contraseña (el único que existe) |
 
 > **Concentración de riesgo:** cinco de las dependencias críticas son de un único proveedor
 > (Supabase). Aceptado explícitamente en [[../adr/ADR-002-supabase-como-unico-backend]]; riesgo
@@ -96,7 +96,7 @@ Cuatro tipos: **externas** (servicios de terceros), **de librería** (código), 
 | Dependencia | Detalle | Riesgo |
 |-------------|---------|--------|
 | **Jacobo Córdova** | Owner, único desarrollador, autor del contenido, operador de infraestructura, profesor de las clases | R-01 (bus factor = 1). Es la dependencia más crítica del proyecto |
-| **UNAP** | Respaldo institucional visible en producción; posible proveedor de salas en Iquique | Q-01: vínculo formal no documentado |
+| **UNAP** | Ya **no es una dependencia activa**: el convenio (oct–nov 2025) terminó y no hay alianza institucional ni proveeduría de salas confirmada -- se menciona solo como nota histórica de origen (D-18) | Ninguno operativo hoy; los cupos presenciales en Iquique dependen de logística propia del owner, no de UNAP (ver BL-03) |
 | **Contenido pedagógico** | El valor del producto depende de ítems bien escritos con `error_*` reales. Es trabajo humano no delegable a la herramienta | Bloqueo actual del go-live (T-01, T-27) |
 | **Credenciales y accesos** | Supabase, GitHub, Resend, DNS: en manos de una sola persona, sin respaldo documentado | Pérdida de acceso = pérdida del proyecto |
 | **Agentes de IA** | Claude Code CLI (y otros) ejecutan cambios técnicos | Dependen de que la memoria esté al día (A-26) |
@@ -111,7 +111,8 @@ Secuencia mínima para levantar el sistema desde cero (útil para staging, T-09)
 2. Aplicar en orden: `admin_rls.sql` → `guestbook_tri_state.sql` → `001` → `002` → `003` (opcional)
    → `004` → `005` → `006` → `007`.
 3. Marcar la cuenta admin: `update public.profiles set role = 'admin' where email = '…';`
-4. Configurar Google OAuth en el dashboard (opcional).
+4. Configurar Google OAuth en el dashboard (opcional) -- **hoy no serviría de nada**: `components/login.cljs`
+   no tiene ningún botón que llame a `sign-in-with-google`; primero hay que agregar la UI (ver PROJECT_BRIEF §5).
 5. `supabase secrets set RESEND_API_KEY=…` y `EMAIL_FROM=…`; `supabase functions deploy
    send-enrollment-emails`; programar el cron.
 6. Ajustar `supabase-url` y `supabase-anon-key` en `src/universo/supabase.cljs`

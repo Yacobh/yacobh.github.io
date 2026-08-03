@@ -68,7 +68,7 @@ clojure -M:shadow-cljs watch app
 # REPL de navegador
 npx shadow-cljs browser-repl
 
-# Tests (34 tests / 129 assertions al 2026-07-26)
+# Tests (34 tests / 133 assertions al 2026-07-26)
 clj -M:test
 
 # CSS en watch
@@ -152,7 +152,7 @@ test/
 └── universo/events/slots_test.cljs
 ```
 
-Estado al **2026-07-26**: `Ran 34 tests containing 129 assertions. 0 failures, 0 errors.`
+Estado al **2026-07-26**: `Ran 34 tests containing 133 assertions. 0 failures, 0 errors.`
 
 Cobertura concentrada en la **lógica pura** (IRT, perfil, bandas, cupos) y en algunos handlers
 puros de eventos. **Sin cobertura:** componentes de UI, `db/crud.cljs` (I/O real),
@@ -166,18 +166,9 @@ Detalle en `supabase/SCHEMA.md`. Resumen:
 **MVP:** `modules`, `student_profiles`, `resources`, `class_slots`, `enrollments`,
 `notifications`, `email_outbox`.
 
-Scripts, en **orden obligatorio de aplicación**:
-
-1. `supabase/admin_rls.sql` — `profiles`, `is_admin()`, RLS base
-2. `supabase/guestbook_tri_state.sql` — moderación tri-state + delete admin
-3. `supabase/migrations/001_mvp_schema.sql` — tablas MVP + triggers de confirmación
-4. `002_seed_modules.sql` — módulos Baldor + lecturas
-5. `003_demo_slots.sql` — cupos demo (opcional)
-6. `004_enrich_baldor_resources.sql` — blurbs + práctica guiada
-7. `005_email_outbox.sql` — cola de email + trigger de encolado
-8. `006_admin_role_management.sql` — policy admin sobre otros perfiles + trigger last-admin + índices
-9. `007_questions_admin_rls.sql` — CRUD admin sobre `questions`
-10. Deploy de `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+**Orden obligatorio de aplicación:** ver `supabase/SCHEMA.md` §"Orden de aplicación" -- es la
+**única** lista mantenida (ya va por `019` al 2026-08-02); no se duplica aquí para no
+desincronizarse cada vez que se agrega una migración, como ya pasó una vez con esta misma sección.
 
 > Sin `supabase` CLI en el flujo de migración: se ejecutan a mano en el SQL Editor. La CLI se usa
 > solo para `functions deploy` y `secrets set`.

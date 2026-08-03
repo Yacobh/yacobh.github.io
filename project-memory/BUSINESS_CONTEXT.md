@@ -9,10 +9,13 @@ Educación Superior). **Matemática 1 (M1)** cubre números, álgebra y funcione
 probabilidad, y es la prueba obligatoria para la mayoría de las carreras. La preparación se
 concentra en preuniversitarios pagados que agrupan por curso y avanzan a un ritmo único.
 
-**Academia Integral** nace como **iniciativa académica de la Universidad Arturo Prat (UNAP)**
-junto al profesor **Jacobo Córdova**, en **Iquique, región de Tarapacá**. La propuesta es aplicar
-psicometría (IRT) para personalizar el punto de partida de cada estudiante y agrupar a los
-estudiantes por **nivel real de habilidad**, no por curso ni por colegio.
+**Academia Integral** es un **proyecto personal del profesor Jacobo Córdova**, en **Iquique,
+región de Tarapacá**, que se originó en 2025 a partir de un convenio de desarrollo a honorarios
+con la Universidad Arturo Prat (UNAP) -- de alcance acotado (oct–nov 2025) y **ya terminado**; no
+hay alianza institucional ni autorización de marca vigente hoy (ver [[OPEN_QUESTIONS]] Q-01,
+[[DECISIONS]] D-18). La propuesta es aplicar psicometría (IRT) para personalizar el punto de
+partida de cada estudiante y agrupar a los estudiantes por **nivel real de habilidad**, no por
+curso ni por colegio.
 
 ## 2. Objetivos de negocio
 
@@ -24,7 +27,7 @@ estudiantes por **nivel real de habilidad**, no por curso ni por colegio.
 | B-04 | Convertir estudiantes diagnosticados en **cohortes viables** | Cupos por banda con `min_enrollments`; el grupo no arranca sin masa crítica |
 | B-05 | Operar con costo marginal ≈ 0 | GitHub Pages + Supabase free tier + Resend free tier |
 | B-06 | Construir un activo reutilizable: el **banco de ítems calibrado** | `questions` con `difficulty` y `error_a..d` mapeados a misconceptions |
-| B-07 | Prestigio y evidencia académica para la iniciativa UNAP | Método IRT explícito, datos de θ y déficits por cohorte |
+| B-07 | Credibilidad académica del método frente al estudiante y su familia (ya no se apoya en un respaldo institucional vigente, ver D-18) | Método IRT explícito, datos de θ y déficits por cohorte |
 
 ## 3. Propuesta de valor
 
@@ -45,7 +48,7 @@ Cuatro pilares, tal como se comunican en la landing (`src/universo/components/la
 ```
 Landing (pública)
   └─ CTA "Comenzar mi diagnóstico"
-       └─ Login / registro (email+password o Google)
+       └─ Login / registro (email+password -- Google OAuth existe en el código pero sin botón en la UI)
             └─ Diagnóstico adaptativo IRT  (~20 min, 5–12 ítems)
                  └─ Perfil: θ, banda, déficits, misconceptions
                       └─ "Mi plan": errores explicados + recursos por módulo
@@ -66,9 +69,12 @@ Puntos de fuga conocidos, **no instrumentados**:
 
 ## 5. Modelo económico
 
-- **Ingresos:** ninguno. No hay pagos ni intención de agregarlos en el MVP
-  (ver [[PROJECT_BRIEF]] §6 y `index.html` JSON-LD `isAccessibleForFree: true` acotado al
-  diagnóstico/perfil/plan).
+- **Ingresos:** ninguno **operativo todavía**, pero ya hay una decisión de precio tomada
+  (D-19/D-26, 2026-07-28/30): las clases de los cupos costarán **$10.000 CLP/hora**, con la primera
+  videollamada gratis tras el diagnóstico. El diagnóstico/perfil/plan siguen gratis (JSON-LD
+  `isAccessibleForFree: true` acotado a eso -- sigue siendo cierto, ese alcance no incluye las
+  clases). Falta implementar el cobro (sin pasarela hoy; ver [[PROJECT_BRIEF]] §6,
+  [[OPEN_QUESTIONS]] Q-02, [[BACKLOG]] T-04).
 - **Costos directos:** $0 en el tier actual (GitHub Pages, Supabase free, Resend free,
   dominio `jacobocordova.com`).
 - **Costo real dominante:** el **tiempo del profesor** para (a) escribir y calibrar ítems con sus
@@ -98,8 +104,10 @@ sobre uso del producto es un supuesto ([[ASSUMPTIONS]]).
 
 ## 7. Restricciones de negocio
 
-- La marca UNAP aparece en producción; el tono y las afirmaciones deben ser **defendibles
-  académicamente** (no prometer puntajes ni resultados garantizados).
+- La UNAP se menciona en producción solo como **nota histórica de origen** (footer/FAQ, no como
+  badge activo -- D-18); el tono y las afirmaciones deben ser **defendibles académicamente** (no
+  prometer puntajes ni resultados garantizados) y no dar a entender un respaldo institucional
+  vigente que no existe.
 - Público **menor de edad** en su mayoría (estudiantes de enseñanza media): la recolección de
   datos personales debe ser mínima y justificada. Hoy se recolecta email, IP, ciudad/país,
   idioma, navegador, SO y nivel de batería. Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]] Q-03.
@@ -116,8 +124,9 @@ Estos textos existen en tres lugares (`index.html` JSON-LD FAQ, `public/index.ht
 `landing.cljs`). **Si cambia uno, deben cambiar los tres** — es una de las duplicaciones activas
 del repositorio ([[RISKS]] R-05):
 
-- Costo: "El diagnóstico, tu perfil y el plan de estudio no tienen costo. Es una iniciativa
-  académica de la Universidad Arturo Prat junto al profesor Jacobo Córdova."
+- Costo: "El diagnóstico, tu perfil y el plan de estudio no tienen costo. Es un proyecto personal
+  del profesor Jacobo Córdova, que se originó en 2025 a partir de un convenio de desarrollo con la
+  Universidad Arturo Prat." (copy vigente desde D-18, 2026-07-28)
 - Requisito: "Solo una cuenta con tu correo… toma alrededor de 20 minutos."
 - Calculadora: "No… El tiempo de respuesta también se considera en la estimación."
 - Mal resultado: "No es una nota ni queda en ningún registro académico."

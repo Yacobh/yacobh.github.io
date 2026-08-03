@@ -83,7 +83,9 @@ tests antes de commitear; check adicional que avise si cambió `src/**.cljs` sin
 ### R-05 · Divergencia del copy y del JSON-LD
 **Descripción:** los textos de FAQ y la oferta viven en `index.html`, `public/index.html` y
 `landing.cljs`. Tres copias del mismo hecho.
-**Impacto:** Medio (SEO incoherente, promesas contradictorias — sensible por el respaldo UNAP).
+**Impacto:** Medio (SEO incoherente, promesas contradictorias — sensible porque uno de los tres
+textos es la nota histórica sobre UNAP, D-18, y una divergencia ahí podría sobrerrepresentar el
+vínculo ya terminado).
 **Probabilidad:** Media.
 **Mitigación:** T-12 (una sola fuente del HTML); hasta entonces, regla: **si cambia un texto de la
 FAQ o de la oferta, cambiarlo en los tres lugares en el mismo commit** ([[LESSONS_LEARNED]]).
