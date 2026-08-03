@@ -144,14 +144,25 @@ checkout/merge, resuelto con `git restore` antes de cada commit).
 
 ## Épica E2 — Endurecimiento (F9)
 
-### T-06 · CI mínima con GitHub Actions — **P1** · `abierto`
+### T-06 · CI mínima con GitHub Actions — **P1** · `hecho` (2026-08-03, sin verificar en vivo)
 
 Workflow que en cada push/PR ejecute `clj -M:test` (JDK + Clojure CLI + cache de `~/.m2`).
 
+**Implementado 2026-08-03:** `.github/workflows/test.yml` -- `actions/checkout` +
+`actions/setup-java` (temurin 21, misma versión que el entorno local) + `actions/setup-node` (20,
+con cache npm) + `DeLaGuardo/setup-clojure@13` (CLI `1.11.1.1435`, misma versión que el entorno
+local) + cache de `~/.m2/repository`, `~/.gitlibs`, `~/.deps.clj`, `.cpcache` + `npm ci` +
+`clj -M:test`. Corre en push y pull_request a cualquier rama (`branches: ["**"]`).
+**No verificado en vivo:** no se pusheó (regla del proyecto: nunca pushear sin pedirlo
+explícitamente) ni se vio correr en GitHub Actions real -- verificar el primer run apenas se
+pushee, en particular que `DeLaGuardo/setup-clojure@13` resuelva bien la versión de CLI pedida.
+
 - **Terminado cuando:** un PR con un test roto queda marcado en rojo en GitHub y el badge/resultado
-  es visible.
-- **Nota:** también evaluar un check que avise si `src/**.cljs` cambió sin cambiar
-  `public/js/app.js` (recordatorio de recompilar).
+  es visible. **Falta solo la verificación en vivo del primer push.**
+- **Nota, sigue sin implementar:** un check que avise si `src/**.cljs` cambió sin cambiar
+  `public/js/app.js` (recordatorio de recompilar) -- se dejó fuera por el riesgo de falsos
+  positivos (hay `.cljs` archivado/no alcanzable que no requiere recompilar) sin poder probarlo en
+  vivo; se podría agregar como *check* informativo, no bloqueante, en una iteración futura.
 - **Relacionado:** [[RISKS]] R-04.
 
 ### T-07 · Respaldo de la base de datos documentado y probado — **P1** · `abierto`
@@ -230,12 +241,16 @@ JSON-LD. Riesgo de divergencia en SEO.
 - **Terminado cuando:** una sola versión de shadow-cljs en el repo, el CSS de KaTeX coincide con la
   versión del paquete, y `clj -M:test` + `release app` siguen en verde.
 
-### T-14 · Arreglar `npm test` — **P3** · `abierto`
+### T-14 · Arreglar `npm test` — **P3** · `hecho` (2026-08-03)
 
-Hoy `npm test` falla por diseño (`echo "Error: no test specified"`).
+Antes `npm test` fallaba por diseño (`echo "Error: no test specified"`).
+
+**Implementado y verificado 2026-08-03:** `package.json` `"test"` ahora es `"clj -M:test"`.
+Corrido en vivo: `npm test` → 34 tests / 133 assertions / 0 failures, 0 errors -- idéntico a
+`clj -M:test` directo.
 
 - **Terminado cuando:** `npm test` delega en el comando real o el script se elimina para no
-  inducir a error.
+  inducir a error. ✅
 
 ---
 

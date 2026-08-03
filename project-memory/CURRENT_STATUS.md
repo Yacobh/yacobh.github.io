@@ -154,6 +154,16 @@
 > (preuniversitario grupal). **P-11** (¿abrir épica de negocio para roadmapear la visión de largo
 > plazo?) se presentó al owner, que decidió dejarla pendiente por ahora. Detalle completo en
 > `sessions/SESSION-004.md`.
+>
+> **Trabajo autónomo sin supervisión (2026-08-03, ~8h, el owner autorizó explícitamente):** QA
+> matemática completa de los 39 recursos de `018`/`019` (recalculados a mano, un error lógico
+> menor corregido); **T-06 implementado** (`.github/workflows/test.yml`, CI con `clj -M:test` en
+> push/PR -- **no verificado en vivo**, no se pusheó); **T-14 implementado y verificado**
+> (`npm test` ya delega en `clj -M:test`, corrido en vivo: 34/133/0/0); snapshot de Graphify
+> refrescado (se instaló `tree-sitter-sql`, subió de 966 a 1008 nodos). Se investigaron T-16
+> (`user.cljs`) y T-17 (`math_render_2`, huérfano confirmado) **sin borrar ni renombrar nada** --
+> quedan documentadas para que el owner decida. **No se tocó** T-13 (versiones), ninguna migración
+> de Supabase, ni se pusheó/mergeó nada a ninguna rama. Detalle completo en `sessions/SESSION-005.md`.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para

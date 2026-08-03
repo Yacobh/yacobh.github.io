@@ -94,8 +94,8 @@ insert into public.resources (module_id, type, title, body, media_url, historica
 select m.id, 'text',
   'Baldor Aritmética Cap. VI-XIII -- Las cuatro operaciones fundamentales',
   E'Suma y multiplicación son **conmutativas** ($a+b=b+a$, $a \\times b = b \\times a$); resta y '
-  || E'división no lo son. En la resta, el orden importa: $9-5 \\ne 5-9$ dentro de los enteros no '
-  || E'fraccionarios (aquí no hay negativos todavía).\n\n'
+  || E'división no lo son. $9-5=4$, pero $5-9$ no tiene resultado aquí (no hay negativos todavía '
+  || E'en estos enteros) -- justamente porque la resta no es conmutativa, cambiar el orden importa.\n\n'
   || E'**Error típico:** aplicar la propiedad conmutativa a la resta o a la división, o '
   || E'resolver una combinación de operaciones sin respetar la jerarquía (primero '
   || E'multiplicación/división, luego suma/resta, salvo paréntesis).\n\n'
