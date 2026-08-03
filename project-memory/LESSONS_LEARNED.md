@@ -315,6 +315,37 @@ tiene que ir en un mapa `{:class "..."}` explícito, junto con el resto de las c
 hace falta. Verificar visualmente (screenshot) cualquier clase nueva con `/`, ya que el compilador
 no la va a señalar.
 
+### L-34 · Un `$` suelto en texto plano (ej. montos en pesos) puede dejar "Mi plan" en blanco
+**Síntoma (2026-08-03):** al entrar a "Mi plan" (visible como admin, `resources_select_published`
+permite `published = true or is_admin()`), la pantalla se ponía completamente en blanco, sin ningún
+mensaje de error visible.
+**Causa:** `math-render/split-by-latex-improved` (`components/math_render.cljs`) busca el carácter
+`$` para abrir/cerrar bloques de matemática **sin saber que puede venir escapado** (`\$`, el escape
+estándar de LaTeX para un peso literal). Contenido con un monto como `\$8.000` en texto plano hacía
+que el parser interpretara ese `$` como el inicio (o cierre) de un bloque matemático, arrastrando
+párrafos enteros como si fueran LaTeX. Cuando la cadena resultante era inválida para KaTeX (ej.
+terminaba en una barra invertida suelta), `render-latex-math` reventaba: `throwOnError: false` hace
+que KaTeX devuelva un `<span class="katex-error">` **sin** el nodo `.katex-mathml` que la función
+esperaba, y `(.-outerHTML mathml-part)` sobre un `querySelector` que dio `nil` lanzaba una
+excepción de JS sin capturar. Sin error boundary en React, eso vacía **todo** el árbol de la app,
+no solo el recurso con el problema.
+**Cómo se diagnosticó:** se extrajo el `body` real (ya des-escapado) de los 39 recursos nuevos de
+`018`/`019`, se corrió el parser + KaTeX real (Node, con el `katex` de `node_modules`) fuera del
+navegador, y se confirmó qué fragmentos producían `katex-error` sin `.katex-mathml` — dos recursos
+lo reproducían exactamente.
+**Solución (doble, defensa en profundidad):**
+1. `split-by-latex-improved` ahora reconoce `\$` como peso literal (nunca abre/cierra matemática),
+   consistente con la convención de LaTeX.
+2. `render-latex-math` ya no asume que `.katex-mathml` existe: si KaTeX no pudo parsear la
+   expresión, se muestra el HTML de error de KaTeX en vez de lanzar una excepción -- **un error de
+   LaTeX no debe poder dejar la página en blanco**, sin importar de dónde venga el contenido
+   inválido.
+**Regla:** cualquier contenido con montos en pesos (`error_*`, `resources.body`, o cualquier campo
+que pase por `math/latex`) debe escapar el signo peso como `\$`, nunca escribirlo suelto. Y
+`render-latex-math` es el lugar correcto para blindar contra *cualquier* LaTeX inválido -- no hay
+forma de garantizar que todo el contenido futuro (incluido el que escriba el profesor a mano desde
+Admin → Recursos) esté siempre bien formado.
+
 ---
 
 Relacionado: [[AGENT_INSTRUCTIONS]] · [[RISKS]] · [[DECISIONS]] · [[OPEN_QUESTIONS]] · [[TECH_STACK]]
