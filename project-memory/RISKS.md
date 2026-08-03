@@ -72,13 +72,15 @@ la fecha del último respaldo en [[CURRENT_STATUS]].
 **Estado:** activo.
 
 ### R-04 · Sin CI
-**Descripción:** no hay `.github/workflows`. Nada impide commitear con tests rojos ni publicar sin
-recompilar el bundle.
+**Descripción:** no había `.github/workflows`. Nada impedía commitear con tests rojos ni publicar
+sin recompilar el bundle.
 **Impacto:** Medio. **Probabilidad:** Alta.
-**Mitigación:** T-06 (workflow con `clj -M:test`); regla dura en [[../CLAUDE]] §8 de correr los
-tests antes de commitear; check adicional que avise si cambió `src/**.cljs` sin cambiar
-`public/js/app.js`.
-**Estado:** activo.
+**Mitigación:** T-06 -- **implementado 2026-08-03**: `.github/workflows/test.yml` corre
+`clj -M:test` en cada push/PR a cualquier rama. **No verificado en vivo** (no se pusheó ni se vio
+correr en GitHub Actions real -- verificar el primer run antes de confiar en el badge). El check de
+`src/**.cljs` cambiado sin `public/js/app.js` sigue sin implementar (queda como nota en T-06); regla
+dura en [[../CLAUDE]] §8 de correr los tests antes de commitear sigue vigente como respaldo manual.
+**Estado:** mitigado (parcialmente -- pendiente verificación en vivo).
 
 ### R-05 · Divergencia del copy y del JSON-LD
 **Descripción:** los textos de FAQ y la oferta viven en `index.html`, `public/index.html` y

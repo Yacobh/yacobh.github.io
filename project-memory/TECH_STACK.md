@@ -83,8 +83,8 @@ graphify update .              # incremental, sin costo de API
 graphify cluster-only .        # regenera GRAPH_REPORT.md + graph.html
 ```
 
-> `npm test` está sin configurar (`echo "Error: no test specified" && exit 1`). El comando real es
-> `clj -M:test`. Ver [[BACKLOG]] T-14.
+> `npm test` ahora delega en `clj -M:test` (T-14, 2026-08-03) -- antes fallaba por diseño con
+> "Error: no test specified". Ambos comandos son equivalentes hoy.
 
 ## 4. Estructura de `src/`
 

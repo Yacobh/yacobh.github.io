@@ -251,7 +251,8 @@ alternativas relevantes, o (d) alguien podría cuestionarla en seis meses. Si no
 6. **`universo` es el nombre interno; "Academia Integral" el del producto.** No los mezcles en texto
    de cara al usuario.
 7. **Migraciones idempotentes siempre** — se aplican a mano sobre producción.
-8. **`clj -M:test`, no `npm test`** (este último está sin configurar y falla por diseño).
+8. **`clj -M:test` o `npm test`** (T-14, 2026-08-03: `npm test` ahora delega en `clj -M:test`;
+   antes fallaba por diseño con "Error: no test specified").
 
 ---
 

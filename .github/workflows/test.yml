@@ -1,0 +1,51 @@
+name: Tests
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Set up Clojure CLI
+        uses: DeLaGuardo/setup-clojure@13
+        with:
+          cli: "1.11.1.1435"
+
+      - name: Cache Clojure deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            ~/.deps.clj
+            .cpcache
+          key: ${{ runner.os }}-clojure-${{ hashFiles('deps.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-clojure-
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Run tests
+        # `clj` requiere rlwrap para edición interactiva, ausente en el runner de GitHub
+        # (ver project-memory/LESSONS_LEARNED.md L-28). `clojure` es el mismo CLI sin esa
+        # dependencia -- correcto para uso no interactivo como CI.
+        run: clojure -M:test

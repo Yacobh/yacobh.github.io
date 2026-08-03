@@ -15,7 +15,13 @@
         node (.createElement js/document "div")]
     (set! (.-innerHTML node) html)
     (let [mathml-part (.. node (querySelector ".katex-mathml"))]
-      [:span {:dangerouslySetInnerHTML {:__html (.-outerHTML mathml-part)}}])))
+      ;; Si KaTeX no pudo parsear expr (throwOnError false igual produce un
+      ;; .katex-error sin .katex-mathml), mostrar ese HTML de error en vez de
+      ;; reventar con un null pointer -- un error de LaTeX nunca debe dejar la
+      ;; página en blanco.
+      (if mathml-part
+        [:span {:dangerouslySetInnerHTML {:__html (.-outerHTML mathml-part)}}]
+        [:span {:dangerouslySetInnerHTML {:__html html}}]))))
 
 ;; ========================================
 ;; 2️⃣ PARSER MEJORADO: Separa $...$ y $$...$$
@@ -40,6 +46,12 @@
               next-c (second remaining)
               rest-text (subs remaining 1)]
           (cond
+            ;; Peso escapado (\$): un signo peso literal, nunca abre ni cierra
+            ;; matemática -- sin esto, cualquier monto en pesos ("\$8.000") en
+            ;; texto plano rompe el parseo del resto del bloque.
+            (and (= c \\) (= next-c \$))
+            (recur (subs remaining 2) result in-display? in-inline? (str current "$"))
+
             (and (= c \$) (= next-c \$) (not in-inline?))
             (if in-display?
               (recur (subs remaining 2)
