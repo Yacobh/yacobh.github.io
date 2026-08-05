@@ -1,3 +1,168 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Tema oscuro (T-24-bis): activado por la clase `dark` en <html>, aplicada
+ * sincrónicamente antes de app.js (ver index.html) y mantenida en adelante
+ * por universo.events.theme (:theme/init, :theme/toggle).
+ *
+ * En vez de anotar `dark:` en cada elemento de cada componente (~15
+ * archivos, cientos de usos), se remapea aquí el vocabulario de color ya
+ * usado en toda la app: es consistente (grises neutros para superficies y
+ * texto, índigo/púrpura como acento de marca, rojo/verde/ámbar/azul para
+ * alertas), así que un mapeo global cubre el 100% de los componentes sin
+ * tocar cada .cljs. `.dark .clase` (especificidad 0,2,0) ya gana sobre la
+ * `.clase` (0,1,0) que genera Tailwind, sin necesitar !important ni orden
+ * especial — por eso este bloque puede ir aquí, después de @tailwind
+ * utilities, en vez de dentro de un @layer.
+ *
+ * Los fondos/botones sólidos y saturados (bg-indigo-600, bg-green-600,
+ * bg-red-600, los gradientes de marca indigo→purple, el footer, el hero de
+ * universo.components.resume) se dejan intactos a propósito: ya contrastan
+ * bien sobre fondo oscuro y no necesitan variante.
+ *
+ * Casos que SÍ llevan `dark:` explícito en el propio componente (no caben
+ * en este mapeo genérico porque son gradientes con stops from-/via-/to-, o
+ * apariciones únicas): universo.home (fondo de página, barra de nav) y
+ * universo.components.feedback-modal (banner de pregunta).
+ */
+
+/* ---------- Superficies neutras ---------- */
+.dark .bg-white,
+.dark .bg-white\/70,
+.dark .bg-white\/80 { background-color: theme('colors.slate.800'); }
+.dark .bg-slate-50,
+.dark .bg-gray-50 { background-color: theme('colors.slate.900'); }
+.dark .bg-gray-100 { background-color: theme('colors.slate.700'); }
+.dark .bg-gray-200 { background-color: theme('colors.slate.700'); }
+.dark .bg-gray-300,
+.dark .bg-gray-400 { background-color: theme('colors.slate.600'); }
+
+.dark .hover\:bg-white:hover { background-color: theme('colors.slate.800'); }
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-100:hover { background-color: theme('colors.slate.700'); }
+.dark .hover\:bg-gray-200:hover,
+.dark .hover\:bg-gray-300:hover { background-color: theme('colors.slate.600'); }
+
+/* ---------- Texto neutro ---------- */
+.dark .text-gray-900 { color: theme('colors.slate.50'); }
+.dark .text-gray-800 { color: theme('colors.slate.100'); }
+.dark .text-gray-700,
+.dark .text-slate-700 { color: theme('colors.slate.200'); }
+.dark .text-gray-600,
+.dark .text-slate-600 { color: theme('colors.slate.300'); }
+.dark .text-gray-500 { color: theme('colors.slate.400'); }
+.dark .text-gray-400 { color: theme('colors.slate.500'); }
+.dark .text-gray-300 { color: theme('colors.slate.600'); }
+.dark .text-stone-500 { color: theme('colors.slate.400'); }
+.dark .text-stone-600 { color: theme('colors.slate.300'); }
+
+.dark .hover\:text-gray-900:hover { color: theme('colors.slate.50'); }
+.dark .hover\:text-gray-800:hover { color: theme('colors.slate.100'); }
+.dark .hover\:text-gray-700:hover { color: theme('colors.slate.200'); }
+.dark .hover\:text-gray-600:hover { color: theme('colors.slate.300'); }
+
+/* ---------- Bordes / separadores neutros ---------- */
+.dark .border-gray-100,
+.dark .divide-gray-100 { border-color: theme('colors.slate.800'); }
+.dark .border-gray-200,
+.dark .divide-gray-200 { border-color: theme('colors.slate.700'); }
+.dark .border-gray-300,
+.dark .border-slate-300 { border-color: theme('colors.slate.600'); }
+.dark .border-gray-400 { border-color: theme('colors.slate.500'); }
+.dark .ring-gray-100,
+.dark .ring-gray-200 { --tw-ring-color: theme('colors.slate.700'); }
+.dark .ring-gray-400 { --tw-ring-color: theme('colors.slate.500'); }
+.dark .focus\:ring-gray-200:focus { --tw-ring-color: theme('colors.slate.600'); }
+.dark .focus-visible\:ring-gray-400:focus-visible { --tw-ring-color: theme('colors.slate.500'); }
+
+.dark .hover\:border-gray-300:hover { border-color: theme('colors.slate.500'); }
+.dark .hover\:border-gray-400:hover { border-color: theme('colors.slate.400'); }
+
+/* ---------- Acento índigo/púrpura ---------- */
+.dark .text-indigo-900,
+.dark .text-indigo-800 { color: theme('colors.indigo.200'); }
+.dark .text-indigo-700 { color: theme('colors.indigo.300'); }
+.dark .text-indigo-600,
+.dark .text-indigo-500 { color: theme('colors.indigo.400'); }
+.dark .bg-indigo-50 { background-color: theme('colors.indigo.950'); }
+.dark .bg-indigo-100 { background-color: theme('colors.indigo.900'); }
+.dark .border-indigo-100,
+.dark .border-indigo-200 { border-color: theme('colors.indigo.800'); }
+.dark .border-indigo-300 { border-color: theme('colors.indigo.700'); }
+
+.dark .hover\:text-indigo-700:hover,
+.dark .hover\:text-indigo-800:hover { color: theme('colors.indigo.300'); }
+.dark .hover\:text-indigo-900:hover { color: theme('colors.indigo.200'); }
+.dark .hover\:bg-indigo-50:hover { background-color: theme('colors.indigo.950'); }
+.dark .hover\:bg-indigo-100:hover { background-color: theme('colors.indigo.900'); }
+.dark .hover\:border-indigo-300:hover { border-color: theme('colors.indigo.600'); }
+
+/* ---------- Otros acentos de marca (badges de nivel, enlaces puntuales) ---------- */
+.dark .text-purple-600 { color: theme('colors.purple.400'); }
+.dark .text-blue-600 { color: theme('colors.blue.400'); }
+.dark .text-blue-700 { color: theme('colors.blue.300'); }
+.dark .border-blue-100 { border-color: theme('colors.blue.900'); }
+.dark .bg-blue-50 { background-color: theme('colors.blue.950'); }
+
+/* ---------- Estados semánticos (alertas / badges) ----------
+   Mismo patrón en todos: fondo claro + texto saturado + borde claro (light)
+   → fondo oscuro + texto claro + borde oscuro (dark). */
+.dark .bg-red-50 { background-color: theme('colors.red.950'); }
+.dark .bg-red-100 { background-color: theme('colors.red.900'); }
+.dark .text-red-600 { color: theme('colors.red.400'); }
+.dark .text-red-700 { color: theme('colors.red.300'); }
+.dark .border-red-100 { border-color: theme('colors.red.900'); }
+.dark .border-red-200 { border-color: theme('colors.red.800'); }
+.dark .border-red-300 { border-color: theme('colors.red.700'); }
+.dark .hover\:bg-red-50:hover { background-color: theme('colors.red.950'); }
+.dark .hover\:bg-red-100:hover { background-color: theme('colors.red.900'); }
+
+.dark .bg-green-50 { background-color: theme('colors.green.950'); }
+.dark .bg-green-100 { background-color: theme('colors.green.900'); }
+.dark .text-green-600 { color: theme('colors.green.400'); }
+.dark .text-green-700 { color: theme('colors.green.300'); }
+.dark .text-green-800 { color: theme('colors.green.300'); }
+.dark .text-green-900 { color: theme('colors.green.200'); }
+.dark .border-green-200 { border-color: theme('colors.green.800'); }
+.dark .border-green-300 { border-color: theme('colors.green.700'); }
+.dark .hover\:text-green-900:hover { color: theme('colors.green.300'); }
+
+.dark .bg-amber-50 { background-color: theme('colors.amber.950'); }
+.dark .bg-amber-100 { background-color: theme('colors.amber.900'); }
+.dark .text-amber-600 { color: theme('colors.amber.400'); }
+.dark .text-amber-700 { color: theme('colors.amber.300'); }
+.dark .text-amber-800 { color: theme('colors.amber.300'); }
+.dark .text-amber-900 { color: theme('colors.amber.200'); }
+.dark .border-amber-100 { border-color: theme('colors.amber.900'); }
+.dark .border-amber-200 { border-color: theme('colors.amber.800'); }
+.dark .border-amber-300 { border-color: theme('colors.amber.700'); }
+
+/* ---------- Campos de formulario ----------
+   Los <input>/<textarea>/<select> de texto de la app (login, cuenta,
+   contacto, guestbook, admin…) no llevan una clase bg-* propia: su fondo
+   blanco viene del estilo por defecto del navegador, así que el mapeo de
+   clases de arriba no los alcanza. checkbox/radio quedan fuera a propósito
+   (se ven mejor con el estilo nativo del navegador). */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="tel"],
+.dark input[type="search"],
+.dark input[type="number"],
+.dark input:not([type]),
+.dark textarea,
+.dark select {
+  background-color: theme('colors.slate.800');
+  color: theme('colors.slate.100');
+}
+.dark input[type="text"]::placeholder,
+.dark input[type="email"]::placeholder,
+.dark input[type="password"]::placeholder,
+.dark input[type="tel"]::placeholder,
+.dark input[type="search"]::placeholder,
+.dark input[type="number"]::placeholder,
+.dark textarea::placeholder {
+  color: theme('colors.slate.500');
+}

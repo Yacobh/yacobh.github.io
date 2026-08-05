@@ -4,6 +4,20 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
 
+    <!-- Aplica el tema oscuro antes del primer paint (evita flash de tema
+         claro al recargar con oscuro guardado). Espejo del toggle real en
+         universo.events.theme; debe ejecutarse antes de app.js. -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var dark = stored ? stored === 'dark'
+                             : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
+
     <title>Preparación PAES Matemática 1 — diagnóstico y plan personalizado | Academia Integral</title>
     <meta name="description" content="Diagnóstico adaptativo gratuito que detecta qué errores estás cometiendo en Matemática 1, plan de estudio personalizado y grupos de preparación PAES online y presenciales en Iquique. Un proyecto del profesor Jacobo Córdova.">
     <meta name="author" content="Jacobo Córdova">
