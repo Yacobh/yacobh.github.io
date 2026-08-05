@@ -15,6 +15,7 @@
    [universo.events.dashboard]
    [universo.events.landing]
    [universo.events.ui]
+   [universo.events.theme]
    [universo.views :as views]
    [universo.visitor-tracker :as tracker]))
 
@@ -26,6 +27,7 @@
 
 (defn ^:export init! []
   (re-frame/dispatch-sync [:initialize-db])
+  (re-frame/dispatch-sync [:theme/init])
   (re-frame/dispatch [:auth/init])
   (tracker/start-tracking!)
   (mount-root))

@@ -6,6 +6,10 @@
         :modal nil
         :transitioning false}
 
+   ;; :light | :dark — el valor real se decide en :theme/init (localStorage o
+   ;; prefers-color-scheme); este default solo evita un nil antes de esa carga.
+   :theme :light
+
    ;; Sesión Supabase (rehidratada en :auth/init)
    :auth {:ready? false
           :user nil

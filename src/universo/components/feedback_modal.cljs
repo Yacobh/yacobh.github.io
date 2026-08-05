@@ -73,7 +73,9 @@
 ;; ============================================================================
 
 (defn question-section [question]
-  [:div {:class "mb-6 sm:mb-8 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-sm"}
+  [:div {:class (str "mb-6 sm:mb-8 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-indigo-50 "
+                      "rounded-2xl border border-blue-100 shadow-sm "
+                      "dark:from-blue-950 dark:to-indigo-950 dark:border-blue-900")}
    [:h3 {:class "text-xs sm:text-sm font-semibold text-blue-700 mb-2 sm:mb-3 uppercase tracking-wide"}
     "Pregunta"]
    [:div {:class "text-base sm:text-lg text-gray-800 leading-relaxed overflow-x-auto"}
