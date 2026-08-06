@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-07-30**
+Última actualización: **2026-08-05**
 
 Prioridad: **P0** bloquea go-live · **P1** necesario a corto plazo · **P2** deseable · **P3** idea.
 Estado: `abierto` · `en curso` · `bloqueado` · `hecho` · `descartado`.
@@ -315,7 +315,7 @@ se puede medir por página.
 - **Nota:** decisión de diseño → **ADR**.
 - **Relacionado:** [[ARCHITECTURE]] A-07, habilita T-20.
 
-### T-24 · Estado vacío honesto en "Mi plan" y "Cupos" — **P1** · `hecho` (2026-08-03, sin verificar en vivo)
+### T-24 · Estado vacío honesto en "Mi plan" y "Cupos" — **P1** · `hecho` (2026-08-03, mergeado a `main` 2026-08-05)
 
 Mientras T-01 y T-04 no estén hechas, un estudiante real puede ver pantallas vacías.
 
@@ -330,8 +330,10 @@ Mientras T-01 y T-04 no estén hechas, un estudiante real puede ver pantallas va
   `home.cljs`) -- sin tabla ni backend nuevo, usando el fallback "o al menos contacto" que el propio
   ticket permite.
 - `clj -M:test`: 34/133/0/0. `shadow-cljs release app`: 0 warnings.
-- **No verificado en vivo:** ambas pantallas son secciones protegidas (requieren login); el agente
-  no tiene credenciales de una cuenta de prueba. Falta que el owner las revise en el navegador.
+- **No verificado en vivo por el agente:** ambas pantallas son secciones protegidas (requieren
+  login); el agente no tiene credenciales de una cuenta de prueba.
+- **✅ Mergeado a `main` (2026-08-05):** el owner revisó y aprobó, PR #21 (commit de merge
+  `787d337`). Verificado por hash que producción sirve el build nuevo (mismo patrón que T-19).
 
 - **Terminado cuando:** sin recursos publicados, el plan muestra los errores explicados (capa 0) y
   un mensaje claro de que el material está en preparación; sin cupos en su banda, "Cupos" explica
@@ -373,6 +375,43 @@ haber aplicado `012` en el proyecto Supabase real.
   contra datos reales (no bloquea T-01/go-live).
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-16 (respondida), [[DECISIONS]] D-28, D-31, R-11,
   `supabase/SCHEMA.md`.
+
+### T-38 · Tema oscuro con toggle en la barra de navegación — **P2** · `hecho` (2026-08-05, mergeado a `main`)
+
+Pedido explícito del owner: un botón para cambiar la app a tema oscuro. Preguntado por el alcance,
+el owner eligió **toda la app**, no solo landing/nav/footer.
+
+**Implementado 2026-08-05** (rama `t-24-estado-vacio-honesto`, commit `823e177`):
+- Botón sol/luna en `universo.home/navigation`, siempre visible (escritorio y móvil, fuera del menú
+  colapsable). Ver [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] por qué en la nav y no en el
+  footer.
+- `universo.events.theme` (nuevo, agregado al `:require` de `core.cljs`): `:theme/init` (lee
+  `localStorage` o `prefers-color-scheme`), `:theme/toggle`, persistencia en `localStorage`.
+- Script inline en `index.html`/`public/index.html` que aplica la clase `dark` a `<html>` antes de
+  cargar `app.js` (sin flash de tema claro al recargar con oscuro guardado).
+- Cobertura de los ~15 componentes alcanzables vía mapeo global de clases en `src/css/app.css`
+  (`.dark .clase-existente`), no `dark:` por elemento — decisión completa con alternativas
+  evaluadas en [[../adr/ADR-012-tema-oscuro-mapeo-css-global]].
+- `tailwind.config.js`: `darkMode: 'class'`.
+- `clj -M:test`: 34/133/0/0 (sin cambios, no hay lógica pura nueva). `shadow-cljs release app`:
+  0 warnings. `npm run build:css` ejecutado dos veces (segunda vez tras agregar la regla de
+  `<input>`/`<textarea>`/`<select>`, encontrada al verificar en el navegador).
+- **Verificado en vivo en el navegador** (Chrome vía `claude-in-chrome`, servidor estático local):
+  landing completa (hero, pasos, modalidades, testimonios, FAQ, CTA), nav, footer, login, libro de
+  visitas (con datos reales de Supabase), currículum del profesor, aviso de privacidad — en ambos
+  temas, con persistencia tras recargar.
+- **No verificado en vivo:** las secciones protegidas por sesión (`dashboard`, `plan`, `cupos`,
+  `admin`, `cuenta`, `diagnóstico`) — el agente no tiene credenciales de prueba. Usan el mismo
+  vocabulario de color que sí se verificó en las pantallas públicas, pero no hay confirmación visual
+  directa de esas pantallas en oscuro.
+
+- **✅ Mergeado a `main` (2026-08-05, PR #21, commit `787d337`)** y verificado por hash que
+  producción sirve el build nuevo. Sigue pendiente, sin bloquear el cierre de este ticket, que el
+  owner confirme visualmente las secciones protegidas no verificadas por el agente.
+- **Terminado cuando:** existe un botón de tema que cambia toda la app entre claro y oscuro,
+  persiste la elección, y se ve correctamente en cada sección. ✅
+- **Relacionado:** [[../adr/ADR-012-tema-oscuro-mapeo-css-global]], [[LESSONS_LEARNED]] L-35,
+  [[ASSUMPTIONS]] A-30.
 
 ### T-26 · Semántica del re-diagnóstico — **P2** · `bloqueado` (decisión Q-07)
 
@@ -542,7 +581,7 @@ desactualizados (lista de módulos previa al MVP).
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30 |
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32 |
 
 ---

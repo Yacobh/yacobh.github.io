@@ -177,6 +177,30 @@
 > **sin mergear a `main` todavía** -- pendiente de que el owner la revise visualmente (el agente no
 > tiene credenciales de prueba ni navegador conectado; no se afirma que la UI se vea bien, solo que
 > compila limpio y pasa los tests). Detalle completo en `sessions/SESSION-006.md`.
+> **✅ Corrección (2026-08-05):** el owner revisó y mergeó `t-24-estado-vacio-honesto` a `main` vía
+> PR #21 (commit de merge `787d337`) -- ver nota siguiente, T-24 ya está en producción junto con
+> T-38.
+
+> **T-38 implementado: tema oscuro con toggle en la nav (2026-08-05).** Pedido explícito del owner;
+> preguntado por el alcance, eligió "toda la app". Botón sol/luna en `universo.home/navigation`
+> (siempre visible, escritorio y móvil), estado en `universo.events.theme` (nuevo, persistido en
+> `localStorage`, sin flash al recargar vía script inline en `index.html`/`public/index.html`). Los
+> ~15 componentes alcanzables se cubren con un mapeo global de clases en `src/css/app.css`
+> (`.dark .clase-existente`), no `dark:` por elemento -- decisión completa, con alternativas
+> evaluadas, en [[../adr/ADR-012-tema-oscuro-mapeo-css-global]]. **Esta vez sí hubo navegador
+> conectado** (`claude-in-chrome`, contra un servidor estático local): se verificó en vivo landing
+> completa, nav, footer, login, libro de visitas (con datos reales de Supabase), currículum del
+> profesor y aviso de privacidad, en ambos temas y con persistencia tras recargar. **No verificado
+> en vivo:** las secciones protegidas por sesión (dashboard, plan, cupos, admin, cuenta,
+> diagnóstico) -- sin credenciales de prueba disponibles para el agente. `clj -M:test` 34/133/0/0
+> (sin tests nuevos, no hay lógica pura involucrada), `shadow-cljs release app` 0 warnings.
+> Commiteado y pusheado a `t-24-estado-vacio-honesto` (commit `823e177`) a pedido explícito del
+> owner. **El owner mergeó la rama a `main` el mismo día** (PR #21, merge `787d337`, 2026-08-05
+> 15:50 -04:00) -- `git diff main t-24-estado-vacio-honesto` vacío, ambas apuntan al mismo árbol.
+> **Verificado por hash que producción ya sirve el build nuevo:** MD5 de
+> `https://jacobocordova.com/public/js/app.js` = `3b0ea6a0e980b36d00d47e57cc80fb73`, idéntico al de
+> `git show 787d337:public/js/app.js` (mismo patrón de verificación que T-19). T-24 y T-38 están en
+> producción. Detalle completo en `sessions/SESSION-007.md`.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
@@ -284,6 +308,8 @@ Registradas hoy de forma retroactiva (las decisiones son previas; su documentaci
 - **ADR-008** Archivar MathAcademy; funnel único en home
 - **ADR-009** Lógica de negocio en namespaces puros testeados
 - **ADR-010** Adopción de Project Memory First *(decisión de hoy)*
+- **ADR-011** La visión de [[VISION_LIBRO_PROYECTO]] es el norte estratégico, el MVP una fase intermedia
+- **ADR-012** Tema oscuro mediante mapeo global de CSS (`.dark .clase-existente`), no `dark:` por elemento
 
 Índice completo en [[DECISIONS]].
 
@@ -342,14 +368,15 @@ En orden de ejecución recomendado:
 ## 9. Estado del repositorio
 
 > ⚠️ El bloque original de esta sección describía el corte del 26-07 (rama
-> `cursor/mvp-operable-funnel`, árbol sucio). Reemplazado 2026-07-29 con el estado verificado hoy:
+> `cursor/mvp-operable-funnel`, árbol sucio). Reemplazado 2026-07-29 con el estado de ese día, y
+> este bloque con el estado verificado el **2026-08-05**:
 
 ```
-Rama actual  : visual-fixes (2 commits sobre main: 520ff79, 0fd5f79)
-Rama deploy  : main  (GitHub Pages, dominio jacobocordova.com)
-Producción   : confirmada por hash = origin/main @ 4998785 (ver nota T-19 arriba)
+Rama actual  : t-24-estado-vacio-honesto @ 823e177 (idéntica a main, ver abajo)
+Rama deploy  : main  (GitHub Pages, dominio jacobocordova.com) @ 787d337
+main..t-24-estado-vacio-honesto: vacío -- mergeada (PR #21, 2026-08-05 15:50 -04:00)
+Producción   : confirmada por hash = origin/main @ 787d337 (MD5 public/js/app.js = 3b0ea6a0e980b36d00d47e57cc80fb73)
 Árbol de trabajo: limpio
-visual-fixes → main: NO mergeada (T-35)
 ```
 
 **Tooling del agente (2026-07-27):** `graphify` (ya estaba) y **`rtk`** (nuevo, instalado hoy) como
