@@ -1,6 +1,6 @@
 # ASSUMPTIONS
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-08-05**
 
 > Un supuesto es algo que **damos por cierto sin haberlo verificado**. Se documenta para que nadie
 > —humano o agente— lo confunda con un hecho. Cada supuesto indica cómo validarlo y qué pasa si es
@@ -59,6 +59,12 @@ Estado: 🟡 vigente sin validar · ✅ validado · ❌ refutado
 | A-27 | El snapshot de Graphify se mantendrá actualizado tras cambios de código | Comparar el commit de `GRAPH_REPORT.md` con `HEAD` (T-31) | El grafo desinforma en lugar de orientar | 🟡 |
 | A-28 | Graphify seguirá sin indexar `.cljs` | Reejecutar `graphify update .` y revisar el manifest | Si empieza a indexarlos, gran parte de las advertencias del §6 de la guía dejan de aplicar | 🟡 |
 | A-29 | El owner es la única persona con permisos de escritura en el repo y en Supabase | Revisar colaboradores en GitHub y miembros del proyecto Supabase | Hay otros actores cuyas acciones no están documentadas | 🟡 |
+
+## Supuestos de UI
+
+| ID | Supuesto | Cómo validarlo | Si es falso | Estado |
+|----|----------|----------------|-------------|--------|
+| A-30 | La paleta oscura exacta elegida por el agente (grises → slate, índigo/semánticos aclarados, ver [[../adr/ADR-012-tema-oscuro-mapeo-css-global]]) es aceptable para el owner; no hubo aprobación explícita de los tonos concretos, solo del alcance ("toda la app") | El owner revisa la app en oscuro, en particular las secciones protegidas no verificadas en vivo por el agente (dashboard, plan, cupos, admin, cuenta, diagnóstico) | Hay que ajustar tonos puntuales en `src/css/app.css` — el mapeo centralizado hace que el ajuste sea barato | 🟡 |
 
 ---
 

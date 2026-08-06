@@ -1,6 +1,6 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-08-05**
 
 Trampas ya pisadas en **este** repositorio, con su causa y la regla que evita repetirlas. Extraídas
 del código, los comentarios de las migraciones, `PROJECT_SUMMARY.md` y el historial de commits.
@@ -69,6 +69,28 @@ completos).
 de la entrada en `.gitignore` ([[BACKLOG]] T-16).
 
 ---
+
+## CSS y Tailwind
+
+### L-35 · Retrofit de tema oscuro: mapear clases existentes en CSS, no anotar `dark:` por elemento — y los `<input>` no tienen fondo propio
+**Síntoma:** cubrir un tema oscuro completo pareciendo requerir cientos de ediciones de `dark:clase`
+repartidas en ~15 componentes (uno de 1172 líneas); y, ya con el mapeo global aplicado, los campos
+de formulario (`login.cljs`, `cuenta.cljs`, `guestbook.cljs`, `admin.cljs`…) seguían viéndose
+blancos sobre fondo oscuro pese a que el resto de la pantalla ya se veía bien.
+**Causa:** (1) el vocabulario de color de la app es consistente (grises/slate para superficies y
+texto, índigo como acento, rojo/verde/ámbar/azul para alertas, siempre en el mismo patrón fondo
+claro + texto saturado + borde claro) — eso hace viable sobrescribir por **nombre de clase** en vez
+de por elemento. (2) los `<input>`/`<textarea>`/`<select>` de texto de la app nunca tuvieron una
+clase `bg-*` propia: su fondo blanco venía del estilo por defecto del navegador, no de Tailwind, así
+que ninguna regla que remapee `.bg-white` los alcanza — hay que apuntar directo al selector de tipo
+de elemento (`input[type="email"]`, etc.), excluyendo checkbox/radio a propósito.
+**Regla:** para un retrofit de tema oscuro sobre una app grande con vocabulario de color consistente,
+preferir remapear `.dark .clase-existente { … }` en un CSS central (gana por especificidad sobre la
+`.clase` de Tailwind, sin `!important` ni orden especial) en vez de anotar `dark:` en cada elemento.
+Al hacerlo, no olvidar los elementos de formulario sin clase de fondo explícita — grep
+`:input {\|:textarea {\|:select {` en los componentes para encontrarlos todos de una vez. Decisión
+completa (incluidas las excepciones que sí llevan `dark:` directo) en
+[[../adr/ADR-012-tema-oscuro-mapeo-css-global]].
 
 ## Supabase, RLS y migraciones
 
