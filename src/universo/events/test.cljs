@@ -1,6 +1,7 @@
 (ns universo.events.test
   (:require
    [re-frame.core :as re-frame]
+   [universo.access :as access]
    [universo.components.tetha :as tetha]
    [universo.irt.progress :as progress]
    [cljs.core.async :as async :refer [go <!]]
@@ -69,15 +70,26 @@
             (assoc-in [:test :feedback] nil))
     :dispatch [:test/load-topics]}))
 
+;; test_configs es el catálogo autoritativo de "tests ofrecidos" (con active
+;; para borradores) y quién puede iniciarlos se deriva del propio historial
+;; de tests del usuario — no hay tabla de "accesos otorgados" (ver
+;; universo.access y supabase/migrations/020, 021).
 (re-frame/reg-fx
  :test/fetch-topics
- (fn [_]
+ (fn [{:keys [user-id admin?]}]
    (go
-     (let [result (<! (crud/get-distinct-topics))]
-       (if (:success result)
-         (re-frame/dispatch [:test/topics-loaded (:data result)])
+     (let [configs-r (<! (crud/fetch-test-configs))
+           history-r (if admin?
+                       {:success true :data []}
+                       (<! (crud/fetch-user-test-history user-id)))]
+       (if (and (:success configs-r) (:success history-r))
+         (re-frame/dispatch [:test/topics-loaded
+                             {:configs (:data configs-r)
+                              :history (:data history-r)
+                              :admin? admin?}])
          (re-frame/dispatch [:test/topics-failed
-                             (or (:error result) "No se pudieron cargar las evaluaciones")]))))))
+                             (or (:error configs-r) (:error history-r)
+                                 "No se pudieron cargar las evaluaciones")]))))))
 
 (re-frame/reg-event-fx
  :test/load-topics
@@ -85,15 +97,23 @@
    {:db (-> db
             (assoc-in [:test :topics-loading?] true)
             (assoc-in [:test :topics-error] nil))
-    :test/fetch-topics nil}))
+    :test/fetch-topics {:user-id (get-in db [:auth :user :id])
+                        :admin? (get-in db [:auth :admin?])}}))
 
 (re-frame/reg-event-db
  :test/topics-loaded
- (fn [db [_ topics]]
-   (-> db
-       (assoc-in [:test :available-topics] (vec topics))
-       (assoc-in [:test :topics-loading?] false)
-       (assoc-in [:test :topics-error] nil))))
+ (fn [db [_ {:keys [configs history admin?]}]]
+   (let [achieved (access/best-theta-by-topic history)
+         unlocked (if admin?
+                    (set (map :topic configs))
+                    (access/unlocked-topics configs achieved))
+         visible (filterv #(contains? unlocked (:topic %)) configs)
+         config-by-topic (into {} (map (juxt :topic identity)) configs)]
+     (-> db
+         (assoc-in [:test :available-topics] (mapv :topic visible))
+         (assoc-in [:test :configs] config-by-topic)
+         (assoc-in [:test :topics-loading?] false)
+         (assoc-in [:test :topics-error] nil)))))
 
 (re-frame/reg-event-db
  :test/topics-failed
@@ -113,21 +133,37 @@
 (re-frame/reg-event-fx
  :test/start
  (fn [{:keys [db]} [_ topic]]
-   (let [resolved (resolve-topic topic)]
-     {:db (-> db
-              (assoc-in [:test :status] :questions)
-              (assoc-in [:test :topic] resolved)
-              (assoc-in [:test :responses] [])
-              (assoc-in [:test :questions] [])
-              (assoc-in [:test :feedback] nil)
-              (assoc-in [:test :prefetched-question] nil)
-              (assoc-in [:test :prefetching?] false)
-              (assoc-in [:test :start-time] (.now js/Date))
-              (assoc-in [:test :theta] 0.0)
-              (assoc-in [:test :theta-history] [])
-              (assoc-in [:test :stop-reason] nil)
-              (assoc-in [:test :current-question] nil))
-      :dispatch [:test/fetch-next-question]})))
+   (let [resolved (resolve-topic topic)
+         admin? (get-in db [:auth :admin?])
+         available (set (get-in db [:test :available-topics]))
+         allowed? (or admin? (contains? available resolved))]
+     (if-not allowed?
+       ;; No es una fortificación RLS real (el estado de app-db es
+       ;; manipulable vía devtools) — solo evita el caso honesto de un
+       ;; usuario clickeando un topic que ya no ve en su selector.
+       {:db (assoc-in db [:test :topics-error] "No tienes acceso a esta evaluación.")}
+       (let [cfg (get-in db [:test :configs resolved])
+             stop-config (if cfg
+                          {:min-items (:min_items cfg)
+                           :max-items (:max_items cfg)
+                           :se-threshold (:se_threshold cfg)
+                           :max-minutes (:max_minutes cfg)}
+                          progress/default-stop-config)]
+         {:db (-> db
+                  (assoc-in [:test :status] :questions)
+                  (assoc-in [:test :topic] resolved)
+                  (assoc-in [:test :responses] [])
+                  (assoc-in [:test :questions] [])
+                  (assoc-in [:test :feedback] nil)
+                  (assoc-in [:test :prefetched-question] nil)
+                  (assoc-in [:test :prefetching?] false)
+                  (assoc-in [:test :start-time] (.now js/Date))
+                  (assoc-in [:test :theta] 0.0)
+                  (assoc-in [:test :theta-history] [])
+                  (assoc-in [:test :stop-reason] nil)
+                  (assoc-in [:test :stop-config] stop-config)
+                  (assoc-in [:test :current-question] nil))
+          :dispatch [:test/fetch-next-question]})))))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EFECTO: Obtiene la siguiente pregunta desde Supabase
@@ -328,7 +364,10 @@
          updated-db (update-in db [:test :responses] conj new-response)
          new-theta (tetha/calculate-theta-auto (:test updated-db))
          responses (get-in updated-db [:test :responses])
-         reason (progress/stop-reason responses new-theta)
+         start-time (get-in db [:test :start-time])
+         elapsed-minutes (when start-time (/ (- (.now js/Date) start-time) 60000.0))
+         stop-config (get-in db [:test :stop-config] progress/default-stop-config)
+         reason (progress/stop-reason responses new-theta elapsed-minutes stop-config)
          db-with-theta (-> updated-db
                            (assoc-in [:test :theta] new-theta)
                            (update-in [:test :theta-history] conj new-theta)
@@ -415,8 +454,15 @@
                   uid (or session-uid app-uid)
                   email* (or email (get data "email-user") (:email-user data))
                   test-payload (or (get data "test") (:test data))
-                  ;; Claves string = nombres exactos de columnas en Postgres
+                  topic (or (get data "topic") (:topic data))
+                  theta (or (get data "theta") (:theta data))
+                  ;; Claves string = nombres exactos de columnas en Postgres.
+                  ;; topic/theta van también como columnas propias (no solo
+                  ;; dentro del JSON de "test") para poder calcular qué otros
+                  ;; tests desbloquea este intento (universo.access).
                   row {"test" test-payload
+                       "topic" topic
+                       "theta" theta
                        "email-user" email*
                        "user_id" uid}]
               (if-not uid
@@ -448,6 +494,8 @@
          test       (:test new-db)]
      {:db new-db
       :save-test {:data {"test" test
+                         "topic" (:topic test)
+                         "theta" (:theta test)
                          "email-user" email-user
                          "user_id" user-id}
                   :email email-user}

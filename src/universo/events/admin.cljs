@@ -21,6 +21,7 @@
    :users :admin/load-profiles
    :tests :admin/load-tests
    :questions :admin/load-questions
+   :test-configs :admin/load-test-configs
    :resources :admin/load-resources
    :slots :admin/load-slots
    :guestbook :admin/load-guestbook
@@ -805,3 +806,157 @@
             (update-in [:admin :status :questions] dissoc :loaded-at))
     :dispatch-n [[:admin/toast :success "Pregunta eliminada."]
                  [:admin/load-questions]]}))
+
+;; -----------------------------------------------------------------------------
+;; Configuración de tests (parada IRT + cadena de prerequisitos por topic)
+;; -----------------------------------------------------------------------------
+;; No hay tabla de "accesos otorgados" por usuario: el avance se deriva del
+;; historial real en `tests` (ver universo.access). Esta sección solo edita
+;; el catálogo (test_configs) — min/max items, SE, tiempo, prerequisito y
+;; theta mínimo, y el flag `active` para tener tests en borrador.
+
+(def empty-test-config-draft
+  {:topic ""
+   :min_items 5
+   :max_items 12
+   :se_threshold 0.35
+   :prerequisite_topic nil
+   :min_theta nil
+   :max_minutes nil
+   :active true})
+
+(re-frame/reg-sub
+ :admin/test-configs
+ (fn [db _]
+   (get-in db [:admin :test-configs] [])))
+
+(re-frame/reg-sub
+ :admin/test-config-editing?
+ (fn [db _]
+   (get-in db [:admin :test-config-editing?] false)))
+
+(re-frame/reg-sub
+ :admin/test-config-saving?
+ (fn [db _]
+   (get-in db [:admin :test-config-saving?] false)))
+
+(re-frame/reg-sub
+ :admin/test-config-draft
+ (fn [db _]
+   (get-in db [:admin :test-config-draft])))
+
+(re-frame/reg-fx
+ :admin/fetch-test-configs
+ (fn [_]
+   (go
+     (let [result (<! (crud/fetch-test-configs))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/test-configs-loaded (:data result)])
+         (re-frame/dispatch [:admin/section-fail :test-configs
+                             (or (:error result)
+                                 "No se pudo cargar la configuración de tests")]))))))
+
+(re-frame/reg-event-fx
+ :admin/load-test-configs
+ (fn [_ _]
+   {:dispatch [:admin/section-start :test-configs]
+    :admin/fetch-test-configs nil}))
+
+(re-frame/reg-event-fx
+ :admin/test-configs-loaded
+ (fn [{:keys [db]} [_ rows]]
+   {:db (assoc-in db [:admin :test-configs] (or rows []))
+    :dispatch [:admin/section-ok :test-configs]}))
+
+(re-frame/reg-event-db
+ :admin/new-test-config
+ (fn [db _]
+   (-> db
+       (assoc-in [:admin :test-config-editing?] true)
+       (assoc-in [:admin :test-config-draft] empty-test-config-draft))))
+
+(re-frame/reg-event-db
+ :admin/edit-test-config
+ (fn [db [_ row]]
+   (let [draft (merge empty-test-config-draft
+                      (select-keys row [:topic :min_items :max_items :se_threshold
+                                        :prerequisite_topic :min_theta :max_minutes
+                                        :active]))]
+     (-> db
+         (assoc-in [:admin :test-config-editing?] true)
+         (assoc-in [:admin :test-config-draft] draft)))))
+
+(re-frame/reg-event-db
+ :admin/cancel-test-config-edit
+ (fn [db _]
+   (-> db
+       (assoc-in [:admin :test-config-editing?] false)
+       (assoc-in [:admin :test-config-draft] nil)
+       (assoc-in [:admin :test-config-saving?] false))))
+
+(re-frame/reg-event-db
+ :admin/update-test-config-draft
+ (fn [db [_ k v]]
+   (assoc-in db [:admin :test-config-draft k] v)))
+
+(defn- as-num
+  "Convierte a número los valores de draft (llegan como string desde
+   <input type=\"number\">, igual que en admin_questions)."
+  [v]
+  (cond
+    (number? v) v
+    (string? v) (let [n (js/parseFloat v)] (when-not (js/isNaN n) n))
+    :else nil))
+
+(defn- test-config-draft-valid? [draft]
+  (let [min-items (as-num (:min_items draft))
+        max-items (as-num (:max_items draft))
+        se (as-num (:se_threshold draft))
+        min-theta-set? (not (or (nil? (:min_theta draft))
+                                (and (string? (:min_theta draft))
+                                     (str/blank? (:min_theta draft)))))]
+    (and (pos? (count (str/trim (or (:topic draft) ""))))
+         min-items (pos? min-items)
+         max-items (>= max-items min-items)
+         se (pos? se)
+         ;; min_theta exige un prerequisite_topic contra el cual medirse
+         ;; (mismo check que en la migración 020_test_configs.sql).
+         (or (not min-theta-set?)
+             (some-> (:prerequisite_topic draft) str/trim seq)))))
+
+(re-frame/reg-event-fx
+ :admin/save-test-config
+ (fn [{:keys [db]} _]
+   (let [draft (get-in db [:admin :test-config-draft])]
+     (if-not (test-config-draft-valid? draft)
+       {:dispatch [:admin/toast :error
+                   "Revisa el topic, min/max items, SE y que theta mínimo tenga un prerequisito."]}
+       {:db (assoc-in db [:admin :test-config-saving?] true)
+        :admin/persist-test-config draft}))))
+
+(re-frame/reg-fx
+ :admin/persist-test-config
+ (fn [draft]
+   (go
+     (let [result (<! (crud/upsert-test-config! draft))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/test-config-saved])
+         (re-frame/dispatch [:admin/test-config-save-failed
+                             (or (:error result) "No se pudo guardar")]))))))
+
+(re-frame/reg-event-fx
+ :admin/test-config-saved
+ (fn [{:keys [db]} _]
+   {:db (-> db
+            (assoc-in [:admin :test-config-saving?] false)
+            (assoc-in [:admin :test-config-editing?] false)
+            (assoc-in [:admin :test-config-draft] nil)
+            (update-in [:admin :status :test-configs] dissoc :loaded-at))
+    :dispatch-n [[:admin/toast :success "Configuración guardada."]
+                 [:admin/load-test-configs]]}))
+
+(re-frame/reg-event-fx
+ :admin/test-config-save-failed
+ (fn [{:keys [db]} [_ msg]]
+   {:db (assoc-in db [:admin :test-config-saving?] false)
+    :dispatch [:admin/toast :error msg]}))

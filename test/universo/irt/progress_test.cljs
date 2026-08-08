@@ -67,7 +67,33 @@
   (testing "config por defecto: piso 5, techo 12"
     (is (= 5 (:min-items progress/default-stop-config)))
     (is (= 12 (:max-items progress/default-stop-config)))
-    (is (= 0.35 (:se-threshold progress/default-stop-config)))))
+    (is (= 0.35 (:se-threshold progress/default-stop-config)))
+    (is (nil? (:max-minutes progress/default-stop-config)))))
+
+(deftest stop-reason-limite-de-tiempo
+  (testing "para por :time-limit aunque no se hayan alcanzado min-items ni max-items"
+    (let [rs (responses 2 0.0)
+          cfg {:min-items 5 :max-items 12 :se-threshold 0.35 :max-minutes 5}]
+      (is (= :time-limit (progress/stop-reason rs 0.0 6 cfg)))))
+
+  (testing "no para por tiempo si max-minutes es nil (comportamiento sin límite)"
+    (let [rs (responses 2 0.0)]
+      (is (nil? (progress/stop-reason rs 0.0 999 progress/default-stop-config)))))
+
+  (testing "no para por tiempo si aún no se alcanza el máximo de minutos"
+    (let [rs (responses 2 0.0)
+          cfg {:min-items 5 :max-items 12 :se-threshold 0.35 :max-minutes 5}]
+      (is (nil? (progress/stop-reason rs 0.0 3 cfg)))))
+
+  (testing ":max-items tiene prioridad si ambos límites se cumplen a la vez"
+    (let [rs (responses 12 2.5)
+          cfg {:min-items 5 :max-items 12 :se-threshold 0.35 :max-minutes 5}]
+      (is (= :max-items (progress/stop-reason rs 0.0 10 cfg)))))
+
+  (testing "2 y 3-aridad siguen sin evaluar tiempo (compatibilidad hacia atrás)"
+    (let [rs (responses 12 2.5)]
+      (is (= :max-items (progress/stop-reason rs 0.0)))
+      (is (= :max-items (progress/stop-reason rs 0.0 progress/default-stop-config))))))
 
 (deftest closest-question-argmin
   (testing "elige la dificultad más cercana a θ"

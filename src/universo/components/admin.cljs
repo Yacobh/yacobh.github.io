@@ -5,6 +5,7 @@
    [re-frame.core :as re-frame]
    [reagent.core :as r]
    [universo.components.admin-questions :as admin-q]
+   [universo.components.admin-test-configs :as admin-tc]
    [universo.components.ui :as ui]))
 
 ;; -----------------------------------------------------------------------------
@@ -1099,6 +1100,7 @@
    [:users "Usuarios"]
    [:tests "Diagnósticos"]
    [:questions "Preguntas"]
+   [:test-configs "Configuración de tests"]
    [:resources "Recursos"]
    [:slots "Cupos"]
    [:guestbook "Moderación"]
@@ -1163,6 +1165,7 @@
               :users [users-panel]
               :tests [tests-panel]
               :questions [admin-q/questions-panel]
+              :test-configs [admin-tc/test-configs-panel]
               :resources [resources-panel]
               :slots [slots-admin-panel]
               :guestbook [guestbook-panel]
