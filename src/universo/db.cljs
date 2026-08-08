@@ -52,7 +52,12 @@
            :slots []
            :editing-slot nil
            :expanded-slot nil
-           :rosters {}}
+           :rosters {}
+           ;; Configuración de tests por topic (parada IRT + prerequisitos)
+           :test-configs []
+           :test-config-editing? false
+           :test-config-saving? false
+           :test-config-draft nil}
 
    ;; Landing pública
    :landing {:testimonials []
@@ -134,10 +139,18 @@
           ;; Prefetch de la siguiente pregunta (mientras se muestra feedback)
           :prefetched-question nil ; nil | mapa-pregunta | :exhausted
           :prefetching? false
-          ;; Catálogo de evaluaciones (topics distintos en questions)
+          ;; Catálogo de evaluaciones: test_configs filtrado por lo que el
+          ;; usuario ya desbloqueó (universo.access/unlocked-topics).
           :available-topics []
           :topics-loading? false
-          :topics-error nil}
+          :topics-error nil
+          ;; Config (min/max items, SE, tiempo) de todos los topics del
+          ;; catálogo, indexada por topic — la usa :test/start para armar
+          ;; :stop-config del topic elegido.
+          :configs {}
+          ;; Config de parada resuelta para el test en curso (nil hasta que
+          ;; :test/start la arma desde :configs).
+          :stop-config nil}
 
    :bookings {:by-id {}        ;; id -> booking info
               :all-ids []}})   ;; to preserve insertion order

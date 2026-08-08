@@ -5,7 +5,8 @@
 (def default-stop-config
   {:min-items 5
    :max-items 12
-   :se-threshold 0.35})
+   :se-threshold 0.35
+   :max-minutes nil})
 
 ;; Ventana de búsqueda de ítems alrededor de θ (luego se elige el más cercano).
 (def selection-half-width 1.0)
@@ -53,15 +54,21 @@
           (range (count rs)))))
 
 (defn stop-reason
-  "Devuelve :max-items, :precision o nil según la config."
+  "Devuelve :max-items, :precision, :time-limit o nil según la config.
+   La 2 y 3-aridad no evalúan tiempo (elapsed-minutes nil), preservando el
+   comportamiento previo a que existiera :max-minutes en la config."
   ([responses theta]
-   (stop-reason responses theta default-stop-config))
-  ([responses theta {:keys [min-items max-items se-threshold]
-                     :or {min-items 5 max-items 12 se-threshold 0.35}}]
+   (stop-reason responses theta nil default-stop-config))
+  ([responses theta config]
+   (stop-reason responses theta nil config))
+  ([responses theta elapsed-minutes
+    {:keys [min-items max-items se-threshold max-minutes]
+     :or {min-items 5 max-items 12 se-threshold 0.35 max-minutes nil}}]
    (let [n (count responses)
          se (standard-error theta responses)]
      (cond
        (>= n max-items) :max-items
+       (and max-minutes elapsed-minutes (>= elapsed-minutes max-minutes)) :time-limit
        (and (>= n min-items) (<= se se-threshold)) :precision
        :else nil))))
 

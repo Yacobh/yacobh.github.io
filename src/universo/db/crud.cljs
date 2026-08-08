@@ -1,6 +1,7 @@
 (ns universo.db.crud
   (:require [universo.supabase :refer [supabase-client]]
-            [cljs.core.async :as async :refer [go <!]]))
+            [cljs.core.async :as async :refer [go <!]]
+            [clojure.string :as str]))
 
 (defn collect-visitor-data
   "Recolecta datos básicos del visitante"
@@ -592,6 +593,67 @@
         (.select "*")
         (.eq "user_id" (str user-id))
         (.maybeSingle)
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-test-configs
+  "Catálogo de configuración por topic (parada IRT + cadena de prerequisito).
+   RLS ya filtra los borradores (active = false) para no-admins."
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "test_configs")
+        (.select "*")
+        (.order "topic" #js {:ascending true})
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn- blank-str? [v]
+  (or (nil? v) (and (string? v) (zero? (count (str/trim v))))))
+
+(defn- test-config-payload
+  "Mapa CLJS (draft del admin, campos numéricos como string) → JS para el
+   upsert. Vacío en un campo opcional (prerequisite_topic/min_theta/
+   max_minutes) se guarda como null, no como string vacío."
+  [row]
+  (let [parse-num (fn [v f]
+                    (when-not (blank-str? v)
+                      (if (string? v) (f v) v)))]
+    (clj->js
+     {:topic (str/trim (or (:topic row) ""))
+      :min_items (or (parse-num (:min_items row) #(js/parseInt % 10)) 5)
+      :max_items (or (parse-num (:max_items row) #(js/parseInt % 10)) 12)
+      :se_threshold (or (parse-num (:se_threshold row) js/parseFloat) 0.35)
+      :prerequisite_topic (when-not (blank-str? (:prerequisite_topic row))
+                            (str/trim (:prerequisite_topic row)))
+      :min_theta (parse-num (:min_theta row) js/parseFloat)
+      :max_minutes (parse-num (:max_minutes row) js/parseFloat)
+      :active (boolean (:active row))})))
+
+(defn upsert-test-config!
+  "Upsert por topic (admin)."
+  [row]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "test_configs")
+        (.upsert (test-config-payload row) #js {:onConflict "topic"})
+        (.select "*")
+        (.single)
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-user-test-history
+  "topic/theta de los tests ya rendidos por un usuario (para calcular qué
+   se desbloqueó vía universo.access/unlocked-topics)."
+  [user-id]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "tests")
+        (.select "topic,theta")
+        (.eq "user_id" (str user-id))
         (.then (fn [result] (put-result ch result)))
         (.catch (fn [error]
                   (async/put! ch {:success false :error (.-message error)}))))
