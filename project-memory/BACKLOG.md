@@ -496,6 +496,50 @@ prerequisitos + θ mínimo finalmente implementada).
   Q-06 (evitado a propósito, no resuelto), Q-07 (el "mejor θ por topic" usa el historial de
   `tests`, pero no resuelve la semántica completa de re-diagnóstico de T-26).
 
+### T-40 · Columna de cantidad de preguntas por test en el panel admin — **P2** · `idea`
+
+Feedback del owner tras probar T-39 en local (2026-08-08): en Admin → "Configuración de tests"
+(`admin_test_configs.cljs`, `test-configs-list`) sería útil ver cuántas preguntas tiene cada topic
+antes de exigirle una regla de parada (min/max ítems) que el banco no pueda cumplir — el problema
+original que motivó T-39.
+
+- **Trabajo:** agregar una columna "Preguntas" a la tabla de `test-configs-list` con
+  `count(*) from questions where topic = ?` por fila. Requiere una función CRUD nueva (o extender
+  `crud/fetch-test-configs`) que traiga el conteo agregado por topic — mismo patrón de agregación
+  que ya usa `get-distinct-topics`, pero con `count` en vez de `distinct`.
+- **Terminado cuando:** cada fila del panel muestra el número de preguntas del banco
+  correspondiente, sin necesidad de ir a la pestaña Preguntas a contarlas a mano.
+- **Relacionado:** [[BACKLOG]] T-39, `src/universo/components/admin_test_configs.cljs`.
+
+### T-41 · Revisar la paleta del tema oscuro — **P2** · `idea` (sin especificar)
+
+Feedback del owner tras probar T-39 en local (2026-08-08): "mejorar la paleta oscura de alguna
+forma", sin precisar qué concretamente (¿contraste, combinación de colores, algún componente en
+particular?). Por regla de gobernanza de la memoria, no se inventa el detalle faltante.
+
+- **Terminado cuando:** el owner especifique qué no le convence del tema oscuro actual y se
+  implemente el ajuste correspondiente.
+- **Relacionado:** [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] (mapeo global `.dark
+  .clase-existente` en `src/css/app.css`).
+
+### T-42 · Nombre de fantasía editable por test — **P2** · `idea`
+
+Feedback del owner tras probar T-39 en local (2026-08-08): quiere poder cambiar el nombre visible
+de cada evaluación ("nombre de fantasía"), no solo su `topic` técnico. Hoy ese nombre sale de un
+diccionario estático hardcodeado (`topic-labels`,
+`src/universo/components/diagnostic_test.cljs:15-27`), que solo cubre un puñado de topics
+conocidos y no es editable desde ningún panel.
+
+- **Trabajo:** agregar una columna `display_name` (nullable) a `test_configs` (la tabla de T-39,
+  `supabase/migrations/020_test_configs.sql` — requiere una migración nueva, no editar la ya
+  aplicada), exponerla como campo editable en `admin_test_configs.cljs`, y que
+  `topic-label`/`diagnostic_test.cljs` la use como fuente primaria, con el diccionario estático
+  actual como fallback cuando `display_name` sea nulo.
+- **Terminado cuando:** un admin puede asignarle un nombre de fantasía a cualquier topic desde el
+  panel, y ese nombre (no el `topic` técnico) es lo que ve el estudiante en el selector de
+  evaluaciones.
+- **Relacionado:** [[BACKLOG]] T-39, [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]].
+
 ---
 
 ## Épica E5 — Contenido y calidad pedagógica
@@ -619,7 +663,7 @@ desactualizados (lista de módulos previa al MVP).
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30 |
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32 |
 
 ---
