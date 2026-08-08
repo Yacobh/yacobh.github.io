@@ -206,7 +206,9 @@ amplían para mostrar los datos nuevos cuando existen.
 19. `migrations/017_contacto_alternativas.sql`
 20. `migrations/018_baldor_resources.sql`
 21. `migrations/019_baldor_algebra_resources.sql`
-22. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+22. `migrations/020_test_configs.sql`
+23. `migrations/021_tests_topic_theta_rls.sql`
+24. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 ## Recursos originales con numeración Baldor como índice (`018_baldor_resources.sql`)
 
@@ -238,3 +240,32 @@ relativos" (suma/resta/multiplicación/división con signo), así que se agrega 
 (enteros no fraccionarios de la Aritmética + enteros con signo del Álgebra).
 
 19 recursos nuevos, todos `published = false` -- misma revisión pendiente que `018`.
+
+## Configuración de parada por banco y prerequisitos (`020_test_configs.sql`)
+
+Nueva tabla `test_configs`, keyed por `topic` (no por `modules`: el mapeo `topic → module-slug` es
+parcial, ver `OPEN_QUESTIONS` Q-06, y `topic` es hoy el único identificador real y completo de un
+banco). Columnas: `min_items`, `max_items`, `se_threshold`, `max_minutes` (nullable = sin límite
+de tiempo), `prerequisite_topic` (self-FK nullable, `on delete restrict`), `min_theta` (escala
+interna -3..3, exige `prerequisite_topic` no nulo), `active` (para borradores). Seed: un row por
+cada `topic` ya existente en `questions`, con los valores globales actuales
+(`min_items=5, max_items=12, se_threshold=0.35`) y **sin prerequisito** -- el deploy no bloquea a
+nadie hasta que un admin configure una cadena real desde Admin → Configuración de tests. Detalle
+completo del diseño en [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]].
+
+RLS: SELECT para `authenticated` solo ve `active = true` (o `is_admin()`); INSERT/UPDATE/DELETE
+solo admin.
+
+## Historial de topic/theta y RLS propia en tests (`021_tests_topic_theta_rls.sql`)
+
+`tests` gana columnas propias `topic` y `theta` (antes solo vivían dentro del JSON de la columna
+`test`) -- las necesita `universo.access/unlocked-topics` para calcular, por usuario, el mejor θ
+alcanzado por topic sin tener que parsear JSON en cada consulta. Backfill best-effort de `topic`
+histórico (`test::jsonb ->> 'topic'`; **verificar el tipo real de la columna `test` antes de
+aplicar en producción**, ver ADR-013). El backfill de `theta` histórico se omite a propósito (cast
+numérico masivo sobre datos ya guardados, más riesgoso que el valor que aporta).
+
+Agrega también `tests_select_own` (`user_id = auth.uid() or is_admin()`) y, de forma idempotente,
+`enable row level security` -- no había evidencia en ningún archivo versionado de que `tests`
+tuviera RLS habilitado ni ninguna policy de SELECT propia del usuario (solo `tests_select_admin`
+en `admin_rls.sql`).

@@ -172,7 +172,8 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
 |-------|---------------------------|-------|
 | `profiles` | `id` (FK `auth.users`), `email`, `role` (`user`\|`admin`) | Base del control de acceso. Índices en `role` y `email` |
 | `questions` | opciones A–D, `correct_option`, `error_a..error_d`, `difficulty`, `topic`, `order_index`, `module_id` (FK opcional) | **El activo del proyecto**: banco IRT con misconceptions |
-| `tests` | `test` (JSON del diagnóstico), `email-user`, `user_id` | Histórico de diagnósticos |
+| `tests` | `test` (JSON del diagnóstico), `topic`, `theta` (columnas propias desde ADR-013), `email-user`, `user_id` | Histórico de diagnósticos; `topic`/`theta` alimentan `universo.access/unlocked-topics` |
+| `test_configs` | `topic` (PK), `min_items`, `max_items`, `se_threshold`, `max_minutes`, `prerequisite_topic` (self-FK nullable), `min_theta`, `active` | Config de parada IRT + cadena de prerequisitos por banco (ADR-013). Sin prerequisito = diagnóstico, siempre accesible |
 | `modules` | `slug` (único), `title`, `track` (`aritmetica`\|`algebra`\|`geometria`), `order_index`, `historical_blurb` | Skills atómicas alineadas a Baldor |
 | `student_profiles` | `theta`, `theta_band`, `profile` JSONB | Materialización del perfil (una por estudiante) |
 | `resources` | `module_id`, tipo (`text`/`video_url`/`audio_url`/`exercise`), `published` | Capa 1 del plan |

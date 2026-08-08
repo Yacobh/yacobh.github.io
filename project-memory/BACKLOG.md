@@ -458,6 +458,44 @@ API de WhatsApp Business. Sin infraestructura nueva.
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-25 (respondida), [[DECISIONS]] D-29, D-30,
   `supabase/SCHEMA.md`.
 
+### T-39 · Config de parada por banco y progresión por prerequisitos — **P1** · `en curso` (2026-08-08, código listo, falta aplicar migraciones)
+
+Pedido del owner: la regla de parada IRT (min/max ítems, SE) era un único valor global sin
+importar el banco (`topic`), y no existía ningún concepto de progresión entre tests — cualquier
+usuario veía y podía iniciar cualquier topic. Diseño completo y decisiones en
+[[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]] (tres rondas de ajuste con el owner:
+de una tabla de accesos otorgados, a desbloqueo por "topics con error", a la cadena de
+prerequisitos + θ mínimo finalmente implementada).
+
+- **Implementado (código, 2026-08-08):**
+  - `supabase/migrations/020_test_configs.sql` — tabla `test_configs` (min/max items, SE, tiempo
+    máximo, `prerequisite_topic` self-FK, `min_theta`, `active`), seed inofensivo (sin
+    prerequisito para ningún topic existente).
+  - `supabase/migrations/021_tests_topic_theta_rls.sql` — columnas `topic`/`theta` en `tests`,
+    policy `tests_select_own` (no existía ninguna policy de SELECT propia del usuario) y
+    `enable row level security` idempotente (no había evidencia versionada de que estuviera
+    habilitado).
+  - `universo.access` (namespace puro nuevo) — `best-theta-by-topic`/`unlocked-topics`, con tests.
+  - `universo.irt.progress/stop-reason` — nueva 4.ª aridad con `elapsed-minutes` para el límite de
+    tiempo (`:time-limit`), 2.ª/3.ª aridad sin cambios (compatibilidad con ADR-004).
+  - `events/test.cljs` — topics filtrados por lo que el usuario ya desbloqueó, `stop-config` por
+    topic, fix del bug donde `stop-reason` nunca recibía una config custom.
+  - Admin → "Configuración de tests" (`admin_test_configs.cljs`) — CRUD de `test_configs`.
+  - `clj -M:test`: 39 tests / 149 assertions / 0 failures. `shadow-cljs release app`: 0 warnings.
+- **Pendiente (bloquea cierre):**
+  - Aplicar `020`/`021` en el proyecto Supabase real (requiere credenciales del owner; verificar
+    antes el tipo real de la columna `tests.test` para el backfill de `topic`, ver ADR-013).
+  - Verificar en vivo: selector de topics, cadena de prerequisito + θ mínimo real, panel admin.
+  - No commitear/desplegar `public/js/app.js` hasta que las migraciones estén aplicadas en
+    producción — de lo contrario el selector de evaluaciones se rompe para todos los usuarios
+    (`test_configs` no existiría todavía).
+- **Terminado cuando:** migraciones aplicadas, flujo verificado en vivo con un usuario de prueba
+  (prerequisito bloqueado → rendido con θ bajo → rendido de nuevo con θ suficiente → desbloqueado),
+  y el bundle recompilado publicado en `main`.
+- **Relacionado:** [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]], [[OPEN_QUESTIONS]]
+  Q-06 (evitado a propósito, no resuelto), Q-07 (el "mejor θ por topic" usa el historial de
+  `tests`, pero no resuelve la semántica completa de re-diagnóstico de T-26).
+
 ---
 
 ## Épica E5 — Contenido y calidad pedagógica
@@ -580,7 +618,7 @@ desactualizados (lista de módulos previa al MVP).
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39 |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32 |
 

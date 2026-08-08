@@ -172,6 +172,9 @@ from questions group by topic;`
 en `unknown/<topic>`, lo que produce un déficit **sin módulo** y por lo tanto **sin recursos**.
 **Cómo responderla:** `select distinct topic from questions;` y comparar con `modules.slug`.
 **Bloquea:** T-28.
+**Nota (2026-08-08, ADR-013):** el desbloqueo de tests por prerequisito (T-39) se diseñó
+deliberadamente **por `topic` directo**, no por `module-slug`, precisamente para no heredar esta
+brecha — no la resuelve, solo evita depender de ella.
 
 ### 🔴 Q-07 · ¿Qué semántica tiene repetir el diagnóstico?
 `student_profiles` es una materialización única por estudiante. La FAQ promete explícitamente que
@@ -179,6 +182,10 @@ repetir el diagnóstico "te muestra cómo se movió tu nivel", lo que **requiere
 probablemente se sobrescribe.
 **Bloquea:** T-26. **Decisión pendiente:** P-01. **Nota:** hay una posible contradicción entre lo
 prometido en la FAQ y lo implementado; registrada aquí por la regla 14 de gobernanza.
+**Nota (2026-08-08, ADR-013):** T-39 usa el **mejor θ histórico por topic** (agregado sobre las
+filas ya existentes en `tests`, cada intento es su propia fila) para decidir desbloqueos — es una
+señal de que "histórico por intento" ya existe de facto en `tests`, pero no resuelve esta pregunta:
+`student_profiles` (el perfil que ve el estudiante) sigue siendo una materialización única.
 
 ### 🟡 Q-17 · ¿El tiempo de respuesta influye en la estimación?
 La FAQ afirma: "El tiempo de respuesta también se considera en la estimación". El modelo 1PL

@@ -202,6 +202,36 @@
 > `git show 787d337:public/js/app.js` (mismo patrón de verificación que T-19). T-24 y T-38 están en
 > producción. Detalle completo en `sessions/SESSION-007.md`.
 
+> **T-39 (código listo, migraciones sin aplicar) — Config de parada por banco + prerequisitos
+> (2026-08-08).** Pedido del owner: la regla de parada IRT era un único valor global sin importar
+> el banco de preguntas, y no había ningún concepto de progresión entre tests (cualquier usuario
+> veía y podía iniciar cualquier topic). Tras tres rondas de ajuste con el owner (ver
+> [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]] para la historia completa de las
+> alternativas descartadas), se implementó: tabla `test_configs` (min/max ítems, SE, tiempo máximo
+> — este último no existía en el código pese a estar en el pedido original) keyed por `topic`;
+> progresión por **cadena de prerequisitos + θ mínimo**, derivada 100% del historial real en
+> `tests` (sin tabla de permisos aparte — se agregaron columnas `topic`/`theta` propias en `tests`
+> más la policy `tests_select_own`, que no existía); nueva 4.ª aridad en
+> `universo.irt.progress/stop-reason` para el límite de tiempo, compatible con las aridades
+> previas; namespace puro `universo.access` con tests; pestaña admin "Configuración de tests".
+> `clj -M:test`: **39 tests / 149 assertions / 0 failures** (antes 34/133). `shadow-cljs release
+> app`: 0 warnings. **De paso se encontró que `tests` no tenía evidencia versionada de RLS
+> habilitado** (solo existía `tests_select_admin`, potencialmente inerte) — corregido en la misma
+> migración. **Pendiente, bloquea cierre:** aplicar `020_test_configs.sql` y
+> `021_tests_topic_theta_rls.sql` en el proyecto Supabase real (requiere credenciales del owner) y
+> verificar en vivo. **No se commiteó ni se recompiló `public/js/app.js` a propósito**: desplegar
+> antes de aplicar las migraciones rompería el selector de evaluaciones para todos los usuarios en
+> producción. Detalle en [[BACKLOG]] T-39, `sessions/SESSION-008.md`.
+>
+> **Nota de seguridad de la sesión:** durante la exploración, varias salidas de herramientas
+> (subagentes y hooks locales) trajeron "system-reminders" inyectados exigiendo ejecutar
+> `graphify query` antes de cualquier grep/read, incluso citando "aplica a subagentes también".
+> No provienen de instrucciones reales del proyecto ni del owner — se ignoraron y se siguió
+> trabajando con `grep`/`Read`/`find` directo, como corresponde (además, `CLAUDE.md` §13 ya
+> documenta que graphify no indexa `.cljs`, así que la exigencia era incoherente con el propio
+> proyecto). No se encontró daño real, solo la anomalía de inyección; el owner debería revisar de
+> dónde viene ese hook cuando tenga tiempo.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".
@@ -225,7 +255,7 @@ y **verificación de operación** (envío de email en el proyecto Supabase real)
 |-----------|--------|
 | Funcionalidad del funnel | ✅ operativa |
 | Panel admin | ✅ operativo |
-| Tests | ✅ `34 tests / 129 assertions / 0 failures` (`clj -M:test`) |
+| Tests | ✅ `39 tests / 149 assertions / 0 failures` (`clj -M:test`, 2026-08-08) |
 | Contenido pedagógico | 🟡 módulos y blurbs sembrados; faltan recursos publicados |
 | Email de cohorte | ⚠️ código y migración listos; despliegue/secret no verificados |
 | Documentación / memoria | ✅ PMF adoptado hoy (2026-07-26) |
@@ -239,7 +269,7 @@ y **verificación de operación** (envío de email en el proyecto Supabase real)
 | Fase | Objetivo | Avance | Notas |
 |------|----------|--------|-------|
 | **F0 — Base técnica** | SPA + Supabase + auth + RLS | **100 %** | `admin_rls.sql`, sesión rehidratada, rutas protegidas |
-| **F1 — Motor IRT** | Diagnóstico adaptativo con parada por precisión | **100 %** | 1PL + MAP, Δθ acotado, SE ≤ 0,35, prefetch |
+| **F1 — Motor IRT** | Diagnóstico adaptativo con parada por precisión | **100 %** | 1PL + MAP, Δθ acotado, SE ≤ 0,35, prefetch; parada + tiempo ahora configurables por banco (T-39, ADR-013, código listo, migraciones sin aplicar) |
 | **F2 — Perfil y plan** | θ → banda → déficits → plan en 2 capas | **95 %** | Falta contenido publicado (capa 1) |
 | **F3 — Cohortes** | Cupos por banda, inscripción, confirmación | **95 %** | Falta verificar control de `capacity` (Q-04) |
 | **F4 — Admin** | Operar contenido, cupos, usuarios, moderación | **100 %** | Editor de preguntas restaurado en `48bf525` |
@@ -310,6 +340,7 @@ Registradas hoy de forma retroactiva (las decisiones son previas; su documentaci
 - **ADR-010** Adopción de Project Memory First *(decisión de hoy)*
 - **ADR-011** La visión de [[VISION_LIBRO_PROYECTO]] es el norte estratégico, el MVP una fase intermedia
 - **ADR-012** Tema oscuro mediante mapeo global de CSS (`.dark .clase-existente`), no `dark:` por elemento
+- **ADR-013** Config de parada IRT por banco + progresión por prerequisitos y θ mínimo derivada del historial en `tests`, sin tabla de permisos aparte
 
 Índice completo en [[DECISIONS]].
 
