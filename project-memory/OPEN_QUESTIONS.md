@@ -252,7 +252,12 @@ con `correct_option` y `error_a..d`.
 
 **Consecuencia:** [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]] (el cliente deja de leer
 `questions`; ítem sin respuesta + corrección en servidor vía `security definer`), migraciones
-`023`/`024`/`025` y [[BACKLOG]] T-47 (**P0, bloquea go-live**).
+`023`–`026` y [[BACKLOG]] T-47.
+
+**✅ Cerrado 2026-08-09.** Migraciones aplicadas, bundle publicado y verificado en producción con
+cuenta de rol `user`: anónimo → `permission denied for table questions`; estudiante → **0 filas**
+(antes 387); los RPC sirven el ítem sin `correct_option` ni `error_*`; el diagnóstico funciona
+igual. [[RISKS]] R-16 cerrado, contradicción X-03 resuelta.
 
 **Hallazgos colaterales de la misma auditoría** (se auditaron las 15 tablas, no solo `questions`):
 - **RLS está habilitado en las 15 tablas** (`relrowsecurity = true`), así que ninguna está abierta
@@ -323,7 +328,7 @@ Ninguna está documentada. Puede haber trabajo valioso sin mergear.
 |---|---------------|----------------------|----------------------|
 | X-01 | La FAQ dice que el tiempo de respuesta se considera en la estimación; el modelo 1PL no lo usa | `index.html`, `landing.cljs` vs `components/tetha.cljs` | *(Vía decidida 2026-08-08)* Se cambia el modelo, no el copy: [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]], Q-17 respondida. **La contradicción sigue viva en producción** hasta que T-44 se despliegue |
 | X-02 | La FAQ promete ver "cómo se movió tu nivel" al repetir el diagnóstico; `student_profiles` no guarda histórico | FAQ vs `001_mvp_schema.sql` | Q-07 / P-01 |
-| X-03 | `007` restringe SELECT de `questions` a admin, pero el estudiante debe leer preguntas | `007_questions_admin_rls.sql` vs flujo de `events/test.cljs` | ✅ *Resuelta 2026-08-08:* había una policy permisiva del dashboard (`using true`) que anulaba a `007` por OR. Ver Q-12, [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]], T-47. **El agujero sigue abierto en producción hasta aplicar `025`** |
+| X-03 | `007` restringe SELECT de `questions` a admin, pero el estudiante debe leer preguntas | `007_questions_admin_rls.sql` vs flujo de `events/test.cljs` | ✅ *Resuelta 2026-08-09:* había una policy permisiva del dashboard (`using true`) que anulaba a `007` por OR. Eliminada en `025`; el estudiante ya no lee `questions` sino los RPC de ADR-015. **Cerrada y verificada en producción** — ver Q-12, T-47 |
 | X-04 | `.gitignore` ignora `src/universo/user.cljs`, pero el archivo está trackeado en Git | `.gitignore` vs `git ls-files` | T-16 |
 | X-05 | `shadow-cljs` 3.0.4 en `deps.edn` vs `^2.19.2` en `package.json` | `deps.edn` vs `package.json` | T-13 |
 | X-06 | KaTeX `^0.16.22` por npm vs CSS 0.16.9 por CDN | `package.json` vs `index.html` | T-13 |

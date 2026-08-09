@@ -217,7 +217,7 @@ job ni proceso que lo ejecute.
 > Nota: ya existía un T-15 distinto ("Descomponer los monolitos"); este ticket se numeró T-34 para
 > no chocar con él.
 
-### T-47 · Cerrar la lectura directa del banco de ítems (ADR-015) — **P0** · `abierto` · **bloquea go-live**
+### T-47 · Cerrar la lectura directa del banco de ítems (ADR-015) — **P0** · `hecho` (2026-08-09, verificado en producción)
 
 La auditoría de `pg_policies` del 2026-08-08 respondió [[OPEN_QUESTIONS]] Q-12 y confirmó
 [[RISKS]] R-16: la policy `"Enable read access for all users"` (creada desde el dashboard, ausente
@@ -238,6 +238,24 @@ y, peor, contaminaría la calibración futura de `difficulty` (T-29, T-45).
   para todos los no-admin.
 - **Terminado cuando:** con una cuenta de estudiante, `supabase.from('questions').select('*')`
   devuelve cero filas **y** el diagnóstico completo funciona de punta a punta, feedback incluido.
+
+**✅ Cerrado 2026-08-09, verificado en producción tras aplicar las cuatro migraciones y publicar el
+bundle (`main` @ `dc23f92`, hash confirmado contra el sitio):**
+
+| Acceso a `questions` | Antes | Después |
+|---|---|---|
+| Anónimo | legible | `permission denied for table questions` |
+| Estudiante (rol `user`) | **387 filas** con `correct_option` | **0 filas** |
+| Estudiante vía `next_question` | — | ítem servido, sin `correct_option` ni `error_*` |
+| Estudiante vía `score_answer` | — | `{correcto, correcta, explicacion}` |
+
+El diagnóstico sigue funcionando de punta a punta con esa cuenta: ítem servido, corrección
+server-side, comparación de respuestas completa y explicación del error conceptual.
+
+**Refinamiento durante la implementación:** se agregó `026_score_answer_devuelve_correcta.sql`
+porque el modal muestra "Comparación de respuestas" y sin la alternativa correcta esa sección
+quedaba vacía — regresión pedagógica inaceptable en el producto cuyo diferencial es explicar el
+error. Documentado como nota fechada dentro del ADR, no editando la decisión original.
 - **Relacionado:** [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]], [[RISKS]] R-16,
   [[OPEN_QUESTIONS]] Q-12 y X-03, [[../adr/ADR-003-github-pages-artefacto-versionado]].
 
