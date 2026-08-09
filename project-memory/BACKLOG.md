@@ -602,6 +602,66 @@ tanto **no genera déficit accionable ni recursos**.
   existente, con test que lo verifique contra la lista de topics reales.
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-06.
 
+### T-44 · Filtro de respuestas no esforzadas (Fase 1 de ADR-014) — **P1** · `abierto`
+
+Hace **verdadera** la afirmación ya publicada en la FAQ ("el tiempo de respuesta también se
+considera en la estimación"), hoy falsa (contradicción X-01, [[OPEN_QUESTIONS]] Q-17). Es la única
+parte del diseño de tiempos que **no depende de tener datos**, así que se puede hacer antes del
+go-live. Diseño completo y alternativas descartadas en
+[[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]].
+
+- **Trabajo:**
+  - `universo.components.tetha` — `first-derivative`/`second-derivative` aceptan peso por respuesta
+    (`w` por defecto `1.0`): `(+ sum (* w (- observed prob)))` y `(- sum (* w prob (- 1.0 prob)))`.
+  - `universo.irt.progress` — el mismo peso entra en la información de Fisher, para que
+    `standard-error` no mienta. **Este es el punto que es fácil olvidar.**
+  - Función pura nueva que decide el peso desde `:time-ms` y el largo del enunciado. Umbral inicial
+    conservador `t_min = max(3 s, caracteres / 20)`; `w = 0` bajo el umbral.
+  - Columna `min_response_seconds` en `test_configs` (migración nueva) + campo en el panel admin,
+    para que el umbral sea configurable por banco como el resto de la config de parada (ADR-013).
+- **Terminado cuando:** una respuesta bajo el umbral **no mueve θ** y **sí sube el SE**, verificado
+  con test en el namespace puro; el umbral es editable desde Admin → Configuración de tests; y
+  `clj -M:test` sigue verde.
+- **Ojo:** no requiere migración de datos ni backfill. `:time-ms` ya se persiste dentro de
+  `tests.test` (`events/test.cljs:357`, `:test/complete`), así que no hay nada que instrumentar.
+- **Relacionado:** [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]] §Fase 1,
+  [[../adr/ADR-004-irt-1pl-map-y-regla-de-parada]], [[OPEN_QUESTIONS]] Q-17 y X-01, [[RISKS]] R-17.
+
+### T-45 · Velocidad (τ) como segundo eje del perfil (Fase 2 de ADR-014) — **P2** · `bloqueado` (datos: ≥ 30 tests)
+
+Materializa el eje de **frecuencia (λ)** que [[VISION_LIBRO_PROYECTO]] §3.3 propone, en su forma
+rigurosa (parámetro de velocidad τ del marco de van der Linden). **No se implementa antes de la
+precondición de datos** — con menos tests, los parámetros por ítem serían inventados y se le
+mostrarían a un estudiante como su nivel.
+
+- **Trabajo:** estimar la intensidad temporal `β_i` por ítem (promedio de `ln(tiempo)`), derivar
+  `τ_j` por estudiante desde el residuo `τ_j = −promedio_i(ln T_ij − β_i)`, y reportar τ **junto a**
+  θ (nunca fundido) con la prescripción pedagógica por cuadrante de la tabla del ADR.
+- **Terminado cuando:** el perfil del estudiante muestra su cuadrante (θ alto/bajo × velocidad
+  alta/baja) con una recomendación distinta en cada uno, y la lógica vive en un namespace puro con
+  tests.
+- **Precondición:** ≥ 30 tests completados con `time-ms` poblado. Depende del go-live (T-01/T-04).
+- **Relacionado:** [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]] §Fase 2,
+  [[VISION_LIBRO_PROYECTO]] §3.3, [[OPEN_QUESTIONS]] Q-22 (la taxonomía de bandas del libro sigue
+  sin reconciliarse y toca este trabajo).
+
+### T-46 · Prior de θ condicional a la velocidad (Fase 3 de ADR-014) — **P3** · `bloqueado` (datos: ≥ 200 tests + ADR propio)
+
+Único punto donde el tiempo entra **formalmente** en la estimación de θ, vía la correlación
+poblacional ρ entre θ y τ: el prior deja de ser marginal N(0,1) y pasa a ser condicional,
+`prior-mean → ρ·τ̂`, `prior-precision → 1/(1−ρ²)`.
+
+- **Bloqueo de gobernanza, no solo de datos:** esto **modifica la cláusula «MAP con prior N(0,1)»
+  de [[../adr/ADR-004-irt-1pl-map-y-regla-de-parada]]**, así que por [[AGENT_INSTRUCTIONS]] §8.7
+  requiere un **ADR nuevo que reemplace esa parte de ADR-004**. No se implementa bajo ADR-014.
+- **Resultado negativo aceptable:** si al estimar ρ resulta cercana a cero, **esta tarea se cierra
+  sin implementar** y se documenta. Significaría que en esta población velocidad y habilidad son
+  independientes; forzar el modelo igual sería falsear.
+- **Terminado cuando:** o existe el ADR de reemplazo y el prior condicional está implementado y
+  testeado, o está documentado con datos por qué no corresponde hacerlo.
+- **Relacionado:** [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]] §Fase 3, T-29
+  (calibración de `difficulty`, misma dependencia de volumen).
+
 ### T-29 · Calibrar `difficulty` con datos reales — **P3** · `abierto`
 
 - **Terminado cuando:** hay un procedimiento (query o script) que estime la dificultad empírica por
@@ -709,9 +769,9 @@ desactualizados (lista de módulos previa al MVP).
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42 |
-| **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45 |
+| **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46 |
 
 ---
 
