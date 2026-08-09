@@ -780,7 +780,7 @@ poblacional ρ entre θ y τ: el prior deja de ser marginal N(0,1) y pasa a ser 
 - **Relacionado:** [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]] §Fase 3, T-29
   (calibración de `difficulty`, misma dependencia de volumen).
 
-### T-50 · `difficulty` en escalas incompatibles rompe topics enteros — **P0** · `abierto` · **bloquea go-live**
+### T-50 · `difficulty` en escalas incompatibles rompe topics enteros — **P0** · `hecho` (2026-08-09)
 
 Medido el 2026-08-09 sobre las 387 preguntas reales (consulta directa con cuenta de estudiante,
 ver `sessions/SESSION-010.md`). El modelo 1PL asume `difficulty` en **logits, rango [-3, 3]**
@@ -804,16 +804,24 @@ al instante (`:test/bank-exhausted`). No es un sesgo de estimación: es un topic
 - **Relacionado:** [[RISKS]] R-17, [[OPEN_QUESTIONS]] Q-05 (respondida en parte por esta medición),
   T-29 (calibración empírica, que presupone una escala única).
 
-**2026-08-09 (avance, no cierra la tarea):** el editor completo de preguntas exigía abrir cada
-pregunta una por una para tocar `difficulty`, lo que hacía la recalibración de un topic entero
-impracticable en la práctica. Se agregó edición rápida en línea en Admin → Preguntas: la columna
-`b` de la tabla es ahora un input editable, y una barra "Guardar cambios / Descartar" aparece
-cuando hay ediciones pendientes (se pueden editar varias filas y guardarlas juntas). Nuevo
-`crud/patch-admin-question!` actualiza solo `difficulty` (no reemplaza la fila completa, a
-diferencia de `update-admin-question!`). Ver `sessions/SESSION-012.md`.
-**No hecho todavía:** decidir y aplicar los valores nuevos de `difficulty` para `enteros` (y los
-demás topics fuera de rango) — es una decisión pedagógica del owner, no algo que el agente deba
-inventar. La tarea sigue `abierto`.
+**2026-08-09 (herramienta):** el editor completo de preguntas exigía abrir cada pregunta una por
+una para tocar `difficulty`, lo que hacía la recalibración de un topic entero impracticable en la
+práctica. Se agregó edición rápida en línea en Admin → Preguntas: la columna `b` de la tabla es un
+input editable, y una barra "Guardar cambios / Descartar" aparece cuando hay ediciones pendientes
+(se pueden editar varias filas y guardarlas juntas). Nuevo `crud/patch-admin-question!` actualiza
+solo `difficulty` (no reemplaza la fila completa, a diferencia de `update-admin-question!`). Ver
+`sessions/SESSION-012.md`.
+
+**2026-08-09 (cierre, el owner):** con esa herramienta, el owner recalibró **todos** los topics
+fuera de rango (no solo `enteros`), reorganizando los ítems por dificultad relativa y editando
+directo en el panel admin. Probó el diagnóstico después del cambio: entrega preguntas
+correctamente. **Terminado según el criterio de la tarea** (ningún topic activo queda sin ítems
+alcanzables). **No verificado por el agente** (sin credenciales de admin ni acceso al proyecto
+Supabase real; el cierre se da por el reporte del owner, mismo patrón que T-03/T-25/T-36).
+
+**Ojo — esto no es T-29:** el owner reordenó/reescaló los valores para que sean alcanzables y
+consistentes entre sí, no una calibración estadística a partir de respuestas reales. R-17
+(`difficulty` no calibrada empíricamente) sigue activo; T-29 sigue abierta.
 
 ### T-51 · Higiene de `topic` y `module_id` en el banco — **P1** · `abierto`
 

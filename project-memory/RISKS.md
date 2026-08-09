@@ -236,7 +236,10 @@ sesgados.
 **Probabilidad:** Media.
 **Mitigación:** T-29 (calibración empírica); mientras no exista, comunicar θ como *estimación* — la
 landing ya lo hace ("nivel estimado").
-**Estado:** activo.
+**Estado:** activo. **Nota 2026-08-09:** T-50 (cerrada) resolvió el caso agudo —escalas
+incompatibles que dejaban topics enteros sin ítems alcanzables (`enteros` en 10–90 en vez de
+logits)— reescalando a mano y por orden relativo, no con datos de respuesta real. Este riesgo
+(calibración estadística ausente) sigue sin mitigar; T-29 sigue abierta.
 
 ### R-18 · Spam en guestbook y contacto
 **Descripción:** inserción pública sin captcha ni rate limit.

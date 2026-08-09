@@ -362,10 +362,18 @@
 > (necesario para no vaciar enunciado/opciones en una edición parcial). Clases Tailwind nuevas
 > reusan el vocabulario ámbar ya mapeado en `src/css/app.css` (ADR-012); no se agregó CSS nuevo.
 > `clj -M:test` 42/162/0, `shadow-cljs release app` 0 warnings, `clj-kondo` sin hallazgos nuevos.
-> **Probado en vivo por el owner en el dev server** (no por el agente, sin credenciales de admin).
-> Rama `t-50-edicion-rapida-dificultad`, pusheada, PR abierta para que el owner mergee. **No cierra
-> T-50**: falta decidir y aplicar los valores nuevos de `difficulty` para `enteros` y los demás
-> topics fuera de rango (decisión pedagógica del owner). Ver `sessions/SESSION-012.md`.
+> Rama `t-50-edicion-rapida-dificultad`, pusheada; PR pendiente de que el owner lo abra desde el
+> link directo (`gh` no está instalado en esta máquina) y lo mergee.
+>
+> **T-50 cerrado (2026-08-09, el owner, con la herramienta de arriba).** Con la edición en línea ya
+> disponible, el owner recalibró **todos** los topics fuera de rango (no solo `enteros`),
+> reorganizando los ítems por dificultad relativa y editando directo en Admin → Preguntas. Probó el
+> diagnóstico después: entrega preguntas correctamente, ya no hay topics muertos. **No verificado
+> por el agente** (sin credenciales de admin ni acceso al proyecto Supabase real; cierre por reporte
+> del owner, mismo patrón que T-03/T-25/T-36). **Esto no es calibración empírica** (T-29, R-17,
+> siguen abiertos): son valores reescalados/reordenados a mano para ser alcanzables y consistentes
+> entre sí, no estimados con datos de respuesta real. Ver `sessions/SESSION-012.md`,
+> [[BACKLOG]] T-50, [[RISKS]] R-17, [[OPEN_QUESTIONS]] Q-05.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para

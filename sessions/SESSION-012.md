@@ -70,6 +70,15 @@ pedagógica del owner, no del agente).
 10. Se corrieron `clj -M:test` (42/162/0, sin cambios — no hay lógica pura nueva), `clj-kondo`
     (sin hallazgos nuevos), `npm run build:css` y `npx shadow-cljs release app` (0 warnings) antes
     de commitear.
+11. Se commiteó, pusheó la rama y se intentó `gh pr create` — `gh` no está instalado en esta
+    máquina. Se le pasó al owner el link directo de creación de PR que generó el `git push`; el
+    owner decidió crear el PR él mismo desde ahí en vez de que se instalara `gh`.
+12. El owner reportó que, con la herramienta ya probada en el dev server, **recalibró todos los
+    topics fuera de rango** (no solo `enteros`) directamente en el panel admin real, reorganizando
+    los ítems por dificultad relativa, y confirmó que el diagnóstico funciona después del cambio.
+    Esto cierra T-50 (ver [[../project-memory/BACKLOG]]) — actualizado `BACKLOG.md`,
+    `CURRENT_STATUS.md`, `RISKS.md` (R-17) y `OPEN_QUESTIONS.md` (Q-05) para reflejarlo sin
+    confundirlo con calibración empírica (T-29, sigue abierta).
 
 ## Archivos revisados
 
@@ -92,7 +101,9 @@ pedagógica del owner, no del agente).
 | `public/js/app.js` | Recompilado (`shadow-cljs release app`) |
 | `public/css/app.css` | Recompilado (`npm run build:css`) — sin clases nuevas netas (ver actividad 7) |
 | `project-memory/CURRENT_STATUS.md` | Nota de esta sesión |
-| `project-memory/BACKLOG.md` | Nota de avance en T-50 (no cierra la tarea) |
+| `project-memory/BACKLOG.md` | T-50 → `hecho`; nota de cierre (herramienta + recalibración del owner) |
+| `project-memory/RISKS.md` | Nota en R-17: T-50 cerró el síntoma agudo, no la calibración empírica |
+| `project-memory/OPEN_QUESTIONS.md` | Nota en Q-05: sigue sin responderse la calibración de fondo |
 
 ## Comandos ejecutados y resultados
 
@@ -112,16 +123,17 @@ graphify cluster-only . → 139 comunidades; snapshot copiado a project-memory/g
 | Edición parcial de `questions` vía función CRUD dedicada (`patch-admin-question!`), no reusar `update-admin-question!` | No (implementación, no arquitectura) | `db/crud.cljs`, este session log |
 | Reusar vocabulario ámbar ya mapeado en vez de extender `src/css/app.css` | No (sigue ADR-012 tal cual) | `admin_questions.cljs`, este session log |
 
-Ninguna decisión de producto (los valores nuevos de `difficulty` quedan pendientes del owner).
+| Recalibrar por orden relativo de dificultad, a mano, en vez de esperar una calibración empírica (T-29) | No (decisión de producto acotada, no de arquitectura) | [[../project-memory/BACKLOG]] T-50 |
 
 ## Riesgos identificados
 
-Ninguno nuevo. No cambia [[RISKS]] R-17 (sigue abierto hasta que se recalibre de verdad).
+Ninguno nuevo. [[RISKS]] R-17 sigue activo: T-50 cerró el síntoma agudo (topics inalcanzables), no
+la calibración estadística de fondo.
 
 ## Bloqueos
 
-Ninguno técnico. Bloqueo de decisión: el owner debe definir a qué escala llevar `difficulty` de
-`enteros` (y los demás topics fuera de rango) antes de poder cerrar T-50 con la herramienta nueva.
+Ninguno. El bloqueo de decisión (a qué escala llevar `difficulty`) se resolvió en esta misma
+sesión: el owner recalibró todos los topics fuera de rango con la herramienta nueva.
 
 ## Preguntas abiertas nuevas
 
@@ -133,34 +145,33 @@ Ninguno.
 
 ## Próximos pasos
 
-1. El owner mergea el PR de `t-50-edicion-rapida-dificultad` a `main`.
-2. El owner decide la escala/valores nuevos de `difficulty` para `enteros` (y revisa
-   `Ecuaciones cuadráticas`, `Polinomios`, `Ecuaciones lineales`, ver tabla en [[BACKLOG]] T-50) y
-   los aplica con la herramienta nueva.
-3. Verificar que `enteros` ya entrega ítems tras la recalibración (cuenta de prueba, banda
-   correspondiente).
-4. Retomar T-02 (email de cohorte) o T-04 (cupos reales) — ambos siguen bloqueando go-live y
+1. El owner crea el PR desde el link directo (`compare/t-50-edicion-rapida-dificultad`) y lo
+   mergea a `main`.
+2. Retomar T-02 (email de cohorte) o T-04 (cupos reales) — ambos siguen bloqueando go-live y
    dependen de acceso/ejecución del owner, no de código.
+3. Si se quiere avanzar T-29 (calibración empírica real) más adelante, ahora hay una escala
+   consistente entre topics como punto de partida — antes no la había.
 
 ## Pendientes
 
-- Recalibración real de `difficulty` (T-50 sigue `abierto`).
+- El PR sigue sin abrirse/mergear (el owner lo hará desde el link).
 - Verificación en vivo de que el guardado en lote llega a Supabase con una cuenta admin real más
-  allá de la prueba puntual del owner en dev server (no se hizo un smoke test exhaustivo de casos
-  borde: guardar con un valor vacío para limpiar `difficulty`, guardar con una fila que falla junto
-  a otras que sí guardan).
+  allá de la prueba puntual del owner (no se hizo un smoke test exhaustivo de casos borde: guardar
+  con un valor vacío para limpiar `difficulty`, guardar con una fila que falla junto a otras que sí
+  guardan) — aunque el uso real del owner para recalibrar todo el banco ya es una validación fuerte
+  en la práctica.
 
 ## Actualizaciones requeridas en Project Memory
 
 - [x] `project-memory/CURRENT_STATUS.md`
 - [x] `project-memory/BACKLOG.md`
-- [ ] `project-memory/RISKS.md` — no aplica, sin riesgo nuevo
+- [x] `project-memory/RISKS.md` — nota en R-17
 - [ ] `project-memory/DECISIONS.md` — no aplica, sin decisión de arquitectura
 - [ ] `adr/ADR-0NN-….md` (nuevo) — no aplica
 - [ ] `project-memory/ARCHITECTURE.md` — no aplica, no cambia estructura ni flujo
 - [ ] `project-memory/ROADMAP.md` — no aplica
 - [ ] `project-memory/REQUIREMENTS.md` — no aplica
-- [ ] `project-memory/OPEN_QUESTIONS.md` — no aplica, sin pregunta nueva
+- [x] `project-memory/OPEN_QUESTIONS.md` — nota en Q-05 (no se marca ✅, sigue sin responderse la calibración de fondo)
 - [ ] `project-memory/ASSUMPTIONS.md` — no aplica
 - [ ] `project-memory/LESSONS_LEARNED.md` — no aplica (el error de paréntesis se resolvió en el momento, no costó >15 min)
 - [ ] `project-memory/TERMINOLOGY.md` — no aplica
