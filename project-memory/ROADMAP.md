@@ -1,6 +1,7 @@
 # ROADMAP
 
-Última actualización: **2026-08-09** (F5 cerrada, T-02)
+Última actualización: **2026-08-09** (F2 cerrada — T-01/R-10; F3 solo falta T-04; F5 cerrada — T-02;
+T-13/T-16/T-18 cerradas en F9/limpieza técnica; ver `sessions/SESSION-014.md`)
 
 > Las fases F0–F6 son **reconstruidas** desde el historial de commits y el estado del código: no
 > existía un roadmap escrito. Las fases F8+ son propuestas y requieren confirmación del owner
@@ -14,15 +15,15 @@
 ```
 F0 Base técnica          ████████████ 100%  ✅ cerrada
 F1 Motor IRT             ████████████ 100%  ✅ cerrada
-F2 Perfil y plan         ███████████░  95%  🟡 falta contenido
-F3 Cohortes              ███████████░  95%  🟡 falta verificar capacidad
+F2 Perfil y plan         ████████████ 100%  ✅ cerrada 2026-08-09 (T-01, R-10)
+F3 Cohortes              ███████████░  95%  🟡 solo falta T-04 (cupos reales)
 F4 Panel admin           ████████████ 100%  ✅ cerrada
 F5 Email de cohorte      ████████████ 100%  ✅ cerrada 2026-08-09
 F6 Captación / SEO       ██████████░░  90%  🟡 sin analytics
 F7 Project Memory (PMF)  ████████████ 100%  ✅ cerrada 2026-07-26
 ────────────────────────────────────── ← estamos aquí
-F8 Go-live real          ░░░░░░░░░░░░   0%  ▶ siguiente
-F9 Endurecimiento        █░░░░░░░░░░░   5%
+F8 Go-live real          █████████░░░  80%  ▶ solo falta T-04
+F9 Endurecimiento        ███░░░░░░░░░  25%  T-13 cerrada 2026-08-09
 F10 Medición             ░░░░░░░░░░░░   0%
 F11 Escala pedagógica    ░░░░░░░░░░░░   0%  (propuesta)
 ```
@@ -68,7 +69,7 @@ F11 Escala pedagógica    ░░░░░░░░░░░░   0%  (propuesta)
 
 ---
 
-## F2 — Perfil y plan 🟡 95 %
+## F2 — Perfil y plan ✅ 100 % (2026-08-09)
 
 **Objetivo:** convertir el resultado del test en un mapa de errores accionable.
 
@@ -76,16 +77,18 @@ F11 Escala pedagógica    ░░░░░░░░░░░░   0%  (propuesta)
 |-----------|--------|
 | `universo.profile/build` (θ, SE, banda, track, déficits, misconceptions, estabilidad) | ✅ |
 | Materialización en `student_profiles` (`profile` JSONB) | ✅ |
-| Capa 0: explicación por distractor (`questions.error_a..d`) | ✅ mecanismo · 🟡 contenido |
-| Capa 1: `resources` publicados por módulo | ✅ mecanismo · ⛔ contenido |
+| Capa 0: explicación por distractor (`questions.error_a..d`) | ✅ mecanismo y contenido |
+| Capa 1: `resources` publicados por módulo | ✅ 58/61 publicados ([[BACKLOG]] T-01, 2026-08-09) |
 | Módulos Baldor sembrados con contexto histórico | ✅ `002`, `004` |
 | UI "Mi plan" con déficits priorizados | ✅ |
 
-**Falta para cerrar:** al menos un recurso publicado por módulo prioritario ([[BACKLOG]] T-01).
+**Cerrada 2026-08-09:** los 7 módulos prioritarios tienen ≥1 recurso publicado, auditado
+matemáticamente uno por uno sin errores. **Residual, no bloqueante:** no se verificó "Mi plan" con
+una cuenta de estudiante real en cada banda de θ (solo por API/panel); los 3 recursos de video
+placeholder ([[BACKLOG]] T-52) no cubren módulos prioritarios.
 **Hito H2:** un estudiante ve, para su déficit principal, la explicación del error **y** un
-recurso para trabajarlo. ⛔ **bloqueado por contenido.**
-**Riesgo de la fase:** el plan se ve vacío y el producto parece incompleto aunque el código esté
-correcto (R-10).
+recurso para trabajarlo. ✅
+**Riesgo de la fase:** R-10 ("Mi plan" vacío) — **cerrado 2026-08-09**.
 
 ---
 
@@ -103,8 +106,9 @@ correcto (R-10).
 | Admin: CRUD de cupos + roster | ✅ |
 | Cupos demo en bandas distintas | ✅ `003` |
 
-**Falta para cerrar:** verificar que la inscripción respete `capacity` (Q-04, T-03) y publicar
-cupos reales (T-04).
+**Control de capacidad cerrado (Q-04, T-03, 2026-07-29):** trigger `011_enrollments_capacity_check.sql`
+aplicado en producción. **Falta para cerrar la fase:** publicar cupos reales (T-04) — el único
+pendiente, depende de ejecución del owner (fechas + salas de Jitsi), no de código.
 **Hito H3:** un grupo real se confirma solo al alcanzar su mínimo. 🟡
 **Riesgo:** cupos publicados que nunca alcanzan el mínimo → estudiantes en espera indefinida sin
 comunicación (R-11).
@@ -183,38 +187,42 @@ principal en ambas pruebas. Ver [[BACKLOG]] T-02, `sessions/SESSION-013.md`.
 
 ---
 
-## F8 — Go-live real ▶ SIGUIENTE
+## F8 — Go-live real 🟡 80 % — solo falta T-04
 
 **Objetivo:** pasar de "MVP operable" a "MVP en uso por estudiantes reales".
 
 | Entregable | Tarea |
 |-----------|-------|
-| Recurso publicado por módulo prioritario ✅ | T-01 |
+| Recurso publicado por módulo prioritario ✅ (2026-08-09) | T-01 |
 | Email de cohorte verificado end-to-end ✅ (2026-08-09) | T-02 |
-| Control de capacidad confirmado ✅ | T-03 |
-| Cupos reales publicados (fecha, sala/enlace, mínimo) | T-04 |
-| Árbol limpio y bundle recompilado y publicado en `main` | T-08 |
-| Preguntas de producto respondidas (Q-02 ✅, Q-04 ✅, Q-07 sigue abierta) | — |
+| Control de capacidad confirmado ✅ (2026-07-29) | T-03 |
+| **Cupos reales publicados (fecha, sala/enlace, mínimo)** — único pendiente | T-04 |
+| Árbol limpio y bundle recompilado y publicado en `main` ✅ (2026-07-29, reverificado 2026-08-09) | T-08 |
+| Banco de ítems ya no descargable, cerrado en producción ✅ (2026-08-09) | T-47 |
+| `difficulty` reescalada — topics ya alcanzables (calibración estadística sigue pendiente, T-29) ✅ | T-50 |
+| Preguntas de producto respondidas (Q-02 ✅, Q-04 ✅, Q-12 ✅; Q-07/Q-10/Q-14 siguen abiertas) | — |
 
 **Hito H8:** el primer estudiante externo completa el funnel y queda inscrito en un cupo real que
-se confirma.
-**Dependencias:** contenido (humano), acceso a Supabase, definición de logística de clases.
-**Riesgos:** R-01 (bus factor), R-10 (plan vacío), R-11 (cupos que no confirman), R-06 (privacidad
-con usuarios reales menores de edad — **este es el riesgo que se activa al abrir a público**).
+se confirma. Con T-01/T-02/T-03/T-08/T-47/T-50 cerrados, **T-04 es el único bloqueo restante** y
+depende de ejecución del owner (fechas, salas de Jitsi), no de código.
+**Dependencias:** acceso a Supabase, definición de logística de clases.
+**Riesgos:** R-01 (bus factor), R-11 (cupos que no confirman), R-06 (privacidad con usuarios
+reales menores de edad — **este es el riesgo que se activa al abrir a público**). R-10 y R-16 ya
+cerrados.
 
 ---
 
-## F9 — Endurecimiento
+## F9 — Endurecimiento 🟡 25 %
 
 | Entregable | Tarea |
 |-----------|-------|
-| CI mínima: `clj -M:test` en cada push/PR | T-06 |
-| Respaldo de base de datos documentado y probado | T-07 |
-| Proyecto Supabase de desarrollo (staging) | T-09 |
-| Aviso de privacidad publicado | T-10 |
-| Verificación automatizada de policies RLS | T-11 |
-| Resolver duplicación de `index.html` | T-12 |
-| Alinear versiones (shadow-cljs, KaTeX) | T-13 |
+| CI mínima: `clj -M:test` en cada push/PR | T-06 ✅ (2026-08-03, sin verificar en vivo) |
+| Respaldo de base de datos documentado y probado | T-07 ⛔ abierto |
+| Proyecto Supabase de desarrollo (staging) | T-09 ⛔ abierto |
+| Aviso de privacidad publicado | T-10 🟡 en curso — texto publicado, retención automática (T-34) pendiente |
+| Verificación automatizada de policies RLS | T-11 ⛔ abierto |
+| Resolver duplicación de `index.html` | T-12 ⛔ abierto |
+| Alinear versiones (shadow-cljs, KaTeX) | T-13 ✅ (2026-08-09, `sessions/SESSION-014.md`) |
 
 **Hito H9:** ningún cambio llega a producción sin tests verdes y existe un camino de vuelta ante
 un error de datos.
@@ -283,8 +291,8 @@ forzarlas dentro de F8–F11 (que son estrictamente "MVP actual → en uso").
 |------|-------------|--------|
 | H0 | Autorización confiable | ✅ |
 | H1 | Diagnóstico que para por precisión | ✅ |
-| H2 | Plan con explicación + recurso para el déficit principal | ⛔ bloqueado por contenido |
-| H3 | Cohorte real que se confirma sola | 🟡 |
+| H2 | Plan con explicación + recurso para el déficit principal | ✅ (2026-08-09) |
+| H3 | Cohorte real que se confirma sola | 🟡 solo falta T-04 |
 | H4 | Operación completa desde el panel | ✅ |
 | H5 | Email de confirmación recibido | ⚠️ |
 | H6 | Sitio indexable y claro | ✅ |
