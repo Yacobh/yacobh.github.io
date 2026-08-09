@@ -74,7 +74,7 @@ tu lectura/grabación del módulo". Afectan `aritmetica/enteros`, `aritmetica/fr
 - **Terminado cuando:** los 3 tienen `media_url` real y `published = true`.
 - **Relacionado:** [[BACKLOG]] T-01.
 
-### T-02 · Cerrar el pipeline de email de cohorte — **P0** · `bloqueado` (acceso)
+### T-02 · Cerrar el pipeline de email de cohorte — **P0** · `hecho` (2026-08-09)
 
 - Aplicar `005_email_outbox.sql` en el proyecto real.
 - `supabase secrets set RESEND_API_KEY=…` (+ `EMAIL_FROM` con dominio verificado).
@@ -83,6 +83,38 @@ tu lectura/grabación del módulo". Afectan `aritmetica/enteros`, `aritmetica/fr
 - **Terminado cuando:** al confirmarse un cupo de prueba, la fila de `email_outbox` pasa a `sent`
   con `sent_at` poblado y el correo llega a una bandeja real (no spam).
 - **Relacionado:** [[ROADMAP]] F5/H5, [[RISKS]] R-12, [[../adr/ADR-007-email-outbox-con-edge-function]].
+
+**2026-08-09 (cierre, verificado en vivo por el agente — no solo por reporte del owner, caso
+excepcional en este proyecto):**
+- CLI de Supabase instalada (D-34, mismo bloqueo de Xcode CLT que D-33) y vinculada al proyecto
+  real (`jmnqklhxcdccvdhuuiji`).
+- `005` ya estaba aplicada de antes (confirmado por el owner). Secrets seteados
+  (`RESEND_API_KEY`, `EMAIL_FROM=hola@mail.jacobocordova.com`, tras corregir un primer intento con
+  el dominio raíz sin verificar). Función desplegada con `--no-verify-jwt` (la CLI v2.113.0 ya no
+  tiene `functions invoke`; se comprobó con `curl` directo al endpoint HTTPS).
+- **Nivel 1 (función + Resend):** fila de prueba insertada a mano en `email_outbox`, invocada la
+  función, `status → sent`, correo recibido en bandeja principal (no spam).
+- **Nivel 2 (cadena completa, con datos reales de producción):** se creó un cupo desechable
+  (`min_enrollments = 1`) y se inscribió una cuenta de prueba real vía `insert into enrollments`.
+  Se verificó en vivo, leyendo las tablas reales: `class_slots.status → confirmed`, fila nueva en
+  `notifications` (`slot_confirmed`), **dos** filas nuevas en `email_outbox` (una al estudiante,
+  otra `slot_confirmed_admin` al owner — hallazgo: existe una notificación paralela al admin en
+  cada confirmación de cupo, no documentada antes en `ARCHITECTURE.md`/`REQUIREMENTS.md`). Ambas
+  pasaron a `sent` al invocar la función, y ambos correos llegaron a bandeja principal (confirmado
+  por el owner para las dos direcciones). Datos de prueba borrados después (cupo, inscripción,
+  notificación, filas de outbox).
+- **Cron:** el dashboard de este proyecto no tiene la pestaña "Schedules" para Edge Functions (no
+  disponible en este plan/versión) — se programó con `pg_cron` + `pg_net` en su lugar:
+  `cron.schedule('send-enrollment-emails-every-5-min', '*/5 * * * *', ...net.http_post...)`.
+  Confirmado registrado y `active = true` en `cron.job`. **No verificado que ya haya disparado una
+  ejecución automática** (revisar `cron.job_run_details` pasados unos minutos si se quiere esa
+  confirmación adicional; no bloquea el cierre porque la función y la cadena ya se probaron
+  manualmente de punta a punta).
+- **R-12 mitigado:** dominio `mail.jacobocordova.com` verificado en Resend, entrega confirmada a
+  bandeja principal en ambas pruebas.
+- **Hallazgo colateral:** la CLI de Supabase v2.113.0 eliminó el subcomando `functions invoke` que
+  documentaba `supabase/functions/README.md` — el README quedó desactualizado, pendiente de
+  corregir (ver [[BACKLOG]] — se puede sumar como tarea menor si se quiere, no crítico).
 
 ### T-03 · Agregar control de capacidad en la inscripción — **P0** · `hecho` (2026-07-29)
 

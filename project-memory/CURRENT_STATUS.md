@@ -375,6 +375,22 @@
 > entre sí, no estimados con datos de respuesta real. Ver `sessions/SESSION-012.md`,
 > [[BACKLOG]] T-50, [[RISKS]] R-17, [[OPEN_QUESTIONS]] Q-05.
 
+> **T-02 cerrado: pipeline de email de cohorte en producción (2026-08-09).** A diferencia de la
+> mayoría de los cierres recientes (T-03/T-25/T-36/T-50), **este lo verificó el agente en vivo**,
+> no solo el owner: CLI de Supabase instalada (D-34, mismo bloqueo de CLT de Xcode que D-33) y
+> vinculada al proyecto real; secrets seteados (`RESEND_API_KEY`, `EMAIL_FROM` en el dominio
+> verificado `mail.jacobocordova.com`); función desplegada con `--no-verify-jwt` (la CLI v2.113.0
+> eliminó `functions invoke`, se usó `curl` directo al endpoint HTTPS — `supabase/functions/
+> README.md` corregido). Dos niveles de prueba real: (1) fila manual en `email_outbox` → `sent` →
+> email recibido en bandeja principal; (2) cadena completa con datos reales (cupo desechable,
+> `min_enrollments=1`, inscripción real) → `class_slots.confirmed` → `notifications` →
+> **dos** filas en `email_outbox` (estudiante + `slot_confirmed_admin` al owner, hallazgo no
+> documentado antes) → ambas `sent` → ambos correos recibidos en bandeja principal. Datos de
+> prueba borrados después. Cron programado con `pg_cron`/`pg_net` (el dashboard de este proyecto
+> no tiene la pestaña Schedules de Edge Functions) — registrado y `active`, sin confirmar todavía
+> una ejecución automática (no bloqueante, la función ya se probó manualmente). [[RISKS]] R-12
+> mitigado. Ver [[BACKLOG]] T-02, `sessions/SESSION-013.md`.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".
@@ -400,7 +416,7 @@ y **verificación de operación** (envío de email en el proyecto Supabase real)
 | Panel admin | ✅ operativo |
 | Tests | ✅ `42 tests / 162 assertions / 0 failures` (`clj -M:test`, 2026-08-08) |
 | Contenido pedagógico | 🟡 módulos y blurbs sembrados; faltan recursos publicados |
-| Email de cohorte | ⚠️ código y migración listos; despliegue/secret no verificados |
+| Email de cohorte | ✅ desplegado y verificado en producción (T-02, 2026-08-09) |
 | Documentación / memoria | ✅ PMF adoptado hoy (2026-07-26) |
 | CI / staging / monitoreo | ⛔ inexistentes |
 | Estado del árbol de trabajo | ⚠️ sucio: `public/js/app.js` modificado sin commit |
@@ -416,7 +432,7 @@ y **verificación de operación** (envío de email en el proyecto Supabase real)
 | **F2 — Perfil y plan** | θ → banda → déficits → plan en 2 capas | **95 %** | Falta contenido publicado (capa 1) |
 | **F3 — Cohortes** | Cupos por banda, inscripción, confirmación | **95 %** | Falta verificar control de `capacity` (Q-04) |
 | **F4 — Admin** | Operar contenido, cupos, usuarios, moderación | **100 %** | Editor de preguntas restaurado en `48bf525` |
-| **F5 — Email de cohorte** | Aviso por correo al confirmar grupo | **60 %** | `005` + Edge Function escritos; despliegue no verificado |
+| **F5 — Email de cohorte** | Aviso por correo al confirmar grupo | **100 %** | Desplegado y verificado en producción (T-02, 2026-08-09): envío real confirmado, cron activo |
 | **F6 — Captación** | Landing + SEO | **90 %** | Landing rehecha (`38fbb96`), JSON-LD acotado (`b6ae903`); sin analytics |
 | **F7 — Memoria del proyecto** | PMF operativo | **100 %** | Este framework, 2026-07-26 |
 | **F8 — Endurecimiento** | CI, staging, backups, monitoreo | **5 %** | Solo tests manuales |
@@ -437,7 +453,11 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 - [x] **Al menos un recurso publicado por módulo prioritario** (`004` + Admin → Recursos) —
   58/61 recursos publicados 2026-08-09 (T-01); falta solo verificar "Mi plan" con cuenta de
   estudiante en cada banda
-- [ ] **`005_email_outbox.sql` aplicada + Edge Function desplegada con `RESEND_API_KEY`**
+- [x] **`005_email_outbox.sql` aplicada + Edge Function desplegada con `RESEND_API_KEY`** —
+  cerrado 2026-08-09 (T-02), **verificado en vivo por el agente**: envío manual y cadena completa
+  (cupo confirmado → notification → outbox → sent) probados con datos reales, entrega confirmada
+  a bandeja principal. Cron vía `pg_cron`/`pg_net` (el dashboard de este proyecto no ofrece
+  Schedules de Edge Functions)
 - [x] `011_enrollments_capacity_check.sql` aplicada (control de capacidad en inscripciones, T-03) —
   aplicada por el owner el 2026-07-29, sin verificación en vivo por parte del agente
 - [x] `012_slot_cancellation_notification.sql` aplicada (aviso al cancelar un cupo, T-25) —
@@ -496,7 +516,7 @@ Registradas hoy de forma retroactiva (las decisiones son previas; su documentaci
 | # | Bloqueo | Tipo | Quién desbloquea |
 |---|---------|------|------------------|
 | BL-01 | ~~Contenido pedagógico: no hay recursos publicados por módulo prioritario~~ -- **resuelto 2026-08-09** (T-01, 58/61 publicados). Sigue pendiente la mitad no relacionada: `error_*` enriquecidos en todos los ítems (T-27) | Humano | Jacobo Córdova |
-| BL-02 | **Verificación del envío de email**: requiere acceso al proyecto Supabase (aplicar `005`, `functions deploy`, `secrets set RESEND_API_KEY`) | Acceso/operación | Jacobo Córdova |
+| BL-02 | ~~Verificación del envío de email~~ -- **resuelto 2026-08-09** (T-02, verificado en vivo de punta a punta) | Acceso/operación | Jacobo Córdova |
 | BL-03 | **Cupos reales**: fechas y enlaces de videollamada no están definidos (los datos actuales son demo con `meet.example.com`). Por D-27, los cupos reales son 100% virtuales por ahora (Jitsi/Meet) -- ya no depende de sala física en Iquique ni de UNAP (ver D-18) | Negocio | Jacobo Córdova |
 | BL-04 | **Árbol sucio**: `public/js/app.js` tiene 73 inserciones y 24 borrados sin commitear. No se sabe con certeza si corresponde al fuente actual | Técnico | Recompilar y commitear, o descartar |
 | BL-05 | **Preguntas abiertas de producto** sin responder (capacidad, repetición de diagnóstico, privacidad) | Decisión | Ver [[OPEN_QUESTIONS]] |

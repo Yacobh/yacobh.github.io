@@ -39,6 +39,11 @@ graphify-out/
 .env.*
 !.env.example
 
+# --- Supabase CLI (estado local de `supabase link`, sin secretos: versiones de
+# servicio y el project ref, pero es cache de máquina, no fuente de verdad) ---
+supabase/.temp/
+supabase/.branches/
+
 # --- OS ---
 .DS_Store
 Thumbs.db

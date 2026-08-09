@@ -34,7 +34,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | R-08 | Reglas duplicadas cliente/DB se desincronizan | Medio | Media | Media | activo |
 | R-09 | Contrato JSONB de `profile` sin esquema | Medio | Media | Media | activo |
 | R-11 | Cupos que nunca alcanzan el mínimo | Medio | Alta | Media-alta | activo |
-| R-12 | Entregabilidad de email (spam / dominio no verificado) | Medio | Media | Media | activo |
+| R-12 | Entregabilidad de email (spam / dominio no verificado) | Medio | Media | Media | mitigado |
 | R-15 | Dependencia total de Supabase (free tier / cambio de términos) | Alto | Baja | Media | aceptado |
 | R-16 | Banco de ítems descargable por cualquier cuenta | Alto | Baja | Baja | ✅ **cerrado 2026-08-09** (ADR-015) |
 | R-17 | `difficulty` no calibrada ⇒ θ sesgada | Medio | Media | Media | activo |
@@ -167,7 +167,9 @@ no verificado lleva los correos a spam.
 **Probabilidad:** Media.
 **Mitigación:** verificar dominio en Resend y setear `EMAIL_FROM`; probar entrega real (T-02);
 mantener la notificación in-app como canal primario.
-**Estado:** activo.
+**Estado:** mitigado (2026-08-09). Dominio `mail.jacobocordova.com` verificado en Resend,
+`EMAIL_FROM` seteado a ese dominio; entrega confirmada a bandeja principal (no spam) en dos
+pruebas reales de T-02 (envío manual y cadena completa vía cupo confirmado). Ver [[BACKLOG]] T-02.
 
 ### R-13 · Bundle desalineado del fuente
 **Descripción:** el deploy consiste en commitear `public/js/app.js`. Es posible publicar fuente sin
