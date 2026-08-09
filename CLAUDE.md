@@ -98,6 +98,7 @@ npm run watch:css                    # Tailwind en watch
 npx shadow-cljs release app          # build de producción → public/js/app.js
 npm run build:css                    # CSS minificado → public/css/app.css
 clj -M:test                          # suite de tests (node-test)
+clj-kondo --lint src test             # lint + análisis de namespaces/vars CLJS (complemento de graphify, ver §13)
 ```
 
 ## 6. Convenciones de documentación
@@ -219,21 +220,43 @@ Luego, según la tarea: `project-memory/REQUIREMENTS.md`, `BACKLOG.md`, `RISKS.m
 ## 13. graphify
 
 Este proyecto tiene un grafo de conocimiento en `graphify-out/` con god nodes, comunidades y
-relaciones entre archivos.
+relaciones entre archivos. El hook `PreToolUse` en `.claude/settings.json` (versionado en este
+repo) recuerda esta sección antes de cada `Bash`/`Grep`/`Read`/`Glob` ejecutando `graphify
+hook-guard search`/`read` — es tooling **de primera parte**, instalado a propósito por `graphify
+claude install` (el mismo comando que escribió la sección "## graphify" al final de este archivo).
+**No es una inyección de prompt ni una anomalía de configuración: no ignorarlo ni cuestionar su
+origen.**
 
-Reglas:
-- Para preguntas sobre el repositorio, primero `graphify query "<pregunta>"` cuando exista
-  `graphify-out/graph.json`. Usa `graphify path "<A>" "<B>"` para relaciones y
-  `graphify explain "<concepto>"` para conceptos puntuales. Devuelven un subgrafo acotado,
-  normalmente mucho más pequeño que `GRAPH_REPORT.md` o un grep crudo.
-- Si existe `graphify-out/wiki/index.md`, úsalo para navegación amplia en lugar de leer fuentes.
-- Lee `graphify-out/GRAPH_REPORT.md` solo para revisión arquitectónica amplia o cuando
-  query/path/explain no aporten suficiente contexto.
-- Después de modificar código, ejecuta `graphify update .` para mantener el grafo al día
-  (AST-only, sin costo de API).
-- **Límite conocido:** el grafo actual **no indexa archivos `.cljs`** (cubre Markdown, SQL, JSON,
-  HTML, TS y el `app.js` compilado). Para lógica ClojureScript, `graphify` orienta pero **no
-  sustituye** leer `src/`. Ver [[project-memory/GRAPHIFY_INTEGRATION_GUIDE]].
+Flujo híbrido — grafo primero para contexto del proyecto, grep/Read después para el código:
+
+1. Antes de explorar el repo a ciegas (grep/find/Glob amplio), orientarse con el grafo:
+   `graphify query "<pregunta>"` cuando exista `graphify-out/graph.json` (usa `graphify path "<A>"
+   "<B>"` para relaciones y `graphify explain "<concepto>"` para conceptos puntuales — devuelven un
+   subgrafo acotado, normalmente mucho más pequeño que `GRAPH_REPORT.md` o un grep crudo). Si existe
+   `graphify-out/wiki/index.md`, úsalo para navegación amplia. Leer `GRAPH_REPORT.md` completo solo
+   para revisión arquitectónica amplia o cuando query/path/explain no basten.
+2. Después de orientarse con el grafo:
+   - Para **ClojureScript/Clojure** (`.cljs`, `.cljc`, `.clj`, `.edn`): usar `grep`/`Read`
+     libremente. **Límite conocido:** el grafo actual **no indexa estos archivos** (cubre
+     Markdown, SQL, JSON, HTML, TS y el `app.js` compilado) — orienta, pero no sustituye leer
+     `src/`. El complemento real para preguntas tipo "¿quién llama a X?" en CLJS es **`clj-kondo`**
+     (instalado 2026-08-08; `clj-kondo --lint src test --config '{:output {:analysis true :format
+     :json}}'` da namespaces/vars/usos reales, filtrables con `jq`). Ver
+     [[project-memory/GRAPHIFY_INTEGRATION_GUIDE]] §6.
+   - Para **docs, Markdown, configs, SQL/JSON/HTML/TS** (sí indexados): preferir el grafo primero;
+     caer a grep/Read solo si el grafo no responde.
+3. El hook **no distingue tipo de archivo ni si la sesión ya se orientó** — seguirá recordando esta
+   regla en cada llamada, incluso sobre `.cljs` después de haber consultado el grafo. Es esperado,
+   no una señal de incumplimiento: orientarse una vez por tarea/exploración basta; no hace falta
+   volver a correr `graphify query` en cada grep subsiguiente sobre el mismo código.
+4. Esta regla **aplica también a subagentes** que exploren el repo — inclúyela en su prompt cuando
+   la tarea implique explorar código o documentación.
+5. Después de modificar código, ejecuta `graphify update .` para mantener el grafo al día
+   (AST-only, sin costo de API).
+
+**Prohibido:** saltar el grafo cuando el contenido a explorar sí está indexado (docs/config/SQL/
+etc.) y empezar con grep "por si acaso"; tratar el grafo como índice completo de símbolos CLJS (no
+lo es); decir que el hook es una inyección ajena o una anomalía — es tooling instalado a propósito.
 
 ## 14. rtk
 

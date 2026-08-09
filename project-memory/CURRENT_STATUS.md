@@ -233,6 +233,19 @@
 > proyecto). No se encontró daño real, solo la anomalía de inyección; el owner debería revisar de
 > dónde viene ese hook cuando tenga tiempo.
 
+> **`clj-kondo` adoptado como sustituto de graphify para CLJS (2026-08-08, D-33, cierra T-32).**
+> Tras corregir una mala interpretación previa del hook de graphify (no era una inyección, ver
+> `sessions/SESSION-008.md`), se investigó si graphify podía indexar `.cljs`/`.clj` de alguna
+> forma — no puede, ni de base ni por ningún extra pip existente (se revisó la lista completa de
+> gramáticas tree-sitter y extras del paquete instalado). Se instaló `clj-kondo` (binario nativo
+> oficial, no Homebrew por CLT de Xcode desactualizadas) como sustituto real, con
+> `.clj-kondo/config.edn` versionado (corrigiendo un `.gitignore` que ignoraba todo `.clj-kondo/`
+> y habría impedido compartirlo) y `~/bin` agregado al `PATH`. Verificado contra código real: lint
+> encontró bugs ya conocidos (`user.cljs` con requires rotos, `voz.cljs` huérfano) y el análisis
+> estructurado respondió correctamente "¿quién llama a X?" contra funciones de T-39. Detalle en
+> [[GRAPHIFY_INTEGRATION_GUIDE]] §6.1, [[DECISIONS]] D-33, [[BACKLOG]] T-32 (cerrada),
+> [[RISKS]] R-20 (mitigado).
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

@@ -638,13 +638,19 @@ En cada sesión con cambios: `CURRENT_STATUS`, `SESSION-XXX`, y lo que aplique d
 - **Terminado cuando:** el commit indicado en `GRAPH_REPORT.md` coincide con `HEAD` en cada
   actualización de memoria relevante.
 
-### T-32 · Extender la cobertura del grafo a `.cljs` — **P3** · `abierto`
+### T-32 · Extender la cobertura del grafo a `.cljs` — **P3** · `hecho` (2026-08-08)
 
 Graphify no indexa ClojureScript hoy, por lo que el grafo no ve la lógica principal.
 
+- **Cerrado:** se confirmó que Graphify no puede indexar `.cljs`/`.clj` (ni de base ni por ningún
+  extra pip existente — se revisaron todas las gramáticas tree-sitter y extras del paquete
+  instalado, ninguno cubre Clojure/Lisp) y se adoptó **`clj-kondo`** como sustituto real para
+  namespaces/vars/usos en CLJS (instalado, config compartida en `.clj-kondo/config.edn`, probado
+  contra código real del repo). Detalle completo en
+  [[GRAPHIFY_INTEGRATION_GUIDE]] §6.1.
 - **Terminado cuando:** el grafo incluye nodos de `src/**/*.cljs`, **o** está documentado en
-  [[GRAPHIFY_INTEGRATION_GUIDE]] que no es posible y cuál es el sustituto (lectura dirigida de
-  `src/` guiada por [[ARCHITECTURE]]).
+  [[GRAPHIFY_INTEGRATION_GUIDE]] que no es posible y cuál es el sustituto. **Cumplido** (segunda
+  opción).
 
 ### T-33 · Reconciliar `PROJECT_SUMMARY.md` con `project-memory/` — **P2** · `abierto`
 

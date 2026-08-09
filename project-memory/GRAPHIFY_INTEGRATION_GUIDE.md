@@ -174,8 +174,48 @@ Ambas cosas **existen** en el código (`universo.components.tetha`, `universo.co
    check status"…) son del **runtime compilado de shadow-cljs**, no código del proyecto. La comunidad
    2 completa es ruido: **ignórala**.
 
-Tarea abierta: [[BACKLOG]] T-32 (extender la cobertura a `.cljs` o documentar definitivamente que no
-es posible). Riesgo asociado: R-20.
+**Investigado y cerrado (2026-08-08, [[BACKLOG]] T-32):** no hay forma de que Graphify indexe
+ClojureScript. Se revisaron las dependencias reales del paquete instalado (`graphifyy 0.9.27`): las
+gramáticas tree-sitter que trae de base (bash, c, c#, cpp, elixir, fortran, go, groovy, java,
+javascript, json, julia, kotlin, lua, objc, php, powershell, python, ruby, rust, scala, swift,
+typescript, verilog, zig) y los extras instalables por pip (`mcp, neo4j, falkordb, pdf, watch, svg,
+leiden, office, google, postgres, video, kimi, ollama, bedrock, anthropic, gemini, openai, chinese,
+sql, pascal, dm, terraform, all`) — **ninguno cubre Clojure/Lisp**. A diferencia de SQL (que sí se
+resolvió instalando el extra `graphifyy[sql]`, ver `sessions/SESSION-005.md`), no existe un extra
+equivalente para Clojure. El sustituto documentado por T-32 es real y ya está instalado:
+
+### 6.1 `clj-kondo` — sustituto para namespaces/vars/usos en CLJS
+
+Instalado 2026-08-08 vía el instalador oficial (binario nativo, sin Homebrew: las Command Line
+Tools de Xcode de la máquina estaban desactualizadas y el formula de `borkdude/brew` requería
+compilar) en `~/bin/clj-kondo`, agregado al `PATH` en `~/.zshrc`. Config compartida del proyecto en
+`.clj-kondo/config.edn` (versionada; `.clj-kondo/.cache/` va en `.gitignore`).
+
+```bash
+# Lint (errores/warnings reales de CLJS — no lo hace graphify)
+clj-kondo --lint src test
+
+# Análisis estructurado (namespaces, vars definidas, usos) → equivalente a graphify query
+clj-kondo --lint src test --config '{:output {:analysis true :format :json}}' > /tmp/analysis.json
+
+# "¿Quién llama a esta función?" (filtrando con jq)
+jq -r '.analysis["var-usages"][] | select(.name=="nombre-de-la-funcion") | "\(.filename):\(.row) (desde \(."from"))"' /tmp/analysis.json
+```
+
+Verificado en este repo: `clj-kondo` encontró de entrada bugs reales coherentes con lo ya sabido
+(`src/universo/user.cljs` con `go`/`<!`/`get-table` sin resolver y namespace `re-frame` no
+encontrado — consistente con [[BACKLOG]] T-16; `src/universo/voz.cljs` con binding sin usar —
+consistente con que es código huérfano), y respondió correctamente "¿quién llama a
+`resolve-topic`?" / "¿quién llama a `unlocked-topics`?" contra el código real de T-39.
+
+**Falso positivo conocido y corregido:** `reagent.core/with-let` (usado en `cuenta.cljs`,
+`dashboard.cljs`, `diagnostic_test.cljs`) generaba `Unresolved symbol` en cada binding porque
+`clj-kondo` no conoce esa macro por defecto. Se corrigió con `:lint-as {reagent.core/with-let
+clojure.core/let}` en `.clj-kondo/config.edn` — bajó de 11 a 3 errores reales (los 3 genuinos de
+`user.cljs`).
+
+**No sustituye a graphify** para lo que graphify sí indexa (docs, SQL, JSON, HTML, TS, `app.js`
+compilado) — son complementarios, no competidores. Ver también `CLAUDE.md` §13.
 
 ---
 

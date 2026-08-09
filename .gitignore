@@ -16,7 +16,8 @@ public/js/*.js.map
 *.js.map
 
 # --- Herramientas / IDE ---
-.clj-kondo/
+# .clj-kondo/config.edn SÍ se versiona (config compartida de lint); solo se ignora su caché.
+.clj-kondo/.cache/
 .lsp/
 .calva/
 .nrepl-port
