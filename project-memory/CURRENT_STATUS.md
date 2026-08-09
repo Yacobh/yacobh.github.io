@@ -336,6 +336,21 @@
 > instante (→ **T-50, P0**); **51% sin `module_id`**; 26 topics con duplicados por acento
 > (→ **T-51**). Responde en parte [[OPEN_QUESTIONS]] Q-05.
 
+> **T-01 cerrado: contenido publicado (2026-08-09).** Sesión conjunta con el owner en su sesión de
+> admin real: se auditaron matemáticamente los 32 recursos `published = false` (verificando cada
+> ejemplo numérico, no solo leyendo el texto) -- **cero errores**. Se publicaron **29**; quedaron
+> sin publicar a propósito 3 "Video sugerido" (`enteros`, `fracciones`, `ecuaciones_lineales`) con
+> `media_url = null`, placeholders sin contenido real (→ [[BACKLOG]] T-52). `resources.published`
+> pasó de 29/61 a **58/61**, verificado en tres capas (API, base, panel: "Recursos publicados: 58
+> de 61" visible en el resumen de Admin). Los 7 módulos prioritarios del criterio de cierre ya
+> tienen ≥1 recurso publicado. **R-10 ("Mi plan" vacío) cerrado.**
+>
+> **Hallazgo colateral:** el resumen de Admin muestra **80 usuarios y 252 diagnósticos** ya
+> rendidos, casi todos con correo `@estudiantesunap.cl` -- consistente con uso real del piloto UNAP
+> (D-18), no con tráfico de la landing actual. Corrige la asunción de "cero estudiantes reales" de
+> diagnósticos de negocio recientes. No investigado a fondo; podría alimentar T-29 (calibración de
+> `difficulty`) si se decide usar esos datos.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".
@@ -395,7 +410,9 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 - [x] RLS verificado (estudiante solo ve su perfil / sus enrollments)
 - [x] `006_admin_role_management.sql` aplicada (gestión de roles desde el panel)
 - [x] `007_questions_admin_rls.sql` aplicada (CRUD admin de preguntas)
-- [ ] **Al menos un recurso publicado por módulo prioritario** (`004` + Admin → Recursos)
+- [x] **Al menos un recurso publicado por módulo prioritario** (`004` + Admin → Recursos) —
+  58/61 recursos publicados 2026-08-09 (T-01); falta solo verificar "Mi plan" con cuenta de
+  estudiante en cada banda
 - [ ] **`005_email_outbox.sql` aplicada + Edge Function desplegada con `RESEND_API_KEY`**
 - [x] `011_enrollments_capacity_check.sql` aplicada (control de capacidad en inscripciones, T-03) —
   aplicada por el owner el 2026-07-29, sin verificación en vivo por parte del agente
@@ -454,7 +471,7 @@ Registradas hoy de forma retroactiva (las decisiones son previas; su documentaci
 
 | # | Bloqueo | Tipo | Quién desbloquea |
 |---|---------|------|------------------|
-| BL-01 | **Contenido pedagógico**: no hay recursos publicados por módulo prioritario ni `error_*` enriquecidos en todos los ítems. Es trabajo humano de autoría, no de código | Humano | Jacobo Córdova |
+| BL-01 | ~~Contenido pedagógico: no hay recursos publicados por módulo prioritario~~ -- **resuelto 2026-08-09** (T-01, 58/61 publicados). Sigue pendiente la mitad no relacionada: `error_*` enriquecidos en todos los ítems (T-27) | Humano | Jacobo Córdova |
 | BL-02 | **Verificación del envío de email**: requiere acceso al proyecto Supabase (aplicar `005`, `functions deploy`, `secrets set RESEND_API_KEY`) | Acceso/operación | Jacobo Córdova |
 | BL-03 | **Cupos reales**: fechas y enlaces de videollamada no están definidos (los datos actuales son demo con `meet.example.com`). Por D-27, los cupos reales son 100% virtuales por ahora (Jitsi/Meet) -- ya no depende de sala física en Iquique ni de UNAP (ver D-18) | Negocio | Jacobo Córdova |
 | BL-04 | **Árbol sucio**: `public/js/app.js` tiene 73 inserciones y 24 borrados sin commitear. No se sabe con certeza si corresponde al fuente actual | Técnico | Recompilar y commitear, o descartar |
@@ -482,8 +499,8 @@ En orden de ejecución recomendado:
 
 1. **Resolver el árbol sucio** (BL-04): decidir si `public/js/app.js` se recompila y commitea o se
    descarta. Regla: recompilar desde el fuente actual y commitear, nunca editar el bundle a mano.
-2. **Publicar contenido mínimo** (BL-01, [[BACKLOG]] T-01): al menos un recurso publicado por cada
-   módulo prioritario de `supabase/CONTENT.md`.
+2. ~~Publicar contenido mínimo (BL-01, [[BACKLOG]] T-01)~~ — **hecho 2026-08-09**, ver nota al
+   inicio de este archivo.
 3. **Cerrar el email de cohorte** (BL-02, T-02): aplicar `005`, desplegar la function, setear el
    secret, invocarla una vez y verificar `email_outbox.status = 'sent'`.
 4. ~~Verificar el control de capacidad en la inscripción (Q-04, T-03)~~ — **hecho 2026-07-29**, ver

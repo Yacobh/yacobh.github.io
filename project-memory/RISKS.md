@@ -27,7 +27,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | R-06 | Datos personales de menores sin aviso de privacidad | Alto | Media | **Alta** | activo |
 | R-14 | Error de policy RLS expone datos de estudiantes | Alto | Media | **Alta** | activo |
 | R-04 | Sin CI: se publica con tests rojos o sin recompilar | Medio | Alta | Media-alta | activo |
-| R-10 | "Mi plan" vacío por falta de contenido publicado | Alto | Alta | **Alta** | activo |
+| R-10 | "Mi plan" vacío por falta de contenido publicado | Alto | Baja | Baja | ✅ **cerrado 2026-08-09** |
 | R-13 | Bundle publicado desalineado del fuente | Medio | Alta | Media-alta | activo |
 | R-05 | Divergencia entre los tres lugares del copy/JSON-LD | Medio | Media | Media | activo |
 | R-07 | Monolitos (`admin.cljs`, `crud.cljs`) | Medio | Media | Media | activo |
@@ -141,12 +141,15 @@ sin validación de esquema. Un cambio de forma rompe lectores antiguos en silenc
 `clojure.spec`/malli o un check JSONB.
 **Estado:** activo.
 
-### R-10 · "Mi plan" vacío
+### R-10 · "Mi plan" vacío — ✅ **CERRADO 2026-08-09**
 **Descripción:** el mecanismo del plan funciona, pero sin `resources` publicados el estudiante ve
 una pantalla pobre justo en el momento de mayor expectativa (acaba de terminar el diagnóstico).
-**Impacto:** Alto sobre la conversión y la credibilidad. **Probabilidad:** Alta hoy.
-**Mitigación:** T-01 (contenido) y T-24 (estado vacío honesto que igual entregue capa 0).
-**Estado:** activo. **Es el riesgo de producto más urgente.**
+**Impacto:** Alto sobre la conversión y la credibilidad. **Probabilidad:** era Alta.
+**Mitigación aplicada:** T-01 (58/61 recursos publicados, los 7 módulos prioritarios cubiertos) y
+T-24 (estado vacío honesto que igual entrega capa 0, en producción desde el 2026-08-05).
+**Residual:** falta verificar "Mi plan" con una cuenta de estudiante real en cada banda de θ; los
+3 recursos de video sin grabar (T-52) no bloquean ningún módulo prioritario.
+**Estado:** cerrado.
 
 ### R-11 · Cupos que nunca confirman
 **Descripción:** un cupo con `min_enrollments` que no se alcanza deja a los inscritos esperando sin
