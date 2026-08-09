@@ -256,7 +256,7 @@ estudiante se inscribe            (cliente: insert enrollments)
    └─ trigger cuenta activos (pending|confirmed) del cupo
         └─ si activos ≥ min_enrollments y status = 'open'
              └─ class_slots.status := 'confirmed'
-                  └─ insert notifications (una por inscrito)
+                  └─ insert notifications (una por inscrito + una `slot_confirmed_admin` al owner)
                        └─ trigger notifications_enqueue_email → insert email_outbox (pending)
                             └─ Edge Function (cron / invoke) → Resend
                                  ├─ 2xx → status 'sent', sent_at
@@ -264,6 +264,12 @@ estudiante se inscribe            (cliente: insert enrollments)
 ```
 
 El cliente muestra el resultado esperado con `slots.logic/after-enrollment` sin esperar al trigger.
+
+**Hallazgo verificado en producción (T-02, 2026-08-09):** el mismo trigger
+`confirm_slot_if_threshold` (`001_mvp_schema.sql:302`) que confirma el cupo inserta **dos**
+notifications: una `slot_confirmed` por inscrito y una `slot_confirmed_admin` al owner.
+`enqueue_email_from_notification()` (`005_email_outbox.sql`) reconoce ambos `kind`, así que cada
+confirmación de cupo encola dos filas en `email_outbox`, no una.
 
 ### 4.4 Plan
 
