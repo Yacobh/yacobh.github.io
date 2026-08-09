@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-08-08**
+Última actualización: **2026-08-09**
 
 Prioridad: **P0** bloquea go-live · **P1** necesario a corto plazo · **P2** deseable · **P3** idea.
 Estado: `abierto` · `en curso` · `bloqueado` · `hecho` · `descartado`.
@@ -12,7 +12,7 @@ Estado: `abierto` · `en curso` · `bloqueado` · `hecho` · `descartado`.
 
 ## Épica E1 — Go-live real (F8)
 
-### T-01 · Publicar contenido mínimo por módulo prioritario — **P0** · `bloqueado` (humano, revisión pendiente)
+### T-01 · Publicar contenido mínimo por módulo prioritario — **P0** · `hecho` (2026-08-09)
 
 Publicar al menos un `resource` por cada módulo prioritario de `supabase/CONTENT.md`:
 `aritmetica/enteros`, `aritmetica/fracciones`, `aritmetica/potencias`, `algebra/ecuaciones`,
@@ -31,10 +31,48 @@ hueco de enteros con signo) -- **39 recursos redactados desde cero**, usando la 
 Baldor solo como referencia bibliográfica en el título, nunca como transcripción (el libro sigue
 con derechos de autor vigentes; ver cabecera de `018`). Cubre los 11 módulos de `aritmetica` +
 `algebra`; quedan sin fuente los 7 de `geometria` (ningún volumen de Geometría subido todavía).
-**No cierra T-01 todavía:** todo quedó sembrado con `published = false` -- falta que el owner
-revise el contenido pedagógico, aplique ambas migraciones en el proyecto Supabase real, y publique
-selectivamente desde Admin → Recursos. Ver `supabase/SCHEMA.md` para el detalle de alcance/hueco
-por migración.
+**2026-08-09 (owner + agente, sesión conjunta con admin en vivo):** revisión y publicación
+ejecutadas juntos, con sesión de admin real del owner. Se auditaron matemáticamente los 32 recursos
+`published = false` uno por uno (comprobando cada cuenta de los ejemplos, no solo leyendo el
+texto) -- **cero errores encontrados** en divisibilidad, factorización prima, fracciones,
+productos notables, potencias, raíces, proporciones directas/inversas, sistemas de ecuaciones y
+planteo de problemas. Se publicaron **29 de 32**; los 3 restantes son los "Video sugerido" de
+`enteros`, `fracciones` y `ecuaciones_lineales` con `media_url = null` (placeholders con el texto
+"Sustituye la URL... por tu lectura/grabación") -- publicarlos habría mostrado una tarjeta de video
+vacía, así que quedan a propósito sin publicar hasta que el owner grabe o encuentre esos videos. El
+de "Video sugerido: Teorema de Pitágoras" sí tenía URL real, verificada contra la API de YouTube
+(título "PITÁGORAS CON BOLITAS", coincide con el tema) y se publicó.
+
+**Resultado verificado en tres capas** (API, base de datos, panel real): `resources.published`
+pasó de 29/61 a **58/61**. Los 7 módulos prioritarios del criterio de cierre tienen ahora ≥1
+recurso publicado: `aritmetica/enteros` 7/8, `aritmetica/fracciones` 6/7, `aritmetica/potencias`
+5/5, `algebra/ecuaciones` 5/6, `algebra/expresiones` 6/6, `geometria/basica` 2/2 (ya estaba cubierto
+antes de esta sesión), `geometria/pitagoras` 3/3. El resumen de Admin → Recursos muestra
+"Recursos publicados: 58 de 61" en pantalla, confirmado por captura.
+
+**No verificado en esta sesión:** la segunda mitad del criterio de cierre ("Mi plan" muestra al
+menos un recurso para el déficit principal de una cuenta de prueba en cada banda) -- se publicó el
+contenido y se confirmó el conteo, pero no se probó "Mi plan" con una cuenta de estudiante real
+navegando cada banda. Recomendado como verificación siguiente, no bloqueante.
+
+**Hallazgo colateral relevante:** el resumen del panel muestra **80 usuarios y 252 diagnósticos
+ya rendidos** -- casi todos con correo `@estudiantesunap.cl`, lo que sugiere que es el uso real del
+piloto con la UNAP (D-18) y no tráfico de la landing pública actual. No investigado a fondo en esta
+sesión, pero corrige la asunción de "cero estudiantes reales" que venía usándose en diagnósticos de
+negocio recientes -- y es una fuente de datos real para T-29 (calibrar `difficulty`) si se decide
+usarla.
+
+### T-52 · Grabar o buscar los 3 videos placeholder de recursos — **P3** · `abierto`
+
+Detectado al cerrar T-01 (2026-08-09): tres recursos `video_url` quedaron sin publicar porque
+`media_url` es `null` -- son placeholders con el texto "Sustituye la URL en Admin → Recursos por
+tu lectura/grabación del módulo". Afectan `aritmetica/enteros`, `aritmetica/fracciones` y
+`algebra/ecuaciones`.
+
+- **Trabajo:** grabar o encontrar un video apropiado para cada uno, pegar la URL en Admin →
+  Recursos, y marcar "Publicado". El título y el módulo ya están cargados.
+- **Terminado cuando:** los 3 tienen `media_url` real y `published = true`.
+- **Relacionado:** [[BACKLOG]] T-01.
 
 ### T-02 · Cerrar el pipeline de email de cohorte — **P0** · `bloqueado` (acceso)
 
@@ -877,7 +915,7 @@ desactualizados (lista de módulos previa al MVP).
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51 |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49 |
-| **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46 |
+| **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52 |
 
 ---
 

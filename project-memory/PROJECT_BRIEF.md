@@ -123,7 +123,7 @@ primero y con qué grupo hacerlo.
 |---|----------|-------------------|
 | S-01 | Un estudiante completa login → diagnóstico → perfil → plan → inscripción a un cupo sin intervención manual | ✅ operativo |
 | S-02 | El diagnóstico termina en ≤ 12 ítems y ≥ 5, con SE(θ) ≤ 0,35 cuando hay ítems suficientes | ✅ implementado (`irt.progress/default-stop-config`) |
-| S-03 | Cada módulo prioritario tiene al menos un recurso publicado | ⛔ pendiente |
+| S-03 | Cada módulo prioritario tiene al menos un recurso publicado | ✅ 58/61 publicados, 2026-08-09 (T-01) |
 | S-04 | Un cupo que alcanza `min_enrollments` pasa a `confirmed` y genera notificación in-app | ✅ trigger + UI |
 | S-05 | El estudiante recibe email al confirmarse su grupo | ⚠️ código listo, despliegue no verificado |
 | S-06 | Un estudiante nunca ve datos de otro (RLS) | ✅ verificado según checklist de go-live |
