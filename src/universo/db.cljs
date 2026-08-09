@@ -144,6 +144,11 @@
           ;; Prefetch de la siguiente pregunta (mientras se muestra feedback)
           :prefetched-question nil ; nil | mapa-pregunta | :exhausted
           :prefetching? false
+          ;; Corrección en el servidor en curso (ADR-015): el ítem llega sin su
+          ;; respuesta, así que responder es asíncrono y hay que bloquear las
+          ;; alternativas mientras tanto.
+          :scoring? false
+          :score-error nil
           ;; Catálogo de evaluaciones: test_configs filtrado por lo que el
           ;; usuario ya desbloqueó (universo.access/unlocked-topics).
           :available-topics []

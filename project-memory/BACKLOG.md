@@ -217,6 +217,68 @@ job ni proceso que lo ejecute.
 > Nota: ya existía un T-15 distinto ("Descomponer los monolitos"); este ticket se numeró T-34 para
 > no chocar con él.
 
+### T-47 · Cerrar la lectura directa del banco de ítems (ADR-015) — **P0** · `abierto` · **bloquea go-live**
+
+La auditoría de `pg_policies` del 2026-08-08 respondió [[OPEN_QUESTIONS]] Q-12 y confirmó
+[[RISKS]] R-16: la policy `"Enable read access for all users"` (creada desde el dashboard, ausente
+del repo) hace que **cualquier cuenta autenticada pueda descargar `questions` completa**, con
+`correct_option` y las cuatro `error_*`. No es solo robo del activo: permite falsear el diagnóstico
+y, peor, contaminaría la calibración futura de `difficulty` (T-29, T-45).
+
+- **SQL ya escrito:** `023_rls_limpieza.sql` (inocua, aplicable ya), `024_questions_rpc.sql`
+  (aditiva, aplicable ya) y `025_questions_revoke_lectura_directa.sql` (**la que cierra el
+  agujero**).
+- **Trabajo de cliente pendiente:** `events/test.cljs` — `fetch-candidates` pasa a llamar
+  `crud/next-question` (RPC); la evaluación `:correct? (= value (:correct-option question))` de
+  `diagnostic_test.cljs` pasa a `crud/score-answer`; `normalize-question` deja de mapear
+  `:correct-option` y `:errors`; el modal de feedback toma la explicación de la respuesta del RPC.
+  El prefetch se mantiene.
+- **⚠ Orden obligatorio:** 023 → 024 → **cliente compilado y publicado en `main`** → probar el
+  diagnóstico con cuenta de **estudiante** → recién ahí 025. Aplicar 025 antes rompe el diagnóstico
+  para todos los no-admin.
+- **Terminado cuando:** con una cuenta de estudiante, `supabase.from('questions').select('*')`
+  devuelve cero filas **y** el diagnóstico completo funciona de punta a punta, feedback incluido.
+- **Relacionado:** [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]], [[RISKS]] R-16,
+  [[OPEN_QUESTIONS]] Q-12 y X-03, [[../adr/ADR-003-github-pages-artefacto-versionado]].
+
+### T-48 · Versionar el DDL real del esquema (`000_baseline`) — **P1** · `abierto`
+
+Hallazgo de la misma auditoría: **`public.questions` no se crea en ninguna migración.**
+`001_mvp_schema.sql` declara "Requiere: `public.questions`" y solo le agrega `module_id`. Lo mismo
+pasaba con la tabla huérfana `dashboard` (eliminada en `023`). Es decir: **un entorno nuevo no se
+puede reconstruir desde el repositorio**, y eso vuelve teórico tanto el staging (T-09) como la
+restauración de un respaldo (T-07).
+
+- **Trabajo:** volcar el esquema real (`pg_dump --schema-only`) y versionar como
+  `000_baseline.sql` lo que no esté cubierto por las migraciones existentes — al menos `questions`
+  y `is_admin()`. Documentar en `supabase/SCHEMA.md` que `000` es el punto de partida.
+- **Terminado cuando:** aplicar `000` + `001`…`025` sobre una base vacía reproduce el esquema de
+  producción, verificado al menos una vez.
+- **Relacionado:** [[RISKS]] R-03, R-15, T-07, T-09, [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]].
+
+### T-49 · La banda del estudiante no está protegida en la base — **P2** · `abierto`
+
+Tercer hallazgo de la auditoría. La segregación por banda —el corazón de la propuesta de valor
+([[../adr/ADR-006-cohortes-por-banda-con-minimo-de-inscritos]], B-04)— es **puramente cosmética**:
+
+- `class_slots_select_open` deja ver **todos** los cupos abiertos, de cualquier banda.
+- `enrollments_insert_own` solo valida `user_id = auth.uid()`; no mira el cupo.
+- `enrollments_update_own` permite cambiar `slot_id` y `status` de la propia fila.
+- `student_profiles_update_own` permite al estudiante **reescribir su propia `theta_band` y su
+  `profile`**.
+
+El filtro por banda vive solo en `slots.logic`, o sea en la UI. Un estudiante puede cambiarse la
+banda y aparecer en cualquier cohorte; los perjudicados son los demás del grupo.
+
+- **Causa de fondo:** θ se calcula **y se escribe** desde el cliente, así que **θ no es un registro
+  confiable**. Arreglarlo de verdad implica decidir si el cálculo de θ se mueve al servidor →
+  **ADR**. No se improvisa.
+- **Hoy no es urgente** (θ no condiciona nada consecuente). Deja de no serlo si alguna vez θ
+  determina precio, certificación o acceso pagado.
+- **Terminado cuando:** o la inscripción valida la banda contra un θ que el estudiante no puede
+  escribir, o está documentado por qué se acepta el riesgo.
+- **Relacionado:** [[RISKS]] R-14, [[../adr/ADR-006-cohortes-por-banda-con-minimo-de-inscritos]].
+
 ### T-11 · Verificación automatizada de policies RLS — **P2** · `abierto`
 
 Script SQL o suite que valide, con dos usuarios de prueba (`user` y `admin`), que:
@@ -662,6 +724,50 @@ poblacional ρ entre θ y τ: el prior deja de ser marginal N(0,1) y pasa a ser 
 - **Relacionado:** [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]] §Fase 3, T-29
   (calibración de `difficulty`, misma dependencia de volumen).
 
+### T-50 · `difficulty` en escalas incompatibles rompe topics enteros — **P0** · `abierto` · **bloquea go-live**
+
+Medido el 2026-08-09 sobre las 387 preguntas reales (consulta directa con cuenta de estudiante,
+ver `sessions/SESSION-010.md`). El modelo 1PL asume `difficulty` en **logits, rango [-3, 3]**
+(`tetha/clamp-theta`), pero el banco tiene al menos tres escalas conviviendo:
+
+| Topic | Ítems | Rango de `difficulty` | Consecuencia |
+|-------|-------|----------------------|--------------|
+| `enteros` | 10 | **10 .. 90** | **Ningún ítem es alcanzable**: la selección busca en ±1 (y ±2) alrededor de θ ∈ [-3,3] |
+| `Ecuaciones cuadráticas` | 1 | 50 | inalcanzable |
+| `Polinomios` | 1 | 4 | inalcanzable |
+| `Ecuaciones lineales` | 3 | 2 .. 5 | parcialmente alcanzable |
+| `numbers_V1` | 178 | -3 .. 2.9 | ✅ correcto |
+
+**Efecto real:** un estudiante que elija `enteros` recibe "no hay más preguntas" y el test termina
+al instante (`:test/bank-exhausted`). No es un sesgo de estimación: es un topic muerto.
+
+- **Terminado cuando:** todo `questions.difficulty` está dentro de `[-3, 3]`, con una migración que
+  reescale o marque los ítems fuera de rango, y ningún topic activo queda sin ítems alcanzables.
+- **Ojo:** reescalar cambia θ de tests ya rendidos. Decidir si se recalculan o se marcan como
+  históricos → puede requerir ADR.
+- **Relacionado:** [[RISKS]] R-17, [[OPEN_QUESTIONS]] Q-05 (respondida en parte por esta medición),
+  T-29 (calibración empírica, que presupone una escala única).
+
+### T-51 · Higiene de `topic` y `module_id` en el banco — **P1** · `abierto`
+
+Misma medición del 2026-08-09:
+
+- **199 de 387 preguntas (51%) tienen `module_id = null`** → sin módulo no hay déficit accionable
+  ni recursos asociados: la mitad del banco no puede alimentar "Mi plan". Los bloques grandes sin
+  módulo son `diagnostico` (84) y `PAES_M1` (44).
+- **26 topics distintos, con duplicados por acento/ortografía** que el sistema trata como bancos
+  separados: `factorización`(6)/`factorizacion`(2), `términos_semejantes`(5)/`terminos_semejantes`(5),
+  `división_algebraica`(3)/`division_algebraica`(2), `Polinomios`(1)/`polinomios`(19).
+- Solo `numbers_V1` y `enteros` existen en `universo.profile/topic->module-slug`; el resto cae en
+  `unknown/*`.
+
+- **Terminado cuando:** los topics duplicados están unificados, todo ítem tiene `module_id`, y todo
+  topic presente en `questions` tiene mapeo en `topic->module-slug` con test que lo verifique.
+- **Ojo:** unificar topics toca `test_configs` (keyed por `topic`, con self-FK de prerequisitos) y
+  la columna `tests.topic` del historial que alimenta `universo.access`. No es un simple UPDATE.
+- **Relacionado:** T-28 (es la misma brecha, ahora con datos), [[OPEN_QUESTIONS]] Q-06,
+  [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]].
+
 ### T-29 · Calibrar `difficulty` con datos reales — **P3** · `abierto`
 
 - **Terminado cuando:** hay un procedimiento (query o script) que estime la dificultad empírica por
@@ -768,9 +874,9 @@ desactualizados (lista de módulos previa al MVP).
 
 | Prioridad | Tareas |
 |-----------|--------|
-| **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45 |
+| **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46 |
 
 ---

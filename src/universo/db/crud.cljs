@@ -452,6 +452,54 @@
                                   :error (.-message error)}))))
     ch))
 
+;; -----------------------------------------------------------------------------
+;; Banco de ítems: el cliente NO lee `questions` (ADR-015)
+;; -----------------------------------------------------------------------------
+;; El ítem viaja sin `correct_option` ni `error_*`, y la corrección ocurre en el
+;; servidor. Ver supabase/migrations/024_questions_rpc.sql y 026.
+
+(defn next-question
+  "Siguiente ítem del banco, sin su respuesta. La selección por cercanía a θ y
+   el ensanchamiento de ventana ocurren en SQL: vuelve UN ítem, no la ventana
+   completa como hacía el `select` directo anterior."
+  [topic theta narrow wide answered-ids]
+  (let [ch (async/chan)]
+    (-> (.rpc supabase-client "next_question"
+              #js {:p_topic topic
+                   :p_theta theta
+                   :p_narrow narrow
+                   :p_wide wide
+                   :p_answered (clj->js (vec answered-ids))})
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false :error (.-message (.-error result))})
+                   ;; La función devuelve 0 o 1 filas; `nil` = banco agotado,
+                   ;; que el llamador distingue de un error.
+                   (async/put! ch {:success true
+                                   :data (first (js->clj (.-data result)
+                                                         :keywordize-keys true))}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn score-answer
+  "Corrige una respuesta en el servidor. Devuelve {:correcto :correcta
+   :explicacion} — la explicación es solo la de la alternativa elegida."
+  [question-id selected]
+  (let [ch (async/chan)]
+    (-> (.rpc supabase-client "score_answer"
+              #js {:p_question_id question-id
+                   :p_selected selected})
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false :error (.-message (.-error result))})
+                   (async/put! ch {:success true
+                                   :data (first (js->clj (.-data result)
+                                                         :keywordize-keys true))}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
 (defn fetch-question-counts-by-topic
   "Cuántas preguntas tiene el banco de cada topic (admin).
    Pide `count: exact` además de las filas para poder detectar una respuesta
