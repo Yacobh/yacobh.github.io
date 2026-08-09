@@ -208,7 +208,8 @@ amplían para mostrar los datos nuevos cuando existen.
 21. `migrations/019_baldor_algebra_resources.sql`
 22. `migrations/020_test_configs.sql`
 23. `migrations/021_tests_topic_theta_rls.sql`
-24. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+24. `migrations/022_test_config_display_name.sql`
+25. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 ## Recursos originales con numeración Baldor como índice (`018_baldor_resources.sql`)
 
@@ -269,3 +270,18 @@ Agrega también `tests_select_own` (`user_id = auth.uid() or is_admin()`) y, de 
 `enable row level security` -- no había evidencia en ningún archivo versionado de que `tests`
 tuviera RLS habilitado ni ninguna policy de SELECT propia del usuario (solo `tests_select_admin`
 en `admin_rls.sql`).
+
+## Nombre de fantasía por evaluación (`022_test_config_display_name.sql`)
+
+`test_configs` gana `display_name text` (nullable) + check `test_configs_display_name_not_blank`
+(un nombre en blanco debe guardarse como `null`, para que exista una sola representación de "sin
+nombre configurado"). Es el nombre que ve el estudiante en el selector de evaluaciones; hasta
+`021` ese nombre salía de un diccionario estático hardcodeado en el cliente que solo cubría un
+puñado de topics conocidos (BACKLOG T-42).
+
+**Sin backfill a propósito:** con `display_name = null` el cliente cae al diccionario estático y,
+si el topic tampoco está ahí, al propio `topic` con guiones bajos como espacios (ver
+`universo.catalog/topic-label`). Nadie ve un cambio hasta que un admin escriba un nombre.
+
+RLS: sin cambios -- la columna viaja dentro del mismo `select` ya cubierto por `test_configs_select`
+de `020`, y solo un admin puede escribirla (`test_configs_update_admin`).
