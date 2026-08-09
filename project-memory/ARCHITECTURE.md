@@ -173,7 +173,7 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
 | Tabla | Claves / campos relevantes | Notas |
 |-------|---------------------------|-------|
 | `profiles` | `id` (FK `auth.users`), `email`, `role` (`user`\|`admin`) | Base del control de acceso. Índices en `role` y `email` |
-| `questions` | opciones A–D, `correct_option`, `error_a..error_d`, `difficulty`, `topic`, `order_index`, `module_id` (FK opcional) | **El activo del proyecto**: banco IRT con misconceptions |
+| `questions` | opciones A–D, `correct_option`, `error_a..error_d`, `difficulty`, `topic`, `order_index`, `module_id` (FK opcional) | **El activo del proyecto**: banco IRT con misconceptions. `correct_option` y `error_*` **nunca viajan al cliente** (ADR-015). Su DDL **no está versionado** — preexiste a `001` (T-48) |
 | `tests` | `test` (JSON del diagnóstico), `topic`, `theta` (columnas propias desde ADR-013), `email-user`, `user_id` | Histórico de diagnósticos; `topic`/`theta` alimentan `universo.access/unlocked-topics` |
 | `test_configs` | `topic` (PK), `display_name` (nullable), `min_items`, `max_items`, `se_threshold`, `max_minutes`, `prerequisite_topic` (self-FK nullable), `min_theta`, `active` | Config de parada IRT + cadena de prerequisitos por banco (ADR-013). Sin prerequisito = diagnóstico, siempre accesible. `display_name` es el nombre que ve el estudiante (T-42, migración `022`); null = fallback en `universo.catalog/topic-label` |
 | `modules` | `slug` (único), `title`, `track` (`aritmetica`\|`algebra`\|`geometria`), `order_index`, `historical_blurb` | Skills atómicas alineadas a Baldor |
@@ -327,7 +327,11 @@ UI:           :auth/admin? y protected-sections son UX, NO controles de segurida
 4. `profiles_update_admin` (`006`): un admin actualiza perfiles **ajenos** (`id <> auth.uid()`),
    salvaguarda deliberada para no quedarse sin administradores.
 5. Trigger `profiles_protect_last_admin`: impide degradar al último admin.
-6. `questions`: SELECT/INSERT/UPDATE/DELETE solo para admin (`007`).
+6. `questions`: SELECT/INSERT/UPDATE/DELETE solo para admin (`007`). **El estudiante no lee esta
+   tabla**: obtiene los ítems por los RPC `next_question`/`score_answer` (`024`/`026`, ver §2.4).
+   Hasta el 2026-08-09 una policy permisiva creada desde el dashboard anulaba esta regla por OR y
+   dejaba el banco descargable; eliminada en `025`
+   ([[../adr/ADR-015-item-sin-respuesta-en-el-cliente]], R-16 cerrado).
 7. `guestbook`: lectura pública de aprobados; insert público; delete solo admin.
 8. Estudiante: solo su `student_profiles` y sus `enrollments`.
 
@@ -367,10 +371,16 @@ la ejecute todavía** ([[BACKLOG]] T-34). Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]
 - **Escritura pública en `guestbook`** y `contacto`: sin captcha ni rate limit → spam posible.
   Mitigación actual: moderación (`is_approved` empieza en `null`).
 - **Tracking de visitantes** inserta desde el cliente: un actor puede inflar `visitor`.
-- **Enumeración de `questions`**: si alguna policy permitiera SELECT a `authenticated` no-admin,
-  el banco de ítems (el activo del proyecto) quedaría expuesto. `007` lo restringe a admin, pero
-  el diagnóstico necesita leer preguntas — **verificar qué policy usa el flujo del estudiante**
-  ([[OPEN_QUESTIONS]] Q-12).
+- ~~**Enumeración de `questions`**~~ — ✅ **cerrada 2026-08-09.** La sospecha de Q-12 se confirmó:
+  una policy permisiva creada desde el dashboard dejaba el banco completo legible para cualquier
+  cuenta autenticada. Resuelto con [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]]: el cliente
+  ya no lee la tabla y los ítems llegan por `next_question`/`score_answer`.
+  **Residual aceptado:** sondear `score_answer` alternativa por alternativa permite reconstruir la
+  clave con `N` llamadas autenticadas y registrables — se eliminó la exfiltración masiva, no el
+  sondeo.
+- **θ no es un registro confiable**: se calcula y se escribe desde el cliente, y
+  `student_profiles_update_own` permite al estudiante reescribir su propia `theta_band`. No debe
+  condicionar nada consecuente (precio, certificación) sin resolverlo antes ([[BACKLOG]] T-49).
 
 ---
 

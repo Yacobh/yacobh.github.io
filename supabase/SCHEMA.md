@@ -209,10 +209,15 @@ amplían para mostrar los datos nuevos cuando existen.
 22. `migrations/020_test_configs.sql`
 23. `migrations/021_tests_topic_theta_rls.sql`
 24. `migrations/022_test_config_display_name.sql`
-25. `migrations/023_rls_limpieza.sql`
-26. `migrations/024_questions_rpc.sql`
-27. `migrations/025_questions_revoke_lectura_directa.sql` — **⚠️ solo tras publicar el bundle de T-47**
-28. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+25. `migrations/023_rls_limpieza.sql` — ✅ aplicada 2026-08-08
+26. `migrations/024_questions_rpc.sql` — ✅ aplicada 2026-08-08
+27. `migrations/026_score_answer_devuelve_correcta.sql` — ✅ aplicada 2026-08-09 (**antes de `025`**)
+28. `migrations/025_questions_revoke_lectura_directa.sql` — ✅ aplicada 2026-08-09, **después** de
+    publicar el bundle de T-47 y verificar el diagnóstico con cuenta de estudiante
+29. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+
+> **Nota de orden:** `026` va antes que `025` pese a la numeración. `025` es la revocación y su
+> precondición es el bundle publicado, no el número. Ver ADR-015 §Secuencia de despliegue.
 
 > ⚠️ **El esquema no arranca en `001`.** `public.questions` y `public.is_admin()` **preexisten** a
 > las migraciones versionadas (`001_mvp_schema.sql` declara "Requiere: `public.is_admin()`,

@@ -36,7 +36,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | R-11 | Cupos que nunca alcanzan el mínimo | Medio | Alta | Media-alta | activo |
 | R-12 | Entregabilidad de email (spam / dominio no verificado) | Medio | Media | Media | activo |
 | R-15 | Dependencia total de Supabase (free tier / cambio de términos) | Alto | Baja | Media | aceptado |
-| R-16 | **Banco de ítems descargable por cualquier cuenta** (confirmado 2026-08-08) | Alto | **Alta** | **Alta** | **activo — bloquea go-live** |
+| R-16 | Banco de ítems descargable por cualquier cuenta | Alto | Baja | Baja | ✅ **cerrado 2026-08-09** (ADR-015) |
 | R-17 | `difficulty` no calibrada ⇒ θ sesgada | Medio | Media | Media | activo |
 | R-18 | Spam en guestbook / contacto (sin rate limit) | Bajo | Alta | Media | mitigado (moderación) |
 | R-19 | Estacionalidad PAES: ventana de captación estrecha | Medio | Alta | Media-alta | activo |
@@ -195,7 +195,7 @@ tier. Un cambio de términos o límites afecta todo.
 a datos centralizado en `db.crud` reduce el costo de un cambio de proveedor.
 **Estado:** aceptado conscientemente ([[../adr/ADR-002-supabase-como-unico-backend]]).
 
-### R-16 · Banco de ítems expuesto — ⚠️ **MATERIALIZADO, confirmado 2026-08-08**
+### R-16 · Banco de ítems expuesto — ✅ **CERRADO 2026-08-09** (materializado el 2026-08-08)
 **Descripción:** `questions` (con `correct_option` y `error_*`) es el activo principal. Si alguna
 policy permite SELECT amplio a usuarios autenticados, el banco es descargable; y el flujo del
 estudiante necesita leer preguntas, así que la policy exacta importa.
@@ -213,11 +213,20 @@ futura de `difficulty` ([[BACKLOG]] T-29, T-45).
 **Probabilidad:** **Alta** — no hay barrera, solo hace falta una cuenta gratuita. Mitigada de facto
 hoy únicamente porque el sitio no está promocionado y no hay estudiantes.
 **Severidad:** **Alta** (era Media).
-**Mitigación:** [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]] — el cliente deja de leer
-`questions`; el ítem viaja sin respuesta y la corrección ocurre en el servidor. Migraciones
-`023`/`024` (aditivas, aplicables ya) y `025` (**la que cierra el agujero**, solo tras publicar el
-bundle nuevo). Tarea [[BACKLOG]] T-47, **P0, bloquea go-live**.
-**Estado:** **activo — bloqueante.** No abrir el sitio a estudiantes reales antes de aplicar `025`.
+**Mitigación aplicada:** [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]] — el cliente dejó de
+leer `questions`; el ítem viaja sin respuesta (`next_question`) y la corrección ocurre en el
+servidor (`score_answer`). Migraciones `023`–`026` aplicadas y bundle publicado.
+
+**✅ Cerrado 2026-08-09, verificado en producción:** anónimo → `permission denied`; estudiante →
+**0 filas** (antes 387); los RPC sirven el ítem sin `correct_option` ni `error_*`; el diagnóstico
+funciona igual. Ver [[BACKLOG]] T-47, [[OPEN_QUESTIONS]] Q-12 y X-03.
+
+**Riesgo residual aceptado (no eliminado):** un usuario autenticado puede sondear `score_answer`
+ítem por ítem y reconstruir la clave con `N` llamadas registrables. El objetivo era eliminar la
+exfiltración masiva —una sola consulta devolvía todo—, no volver imposible el sondeo. La defensa
+fuerte (aceptar respuestas solo para ítems servidos en un test activo) exige estado de test en el
+servidor y quedó fuera de alcance.
+**Estado:** **cerrado**, con el residual documentado arriba.
 
 ### R-17 · `difficulty` no calibrada
 **Descripción:** el modelo 1PL depende enteramente del parámetro `b` (dificultad) de cada ítem. Si
