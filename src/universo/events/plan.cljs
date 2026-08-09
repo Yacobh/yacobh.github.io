@@ -2,12 +2,19 @@
   (:require
    [re-frame.core :as re-frame]
    [cljs.core.async :refer [go <!]]
-   [universo.db.crud :as crud]))
+   [universo.db.crud :as crud]
+   [universo.plan :as plan]))
 
 (re-frame/reg-sub
  :plan/resources
+ ;; El cruce déficits × recursos se hace acá y no al guardar las filas porque
+ ;; `:plan/enter` carga el perfil y los recursos **en paralelo**: si se filtrara
+ ;; en el handler, el resultado dependería de cuál respuesta llega primero. Como
+ ;; suscripción se recalcula sola cuando cualquiera de los dos cambia.
  (fn [db _]
-   (get-in db [:plan :resources] [])))
+   (plan/resources-for-deficits
+    (get-in db [:plan :resources] [])
+    (get-in db [:student-profile :profile :deficits] []))))
 
 (re-frame/reg-sub
  :plan/loading?
@@ -42,11 +49,9 @@
 
 (re-frame/reg-fx
  :plan/fetch-resources!
- (fn [module-ids]
+ (fn [_]
    (go
-     (let [result (if (seq module-ids)
-                    (<! (crud/fetch-resources-for-modules module-ids))
-                    (<! (crud/fetch-published-resources)))]
+     (let [result (<! (crud/fetch-published-resources))]
        (if (:success result)
          (re-frame/dispatch [:plan/resources-loaded (:data result)])
          (re-frame/dispatch [:plan/resources-failed
@@ -55,30 +60,20 @@
 (re-frame/reg-event-fx
  :plan/load-resources
  (fn [{:keys [db]} _]
-   (let [deficits (or (get-in db [:student-profile :profile :deficits]) [])
-         ;; Prefer module ids from resources join; slug-only deficits → all published filtered client-side
-         slugs (mapv :module-slug deficits)]
-     {:db (-> db
-              (assoc-in [:plan :loading?] true)
-              (assoc-in [:plan :error] nil)
-              (assoc-in [:plan :deficit-slugs] slugs))
-      :plan/fetch-resources! nil})))
+   {:db (-> db
+            (assoc-in [:plan :loading?] true)
+            (assoc-in [:plan :error] nil))
+    :plan/fetch-resources! nil}))
 
 (re-frame/reg-event-db
  :plan/resources-loaded
+ ;; Se guardan las filas crudas: quién ve qué lo decide `:plan/resources` con la
+ ;; lógica pura de `universo.plan`, no este handler.
  (fn [db [_ rows]]
-   (let [slugs (set (get-in db [:plan :deficit-slugs] []))
-         filtered (if (seq slugs)
-                    (filterv (fn [r]
-                               (or (contains? slugs (:module_slug r))
-                                   (contains? slugs (get-in r [:modules :slug]))
-                                   (empty? slugs)))
-                             (or rows []))
-                    (or rows []))]
-     (-> db
-         (assoc-in [:plan :resources] (if (seq filtered) filtered (or rows [])))
-         (assoc-in [:plan :loading?] false)
-         (assoc-in [:plan :error] nil)))))
+   (-> db
+       (assoc-in [:plan :resources] (vec (or rows [])))
+       (assoc-in [:plan :loading?] false)
+       (assoc-in [:plan :error] nil))))
 
 (re-frame/reg-event-db
  :plan/resources-failed

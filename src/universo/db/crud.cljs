@@ -799,10 +799,6 @@
                   (async/put! ch {:success false :error (.-message error)}))))
     ch))
 
-(defn fetch-resources-for-modules
-  [module-ids]
-  (fetch-published-resources))
-
 (defn fetch-admin-resources
   []
   (let [ch (async/chan)]

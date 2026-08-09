@@ -60,7 +60,8 @@
             loading? @(re-frame/subscribe [:plan/loading?])
             layer0 @(re-frame/subscribe [:plan/layer0])
             deficits @(re-frame/subscribe [:plan/deficits])
-            resources @(re-frame/subscribe [:plan/resources])
+            {resources :resources resources-kind :kind} @(re-frame/subscribe [:plan/resources])
+            personalized? (= :personalized resources-kind)
             error @(re-frame/subscribe [:plan/error])
             has-profile? (or (number? (:theta profile-map))
                              (number? (:theta built))
@@ -110,11 +111,19 @@
                 [:p.text-sm.text-gray-500 "No hay misconceptions registradas en el último test."])]
 
              [:div.bg-white.rounded-xl.shadow.p-6
-              [:h2.text-lg.font-bold.text-gray-800.mb-3 "Recursos recomendados"]
+              [:h2.text-lg.font-bold.text-gray-800.mb-3
+               (if personalized? "Recursos recomendados" "Material de estudio disponible")]
               (when error
                 [:p.text-sm.text-red-600.mb-3 error])
               (if (seq resources)
                 [:div.space-y-3
+                 ;; Sin cruce con los déficits esto es la biblioteca, no un plan:
+                 ;; se dice explícitamente en vez de presentarla como recomendación.
+                 (when-not personalized?
+                   [:p.text-sm.text-amber-800.bg-amber-50.border.border-amber-100.rounded-lg.p-3
+                    (str "Todavía no podemos enlazar este material con los errores de tu "
+                         "diagnóstico, así que te mostramos todo lo que hay publicado. Las "
+                         "explicaciones de arriba sí son las tuyas.")])
                  (for [r resources]
                    ^{:key (:id r)}
                    [resource-card r])]

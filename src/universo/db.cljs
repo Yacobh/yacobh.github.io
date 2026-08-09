@@ -93,10 +93,11 @@
                      :theta nil
                      :theta_band nil}
 
+   ;; :resources son las filas crudas de recursos publicados; el cruce con los
+   ;; déficits del perfil lo hace la suscripción :plan/resources (universo.plan).
    :plan {:loading? false
           :resources []
-          :error nil
-          :deficit-slugs []}
+          :error nil}
 
    :slots {:loading? false
            :items []

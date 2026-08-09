@@ -435,6 +435,43 @@
 > `project-memory/OPEN_QUESTIONS.md` (Q-20 y X-04/X-05/X-06 cerradas) y `project-memory/BACKLOG.md`
 > (T-13, T-16, T-18 cerradas) actualizados en la misma sesión.
 
+> **T-53: los "recursos recomendados" no estaban personalizados (2026-08-09, misma fecha, sesión
+> posterior).** El owner preguntó por la estrategia de contenido y el rol de la IA en producirlo;
+> al auditar cómo se implementan los recursos apareció un defecto de producto: **"Mi plan" mostraba
+> la biblioteca completa bajo el título "Recursos recomendados"**. Tres defectos encadenados (el
+> efecto recibía `nil` en vez de los módulos; `crud/fetch-resources-for-modules` ignoraba su
+> parámetro; y un fallback devolvía todas las filas cuando el filtro quedaba vacío), más una
+> carrera entre la carga del perfil y la de recursos que el fallback tapaba.
+>
+> Arreglado con un namespace puro nuevo (`universo.plan`) que devuelve `:personalized` o
+> `:general`, y moviendo el cruce a la suscripción (elimina la carrera). La UI ahora rotula
+> distinto el material no personalizado en vez de presentarlo como recomendación — mismo criterio
+> de honestidad que T-24. `clj -M:test` **45/178/0** (antes 42/162), `release app` 0 warnings,
+> `clj-kondo` limpio. **No verificado en vivo** (sección protegida, sin credenciales de
+> estudiante).
+>
+> **Consecuencia que conviene tener presente:** hasta cerrar **T-51** (51 % de las preguntas sin
+> `module_id`), la mayoría de los estudiantes verá la rama `:general`. No es una regresión: es el
+> estado real que el fallback ocultaba. **T-51 es ahora el bloqueo real de la capa 1**, por encima
+> de producir más contenido. Ver [[BACKLOG]] T-53, `sessions/SESSION-015.md`.
+>
+> **Cierre de la sesión — ADR-016 y estrategia de contenido (2026-08-09).** Del análisis de
+> recursos salió una decisión y tres tareas nuevas:
+> - **[[../adr/ADR-016-ia-en-el-pipeline-de-autoria-no-en-runtime]] (D-35):** la IA produce
+>   contenido pedagógico **solo en el pipeline de autoría** — migración con `published = false` →
+>   auditoría rehaciendo cada cuenta → publicación humana — y **nunca en runtime**, porque ADR-002
+>   no deja dónde poner una API key y el costo por estudiante rompe el objetivo de infra ≈ $0.
+>   Formaliza lo que ya se había hecho de facto en `018`/`019` + T-01, y de paso resuelve el "sin
+>   versionado de contenido" que ADR-005 había aceptado como costo.
+> - **T-54** (atar `resources` a misconceptions, no solo a módulos) y **T-55** (capa de práctica
+>   reutilizando el banco de ítems, con la restricción dura de ADR-015): ambas **requieren ADR
+>   propio** y siguen **sin decidir** — se registran como tareas, no como decisiones.
+> - **T-56** (los 7 módulos de `geometria` sin ninguna fuente) y **T-27** actualizada como primer
+>   lote bajo ADR-016, priorizable ahora con los 252 diagnósticos reales.
+>
+> **Orden recomendado:** T-51 antes que cualquier producción de contenido nueva; T-54 mientras el
+> modelo siga siendo barato de cambiar (58 recursos). El go-live sigue dependiendo solo de T-04.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

@@ -757,6 +757,57 @@ conocidos y no es editable desde ningún panel.
 - **Relacionado:** [[BACKLOG]] T-39, T-40, [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]],
   `supabase/SCHEMA.md`.
 
+### T-53 · "Recursos recomendados" mostraba la biblioteca completa — **P1** · `hecho` (2026-08-09)
+
+Detectado al auditar cómo se implementan los recursos de aprendizaje (pregunta del owner sobre
+estrategia de contenido, 2026-08-09). El plan **no personalizaba los recursos**, y además lo
+presentaba como si lo hiciera.
+
+**Tres defectos encadenados, todos en la ruta `plan.cljs` → `events/plan.cljs` → `crud.cljs`:**
+
+1. `:plan/load-resources` calculaba los slugs de los déficits y luego despachaba el efecto con
+   **`nil` literal** (`:plan/fetch-resources! nil`) — los módulos nunca llegaban al fetch.
+2. `crud/fetch-resources-for-modules` **ignoraba su parámetro `module-ids`** y delegaba en
+   `fetch-published-resources` (misma clase de defecto que T-43). Era código muerto que aparentaba
+   filtrar.
+3. El filtro real ocurría en el cliente al guardar, con un fallback
+   `(if (seq filtered) filtered rows)` que, al no encontrar coincidencias, **devolvía los 58
+   recursos publicados** bajo el título "Recursos recomendados".
+
+El fallback se disparaba casi siempre: por T-51, el 51 % de las preguntas no tiene `module_id` y
+solo `numbers_V1`/`enteros` están en `topic->module-slug`, así que la mayoría de los déficits sale
+como `unknown/<topic>` y no cruza con ningún recurso.
+
+**Causa de fondo adicional (carrera):** `:plan/enter` carga perfil y recursos **en paralelo**, así
+que filtrar dentro del handler hacía que el resultado dependiera de cuál respuesta llegara primero.
+El fallback también estaba tapando eso.
+
+**Implementado 2026-08-09:**
+- **`universo.plan`** (namespace puro nuevo, ADR-009) — `resources-for-deficits` devuelve
+  `{:kind :personalized|:general :resources [...]}`. Los recursos personalizados salen **en orden
+  de severidad del déficit** (aprovechando que `deficits-from-responses` ya viene ordenado). El
+  `:kind` es la pieza central: permite que la UI no llame recomendación a lo que no lo es.
+- `:plan/resources` pasa de leer estado a **derivarlo en la suscripción**, lo que elimina la
+  carrera: se recalcula sola cuando llega cualquiera de las dos cargas.
+- `:plan/resources-loaded` guarda las filas crudas; ya no decide qué se muestra.
+- `components/plan.cljs` — el título cambia a "Material de estudio disponible" y aparece un aviso
+  ámbar explícito cuando no se pudo personalizar. **No se ocultó el material**: se dejó de mentir
+  sobre él (mismo criterio de honestidad de T-24).
+- Borrados `crud/fetch-resources-for-modules` (muerta) y `:plan :deficit-slugs` de `default-db`.
+- `clj -M:test`: **45 tests / 178 assertions / 0 failures** (antes 42/162). `shadow-cljs release
+  app`: 0 warnings. `clj-kondo`: sin hallazgos nuevos en los archivos tocados.
+
+- **Terminado cuando:** un estudiante con déficits mapeados ve solo los recursos de sus módulos, y
+  uno sin déficits mapeados ve material rotulado como general en vez de una recomendación falsa. ✅
+- **⚠ Consecuencia visible, a propósito:** hasta que se cierre **T-51**, la mayoría de los
+  estudiantes caerá en la rama `:general`. Eso no es una regresión del arreglo — es el estado real
+  que el fallback ocultaba, ahora visible. **T-51 pasa a ser el bloqueo real de la capa 1.**
+- **No verificado en vivo:** "Mi plan" es sección protegida y el agente no tiene credenciales de
+  estudiante; solo revisión de código, tests, lint y compilación limpia.
+- **Relacionado:** T-51 (mapeo de módulos, el bloqueo de fondo), T-43 (mismo patrón de parámetro
+  ignorado), T-24 (estados vacíos honestos), [[../adr/ADR-005-banco-de-items-en-vez-de-cms]],
+  [[RISKS]] R-10.
+
 ---
 
 ## Épica E5 — Contenido y calidad pedagógica
@@ -768,6 +819,20 @@ frases, KaTeX si hace falta, `module_id` correcto.
 
 - **Terminado cuando:** los ítems de los 3 topics más fallados tienen los cuatro `error_*`
   completos y revisados.
+
+**Actualización 2026-08-09 (ADR-016):** esta tarea es el **primer lote** del pipeline de autoría
+asistida por IA ([[../adr/ADR-016-ia-en-el-pipeline-de-autoria-no-en-runtime]]), y es la de mejor
+relación valor/costo de toda la épica: las `error_*` son 1–2 frases, así que son baratas de generar
+y —lo que realmente importa— **baratas de auditar**, a diferencia de un recurso largo. Escala: 387
+preguntas × 4 distractores ≈ 1.548 explicaciones posibles, imposible a mano.
+
+- **Criterio de priorización, ahora con datos:** ya existen **252 diagnósticos rendidos de 80
+  usuarios** (hallazgo colateral de T-01), así que "los 3 topics más fallados" **se puede medir** en
+  vez de estimarse. Medirlo es el primer paso de la tarea, no un detalle.
+- **Forma de entrega obligatoria (ADR-016):** migración SQL con el lote, auditoría rehaciendo cada
+  cuenta, publicación humana. No editar suelto en el panel ni en SQL directo.
+- **Relacionado:** [[../adr/ADR-016-ia-en-el-pipeline-de-autoria-no-en-runtime]], T-51 (`module_id`
+  correcto es parte del checklist editorial y hoy falta en el 51 % del banco), T-29.
 
 ### T-28 · Completar el mapeo `topic → module-slug` — **P1** · `abierto`
 
@@ -932,6 +997,67 @@ una **línea de tiempo**, funcionalidad que el owner quiere implementar más ade
   de tocar `resources`/`modules`; no se implementa nada de esto sin esa decisión previa.
 - **Relacionado:** `018_baldor_resources.sql`, `019_baldor_algebra_resources.sql` (primeros
   recursos que ya incluyen `historical_context` libre, precedente directo de este pedido).
+
+### T-54 · Atar `resources` a misconceptions, no solo a módulos — **P1** · `abierto` (requiere **ADR**)
+
+Brecha estructural detectada al auditar la capa 1 (2026-08-09, ver `sessions/SESSION-015.md`). Un
+recurso cuelga de un `module_id` y nada más. Pero el diferencial declarado del producto
+([[../adr/ADR-005-banco-de-items-en-vez-de-cms]]) es **nombrar el error concreto**, y hoy el plan
+dice "te equivocaste en *esto*" y a continuación ofrece material de un módulo entero. **El eslabón
+que convierte el diagnóstico en remedio no existe en el modelo de datos.**
+
+- **Por qué ahora:** con 58 recursos, cambiar el modelo es barato; con 500, es una migración
+  dolorosa. Es una decisión que conviene tomar **antes** de escalar el contenido con ADR-016.
+- **Sin diseño todavía** — hay al menos tres formas y no se elige una sin ADR: (a) columna/tabla que
+  relacione `resources` con la misconception (hoy las `error_*` son texto libre en `questions`, no
+  entidades con identidad propia); (b) catalogar primero las misconceptions como tabla y que tanto
+  `questions.error_*` como `resources` la referencien; (c) etiquetado libre por tags.
+- **Ojo, precondición real:** hoy una misconception **no tiene identificador** — es una cadena
+  dentro de `questions.error_a..d`. Cualquier opción exige decidir antes si se convierten en
+  entidad, lo que toca contenido ya escrito.
+- **Terminado cuando:** existe un ADR que fija el modelo, y "Mi plan" puede mostrar material
+  asociado al error específico que el estudiante cometió, no solo a su módulo.
+- **Relacionado:** T-53 (el arreglo que dejó esta brecha a la vista), T-51 (bloqueo previo: sin
+  `module_id` no hay ni siquiera el cruce por módulo), [[../adr/ADR-005-banco-de-items-en-vez-de-cms]].
+
+### T-55 · Capa de práctica reutilizando el banco de ítems — **P2** · `abierto` (requiere **ADR**)
+
+Detectado en la misma auditoría: de 61 recursos, **hay exactamente 1 de tipo `exercise`**. El plan
+explica el error y ofrece prosa para leer, pero casi nada para *practicar* — y la práctica es donde
+se aprende matemática. [[VISION_LIBRO_PROYECTO]] §3.1 pone la "práctica graduada" como paso 4 de
+cada unidad.
+
+**La observación que hace esta tarea barata:** el material de práctica **ya existe**. Son las 387
+preguntas del banco. No hay que fabricarlo, hay que conectarlo.
+
+- **Restricción dura, no negociable:** [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]] cerró
+  deliberadamente la lectura directa de `questions` para impedir la exfiltración del banco y que el
+  diagnóstico sea falseable. Una práctica que devuelva respuestas **no puede** filtrar ítems que
+  después aparezcan en un diagnóstico real, ni volver a abrir `questions` al cliente. Esto es
+  justamente lo que exige un ADR y no una implementación directa.
+- **Preguntas a resolver en ese ADR:** ¿se reservan ítems solo para práctica (partiendo el banco) o
+  se acepta que un ítem practicado no vuelva a servir para diagnosticar? ¿la práctica pasa por RPC
+  como `next_question`/`score_answer`? ¿las respuestas de práctica entran a `tests` y contaminan
+  θ, o se guardan aparte?
+- **Terminado cuando:** existe el ADR con esas respuestas y, si se aprueba, el estudiante puede
+  practicar ítems de sus módulos deficitarios sin que el banco quede expuesto ni θ contaminada.
+- **Relacionado:** [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]], T-54, T-29/T-45
+  (contaminación de datos de calibración), [[RISKS]] R-16.
+
+### T-56 · Contenido de geometría: 7 módulos sin ninguna fuente — **P2** · `abierto`
+
+Los 39 recursos de `018`/`019` cubren `aritmetica` y `algebra` (11 de 18 módulos). Los **7 módulos
+del track `geometria` no tienen ninguna fuente**: el owner subió los volúmenes de Aritmética y
+Álgebra de Baldor, no el de Geometría. Dos de esos módulos (`geometria/basica`,
+`geometria/pitagoras`) sí tienen recursos previos de `002`/`004`, pero el resto está vacío.
+
+- **Trabajo:** conseguir o redactar fuente para los módulos de `geometria` y generar el lote bajo
+  el pipeline de [[../adr/ADR-016-ia-en-el-pipeline-de-autoria-no-en-runtime]] (migración con
+  `published = false` → auditoría rehaciendo cada cuenta → publicación).
+- **Prioridad real:** subordinada a T-51 y T-54. Generar más contenido antes de que el plan sepa
+  entregarlo es echar agua en un balde perforado (misma conclusión que motivó T-53).
+- **Terminado cuando:** cada módulo de `geometria` tiene ≥1 recurso publicado y auditado.
+- **Relacionado:** T-01, ADR-016, `supabase/CONTENT.md`.
 
 ---
 
