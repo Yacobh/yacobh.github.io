@@ -804,6 +804,17 @@ al instante (`:test/bank-exhausted`). No es un sesgo de estimación: es un topic
 - **Relacionado:** [[RISKS]] R-17, [[OPEN_QUESTIONS]] Q-05 (respondida en parte por esta medición),
   T-29 (calibración empírica, que presupone una escala única).
 
+**2026-08-09 (avance, no cierra la tarea):** el editor completo de preguntas exigía abrir cada
+pregunta una por una para tocar `difficulty`, lo que hacía la recalibración de un topic entero
+impracticable en la práctica. Se agregó edición rápida en línea en Admin → Preguntas: la columna
+`b` de la tabla es ahora un input editable, y una barra "Guardar cambios / Descartar" aparece
+cuando hay ediciones pendientes (se pueden editar varias filas y guardarlas juntas). Nuevo
+`crud/patch-admin-question!` actualiza solo `difficulty` (no reemplaza la fila completa, a
+diferencia de `update-admin-question!`). Ver `sessions/SESSION-012.md`.
+**No hecho todavía:** decidir y aplicar los valores nuevos de `difficulty` para `enteros` (y los
+demás topics fuera de rango) — es una decisión pedagógica del owner, no algo que el agente deba
+inventar. La tarea sigue `abierto`.
+
 ### T-51 · Higiene de `topic` y `module_id` en el banco — **P1** · `abierto`
 
 Misma medición del 2026-08-09:

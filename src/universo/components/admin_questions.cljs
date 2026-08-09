@@ -176,39 +176,80 @@
           :markdown? true
           :on-change #(re-frame/dispatch [:admin/update-question-draft k %])}])]]))
 
+(defn- inline-edits-bar [dirty-count saving?]
+  [:div {:class (str "mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg "
+                      "border border-amber-200 bg-amber-50 px-4 py-2")}
+   [:p {:class "text-sm text-amber-800"}
+    (str dirty-count (if (= dirty-count 1)
+                        " dificultad editada sin guardar."
+                        " dificultades editadas sin guardar."))]
+   [:div {:class "flex gap-2"}
+    [:button {:type "button"
+              :disabled saving?
+              :class (str "rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 transition "
+                          "hover:bg-gray-200 disabled:opacity-50 focus:outline-none "
+                          "focus-visible:ring-2 focus-visible:ring-gray-400")
+              :on-click #(re-frame/dispatch [:admin/discard-question-inline-edits])}
+     "Descartar"]
+    [:button {:type "button"
+              :disabled saving?
+              :class (str "rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white "
+                          "transition hover:bg-indigo-700 disabled:opacity-50")
+              :on-click #(re-frame/dispatch [:admin/save-question-inline-edits])}
+     (if saving? "Guardando…" "Guardar cambios")]]])
+
+(defn- difficulty-cell [q edited saving?]
+  (let [dirty? (some? edited)]
+    [:input {:type "number"
+             :step "0.1"
+             :disabled saving?
+             :class (str "w-20 rounded-md border px-2 py-1 text-sm tabular-nums "
+                         "focus:outline-none focus:ring-1 focus:ring-indigo-500 "
+                         (if dirty?
+                           "border-amber-300 bg-amber-50"
+                           "border-gray-300"))
+             :value (if dirty? edited (or (:difficulty q) ""))
+             :on-change #(re-frame/dispatch
+                          [:admin/set-question-inline-difficulty (:id q)
+                           (.. % -target -value)])}]))
+
 (defn- questions-list []
-  (let [rows @(re-frame/subscribe [:admin/questions-view])]
+  (let [rows @(re-frame/subscribe [:admin/questions-view])
+        inline-edits @(re-frame/subscribe [:admin/question-inline-edits])
+        saving? @(re-frame/subscribe [:admin/question-inline-saving?])
+        dirty-count (count inline-edits)]
     (if-not (seq rows)
       [:div {:class "rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center"}
        [:p {:class "text-sm text-gray-500"} "Sin preguntas en este filtro."]]
-      [:div {:class "overflow-x-auto rounded-xl border border-gray-200 bg-white"}
-       [:table {:class "w-full text-left text-sm"}
-        [:thead {:class "bg-gray-50 text-gray-600"}
-         [:tr
-          [:th {:class "px-3 py-2"} "ID"]
-          [:th {:class "px-3 py-2"} "Tema"]
-          [:th {:class "px-3 py-2"} "Enunciado"]
-          [:th {:class "px-3 py-2"} "b"]
-          [:th {:class "px-3 py-2"} "Orden"]
-          [:th {:class "px-3 py-2"} ""]]]
-        [:tbody {:class "divide-y divide-gray-100"}
-         (for [q rows]
-           ^{:key (:id q)}
-           [:tr {:class "hover:bg-gray-50"}
-            [:td {:class "px-3 py-2 tabular-nums"} (:id q)]
-            [:td {:class "px-3 py-2"} (:topic q)]
-            [:td {:class "max-w-xs px-3 py-2"}
-             [:span {:class "line-clamp-2"} (truncate (:question q) 80)]]
-            [:td {:class "px-3 py-2 tabular-nums"}
-             (if (:difficulty q)
-               (.toFixed (js/Number (:difficulty q)) 2)
-               "—")]
-            [:td {:class "px-3 py-2 tabular-nums"} (or (:order_index q) "—")]
-            [:td {:class "px-3 py-2"}
-             [:button {:type "button"
-                       :class "text-sm font-medium text-indigo-600 hover:text-indigo-900"
-                       :on-click #(re-frame/dispatch [:admin/edit-question q])}
-              "Editar"]]])]]])))
+      [:div
+       (when (pos? dirty-count)
+         [inline-edits-bar dirty-count saving?])
+       [:div {:class "overflow-x-auto rounded-xl border border-gray-200 bg-white"}
+        [:table {:class "w-full text-left text-sm"}
+         [:thead {:class "bg-gray-50 text-gray-600"}
+          [:tr
+           [:th {:class "px-3 py-2"} "ID"]
+           [:th {:class "px-3 py-2"} "Tema"]
+           [:th {:class "px-3 py-2"} "Enunciado"]
+           [:th {:class "px-3 py-2"} "b (editable)"]
+           [:th {:class "px-3 py-2"} "Orden"]
+           [:th {:class "px-3 py-2"} ""]]]
+         [:tbody {:class "divide-y divide-gray-100"}
+          (for [q rows]
+            (let [edited (get inline-edits (:id q))]
+              ^{:key (:id q)}
+              [:tr {:class (if edited "bg-amber-50" "hover:bg-gray-50")}
+               [:td {:class "px-3 py-2 tabular-nums"} (:id q)]
+               [:td {:class "px-3 py-2"} (:topic q)]
+               [:td {:class "max-w-xs px-3 py-2"}
+                [:span {:class "line-clamp-2"} (truncate (:question q) 80)]]
+               [:td {:class "px-3 py-2"} [difficulty-cell q edited saving?]]
+               [:td {:class "px-3 py-2 tabular-nums"} (or (:order_index q) "—")]
+               [:td {:class "px-3 py-2"}
+                [:button {:type "button"
+                          :class "text-sm font-medium text-indigo-600 hover:text-indigo-900"
+                          :on-click #(re-frame/dispatch [:admin/edit-question q])}
+                 "Editar"]]]))]]]])))
 
 (defn questions-panel []
   (let [topics @(re-frame/subscribe [:admin/question-topics])
@@ -221,7 +262,8 @@
      [:div {:class "mb-2"}
       [:h2 {:class "text-lg font-semibold text-gray-900"} "Preguntas"]
       [:p {:class "mt-0.5 text-sm text-gray-500"}
-       "Banco IRT: enunciados, opciones y explicaciones con vista previa LaTeX."]]
+       "Banco IRT: enunciados, opciones y explicaciones con vista previa LaTeX. "
+       "La dificultad (b) se edita directo en la tabla, en lote."]]
 
      (when error
        [:div {:class "rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"}

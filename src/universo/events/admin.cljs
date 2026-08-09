@@ -809,6 +809,89 @@
                  [:admin/load-questions]]}))
 
 ;; -----------------------------------------------------------------------------
+;; Edición rápida de dificultad desde la tabla (T-50)
+;;
+;; El editor completo (question-draft) exige abrir cada pregunta una por una;
+;; para recalibrar un banco entero (p.ej. `enteros`, con `difficulty` en escala
+;; 10–90 en vez de logits) hace falta editar muchas filas seguidas sin ese
+;; costo. Cada celda editada queda en :question-inline-edits hasta guardar o
+;; descartar; no interfiere con question-draft/question-editing?, que siguen
+;; siendo del editor completo.
+;; -----------------------------------------------------------------------------
+
+(re-frame/reg-sub
+ :admin/question-inline-edits
+ (fn [db _]
+   (get-in db [:admin :question-inline-edits] {})))
+
+(re-frame/reg-sub
+ :admin/question-inline-saving?
+ (fn [db _]
+   (get-in db [:admin :question-inline-saving?] false)))
+
+(re-frame/reg-event-db
+ :admin/set-question-inline-difficulty
+ (fn [db [_ id raw-value]]
+   (let [original (:difficulty (some #(when (= (:id %) id) %)
+                                      (get-in db [:admin :questions])))
+         unchanged? (= (str/trim (or raw-value ""))
+                       (str/trim (or (some-> original str) "")))]
+     (if unchanged?
+       (update-in db [:admin :question-inline-edits] dissoc id)
+       (assoc-in db [:admin :question-inline-edits id] raw-value)))))
+
+(re-frame/reg-event-db
+ :admin/discard-question-inline-edits
+ (fn [db _]
+   (assoc-in db [:admin :question-inline-edits] {})))
+
+(re-frame/reg-event-fx
+ :admin/save-question-inline-edits
+ (fn [{:keys [db]} _]
+   (let [edits (get-in db [:admin :question-inline-edits] {})]
+     (if (empty? edits)
+       {}
+       {:db (assoc-in db [:admin :question-inline-saving?] true)
+        :admin/persist-inline-question-edits edits}))))
+
+(re-frame/reg-fx
+ :admin/persist-inline-question-edits
+ (fn [edits]
+   (go
+     (loop [remaining (seq edits)
+            ok []
+            failed []]
+       (if (empty? remaining)
+         (re-frame/dispatch [:admin/inline-edits-saved {:ok ok :failed failed}])
+         (let [[id raw-value] (first remaining)
+               result (<! (crud/patch-admin-question! id raw-value))]
+           (if (:success result)
+             (recur (rest remaining) (conj ok id) failed)
+             (recur (rest remaining) ok (conj failed {:id id :error (:error result)})))))))))
+
+(re-frame/reg-event-fx
+ :admin/inline-edits-saved
+ (fn [{:keys [db]} [_ {:keys [ok failed]}]]
+   (let [n-ok (count ok)
+         n-failed (count failed)]
+     {:db (-> db
+              (assoc-in [:admin :question-inline-saving?] false)
+              (update-in [:admin :question-inline-edits] #(apply dissoc % ok))
+              (update-in [:admin :status :questions] dissoc :loaded-at))
+      :dispatch-n (cond-> []
+                    (pos? n-ok)
+                    (conj [:admin/toast :success
+                           (str n-ok (if (= n-ok 1)
+                                       " pregunta actualizada."
+                                       " preguntas actualizadas."))])
+                    (pos? n-failed)
+                    (conj [:admin/toast :error
+                           (str n-failed (if (= n-failed 1)
+                                           " cambio falló, revisa esa fila."
+                                           " cambios fallaron, revisa esas filas."))])
+                    true (conj [:admin/load-questions]))})))
+
+;; -----------------------------------------------------------------------------
 ;; Configuración de tests (parada IRT + cadena de prerequisitos por topic)
 ;; -----------------------------------------------------------------------------
 ;; No hay tabla de "accesos otorgados" por usuario: el avance se deriva del

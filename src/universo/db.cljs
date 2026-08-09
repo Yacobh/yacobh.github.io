@@ -45,6 +45,10 @@
            :question-editing? false
            :question-saving? false
            :question-draft nil
+           ;; Edición rápida de dificultad desde la tabla (T-50), sin abrir el
+           ;; editor completo: {question-id → valor-string sin guardar}
+           :question-inline-edits {}
+           :question-inline-saving? false
            :resources []
            :resources-module-filter ""
            :editing-resource nil
