@@ -55,5 +55,3 @@ profiles.clj
 *.jar
 *.class
 
-# --- Local / personal ---
-src/universo/user.cljs

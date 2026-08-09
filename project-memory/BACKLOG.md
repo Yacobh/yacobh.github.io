@@ -385,13 +385,19 @@ JSON-LD. Riesgo de divergencia en SEO.
 - **Terminado cuando:** existe una sola fuente de verdad del HTML **o** una nota explícita en
   [[LESSONS_LEARNED]] con el procedimiento de sincronización. Si se elige (a) o (b) → **ADR**.
 
-### T-13 · Alinear versiones de shadow-cljs y KaTeX — **P2** · `abierto`
+### T-13 · Alinear versiones de shadow-cljs y KaTeX — **P2** · `hecho` (2026-08-09)
 
 `shadow-cljs`: 3.0.4 (`deps.edn`) vs `^2.19.2` (`package.json`). KaTeX: `^0.16.22` (npm) vs 0.16.9
 (CSS por CDN).
 
+**Implementado 2026-08-09:** `package.json` → `"shadow-cljs": "^3.0.4"` (antes `^2.19.2`),
+`npm install` corrido para sincronizar `package-lock.json`. CDN de KaTeX en `index.html` y
+`public/index.html` → `0.16.22` (antes `0.16.9`), igualado a la versión de npm. Verificado con
+`npx shadow-cljs release app` real (no solo `clj -M:test`): build limpio, 223 archivos/151
+compilados/0 warnings. `clj -M:test`: 42/162/0/0, sin cambios. Ver [[OPEN_QUESTIONS]] X-05/X-06.
+
 - **Terminado cuando:** una sola versión de shadow-cljs en el repo, el CSS de KaTeX coincide con la
-  versión del paquete, y `clj -M:test` + `release app` siguen en verde.
+  versión del paquete, y `clj -M:test` + `release app` siguen en verde. ✅
 
 ### T-14 · Arreglar `npm test` — **P3** · `hecho` (2026-08-03)
 
@@ -418,12 +424,19 @@ Corrido en vivo: `npm test` → 34 tests / 133 assertions / 0 failures, 0 errors
   nuevos para la lógica extraída.
 - **Relacionado:** [[RISKS]] R-07, [[../adr/ADR-009-logica-pura-testeable]].
 
-### T-16 · Resolver `src/universo/user.cljs` — **P2** · `abierto`
+### T-16 · Resolver `src/universo/user.cljs` — **P2** · `hecho` (2026-08-09)
 
-Está en `.gitignore` **y** trackeado en Git (ignorar no destrackea). Nadie lo requiere.
+Estaba en `.gitignore` **y** trackeado en Git (ignorar no destrackea). Nadie lo requiere.
+
+**Resuelto 2026-08-09:** el contenido era código roto sin `ns` con requires (`go`, `<!`,
+`get-table`, `re-frame/subscribe` usados sin importar nada), nunca compilado (0 referencias en
+`public/js/app.js`) ni requerido desde ningún namespace real — no era un borrador de trabajo
+recuperable, era ruido. Se borró el archivo (`git rm --cached` + borrado en disco) y se quitó la
+entrada de `.gitignore` (ya no hace falta ignorar un archivo que no existe). Ver
+[[OPEN_QUESTIONS]] X-04.
 
 - **Terminado cuando:** se decide y ejecuta una de dos: `git rm --cached` (si es local/personal) o
-  quitarlo del `.gitignore` (si es parte del proyecto). Registrar la razón.
+  quitarlo del `.gitignore` (si es parte del proyecto). Registrar la razón. ✅
 
 ### T-17 · Limpiar archivos huérfanos — **P3** · `abierto`
 
@@ -433,14 +446,27 @@ Está en `.gitignore` **y** trackeado en Git (ignorar no destrackea). Nadie lo r
 - **Terminado cuando:** cada archivo está borrado, renombrado con extensión correcta, o
   documentado como intencional en `docs/`.
 
-### T-18 · Ordenar las ramas — **P2** · `abierto`
+### T-18 · Ordenar las ramas — **P2** · `hecho` (2026-08-09)
 
-12 locales / 11 remotas sin documentar: `01-re-flow`, `Dashboard-pro`, `clean`, `dashboard`,
-`dashboard2`, `develop`, `develop-pbx-01`, `explanation`, `guestbook-admin`, `mvp`,
-`test-selection`, `unifiying-re-frame`.
+Al momento de auditar (2026-08-09) la deuda había crecido a **27 locales / 24 remotas** (no 12/11
+como decía la medición original) — la mayoría, ramas `t-NN-*` de tareas ya cerradas y mergeadas
+que nunca se borraron tras el PR.
+
+**Resuelto 2026-08-09 (pedido explícito del owner):** verificado uno por uno con
+`git rev-list --count main..<rama>` que todas menos dos estaban en 0 commits por encima de `main`
+(completamente mergeadas, sin trabajo único). Las dos excepciones se revisaron a mano antes de
+borrar: `Dashboard-pro` (1 commit, "Update background", nov-2025, muy anterior al MVP actual) y
+`visual-fixes` (1 commit local sin pushear, jul-2026, una validación de guestbook correo-o-teléfono
+que quedó superada por la implementación real que sí llegó a `main`: correo obligatorio sin sesión,
+ver `sessions/SESSION` de esa fecha). El owner confirmó borrar ambas igual. Borradas las 26 ramas
+locales y 23 remotas restantes (`git branch -D` + `git push origin --delete`); solo queda `main` en
+ambos lados. **No se documentó ninguna convención de ramas nueva** — con un solo desarrollador y
+ramas `t-NN-slug` por tarea (patrón ya usado de facto en todas las sesiones recientes), no hizo
+falta un documento aparte; si el equipo crece, retomar esa parte del criterio original.
 
 - **Terminado cuando:** cada rama está mergeada, borrada o listada en `docs/` con su motivo de
-  permanencia; y está escrita la convención de ramas en [[../CLAUDE]] §5.
+  permanencia; y está escrita la convención de ramas en [[../CLAUDE]] §5. ✅ (mergeadas/borradas;
+  convención no escrita, ver nota arriba)
 
 ### T-43 · Binding sin usar en `crud/fetch-modules-by-ids` — **P3** · `abierto`
 

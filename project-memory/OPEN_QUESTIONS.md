@@ -1,6 +1,6 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-08** (Q-17 respondida, ADR-014)
+Última actualización: **2026-08-09** (Q-20 respondida; X-04/X-05/X-06 resueltas)
 
 > **Regla fundamental de PMF: si falta información, no se asume — se registra aquí.**
 > Ninguna pregunta se borra: cuando se responde, se marca ✅ con la fecha y la respuesta, y si
@@ -320,9 +320,12 @@ directa de los bloqueos actuales; **F11 es una propuesta** hecha al documentar, 
 **Cómo responderla:** el owner confirma, reordena o descarta en la próxima sesión y se actualiza
 [[ROADMAP]].
 
-### 🟡 Q-20 · ¿Se conservan las 12 ramas locales / 11 remotas por alguna razón?
-Ninguna está documentada. Puede haber trabajo valioso sin mergear.
-**Tarea:** T-18. **Relacionado:** R-21.
+### ✅ Q-20 · ¿Se conservan las 12 ramas locales / 11 remotas por alguna razón? — Respondida 2026-08-09
+**No.** Auditadas una por una (`git rev-list --count main..<rama>`): la deuda había crecido a
+27 locales / 24 remotas, y todas menos dos estaban ya mergeadas a `main` (0 commits propios). Las
+dos con contenido único (`Dashboard-pro`, `visual-fixes`) resultaron ser trabajo superado por
+implementaciones posteriores, no algo que rescatar. El owner confirmó borrar todo. Ver [[BACKLOG]]
+T-18 (cerrada), [[RISKS]] R-21 (cerrado).
 
 ---
 
@@ -333,9 +336,9 @@ Ninguna está documentada. Puede haber trabajo valioso sin mergear.
 | X-01 | La FAQ dice que el tiempo de respuesta se considera en la estimación; el modelo 1PL no lo usa | `index.html`, `landing.cljs` vs `components/tetha.cljs` | *(Vía decidida 2026-08-08)* Se cambia el modelo, no el copy: [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]], Q-17 respondida. **La contradicción sigue viva en producción** hasta que T-44 se despliegue |
 | X-02 | La FAQ promete ver "cómo se movió tu nivel" al repetir el diagnóstico; `student_profiles` no guarda histórico | FAQ vs `001_mvp_schema.sql` | Q-07 / P-01 |
 | X-03 | `007` restringe SELECT de `questions` a admin, pero el estudiante debe leer preguntas | `007_questions_admin_rls.sql` vs flujo de `events/test.cljs` | ✅ *Resuelta 2026-08-09:* había una policy permisiva del dashboard (`using true`) que anulaba a `007` por OR. Eliminada en `025`; el estudiante ya no lee `questions` sino los RPC de ADR-015. **Cerrada y verificada en producción** — ver Q-12, T-47 |
-| X-04 | `.gitignore` ignora `src/universo/user.cljs`, pero el archivo está trackeado en Git | `.gitignore` vs `git ls-files` | T-16 |
-| X-05 | `shadow-cljs` 3.0.4 en `deps.edn` vs `^2.19.2` en `package.json` | `deps.edn` vs `package.json` | T-13 |
-| X-06 | KaTeX `^0.16.22` por npm vs CSS 0.16.9 por CDN | `package.json` vs `index.html` | T-13 |
+| X-04 | *(Resuelta 2026-08-09)* `.gitignore` ignoraba `src/universo/user.cljs`, pero el archivo estaba trackeado en Git | `.gitignore` vs `git ls-files` | Era código roto sin `ns`/requires, no compilado ni usado en ningún lado — borrado, `.gitignore` limpiado. Ver [[BACKLOG]] T-16 |
+| X-05 | *(Resuelta 2026-08-09)* `shadow-cljs` 3.0.4 en `deps.edn` vs `^2.19.2` en `package.json` | `deps.edn` vs `package.json` | `package.json` → `^3.0.4`, `npm install` corrido, `npx shadow-cljs release app` verificado en verde. Ver [[BACKLOG]] T-13 |
+| X-06 | *(Resuelta 2026-08-09)* KaTeX `^0.16.22` por npm vs CSS 0.16.9 por CDN | `package.json` vs `index.html` | CDN de `index.html`/`public/index.html` → `0.16.22`. Ver [[BACKLOG]] T-13 |
 | X-07 | `PROJECT_SUMMARY.md` describe una estructura de módulos previa al MVP (menciona `views.cljs` con componentes principales, `jardin`, `voz`… como parte del producto) que ya no refleja el sistema | `PROJECT_SUMMARY.md` vs [[ARCHITECTURE]] | T-33: reducir a puntero o archivar |
 | X-08 | *(Parcialmente resuelta 2026-07-30)* El "Libro del Proyecto" proponía pago por clase, multi-materia e internacionalización | [[VISION_LIBRO_PROYECTO]] §4.4 vs [[PROJECT_BRIEF]] §6, [[BUSINESS_CONTEXT]] §5 | **Pago por clase: resuelto** (D-19/D-26/D-32, $10.000 CLP/hora). **Multi-materia e internacionalización: siguen sin decidir** -- Q-21 confirmó la dirección general, pero no estas decisiones puntuales |
 

@@ -391,6 +391,50 @@
 > una ejecución automática (no bloqueante, la función ya se probó manualmente). [[RISKS]] R-12
 > mitigado. Ver [[BACKLOG]] T-02, `sessions/SESSION-013.md`.
 
+> **Auditoría de memoria + limpieza técnica menor (2026-08-09, misma fecha, sesión posterior a
+> T-02).** El owner pidió una revisión de `project-memory/` en busca de desincronizaciones
+> acumuladas por varias sesiones, y aprovechar para limpiar deuda técnica menor.
+>
+> **Hallazgo urgente resuelto primero:** el árbol de trabajo tenía un cambio sin commitear en
+> `project-memory/AVISO_PRIVACIDAD_BORRADOR.md` que revertía el archivo de "PUBLICADO" (estado
+> real, el aviso sigue en producción en `universo.components.privacidad` sin cambios) a
+> "BORRADOR (no publicado)", con el checklist original respondido de nuevo a mano — parecía
+> trabajo del owner sobre una copia vieja del documento, sin darse cuenta de que ya estaba
+> resuelto. **Descartado con `git restore`** a pedido explícito del owner tras confirmarlo.
+>
+> **Limpieza de ramas (T-18, Q-20, R-21 — todas cerradas):** la deuda de ramas había crecido de
+> 12 locales/11 remotas (última medición) a **27 locales / 24 remotas**. Se auditó cada una con
+> `git rev-list --count main..<rama>`: todas menos dos estaban en 0 commits propios (ya
+> mergeadas). Las dos con contenido (`Dashboard-pro`, commit de nov-2025 sobre un fondo visual muy
+> anterior al MVP actual; `visual-fixes`, un commit local sin pushear de jul-2026 sobre validación
+> del guestbook que quedó superado por la implementación real que sí llegó a producción) se
+> revisaron a mano antes de confirmar con el owner que también se podían borrar. **Borradas las 26
+> ramas locales y 22 remotas restantes** (`git branch -D` + `git push origin --delete`). Hoy el
+> repositorio tiene solo `main` en local y en `origin`.
+>
+> **Tres inconsistencias técnicas menores resueltas (X-04/X-05/X-06, T-13/T-16 cerradas):**
+> - `src/universo/user.cljs` — estaba en `.gitignore` y trackeado a la vez; resultó ser código
+>   roto (`go`/`<!`/`get-table` sin ningún `require`), no compilado ni referenciado desde ningún
+>   lado. Borrado el archivo, limpiada la entrada de `.gitignore`.
+> - `shadow-cljs`: `package.json` decía `^2.19.2`, `deps.edn` ya usaba `3.0.4`. Alineado a
+>   `^3.0.4` en `package.json`, `npm install` corrido.
+> - KaTeX: CDN en `index.html`/`public/index.html` servía `0.16.9`, npm ya pedía `^0.16.22`.
+>   Alineado el CDN a `0.16.22` en ambos archivos.
+>
+> **Verificado tras los cambios:** `clj -M:test` → 42/162/0/0 (sin cambios respecto al último
+> corte). `npx shadow-cljs release app` real (no solo la suite de tests) → build limpio, 223
+> archivos/151 compilados/0 warnings — confirma que el bump de versión de shadow-cljs no rompe el
+> build de producción. `npm run build:css` → sin cambios en el CSS. El bundle recompilado
+> (`public/js/app.js`) cambia por diferencias internas de minificación entre versiones de
+> shadow-cljs/Closure Compiler, no por cambios de comportamiento — mismo patrón ya documentado en
+> [[LESSONS_LEARNED]] L-30.
+>
+> Trabajo hecho en la rama `chore-limpieza-tecnica-y-memoria`, **sin mergear a `main` todavía** —
+> pendiente de que el owner revise y apruebe (incluye borrado de archivo y recompilación del
+> bundle, no es solo texto). `project-memory/RISKS.md` (R-13 refrescado, R-21 cerrado),
+> `project-memory/OPEN_QUESTIONS.md` (Q-20 y X-04/X-05/X-06 cerradas) y `project-memory/BACKLOG.md`
+> (T-13, T-16, T-18 cerradas) actualizados en la misma sesión.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".
@@ -419,7 +463,7 @@ y **verificación de operación** (envío de email en el proyecto Supabase real)
 | Email de cohorte | ✅ desplegado y verificado en producción (T-02, 2026-08-09) |
 | Documentación / memoria | ✅ PMF adoptado hoy (2026-07-26) |
 | CI / staging / monitoreo | ⛔ inexistentes |
-| Estado del árbol de trabajo | ⚠️ sucio: `public/js/app.js` modificado sin commit |
+| Estado del árbol de trabajo | ✅ limpio (verificado 2026-08-09; ver nota de sesión al inicio de este archivo) |
 
 ---
 
@@ -518,7 +562,7 @@ Registradas hoy de forma retroactiva (las decisiones son previas; su documentaci
 | BL-01 | ~~Contenido pedagógico: no hay recursos publicados por módulo prioritario~~ -- **resuelto 2026-08-09** (T-01, 58/61 publicados). Sigue pendiente la mitad no relacionada: `error_*` enriquecidos en todos los ítems (T-27) | Humano | Jacobo Córdova |
 | BL-02 | ~~Verificación del envío de email~~ -- **resuelto 2026-08-09** (T-02, verificado en vivo de punta a punta) | Acceso/operación | Jacobo Córdova |
 | BL-03 | **Cupos reales**: fechas y enlaces de videollamada no están definidos (los datos actuales son demo con `meet.example.com`). Por D-27, los cupos reales son 100% virtuales por ahora (Jitsi/Meet) -- ya no depende de sala física en Iquique ni de UNAP (ver D-18) | Negocio | Jacobo Córdova |
-| BL-04 | **Árbol sucio**: `public/js/app.js` tiene 73 inserciones y 24 borrados sin commitear. No se sabe con certeza si corresponde al fuente actual | Técnico | Recompilar y commitear, o descartar |
+| BL-04 | ~~Árbol sucio~~ -- **resuelto 2026-07-29** (T-08) y reverificado limpio el 2026-08-09; ver nota de sesión al inicio de este archivo | Técnico | — |
 | BL-05 | **Preguntas abiertas de producto** sin responder (capacidad, repetición de diagnóstico, privacidad) | Decisión | Ver [[OPEN_QUESTIONS]] |
 
 ---
@@ -539,22 +583,17 @@ Detalle y lista completa en [[RISKS]].
 
 ## 8. Próximos pasos inmediatos
 
-En orden de ejecución recomendado:
+Reescrito 2026-08-09 — la lista anterior tenía pasos ya cerrados hace semanas (BL-01/BL-02/Q-04/
+T-35) mezclados con los vigentes. En orden de ejecución recomendado, con solo lo que sigue abierto:
 
-1. **Resolver el árbol sucio** (BL-04): decidir si `public/js/app.js` se recompila y commitea o se
-   descarta. Regla: recompilar desde el fuente actual y commitear, nunca editar el bundle a mano.
-2. ~~Publicar contenido mínimo (BL-01, [[BACKLOG]] T-01)~~ — **hecho 2026-08-09**, ver nota al
-   inicio de este archivo.
-3. **Cerrar el email de cohorte** (BL-02, T-02): aplicar `005`, desplegar la function, setear el
-   secret, invocarla una vez y verificar `email_outbox.status = 'sent'`.
-4. ~~Verificar el control de capacidad en la inscripción (Q-04, T-03)~~ — **hecho 2026-07-29**, ver
-   nota al inicio de este archivo.
-5. **Publicar cupos reales** (BL-03, T-04) y retirar/marcar los demo de `003`.
-6. **Responder las preguntas abiertas de producto** ([[OPEN_QUESTIONS]] Q-02, Q-07, Q-08).
-7. **Endurecimiento mínimo** (T-06, T-07): un workflow de GitHub Actions que corra `clj -M:test`, y
-   un respaldo manual documentado de la base.
-8. **Mergear `visual-fixes` a `main` y republicar** (T-35, nuevo 2026-07-29): incluye el trabajo de
-   este paso 4 (T-03) y una unificación de estilos previa, ninguno de los dos en producción todavía.
+1. **Mergear `chore-limpieza-tecnica-y-memoria` a `main`** (esta sesión, 2026-08-09): borrado de
+   `user.cljs`, alineación de versiones (shadow-cljs/KaTeX), limpieza de ramas y de memoria.
+   `clj -M:test` y `npx shadow-cljs release app` ya verificados en verde en la rama.
+2. **Publicar cupos reales** (BL-03, [[BACKLOG]] T-04) y retirar/marcar los demo de `003` — el
+   único bloqueo de go-live que sigue abierto y depende de negocio, no de código.
+3. **Responder las preguntas abiertas de producto** ([[OPEN_QUESTIONS]] Q-07, Q-10, Q-14).
+4. **Endurecimiento mínimo** (T-06 ya hecho pero sin verificar en vivo; T-07 respaldo de base
+   sigue abierto).
 
 > Regla PMF: antes de empezar cualquiera de estos pasos, leer [[AGENT_INSTRUCTIONS]]; al
 > terminarlo, actualizar este archivo y crear/actualizar el `sessions/SESSION-XXX.md`.
@@ -563,33 +602,32 @@ En orden de ejecución recomendado:
 
 ## 9. Estado del repositorio
 
-> ⚠️ El bloque original de esta sección describía el corte del 26-07 (rama
-> `cursor/mvp-operable-funnel`, árbol sucio). Reemplazado 2026-07-29 con el estado de ese día, y
-> este bloque con el estado verificado el **2026-08-08**:
+> Reemplazado 2026-08-09 con el estado verificado en esta sesión (limpieza de ramas + memoria):
 
 ```
-Rama actual  : t-24-estado-vacio-honesto @ b4f8b4f (idéntica a main, ver abajo)
-Rama deploy  : main  (GitHub Pages, dominio jacobocordova.com) @ 370ed64
-main..t-24-estado-vacio-honesto: vacío -- mergeada (PR #23, 2026-08-08)
-Producción   : confirmada por hash = origin/main @ 370ed64 (MD5 public/js/app.js = 5c14cadf35b54788c0872501ac89dc28)
-Árbol de trabajo: limpio (salvo project-memory/AVISO_PRIVACIDAD_BORRADOR.md, trabajo del owner sin relación con T-39)
+Rama actual  : chore-limpieza-tecnica-y-memoria (creada desde main @ 68a6d97, sin mergear todavía)
+Rama deploy  : main  (GitHub Pages, dominio jacobocordova.com) @ 68a6d97
+Ramas totales: solo `main` en local y en origin -- las 26 locales / 22 remotas restantes se
+               borraron el 2026-08-09 (T-18, ver nota de sesión al inicio de este archivo)
+Árbol de trabajo: limpio en main; en chore-limpieza-tecnica-y-memoria hay cambios sin mergear
+               (borrado de user.cljs, versiones alineadas, bundle recompilado, memoria actualizada)
 ```
 
-> **Nota operativa (2026-08-08, → [[LESSONS_LEARNED]] L-30):** un proceso `shadow-cljs watch`
-> corriendo en background volvió a sobreescribir `public/js/app.js` con un build de desarrollo sin
-> minificar tras el commit de cierre de T-39, sin ningún cambio de fuente pendiente real (mismo
-> patrón ya documentado en L-30). Se descartó con `git restore public/js/app.js` antes de dar la
-> sesión por cerrada — verificar `git status` antes de cualquier commit futuro que toque ese
-> archivo, no asumir que está limpio.
+> No se recompiló `public/js/app.js` de una sesión anterior sin cambio de fuente esta vez: el
+> cambio en el bundle de esta sesión corresponde a un `npx shadow-cljs release app` real, motivado
+> por el bump de versión (X-05). Sigue vigente la advertencia de [[LESSONS_LEARNED]] L-30 sobre
+> watchers de `shadow-cljs`/`tailwind` en background que pueden ensuciar `public/js/app.js`/
+> `app.css` con un build de desarrollo sin que haya cambio de fuente real — verificar `git status`
+> antes de cualquier commit que toque esos dos archivos.
 
 **Tooling del agente (2026-07-27):** `graphify` (ya estaba) y **`rtk`** (nuevo, instalado hoy) como
 compresores de contexto; **Obsidian** con vault pre-configurado (`.obsidian/`, gitignorado, no
 versionado por diseño). Detalle: [[RTK_INTEGRATION_GUIDE]], [[GRAPHIFY_INTEGRATION_GUIDE]],
 [[OBSIDIAN_WORKSPACE_GUIDE]], [[DECISIONS]] D-17.
 
-**Deuda de ramas:** 12 ramas locales y 11 remotas (`01-re-flow`, `Dashboard-pro`, `clean`,
-`dashboard`, `dashboard2`, `develop`, `develop-pbx-01`, `explanation`, `guestbook-admin`, `mvp`,
-`test-selection`, `unifiying-re-frame`). Ninguna documentada. Ver [[BACKLOG]] T-18.
+**Deuda de ramas — resuelta 2026-08-09:** llegó a crecer a 27 locales / 24 remotas antes de
+limpiarse. Hoy el repositorio tiene únicamente `main` en local y en `origin`. Ver [[BACKLOG]] T-18
+(cerrada), [[RISKS]] R-21 (cerrado).
 
 **Resuelto (2026-07-29):** `cursor/mvp-operable-funnel` **sí** está mergeada a `main` (verificado
 por `git log` y por hash contra producción, ver T-19 arriba). La duda vigente ahora es la rama

@@ -1,12 +1,12 @@
 # RISKS
 
-Última actualización: **2026-08-08** (R-16 materializado y reclasificado tras la auditoría de RLS)
+Última actualización: **2026-08-09** (R-21 cerrado tras limpieza de ramas; R-13 refrescado; ver
+también R-10/R-16 ya cerrados en pasadas previas)
 
-> ⚠️ **Nota de vigencia:** el resto del cuerpo de este archivo sigue redactado al corte del
-> 2026-07-28 y tiene afirmaciones caducas (R-13 dice "hoy mismo el archivo está modificado sin
-> commitear"; R-10 propone T-24 como pendiente cuando está en producción desde el 2026-08-05;
-> R-21 dice que el MVP "posiblemente no está mergeado", resuelto el 2026-07-29). Solo R-16 se
-> actualizó en esta pasada. Ver [[CURRENT_STATUS]] para el estado real.
+> ⚠️ **Nota de vigencia:** esta pasada (2026-08-09) corrigió R-13 y R-21. El resto del cuerpo
+> puede tener afirmaciones puntuales caducas de sesiones anteriores a la última edición de cada
+> riesgo — cada entrada lleva su propia fecha de cierre/mitigación cuando aplica. Ver
+> [[CURRENT_STATUS]] para el estado real del proyecto en cualquier momento.
 
 Escala de **impacto** y **probabilidad**: Baja / Media / Alta.
 **Severidad** = combinación (Alta si impacto Alto y probabilidad ≥ Media).
@@ -28,7 +28,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | R-14 | Error de policy RLS expone datos de estudiantes | Alto | Media | **Alta** | activo |
 | R-04 | Sin CI: se publica con tests rojos o sin recompilar | Medio | Alta | Media-alta | activo |
 | R-10 | "Mi plan" vacío por falta de contenido publicado | Alto | Baja | Baja | ✅ **cerrado 2026-08-09** |
-| R-13 | Bundle publicado desalineado del fuente | Medio | Alta | Media-alta | activo |
+| R-13 | Bundle publicado desalineado del fuente | Medio | Media | Media | activo (mitigado por disciplina) |
 | R-05 | Divergencia entre los tres lugares del copy/JSON-LD | Medio | Media | Media | activo |
 | R-07 | Monolitos (`admin.cljs`, `crud.cljs`) | Medio | Media | Media | activo |
 | R-08 | Reglas duplicadas cliente/DB se desincronizan | Medio | Media | Media | activo |
@@ -41,7 +41,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | R-18 | Spam en guestbook / contacto (sin rate limit) | Bajo | Alta | Media | mitigado (moderación) |
 | R-19 | Estacionalidad PAES: ventana de captación estrecha | Medio | Alta | Media-alta | activo |
 | R-20 | Grafo de conocimiento ciego a `.cljs` | Bajo | Alta | Media | activo |
-| R-21 | Deuda de ramas: trabajo perdido u olvidado | Medio | Media | Media | activo |
+| R-21 | Deuda de ramas: trabajo perdido u olvidado | Medio | Media | Media | ✅ **cerrado 2026-08-09** |
 | R-22 | Bundle sin code splitting: crecimiento monótono | Bajo | Media | Baja | aceptado |
 
 ---
@@ -173,13 +173,17 @@ pruebas reales de T-02 (envío manual y cadena completa vía cupo confirmado). V
 
 ### R-13 · Bundle desalineado del fuente
 **Descripción:** el deploy consiste en commitear `public/js/app.js`. Es posible publicar fuente sin
-recompilar, o commitear un bundle que no corresponde. **Hoy mismo el archivo está modificado sin
-commitear**, sin certeza de qué contiene.
+recompilar, o commitear un bundle que no corresponde a lo que hay en `src/`.
 **Impacto:** Medio (producción se comporta distinto del código leído; depuración engañosa).
-**Probabilidad:** Alta.
-**Mitigación:** T-08 ahora; T-06 con un check automático después. Regla dura: **nunca** editar el
-bundle a mano; siempre `release app` antes de publicar.
-**Estado:** activo.
+**Probabilidad:** Media — el riesgo estructural sigue ahí (no hay check automático, T-06 no cubre
+esto), pero la disciplina de recompilar antes de cada publish se ha mantenido en la práctica en
+todas las sesiones recientes (verificado por hash contra producción varias veces: T-19/T-35/T-38/
+T-39/T-47). **Nota 2026-08-09:** verificado que el árbol estaba limpio salvo trabajo del owner sin
+relación (`AVISO_PRIVACIDAD_BORRADOR.md`); no hay bundle sin commitear hoy.
+**Mitigación:** T-08 (hecha); T-06 con un check automático que avise si `src/**.cljs` cambió sin
+`public/js/app.js` sigue sin implementar. Regla dura: **nunca** editar el bundle a mano; siempre
+`release app` antes de publicar.
+**Estado:** activo (riesgo estructural sin check automático; sin incidente actual).
 
 ### R-14 · Error de policy RLS
 **Descripción:** RLS es el **único** control de autorización. Una policy permisiva de más expone
@@ -271,13 +275,16 @@ ahora hay una herramienta que sí puede confirmar/descartar en CLJS, no solo la 
 **Estado:** activo (mitigado con sustituto, no eliminado: sigue dependiendo de que el agente use
 `clj-kondo` en vez de confiar solo en el grafo).
 
-### R-21 · Deuda de ramas
-**Descripción:** 12 ramas locales y 11 remotas sin documentar; el trabajo del MVP operable está en
-`cursor/mvp-operable-funnel`, posiblemente no mergeado a `main`.
+### R-21 · Deuda de ramas — ✅ **CERRADO 2026-08-09**
+**Descripción:** la deuda había crecido de las 12 locales / 11 remotas originalmente medidas a
+27 locales / 24 remotas, casi todas de tareas `t-NN-*` ya mergeadas y nunca borradas tras el PR.
 **Impacto:** Medio (trabajo perdido, confusión sobre qué está en producción).
 **Probabilidad:** Media.
-**Mitigación:** T-19 (verificar qué hay en producción) y T-18 (ordenar ramas).
-**Estado:** activo.
+**Mitigación aplicada:** T-19 (verificar qué hay en producción, hecha 2026-07-29) y T-18 (ordenar
+ramas, hecha 2026-08-09) — se auditó cada rama con `git rev-list --count main..<rama>`, se
+confirmó que solo dos tenían commits propios (ambas revisadas y descartadas por ser trabajo
+superado, ver [[BACKLOG]] T-18), y se borraron todas (local y remoto) excepto `main`.
+**Estado:** cerrado. Repositorio hoy: solo `main` en local y remoto.
 
 ### R-22 · Bundle sin code splitting
 **Descripción:** un solo módulo (`:modules {:app …}`): el estudiante en móvil descarga también todo
