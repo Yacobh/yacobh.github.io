@@ -352,6 +352,21 @@
 > diagnósticos de negocio recientes. No investigado a fondo; podría alimentar T-29 (calibración de
 > `difficulty`) si se decide usar esos datos.
 
+> **Edición rápida de dificultad en el panel admin (2026-08-09, sesión posterior a T-01/T-47).**
+> Pedido explícito del owner tras medir en T-50 que `enteros` tiene `difficulty` en escala 10–90
+> (ningún ítem alcanzable). El editor completo de preguntas exigía abrir una por una para tocar un
+> solo campo; se agregó edición en línea en Admin → Preguntas: la columna `b` de la tabla es un
+> input editable, con una barra "Guardar cambios / Descartar" que aparece al haber ediciones
+> pendientes (varias filas se pueden editar y guardar juntas). Nuevo `crud/patch-admin-question!`
+> actualiza solo `difficulty`, sin reemplazar la fila completa como hace `update-admin-question!`
+> (necesario para no vaciar enunciado/opciones en una edición parcial). Clases Tailwind nuevas
+> reusan el vocabulario ámbar ya mapeado en `src/css/app.css` (ADR-012); no se agregó CSS nuevo.
+> `clj -M:test` 42/162/0, `shadow-cljs release app` 0 warnings, `clj-kondo` sin hallazgos nuevos.
+> **Probado en vivo por el owner en el dev server** (no por el agente, sin credenciales de admin).
+> Rama `t-50-edicion-rapida-dificultad`, pusheada, PR abierta para que el owner mergee. **No cierra
+> T-50**: falta decidir y aplicar los valores nuevos de `difficulty` para `enteros` y los demás
+> topics fuera de rango (decisión pedagógica del owner). Ver `sessions/SESSION-012.md`.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

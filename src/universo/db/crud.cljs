@@ -623,6 +623,35 @@
                                   :error (.-message error)}))))
     ch))
 
+(defn patch-admin-question!
+  "Actualiza solo `difficulty`, sin tocar el resto de la fila (a diferencia de
+   `update-admin-question!`, que reemplaza todos los campos con los del draft
+   completo y por eso no sirve para una edición parcial). Habilita la edición
+   rápida en línea desde la tabla del panel admin (T-50: recalibrar bancos con
+   `difficulty` en escalas incompatibles, p.ej. `enteros` en 10–90 en vez de
+   logits)."
+  [question-id raw-difficulty]
+  (let [ch (async/chan)
+        trimmed (str/trim (or raw-difficulty ""))
+        value (if (zero? (count trimmed)) nil (js/parseFloat trimmed))
+        payload (clj->js {:difficulty value})]
+    (-> (.from supabase-client "questions")
+        (.update payload)
+        (.eq "id" question-id)
+        (.select question-select-cols)
+        (.single)
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true
+                                   :data (js->clj (.-data result)
+                                                  :keywordize-keys true)}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false
+                                  :error (.-message error)}))))
+    ch))
+
 (defn delete-admin-question!
   [question-id]
   (let [ch (async/chan)]

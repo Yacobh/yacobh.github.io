@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 2226 nodes · 6057 edges · 142 communities (115 shown, 27 thin omitted)
-- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 704 edges (avg confidence: 0.5)
+- 2201 nodes · 6052 edges · 139 communities (116 shown, 23 thin omitted)
+- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 711 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ad34ffd0`
+- Built from commit: `6a698a5b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -17,7 +17,7 @@
 - C
 - t
 - app.js
-- Communities (138 total, 22 thin omitted)
+- Communities (142 total, 27 thin omitted)
 - Épica E2 — Endurecimiento (F9)
 - SESSION-004
 - C
@@ -95,21 +95,20 @@
 - u
 - ARCHIVE.md
 - N
-- ab
+- ae
 - htmlBuilder
 - .then
 - I
-- Zb
+- jc
 - .M
 - .S
-- Xe
-- na
-- A
+- B
 - w
+- A
 - be
 - SESSION-005
 - Épica E1 — Go-live real (F8)
-- ae
+- Zb
 - Épica E3 — Deuda técnica y limpieza
 - ng
 - SESSION-011
@@ -122,35 +121,35 @@
 - x
 - G
 - Épica E7 — Memoria del proyecto (PMF)
-- sa
+- Jo
 - 022_test_config_display_name.sql
-- .order
+- de
 - .V
 - Lg
 - .push
+- lc
 - SESSION-010
 - to
 - Nc
-- rg
-- Md
+- ak
 
 ## God Nodes (most connected - your core abstractions)
-1. `v()` - 241 edges
+1. `v()` - 244 edges
 2. `K()` - 134 edges
 3. `H()` - 129 edges
-4. `C()` - 126 edges
-5. `Communities (138 total, 22 thin omitted)` - 117 edges
+4. `C()` - 127 edges
+5. `Communities (142 total, 27 thin omitted)` - 93 edges
 6. `B()` - 88 edges
 7. `t()` - 79 edges
-8. `tc()` - 74 edges
+8. `tc()` - 75 edges
 9. `y()` - 72 edges
 10. `w()` - 71 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `K()` --indirect_call--> `B()`  [INFERRED]
-  public/js/app.js → public/js/app.js  _Bridges community 89 → community 132_
+  public/js/app.js → public/js/app.js  _Bridges community 89 → community 107_
 - `K()` --indirect_call--> `ka()`  [INFERRED]
-  public/js/app.js → public/js/app.js  _Bridges community 89 → community 106_
+  public/js/app.js → public/js/app.js  _Bridges community 89 → community 6_
 - `K()` --indirect_call--> `Wi()`  [INFERRED]
   public/js/app.js → public/js/app.js  _Bridges community 89 → community 102_
 - `K()` --indirect_call--> `y()`  [INFERRED]
@@ -161,7 +160,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (142 total, 27 thin omitted)
+## Communities (139 total, 23 thin omitted)
 
 ### Community 0 - "C"
 Cohesion: 0.11
@@ -172,12 +171,12 @@ Cohesion: 0.25
 Nodes (7): Al terminar, Checklist de impacto (de `GRAPHIFY_INTEGRATION_GUIDE` §11), Notas, Prompt, Prompt: arquitectura, Restricciones estructurales que no se negocian sin ADR nuevo, Riesgos arquitectónicos ya conocidos
 
 ### Community 2 - "app.js"
-Cohesion: 0.05
-Nodes (68): ac(), aL(), bh(), cd(), Ch(), cp(), dc(), dg() (+60 more)
+Cohesion: 0.06
+Nodes (43): aL(), ap(), bL(), cd(), cp(), dp(), Eh(), eI() (+35 more)
 
-### Community 3 - "Communities (138 total, 22 thin omitted)"
+### Community 3 - "Communities (142 total, 27 thin omitted)"
 Cohesion: 0.02
-Nodes (117): Communities (138 total, 22 thin omitted), Community 0 - "C", Community 102 - ".then", Community 102 - ".then", Community 104 - "jc", Community 104 - "sd", Community 105 - ".aa", Community 105 - "wf" (+109 more)
+Nodes (93): Communities (142 total, 27 thin omitted), Community 0 - "C", Community 102 - ".then", Community 104 - "Zb", Community 106 - ".S", Community 108 - "na", Community 10 - "Proceso y agentes de IA", Community 111 - "be" (+85 more)
 
 ### Community 4 - "Épica E2 — Endurecimiento (F9)"
 Cohesion: 0.15
@@ -188,8 +187,8 @@ Cohesion: 0.11
 Nodes (18): Actividades realizadas, Actualizaciones requeridas en Project Memory, Archivos modificados, Archivos revisados, Bloqueos, Comandos ejecutados y resultados, Contexto de entrada, Decisiones tomadas (+10 more)
 
 ### Community 6 - "C"
-Cohesion: 0.06
-Nodes (47): Ah(), aj(), ap(), bp(), C(), ci(), di(), ed() (+39 more)
+Cohesion: 0.07
+Nodes (39): Ah(), aj(), bf(), bh(), bp(), C(), Ch(), ci() (+31 more)
 
 ### Community 7 - "package.json"
 Cohesion: 0.05
@@ -296,8 +295,8 @@ Cohesion: 0.17
 Nodes (12): ADR-006: Cohortes por banda de θ con confirmación al alcanzar un mínimo de inscritos, Agrupación por banda de θ, Alternativas Evaluadas, Confirmación por mínimo de inscritos, Consecuencias, Contexto, Decisión, Estado (+4 more)
 
 ### Community 49 - "Graph Report - .  (2026-08-09)"
-Cohesion: 0.17
-Nodes (11): Communities (132 total, 17 thin omitted), Community Hubs (Navigation), Corpus Check, God Nodes (most connected - your core abstractions), Graph Freshness, Graph Report - .  (2026-08-09), Import Cycles, Knowledge Gaps (+3 more)
+Cohesion: 0.18
+Nodes (10): Community Hubs (Navigation), Corpus Check, God Nodes (most connected - your core abstractions), Graph Freshness, Graph Report - .  (2026-08-09), Import Cycles, Knowledge Gaps, Suggested Questions (+2 more)
 
 ### Community 50 - "PROJECT_BRIEF"
 Cohesion: 0.17
@@ -404,8 +403,8 @@ Cohesion: 0.11
 Nodes (18): Actividades realizadas, Actualizaciones requeridas en Project Memory, Archivos modificados, Archivos revisados, Bloqueos, Comandos ejecutados y resultados, Contexto de entrada, Decisiones tomadas (+10 more)
 
 ### Community 79 - "H"
-Cohesion: 0.20
-Nodes (48): ad(), ag(), aI(), bg(), cg(), DJ(), dq(), eg() (+40 more)
+Cohesion: 0.21
+Nodes (47): ad(), ag(), aI(), bg(), cg(), DJ(), dq(), eg() (+39 more)
 
 ### Community 80 - "ASSUMPTIONS"
 Cohesion: 0.25
@@ -424,8 +423,8 @@ Cohesion: 0.22
 Nodes (9): ADR-013: Configuración de parada por banco de preguntas y prerequisitos de tests, Alternativas Evaluadas, Consecuencias, Contexto, Decisión, Estado, Fecha, Riesgos (+1 more)
 
 ### Community 86 - "v"
-Cohesion: 0.07
-Nodes (9): AM(), bj(), CJ(), Ep(), FM(), Ga(), Sf(), v() (+1 more)
+Cohesion: 0.06
+Nodes (17): AM(), CJ(), Dm(), dn(), Ep(), FM(), Ga(), Gn() (+9 more)
 
 ### Community 87 - "README.md"
 Cohesion: 0.40
@@ -436,32 +435,36 @@ Cohesion: 0.18
 Nodes (11): T-05 · Router de URL con history API — **P1** · `abierto`, T-24 · Estado vacío honesto en "Mi plan" y "Cupos" — **P1** · `hecho` (2026-08-03, mergeado a `main` 2026-08-05), T-25 · Comunicar el estado del cupo pendiente y cancelarlo si no alcanza el mínimo — **P1** · `hecho` (2026-07-30, sin verificar en vivo), T-26 · Semántica del re-diagnóstico — **P2** · `bloqueado` (decisión Q-07), T-36 · Preferencia de canal de contacto (email / notificación / WhatsApp) — **P2** · `hecho` (2026-07-30, sin verificar en vivo), T-38 · Tema oscuro con toggle en la barra de navegación — **P2** · `hecho` (2026-08-05, mergeado a `main`), T-39 · Config de parada por banco y progresión por prerequisitos — **P1** · `hecho` (2026-08-08, mergeado a `main` vía PR #23), T-40 · Columna de cantidad de preguntas por test en el panel admin — **P2** · `hecho` (2026-08-08, sin verificar en vivo) (+3 more)
 
 ### Community 93 - "N"
-Cohesion: 0.14
-Nodes (3): cc(), N(), qh()
+Cohesion: 0.10
+Nodes (5): Ao(), Bo(), cc(), N(), qh()
 
-### Community 94 - "ab"
+### Community 94 - "ae"
 Cohesion: 0.07
-Nodes (8): ab(), eb(), mathmlBuilder(), mb(), oa(), Vc(), wc(), Xb()
+Nodes (8): ab(), ae(), je(), mathmlBuilder(), mb(), oa(), Vc(), Xb()
+
+### Community 97 - "htmlBuilder"
+Cohesion: 0.08
+Nodes (6): ca(), da(), htmlBuilder(), Ja(), Qa(), ya()
 
 ### Community 102 - ".then"
-Cohesion: 0.13
-Nodes (32): Af(), Bm(), Cf(), Cm(), df(), E(), ee(), eq() (+24 more)
-
-### Community 104 - "Zb"
-Cohesion: 0.13
-Nodes (9): db(), jc(), jg(), ob(), Of(), Si(), Ui(), xc() (+1 more)
+Cohesion: 0.12
+Nodes (38): Af(), Bm(), ce(), Cf(), Cm(), df(), E(), ee() (+30 more)
 
 ### Community 106 - ".S"
-Cohesion: 0.13
-Nodes (20): bf(), bn(), cn(), Co(), cr(), dr(), ek(), f() (+12 more)
+Cohesion: 0.15
+Nodes (19): an(), bn(), cn(), Co(), cr(), dr(), ek(), f() (+11 more)
 
-### Community 108 - "na"
-Cohesion: 0.18
-Nodes (19): an(), Dm(), dn(), Em(), en(), fd(), Jd(), na() (+11 more)
+### Community 107 - "B"
+Cohesion: 0.12
+Nodes (20): ac(), ar(), B(), bj(), dk(), hk(), Ic(), lf() (+12 more)
+
+### Community 108 - "w"
+Cohesion: 0.16
+Nodes (11): Dh(), Em(), id(), Kd(), na(), Rn(), sa(), Sf() (+3 more)
 
 ### Community 111 - "be"
-Cohesion: 0.12
-Nodes (6): be(), If(), kb(), Kg(), sm(), Vd()
+Cohesion: 0.17
+Nodes (9): be(), en(), If(), Jd(), qd(), tn(), un(), Vb() (+1 more)
 
 ### Community 112 - "SESSION-005"
 Cohesion: 0.11
@@ -471,9 +474,9 @@ Nodes (18): Actividades realizadas, Actualizaciones requeridas en Project Memory
 Cohesion: 0.22
 Nodes (9): T-01 · Publicar contenido mínimo por módulo prioritario — **P0** · `hecho` (2026-08-09), T-02 · Cerrar el pipeline de email de cohorte — **P0** · `bloqueado` (acceso), T-03 · Agregar control de capacidad en la inscripción — **P0** · `hecho` (2026-07-29), T-04 · Publicar cupos reales y retirar los demo — **P0** · `abierto` (desbloqueada, falta ejecución del owner), T-08 · Limpiar el árbol y publicar el bundle correcto — **P0** · `hecho` (2026-07-29), T-19 · Verificar qué hay realmente en producción — **P0** · `hecho` (2026-07-29), seguimiento en T-35, T-35 · Mergear `visual-fixes` a `main` y republicar — **P1** · `hecho` (2026-07-29), T-52 · Grabar o buscar los 3 videos placeholder de recursos — **P3** · `abierto` (+1 more)
 
-### Community 114 - "ae"
-Cohesion: 0.13
-Nodes (9): ae(), eo(), Fa(), Ja(), La(), Qa(), S(), Wa() (+1 more)
+### Community 114 - "Zb"
+Cohesion: 0.22
+Nodes (8): jg(), Of(), Si(), Ti(), Ui(), wc(), Yi(), Zb()
 
 ### Community 115 - "Épica E3 — Deuda técnica y limpieza"
 Cohesion: 0.29
@@ -493,56 +496,64 @@ Nodes (10): T-27 · Enriquecer `error_*` de los ítems más fallados — **P1** 
 
 ### Community 123 - "yf"
 Cohesion: 0.22
-Nodes (3): Kd(), Pc(), yf()
+Nodes (3): sm(), Vd(), yf()
 
 ### Community 124 - "x"
-Cohesion: 0.09
-Nodes (29): ak(), Bc(), Bd(), bk(), cb(), ce(), ef(), Gb() (+21 more)
+Cohesion: 0.10
+Nodes (18): Bd(), cb(), db(), eb(), hb(), Lb(), nb(), Pc() (+10 more)
 
 ### Community 126 - "Épica E7 — Memoria del proyecto (PMF)"
 Cohesion: 0.40
 Nodes (5): T-30 · Mantener la memoria al día — **P0** · `recurrente`, T-31 · Refrescar el snapshot de Graphify tras cambios de código — **P2** · `recurrente`, T-32 · Extender la cobertura del grafo a `.cljs` — **P3** · `hecho` (2026-08-08), T-33 · Reconciliar `PROJECT_SUMMARY.md` con `project-memory/` — **P2** · `abierto`, Épica E7 — Memoria del proyecto (PMF)
 
-### Community 127 - "sa"
-Cohesion: 0.15
-Nodes (13): Ao(), Bo(), Dd(), Dh(), Go(), Ho(), Io(), Jo() (+5 more)
+### Community 127 - "Jo"
+Cohesion: 0.31
+Nodes (9): Dd(), Go(), Ho(), Io(), Jo(), Ko(), Lo(), Mo() (+1 more)
 
-### Community 129 - ".order"
-Cohesion: 0.17
-Nodes (7): de(), hb(), kE(), me(), rL(), sb(), Ve()
+### Community 129 - "de"
+Cohesion: 0.33
+Nodes (3): de(), rL(), so()
 
 ### Community 132 - ".V"
-Cohesion: 0.11
-Nodes (46): ar(), B(), Bb(), bi(), bL(), ds(), EJ(), eL() (+38 more)
+Cohesion: 0.09
+Nodes (44): Bb(), ds(), ea(), EJ(), eL(), es(), FJ(), fq() (+36 more)
 
 ### Community 133 - "Lg"
-Cohesion: 0.25
-Nodes (3): Lg(), XK(), YK()
+Cohesion: 0.09
+Nodes (13): bi(), fb(), ff(), Lg(), Nd(), pd(), qc(), Ri() (+5 more)
 
 ### Community 134 - ".push"
-Cohesion: 0.22
-Nodes (11): ca(), da(), handler(), nn(), pa(), Pm(), ta(), ua() (+3 more)
+Cohesion: 0.18
+Nodes (12): eo(), handler(), La(), nn(), pa(), Pm(), ta(), ua() (+4 more)
+
+### Community 135 - "lc"
+Cohesion: 0.29
+Nodes (10): dc(), dg(), ec(), fc(), hc(), kc(), lc(), rd() (+2 more)
 
 ### Community 136 - "SESSION-010"
 Cohesion: 0.10
 Nodes (20): Actividades realizadas, Actualizaciones requeridas en Project Memory, Archivos modificados, Archivos revisados, Bloqueos, Comandos ejecutados y resultados, Contexto de entrada, Decisiones tomadas (+12 more)
 
 ### Community 138 - "Nc"
-Cohesion: 0.29
-Nodes (6): id(), jb(), M(), Nc(), uc(), ZM()
+Cohesion: 0.14
+Nodes (11): ef(), Fa(), jb(), M(), mc(), Nc(), S(), um() (+3 more)
+
+### Community 139 - "ak"
+Cohesion: 0.20
+Nodes (9): ak(), Bc(), bk(), Hd(), ia(), ib(), oo(), ra() (+1 more)
 
 ## Knowledge Gaps
-- **999 isolated node(s):** `autoprefixer`, `postcss`, `shadow-cljs`, `tailwindcss`, `@supabase/supabase-js` (+994 more)
+- **974 isolated node(s):** `autoprefixer`, `postcss`, `shadow-cljs`, `tailwindcss`, `@supabase/supabase-js` (+969 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **27 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **23 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `v()` connect `v` to `.order`, `app.js`, `.V`, `Lg`, `C`, `.push`, `Nc`, `rg`, `H`, `kf`, `K`, `N`, `.then`, `I`, `Zb`, `.M`, `.S`, `Xe`, `na`, `A`, `be`, `ae`, `ng`, `D`, `x`, `G`, `sa`?**
-  _High betweenness centrality (0.040) - this node is a cross-community bridge._
-- **Why does `K()` connect `K` to `.order`, `app.js`, `.V`, `C`, `.push`, `Nc`, `H`, `kf`, `v`, `u`, `N`, `ab`, `htmlBuilder`, `.then`, `I`, `Zb`, `.M`, `.S`, `na`, `A`, `w`, `be`, `ae`, `D`, `x`, `G`?**
-  _High betweenness centrality (0.029) - this node is a cross-community bridge._
+- **Why does `v()` connect `v` to `app.js`, `.V`, `Lg`, `C`, `.push`, `Nc`, `ak`, `H`, `kf`, `K`, `N`, `ae`, `.then`, `.M`, `.S`, `B`, `w`, `A`, `be`, `Zb`, `ng`, `D`, `yf`, `x`, `G`?**
+  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Why does `K()` connect `K` to `de`, `app.js`, `.V`, `Lg`, `C`, `lc`, `.push`, `Nc`, `ak`, `H`, `kf`, `v`, `u`, `N`, `ae`, `htmlBuilder`, `.then`, `I`, `.M`, `.S`, `B`, `w`, `A`, `be`, `Zb`, `D`, `x`, `G`?**
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Why does `BACKLOG` connect `BACKLOG` to `Épica E2 — Endurecimiento (F9)`, `Épica E1 — Go-live real (F8)`, `Épica E3 — Deuda técnica y limpieza`, `BACKLOG.md`, `Épica E4 — Producto y experiencia`, `Épica E5 — Contenido y calidad pedagógica`, `Épica E7 — Memoria del proyecto (PMF)`?**
   _High betweenness centrality (0.022) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `v()` (e.g. with `.O()` and `B()`) actually correct?**
