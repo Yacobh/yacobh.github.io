@@ -1,6 +1,6 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-07-30**
+Última actualización: **2026-08-08** (Q-17 respondida, ADR-014)
 
 > **Regla fundamental de PMF: si falta información, no se asume — se registra aquí.**
 > Ninguna pregunta se borra: cuando se responde, se marca ✅ con la fecha y la respuesta, y si
@@ -187,12 +187,32 @@ filas ya existentes en `tests`, cada intento es su propia fila) para decidir des
 señal de que "histórico por intento" ya existe de facto en `tests`, pero no resuelve esta pregunta:
 `student_profiles` (el perfil que ve el estudiante) sigue siendo una materialización única.
 
-### 🟡 Q-17 · ¿El tiempo de respuesta influye en la estimación?
+### ✅ Q-17 · ¿El tiempo de respuesta influye en la estimación? — Respondida 2026-08-08 (ADR-014)
 La FAQ afirma: "El tiempo de respuesta también se considera en la estimación". El modelo 1PL
 implementado usa **solo** dificultad y acierto; `time-ms` se registra pero no entra en el cálculo de
 θ.
 **Contradicción documentada** entre copy e implementación. Resolver: corregir el copy o incorporar
 el tiempo al modelo (lo segundo es un cambio de dominio → ADR).
+
+**Respondida 2026-08-08 (owner + [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]]):** se
+**incorpora el tiempo**, no se borra la frase. Pero **no dentro del 1PL**: el tiempo se modela como
+un **eje separado de θ**, porque fundir velocidad en θ haría desaparecer justo el perfil "sabe pero
+lento" que [[VISION_LIBRO_PROYECTO]] §3.3 quiere detectar (θ alto + velocidad baja).
+
+Tres fases con precondición de datos: (1) **filtro de respuestas no esforzadas** — descartar
+evidencia que no es evidencia, sin necesidad de calibración, y con eso la frase pasa a ser cierta
+(T-44); (2) **velocidad τ como segundo eje** reportado por cuadrantes, ≥ 30 tests (T-45);
+(3) **prior de θ condicional a τ**, ≥ 200 tests y ADR propio que reemplace la cláusula del prior de
+ADR-004 (T-46).
+
+**Verificado al responder:** `:time-ms` ya se captura y se persiste dentro de `tests.test`
+(`events/test.cljs:357` y `:test/complete`), junto con `:start-time`/`:end-time` — **no hay que
+instrumentar nada**, el histórico queda disponible para calibración retroactiva desde el primer
+test rendido.
+
+**Sigue pendiente:** hasta que T-44 esté en producción, la frase publicada **sigue siendo falsa**.
+El ADR deja el plan de respaldo explícito (ajustar el copy en el intertanto si T-44 se demora):
+primero que sea verdad, después dejarla publicada.
 
 ---
 
@@ -273,7 +293,7 @@ Ninguna está documentada. Puede haber trabajo valioso sin mergear.
 
 | # | Contradicción | Documentos implicados | Resolución propuesta |
 |---|---------------|----------------------|----------------------|
-| X-01 | La FAQ dice que el tiempo de respuesta se considera en la estimación; el modelo 1PL no lo usa | `index.html`, `landing.cljs` vs `components/tetha.cljs` | Q-17: corregir copy **o** cambiar el modelo (ADR) |
+| X-01 | La FAQ dice que el tiempo de respuesta se considera en la estimación; el modelo 1PL no lo usa | `index.html`, `landing.cljs` vs `components/tetha.cljs` | *(Vía decidida 2026-08-08)* Se cambia el modelo, no el copy: [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]], Q-17 respondida. **La contradicción sigue viva en producción** hasta que T-44 se despliegue |
 | X-02 | La FAQ promete ver "cómo se movió tu nivel" al repetir el diagnóstico; `student_profiles` no guarda histórico | FAQ vs `001_mvp_schema.sql` | Q-07 / P-01 |
 | X-03 | `007` restringe SELECT de `questions` a admin, pero el estudiante debe leer preguntas | `007_questions_admin_rls.sql` vs flujo de `events/test.cljs` | Q-12: auditar policies reales |
 | X-04 | `.gitignore` ignora `src/universo/user.cljs`, pero el archivo está trackeado en Git | `.gitignore` vs `git ls-files` | T-16 |

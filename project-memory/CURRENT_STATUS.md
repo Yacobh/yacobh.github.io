@@ -276,6 +276,18 @@
 > cae al diccionario estático de siempre. **Nada de esto está en producción todavía:**
 > `t-24-estado-vacio-honesto` tiene commits sin mergear a `main`. Detalle en `sessions/SESSION-009.md`.
 
+> **ADR-014: el tiempo de respuesta pasa a ser un eje separado de θ (2026-08-08, decisión, sin
+> código todavía).** Tras una evaluación completa del proyecto, el owner decidió **arreglar el
+> modelo en vez de borrar** la afirmación falsa de la FAQ ("el tiempo de respuesta también se
+> considera en la estimación", X-01/Q-17). Diseño en tres fases con precondición de datos —
+> **T-44** filtro de respuestas no esforzadas (sin precondición, hace verdadera la frase),
+> **T-45** velocidad τ como segundo eje (≥30 tests), **T-46** prior condicional (≥200 tests +
+> ADR propio que reemplace el prior de ADR-004). Se descartó meter el tiempo dentro del 1PL: haría
+> desaparecer el perfil "sabe pero lento" que la visión de largo plazo quiere detectar.
+> **Verificado de paso:** `:time-ms` ya se persiste dentro de `tests.test` — no hay nada que
+> instrumentar. **⚠ La frase sigue falsa en producción hasta que T-44 se despliegue.**
+> Q-17 respondida. Detalle en [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]].
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".
