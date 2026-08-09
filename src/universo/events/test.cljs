@@ -12,27 +12,22 @@
 ;; 🔹 FUNCIÓN AUXILIAR: Normaliza la pregunta
 ;; -----------------------------------------------------------------------------
 
+;; El ítem llega desde el RPC `next_question` SIN :correct-option ni :errors
+;; (ADR-015): la respuesta correcta y la explicación las entrega `score_answer`
+;; recién después de que el estudiante elige. `module_slug`/`module_title` vienen
+;; planos desde la función, no como join anidado `:modules`.
 (defn normalize-question [q]
-  (let [module-join (:modules q)
-        module-slug (or (:module_slug q)
-                        (:slug module-join)
-                        (get-in q [:modules :slug]))]
-    {:id (:id q)
-     :question (:question q)
-     :options [{:value "A" :label (:option_a q)}
-               {:value "B" :label (:option_b q)}
-               {:value "C" :label (:option_c q)}
-               {:value "D" :label (:option_d q)}]
-     :correct-option (:correct_option q)
-     :errors {:A (:error_a q)
-              :B (:error_b q)
-              :C (:error_c q)
-              :D (:error_d q)}
-     :difficulty (:difficulty q)
-     :position (:order_index q)
-     :topic (:topic q)
-     :module-id (or (:module_id q) (:module-id module-join))
-     :module-slug module-slug}))
+  {:id (:id q)
+   :question (:question q)
+   :options [{:value "A" :label (:option_a q)}
+             {:value "B" :label (:option_b q)}
+             {:value "C" :label (:option_c q)}
+             {:value "D" :label (:option_d q)}]
+   :difficulty (:difficulty q)
+   :position (:order_index q)
+   :topic (:topic q)
+   :module-id (:module_id q)
+   :module-slug (:module_slug q)})
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 FUNCIÓN AUXILIAR: Mapea label de UI → id de topic en Supabase
@@ -171,33 +166,24 @@
 ;; mode :immediate → instala la pregunta (inicio del test)
 ;; mode :prefetch  → la guarda para al Continuar (mientras hay feedback)
 
-(defn- fetch-candidates
-  "Preguntas del topic en [θ−w, θ+w] aún no respondidas."
-  [theta topic answered-ids half-width]
+;; Antes esto hacía un `select` directo sobre `questions` y descargaba TODA la
+;; ventana de dificultad para elegir un ítem en el cliente — de paso trayendo
+;; `correct_option` y las cuatro explicaciones. Ahora la selección ocurre en el
+;; servidor y vuelve un solo ítem sin respuesta (ADR-015).
+(defn- fetch-next
+  "Siguiente ítem del topic más cercano a θ, aún no respondido.
+   Devuelve el ítem normalizado, `nil` si el banco se agotó, o `:error`."
+  [theta topic answered-ids]
   (go
-    (let [ch (async/chan)
-          lo (- theta half-width)
-          hi (+ theta half-width)]
-      (-> (.from sb/supabase-client "questions")
-          (.select "*, modules(slug, title, track)")
-          (.eq "topic" topic)
-          (.gte "difficulty" lo)
-          (.lte "difficulty" hi)
-          (.then (fn [result]
-                   (if (.-error result)
-                     (async/put! ch {:success false :error (.-message (.-error result))})
-                     (async/put! ch {:success true
-                                     :data (js->clj (.-data result) :keywordize-keys true)}))))
-          (.catch (fn [error]
-                    (async/put! ch {:success false :error (.-message error)}))))
-      (let [result (<! ch)]
-        (if (:success result)
-          (->> (:data result)
-               (filter #(not (contains? answered-ids (:id %))))
-               vec)
-          (do
-            (js/console.error "❌ Error obteniendo pregunta:" result)
-            :error))))))
+    (let [result (<! (crud/next-question topic theta
+                                         progress/selection-half-width
+                                         progress/selection-half-width-wide
+                                         answered-ids))]
+      (if (:success result)
+        (some-> (:data result) normalize-question)
+        (do
+          (js/console.error "❌ Error obteniendo pregunta:" result)
+          :error)))))
 
 (re-frame/reg-fx
  :test/fetch-next-question
@@ -211,30 +197,23 @@
              _ (js/console.log "Theta actual:" theta)
              _ (js/console.log "Topic:" topic)
              _ (js/console.log "Fetch mode:" (name mode))
-             narrow (<! (fetch-candidates theta topic answered-ids
-                                          progress/selection-half-width))
-             candidates (cond
-                          (= narrow :error) :error
-                          (seq narrow) narrow
-                          :else (<! (fetch-candidates theta topic answered-ids
-                                                      progress/selection-half-width-wide)))]
+             next-q (<! (fetch-next theta topic answered-ids))]
          (cond
-           (= candidates :error)
+           (= next-q :error)
            (when (= mode :prefetch)
              (re-frame/dispatch [:test/prefetch-exhausted]))
 
+           next-q
+           (if (= mode :prefetch)
+             (re-frame/dispatch [:test/prefetch-ready next-q])
+             (re-frame/dispatch [:test/add-question next-q]))
+
            :else
-           (let [next-q (some-> (progress/closest-question theta candidates)
-                                normalize-question)]
-             (if next-q
-               (if (= mode :prefetch)
-                 (re-frame/dispatch [:test/prefetch-ready next-q])
-                 (re-frame/dispatch [:test/add-question next-q]))
-               (if (= mode :prefetch)
-                 (re-frame/dispatch [:test/prefetch-exhausted])
-                 (do
-                   (js/console.log "⚠️ No hay más preguntas, finalizando test")
-                   (re-frame/dispatch [:test/bank-exhausted])))))))))))
+           (if (= mode :prefetch)
+             (re-frame/dispatch [:test/prefetch-exhausted])
+             (do
+               (js/console.log "⚠️ No hay más preguntas, finalizando test")
+               (re-frame/dispatch [:test/bank-exhausted])))))))))
 
 ;; -----------------------------------------------------------------------------
 ;; Prefetch: carga la siguiente pregunta en paralelo al feedback
@@ -345,21 +324,62 @@
                 (assoc-in [:test :current-question] nil))
         :dispatch [:test/fetch-next-question]}))))
 
+;; El acierto ya no se decide en el cliente: el ítem llega sin su respuesta y
+;; `score_answer` corrige en el servidor (ADR-015). Por eso responder pasa a ser
+;; asíncrono — `:test/answer` solo dispara el efecto, y `:test/answer-scored`
+;; hace lo que antes hacía `:test/answer` de forma síncrona.
+(re-frame/reg-fx
+ :test/score-answer
+ (fn [{:keys [question-id selected time-ms]}]
+   (go
+     (let [result (<! (crud/score-answer question-id selected))]
+       (if (:success result)
+         (let [{:keys [correcto correcta explicacion]} (:data result)]
+           (re-frame/dispatch [:test/answer-scored
+                               {:question-id question-id
+                                :selected selected
+                                :time-ms time-ms
+                                :correct? (boolean correcto)
+                                :correct-option correcta
+                                :explanation explicacion}]))
+         (re-frame/dispatch [:test/score-failed (:error result)]))))))
+
 (re-frame/reg-event-fx
  :test/answer
- (fn [{:keys [db]} [_ {:keys [question-id selected correct? time-ms]}]]
+ (fn [{:keys [db]} [_ {:keys [question-id selected time-ms]}]]
+   {:db (-> db
+            (assoc-in [:test :scoring?] true)
+            (assoc-in [:test :score-error] nil))
+    :test/score-answer {:question-id question-id
+                        :selected selected
+                        :time-ms time-ms}}))
+
+;; Si la corrección falla no se puede inventar un acierto: se avisa y se deja
+;; al estudiante reintentar la misma pregunta, sin registrar respuesta ni mover θ.
+(re-frame/reg-event-db
+ :test/score-failed
+ (fn [db [_ message]]
+   (-> db
+       (assoc-in [:test :scoring?] false)
+       (assoc-in [:test :score-error]
+                 (or message "No se pudo registrar tu respuesta. Inténtalo de nuevo.")))))
+
+(re-frame/reg-event-fx
+ :test/answer-scored
+ (fn [{:keys [db]} [_ {:keys [question-id selected correct? correct-option
+                              explanation time-ms]}]]
    (let [questions (get-in db [:test :questions])
          question (some #(when (= (:id %) question-id) %) questions)
-         sel-key (when selected (keyword selected))
          new-response {:question-id question-id
                        :selected-option selected
                        :correct? correct?
+                       :correct-option correct-option
                        :time-ms (or time-ms 0)
                        :difficulty (or (:difficulty question) 0.0)
                        :topic (or (:topic question) (get-in db [:test :topic]))
                        :module-id (:module-id question)
                        :module-slug (:module-slug question)
-                       :selected-error (get-in question [:errors sel-key])
+                       :selected-error explanation
                        :question-text (:question question)}
          updated-db (update-in db [:test :responses] conj new-response)
          new-theta (tetha/calculate-theta-auto (:test updated-db))
@@ -372,6 +392,8 @@
                            (assoc-in [:test :theta] new-theta)
                            (update-in [:test :theta-history] conj new-theta)
                            (assoc-in [:test :stop-reason] reason)
+                           (assoc-in [:test :scoring?] false)
+                           (assoc-in [:test :score-error] nil)
                            (assoc-in [:test :prefetched-question] nil)
                            (assoc-in [:test :prefetching?] (nil? reason)))
          _ (js/console.log "new-theta:" new-theta "stop-reason:" (clj->js reason))]
@@ -517,6 +539,10 @@
 (re-frame/reg-sub :test/answers (fn [db _] (get-in db [:test :responses])))
 (re-frame/reg-sub :test/available-topics (fn [db _] (get-in db [:test :available-topics] [])))
 (re-frame/reg-sub :test/configs (fn [db _] (get-in db [:test :configs] {})))
+;; Corrección en curso en el servidor: bloquea las alternativas para no
+;; registrar dos respuestas a la misma pregunta (ADR-015).
+(re-frame/reg-sub :test/scoring? (fn [db _] (get-in db [:test :scoring?] false)))
+(re-frame/reg-sub :test/score-error (fn [db _] (get-in db [:test :score-error])))
 (re-frame/reg-sub :test/topics-loading? (fn [db _] (get-in db [:test :topics-loading?] false)))
 (re-frame/reg-sub :test/topics-error (fn [db _] (get-in db [:test :topics-error])))
 (re-frame/reg-sub :test/current-question

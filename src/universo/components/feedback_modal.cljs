@@ -174,12 +174,14 @@
 ;; ============================================================================
 
 (defn explanation-section
-  "Muestra la explicación del error de la opción seleccionada.
-   is-correct? es opcional (compatibilidad con callers de 2 o 3 args)."
-  ([question selected]
-   (explanation-section question selected false))
-  ([question selected _is-correct?]
-   (when-let [err-msg (get-in question [:errors (keyword selected)])]
+  "Muestra la explicación de la opción seleccionada.
+   La explicación viene en la respuesta, no en la pregunta: el ítem llega del
+   servidor sin sus `error_*` y `score_answer` devuelve solo la de la
+   alternativa elegida (ADR-015)."
+  ([response]
+   (explanation-section response false))
+  ([response _is-correct?]
+   (when-let [err-msg (:selected-error response)]
      [:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-slate-50 border-l-4 border-slate-300 rounded-r-xl"}
       [:div {:class "flex items-start gap-3"}
        [icon-warning]
@@ -206,7 +208,7 @@
   [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6
    [question-section question]
    [options-section question selected correct]
-   [explanation-section question selected is-correct?]
+   [explanation-section response is-correct?]
    [:div {:class "pt-2 border-t border-stone-100"}
     [irt-chart/irt-progress-chart points stop-reason]]
    [action-buttons stop-reason]])
@@ -235,7 +237,9 @@
     (when modal
       (let [{:keys [question response]} modal
             selected (:selected-option response)
-            correct (:correct-option question)
+            ;; La alternativa correcta la trae la respuesta corregida por el
+            ;; servidor, no la pregunta: el ítem llega sin ella (ADR-015).
+            correct (:correct-option response)
             is-correct? (:correct? response)]
         [modal-overlay
          [modal-content question response selected correct is-correct?

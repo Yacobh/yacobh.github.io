@@ -209,7 +209,16 @@ amplían para mostrar los datos nuevos cuando existen.
 22. `migrations/020_test_configs.sql`
 23. `migrations/021_tests_topic_theta_rls.sql`
 24. `migrations/022_test_config_display_name.sql`
-25. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+25. `migrations/023_rls_limpieza.sql`
+26. `migrations/024_questions_rpc.sql`
+27. `migrations/025_questions_revoke_lectura_directa.sql` — **⚠️ solo tras publicar el bundle de T-47**
+28. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+
+> ⚠️ **El esquema no arranca en `001`.** `public.questions` y `public.is_admin()` **preexisten** a
+> las migraciones versionadas (`001_mvp_schema.sql` declara "Requiere: `public.is_admin()`,
+> `public.questions`" y solo le agrega `module_id`). Aplicar `001`…`025` sobre una base vacía
+> **no** reproduce producción. Falta una migración `000_baseline` — ver
+> [[../project-memory/BACKLOG]] T-48.
 
 ## Recursos originales con numeración Baldor como índice (`018_baldor_resources.sql`)
 
@@ -285,3 +294,37 @@ si el topic tampoco está ahí, al propio `topic` con guiones bajos como espacio
 
 RLS: sin cambios -- la columna viaja dentro del mismo `select` ya cubierto por `test_configs_select`
 de `020`, y solo un admin puede escribirla (`test_configs_update_admin`).
+
+## Auditoría de RLS y cierre del banco de ítems (`023`, `024`, `025`)
+
+Auditoría completa de `pg_policies` + `relrowsecurity` ejecutada el 2026-08-08 sobre el proyecto
+real. Diseño en [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]]; resultados en
+[[../project-memory/OPEN_QUESTIONS]] Q-12.
+
+**Hallazgo principal:** `questions` tenía `"Enable read access for all users"` (SELECT,
+`authenticated`, `using true`), creada desde el dashboard y ausente del repo. Como las policies
+PERMISSIVE se combinan con OR, la regla efectiva era `true` y `questions_select_admin` estaba
+**inerte**: el banco completo, con `correct_option` y `error_a..d`, era descargable por cualquier
+cuenta.
+
+- **`023_rls_limpieza.sql`** — inocua, aplicable en cualquier momento. Elimina la tabla huérfana
+  `dashboard` (0 filas, sin referencias en código ni migraciones), consolida las cuatro policies de
+  `tests` en dos, y versiona las creadas por UI (`visitor`, `notifications`, `contacto`).
+- **`024_questions_rpc.sql`** — **aditiva**, no rompe el bundle actual. Crea `next_question`
+  (devuelve un ítem sin respuesta ni explicaciones, con la selección por cercanía a θ resuelta en
+  SQL) y `score_answer` (corrige en servidor, devuelve solo el booleano y la explicación de la
+  alternativa elegida). Ambas `security definer` con guardia `auth.uid() is not null`, mismo patrón
+  que `014`.
+- **`025_questions_revoke_lectura_directa.sql`** — **⚠️ solo después** de que el bundle adaptado a
+  los RPC esté publicado en `main` y probado con una cuenta de **estudiante**. Elimina la policy
+  permisiva. Aplicarla antes deja el diagnóstico roto para todo no-admin. Trae su propio
+  procedimiento de verificación y de reversión.
+
+**Estado de RLS al momento de la auditoría:** habilitado en las 15 tablas de `public`
+(`relrowsecurity = true`); `relforcerowsecurity = false` en todas, lo que es correcto (solo afecta
+al rol dueño, y PostgREST nunca conecta como dueño).
+
+**Corrección a la documentación de `021`:** la sección de arriba y la nota de T-39 afirmaban que
+`tests` "no tenía ninguna policy de SELECT propia del usuario". Era falso — existía
+`"Enable users to view their own data only"`, creada desde el dashboard. `tests_select_own` fue
+redundante, no un arreglo. Consolidado en `023`.

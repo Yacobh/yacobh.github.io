@@ -29,6 +29,7 @@ alternativas relevantes o (d) alguien podría cuestionar en seis meses → **ADR
 | [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] | Tema oscuro mediante mapeo global de CSS (`.dark .clase-existente` en `src/css/app.css`), no `dark:` por elemento | Aprobada | 2026-08-05 | Frontend/UI |
 | [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]] | Config de parada IRT por banco (`test_configs`, incl. límite de tiempo) + progresión por prerequisitos y θ mínimo derivada del historial en `tests`, sin tabla de permisos aparte | Aprobada | 2026-08-08 | Dominio/Arquitectura |
 | [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]] | El tiempo de respuesta es un **eje separado de θ**, no un término del 1PL; en tres fases con precondición de datos (filtro de esfuerzo → velocidad τ como segundo eje → prior condicional). Fase 1 aprobada; Fase 3 exige ADR propio que reemplace el prior de ADR-004 | Aprobada | 2026-08-08 | Dominio |
+| [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]] | El cliente **no lee `questions`**: el ítem viaja sin `correct_option` ni `error_*` y la corrección ocurre en el servidor (`next_question`/`score_answer`, `security definer`). Cierra la policy permisiva que dejaba el banco descargable (Q-12, R-16) | Aprobada | 2026-08-08 | Seguridad/Arquitectura |
 
 > **(retro.)** = decisión tomada de facto en el código antes de existir este registro; el ADR la
 > documenta retroactivamente con la fecha aproximada del commit que la materializó. El contexto está

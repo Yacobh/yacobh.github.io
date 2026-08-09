@@ -76,7 +76,10 @@
  :landing/start
  (fn [{:keys [db]} _]
    (if (get-in db [:auth :user])
-     {:dispatch [:navigate-to :diagnostic-test]}
+     ;; Navegar no basta: hay que abrir la selección para que se cargue el
+     ;; catálogo de evaluaciones (mismo par que ya usan dashboard/plan/cupos).
+     {:dispatch-n [[:test/open-selection]
+                   [:navigate-to :diagnostic-test]]}
      {:db (assoc-in db [:auth :redirect-after-login] :diagnostic-test)
       ;; Sin sesión no hay cuenta que iniciar: el CTA "Comenzar gratis" solo
       ;; tiene sentido como registro.

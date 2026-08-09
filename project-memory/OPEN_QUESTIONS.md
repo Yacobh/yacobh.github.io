@@ -230,13 +230,41 @@ lleno"), pero eso no es un control de seguridad — una llamada directa a la API
 usuario autenticado puede insertar el enrollment N+1 sin error.
 **Bloquea:** T-03, cierre de F3 → **sigue bloqueando**, ahora con causa raíz confirmada.
 
-### 🟠 Q-12 · ¿Qué policy usa el estudiante para leer `questions`?
+### ✅ Q-12 · ¿Qué policy usa el estudiante para leer `questions`? — Respondida 2026-08-08
 `007_questions_admin_rls.sql` restringe SELECT a `is_admin()`, pero el diagnóstico necesita leer
 preguntas como estudiante. O existe otra policy previa más permisiva, o el flujo usa otra vía.
 **Por qué importa:** si `authenticated` puede hacer SELECT sobre `questions`, el banco completo
 —incluidas `correct_option` y las explicaciones— es descargable (R-16).
 **Cómo responderla:** revisar todas las policies de `questions` en el proyecto real
 (`select * from pg_policies where tablename = 'questions';`).
+
+**Respondida 2026-08-08 (el owner ejecutó la consulta): existe una policy permisiva creada desde
+el dashboard de Supabase.**
+
+```
+questions | "Enable read access for all users" | SELECT | {authenticated} | using: true
+```
+
+Como las policies son PERMISSIVE y se combinan con **OR**, la regla efectiva es `true OR is_admin()`
+= **`true`**, y `questions_select_admin` es **inerte**. Es decir: **el peor caso de R-16 está
+confirmado y vivo en producción** — cualquier cuenta autenticada puede descargar el banco completo
+con `correct_option` y `error_a..d`.
+
+**Consecuencia:** [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]] (el cliente deja de leer
+`questions`; ítem sin respuesta + corrección en servidor vía `security definer`), migraciones
+`023`/`024`/`025` y [[BACKLOG]] T-47 (**P0, bloquea go-live**).
+
+**Hallazgos colaterales de la misma auditoría** (se auditaron las 15 tablas, no solo `questions`):
+- **RLS está habilitado en las 15 tablas** (`relrowsecurity = true`), así que ninguna está abierta
+  por RLS apagado.
+- Tabla huérfana **`dashboard`** con SELECT/INSERT `true` para `authenticated`: 0 filas, sin
+  referencias en el código ni en migraciones. Eliminada en `023`.
+- **`public.questions` no se crea en ninguna migración** — un entorno nuevo no se puede reconstruir
+  desde el repo (→ T-48).
+- La banda del estudiante **no está protegida en la base**: puede reescribir su propia
+  `theta_band` e inscribirse en cualquier cupo (→ T-49).
+- Al menos ocho policies vienen del dashboard: **el repositorio no es la fuente de verdad de RLS**.
+  Regla nueva en `023`: ninguna policy se crea desde la UI.
 
 ### ✅ Q-13 · ¿Qué versión está realmente en producción? — Respondida 2026-07-29
 `git log main..cursor/mvp-operable-funnel` está vacío: esa rama quedó **completamente mergeada** a
@@ -295,7 +323,7 @@ Ninguna está documentada. Puede haber trabajo valioso sin mergear.
 |---|---------------|----------------------|----------------------|
 | X-01 | La FAQ dice que el tiempo de respuesta se considera en la estimación; el modelo 1PL no lo usa | `index.html`, `landing.cljs` vs `components/tetha.cljs` | *(Vía decidida 2026-08-08)* Se cambia el modelo, no el copy: [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]], Q-17 respondida. **La contradicción sigue viva en producción** hasta que T-44 se despliegue |
 | X-02 | La FAQ promete ver "cómo se movió tu nivel" al repetir el diagnóstico; `student_profiles` no guarda histórico | FAQ vs `001_mvp_schema.sql` | Q-07 / P-01 |
-| X-03 | `007` restringe SELECT de `questions` a admin, pero el estudiante debe leer preguntas | `007_questions_admin_rls.sql` vs flujo de `events/test.cljs` | Q-12: auditar policies reales |
+| X-03 | `007` restringe SELECT de `questions` a admin, pero el estudiante debe leer preguntas | `007_questions_admin_rls.sql` vs flujo de `events/test.cljs` | ✅ *Resuelta 2026-08-08:* había una policy permisiva del dashboard (`using true`) que anulaba a `007` por OR. Ver Q-12, [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]], T-47. **El agujero sigue abierto en producción hasta aplicar `025`** |
 | X-04 | `.gitignore` ignora `src/universo/user.cljs`, pero el archivo está trackeado en Git | `.gitignore` vs `git ls-files` | T-16 |
 | X-05 | `shadow-cljs` 3.0.4 en `deps.edn` vs `^2.19.2` en `package.json` | `deps.edn` vs `package.json` | T-13 |
 | X-06 | KaTeX `^0.16.22` por npm vs CSS 0.16.9 por CDN | `package.json` vs `index.html` | T-13 |

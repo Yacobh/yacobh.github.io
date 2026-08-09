@@ -288,6 +288,54 @@
 > instrumentar. **⚠ La frase sigue falsa en producción hasta que T-44 se despliegue.**
 > Q-17 respondida. Detalle en [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]].
 
+> 🚨 **El banco de ítems es descargable por cualquier cuenta autenticada (confirmado 2026-08-08).
+> Bloquea el go-live.** La auditoría de `pg_policies` que pedía Q-12 desde hace semanas se ejecutó
+> y confirmó el peor caso de [[RISKS]] R-16: `questions` tiene una policy
+> `"Enable read access for all users"` (`using true`) creada desde el dashboard, que anula por OR a
+> `questions_select_admin`. Cualquiera con una cuenta gratis puede bajar el banco entero con
+> `correct_option` y `error_a..d` — lo que además permite falsear el diagnóstico y contaminaría
+> para siempre la calibración de `difficulty`.
+> **Diseño y SQL listos, sin aplicar:** [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]] +
+> migraciones `023` (limpieza, inocua), `024` (RPC, aditiva) y `025` (**la que cierra**, solo tras
+> publicar el bundle adaptado). Falta el cambio de cliente: [[BACKLOG]] **T-47, P0**.
+> **Orden obligatorio:** 023 → 024 → cliente publicado → probar con cuenta de *estudiante* → 025.
+>
+> **Otros hallazgos de la misma auditoría:** RLS sí está habilitado en las 15 tablas; tabla huérfana
+> `dashboard` con permisos abiertos (0 filas, eliminada en `023`); **`public.questions` no existe en
+> ninguna migración** — el repo no puede reconstruir el esquema (T-48); la banda del estudiante no
+> está protegida en la base, puede reescribir su propia `theta_band` (T-49); y al menos ocho
+> policies vienen del dashboard, o sea **el repo no es la fuente de verdad de RLS**.
+>
+> **Corrección a la nota de T-39 más abajo:** dice que `tests` "no tenía evidencia versionada de RLS
+> habilitado (solo existía `tests_select_admin`, potencialmente inerte)". La auditoría muestra que
+> `tests` **sí** tenía una policy de SELECT propia del usuario (`"Enable users to view their own
+> data only"`), creada desde la UI; RLS estaba habilitado. `tests_select_own` de `021` fue
+> redundante, no un arreglo. No se borra la nota original: se corrige acá.
+
+> **T-47 implementado y verificado en vivo (2026-08-09).** El cliente ya no lee `questions`:
+> `next_question` sirve el ítem sin respuesta y `score_answer` corrige en el servidor (ADR-015).
+> Migraciones `023`, `024` y `026` **aplicadas por el owner**; **`025` NO** — es la que cierra el
+> agujero y solo va **después** de publicar el bundle nuevo en `main` (antes rompería el
+> diagnóstico de todo no-admin). Verificado en vivo contra la base real con una cuenta de prueba de
+> rol `user` (credenciales solo con el owner) sobre un servidor local: ítem servido sin respuesta, corrección
+> server-side, explicación del error, θ actualizado y prefetch funcionando.
+> `clj -M:test` 42/162/0 · `release app` 0 warnings.
+>
+> **🚨 Bug del embudo encontrado y arreglado en el camino.** `:landing/start` hacía solo
+> `[:navigate-to :diagnostic-test]` sin cargar el catálogo — verificado por inspección de red que
+> **nunca se llamaba a `test_configs`**. Todo usuario que entraba por el CTA principal
+> ("Comenzar mi diagnóstico"), logueado o recién registrado, veía *"No hay evaluaciones disponibles
+> por ahora"* y ahí moría el embudo; solo funcionaba entrando por "Mi tablero". Arreglado en dos
+> capas: el evento despacha `:test/open-selection`, y `diagnostic-test` carga al montarse si no hay
+> test en curso (cubre el redirect post-registro y deep links futuros de T-05).
+> **Estuvo roto en producción todo este tiempo y nadie lo había detectado** porque las pruebas se
+> hacían entrando por el tablero.
+>
+> **Estado del banco de ítems, medido (387 preguntas):** `difficulty` en escalas incompatibles —
+> `enteros` va de **10 a 90**, con lo que **ningún ítem es alcanzable** y ese test termina al
+> instante (→ **T-50, P0**); **51% sin `module_id`**; 26 topics con duplicados por acento
+> (→ **T-51**). Responde en parte [[OPEN_QUESTIONS]] Q-05.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

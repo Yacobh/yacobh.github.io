@@ -1,6 +1,12 @@
 # RISKS
 
-Última actualización: **2026-07-28**
+Última actualización: **2026-08-08** (R-16 materializado y reclasificado tras la auditoría de RLS)
+
+> ⚠️ **Nota de vigencia:** el resto del cuerpo de este archivo sigue redactado al corte del
+> 2026-07-28 y tiene afirmaciones caducas (R-13 dice "hoy mismo el archivo está modificado sin
+> commitear"; R-10 propone T-24 como pendiente cuando está en producción desde el 2026-08-05;
+> R-21 dice que el MVP "posiblemente no está mergeado", resuelto el 2026-07-29). Solo R-16 se
+> actualizó en esta pasada. Ver [[CURRENT_STATUS]] para el estado real.
 
 Escala de **impacto** y **probabilidad**: Baja / Media / Alta.
 **Severidad** = combinación (Alta si impacto Alto y probabilidad ≥ Media).
@@ -30,7 +36,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | R-11 | Cupos que nunca alcanzan el mínimo | Medio | Alta | Media-alta | activo |
 | R-12 | Entregabilidad de email (spam / dominio no verificado) | Medio | Media | Media | activo |
 | R-15 | Dependencia total de Supabase (free tier / cambio de términos) | Alto | Baja | Media | aceptado |
-| R-16 | Banco de ítems expuesto o enumerable | Alto | Baja | Media | activo |
+| R-16 | **Banco de ítems descargable por cualquier cuenta** (confirmado 2026-08-08) | Alto | **Alta** | **Alta** | **activo — bloquea go-live** |
 | R-17 | `difficulty` no calibrada ⇒ θ sesgada | Medio | Media | Media | activo |
 | R-18 | Spam en guestbook / contacto (sin rate limit) | Bajo | Alta | Media | mitigado (moderación) |
 | R-19 | Estacionalidad PAES: ventana de captación estrecha | Medio | Alta | Media-alta | activo |
@@ -186,16 +192,29 @@ tier. Un cambio de términos o límites afecta todo.
 a datos centralizado en `db.crud` reduce el costo de un cambio de proveedor.
 **Estado:** aceptado conscientemente ([[../adr/ADR-002-supabase-como-unico-backend]]).
 
-### R-16 · Banco de ítems expuesto
+### R-16 · Banco de ítems expuesto — ⚠️ **MATERIALIZADO, confirmado 2026-08-08**
 **Descripción:** `questions` (con `correct_option` y `error_*`) es el activo principal. Si alguna
 policy permite SELECT amplio a usuarios autenticados, el banco es descargable; y el flujo del
 estudiante necesita leer preguntas, así que la policy exacta importa.
-**Impacto:** Alto (pérdida del diferencial, y respuestas filtradas invalidan el diagnóstico).
-**Probabilidad:** Baja-Media.
-**Mitigación:** auditar qué policy usa el flujo del estudiante ([[OPEN_QUESTIONS]] Q-12); evaluar
-entregar el ítem sin `correct_option` (validación en servidor) — eso sería un cambio arquitectónico
-→ ADR.
-**Estado:** activo.
+
+**Ya no es un riesgo hipotético.** La auditoría de `pg_policies` del 2026-08-08 encontró la policy
+`"Enable read access for all users"` (SELECT, `authenticated`, `using true`), creada desde el
+dashboard de Supabase y ausente de todo archivo versionado. Como las policies PERMISSIVE se
+combinan con **OR**, la regla efectiva es `true` y `questions_select_admin` es **inerte**:
+cualquier cuenta autenticada puede descargar el banco completo. Ver [[OPEN_QUESTIONS]] Q-12
+(respondida).
+
+**Impacto:** Alto, y por dos vías distintas: (a) pérdida del activo/diferencial; (b) el diagnóstico
+se vuelve falseable, y esas respuestas falsas **contaminarían de forma permanente** la calibración
+futura de `difficulty` ([[BACKLOG]] T-29, T-45).
+**Probabilidad:** **Alta** — no hay barrera, solo hace falta una cuenta gratuita. Mitigada de facto
+hoy únicamente porque el sitio no está promocionado y no hay estudiantes.
+**Severidad:** **Alta** (era Media).
+**Mitigación:** [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]] — el cliente deja de leer
+`questions`; el ítem viaja sin respuesta y la corrección ocurre en el servidor. Migraciones
+`023`/`024` (aditivas, aplicables ya) y `025` (**la que cierra el agujero**, solo tras publicar el
+bundle nuevo). Tarea [[BACKLOG]] T-47, **P0, bloquea go-live**.
+**Estado:** **activo — bloqueante.** No abrir el sitio a estudiantes reales antes de aplicar `025`.
 
 ### R-17 · `difficulty` no calibrada
 **Descripción:** el modelo 1PL depende enteramente del parámetro `b` (dificultad) de cada ítem. Si

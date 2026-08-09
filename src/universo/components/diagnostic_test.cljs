@@ -111,6 +111,8 @@
     (let [question @(re-frame/subscribe [:test/current-question])
           question-index (count @(re-frame/subscribe [:test/questions]))
           topic @(re-frame/subscribe [:test/topic])
+          scoring? @(re-frame/subscribe [:test/scoring?])
+          score-error @(re-frame/subscribe [:test/score-error])
           ;; 🎲 Rotar opciones basado en el ID (0, 1, 2, o 3 posiciones)
           shift (when question (mod (:id question) 4))
           rotated-options (when question
@@ -137,19 +139,26 @@
           (math/latex (:question question))]
 
          ;; 🔹 Opciones
+         ;; El acierto lo decide el servidor (ADR-015): mientras corrige, las
+         ;; alternativas quedan bloqueadas para no registrar dos respuestas.
          [:div.space-y-3.mt-6
           (for [{:keys [value label]} rotated-options]
             ^{:key value}
-            [:button.w-full.bg-indigo-50.hover:bg-indigo-100.text-indigo-700.font-medium.py-2.px-4.rounded-lg.transition
-             {:on-click #(re-frame/dispatch
+            [:button.w-full.bg-indigo-50.hover:bg-indigo-100.text-indigo-700.font-medium.py-2.px-4.rounded-lg.transition.disabled:opacity-50.disabled:cursor-wait
+             {:disabled scoring?
+              :on-click #(re-frame/dispatch
                           [:test/answer
                            {:question-id (:id question)
                             :selected value
-                            :correct? (= value (:correct-option question))
                             :time-ms (if @started-at
                                        (- (.now js/Date) @started-at)
                                        0)}])}
              (math/latex label)])]
+
+         (when score-error
+           [:div {:role "alert"
+                  :class "rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"}
+            score-error])
 
          ;; 🔹 Botón para finalizar test manualmente (opcional)
          [:div.mt-8.text-center
@@ -246,14 +255,20 @@
 ;; -------------------------------
 
 (defn diagnostic-test []
-  (let [current-step @(re-frame/subscribe [:test/status])]
-    [:div {:class "py-12 px-4"}
-     (case current-step
-       :select [selection-component]
-       :intro [selection-component] ;; compatibilidad: intro redirige a selección
-       :questions [question-component]
-       :feedback [feedback]
-       :completed [completion-component]
-       :results [results-component]
-       ;; Estado inicial / desconocido → selección
-       [selection-component])]))
+  ;; Al montar sin un test en curso hay que cargar el catálogo: se puede llegar
+  ;; acá por rutas que solo navegan (el CTA de la landing, el redirect
+  ;; post-registro) y sin esto la sección queda mostrando "No hay evaluaciones
+  ;; disponibles" para siempre, con el catálogo nunca consultado.
+  (r/with-let [_ (when (contains? #{nil :not-started} @(re-frame/subscribe [:test/status]))
+                   (re-frame/dispatch [:test/open-selection]))]
+    (let [current-step @(re-frame/subscribe [:test/status])]
+      [:div {:class "py-12 px-4"}
+       (case current-step
+         :select [selection-component]
+         :intro [selection-component] ;; compatibilidad: intro redirige a selección
+         :questions [question-component]
+         :feedback [feedback]
+         :completed [completion-component]
+         :results [results-component]
+         ;; Estado inicial / desconocido → selección
+         [selection-component])])))
