@@ -1,6 +1,6 @@
 # ROADMAP
 
-Última actualización: **2026-07-27**
+Última actualización: **2026-08-09** (F5 cerrada, T-02)
 
 > Las fases F0–F6 son **reconstruidas** desde el historial de commits y el estado del código: no
 > existía un roadmap escrito. Las fases F8+ son propuestas y requieren confirmación del owner
@@ -17,7 +17,7 @@ F1 Motor IRT             ████████████ 100%  ✅ cerrada
 F2 Perfil y plan         ███████████░  95%  🟡 falta contenido
 F3 Cohortes              ███████████░  95%  🟡 falta verificar capacidad
 F4 Panel admin           ████████████ 100%  ✅ cerrada
-F5 Email de cohorte      ███████░░░░░  60%  ⚠️ no verificado en producción
+F5 Email de cohorte      ████████████ 100%  ✅ cerrada 2026-08-09
 F6 Captación / SEO       ██████████░░  90%  🟡 sin analytics
 F7 Project Memory (PMF)  ████████████ 100%  ✅ cerrada 2026-07-26
 ────────────────────────────────────── ← estamos aquí
@@ -130,25 +130,24 @@ comunicación (R-11).
 
 ---
 
-## F5 — Email de cohorte ⚠️ 60 %
+## F5 — Email de cohorte ✅ 100 % (2026-08-09)
 
 **Objetivo:** que el estudiante se enteré de la confirmación aunque no vuelva a la plataforma.
 
 | Entregable | Estado |
 |-----------|--------|
-| Tabla `email_outbox` + índice parcial de pendientes | ✅ escrito (`005`) |
-| Trigger `notifications_enqueue_email` | ✅ escrito |
-| Edge Function `send-enrollment-emails` (Deno + Resend, 25 filas/invocación, `attempts`/`last_error`) | ✅ escrita |
+| Tabla `email_outbox` + índice parcial de pendientes | ✅ escrito y aplicado (`005`) |
+| Trigger `notifications_enqueue_email` | ✅ escrito y verificado en producción |
+| Edge Function `send-enrollment-emails` (Deno + Resend, 25 filas/invocación, `attempts`/`last_error`) | ✅ desplegada |
 | Degradación sin `RESEND_API_KEY` (503, cola intacta) | ✅ implementada |
-| **Migración aplicada en el proyecto real** | ⚠️ no verificado |
-| **Function desplegada + secret configurado** | ⚠️ no verificado |
-| **Cron cada ~5 min** | ⛔ no configurado |
-| Verificación end-to-end (fila `sent` con `sent_at`) | ⛔ |
+| **Migración aplicada en el proyecto real** | ✅ verificado |
+| **Function desplegada + secret configurado** | ✅ verificado (`mail.jacobocordova.com` verificado en Resend) |
+| **Cron cada ~5 min** | ✅ configurado (`pg_cron`/`pg_net` — el dashboard de este plan no ofrece Schedules de Edge Functions) |
+| Verificación end-to-end (fila `sent` con `sent_at`) | ✅ verificado en vivo, dos veces (envío manual + cadena completa vía cupo confirmado real) |
 
-**Hito H5:** un estudiante recibe el correo de confirmación de su grupo. ⚠️
-**Dependencias externas:** cuenta Resend, dominio verificado para `EMAIL_FROM`.
-**Riesgo:** entregabilidad (spam) si se envía desde `onboarding@resend.dev` en lugar de un dominio
-verificado (R-12).
+**Hito H5:** un estudiante recibe el correo de confirmación de su grupo. ✅
+**Riesgo:** R-12 (entregabilidad) mitigado — dominio verificado, entrega confirmada a bandeja
+principal en ambas pruebas. Ver [[BACKLOG]] T-02, `sessions/SESSION-013.md`.
 
 ---
 
@@ -190,9 +189,9 @@ verificado (R-12).
 
 | Entregable | Tarea |
 |-----------|-------|
-| Recurso publicado por módulo prioritario | T-01 |
-| Email de cohorte verificado end-to-end | T-02 |
-| Control de capacidad confirmado | T-03 |
+| Recurso publicado por módulo prioritario ✅ | T-01 |
+| Email de cohorte verificado end-to-end ✅ (2026-08-09) | T-02 |
+| Control de capacidad confirmado ✅ | T-03 |
 | Cupos reales publicados (fecha, sala/enlace, mínimo) | T-04 |
 | Árbol limpio y bundle recompilado y publicado en `main` | T-08 |
 | Preguntas de producto respondidas (Q-02 ✅, Q-04 ✅, Q-07 sigue abierta) | — |
