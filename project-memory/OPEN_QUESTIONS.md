@@ -165,6 +165,10 @@ estar sesgada. Tampoco se sabe cuántos ítems hay por topic.
 **Cómo responderla:** `select topic, count(*), min(difficulty), max(difficulty), avg(difficulty)
 from questions group by topic;`
 **Relacionado:** R-17, T-29.
+**Nota 2026-08-09:** la medición de T-50 (ver [[BACKLOG]]) confirmó que no estaban calibradas
+—de hecho ni siquiera en una escala compatible entre topics— y el owner las reescaló a mano por
+orden relativo de dificultad, no con datos de respuesta real. **Sigue sin responderse** la
+pregunta de fondo (calibración estadística); solo se cerró el síntoma agudo (topics inalcanzables).
 
 ### 🟠 Q-06 · ¿Los topics del banco cubren los ejes reales de la PAES M1?
 `universo.profile/topic->module-slug` mapea solo un subconjunto (`numbers_V1`, `numeros`, `enteros`,
