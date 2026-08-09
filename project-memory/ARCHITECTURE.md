@@ -32,6 +32,7 @@
 │                                                                           │
 │  Lógica pura (sin I/O, testeada):                                         │
 │    components.tetha · irt.progress · profile · slots.logic                │
+│    access · catalog                                                       │
 └──────────────────────────────┬────────────────────────────────────────────┘
                                │ HTTPS + JWT del usuario (supabase-js)
                                ▼
@@ -95,6 +96,7 @@ Tres namespaces puros + un ns de eventos:
 | `universo.components.tetha` | Modelo 1PL/Rasch: `probability-1pl`, derivadas de la log-verosimilitud, score y Hessiano MAP con prior N(0,1), `newton-raphson-iteration`, `clamp-theta` `[-3,3]`, `limit-theta-step` (Δθ ≤ 0,4) | `tetha_test.cljs` |
 | `universo.irt.progress` | `fisher-information` (`I(θ) = −f''(θ)`), `standard-error` (`1/√I`), `closest-question` (argmin `|b−θ|`), ventanas de selección (±1, ±2), `stop-reason` (min 5, max 12, SE ≤ 0,35), `progress-points` para el gráfico | `progress_test.cljs` |
 | `universo.profile` | `theta-band`, `band-label`, `deficits-from-responses`, `misconceptions-from`, `dominant-track`, `build` (perfil completo + estabilidad de θ) | `profile_test.cljs` |
+| `universo.catalog` | Catálogo de evaluaciones: `topic-label` (precedencia `test_configs.display_name` → diccionario `topic-labels` → topic con guiones bajos como espacios), `count-by-topic` (preguntas por banco), `counts-truncated?` (detecta respuesta recortada de PostgREST) | `catalog_test.cljs` |
 | `universo.events.test` | Orquestación con I/O: `normalize-question`, `resolve-topic` (alias de topics), fetch de candidatos por ventana de dificultad, prefetch, registro de respuesta, evaluación de la parada, persistencia | — |
 
 **Flujo de una respuesta:**
@@ -173,7 +175,7 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
 | `profiles` | `id` (FK `auth.users`), `email`, `role` (`user`\|`admin`) | Base del control de acceso. Índices en `role` y `email` |
 | `questions` | opciones A–D, `correct_option`, `error_a..error_d`, `difficulty`, `topic`, `order_index`, `module_id` (FK opcional) | **El activo del proyecto**: banco IRT con misconceptions |
 | `tests` | `test` (JSON del diagnóstico), `topic`, `theta` (columnas propias desde ADR-013), `email-user`, `user_id` | Histórico de diagnósticos; `topic`/`theta` alimentan `universo.access/unlocked-topics` |
-| `test_configs` | `topic` (PK), `min_items`, `max_items`, `se_threshold`, `max_minutes`, `prerequisite_topic` (self-FK nullable), `min_theta`, `active` | Config de parada IRT + cadena de prerequisitos por banco (ADR-013). Sin prerequisito = diagnóstico, siempre accesible |
+| `test_configs` | `topic` (PK), `display_name` (nullable), `min_items`, `max_items`, `se_threshold`, `max_minutes`, `prerequisite_topic` (self-FK nullable), `min_theta`, `active` | Config de parada IRT + cadena de prerequisitos por banco (ADR-013). Sin prerequisito = diagnóstico, siempre accesible. `display_name` es el nombre que ve el estudiante (T-42, migración `022`); null = fallback en `universo.catalog/topic-label` |
 | `modules` | `slug` (único), `title`, `track` (`aritmetica`\|`algebra`\|`geometria`), `order_index`, `historical_blurb` | Skills atómicas alineadas a Baldor |
 | `student_profiles` | `theta`, `theta_band`, `profile` JSONB | Materialización del perfil (una por estudiante) |
 | `resources` | `module_id`, tipo (`text`/`video_url`/`audio_url`/`exercise`), `published` | Capa 1 del plan |

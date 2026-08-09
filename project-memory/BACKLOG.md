@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-08-05**
+Última actualización: **2026-08-08**
 
 Prioridad: **P0** bloquea go-live · **P1** necesario a corto plazo · **P2** deseable · **P3** idea.
 Estado: `abierto` · `en curso` · `bloqueado` · `hecho` · `descartado`.
@@ -292,6 +292,18 @@ Está en `.gitignore` **y** trackeado en Git (ignorar no destrackea). Nadie lo r
 - **Terminado cuando:** cada rama está mergeada, borrada o listada en `docs/` con su motivo de
   permanencia; y está escrita la convención de ramas en [[../CLAUDE]] §5.
 
+### T-43 · Binding sin usar en `crud/fetch-modules-by-ids` — **P3** · `abierto`
+
+Detectado 2026-08-08 al correr `clj-kondo` sobre los archivos tocados en T-40/T-42 (primer
+hallazgo real desde que se adoptó la herramienta en D-33): `src/universo/db/crud.cljs` declara el
+parámetro `module-ids` y no lo usa, así que la función probablemente trae **todos** los módulos y
+no los que se le piden. No se tocó por estar fuera del alcance de T-40/T-42
+([[AGENT_INSTRUCTIONS]] §1.3).
+
+- **Terminado cuando:** o la función filtra realmente por `module-ids`, o el parámetro se elimina
+  porque traer todo es lo correcto — con el motivo registrado en el código.
+- **Relacionado:** [[DECISIONS]] D-33, [[GRAPHIFY_INTEGRATION_GUIDE]] §6.1.
+
 ### T-23 · Decidir el destino del código no alcanzable — **P3** · `abierto`
 
 `mathacademy*`, `improved_math_academy`, `jardin`, `particulas`, `physics`, `voz`, `battery`,
@@ -495,20 +507,34 @@ prerequisitos + θ mínimo finalmente implementada).
   Q-06 (evitado a propósito, no resuelto), Q-07 (el "mejor θ por topic" usa el historial de
   `tests`, pero no resuelve la semántica completa de re-diagnóstico de T-26).
 
-### T-40 · Columna de cantidad de preguntas por test en el panel admin — **P2** · `idea`
+### T-40 · Columna de cantidad de preguntas por test en el panel admin — **P2** · `hecho` (2026-08-08, sin verificar en vivo)
 
 Feedback del owner tras probar T-39 en local (2026-08-08): en Admin → "Configuración de tests"
 (`admin_test_configs.cljs`, `test-configs-list`) sería útil ver cuántas preguntas tiene cada topic
 antes de exigirle una regla de parada (min/max ítems) que el banco no pueda cumplir — el problema
 original que motivó T-39.
 
-- **Trabajo:** agregar una columna "Preguntas" a la tabla de `test-configs-list` con
-  `count(*) from questions where topic = ?` por fila. Requiere una función CRUD nueva (o extender
-  `crud/fetch-test-configs`) que traiga el conteo agregado por topic — mismo patrón de agregación
-  que ya usa `get-distinct-topics`, pero con `count` en vez de `distinct`.
+**Implementado 2026-08-08:**
+- `universo.catalog/count-by-topic` (namespace puro nuevo) — filas de `questions` → `{topic →
+  cantidad}`, descartando topics nulos/vacíos con el mismo criterio que `crud/get-distinct-topics`.
+- `crud/fetch-question-counts-by-topic` — un solo request con `count: exact` además de las filas.
+  **Hallazgo:** el patrón existente (`get-distinct-topics`) trae todas las filas y agrega en el
+  cliente, así que una respuesta recortada por PostgREST (`db-max-rows`) daría un conteo más chico
+  que el real **en silencio** — y ese es justo el número con el que el admin fija min/max ítems.
+  Se agregó `catalog/counts-truncated?` (compara filas traídas vs. `count` exacto del servidor) y
+  la columna muestra `≥ N` en vez de `N` cuando eso pasa.
+- Columna "Preguntas" en `test-configs-list`, en ámbar con `⚠` y `title` explicativo cuando el
+  banco tiene **menos preguntas que el `max_items` configurado** — el desajuste concreto que
+  motivó el ticket queda a la vista, no solo el número crudo.
+- El conteo es informativo: si su fetch falla, la tabla se muestra igual con `—` en vez de marcar
+  la sección en error.
+- **No verificado en vivo por el agente:** requiere login de admin real (sin credenciales en esta
+  sesión). Solo revisión de código, `clj -M:test` 42/162 y compilación limpia.
 - **Terminado cuando:** cada fila del panel muestra el número de preguntas del banco
-  correspondiente, sin necesidad de ir a la pestaña Preguntas a contarlas a mano.
-- **Relacionado:** [[BACKLOG]] T-39, `src/universo/components/admin_test_configs.cljs`.
+  correspondiente, sin necesidad de ir a la pestaña Preguntas a contarlas a mano. ✅ código listo,
+  falta verificación visual del owner.
+- **Relacionado:** [[BACKLOG]] T-39, T-42, `src/universo/catalog.cljs`,
+  `src/universo/components/admin_test_configs.cljs`.
 
 ### T-41 · Revisar la paleta del tema oscuro — **P2** · `idea` (sin especificar)
 
@@ -521,7 +547,7 @@ particular?). Por regla de gobernanza de la memoria, no se inventa el detalle fa
 - **Relacionado:** [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] (mapeo global `.dark
   .clase-existente` en `src/css/app.css`).
 
-### T-42 · Nombre de fantasía editable por test — **P2** · `idea`
+### T-42 · Nombre de fantasía editable por test — **P2** · `en curso` (código listo 2026-08-08; falta aplicar `022`)
 
 Feedback del owner tras probar T-39 en local (2026-08-08): quiere poder cambiar el nombre visible
 de cada evaluación ("nombre de fantasía"), no solo su `topic` técnico. Hoy ese nombre sale de un
@@ -529,15 +555,31 @@ diccionario estático hardcodeado (`topic-labels`,
 `src/universo/components/diagnostic_test.cljs:15-27`), que solo cubre un puñado de topics
 conocidos y no es editable desde ningún panel.
 
-- **Trabajo:** agregar una columna `display_name` (nullable) a `test_configs` (la tabla de T-39,
-  `supabase/migrations/020_test_configs.sql` — requiere una migración nueva, no editar la ya
-  aplicada), exponerla como campo editable en `admin_test_configs.cljs`, y que
-  `topic-label`/`diagnostic_test.cljs` la use como fuente primaria, con el diccionario estático
-  actual como fallback cuando `display_name` sea nulo.
+**Implementado 2026-08-08:**
+- `supabase/migrations/022_test_config_display_name.sql` — `test_configs.display_name text`
+  nullable + check `test_configs_display_name_not_blank` (un nombre en blanco se guarda como
+  `null`, para tener una sola representación de "sin nombre"). **Sin backfill a propósito:** nadie
+  ve un cambio hasta que un admin escriba un nombre.
+- `universo.catalog/topic-label` (namespace puro nuevo) — regla de precedencia con test:
+  `display_name` del admin → diccionario estático → `topic` con guiones bajos como espacios. El
+  diccionario `topic-labels` se movió aquí desde `diagnostic_test.cljs` para tener una sola fuente.
+- Campo "Nombre visible" en el editor de `admin_test_configs.cljs` (con el nombre por defecto como
+  `placeholder`, para que se vea qué pasa si se deja vacío); el listado muestra el nombre visible
+  con el `topic` técnico como subtexto.
+- `db/crud.cljs` — `display_name` en `test-config-payload` (blanco → `null`, espejo del check SQL);
+  `fetch-test-configs` ya usaba `select *`, no necesitó cambios.
+- `diagnostic_test.cljs/topic-label` pasa a leer `:test/configs` (suscripción agregada en esta
+  misma sesión) y aplica el nombre configurado en las tres pantallas del flujo: selector, cabecera
+  de cada pregunta y resultados.
+- **Falta para cerrar:** que el owner aplique `022` en el proyecto Supabase real. Hasta entonces el
+  campo del panel existe pero el `upsert` fallará (columna inexistente). El lado del estudiante no
+  se rompe: sin la columna, `fetch-test-configs` no trae `display_name` y el fallback estático
+  sigue funcionando igual que hoy.
 - **Terminado cuando:** un admin puede asignarle un nombre de fantasía a cualquier topic desde el
   panel, y ese nombre (no el `topic` técnico) es lo que ve el estudiante en el selector de
   evaluaciones.
-- **Relacionado:** [[BACKLOG]] T-39, [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]].
+- **Relacionado:** [[BACKLOG]] T-39, T-40, [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]],
+  `supabase/SCHEMA.md`.
 
 ---
 
@@ -669,7 +711,7 @@ desactualizados (lista de módulos previa al MVP).
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30 |
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39 |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42 |
-| **P3** | T-14, T-17, T-22, T-23, T-29, T-32 |
+| **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43 |
 
 ---
 

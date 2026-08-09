@@ -4,7 +4,8 @@
    en `tests` (ver universo.access); aquí solo se edita el catálogo."
   (:require
    [clojure.string :as str]
-   [re-frame.core :as re-frame]))
+   [re-frame.core :as re-frame]
+   [universo.catalog :as catalog]))
 
 (def ^:private input-class
   (str "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 "
@@ -63,6 +64,16 @@
                 :on-change #(re-frame/dispatch
                              [:admin/update-test-config-draft :topic (.. % -target -value)])}]]
 
+      [field "Nombre visible" "Lo que ve el estudiante. Vacío = nombre por defecto del topic"
+       [:input {:class input-class
+                :type "text"
+                :placeholder (catalog/topic-label (:topic draft))
+                :value (or (:display_name draft) "")
+                :on-change #(re-frame/dispatch
+                             [:admin/update-test-config-draft :display_name
+                              (.. % -target -value)])}]]]
+
+     [:div {:class "mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2"}
       [field "Activo" "Un topic inactivo no aparece para ningún estudiante (borrador)"
        [:label {:class "mt-2 flex items-center gap-2 text-sm text-gray-700"}
         [:input {:type "checkbox"
@@ -114,8 +125,28 @@
                              [:admin/update-test-config-draft :min_theta
                               (display->theta (.. % -target -value))])}]]]]))
 
+(defn- question-count-cell
+  "Preguntas del banco de un topic. Marca en ámbar cuando el banco no alcanza
+   el máximo de ítems configurado: ese desajuste — pedir más ítems de los que
+   existen — es justo el problema que motivó T-39, y aquí queda a la vista sin
+   ir a contarlas a la pestaña Preguntas."
+  [n max-items truncated?]
+  (let [short? (and (number? n) (number? max-items) (< n max-items))]
+    [:td {:class (str "px-3 py-2 tabular-nums "
+                      (if short? "text-amber-700 font-medium" "text-gray-700"))
+          :title (when short?
+                   (str "El banco tiene " n " pregunta(s) y el máximo configurado es "
+                        max-items ": el test va a terminar antes por falta de ítems."))}
+     (cond
+       (nil? n) "—"
+       truncated? (str "≥ " n)
+       :else (str n))
+     (when short? [:span {:class "ml-1"} "⚠"])]))
+
 (defn- test-configs-list []
-  (let [rows @(re-frame/subscribe [:admin/test-configs])]
+  (let [rows @(re-frame/subscribe [:admin/test-configs])
+        counts @(re-frame/subscribe [:admin/question-counts])
+        truncated? @(re-frame/subscribe [:admin/question-counts-truncated?])]
     (if-not (seq rows)
       [:div {:class "rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center"}
        [:p {:class "text-sm text-gray-500"} "Sin configuración todavía."]]
@@ -124,6 +155,7 @@
         [:thead {:class "bg-gray-50 text-gray-600"}
          [:tr
           [:th {:class "px-3 py-2"} "Topic"]
+          [:th {:class "px-3 py-2"} "Preguntas"]
           [:th {:class "px-3 py-2"} "Ítems"]
           [:th {:class "px-3 py-2"} "SE"]
           [:th {:class "px-3 py-2"} "Tiempo"]
@@ -135,7 +167,12 @@
          (for [c rows]
            ^{:key (:topic c)}
            [:tr {:class "hover:bg-gray-50"}
-            [:td {:class "px-3 py-2 font-medium text-gray-900"} (:topic c)]
+            [:td {:class "px-3 py-2"}
+             [:span {:class "font-medium text-gray-900"}
+              (catalog/topic-label (:topic c) (:display_name c))]
+             (when (:display_name c)
+               [:span {:class "block text-xs text-gray-400"} (:topic c)])]
+            [question-count-cell (get counts (:topic c)) (:max_items c) truncated?]
             [:td {:class "px-3 py-2 tabular-nums"} (str (:min_items c) "–" (:max_items c))]
             [:td {:class "px-3 py-2 tabular-nums"} (:se_threshold c)]
             [:td {:class "px-3 py-2 tabular-nums"} (or (:max_minutes c) "—")]

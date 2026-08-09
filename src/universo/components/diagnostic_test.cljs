@@ -1,7 +1,7 @@
 (ns universo.components.diagnostic-test
-  (:require [clojure.string :as str]
-            [re-frame.core :as re-frame]
+  (:require [re-frame.core :as re-frame]
             [reagent.core :as r]
+            [universo.catalog :as catalog]
             [universo.components.feedback-modal :refer [feedback]]
             [universo.components.irt-chart :as irt-chart]
             [universo.components.math-render :as math]
@@ -12,19 +12,14 @@
 ;; Helpers de presentación
 ;; -------------------------------
 
-(def topic-labels
-  {"numbers_V1" "Números"
-   "enteros"    "Enteros"
-   "algebra"    "Álgebra"
-   "geometria"  "Geometría"
-   "fracciones" "Fracciones"
-   "potencias"  "Potencias"})
-
 (defn topic-label
-  "Etiqueta legible para un topic de Supabase."
+  "Etiqueta legible de un topic, tomando el nombre que el admin configuró en
+   test_configs.display_name (T-42) cuando existe. El diccionario estático de
+   respaldo vive en universo.catalog junto con la regla de precedencia."
   [topic]
-  (or (get topic-labels topic)
-      (str/replace (str topic) #"_" " ")))
+  (let [configs @(re-frame/subscribe [:test/configs])]
+    (catalog/topic-label topic (:display_name (get configs topic)))))
+
 ;; -------------------------------
 ;; Selección de evaluación (topics)
 ;; -------------------------------

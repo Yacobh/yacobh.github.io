@@ -246,6 +246,36 @@
 > [[GRAPHIFY_INTEGRATION_GUIDE]] §6.1, [[DECISIONS]] D-33, [[BACKLOG]] T-32 (cerrada),
 > [[RISKS]] R-20 (mitigado).
 
+> **T-40 y T-42 implementados; etiqueta de vista previa para borradores (2026-08-08, misma fecha,
+> sesión posterior).** El owner reportó que "tests marcados como borrador seguían apareciendo" —
+> **no era un bug**: él mismo confirmó que como admin los ve y como estudiante no, que es el
+> comportamiento intencional de T-39 (`events/test.cljs`, `unlocked` sin filtrar para admin) más la
+> policy `test_configs_select`. Se agregó solo la señal visual que faltaba: suscripción
+> `:test/configs` y una etiqueta ámbar **"Vista previa (borrador)"** en el selector de evaluaciones,
+> visible únicamente para admin sobre topics con `active = false`. Commit `fef4d46`, pusheado a
+> `t-24-estado-vacio-honesto`.
+>
+> Luego, elegidas por el owner desde el backlog, se implementaron **T-40** (columna "Preguntas" por
+> topic en Admin → Configuración de tests, en ámbar con `⚠` cuando el banco tiene menos preguntas
+> que el `max_items` configurado) y **T-42** (nombre de fantasía editable por evaluación,
+> `022_test_config_display_name.sql`). Ambas se apoyan en un **namespace puro nuevo,
+> `universo.catalog`** (`topic-label`, `count-by-topic`, `counts-truncated?`), que además absorbe el
+> diccionario `topic-labels` que vivía hardcodeado en `diagnostic_test.cljs`. `clj -M:test`:
+> **42 tests / 162 assertions / 0 failures** (antes 39/149). `shadow-cljs release app`: 0 warnings.
+> `npm run build:css` ejecutado; las clases ámbar nuevas ya tenían mapeo de tema oscuro en
+> `src/css/app.css`, sin CSS adicional.
+>
+> **Hallazgo de esta sesión:** el patrón existente de agregación en el cliente
+> (`crud/get-distinct-topics`) trae todas las filas y agrega en memoria, así que una respuesta
+> recortada por PostgREST daría un conteo menor que el real **en silencio**. El conteo nuevo pide
+> `count: exact` y muestra `≥ N` si detecta truncamiento (`catalog/counts-truncated?`).
+>
+> **⚠ Pendiente del owner para cerrar T-42:** aplicar `022_test_config_display_name.sql` en el
+> proyecto Supabase real. Hasta entonces el campo "Nombre visible" existe en el panel pero guardar
+> falla (columna inexistente); **el lado del estudiante no se rompe** — sin la columna el cliente
+> cae al diccionario estático de siempre. **Nada de esto está en producción todavía:**
+> `t-24-estado-vacio-honesto` tiene commits sin mergear a `main`. Detalle en `sessions/SESSION-009.md`.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".
@@ -269,7 +299,7 @@ y **verificación de operación** (envío de email en el proyecto Supabase real)
 |-----------|--------|
 | Funcionalidad del funnel | ✅ operativa |
 | Panel admin | ✅ operativo |
-| Tests | ✅ `39 tests / 149 assertions / 0 failures` (`clj -M:test`, 2026-08-08) |
+| Tests | ✅ `42 tests / 162 assertions / 0 failures` (`clj -M:test`, 2026-08-08) |
 | Contenido pedagógico | 🟡 módulos y blurbs sembrados; faltan recursos publicados |
 | Email de cohorte | ⚠️ código y migración listos; despliegue/secret no verificados |
 | Documentación / memoria | ✅ PMF adoptado hoy (2026-07-26) |

@@ -1,5 +1,6 @@
 (ns universo.db.crud
   (:require [universo.supabase :refer [supabase-client]]
+            [universo.catalog :as catalog]
             [cljs.core.async :as async :refer [go <!]]
             [clojure.string :as str]))
 
@@ -451,6 +452,30 @@
                                   :error (.-message error)}))))
     ch))
 
+(defn fetch-question-counts-by-topic
+  "Cuántas preguntas tiene el banco de cada topic (admin).
+   Pide `count: exact` además de las filas para poder detectar una respuesta
+   recortada por PostgREST: un conteo recortado se vería como un banco más
+   chico de lo real, y es justo el número con el que el admin decide min/max
+   ítems (ver catalog/counts-truncated?)."
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "questions")
+        (.select "topic" #js {:count "exact"})
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (let [rows (js->clj (.-data result) :keywordize-keys true)]
+                     (async/put! ch {:success true
+                                     :data {:counts (catalog/count-by-topic rows)
+                                            :fetched (count rows)
+                                            :total (.-count result)}})))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false
+                                  :error (.-message error)}))))
+    ch))
+
 (def ^:private question-select-cols
   (str "id,created_at,question,option_a,option_b,option_c,option_d,"
        "correct_option,error_a,error_b,error_c,error_d,topic,order_index,difficulty,module_id"))
@@ -624,6 +649,11 @@
                       (if (string? v) (f v) v)))]
     (clj->js
      {:topic (str/trim (or (:topic row) ""))
+      ;; Nombre en blanco → null, no string vacío: es la misma invariante que
+      ;; exige el check de 022_test_config_display_name.sql, y mantiene un solo
+      ;; "sin nombre" para que el fallback del cliente funcione.
+      :display_name (when-not (blank-str? (:display_name row))
+                      (str/trim (:display_name row)))
       :min_items (or (parse-num (:min_items row) #(js/parseInt % 10)) 5)
       :max_items (or (parse-num (:max_items row) #(js/parseInt % 10)) 12)
       :se_threshold (or (parse-num (:se_threshold row) js/parseFloat) 0.35)

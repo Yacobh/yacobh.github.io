@@ -57,7 +57,12 @@
            :test-configs []
            :test-config-editing? false
            :test-config-saving? false
-           :test-config-draft nil}
+           :test-config-draft nil
+           ;; {topic → cantidad de preguntas en el banco}, para no fijar una
+           ;; regla de parada que el banco no pueda cumplir (T-40).
+           :question-counts {}
+           ;; true si Supabase recortó la respuesta y los conteos son un piso
+           :question-counts-truncated? false}
 
    ;; Landing pública
    :landing {:testimonials []

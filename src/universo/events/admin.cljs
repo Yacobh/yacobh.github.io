@@ -11,6 +11,7 @@
    [clojure.string :as str]
    [re-frame.core :as re-frame]
    [cljs.core.async :refer [go <!]]
+   [universo.catalog :as catalog]
    [universo.db.crud :as crud]
    [universo.events.dashboard :as dash]))
 
@@ -817,6 +818,7 @@
 
 (def empty-test-config-draft
   {:topic ""
+   :display_name ""
    :min_items 5
    :max_items 12
    :se_threshold 0.35
@@ -845,6 +847,19 @@
  (fn [db _]
    (get-in db [:admin :test-config-draft])))
 
+;; Cuántas preguntas tiene el banco de cada topic: sin este dato el admin puede
+;; exigirle a un test una regla de parada que su banco no alcanza a cumplir
+;; (el problema que originó T-39). Ver BACKLOG T-40.
+(re-frame/reg-sub
+ :admin/question-counts
+ (fn [db _]
+   (get-in db [:admin :question-counts] {})))
+
+(re-frame/reg-sub
+ :admin/question-counts-truncated?
+ (fn [db _]
+   (get-in db [:admin :question-counts-truncated?] false)))
+
 (re-frame/reg-fx
  :admin/fetch-test-configs
  (fn [_]
@@ -856,11 +871,30 @@
                              (or (:error result)
                                  "No se pudo cargar la configuración de tests")]))))))
 
+(re-frame/reg-fx
+ :admin/fetch-question-counts
+ (fn [_]
+   (go
+     (let [result (<! (crud/fetch-question-counts-by-topic))]
+       ;; El conteo es informativo: si falla, la tabla del catálogo se muestra
+       ;; igual (con "—" en la columna) en vez de marcar la sección en error.
+       (when (:success result)
+         (re-frame/dispatch [:admin/question-counts-loaded (:data result)]))))))
+
+(re-frame/reg-event-db
+ :admin/question-counts-loaded
+ (fn [db [_ {:keys [counts fetched total]}]]
+   (-> db
+       (assoc-in [:admin :question-counts] (or counts {}))
+       (assoc-in [:admin :question-counts-truncated?]
+                 (catalog/counts-truncated? fetched total)))))
+
 (re-frame/reg-event-fx
  :admin/load-test-configs
  (fn [_ _]
    {:dispatch [:admin/section-start :test-configs]
-    :admin/fetch-test-configs nil}))
+    :admin/fetch-test-configs nil
+    :admin/fetch-question-counts nil}))
 
 (re-frame/reg-event-fx
  :admin/test-configs-loaded
@@ -879,9 +913,12 @@
  :admin/edit-test-config
  (fn [db [_ row]]
    (let [draft (merge empty-test-config-draft
-                      (select-keys row [:topic :min_items :max_items :se_threshold
-                                        :prerequisite_topic :min_theta :max_minutes
-                                        :active]))]
+                      ;; display_name llega null desde la DB cuando no se
+                      ;; configuró; el <input> necesita string.
+                      (update (select-keys row [:topic :display_name :min_items :max_items
+                                                :se_threshold :prerequisite_topic :min_theta
+                                                :max_minutes :active])
+                              :display_name #(or % "")))]
      (-> db
          (assoc-in [:admin :test-config-editing?] true)
          (assoc-in [:admin :test-config-draft] draft)))))
