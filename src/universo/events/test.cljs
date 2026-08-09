@@ -516,6 +516,7 @@
 (re-frame/reg-sub :test/questions (fn [db _] (get-in db [:test :questions])))
 (re-frame/reg-sub :test/answers (fn [db _] (get-in db [:test :responses])))
 (re-frame/reg-sub :test/available-topics (fn [db _] (get-in db [:test :available-topics] [])))
+(re-frame/reg-sub :test/configs (fn [db _] (get-in db [:test :configs] {})))
 (re-frame/reg-sub :test/topics-loading? (fn [db _] (get-in db [:test :topics-loading?] false)))
 (re-frame/reg-sub :test/topics-error (fn [db _] (get-in db [:test :topics-error])))
 (re-frame/reg-sub :test/current-question
