@@ -68,6 +68,20 @@ alternativas y por qué se descartaron en [[../adr/ADR-013-config-parada-por-ban
     `stop-reason` de 4 aridad chequeaba `:time-limit` antes que `:max-items`; un test propio
     (`:max-items tiene prioridad...`) reveló la inconsistencia con lo documentado en el plan y se
     reordenó el `cond` para que `:max-items` gane, como estaba decidido.
+11. **Commits y cierre:** dos commits (`7f51804` implementación, `420b5ad` cierre de sesión/memoria)
+    en `t-24-estado-vacio-honesto`, hechos por el agente a pedido explícito del owner.
+12. El owner aplicó `020`/`021` en el proyecto Supabase real y probó el flujo completo en local.
+    Volvió con feedback de tres mejoras menores de UX (columna de cantidad de preguntas, paleta del
+    tema oscuro, nombre de fantasía editable) — se agregaron como [[../project-memory/BACKLOG]]
+    T-40/T-41/T-42 (solo documentación, sin implementar), commit `b4f8b4f` (hecho por el owner).
+13. El owner abrió y mergeó **PR #23** (`t-24-estado-vacio-honesto` → `main`, merge `370ed64`).
+    Verificado por hash (mismo patrón que T-19/T-35/T-38): MD5 de
+    `https://jacobocordova.com/public/js/app.js` = `5c14cadf35b54788c0872501ac89dc28`, idéntico al
+    de `git show origin/main:public/js/app.js` — producción sirve el build nuevo.
+14. Al verificar el árbol antes de cerrar, se encontró `public/js/app.js` modificado sin commit
+    (un `shadow-cljs watch` en background lo había recompilado en modo desarrollo, mismo patrón que
+    [[../project-memory/LESSONS_LEARNED]] L-30) — descartado con `git restore`, sin impacto en lo
+    ya mergeado.
 
 ## Archivos revisados
 
@@ -102,7 +116,8 @@ alternativas y por qué se descartaron en [[../adr/ADR-013-config-parada-por-ban
 | `supabase/SCHEMA.md` | Secciones `020`/`021`, orden de aplicación actualizado |
 | `project-memory/BACKLOG.md` | T-39 nueva (Épica E4), resumen por prioridad |
 | `project-memory/OPEN_QUESTIONS.md` | Notas cruzadas en Q-06 y Q-07 (no resueltas, solo referenciadas) |
-| `project-memory/CURRENT_STATUS.md` | Nota de sesión, conteo de tests, fila F1, lista de ADRs |
+| `project-memory/CURRENT_STATUS.md` | Nota de sesión, conteo de tests, fila F1, lista de ADRs, cierre con hash de producción |
+| `project-memory/BACKLOG.md` (2ª pasada) | T-39 → `hecho`; T-40/T-41/T-42 nuevas (hecho por el owner, commit `b4f8b4f`) |
 
 ## Comandos ejecutados y resultados
 
@@ -134,9 +149,8 @@ graphify update .  → 2065 nodos, 5855 edges, 125 comunidades (refrescado al ci
 
 ## Bloqueos
 
-**Acceso**: las migraciones `020`/`021` están escritas y listas pero no se aplicaron — requieren
-credenciales del proyecto Supabase real, que el agente no tiene. Sin aplicarlas, el feature no es
-funcional y no se debe desplegar el bundle nuevo.
+Ninguno al cierre. El bloqueo de acceso (migraciones sin aplicar, requerían credenciales del
+proyecto Supabase real) quedó resuelto: el owner las aplicó y mergeó el PR.
 
 ## Preguntas abiertas nuevas
 
@@ -153,23 +167,18 @@ Ninguna nueva; se agregaron notas cruzadas a Q-06 y Q-07 existentes (ver arriba)
 
 ## Próximos pasos
 
-En orden de ejecución recomendado (ver también [[BACKLOG]] T-39):
+T-39 está cerrado y en producción. Lo que sigue es trabajo nuevo, registrado como backlog aparte:
 
-1. El owner verifica el tipo real de `tests.test` y aplica `020_test_configs.sql` en el proyecto
-   Supabase real, confirmando el seed (un row por topic existente, sin prerequisito).
-2. Aplicar `021_tests_topic_theta_rls.sql`; confirmar que `tests` no tenía RLS habilitado antes
-   (o si ya lo tenía, que esto es un no-op seguro) y que el backfill de `topic` fue razonable.
-3. Verificar en vivo con un usuario de prueba: selector de topics sin cambios de comportamiento
-   (nada bloqueado todavía), luego configurar una cadena real desde Admin → Configuración de tests
-   y repetir la verificación con el gate activo.
-4. Solo entonces: `npx shadow-cljs release app`, commitear `public/js/app.js`, publicar en `main`.
-5. `graphify update .` para refrescar el snapshot del grafo (T-31, pendiente de esta sesión).
+1. [[../project-memory/BACKLOG]] T-40 — columna de cantidad de preguntas por topic en el panel admin.
+2. [[../project-memory/BACKLOG]] T-41 — revisar la paleta del tema oscuro (aún sin especificar qué).
+3. [[../project-memory/BACKLOG]] T-42 — nombre de fantasía editable por test.
+4. Si el owner quiere formalizar el riesgo de `tests` sin RLS versionado, darle un ID en
+   [[../project-memory/RISKS]] (hoy solo vive en el ADR y en esta sesión).
 
 ## Pendientes
 
-- Migraciones sin aplicar en producción (ver Bloqueos).
-- Sin verificación en navegador del panel admin nuevo ni del flujo de progresión (sin credenciales
-  de prueba ni backend real disponible en esta sesión).
+Ninguno de esta sesión. `clj -M:test` en verde, PR mergeado, producción verificada por hash, árbol
+de trabajo limpio (salvo el archivo de privacidad del owner, sin relación).
 
 ## Actualizaciones requeridas en Project Memory
 
@@ -185,8 +194,10 @@ En orden de ejecución recomendado (ver también [[BACKLOG]] T-39):
 - [ ] `project-memory/REQUIREMENTS.md` — no se tocó
 - [x] `project-memory/OPEN_QUESTIONS.md`
 - [ ] `project-memory/ASSUMPTIONS.md` — los supuestos quedaron en esta sesión, no replicados ahí
-- [ ] `project-memory/LESSONS_LEARNED.md` — el bug de orden de definición en `crud.cljs` (punto 8
-  de Actividades) es candidato a una lección corta, no se agregó todavía
+- [x] `project-memory/LESSONS_LEARNED.md` — revisado: el bug de orden de definición en `crud.cljs`
+  (punto 8 de Actividades) ya está cubierto por **L-32** (existente); no se agregó una lección
+  nueva, solo se confirmó que la regla de L-32 (revisar warnings de `shadow-cljs`, no solo
+  `clj -M:test`) fue la que lo detectó y corrigió
 - [ ] `project-memory/TERMINOLOGY.md` — "prerequisite_topic"/"min_theta" no se agregaron al glosario
 - [x] `project-memory/graph/` (snapshot de Graphify) — `graphify update .` corrido al cierre
 

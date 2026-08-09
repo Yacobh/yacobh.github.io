@@ -58,8 +58,9 @@ De esto se derivan cuatro consecuencias que no son negociables:
 4. Revisar [[LESSONS_LEARNED]] — hay una alta probabilidad de que la trampa que vas a pisar esté
    descrita ahí.
 5. Orientarse con `graphify query "<pregunta>"` (los hooks del repo lo exigen), sabiendo que
-   **el grafo no indexa `.cljs`**: para lógica ClojureScript, usar [[ARCHITECTURE]] §2 como mapa y
-   leer `src/` dirigidamente.
+   **el grafo no indexa `.cljs`**: para lógica ClojureScript, usar [[ARCHITECTURE]] §2 como mapa,
+   `clj-kondo` (instalado 2026-08-08, ver [[GRAPHIFY_INTEGRATION_GUIDE]] §6) para namespaces/vars/
+   usos reales, y leer `src/` dirigidamente.
 6. `clj -M:test` **antes** de tocar nada, para saber que partes de un estado verde.
 
 **Reglas de implementación:**

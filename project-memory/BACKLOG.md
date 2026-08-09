@@ -458,7 +458,7 @@ API de WhatsApp Business. Sin infraestructura nueva.
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-25 (respondida), [[DECISIONS]] D-29, D-30,
   `supabase/SCHEMA.md`.
 
-### T-39 · Config de parada por banco y progresión por prerequisitos — **P1** · `en curso` (2026-08-08, código listo, falta aplicar migraciones)
+### T-39 · Config de parada por banco y progresión por prerequisitos — **P1** · `hecho` (2026-08-08, mergeado a `main` vía PR #23)
 
 Pedido del owner: la regla de parada IRT (min/max ítems, SE) era un único valor global sin
 importar el banco (`topic`), y no existía ningún concepto de progresión entre tests — cualquier
@@ -482,16 +482,15 @@ prerequisitos + θ mínimo finalmente implementada).
     topic, fix del bug donde `stop-reason` nunca recibía una config custom.
   - Admin → "Configuración de tests" (`admin_test_configs.cljs`) — CRUD de `test_configs`.
   - `clj -M:test`: 39 tests / 149 assertions / 0 failures. `shadow-cljs release app`: 0 warnings.
-- **Pendiente (bloquea cierre):**
-  - Aplicar `020`/`021` en el proyecto Supabase real (requiere credenciales del owner; verificar
-    antes el tipo real de la columna `tests.test` para el backfill de `topic`, ver ADR-013).
-  - Verificar en vivo: selector de topics, cadena de prerequisito + θ mínimo real, panel admin.
-  - No commitear/desplegar `public/js/app.js` hasta que las migraciones estén aplicadas en
-    producción — de lo contrario el selector de evaluaciones se rompe para todos los usuarios
-    (`test_configs` no existiría todavía).
+- **Cerrado (2026-08-08):** el owner aplicó `020`/`021` en el proyecto Supabase real y probó el
+  flujo en local (funcionó; encontró 3 mejoras menores de UX, registradas como T-40/T-41/T-42).
+  PR #23 (`t-24-estado-vacio-honesto` → `main`, merge `370ed64`) mergeado. **Verificado por hash**
+  (mismo patrón que T-19/T-35/T-38): MD5 de `https://jacobocordova.com/public/js/app.js` =
+  `5c14cadf35b54788c0872501ac89dc28`, idéntico al de `git show origin/main:public/js/app.js`.
+  Producción sirve el build nuevo.
 - **Terminado cuando:** migraciones aplicadas, flujo verificado en vivo con un usuario de prueba
   (prerequisito bloqueado → rendido con θ bajo → rendido de nuevo con θ suficiente → desbloqueado),
-  y el bundle recompilado publicado en `main`.
+  y el bundle recompilado publicado en `main`. **Todo lo anterior cumplido.**
 - **Relacionado:** [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]], [[OPEN_QUESTIONS]]
   Q-06 (evitado a propósito, no resuelto), Q-07 (el "mejor θ por topic" usa el historial de
   `tests`, pero no resuelve la semántica completa de re-diagnóstico de T-26).
@@ -639,13 +638,19 @@ En cada sesión con cambios: `CURRENT_STATUS`, `SESSION-XXX`, y lo que aplique d
 - **Terminado cuando:** el commit indicado en `GRAPH_REPORT.md` coincide con `HEAD` en cada
   actualización de memoria relevante.
 
-### T-32 · Extender la cobertura del grafo a `.cljs` — **P3** · `abierto`
+### T-32 · Extender la cobertura del grafo a `.cljs` — **P3** · `hecho` (2026-08-08)
 
 Graphify no indexa ClojureScript hoy, por lo que el grafo no ve la lógica principal.
 
+- **Cerrado:** se confirmó que Graphify no puede indexar `.cljs`/`.clj` (ni de base ni por ningún
+  extra pip existente — se revisaron todas las gramáticas tree-sitter y extras del paquete
+  instalado, ninguno cubre Clojure/Lisp) y se adoptó **`clj-kondo`** como sustituto real para
+  namespaces/vars/usos en CLJS (instalado, config compartida en `.clj-kondo/config.edn`, probado
+  contra código real del repo). Detalle completo en
+  [[GRAPHIFY_INTEGRATION_GUIDE]] §6.1.
 - **Terminado cuando:** el grafo incluye nodos de `src/**/*.cljs`, **o** está documentado en
-  [[GRAPHIFY_INTEGRATION_GUIDE]] que no es posible y cuál es el sustituto (lectura dirigida de
-  `src/` guiada por [[ARCHITECTURE]]).
+  [[GRAPHIFY_INTEGRATION_GUIDE]] que no es posible y cuál es el sustituto. **Cumplido** (segunda
+  opción).
 
 ### T-33 · Reconciliar `PROJECT_SUMMARY.md` con `project-memory/` — **P2** · `abierto`
 

@@ -1,0 +1,6 @@
+;; Config compartida de clj-kondo para este repo.
+;; reagent.core/with-let liga bindings que sobreviven entre renders, pero
+;; sintácticamente es como un `let` — sin este hint, clj-kondo reporta
+;; "Unresolved symbol" en cada nombre bindeado (falso positivo verificado en
+;; cuenta.cljs, dashboard.cljs, diagnostic_test.cljs, 2026-08-08).
+{:lint-as {reagent.core/with-let clojure.core/let}}

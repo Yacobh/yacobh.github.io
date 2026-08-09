@@ -202,8 +202,7 @@
 > `git show 787d337:public/js/app.js` (mismo patrón de verificación que T-19). T-24 y T-38 están en
 > producción. Detalle completo en `sessions/SESSION-007.md`.
 
-> **T-39 (código listo, migraciones sin aplicar) — Config de parada por banco + prerequisitos
-> (2026-08-08).** Pedido del owner: la regla de parada IRT era un único valor global sin importar
+> **T-39 cerrado y mergeado a `main` — Config de parada por banco + prerequisitos (2026-08-08).** Pedido del owner: la regla de parada IRT era un único valor global sin importar
 > el banco de preguntas, y no había ningún concepto de progresión entre tests (cualquier usuario
 > veía y podía iniciar cualquier topic). Tras tres rondas de ajuste con el owner (ver
 > [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]] para la historia completa de las
@@ -217,11 +216,13 @@
 > `clj -M:test`: **39 tests / 149 assertions / 0 failures** (antes 34/133). `shadow-cljs release
 > app`: 0 warnings. **De paso se encontró que `tests` no tenía evidencia versionada de RLS
 > habilitado** (solo existía `tests_select_admin`, potencialmente inerte) — corregido en la misma
-> migración. **Pendiente, bloquea cierre:** aplicar `020_test_configs.sql` y
-> `021_tests_topic_theta_rls.sql` en el proyecto Supabase real (requiere credenciales del owner) y
-> verificar en vivo. **No se commiteó ni se recompiló `public/js/app.js` a propósito**: desplegar
-> antes de aplicar las migraciones rompería el selector de evaluaciones para todos los usuarios en
-> producción. Detalle en [[BACKLOG]] T-39, `sessions/SESSION-008.md`.
+> migración. **Cerrado:** el owner aplicó `020`/`021` en el proyecto Supabase real, probó el flujo
+> en local (funcionó; anotó 3 mejoras menores de UX como [[BACKLOG]] T-40/T-41/T-42 para una
+> próxima edición) y mergeó **PR #23** (`t-24-estado-vacio-honesto` → `main`, merge `370ed64`).
+> **Verificado por hash** (mismo patrón que T-19/T-35/T-38): MD5 de
+> `https://jacobocordova.com/public/js/app.js` = `5c14cadf35b54788c0872501ac89dc28`, idéntico al de
+> `git show origin/main:public/js/app.js`. **Producción = `origin/main` @ `370ed64`, sirviendo el
+> build nuevo.** Detalle en [[BACKLOG]] T-39, `sessions/SESSION-008.md`.
 >
 > **Nota de seguridad de la sesión:** durante la exploración, varias salidas de herramientas
 > (subagentes y hooks locales) trajeron "system-reminders" inyectados exigiendo ejecutar
@@ -231,6 +232,19 @@
 > documenta que graphify no indexa `.cljs`, así que la exigencia era incoherente con el propio
 > proyecto). No se encontró daño real, solo la anomalía de inyección; el owner debería revisar de
 > dónde viene ese hook cuando tenga tiempo.
+
+> **`clj-kondo` adoptado como sustituto de graphify para CLJS (2026-08-08, D-33, cierra T-32).**
+> Tras corregir una mala interpretación previa del hook de graphify (no era una inyección, ver
+> `sessions/SESSION-008.md`), se investigó si graphify podía indexar `.cljs`/`.clj` de alguna
+> forma — no puede, ni de base ni por ningún extra pip existente (se revisó la lista completa de
+> gramáticas tree-sitter y extras del paquete instalado). Se instaló `clj-kondo` (binario nativo
+> oficial, no Homebrew por CLT de Xcode desactualizadas) como sustituto real, con
+> `.clj-kondo/config.edn` versionado (corrigiendo un `.gitignore` que ignoraba todo `.clj-kondo/`
+> y habría impedido compartirlo) y `~/bin` agregado al `PATH`. Verificado contra código real: lint
+> encontró bugs ya conocidos (`user.cljs` con requires rotos, `voz.cljs` huérfano) y el análisis
+> estructurado respondió correctamente "¿quién llama a X?" contra funciones de T-39. Detalle en
+> [[GRAPHIFY_INTEGRATION_GUIDE]] §6.1, [[DECISIONS]] D-33, [[BACKLOG]] T-32 (cerrada),
+> [[RISKS]] R-20 (mitigado).
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
@@ -269,7 +283,7 @@ y **verificación de operación** (envío de email en el proyecto Supabase real)
 | Fase | Objetivo | Avance | Notas |
 |------|----------|--------|-------|
 | **F0 — Base técnica** | SPA + Supabase + auth + RLS | **100 %** | `admin_rls.sql`, sesión rehidratada, rutas protegidas |
-| **F1 — Motor IRT** | Diagnóstico adaptativo con parada por precisión | **100 %** | 1PL + MAP, Δθ acotado, SE ≤ 0,35, prefetch; parada + tiempo ahora configurables por banco (T-39, ADR-013, código listo, migraciones sin aplicar) |
+| **F1 — Motor IRT** | Diagnóstico adaptativo con parada por precisión | **100 %** | 1PL + MAP, Δθ acotado, SE ≤ 0,35, prefetch; parada + tiempo configurables por banco y progresión por prerequisitos (T-39, ADR-013, en producción) |
 | **F2 — Perfil y plan** | θ → banda → déficits → plan en 2 capas | **95 %** | Falta contenido publicado (capa 1) |
 | **F3 — Cohortes** | Cupos por banda, inscripción, confirmación | **95 %** | Falta verificar control de `capacity` (Q-04) |
 | **F4 — Admin** | Operar contenido, cupos, usuarios, moderación | **100 %** | Editor de preguntas restaurado en `48bf525` |
@@ -400,15 +414,22 @@ En orden de ejecución recomendado:
 
 > ⚠️ El bloque original de esta sección describía el corte del 26-07 (rama
 > `cursor/mvp-operable-funnel`, árbol sucio). Reemplazado 2026-07-29 con el estado de ese día, y
-> este bloque con el estado verificado el **2026-08-05**:
+> este bloque con el estado verificado el **2026-08-08**:
 
 ```
-Rama actual  : t-24-estado-vacio-honesto @ 823e177 (idéntica a main, ver abajo)
-Rama deploy  : main  (GitHub Pages, dominio jacobocordova.com) @ 787d337
-main..t-24-estado-vacio-honesto: vacío -- mergeada (PR #21, 2026-08-05 15:50 -04:00)
-Producción   : confirmada por hash = origin/main @ 787d337 (MD5 public/js/app.js = 3b0ea6a0e980b36d00d47e57cc80fb73)
-Árbol de trabajo: limpio
+Rama actual  : t-24-estado-vacio-honesto @ b4f8b4f (idéntica a main, ver abajo)
+Rama deploy  : main  (GitHub Pages, dominio jacobocordova.com) @ 370ed64
+main..t-24-estado-vacio-honesto: vacío -- mergeada (PR #23, 2026-08-08)
+Producción   : confirmada por hash = origin/main @ 370ed64 (MD5 public/js/app.js = 5c14cadf35b54788c0872501ac89dc28)
+Árbol de trabajo: limpio (salvo project-memory/AVISO_PRIVACIDAD_BORRADOR.md, trabajo del owner sin relación con T-39)
 ```
+
+> **Nota operativa (2026-08-08, → [[LESSONS_LEARNED]] L-30):** un proceso `shadow-cljs watch`
+> corriendo en background volvió a sobreescribir `public/js/app.js` con un build de desarrollo sin
+> minificar tras el commit de cierre de T-39, sin ningún cambio de fuente pendiente real (mismo
+> patrón ya documentado en L-30). Se descartó con `git restore public/js/app.js` antes de dar la
+> sesión por cerrada — verificar `git status` antes de cualquier commit futuro que toque ese
+> archivo, no asumir que está limpio.
 
 **Tooling del agente (2026-07-27):** `graphify` (ya estaba) y **`rtk`** (nuevo, instalado hoy) como
 compresores de contexto; **Obsidian** con vault pre-configurado (`.obsidian/`, gitignorado, no

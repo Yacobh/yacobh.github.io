@@ -227,10 +227,13 @@ respaldo (R-03).
 **Descripción:** Graphify no indexa ClojureScript; el grafo cubre docs, SQL, JSON, HTML y el
 `app.js` compilado. Un agente que confíe solo en el grafo concluirá que la lógica no existe.
 **Impacto:** Bajo directo, Medio indirecto (decisiones mal informadas).
-**Probabilidad:** Alta si no se advierte.
+**Probabilidad:** Media (baja si el agente sigue [[../CLAUDE]] §13/[[AGENT_INSTRUCTIONS]] §2.5).
 **Mitigación:** advertencia explícita en [[../CLAUDE]] §13, [[ARCHITECTURE]] §11 y
-[[GRAPHIFY_INTEGRATION_GUIDE]] §6; T-32.
-**Estado:** activo (documentado).
+[[GRAPHIFY_INTEGRATION_GUIDE]] §6; T-32 (cerrada 2026-08-08) adoptó **`clj-kondo`** como sustituto
+real para namespaces/vars/usos en CLJS — reduce el riesgo de "concluir que algo no existe" porque
+ahora hay una herramienta que sí puede confirmar/descartar en CLJS, no solo la advertencia textual.
+**Estado:** activo (mitigado con sustituto, no eliminado: sigue dependiendo de que el agente use
+`clj-kondo` en vez de confiar solo en el grafo).
 
 ### R-21 · Deuda de ramas
 **Descripción:** 12 ramas locales y 11 remotas sin documentar; el trabajo del MVP operable está en

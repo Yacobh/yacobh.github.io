@@ -31,6 +31,8 @@
 
 (defn selection-component []
   (let [topics @(re-frame/subscribe [:test/available-topics])
+        configs @(re-frame/subscribe [:test/configs])
+        admin? @(re-frame/subscribe [:auth/admin?])
         loading? @(re-frame/subscribe [:test/topics-loading?])
         error @(re-frame/subscribe [:test/topics-error])]
     [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
@@ -60,12 +62,17 @@
        [:div {:class "space-y-3"}
         (for [topic topics]
           ^{:key topic}
-          [:button
-           {:type "button"
-            :class "w-full text-left bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 text-indigo-900 font-semibold py-4 px-5 rounded-xl transition flex items-center justify-between"
-            :on-click #(re-frame/dispatch [:test/start topic])}
-           [:span {:class "text-lg"} (topic-label topic)]
-           [:span {:class "text-sm font-normal text-indigo-500"} "Comenzar →"]])])
+          (let [draft? (and admin? (not (:active (get configs topic))))]
+            [:button
+             {:type "button"
+              :class "w-full text-left bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 text-indigo-900 font-semibold py-4 px-5 rounded-xl transition flex items-center justify-between"
+              :on-click #(re-frame/dispatch [:test/start topic])}
+             [:span {:class "flex items-center gap-2 text-lg"}
+              (topic-label topic)
+              (when draft?
+                [:span {:class "rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700"}
+                 "Vista previa (borrador)"])]
+             [:span {:class "text-sm font-normal text-indigo-500"} "Comenzar →"]]))])
 
      [:div {:class "mt-8 text-center"}
       [:button
