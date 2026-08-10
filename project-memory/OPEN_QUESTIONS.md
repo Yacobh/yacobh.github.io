@@ -186,6 +186,28 @@ pregunta **sigue abierta en su parte de fondo** (¿los topics cubren los ejes re
 que es una pregunta de contenido, no de mapeo. `universo.topics/unmapped` responde la parte
 mecánica sobre cualquier lista de topics, y la consulta (ii) de `029` la responde contra la base.
 
+### 🔴 Q-26 · ¿Cuántos de los 252 diagnósticos ya rendidos traen `time-ms` utilizable?
+Abierta 2026-08-10. **Es la pregunta que decide si T-59 se hace ahora o hay que esperar**, y de
+paso si la precondición de datos de la Fase 2 de ADR-014 estaba cumplida hace un año sin que nadie
+lo notara.
+
+Lo que ya se sabe **sin consultar la base**: el panel mostró **80 usuarios y 252 diagnósticos**
+rendidos (T-01, 2026-08-09), y `git log -S ":time-ms"` sitúa la instrumentación del cronómetro en
+**2025-09-09**, o sea **anterior** al piloto UNAP (oct–nov 2025). Los tiempos *deberían* estar ahí.
+
+Lo que **no** se sabe y solo responde una consulta: si esas filas efectivamente tienen `time-ms`
+poblado y distinto de 0 dentro de `tests.test`, si aparece la moda izquierda de clickeo rápido que
+ADR-014 predice, y cuántos ítems tienen ya suficientes respuestas para calibrarse solos.
+
+**Cómo responderla:** `supabase/queries/T-59_calibracion_tiempos.sql` (solo lectura, validado
+contra un Postgres real antes de entregarlo). Las consultas 1 y 3 responden esta pregunta; la 4
+además contrasta el umbral autoral de T-44 contra el histórico.
+**Ojo:** `time-ms` es el **delta** por pregunta, no un par de timestamps — lo que no se instrumente
+ahora no se recupera después.
+**Bloquea:** T-59, y desbloquea o confirma el bloqueo de T-45.
+**Relacionado:** [[BACKLOG]] T-59, T-44, T-45, T-29 · [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]]
+§Corrección 2026-08-10 · [[RISKS]] R-17.
+
 ### 🔴 Q-07 · ¿Qué semántica tiene repetir el diagnóstico?
 `student_profiles` es una materialización única por estudiante. La FAQ promete explícitamente que
 repetir el diagnóstico "te muestra cómo se movió tu nivel", lo que **requiere histórico** — hoy

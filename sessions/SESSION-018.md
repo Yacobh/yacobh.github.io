@@ -76,6 +76,43 @@ PostgreSQL 14 que ya corre en la máquina del owner (Docker está instalado pero
 no estaba levantado) para montar una base desechable `t51_probe` con un fixture que reproduce el
 desorden medido el 2026-08-09.
 
+### 5. Revisión del owner a T-44 → T-59 (después de entregar los dos tickets)
+
+El owner cuestionó el enfoque de T-44: para él el tiempo de respuesta es el que tarda en leer y
+responder, ya se guarda por pregunta, y **fijar el umbral con un valor decidido por el autor aumenta
+el esfuerzo de mantenimiento**. Propuso que cada ítem guarde su tiempo promedio, actualizado cada
+vez que alguien termina un test, y mencionó ponderarlo por el nivel del estudiante (aceptando que
+"probablemente el promedio simple es suficiente por ahora").
+
+**La crítica es correcta**, y al verificarla apareció algo más grande: ADR-014 difirió el modelo
+empírico sobre la premisa *"el proyecto tiene cero estudiantes reales"*, escrita el 2026-08-08.
+**El 2026-08-09 T-01 midió 80 usuarios y 252 diagnósticos rendidos**, y `git log -S ":time-ms"`
+sitúa la instrumentación del cronómetro el **2025-09-09**, anterior al piloto UNAP. La precondición
+de ≥30 tests de la Fase 2 probablemente estaba cumplida hacía casi un año.
+
+También se corrigió un detalle del planteamiento del owner: `time-ms` es el **delta** por pregunta,
+no un par de timestamps de inicio/fin — lo que no se instrumente ahora no se recupera.
+
+Tres objeciones técnicas quedaron registradas en el ticket, no descartan la propuesta pero la
+condicionan: (1) el promedio se **contamina** con las mismas respuestas que el filtro debe eliminar
+(realimentación positiva; el owner ya intuyó la salida: estimador robusto); (2) la constante autoral
+**no desaparece, se muda** — pasa de dos números arbitrarios a uno interpretable; (3) ponderar por θ
+tiene una **circularidad** (θ se estima de las respuestas que el filtro valida) y la variable natural
+a descontar es la velocidad τ, no la habilidad θ.
+
+**Decisión del owner: opción (a)** — mergear T-44 como capa de caso frío y abrir el trabajo empírico
+como ticket propio. Se creó **T-59** (`P1`), **Q-26**, la nota de corrección en ADR-014 §Contexto
+(sin borrar el párrafo original) y `supabase/queries/T-59_calibracion_tiempos.sql`: 9 consultas de
+solo lectura, **validadas contra un PostgreSQL desechable** antes de entregarlas, que responden
+cobertura de datos, forma de la distribución, tiempo típico por ítem con tres estimadores, cuántos
+ítems ya pueden calibrarse solos, **qué fracción del histórico habría descartado el umbral de T-44**
+y la correlación θ↔tiempo.
+
+Al validarlas contra el fixture apareció una hipótesis a medir con datos reales: con enunciados de
+40–200 caracteres, la parte proporcional (`largo/20` = 2–10 s) **domina al piso de 3 s casi
+siempre**, con lo que el campo configurable por banco de T-44 casi no actuaría. Si se confirma, ese
+campo del panel sobra. Hay una consulta dedicada a responderlo.
+
 ## Archivos revisados
 
 - `project-memory/{CURRENT_STATUS,HANDOFF,BACKLOG,OPEN_QUESTIONS,DECISIONS}.md`,

@@ -1003,7 +1003,66 @@ sube el SE al valor de no haberla respondido. `release app` 0 warnings, `clj-kon
 **⏳ Pendiente para que sea verdad en producción:** aplicar `028` y publicar el bundle. Hasta
 entonces **la frase de la FAQ (X-01) sigue siendo falsa en el sitio**.
 
-### T-45 · Velocidad (τ) como segundo eje del perfil (Fase 2 de ADR-014) — **P2** · `bloqueado` (datos: ≥ 30 tests)
+### T-59 · Tiempo típico por ítem aprendido de los datos, no fijado por el autor — **P1** · `abierto`
+
+Abierta el 2026-08-10 a partir de una crítica del owner a T-44, que **es correcta**: el umbral de
+esfuerzo de T-44 depende de dos constantes elegidas a mano (piso de 3 s, 20 caracteres/segundo de
+lectura), y sostener números inventados es trabajo de mantenimiento permanente. Su propuesta: que
+cada ítem **aprenda cuánto tarda** a partir de los tests que se van rindiendo, y que el umbral se
+derive de ahí.
+
+**La premisa que se cayó, y que es lo que hace viable esta tarea hoy.**
+[[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]] (2026-08-08) difirió el modelo empírico con
+la frase *"el proyecto tiene **cero estudiantes reales**"*, y puso como precondición ≥ 30 tests. Al
+día siguiente, T-01 midió **80 usuarios y 252 diagnósticos ya rendidos** (piloto UNAP). Y
+`git log -S ":time-ms"` muestra que la instrumentación del cronómetro existe desde **2025-09-09**,
+o sea **anterior** al piloto. Es decir: **la precondición probablemente ya estaba cumplida desde
+hace casi un año** y el ADR se escribió sobre una foto vieja del proyecto. Falta confirmarlo con
+datos → [[OPEN_QUESTIONS]] Q-26.
+
+- **Primer paso, sin escribir código:** correr `supabase/queries/T-59_calibracion_tiempos.sql`
+  (solo lectura, ya validado contra un Postgres real). Responde cobertura de `time-ms`, forma de la
+  distribución (¿existe la moda de clickeo rápido que ADR-014 predice?), tiempo típico por ítem con
+  tres estimadores, cuántos ítems tienen ya datos suficientes, **qué fracción del histórico habría
+  descartado el umbral autoral de T-44**, y la correlación θ↔tiempo.
+- **Trabajo, si los datos acompañan:**
+  - Columnas `response_count` y `mean_log_time` en `questions`, en escala **logarítmica** (el tiempo
+    es multiplicativo, y es exactamente el `β_i` que ADR-014 Fase 2 ya define).
+  - Actualización incremental. **Quién escribe:** no el cliente — ADR-015 le revocó hasta la lectura
+    de `questions`. La costura ya existe: `score_answer` es `security definer` y corre en cada
+    respuesta.
+  - El umbral pasa a derivarse del dato para ítems con `response_count ≥ N`, y **cae al piso autoral
+    de T-44 para los que no lo tienen**. El caso frío no es transitorio: el banco sigue creciendo
+    bajo ADR-016, siempre habrá ítems nuevos sin datos.
+  - Recalibrar retroactivamente con los tests que ya existen, no esperar a acumular nuevos.
+- **Tres cosas que hay que resolver y no son obvias** (salieron al discutir la propuesta):
+  1. **El promedio se contamina con lo que el filtro debe eliminar.** Los clicks al azar bajan la
+     media, que baja el umbral, que admite más clicks al azar. Es realimentación positiva. El owner
+     ya intuyó la salida ("el más rápido no debería afectar tan pronunciadamente al promedio"):
+     estimador robusto (mediana o media recortada), no media simple. Se arranca con media simple
+     igual, como él propuso, pero sabiendo que este defecto está ahí.
+  2. **La constante no desaparece, se muda.** "Descartar si tarda menos que *X* respecto del típico
+     del ítem" sigue teniendo un *X* autoral. La ganancia real es pasar de dos constantes en
+     unidades arbitrarias a **una sola interpretable** ("menos del 15 % de lo típico de este ítem").
+  3. **Ponderar por θ tiene una circularidad**: θ se estima *a partir de* las respuestas que el
+     filtro debe validar. Se resuelve separando **calibración** (offline, por lotes, ahí sí se puede
+     usar el θ final del test cerrado) de **filtrado** (en vivo, solo con lo ya calibrado). Y la
+     variable natural a descontar no es la habilidad θ sino la **velocidad τ**
+     (`ln T = β_ítem − τ_persona + ε`): que θ y τ correlacionen es empírico, es el ρ de la Fase 3.
+- **Terminado cuando:** el umbral de un ítem con datos suficientes sale de `questions`, no de una
+  constante; el piso autoral queda solo como caso frío; hay test en el namespace puro que verifique
+  ambas ramas; y el resultado de la calibración sobre el histórico está registrado (incluido el
+  resultado negativo, si la moda de clickeo rápido no aparece).
+- **Ojo:** `time-ms` es el **delta** por pregunta, no un par de timestamps. No se puede reconstruir
+  hacia atrás si el estudiante se levantó a la mitad. Si esa distinción importa para el modelo, hay
+  que instrumentarla **ahora**, porque no es recuperable.
+- **Relacionado:** T-44 (la capa de caso frío que esta tarea presupone), T-45 (es su Fase 2: si
+  T-59 aterriza, T-45 deja de estar bloqueada), T-29 (calibrar `difficulty` tiene la misma forma y
+  los mismos datos), [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]],
+  [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]] (define quién puede escribir),
+  [[OPEN_QUESTIONS]] Q-26, [[RISKS]] R-17.
+
+### T-45 · Velocidad (τ) como segundo eje del perfil (Fase 2 de ADR-014) — **P2** · `bloqueado` (datos: ≥ 30 tests — ⚠ la precondición puede estar cumplida hace un año, ver T-59)
 
 Materializa el eje de **frecuencia (λ)** que [[VISION_LIBRO_PROYECTO]] §3.3 propone, en su forma
 rigurosa (parámetro de velocidad τ del marco de van der Linden). **No se implementa antes de la
@@ -1418,7 +1477,7 @@ desactualizados (lista de módulos previa al MVP).
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59 |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52 |
 

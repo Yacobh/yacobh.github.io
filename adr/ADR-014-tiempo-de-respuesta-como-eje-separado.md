@@ -52,6 +52,24 @@ Verificado en código al redactar este ADR:
 
 ### La restricción dura: no hay datos
 
+> ⚠️ **Corrección 2026-08-10 — esta premisa era falsa al día siguiente de escribirse.** El
+> 2026-08-09, auditando recursos para T-01, apareció que el panel muestra **80 usuarios y 252
+> diagnósticos ya rendidos** (casi todos `@estudiantesunap.cl`, uso real del piloto UNAP). Además,
+> `git log -S ":time-ms"` sitúa la instrumentación del cronómetro en **2025-09-09**, o sea
+> **anterior** al piloto: esos 252 tests se rindieron con el tiempo midiéndose.
+>
+> No se borra el párrafo original —regla de gobernanza— pero **su conclusión no se sostiene**: la
+> precondición de ≥ 30 tests de la Fase 2 probablemente está cumplida desde hace casi un año. Falta
+> confirmar cuántas de esas filas traen `time-ms` utilizable
+> ([[../project-memory/OPEN_QUESTIONS]] Q-26); las consultas están en
+> `../supabase/queries/T-59_calibracion_tiempos.sql`.
+>
+> Esto lo levantó el owner al criticar la implementación de la Fase 1: si hay datos, fijar el
+> umbral con constantes elegidas a mano es mantenimiento innecesario. Tiene razón, y de ahí sale
+> [[../project-memory/BACKLOG]] **T-59**. La Fase 1 no se invalida —sigue siendo la capa de caso
+> frío que hace falta para ítems sin datos, que siempre va a haber bajo ADR-016— pero **deja de ser
+> el mecanismo definitivo y pasa a ser el piso**.
+
 El proyecto tiene **cero estudiantes reales**. Cualquier modelo de tiempos serio requiere estimar,
 por ítem, una **intensidad temporal** (cuánto tarda ese ítem en promedio) a partir de respuestas
 acumuladas. Ese parámetro es tan dependiente de datos como la `difficulty`, que a su vez tampoco

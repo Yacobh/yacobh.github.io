@@ -583,6 +583,22 @@
 > bancos **mezclados** y siguen sin `module_id`. Asignarles módulo por su topic sería inventar el
 > dato; necesitan clasificación por ítem, que es contenido (ADR-016) y no SQL. Por eso T-51 queda
 > `en curso` y no `hecho`. Detalle en `sessions/SESSION-018.md`.
+>
+> **Revisión del owner a T-44 → se abre T-59 y se corrige una premisa de ADR-014 (2026-08-10).** El
+> owner cuestionó que el umbral de esfuerzo dependa de dos constantes elegidas por el autor (piso de
+> 3 s, 20 caracteres/segundo): sostener números inventados es mantenimiento permanente, y propuso
+> que cada ítem **aprenda cuánto tarda** a partir de los tests rendidos. **Tiene razón, y la revisión
+> destapó algo más grande:** ADR-014 difirió el modelo empírico con la premisa *"el proyecto tiene
+> cero estudiantes reales"* — y esa premisa **se cayó al día siguiente de escribirse** (T-01 midió
+> 80 usuarios y 252 diagnósticos el 2026-08-09), con la instrumentación de `time-ms` datando de
+> **2025-09-09**, anterior al piloto UNAP. La precondición de ≥30 tests de la Fase 2 probablemente
+> está cumplida hace casi un año, y nadie lo notó porque el ADR se escribió sobre una foto vieja.
+>
+> Decidido (opción (a) del owner): **T-44 se mergea igual** —es la capa de caso frío que hace falta
+> para ítems sin datos, que siempre habrá bajo ADR-016— y el trabajo empírico se abre como **T-59**
+> (`P1`). ADR-014 lleva ahora una nota de corrección explícita en §Contexto; el párrafo original no
+> se borra. Consultas de solo lectura listas y **validadas contra un Postgres real** en
+> `supabase/queries/T-59_calibracion_tiempos.sql` → [[OPEN_QUESTIONS]] Q-26.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
