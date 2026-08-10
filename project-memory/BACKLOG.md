@@ -819,7 +819,7 @@ particular?). Por regla de gobernanza de la memoria, no se inventa el detalle fa
 - **Relacionado:** [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] (mapeo global `.dark
   .clase-existente` en `src/css/app.css`).
 
-### T-42 · Nombre de fantasía editable por test — **P2** · `en curso` (código listo 2026-08-08; falta aplicar `022`)
+### T-42 · Nombre de fantasía editable por test — **P2** · `hecho` (2026-08-10)
 
 Feedback del owner tras probar T-39 en local (2026-08-08): quiere poder cambiar el nombre visible
 de cada evaluación ("nombre de fantasía"), no solo su `topic` técnico. Hoy ese nombre sale de un
@@ -843,13 +843,27 @@ conocidos y no es editable desde ningún panel.
 - `diagnostic_test.cljs/topic-label` pasa a leer `:test/configs` (suscripción agregada en esta
   misma sesión) y aplica el nombre configurado en las tres pantallas del flujo: selector, cabecera
   de cada pregunta y resultados.
-- **Falta para cerrar:** que el owner aplique `022` en el proyecto Supabase real. Hasta entonces el
-  campo del panel existe pero el `upsert` fallará (columna inexistente). El lado del estudiante no
-  se rompe: sin la columna, `fetch-test-configs` no trae `display_name` y el fallback estático
-  sigue funcionando igual que hoy.
+- ~~**Falta para cerrar:** que el owner aplique `022` en el proyecto Supabase real.~~
+
+**✅ Cerrado 2026-08-10.** `022` **ya estaba aplicada**; lo que faltaba era la marca en
+`supabase/SCHEMA.md`, que quedó sin poner el 2026-08-08. Se detectó al revisar el estado de las
+migraciones durante T-57 y el owner lo verificó en el proyecto real:
+
+```sql
+select column_name from information_schema.columns
+where table_name = 'test_configs' and column_name = 'display_name';
+-- → display_name
+```
+
+**Lección (no es un caso aislado):** durante dos días la memoria del proyecto afirmó implícitamente
+que una migración estaba pendiente cuando no lo estaba, y eso llevó a documentar en dos lugares un
+fallo (`"Nombre visible" no guarda`) que nunca ocurrió. La marca de aplicada en `SCHEMA.md` es el
+único registro de qué hay realmente en la base — omitirla no es un detalle cosmético.
+
 - **Terminado cuando:** un admin puede asignarle un nombre de fantasía a cualquier topic desde el
   panel, y ese nombre (no el `topic` técnico) es lo que ve el estudiante en el selector de
-  evaluaciones.
+  evaluaciones. ✅ (código verificado por compilación y tests; **no verificado en vivo** por el
+  agente — falta que el owner escriba un nombre en el panel y lo vea reflejado como estudiante)
 - **Relacionado:** [[BACKLOG]] T-39, T-40, [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]],
   `supabase/SCHEMA.md`.
 

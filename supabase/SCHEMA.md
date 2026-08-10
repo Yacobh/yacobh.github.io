@@ -208,7 +208,7 @@ amplían para mostrar los datos nuevos cuando existen.
 21. `migrations/019_baldor_algebra_resources.sql`
 22. `migrations/020_test_configs.sql`
 23. `migrations/021_tests_topic_theta_rls.sql`
-24. `migrations/022_test_config_display_name.sql`
+24. `migrations/022_test_config_display_name.sql` — ✅ aplicada (confirmado 2026-08-10)
 25. `migrations/023_rls_limpieza.sql` — ✅ aplicada 2026-08-08
 26. `migrations/024_questions_rpc.sql` — ✅ aplicada 2026-08-08
 27. `migrations/026_score_answer_devuelve_correcta.sql` — ✅ aplicada 2026-08-09 (**antes de `025`**)
@@ -217,10 +217,14 @@ amplían para mostrar los datos nuevos cuando existen.
 29. `migrations/027_misconceptions.sql` — ⏳ **pendiente de aplicar** (aditiva, sin riesgo)
 30. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
-> ⏳ **Pendientes de aplicar en el proyecto real:** `022_test_config_display_name.sql` (desde
-> 2026-08-08 — sin ella, el campo "Nombre visible" del panel existe pero **guardar falla**; el lado
-> del estudiante no se rompe, cae al diccionario estático) y `027_misconceptions.sql` (2026-08-10).
-> Ninguna de las dos bloquea nada en producción hoy.
+> ⏳ **Pendiente de aplicar en el proyecto real:** solo `027_misconceptions.sql` (2026-08-10).
+> No bloquea nada: mientras no se aplique, la tabla simplemente no existe.
+>
+> **Corrección 2026-08-10:** `022` figuraba sin marca de aplicada y se sospechó que estaba
+> pendiente. **Lo estaba solo en la documentación**: el owner verificó con
+> `select column_name from information_schema.columns where table_name = 'test_configs' and
+> column_name = 'display_name'` y la columna existe. La marca faltaba desde el 2026-08-08, no la
+> migración. Cierra [[../project-memory/BACKLOG]] T-42.
 
 > **Nota de orden:** `026` va antes que `025` pese a la numeración. `025` es la revocación y su
 > precondición es el bundle publicado, no el número. Ver ADR-015 §Secuencia de despliegue.

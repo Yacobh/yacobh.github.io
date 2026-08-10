@@ -42,10 +42,16 @@ vínculo desde cada distractor. Elegido por el owner entre cuatro opciones propu
 4. Documentación en `supabase/SCHEMA.md` (sección propia + entrada en la lista de orden de
    aplicación) y actualización de T-57 en el backlog.
 
-**Hallazgo colateral:** `022_test_config_display_name.sql` **sigue sin marca de aplicada** en
-`SCHEMA.md`, mientras `023`–`026` sí la tienen. Si es correcto, el campo "Nombre visible" del panel
-existe pero guardar falla (columna inexistente); el lado del estudiante no se rompe. Registrado como
-aviso en `SCHEMA.md`, no se asumió ni se corrigió.
+**Hallazgo colateral — ✅ resuelto el mismo día:** se observó que `022_test_config_display_name.sql`
+no tenía marca de aplicada en `SCHEMA.md` mientras `023`–`026` sí. Se registró como sospecha, sin
+asumirla. **El owner verificó y la columna existe**: `022` estaba aplicada desde el 2026-08-08 y lo
+que faltaba era la marca en la documentación. **Cierra T-42**, cuyo único pendiente era esa
+migración. Corregido en `SCHEMA.md`, `BACKLOG.md` y `CURRENT_STATUS.md`.
+
+Vale la pena registrar el costo: durante dos días la memoria del proyecto hizo creer que había un
+fallo (`"Nombre visible" no guarda`) que nunca existió, y esa afirmación llegó a escribirse en dos
+archivos. La marca de "aplicada" en `SCHEMA.md` no es cosmética — es el único registro de qué hay
+realmente en la base.
 
 ## Archivos revisados
 
@@ -103,7 +109,7 @@ Ninguno. Lo no verificable con el acceso disponible se marcó como tal.
 
 ## Próximos pasos
 
-1. **Aplicar `027`** en el SQL Editor de Supabase (y de paso confirmar/aplicar `022`).
+1. **Aplicar `027`** en el SQL Editor de Supabase. (`022` ya estaba aplicada — verificado.)
 2. **Paso 2 de T-57:** medir en `tests` cuál es el módulo más fallado — requiere una consulta del
    owner contra el proyecto real — y catalogar solo ese módulo bajo ADR-016.
 3. Sin relación con T-57, y sigue siendo lo que más importa: **difundir el cupo del 2026-08-15**

@@ -522,10 +522,16 @@
 > No se tocó ningún `.cljs`, así que el bundle no cambia. `clj -M:test` sigue en 46/186/0.
 > Detalle en `sessions/SESSION-017.md`, `supabase/SCHEMA.md`.
 >
-> **Hallazgo colateral:** `022_test_config_display_name.sql` sigue **sin marca de aplicada** en
-> `SCHEMA.md` mientras `023`–`026` sí la tienen. Si es correcto, "Nombre visible" en Admin →
-> Configuración de tests falla al guardar (columna inexistente); el estudiante no se ve afectado.
-> Confirmar al aplicar `027`.
+> **Hallazgo colateral — ✅ resuelto el mismo día, era falsa alarma.** Se observó que
+> `022_test_config_display_name.sql` no tenía marca de aplicada en `SCHEMA.md` mientras `023`–`026`
+> sí, y se advirtió que "Nombre visible" podría estar fallando al guardar. **El owner verificó y la
+> columna `test_configs.display_name` existe: `022` estaba aplicada desde el 2026-08-08.** Lo que
+> faltaba era la marca en la documentación. **[[BACKLOG]] T-42 queda cerrada** — su único pendiente
+> era exactamente esa migración.
+>
+> Se deja constancia en vez de borrar la nota (regla de gobernanza): durante dos días la memoria
+> hizo creer que había un fallo que no existía. La marca de "aplicada" en `SCHEMA.md` es el único
+> registro de qué hay realmente en la base; omitirla tiene costo.
 >
 > **⚠ Sigue pendiente y ahora importa más:** las dos afirmaciones falsas del FAQ (X-01 "el tiempo de
 > respuesta también se considera en la estimación"; X-02 "te muestra cómo se movió tu nivel") **están
