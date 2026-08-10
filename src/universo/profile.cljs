@@ -1,30 +1,12 @@
 (ns universo.profile
   "Funciones puras: responses + questions → perfil de aprendizaje."
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [universo.topics :as topics]))
 
-(def topic->module-slug
-  {"numbers_V1" "aritmetica/numeros"
-   "numeros" "aritmetica/numeros"
-   "Números" "aritmetica/numeros"
-   "enteros" "aritmetica/enteros"
-   "fracciones" "aritmetica/fracciones"
-   "potencias" "aritmetica/potencias"
-   "algebra" "algebra/ecuaciones"
-   "Álgebra" "algebra/ecuaciones"
-   "geometria" "geometria/basica"
-   "Geometría" "geometria/basica"})
-
-(def topic->track
-  {"numbers_V1" "aritmetica"
-   "numeros" "aritmetica"
-   "Números" "aritmetica"
-   "enteros" "aritmetica"
-   "fracciones" "aritmetica"
-   "potencias" "aritmetica"
-   "algebra" "algebra"
-   "Álgebra" "algebra"
-   "geometria" "geometria"
-   "Geometría" "geometria"})
+;; El mapeo topic → módulo vivía acá como dos tablas literales que había que
+;; ampliar con cada variante de escritura ("algebra", "Álgebra", …). Desde
+;; T-51 vive en `universo.topics`, que normaliza el topic antes de buscarlo:
+;; las variantes por acento o mayúscula dejan de necesitar una entrada propia.
 
 (defn theta-band
   "Banda de cupo a partir de θ continuo."
@@ -53,9 +35,15 @@
   [question topic]
   (or (:module-slug question)
       (when-let [slug (:module_slug question)] slug)
-      (get topic->module-slug (or (:topic question) topic))
-      (get topic->module-slug topic)
-      (str "unknown/" (or (:topic question) topic "general"))))
+      (topics/module-slug-for (or (:topic question) topic))
+      (topics/module-slug-for topic)
+      ;; `unknown/…` es a propósito visible: marca en el perfil los ítems que
+      ;; no se pudieron atribuir a un módulo (bancos mezclados como
+      ;; `diagnostico`, o topics sin mapeo). Se normaliza para no generar dos
+      ;; huecos distintos por el mismo banco mal escrito.
+      (str "unknown/" (or (topics/normalize (:topic question))
+                          (topics/normalize topic)
+                          "general"))))
 
 (defn- selected-key
   [selected]
@@ -114,7 +102,7 @@
 
 (defn dominant-track
   [topic deficits]
-  (or (get topic->track topic)
+  (or (topics/track-for topic)
       (when-let [slug (:module-slug (first deficits))]
         (first (str/split slug #"/")))
       "aritmetica"))

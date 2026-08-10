@@ -179,6 +179,12 @@ en `unknown/<topic>`, lo que produce un déficit **sin módulo** y por lo tanto 
 **Nota (2026-08-08, ADR-013):** el desbloqueo de tests por prerequisito (T-39) se diseñó
 deliberadamente **por `topic` directo**, no por `module-slug`, precisamente para no heredar esta
 brecha — no la resuelve, solo evita depender de ella.
+**Nota (2026-08-10, T-51/ADR-017):** el mapeo dejó de ser una lista de variantes: `universo.topics`
+normaliza el topic antes de buscarlo y resuelve por **coincidencia de sufijo** con el slug del
+módulo, así que ya no hace falta una entrada por cada topic que se llama igual que su módulo. La
+pregunta **sigue abierta en su parte de fondo** (¿los topics cubren los ejes reales de la PAES M1?),
+que es una pregunta de contenido, no de mapeo. `universo.topics/unmapped` responde la parte
+mecánica sobre cualquier lista de topics, y la consulta (ii) de `029` la responde contra la base.
 
 ### 🔴 Q-07 · ¿Qué semántica tiene repetir el diagnóstico?
 `student_profiles` es una materialización única por estudiante. La FAQ promete explícitamente que
@@ -333,7 +339,7 @@ T-18 (cerrada), [[RISKS]] R-21 (cerrado).
 
 | # | Contradicción | Documentos implicados | Resolución propuesta |
 |---|---------------|----------------------|----------------------|
-| X-01 | La FAQ dice que el tiempo de respuesta se considera en la estimación; el modelo 1PL no lo usa | `index.html`, `landing.cljs` vs `components/tetha.cljs` | *(Vía decidida 2026-08-08)* Se cambia el modelo, no el copy: [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]], Q-17 respondida. **La contradicción sigue viva en producción** hasta que T-44 se despliegue |
+| X-01 | La FAQ dice que el tiempo de respuesta se considera en la estimación; el modelo 1PL no lo usa | `index.html`, `landing.cljs` vs `components/tetha.cljs` | *(Vía decidida 2026-08-08)* Se cambia el modelo, no el copy: [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]], Q-17 respondida. **T-44 implementado el 2026-08-10** (`universo.irt.effort`, migración `028`): el código ya hace verdadera la frase, pero **la contradicción sigue viva en producción** hasta aplicar `028` y publicar el bundle |
 | X-02 | La FAQ promete ver "cómo se movió tu nivel" al repetir el diagnóstico; `student_profiles` no guarda histórico | FAQ vs `001_mvp_schema.sql` | Q-07 / P-01 |
 | X-03 | `007` restringe SELECT de `questions` a admin, pero el estudiante debe leer preguntas | `007_questions_admin_rls.sql` vs flujo de `events/test.cljs` | ✅ *Resuelta 2026-08-09:* había una policy permisiva del dashboard (`using true`) que anulaba a `007` por OR. Eliminada en `025`; el estudiante ya no lee `questions` sino los RPC de ADR-015. **Cerrada y verificada en producción** — ver Q-12, T-47 |
 | X-04 | *(Resuelta 2026-08-09)* `.gitignore` ignoraba `src/universo/user.cljs`, pero el archivo estaba trackeado en Git | `.gitignore` vs `git ls-files` | Era código roto sin `ns`/requires, no compilado ni usado en ningún lado — borrado, `.gitignore` limpiado. Ver [[BACKLOG]] T-16 |

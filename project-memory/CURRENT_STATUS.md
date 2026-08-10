@@ -539,6 +539,51 @@
 > ya había prescrito el plan de respaldo para esta situación exacta: *"primero que sea verdad,
 > después dejarla publicada"*. Corrección estimada: ~15 minutos.
 
+> **T-44 y T-51 implementados (2026-08-10, sesión posterior a T-57 paso 1).** El owner aplicó `027`
+> (tabla `misconceptions` creada y vacía, confirmado) y encargó los dos tickets, autorizando trabajo
+> autónomo. Ambos van en la rama `t-44-t-51-tiempo-y-topics`, **sin mergear a `main`**.
+>
+> **T-44 — el tiempo de respuesta ya entra en la estimación.** Fase 1 de ADR-014: namespace puro
+> nuevo `universo.irt.effort` que decide un peso por respuesta (umbral
+> `max(piso_configurado, largo_enunciado / 20)`), aplicado en las dos derivadas de
+> `components.tetha` y heredado por `irt.progress/fisher-information` — de modo que descartar una
+> respuesta **sube el SE** en vez de dejarlo mentir, que es el punto que el ADR marcaba como fácil de
+> olvidar. El peso se calcula una sola vez al registrar la respuesta y viaja dentro de `tests.test`
+> (D-36), así que recalibrar el umbral en la Fase 2 no reescribe la historia. Migración `028`
+> (`test_configs.min_response_seconds`, `not null default 3`) + campo en Admin → Configuración de
+> tests. **Decisión que no estaba en el ticket:** `:time-ms = 0` **no** descarta la respuesta, porque
+> la UI manda 0 cuando el cronómetro no arrancó — es el centinela de "no medido", no de "respondió al
+> instante".
+>
+> **T-51 — los topics duplicados dejan de existir, y de poder volver a existir.** `029` normaliza
+> `questions.topic`, `tests.topic` y `test_configs.topic` (sin acentos, minúsculas), fusiona las
+> filas de configuración cuidando la auto-FK de prerequisitos, rellena `module_id` por equivalencia
+> explícita y por coincidencia única de sufijo, y deja **triggers** en las tres tablas para que el
+> defecto no se reconstruya con el próximo ítem cargado a mano ([[../adr/ADR-017-topic-canonico-por-trigger]],
+> D-36 acompaña a T-44). Del lado del cliente, `universo.topics` (puro, con tests) reemplaza los dos
+> diccionarios literales que vivían en `profile.cljs`.
+>
+> **Verificado contra un PostgreSQL 14 real, no solo revisado.** Se montó una base desechable con un
+> fixture que reproduce el desorden medido el 2026-08-09 y se aplicaron `028`/`029` de verdad:
+> 0 topics fuera de forma canónica, FK íntegra, idempotente en la segunda corrida, triggers
+> normalizando altas nuevas. **La prueba encontró un defecto real**: la primera versión hacía ganar
+> a la fila que ya estaba bien escrita, y eso borraba un prerequisito configurado (θ mínimo incluido)
+> — no es cosmética, define quién puede rendir el test. Corregido para que gane la variante con más
+> preguntas, con su configuración y su prerequisito.
+>
+> `clj -M:test` **57 tests / 292 assertions / 0 failures** (antes 46/186). `shadow-cljs release app`
+> 0 warnings, bundle recompilado; `npm run build:css` sin cambios (se reusó vocabulario de clases ya
+> existente). `clj-kondo` limpio en todo lo tocado.
+>
+> **⏳ Lo que falta y depende del owner:** aplicar **`028` y después `029`** (en ese orden), correr
+> las tres consultas de verificación del final de `029`, y mergear/publicar. **Hasta que eso pase, la
+> frase de la FAQ sobre el tiempo de respuesta (X-01) sigue siendo falsa en el sitio.**
+>
+> **Lo que T-51 deja abierto a propósito:** los 128 ítems de `diagnostico` (84) y `PAES_M1` (44) son
+> bancos **mezclados** y siguen sin `module_id`. Asignarles módulo por su topic sería inventar el
+> dato; necesitan clasificación por ítem, que es contenido (ADR-016) y no SQL. Por eso T-51 queda
+> `en curso` y no `hecho`. Detalle en `sessions/SESSION-018.md`.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

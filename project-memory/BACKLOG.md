@@ -953,7 +953,7 @@ tanto **no genera déficit accionable ni recursos**.
   existente, con test que lo verifique contra la lista de topics reales.
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-06.
 
-### T-44 · Filtro de respuestas no esforzadas (Fase 1 de ADR-014) — **P1** · `abierto`
+### T-44 · Filtro de respuestas no esforzadas (Fase 1 de ADR-014) — **P1** · `hecho` (2026-08-10, ⏳ falta aplicar `028` y publicar)
 
 Hace **verdadera** la afirmación ya publicada en la FAQ ("el tiempo de respuesta también se
 considera en la estimación"), hoy falsa (contradicción X-01, [[OPEN_QUESTIONS]] Q-17). Es la única
@@ -977,6 +977,31 @@ go-live. Diseño completo y alternativas descartadas en
   `tests.test` (`events/test.cljs:357`, `:test/complete`), así que no hay nada que instrumentar.
 - **Relacionado:** [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]] §Fase 1,
   [[../adr/ADR-004-irt-1pl-map-y-regla-de-parada]], [[OPEN_QUESTIONS]] Q-17 y X-01, [[RISKS]] R-17.
+
+**✅ Implementado 2026-08-10.** `universo.irt.effort` (namespace puro nuevo) decide el peso;
+`tetha/first-derivative` y `second-derivative` lo aplican, y `progress/fisher-information` lo hereda
+—así el SE sube al descartar evidencia en vez de mentir, que es el punto que el ADR marca como fácil
+de olvidar—. El peso se calcula **una sola vez, al registrar la respuesta** (`:test/answer-scored`)
+y viaja dentro de `tests.test` (D-36): recalibrar el umbral después no reescribe la historia,
+porque `:time-ms` también sigue guardado. Migración `028_test_config_min_response_seconds.sql`
+(`not null default 3`, check 0–120) + campo "Segundos mínimos por respuesta" y columna "Mín. resp."
+en Admin → Configuración de tests.
+
+Dos decisiones que el ticket no especificaba y conviene conocer:
+
+- **`:time-ms = 0` NO descarta la respuesta.** La UI manda 0 cuando el cronómetro no llegó a
+  arrancar (`diagnostic_test.cljs:153`), así que 0 es el centinela de "no medido", no de "respondió
+  instantáneamente". Descartar por ese 0 sería tirar evidencia válida por un defecto de medición.
+  Ante la duda se conserva.
+- **Sin backfill.** Las respuestas ya rendidas no tienen `:weight` y cuentan con peso 1.0. Este
+  filtro no reinterpreta hacia atrás lo que ya se midió y se le mostró a alguien.
+
+`clj -M:test` **57 tests / 292 assertions / 0 failures** (antes 46/186, junto con T-51), incluida la
+prueba exacta del criterio de cierre: la misma respuesta contada vs. descartada deja θ idéntico y
+sube el SE al valor de no haberla respondido. `release app` 0 warnings, `clj-kondo` limpio.
+
+**⏳ Pendiente para que sea verdad en producción:** aplicar `028` y publicar el bundle. Hasta
+entonces **la frase de la FAQ (X-01) sigue siendo falsa en el sitio**.
 
 ### T-45 · Velocidad (τ) como segundo eje del perfil (Fase 2 de ADR-014) — **P2** · `bloqueado` (datos: ≥ 30 tests)
 
@@ -1056,7 +1081,7 @@ Supabase real; el cierre se da por el reporte del owner, mismo patrón que T-03/
 consistentes entre sí, no una calibración estadística a partir de respuestas reales. R-17
 (`difficulty` no calibrada empíricamente) sigue activo; T-29 sigue abierta.
 
-### T-51 · Higiene de `topic` y `module_id` en el banco — **P1** · `abierto`
+### T-51 · Higiene de `topic` y `module_id` en el banco — **P1** · `en curso` (2026-08-10: normalización hecha; ⏳ falta aplicar `029`, y los bancos mezclados siguen sin módulo)
 
 Misma medición del 2026-08-09:
 
@@ -1074,7 +1099,42 @@ Misma medición del 2026-08-09:
 - **Ojo:** unificar topics toca `test_configs` (keyed por `topic`, con self-FK de prerequisitos) y
   la columna `tests.topic` del historial que alimenta `universo.access`. No es un simple UPDATE.
 - **Relacionado:** T-28 (es la misma brecha, ahora con datos), [[OPEN_QUESTIONS]] Q-06,
-  [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]].
+  [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]],
+  [[../adr/ADR-017-topic-canonico-por-trigger]].
+
+**2026-08-10 — hecho lo que se puede hacer sin decidir contenido.**
+
+`029_topic_normalization.sql` + `universo.topics` (namespace puro nuevo, espejo de la función SQL) +
+[[../adr/ADR-017-topic-canonico-por-trigger]]. La normalización deja de ser una tabla de variantes
+que crece con cada acento: `universo.topics/normalize` canoniza el topic antes de buscarlo, y
+`profile.cljs` ya no lleva los dos diccionarios literales que tenía.
+
+Lo que la migración hace, en orden obligado por la auto-FK de `test_configs`: crea la fila canónica
+con la config de la variante **con más preguntas** (incluido su prerequisito), repunta los
+prerequisitos, normaliza `questions.topic` y `tests.topic` —los dos juntos, o `universo.access`
+perdería avances ya conseguidos— y borra las variantes. Después rellena `module_id` por
+equivalencia explícita y por coincidencia única de sufijo (`triangulos` → `geometria/triangulos`).
+Y deja triggers en las tres tablas para que el defecto no se reconstruya con el próximo ítem
+cargado a mano.
+
+**Verificada de verdad, no solo revisada:** se montó un PostgreSQL 14 desechable con un fixture que
+reproduce el desorden medido (los cuatro pares duplicados, bancos mezclados, prerequisitos entre
+variantes, un topic prerequisito de sí mismo tras normalizar). Resultado: 0 topics fuera de forma
+canónica en las tres tablas, FK íntegra, **idempotente** (segunda corrida sin diferencias), triggers
+normalizando altas nuevas. En el fixture, 38 de 44 preguntas quedaron con módulo.
+
+**Encontrado y corregido durante esa prueba:** la primera versión hacía ganar a la fila que ya
+estaba escrita en forma canónica, y eso **borraba un prerequisito configurado** (una variante exigía
+otro topic con θ mínimo y se perdía al fusionar). No es cosmética: define quién puede rendir el
+test. Sin la prueba contra un Postgres real no se habría visto.
+
+**Lo que sigue abierto y por qué no lo cierra un agente:** los **128 ítems de `diagnostico` (84) y
+`PAES_M1` (44)** son bancos **mezclados**, con preguntas de varios módulos. Asignarles un módulo por
+su topic sería un dato falso con apariencia de dato bueno. Necesitan clasificación **por ítem**, que
+es contenido (ADR-016), no SQL. La consulta (ii) del final de `029` los deja listados.
+
+**⏳ Pendiente:** aplicar `028` y después `029`; correr las tres consultas de verificación; y decidir
+qué hacer con los bancos mezclados.
 
 ### T-29 · Calibrar `difficulty` con datos reales — **P3** · `abierto`
 
