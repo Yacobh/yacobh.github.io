@@ -56,15 +56,17 @@
 ;; Topic → módulo
 ;; -----------------------------------------------------------------------------
 
-;; Los 18 módulos sembrados por 002_seed_modules.sql. Se listan acá para poder
+;; Los módulos sembrados: 18 por 002_seed_modules.sql, más los 2 que creó
+;; 031 al resolver las últimas ambigüedades de T-51. Se listan acá para poder
 ;; verificar en un test que ningún mapeo apunte a un módulo inexistente: un
 ;; slug mal escrito no falla en ninguna parte, simplemente deja al estudiante
 ;; sin recursos y sin que nadie se entere.
 (def module-slugs
-  #{"aritmetica/numeros" "aritmetica/enteros" "aritmetica/fracciones"
-    "aritmetica/potencias" "aritmetica/proporciones" "aritmetica/porcentajes"
-    "algebra/expresiones" "algebra/ecuaciones" "algebra/sistemas"
-    "algebra/polinomios" "algebra/funciones"
+  #{"aritmetica/numeros" "aritmetica/operaciones_fundamentales" "aritmetica/enteros"
+    "aritmetica/fracciones" "aritmetica/potencias" "aritmetica/proporciones"
+    "aritmetica/porcentajes"
+    "algebra/expresiones" "algebra/ecuaciones" "algebra/inecuaciones"
+    "algebra/sistemas" "algebra/polinomios" "algebra/funciones"
     "geometria/basica" "geometria/angulos" "geometria/triangulos"
     "geometria/circulo" "geometria/areas" "geometria/volumenes"
     "geometria/pitagoras"})
@@ -108,7 +110,14 @@
    ;; enteros y esa es una decisión aparte (ver ADR-017 §Alternativas y T-51).
    "ecuaciones lineales" "algebra/ecuaciones"
    "expresiones algebraicas" "algebra/expresiones"
-   "suma de numeros enteros" "aritmetica/enteros"})
+   "suma de numeros enteros" "aritmetica/enteros"
+
+   ;; Decidido por el profesor el 2026-08-10. `inecuaciones` y
+   ;; `operaciones_fundamentales` NO están acá: se les creó módulo propio en
+   ;; `031`, así que el topic coincide con el sufijo del slug y los resuelve la
+   ;; regla de sufijo sola. Solo esta necesita entrada, porque una *ecuación*
+   ;; cuadrática no es una *función* cuadrática (`algebra/funciones`).
+   "ecuaciones cuadraticas" "algebra/ecuaciones"})
 
 ;; Bancos mezclados: agrupan ítems de varios módulos, así que asignarles un
 ;; módulo sería inventar el dato. `nil` es la respuesta honesta y deja el

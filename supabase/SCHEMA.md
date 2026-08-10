@@ -219,14 +219,21 @@ amplían para mostrar los datos nuevos cuando existen.
 30. `migrations/028_test_config_min_response_seconds.sql` — ✅ aplicada 2026-08-10
 31. `migrations/029_topic_normalization.sql` — ✅ aplicada 2026-08-10, después de `028`
 32. `migrations/030_backfill_module_id_restante.sql` — ⏳ **pendiente de aplicar**, después de `029`
-33. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+33. `migrations/031_modulos_inecuaciones_y_operaciones_fundamentales.sql` — ⏳ **pendiente**, después de `030`
+34. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
 > final de `029`: **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id`
 > de 199 → **156**.
 >
-> ⏳ **Pendiente:** `030_backfill_module_id_restante.sql`, que cierra 24 de los 28 ítems mapeables
-> que `029` dejó fuera (156 → **132**). Aditiva, solo toca filas con `module_id is null`.
+> ⏳ **Pendiente:** `030` y después `031`, que juntas cierran los 28 ítems mapeables que `029` dejó
+> fuera: **156 → 128**. `030` agrega las equivalencias que faltaban; `031` crea **dos módulos
+> nuevos** (`algebra/inecuaciones` y `aritmetica/operaciones_fundamentales`, decisión del profesor
+> del 2026-08-10) y los módulos pasan de 18 a **20**. Ambas son aditivas y solo tocan filas con
+> `module_id is null`. Verificadas contra un Postgres desechable cargado con la distribución real.
+>
+> Lo que queda sin módulo después de `031` son **128** ítems: `diagnostico` (84) y `paes_m1` (44),
+> bancos mezclados que necesitan clasificación por ítem (contenido, ADR-016), no SQL.
 >
 > **Corrección 2026-08-10:** `022` figuraba sin marca de aplicada y se sospechó que estaba
 > pendiente. **Lo estaba solo en la documentación**: el owner verificó con

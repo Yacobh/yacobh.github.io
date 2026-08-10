@@ -106,10 +106,14 @@
     (is (= "algebra/ecuaciones" (topics/module-slug-for "Ecuaciones Lineales"))
         "y siguen tolerando mayúsculas, porque la clave se busca normalizada"))
 
-  (testing "los que siguen sin módulo esperan decisión del profesor, no un criterio inventado"
-    (doseq [t ["inecuaciones" "ecuaciones cuadraticas" "operaciones_fundamentales"]]
-      (is (nil? (topics/module-slug-for t))
-          (str "'" t "' no debe mapearse solo: es una ambigüedad real")))))
+  (testing "las tres ambigüedades, resueltas por el profesor el 2026-08-10 (migración 031)"
+    (is (= "algebra/inecuaciones" (topics/module-slug-for "inecuaciones"))
+        "módulo nuevo: lo resuelve la regla de sufijo, sin entrada explícita")
+    (is (= "aritmetica/operaciones_fundamentales"
+           (topics/module-slug-for "operaciones_fundamentales"))
+        "módulo nuevo: ídem")
+    (is (= "algebra/ecuaciones" (topics/module-slug-for "ecuaciones cuadraticas"))
+        "una ecuación cuadrática no es una función cuadrática: va a ecuaciones")))
 
 (deftest track-desde-el-topic
   (is (= "aritmetica" (topics/track-for "enteros")))
@@ -145,7 +149,8 @@
 
   (testing "todo módulo tiene track y nombre, y su sufijo es único"
     (let [sufijos (map #(second (str/split % #"/")) topics/module-slugs)]
-      (is (= 18 (count topics/module-slugs)))
+      ;; 18 de 002_seed_modules.sql + 2 de 031 (inecuaciones, operaciones fundamentales)
+      (is (= 20 (count topics/module-slugs)))
       (is (= (count sufijos) (count (set sufijos)))
           "dos módulos con el mismo sufijo romperían la regla de coincidencia")
       (is (every? #(contains? #{"aritmetica" "algebra" "geometria"}

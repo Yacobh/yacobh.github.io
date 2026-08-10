@@ -1203,27 +1203,46 @@ motivos, uno de ellos un error de criterio:
    `algebra/sistemas`, `potenciacion` → `aritmetica/potencias`, `numeros_relativos` →
    `aritmetica/enteros`). Faltaba la equivalencia explícita, nada más.
 2. **Topics con espacios** (`ecuaciones lineales`, `expresiones algebraicas`,
-   `suma de numeros enteros`). ADR-017 decidió **a propósito** no unificar espacios con guiones
-   bajos, argumentando que "el fallo medido fue de acento y mayúscula". Ese argumento se cayó: ahora
-   hay evidencia de variantes con espacio, incluida `ecuaciones lineales` conviviendo con la entrada
-   `ecuaciones_lineales` que el propio mapeo ya contemplaba. **Fue conservadurismo sin datos.**
+   `suma de numeros enteros`), que no tenían equivalencia porque el mapeo solo contemplaba la
+   variante con guion bajo.
+
+> **Corrección (mismo día, tras medirlo).** Al ver los espacios se escribió acá que el argumento de
+> ADR-017 para no unificar espacios con guiones bajos "se había caído" y que había sido
+> "conservadurismo sin datos". **Eso era falso y se midió:** la consulta que agrupa por
+> `normalize_topic(replace(topic,' ','_'))` buscando grupos con más de una escritura **devolvió cero
+> filas**. No hay ningún banco partido en dos por espacio vs. guion bajo — `ecuaciones lineales` es
+> la única escritura de ese banco y la entrada `ecuaciones_lineales` del mapeo era, como estaba
+> documentado, un no-op. **La decisión de ADR-017 se sostiene**: el problema era de *mapeo*, no de
+> *normalización*, y `030` lo resuelve listando las variantes una por una sin tocar la regla. Se
+> deja constancia en vez de borrar, por la regla de gobernanza.
 
 **`030_backfill_module_id_restante.sql`** agrega las 11 equivalencias que faltaban (incluidas las
 variantes con espacio, **listadas una por una**, sin cambiar la regla de normalización) y su espejo
 en `universo.topics`. Verificada contra un Postgres desechable con la distribución real medida:
 156 → **132**, idempotente, y quedan exactamente los esperados.
 
-**Los 132 que quedan, y por qué no los cierra un agente:**
-- **128** de `diagnostico` (84) y `paes_m1` (44) — bancos mezclados, necesitan clasificación por
-  ítem (contenido, ADR-016).
-- **4** ambigüedades reales que necesitan criterio del profesor: `inecuaciones` (2 — no existe
-  módulo de inecuaciones entre los 18), `ecuaciones cuadraticas` (1 — `algebra/funciones` es
-  "Funciones lineales y cuadráticas", pero una ecuación cuadrática no es una función cuadrática) y
-  `operaciones_fundamentales` (1 — en Baldor el término aparece en Aritmética y en Álgebra).
+**Las 4 ambigüedades restantes las resolvió el profesor el mismo día**, y dos de ellas **creando
+módulo** en vez de forzar el ítem dentro de uno que no le corresponde (`031`):
 
-**⏳ Pendiente:** aplicar `030`; decidir las 4 ambigüedades; decidir si se fusionan las variantes con
-espacio en un solo banco (es más que `module_id`: cambia qué ítems ve un test, la config de parada y
-el historial de desbloqueos); y clasificar los bancos mezclados.
+| Topic | Decisión | Cómo se resuelve |
+|---|---|---|
+| `inecuaciones` (2) | **módulo nuevo** `algebra/inecuaciones` (`order_index` 125) | Por regla de sufijo, sin entrada explícita |
+| `operaciones_fundamentales` (1) | **módulo nuevo** `aritmetica/operaciones_fundamentales` (15) | Ídem |
+| `ecuaciones cuadraticas` (1) | `algebra/ecuaciones` | Equivalencia explícita: una *ecuación* cuadrática no es una *función* cuadrática |
+
+Los módulos pasan de **18 a 20**. Verificado con `030` + `031` sobre la distribución real:
+156 → **128**, idempotente, y lo único que queda son los dos bancos mezclados.
+
+**⚠ Consecuencia:** los dos módulos nuevos nacen **sin ningún recurso publicado**. Un estudiante
+cuyo déficit principal caiga ahí verá el estado vacío de T-24 en "Mi plan" — preferible a mostrarle
+material de otro tema rotulado como suyo (criterio de T-53), pero es contenido pendiente que se suma
+a T-27/T-56 bajo ADR-016.
+
+**Los 128 que quedan** son `diagnostico` (84) y `paes_m1` (44): bancos mezclados que necesitan
+clasificación **por ítem**, contenido y no SQL. Ninguna migración los cierra.
+
+**⏳ Pendiente:** aplicar `030` y después `031`; clasificar los bancos mezclados; publicar contenido
+para los dos módulos nuevos.
 
 ### T-29 · Calibrar `difficulty` con datos reales — **P3** · `abierto`
 

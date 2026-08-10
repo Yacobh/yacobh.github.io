@@ -594,6 +594,17 @@
 > **2025-09-09**, anterior al piloto UNAP. La precondición de ≥30 tests de la Fase 2 probablemente
 > está cumplida hace casi un año, y nadie lo notó porque el ADR se escribió sobre una foto vieja.
 >
+> **Medición real tras aplicar `028`/`029` (2026-08-10).** El owner las aplicó y verificó:
+> **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id` de 199 → **156**.
+> De esos 156, 28 sí eran mapeables y fallaron por falta de equivalencias, no por la normalización
+> — se cerraron con `030` (11 equivalencias) y `031` (dos **módulos nuevos** decididos por el
+> profesor: `algebra/inecuaciones` y `aritmetica/operaciones_fundamentales`, D-37; los módulos pasan
+> de 18 a 20). Verificado sobre la distribución real: **156 → 128**, idempotente. Los 128 restantes
+> son `diagnostico` (84) y `paes_m1` (44), los bancos mezclados. **Se corrigió una afirmación propia
+> del mismo día:** se había escrito que la decisión de ADR-017 de no unificar espacios "se había
+> caído"; se midió y **no hay ningún banco partido por espacio vs. guion bajo**, así que la decisión
+> se sostiene y el hueco era solo de mapeo. Los dos módulos nuevos nacen **sin recursos publicados**.
+>
 > Decidido (opción (a) del owner): **T-44 se mergea igual** —es la capa de caso frío que hace falta
 > para ítems sin datos, que siempre habrá bajo ADR-016— y el trabajo empírico se abre como **T-59**
 > (`P1`). ADR-014 lleva ahora una nota de corrección explícita en §Contexto; el párrafo original no
