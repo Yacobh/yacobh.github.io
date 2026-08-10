@@ -1,4 +1,5 @@
-(ns universo.components.tetha)
+(ns universo.components.tetha
+  (:require [universo.irt.effort :as effort]))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 MODELO 1PL (RASCH) + MAP con prior N(0,1)
@@ -21,26 +22,34 @@
   (/ 1.0
      (+ 1.0 (Math/exp (- (- theta difficulty))))))
 
+;; El peso `w` de cada respuesta (ADR-014 Fase 1) entra en las dos derivadas:
+;; una respuesta con w = 0 no aporta score ni información. Que aparezca también
+;; en la segunda derivada es lo que hace que el SE suba al descartar evidencia
+;; — ver universo.irt.effort. Sin `:weight`, w = 1.0 y el cálculo es idéntico
+;; al previo a ADR-014.
+
 (defn first-derivative
-  "Primera derivada de la log-verosimilitud Σ(observado - P(θ))."
+  "Primera derivada de la log-verosimilitud Σ w·(observado - P(θ))."
   [theta responses]
   (reduce
    (fn [sum response]
      (let [difficulty (or (:difficulty response) 0.0)
            prob       (probability-1pl theta difficulty)
-           observed   (if (:correct? response) 1.0 0.0)]
-       (+ sum (- observed prob))))
+           observed   (if (:correct? response) 1.0 0.0)
+           w          (effort/weight-of response)]
+       (+ sum (* w (- observed prob)))))
    0.0
    responses))
 
 (defn second-derivative
-  "Segunda derivada de la log-verosimilitud -Σ(P(θ) * (1 - P(θ)))."
+  "Segunda derivada de la log-verosimilitud -Σ w·(P(θ) * (1 - P(θ)))."
   [theta responses]
   (reduce
    (fn [sum response]
      (let [difficulty (or (:difficulty response) 0.0)
-           prob       (probability-1pl theta difficulty)]
-       (- sum (* prob (- 1.0 prob)))))
+           prob       (probability-1pl theta difficulty)
+           w          (effort/weight-of response)]
+       (- sum (* w prob (- 1.0 prob)))))
    0.0
    responses))
 

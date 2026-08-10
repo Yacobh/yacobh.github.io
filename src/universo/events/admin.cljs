@@ -908,6 +908,7 @@
    :prerequisite_topic nil
    :min_theta nil
    :max_minutes nil
+   :min_response_seconds 3
    :active true})
 
 (re-frame/reg-sub
