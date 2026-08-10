@@ -216,15 +216,17 @@ amplían para mostrar los datos nuevos cuando existen.
     publicar el bundle de T-47 y verificar el diagnóstico con cuenta de estudiante
 29. `migrations/027_misconceptions.sql` — ✅ aplicada 2026-08-10 (tabla creada y vacía,
     confirmado por el owner)
-30. `migrations/028_test_config_min_response_seconds.sql` — ⏳ **pendiente de aplicar**
-    (aditiva: una columna con default)
-31. `migrations/029_topic_normalization.sql` — ⏳ **pendiente de aplicar**, **después de `028`**
-    (copia `min_response_seconds` al fusionar filas de `test_configs`)
-32. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+30. `migrations/028_test_config_min_response_seconds.sql` — ✅ aplicada 2026-08-10
+31. `migrations/029_topic_normalization.sql` — ✅ aplicada 2026-08-10, después de `028`
+32. `migrations/030_backfill_module_id_restante.sql` — ⏳ **pendiente de aplicar**, después de `029`
+33. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
-> ⏳ **Pendiente de aplicar en el proyecto real:** `028` y `029` (2026-08-10), **en ese orden**.
-> `028` es aditiva y sin riesgo. `029` **sí modifica datos existentes** en tres tablas —
-> ver su propia sección más abajo antes de aplicarla, incluida la consulta de verificación.
+> ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
+> final de `029`: **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id`
+> de 199 → **156**.
+>
+> ⏳ **Pendiente:** `030_backfill_module_id_restante.sql`, que cierra 24 de los 28 ítems mapeables
+> que `029` dejó fuera (156 → **132**). Aditiva, solo toca filas con `module_id is null`.
 >
 > **Corrección 2026-08-10:** `022` figuraba sin marca de aplicada y se sospechó que estaba
 > pendiente. **Lo estaba solo en la documentación**: el owner verificó con

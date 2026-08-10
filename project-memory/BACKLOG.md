@@ -1192,8 +1192,38 @@ test. Sin la prueba contra un Postgres real no se habría visto.
 su topic sería un dato falso con apariencia de dato bueno. Necesitan clasificación **por ítem**, que
 es contenido (ADR-016), no SQL. La consulta (ii) del final de `029` los deja listados.
 
-**⏳ Pendiente:** aplicar `028` y después `029`; correr las tres consultas de verificación; y decidir
-qué hacer con los bancos mezclados.
+**2026-08-10, medición real tras aplicar `029`.** El owner aplicó `028` y `029` y corrió las tres
+consultas: **0 topics fuera de forma canónica** en las tres tablas (la normalización funcionó), e
+ítems sin `module_id` de 199 → **156**.
+
+Pero la consulta (ii) mostró que **28 de los 156 sí eran mapeables** y habían fallado por dos
+motivos, uno de ellos un error de criterio:
+
+1. **El topic no se llama igual que el sufijo de su módulo** (`sistemas_ecuaciones` →
+   `algebra/sistemas`, `potenciacion` → `aritmetica/potencias`, `numeros_relativos` →
+   `aritmetica/enteros`). Faltaba la equivalencia explícita, nada más.
+2. **Topics con espacios** (`ecuaciones lineales`, `expresiones algebraicas`,
+   `suma de numeros enteros`). ADR-017 decidió **a propósito** no unificar espacios con guiones
+   bajos, argumentando que "el fallo medido fue de acento y mayúscula". Ese argumento se cayó: ahora
+   hay evidencia de variantes con espacio, incluida `ecuaciones lineales` conviviendo con la entrada
+   `ecuaciones_lineales` que el propio mapeo ya contemplaba. **Fue conservadurismo sin datos.**
+
+**`030_backfill_module_id_restante.sql`** agrega las 11 equivalencias que faltaban (incluidas las
+variantes con espacio, **listadas una por una**, sin cambiar la regla de normalización) y su espejo
+en `universo.topics`. Verificada contra un Postgres desechable con la distribución real medida:
+156 → **132**, idempotente, y quedan exactamente los esperados.
+
+**Los 132 que quedan, y por qué no los cierra un agente:**
+- **128** de `diagnostico` (84) y `paes_m1` (44) — bancos mezclados, necesitan clasificación por
+  ítem (contenido, ADR-016).
+- **4** ambigüedades reales que necesitan criterio del profesor: `inecuaciones` (2 — no existe
+  módulo de inecuaciones entre los 18), `ecuaciones cuadraticas` (1 — `algebra/funciones` es
+  "Funciones lineales y cuadráticas", pero una ecuación cuadrática no es una función cuadrática) y
+  `operaciones_fundamentales` (1 — en Baldor el término aparece en Aritmética y en Álgebra).
+
+**⏳ Pendiente:** aplicar `030`; decidir las 4 ambigüedades; decidir si se fusionan las variantes con
+espacio en un solo banco (es más que `module_id`: cambia qué ítems ve un test, la config de parada y
+el historial de desbloqueos); y clasificar los bancos mezclados.
 
 ### T-29 · Calibrar `difficulty` con datos reales — **P3** · `abierto`
 

@@ -88,6 +88,29 @@
     (is (nil? (topics/module-slug-for nil)))
     (is (nil? (topics/module-slug-for "")))))
 
+(deftest mapeo-de-los-topics-medidos-tras-la-029
+  (testing "los que fallaban por no llamarse igual que el sufijo de su módulo"
+    (is (= "algebra/ecuaciones" (topics/module-slug-for "ecuaciones_simples")))
+    (is (= "algebra/sistemas" (topics/module-slug-for "sistemas_ecuaciones")))
+    (is (= "algebra/expresiones" (topics/module-slug-for "variables_coeficientes")))
+    (is (= "algebra/expresiones" (topics/module-slug-for "operaciones_algebraicas")))
+    (is (= "algebra/expresiones" (topics/module-slug-for "multiplicacion_monomios")))
+    (is (= "algebra/expresiones" (topics/module-slug-for "notacion_algebraica")))
+    (is (= "aritmetica/enteros" (topics/module-slug-for "numeros_relativos")))
+    (is (= "aritmetica/potencias" (topics/module-slug-for "potenciacion"))))
+
+  (testing "las variantes con espacio, resueltas una por una (no por normalize)"
+    (is (= "algebra/ecuaciones" (topics/module-slug-for "ecuaciones lineales")))
+    (is (= "algebra/expresiones" (topics/module-slug-for "expresiones algebraicas")))
+    (is (= "aritmetica/enteros" (topics/module-slug-for "suma de numeros enteros")))
+    (is (= "algebra/ecuaciones" (topics/module-slug-for "Ecuaciones Lineales"))
+        "y siguen tolerando mayúsculas, porque la clave se busca normalizada"))
+
+  (testing "los que siguen sin módulo esperan decisión del profesor, no un criterio inventado"
+    (doseq [t ["inecuaciones" "ecuaciones cuadraticas" "operaciones_fundamentales"]]
+      (is (nil? (topics/module-slug-for t))
+          (str "'" t "' no debe mapearse solo: es una ambigüedad real")))))
+
 (deftest track-desde-el-topic
   (is (= "aritmetica" (topics/track-for "enteros")))
   (is (= "algebra" (topics/track-for "Álgebra")))

@@ -88,7 +88,27 @@
    "terminos_semejantes" "algebra/expresiones"
    "division_algebraica" "algebra/expresiones"
    "raices" "aritmetica/potencias"
-   "pitagoras" "geometria/pitagoras"})
+   "pitagoras" "geometria/pitagoras"
+
+   ;; Agregados el 2026-08-10 con la medición real posterior a `029` (T-51):
+   ;; los 24 ítems que quedaron sin módulo por no llamarse igual que el sufijo
+   ;; de su módulo. Cada uno verificado contra los 18 slugs de `002` y contra
+   ;; la terminología de Baldor, que es de donde vienen los nombres del banco.
+   "ecuaciones_simples" "algebra/ecuaciones"
+   "sistemas_ecuaciones" "algebra/sistemas"
+   "variables_coeficientes" "algebra/expresiones"
+   "operaciones_algebraicas" "algebra/expresiones"
+   "multiplicacion_monomios" "algebra/expresiones"
+   "notacion_algebraica" "algebra/expresiones"
+   ;; Baldor llama "números relativos" a los enteros con signo.
+   "numeros_relativos" "aritmetica/enteros"
+   "potenciacion" "aritmetica/potencias"
+   ;; Variantes con espacio en vez de guion bajo. Se listan una por una en vez
+   ;; de normalizar el espacio, porque unificar `_` con ` ` fusionaría bancos
+   ;; enteros y esa es una decisión aparte (ver ADR-017 §Alternativas y T-51).
+   "ecuaciones lineales" "algebra/ecuaciones"
+   "expresiones algebraicas" "algebra/expresiones"
+   "suma de numeros enteros" "aritmetica/enteros"})
 
 ;; Bancos mezclados: agrupan ítems de varios módulos, así que asignarles un
 ;; módulo sería inventar el dato. `nil` es la respuesta honesta y deja el
