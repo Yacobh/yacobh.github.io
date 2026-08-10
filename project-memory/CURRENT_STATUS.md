@@ -512,6 +512,27 @@
 > descarta JSONB para eso (la lección de T-51: texto libre sin restricción ya produjo 26 topics
 > duplicados por acento). Detalle en `sessions/SESSION-016.md`.
 
+> **T-57 paso 1: catálogo de misconceptions creado (2026-08-10).** Misión encargada por el owner
+> antes de irse a trabajar. `supabase/migrations/027_misconceptions.sql` crea la tabla
+> `misconceptions` (con `slug` único y check de formato — la lección de T-51 hecha regla, validado
+> contra 13 casos) y las cuatro columnas `questions.misconception_a_id`…`_d_id`, nullable. RLS solo
+> admin en las cuatro operaciones. **Puramente aditiva**: no mueve datos, no toca `error_a..d`, no
+> cambia comportamiento; `null` = "sin catalogar". Sin seed a propósito.
+> **⏳ Pendiente: que el owner aplique `027`** (el agente no aplica migraciones, [[../CLAUDE]] §9).
+> No se tocó ningún `.cljs`, así que el bundle no cambia. `clj -M:test` sigue en 46/186/0.
+> Detalle en `sessions/SESSION-017.md`, `supabase/SCHEMA.md`.
+>
+> **Hallazgo colateral:** `022_test_config_display_name.sql` sigue **sin marca de aplicada** en
+> `SCHEMA.md` mientras `023`–`026` sí la tienen. Si es correcto, "Nombre visible" en Admin →
+> Configuración de tests falla al guardar (columna inexistente); el estudiante no se ve afectado.
+> Confirmar al aplicar `027`.
+>
+> **⚠ Sigue pendiente y ahora importa más:** las dos afirmaciones falsas del FAQ (X-01 "el tiempo de
+> respuesta también se considera en la estimación"; X-02 "te muestra cómo se movió tu nivel") **están
+> publicadas en los tres lugares** y el sitio ya empezó a recibir tráfico tras el go-live. ADR-014
+> ya había prescrito el plan de respaldo para esta situación exacta: *"primero que sea verdad,
+> después dejarla publicada"*. Corrección estimada: ~15 minutos.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

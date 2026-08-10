@@ -1156,7 +1156,7 @@ del track `geometria` no tienen ninguna fuente**: el owner subió los volúmenes
 - **Terminado cuando:** cada módulo de `geometria` tiene ≥1 recurso publicado y auditado.
 - **Relacionado:** T-01, ADR-016, `supabase/CONTENT.md`.
 
-### T-57 · Modelar la misconception como entidad, no como texto libre — **P2** · `abierto` (requiere **ADR**)
+### T-57 · Modelar la misconception como entidad, no como texto libre — **P2** · `en curso` (paso 1 hecho 2026-08-10; ⏳ falta aplicar `027`)
 
 Diseño conversado con el owner el 2026-08-09, a partir del análisis de arquitectura de la
 retroalimentación. **Es prerequisito de T-54**: no se pueden enlazar recursos a misconceptions
@@ -1240,10 +1240,19 @@ con 387 ítems y ~40 hay taxonomía. Corolario operativo: **una misconception qu
   ítems que no lo tienen.
 
 **Camino de migración (los pasos 1–3 son reversibles y no rompen nada si se abandona a medias):**
-1. Migración que crea el catálogo vacío + las 4 columnas nullable. **Cero cambio de comportamiento**,
-   nada que probar.
+1. ✅ **Hecho 2026-08-10 — `supabase/migrations/027_misconceptions.sql`.** Crea el catálogo vacío
+   (`slug` único con check de formato, `name`, `description`, `module_id` opcional) + las 4 columnas
+   `misconception_a_id`…`_d_id` en `questions`, nullable y con `on delete set null`. RLS habilitado
+   con las cuatro policies de admin en la misma migración (regla de [[../CLAUDE]] §7.1). **Sin seed
+   a propósito** y sin tocar `error_a..d`. Cero cambio de comportamiento: `null` = "sin catalogar".
+   El check del slug (`^[a-z0-9]+([-/][a-z0-9]+)*$`) se validó contra 13 casos, incluidos los dos
+   modos de fallo de T-51 (mayúsculas y acentos). Documentada en `supabase/SCHEMA.md`.
+   **⏳ Pendiente: que el owner la aplique** en el SQL Editor — el agente no aplica migraciones
+   (CLAUDE.md §9). Nada se rompe mientras no se aplique; simplemente no existe la tabla.
 2. Catalogar **un solo módulo**, el más fallado — ahora medible con los 252 diagnósticos reales.
    Es trabajo de contenido, o sea cae bajo [[../adr/ADR-016-ia-en-el-pipeline-de-autoria-no-en-runtime]].
+   **Precondición práctica:** medir cuál es ese módulo requiere consultar `tests` en el proyecto
+   real; el agente no tiene ese acceso, así que el paso 2 empieza con una consulta del owner.
 3. Migración que siembra esas misconceptions y hace backfill de las FK **solo de ese módulo**. El
    resto del banco sigue en `null` y funciona idéntico.
 4. Extender `score_answer` para devolver también el slug (precedente: `026` ya lo extendió para

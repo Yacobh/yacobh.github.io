@@ -214,7 +214,13 @@ amplían para mostrar los datos nuevos cuando existen.
 27. `migrations/026_score_answer_devuelve_correcta.sql` — ✅ aplicada 2026-08-09 (**antes de `025`**)
 28. `migrations/025_questions_revoke_lectura_directa.sql` — ✅ aplicada 2026-08-09, **después** de
     publicar el bundle de T-47 y verificar el diagnóstico con cuenta de estudiante
-29. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+29. `migrations/027_misconceptions.sql` — ⏳ **pendiente de aplicar** (aditiva, sin riesgo)
+30. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+
+> ⏳ **Pendientes de aplicar en el proyecto real:** `022_test_config_display_name.sql` (desde
+> 2026-08-08 — sin ella, el campo "Nombre visible" del panel existe pero **guardar falla**; el lado
+> del estudiante no se rompe, cae al diccionario estático) y `027_misconceptions.sql` (2026-08-10).
+> Ninguna de las dos bloquea nada en producción hoy.
 
 > **Nota de orden:** `026` va antes que `025` pese a la numeración. `025` es la revocación y su
 > precondición es el bundle publicado, no el número. Ver ADR-015 §Secuencia de despliegue.
@@ -333,3 +339,46 @@ al rol dueño, y PostgREST nunca conecta como dueño).
 `tests` "no tenía ninguna policy de SELECT propia del usuario". Era falso — existía
 `"Enable users to view their own data only"`, creada desde el dashboard. `tests_select_own` fue
 redundante, no un arreglo. Consolidado en `023`.
+
+---
+
+## Catálogo de misconceptions (`027_misconceptions.sql`) — ⏳ pendiente de aplicar
+
+**Paso 1 de [[../project-memory/BACKLOG]] T-57.** Puramente aditiva: crea una tabla vacía y cuatro
+columnas nullable. No mueve ningún dato, no cambia el comportamiento de la app, y se puede aplicar
+en cualquier momento.
+
+**Qué resuelve.** `questions.error_a..d` hoy fusiona dos cosas: la **identidad** del error
+("invierte el divisor al dividir fracciones", reusable entre ítems) y la **explicación** para ese
+ítem concreto (que menciona sus números). Al ser un solo `text`, la misconception no tiene
+identificador: dos ítems que evalúan el mismo error tienen cadenas sin relación entre sí. No se
+puede contar cuántos estudiantes cometen un error dado, ni enlazarle un recurso (T-54), ni comparar
+entre diagnósticos (Q-07/T-26).
+
+**El texto no se reemplaza.** El distractor apunta a una misconception **y** conserva su explicación
+contextual. Sustituir `error_a` por un ID perdería lo mejor que hay hoy.
+
+| Objeto | Qué es |
+|---|---|
+| `public.misconceptions` | Catálogo curado. `slug` único con check de formato, `name`, `description` (criterio editorial), `module_id` opcional, `created_at` |
+| `questions.misconception_a_id` … `_d_id` | `uuid` nullable → `misconceptions(id)`, `on delete set null`. `null` = "sin catalogar" |
+
+**El check del slug es la lección de T-51 hecha regla:** `^[a-z0-9]+([-/][a-z0-9]+)*$` — solo
+minúsculas, dígitos y `-`/`/` como separadores. Rechaza mayúsculas, acentos, espacios, guion bajo y
+separadores al inicio/final o duplicados. T-51 documentó 26 topics duplicados por acento y mayúscula
+que el sistema trató como bancos distintos **sin avisar**; esta restricción existe para que eso no
+se repita en el catálogo.
+
+**RLS: solo admin en las cuatro operaciones.** El estudiante no necesita leer esta tabla — desde
+ADR-015 el cliente no lee `questions`, y si la misconception llega al estudiante será vía
+`score_answer`, que es `security definer` y no pasa por las policies. Criterio deliberado (R-16):
+abrir después es fácil, des-filtrar no.
+
+**Sin seed a propósito.** Sembrar una misconception por cada `error_*` distinto reproduciría el
+problema que la tabla existe para resolver. El catálogo debe crecer **mucho más lento** que el
+banco: con 387 ítems y ~300 misconceptions no se modeló nada; con ~40 hay taxonomía. Una
+misconception presente en un solo ítem es sospechosa.
+
+**Qué NO hace esta migración** (pasos 2–5 de T-57, cada uno con su propia decisión): catalogar
+módulos, extender `score_answer` para devolver el slug, agrupar por misconception en
+`universo.profile/build`, ni enlazar recursos (T-54).
