@@ -472,6 +472,46 @@
 > **Orden recomendado:** T-51 antes que cualquier producción de contenido nueva; T-54 mientras el
 > modelo siga siendo barato de cambiar (58 recursos). El go-live sigue dependiendo solo de T-04.
 
+> # ⭐ **T-04 CERRADO — cae el último bloqueo de go-live (2026-08-09)**
+>
+> **El owner creó la sala de Jitsi y publicó el primer cupo real: sábado 2026-08-15, 10:30, con
+> enlace verdadero, y borró todos los cupos demo.** Con esto la plataforma queda operativa de punta
+> a punta para un estudiante externo: diagnóstico adaptativo → perfil → plan → cupo real →
+> confirmación automática por trigger → email verificado.
+>
+> Ningún bloqueo de F8 (Go-live) queda abierto. Lo que sigue **ya no es construir, es difundir**.
+>
+> **Matices honestos, para no leer esto con más optimismo del que corresponde:**
+> - Se publicó **un** cupo, no uno por banda. Los estudiantes de otras bandas verán el estado vacío
+>   de T-24 en "Cupos" — es falta de oferta, no de interés. Tenerlo presente al mirar métricas.
+> - Banda, `capacity` y `min_enrollments` del cupo **no verificados por el agente** (sin
+>   credenciales). Por D-27 deberían ser 12 y 3; conviene confirmarlo antes de difundir el enlace.
+> - **Se activa [[RISKS]] R-11**: con `min_enrollments = 3`, si no llegan 3 inscritos el cupo no se
+>   confirma. La cancelación es manual (D-31) y el aviso al inscrito ya existe (T-25).
+> - **[[RISKS]] R-19 (estacionalidad) pasa a ser el riesgo dominante.** La PAES se rinde a fin de
+>   año: la ventana de captación son las próximas ~12 semanas. No hay una segunda oportunidad este
+>   ciclo.
+>
+> **T-58 arreglado en la misma sesión (bug encontrado mientras se ejecutaba T-04).** Al cambiar de
+> pestaña y volver, el panel de admin borraba lo que se estuviera editando. No era una recarga:
+> `@supabase/supabase-js` emite `TOKEN_REFRESHED` al recuperar visibilidad la pestaña, `:auth/listen`
+> lo trataba como login nuevo, `:auth/session-established` limpiaba `role`/`admin?`, y `admin-panel`
+> caía a su rama `(nil? role)` — desmontando el subárbol y con él los `r/atom` de los formularios.
+> Arreglado **en el origen** con el predicado puro `session-refresh?` + el handler
+> `:auth/session-event`, lo que además desactiva el `:admin/enter` que `:auth/profile-loaded`
+> re-disparaba. `clj -M:test` **46/186/0**. **No verificado en vivo** (sin credenciales de admin).
+>
+> **Conversación de arquitectura de la sesión (sin código, registrada como tickets):** se analizó
+> cómo se implementa la retroalimentación del diagnóstico. Dos hallazgos de diseño:
+> (a) el **lazo interno** (θ ← respuesta ← selección de ítem) es control retroalimentado real y está
+> bien hecho, pero el **lazo externo está abierto**: el sistema mide y prescribe, y nunca vuelve a
+> medir si la prescripción sirvió; (b) la **misconception no es una entidad** — es texto libre en
+> `questions.error_a..d`, sin identidad, así que no se puede contar, enlazar a recursos ni comparar
+> entre diagnósticos. De ahí salieron **T-57** (modelar la misconception como entidad, con modelo
+> relacional propuesto y camino de migración; **prerequisito de T-54**) y el detalle de por qué se
+> descarta JSONB para eso (la lección de T-51: texto libre sin restricción ya produjo 26 topics
+> duplicados por acento). Detalle en `sessions/SESSION-016.md`.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".
@@ -545,8 +585,11 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
   aplicada por el owner el 2026-07-30, sin verificación en vivo por parte del agente
 - [x] `013_profile_contact_preference.sql` aplicada (canal de contacto preferido, T-36) —
   aplicada por el owner el 2026-07-30, sin verificación en vivo por parte del agente
-- [ ] Cupos reales (no demo) publicados con fecha, sala de Jitsi y mínimo/capacidad definidos (D-27)
-- [ ] Recompilar (`shadow-cljs release app` + `build:css`) y publicar en `main`
+- [x] **Cupos reales (no demo) publicados con fecha, sala de Jitsi y mínimo/capacidad definidos
+  (D-27)** — cerrado 2026-08-09 (T-04): un cupo real para el sábado 2026-08-15 10:30 con enlace de
+  Jitsi verdadero; demos borrados. Pendiente parcial: cupos para las bandas restantes
+- [x] Recompilar (`shadow-cljs release app` + `build:css`) y publicar en `main` — rutina cumplida en
+  cada sesión, verificada por hash contra producción
 
 > Los ítems `006` y `007` se marcan como aplicados porque el panel depende de ellos y está
 > operativo; si un entorno nuevo falla al promover un admin o al editar preguntas, esa es la causa.
@@ -598,7 +641,7 @@ Registradas hoy de forma retroactiva (las decisiones son previas; su documentaci
 |---|---------|------|------------------|
 | BL-01 | ~~Contenido pedagógico: no hay recursos publicados por módulo prioritario~~ -- **resuelto 2026-08-09** (T-01, 58/61 publicados). Sigue pendiente la mitad no relacionada: `error_*` enriquecidos en todos los ítems (T-27) | Humano | Jacobo Córdova |
 | BL-02 | ~~Verificación del envío de email~~ -- **resuelto 2026-08-09** (T-02, verificado en vivo de punta a punta) | Acceso/operación | Jacobo Córdova |
-| BL-03 | **Cupos reales**: fechas y enlaces de videollamada no están definidos (los datos actuales son demo con `meet.example.com`). Por D-27, los cupos reales son 100% virtuales por ahora (Jitsi/Meet) -- ya no depende de sala física en Iquique ni de UNAP (ver D-18) | Negocio | Jacobo Córdova |
+| BL-03 | ~~Cupos reales~~ -- **resuelto 2026-08-09** (T-04): primer cupo real publicado para el sábado 2026-08-15 10:30 con enlace de Jitsi verdadero, demos borrados. **Era el último bloqueo de go-live** | Negocio | — |
 | BL-04 | ~~Árbol sucio~~ -- **resuelto 2026-07-29** (T-08) y reverificado limpio el 2026-08-09; ver nota de sesión al inicio de este archivo | Técnico | — |
 | BL-05 | **Preguntas abiertas de producto** sin responder (capacidad, repetición de diagnóstico, privacidad) | Decisión | Ver [[OPEN_QUESTIONS]] |
 
@@ -620,17 +663,24 @@ Detalle y lista completa en [[RISKS]].
 
 ## 8. Próximos pasos inmediatos
 
-Reescrito 2026-08-09 — la lista anterior tenía pasos ya cerrados hace semanas (BL-01/BL-02/Q-04/
-T-35) mezclados con los vigentes. En orden de ejecución recomendado, con solo lo que sigue abierto:
+Reescrito por segunda vez el 2026-08-09, **tras cerrar T-04**. Por primera vez en el proyecto no
+hay ningún bloqueo de go-live abierto, así que la lista cambia de naturaleza: deja de ser técnica.
 
-1. **Mergear `chore-limpieza-tecnica-y-memoria` a `main`** (esta sesión, 2026-08-09): borrado de
-   `user.cljs`, alineación de versiones (shadow-cljs/KaTeX), limpieza de ramas y de memoria.
-   `clj -M:test` y `npx shadow-cljs release app` ya verificados en verde en la rama.
-2. **Publicar cupos reales** (BL-03, [[BACKLOG]] T-04) y retirar/marcar los demo de `003` — el
-   único bloqueo de go-live que sigue abierto y depende de negocio, no de código.
-3. **Responder las preguntas abiertas de producto** ([[OPEN_QUESTIONS]] Q-07, Q-10, Q-14).
-4. **Endurecimiento mínimo** (T-06 ya hecho pero sin verificar en vivo; T-07 respaldo de base
-   sigue abierto).
+1. **Conseguir el primer estudiante externo.** Es el paso 1 y no tiene ticket porque no es código:
+   difundir el cupo del 2026-08-15 por los canales que existan (marca personal, WhatsApp, contactos
+   del piloto UNAP). **R-19 manda:** la PAES se rinde a fin de año, quedan ~12 semanas de ventana y
+   no hay segunda oportunidad este ciclo.
+2. **Confirmar en el panel** la banda, `capacity` y `min_enrollments` del cupo publicado antes de
+   difundirlo (D-27 dice 12 y 3; no verificado por el agente).
+3. **Probar el funnel completo con una cuenta de estudiante real**, de punta a punta. Nunca se hizo
+   en una sola pasada: T-01, T-24, T-38, T-53 y T-58 quedaron todos "no verificados en vivo" por
+   falta de credenciales. Media hora del owner cierra esa deuda de verificación acumulada.
+4. **Instrumentar el funnel** (T-20, F10 está en 0 %): sin esto, si no llega nadie no habrá forma de
+   saber en qué paso se cayeron. Es la causa #1 del pre-mortem, y hoy es invisible por construcción.
+5. **T-51** cuando se retome contenido — es el bloqueo real de la capa 1 (ver T-53).
+6. **Endurecimiento** (T-07 respaldo probado; T-06 hecho pero sin verificar en vivo) y **T-34**
+   (retención automática), que es una promesa pública hoy incumplida y su plazo legal es el
+   1/12/2026.
 
 > Regla PMF: antes de empezar cualquiera de estos pasos, leer [[AGENT_INSTRUCTIONS]]; al
 > terminarlo, actualizar este archivo y crear/actualizar el `sessions/SESSION-XXX.md`.

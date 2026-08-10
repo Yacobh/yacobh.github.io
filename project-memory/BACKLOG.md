@@ -147,7 +147,7 @@ enrollments activos superaran `class_slots.capacity` — ver detalle en
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-04 (respondida), [[REQUIREMENTS]] RF-5.10,
   `supabase/SCHEMA.md` §Control de capacidad.
 
-### T-04 · Publicar cupos reales y retirar los demo — **P0** · `abierto` (desbloqueada, falta ejecución del owner)
+### T-04 · Publicar cupos reales y retirar los demo — **P0** · `hecho` (2026-08-09) ⭐ **último bloqueo de go-live**
 
 **2026-07-30:** Q-09 respondida (D-27) — criterio de negocio fijado: `min_enrollments = 3`,
 `capacity = 12`, modalidad **virtual**, día **sábado o domingo**, enlace de **Jitsi** (Q-24/D-30 —
@@ -160,7 +160,103 @@ crear los cupos en Admin → Cupos).
 - **Terminado cuando:** existe ≥ 1 cupo `open` por banda con fecha futura real, `location_or_link`
   con un enlace de Jitsi real (no `meet.example.com`), `capacity = 12` y `min_enrollments = 3`; y
   los cupos demo de `003` están `cancelled` o borrados.
-- **Relacionado:** [[OPEN_QUESTIONS]] Q-09, Q-24 (ambas respondidas).
+
+**✅ Ejecutado por el owner el 2026-08-09.** Creó la sala de Jitsi y publicó un cupo real para el
+**sábado 2026-08-15 a las 10:30**, con el enlace verdadero, y **borró todos los cupos demo**. Con
+esto **cae el último bloqueo de go-live**: la plataforma queda operativa de punta a punta para un
+estudiante externo (diagnóstico → perfil → plan → cupo real → confirmación automática → email).
+
+- **Cumplido:** cupo real con fecha futura, enlace de Jitsi verdadero, demos de `003` eliminados.
+- **⚠ Parcial respecto al criterio literal:** se publicó **un** cupo, no uno **por banda**. En la
+  práctica eso significa que los estudiantes cuya banda no coincida con la de este cupo van a ver
+  el estado vacío de T-24 en "Cupos". Es una decisión razonable para arrancar (una cohorte primero,
+  ver si llega gente), pero conviene tenerlo presente al mirar métricas: una banda sin cupo no es
+  falta de interés, es falta de oferta.
+- **No verificado por el agente:** banda, `capacity` y `min_enrollments` del cupo publicado (sin
+  credenciales de admin). Por D-27 deberían ser `capacity = 12` y `min_enrollments = 3`; vale la
+  pena confirmarlo en el panel antes de difundir el enlace.
+- **Ahora se activa [[RISKS]] R-11** (cupos que no alcanzan el mínimo): con `min_enrollments = 3`,
+  si no llegan 3 inscritos el cupo no se confirma solo. La cancelación es manual (D-31) y el aviso
+  al inscrito ya existe (T-25, migración `012`).
+- **Relacionado:** [[OPEN_QUESTIONS]] Q-09, Q-24 (ambas respondidas), **T-58** (el bug que apareció
+  justo mientras se ejecutaba esta tarea), [[RISKS]] R-11, R-19 (estacionalidad PAES).
+
+### T-58 · Cambiar de pestaña borra lo que se está editando en el panel admin — **P0** · `hecho` (2026-08-09)
+
+Reportado por el owner el 2026-08-09, **mientras ejecutaba T-04**: tenía la sala de Jitsi creada y
+al volver de otra pestaña el formulario de cupo se había vaciado. Descrito como "la página se
+recarga", pero **no hay ninguna recarga**: no existe `location.reload` ni handler de
+`visibilitychange` en el repositorio. Es un ciclo de desmontaje/montaje.
+
+**Cadena diagnosticada (por lectura de código, ver "Verificación" abajo):**
+
+1. Al recuperar visibilidad la pestaña, el cliente de `@supabase/supabase-js` refresca la sesión y
+   emite **`TOKEN_REFRESHED`**.
+2. `events/auth.cljs:206` mete ese evento en el mismo `#{"SIGNED_IN" "TOKEN_REFRESHED"
+   "USER_UPDATED"}` y despacha `:auth/session-established` — es decir, **trata un refresco de token
+   como si fuera un login nuevo**.
+3. `:auth/session-established` (`auth.cljs:83-84`) pone `:auth :admin? false` y `:auth :role nil`
+   a propósito, con el comentario *"role/admin? se confirman al cargar profiles"*. Es correcto en
+   un login real; es destructivo en un refresco donde la sesión no cambió.
+4. `admin-panel` (`components/admin.cljs:1146`) tiene `(cond (nil? role) [:div "Verificando
+   permisos…"] ...)`, así que con `role = nil` **renderiza el aviso en vez del panel**.
+5. Eso desmonta el subárbol completo. El estado del formulario vive en un `r/atom` local de un
+   componente form-2 (`slot-form`, `admin.cljs:790`), así que React lo destruye con el componente.
+6. Al volver el perfil, el panel remonta y `(r/atom blank-slot)` se evalúa de nuevo → formulario en
+   blanco.
+
+**Segundo efecto encadenado:** `:auth/profile-loaded` (`auth.cljs:173`) tiene
+`(and on-admin? admin?) (assoc :dispatch [:admin/enter])`, así que al reconfirmarse el rol **se
+recargan todos los datos del panel**. No es lo que borra el formulario (eso lo hace el desmontaje
+del paso 5), pero se suma al mismo evento y confirma cuál es el arreglo correcto: **cortar en el
+origen**. Si `TOKEN_REFRESHED` deja de tratarse como sesión nueva, no se dispara
+`session-established` → ni `load-profile` → ni `profile-loaded` → ni `:admin/enter`, y los dos
+efectos desaparecen con un solo cambio.
+
+**Alcance mayor que el síntoma reportado:** afecta a todos los formularios del panel con estado
+local, no solo cupos — recursos (`admin.cljs:608`), preguntas y configuración de tests. Cualquier
+edición larga se pierde al cambiar de pestaña.
+
+**Arreglo propuesto (dos capas, ninguna implementada todavía):**
+- **En el origen:** distinguir `TOKEN_REFRESHED` de `SIGNED_IN` en `:auth/listen`. Un refresco de
+  token no es una sesión nueva y no debería reconstruir el estado de auth.
+- **Defensa en profundidad:** en `:auth/session-established`, no limpiar `role`/`admin?` cuando el
+  `user-id` entrante es el mismo que ya está en `db`. **Esto no relaja ninguna seguridad**: por
+  [[../CLAUDE]] §7 regla 4 los checks de UI son UX, el control real es la policy RLS.
+- Evaluar aparte si el estado de los formularios del panel debería vivir en `app-db` en vez de en
+  ratoms locales — es más trabajo y **no** es la causa raíz, así que no se hace en este ticket.
+
+**Implementado 2026-08-09** (rama `t-58-token-refresh-no-reconstruye-sesion`):
+
+- **`universo.events.auth/session-refresh?`** — predicado puro nuevo: ¿este evento corresponde a una
+  sesión ya establecida para el mismo usuario? Compara **id y email**, no solo id, para que un
+  `USER_UPDATED` con correo nuevo sí reestablezca la sesión. Mismo patrón que `logged-in?`/`admin?`,
+  que ya viven en ese namespace y ya se testean en `test/universo/events/auth_test.cljs`.
+- **`:auth/session-event`** — handler nuevo, punto único de entrada de los eventos de sesión de
+  Supabase. `:auth/listen` ya no despacha `:auth/session-established` directo: pasa por acá, que es
+  donde —con acceso a `db`— se puede distinguir un refresco de un login. Si es refresco, no hace
+  nada.
+- **Se arregló en el origen, no en el síntoma.** Cortar acá desactiva de una vez los **dos** efectos
+  del refresco: el desmontaje del panel y el `:admin/enter` que `:auth/profile-loaded` re-dispara.
+- **No se agregó la "defensa en profundidad"** que proponía el ticket (no limpiar `role`/`admin?`
+  para el mismo usuario en `session-established`): con el arreglo de origen ese handler ya solo se
+  invoca en establecimientos reales, donde limpiar es lo correcto. Habría sido complejidad
+  especulativa.
+- `clj -M:test`: **46 tests / 186 assertions / 0 failures** (antes 45/178, +8 assertions del
+  predicado nuevo). `clj-kondo` sobre los dos archivos tocados: **0 warnings**. `shadow-cljs release
+  app`: 0 warnings.
+
+- **Terminado cuando:** con el formulario de cupo a medio llenar, cambiar de pestaña y volver
+  conserva lo escrito; y `clj -M:test` sigue verde. ✅ (lo segundo verificado; lo primero requiere
+  navegador, ver abajo)
+- **⚠ No verificado en vivo:** el arreglo es correcto por construcción y está cubierto por tests
+  unitarios del predicado, pero **no se reprodujo el bug ni se confirmó su desaparición en el
+  navegador** — el agente no tiene credenciales de admin. Al probarlo: la consola debe seguir
+  mostrando `🔐 Auth state: TOKEN_REFRESHED` (`auth.cljs:204`, el log no se tocó), pero el panel ya
+  **no** debe parpadear a "Verificando permisos…" ni vaciar el formulario.
+- **Relacionado:** T-04 (el bug apareció mientras se ejecutaba), [[RISKS]] R-07 (monolito
+  `admin.cljs`), [[../CLAUDE]] §7 regla 4 (los checks de UI son UX; el control real es RLS, así que
+  conservar el rol entre refrescos no relaja ninguna seguridad).
 
 ### T-08 · Limpiar el árbol y publicar el bundle correcto — **P0** · `hecho` (2026-07-29)
 
@@ -1014,7 +1110,8 @@ que convierte el diagnóstico en remedio no existe en el modelo de datos.**
   `questions.error_*` como `resources` la referencien; (c) etiquetado libre por tags.
 - **Ojo, precondición real:** hoy una misconception **no tiene identificador** — es una cadena
   dentro de `questions.error_a..d`. Cualquier opción exige decidir antes si se convierten en
-  entidad, lo que toca contenido ya escrito.
+  entidad, lo que toca contenido ya escrito. **Esa precondición es ahora T-57**, con modelo
+  propuesto y camino de migración: esta tarea depende de aquella y no debería tomarse antes.
 - **Terminado cuando:** existe un ADR que fija el modelo, y "Mi plan" puede mostrar material
   asociado al error específico que el estudiante cometió, no solo a su módulo.
 - **Relacionado:** T-53 (el arreglo que dejó esta brecha a la vista), T-51 (bloqueo previo: sin
@@ -1058,6 +1155,110 @@ del track `geometria` no tienen ninguna fuente**: el owner subió los volúmenes
   entregarlo es echar agua en un balde perforado (misma conclusión que motivó T-53).
 - **Terminado cuando:** cada módulo de `geometria` tiene ≥1 recurso publicado y auditado.
 - **Relacionado:** T-01, ADR-016, `supabase/CONTENT.md`.
+
+### T-57 · Modelar la misconception como entidad, no como texto libre — **P2** · `abierto` (requiere **ADR**)
+
+Diseño conversado con el owner el 2026-08-09, a partir del análisis de arquitectura de la
+retroalimentación. **Es prerequisito de T-54**: no se pueden enlazar recursos a misconceptions
+mientras las misconceptions no existan como entidad.
+
+**El diagnóstico del modelo actual:** `questions.error_a..d` hace **dos trabajos a la vez** y por eso
+no sirve para ninguno del todo:
+
+1. **La identidad del error** — *"invierte el divisor al dividir fracciones"*. Reusable entre ítems,
+   contable, agregable.
+2. **La explicación para ese ítem** — necesariamente específica, porque menciona los números
+   concretos de esa pregunta.
+
+Como está fusionado en un `text`, la misconception **no tiene identificador**: dos ítems que evalúan
+el mismo error conceptual tienen dos strings independientes y sin relación. No se puede contar
+cuántos estudiantes tienen un error dado, ni enlazarle un recurso, ni comparar entre diagnósticos.
+Hoy la misconception es un **artefacto de presentación, no una entidad del dominio**.
+
+**Consecuencia de diseño que ordena todo lo demás:** el texto **no se reemplaza** por un ID. Se
+conserva la explicación contextual (que es la fortaleza actual: habla de los números del ejercicio)
+y **además** el distractor apunta a una misconception. Las dos cosas.
+
+**Forma propuesta (relacional, no JSONB):**
+
+```sql
+create table public.misconceptions (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  name text not null,          -- para el profesor y para agregar
+  description text,            -- criterio editorial, no se le muestra al alumno
+  module_id uuid references public.modules (id),
+  created_at timestamptz not null default now(),
+  -- La lección de T-51 hecha restricción: sin acentos ni mayúsculas, para que
+  -- 'divisor-invertido' no conviva con 'Divisor_Invertido'
+  constraint misconceptions_slug_normalizado
+    check (slug ~ '^[a-z0-9]+(/[a-z0-9]+)*(-[a-z0-9]+)*$')
+);
+
+alter table public.questions
+  add column if not exists misconception_a_id uuid references public.misconceptions (id),
+  add column if not exists misconception_b_id uuid references public.misconceptions (id),
+  add column if not exists misconception_c_id uuid references public.misconceptions (id),
+  add column if not exists misconception_d_id uuid references public.misconceptions (id);
+```
+
+**Por qué relacional y no JSONB** (el owner propuso JSONB como alternativa): lo único que se busca
+con este cambio es **identidad**, y JSONB es precisamente lo que no puede garantizarla. La evidencia
+está en este mismo repo: **T-51** documenta 26 topics con duplicados por acento y mayúscula
+(`factorización`/`factorizacion`, `Polinomios`/`polinomios`) que el sistema trató como bancos
+distintos sin avisar, exactamente porque `topic` es texto libre. Un JSONB con slugs reproduce ese
+fallo con la misma invisibilidad. Además **R-09** ya registra "contrato JSONB sin esquema" como
+riesgo activo, y todo lo que se quiere hacer acá (contar, enlazar, comparar) son joins y
+agregaciones.
+
+**Por qué 4 columnas y no una tabla `question_distractors` normalizada:** (a) el supuesto de
+exactamente 4 alternativas ya está grabado en el `check` de `correct_option`, en la validación
+`A..D` de `score_answer` y en el editor del panel — no se agrega una restricción nueva; (b) la
+versión normalizada obliga a mover los 387×4 textos en una sola migración contra producción sin
+staging (R-02), mientras que la aditiva no mueve ningún dato y `null` significa "sin catalogar",
+lo que además da una métrica de avance gratis. Normalizar después sigue siendo barato (ver abajo).
+
+**Ventaja heredada de ADR-015:** tras esa decisión los **únicos** lectores de `error_*` son
+`next_question` y `score_answer`. El cliente ya no lee `questions`. El radio de impacto de cambiar
+este modelo son **dos funciones SQL** — la costura la creó, sin buscarlo, el arreglo de seguridad
+de T-47.
+
+**Disciplina editorial (el riesgo real no es técnico):** el catálogo debe crecer **mucho más lento**
+que el banco. Con 387 ítems y ~300 misconceptions no se modeló nada, solo se renombraron strings;
+con 387 ítems y ~40 hay taxonomía. Corolario operativo: **una misconception que aparece en un solo
+ítem es sospechosa**.
+
+**Qué desbloquea, más allá de poder contar:**
+- **El nivel de granularidad intermedio se vuelve computable.** Hoy el sistema sabe "eres débil en
+  fracciones" (módulo) y "en la pregunta 7 elegiste C" (ítem), pero no el escalón del medio, que es
+  justo lo que promete la landing. Con identidad: *misma `misconception_id` fallada en ≥2 ítems del
+  mismo test* → "inviertes sistemáticamente el divisor". Hoy es imposible de escribir.
+- **Permite cerrar el lazo externo.** Para medir si el estudiante superó un error hace falta algo
+  identificable entre un diagnóstico y el siguiente. Da contenido concreto a Q-07/T-26, hoy
+  bloqueadas por no saber qué se compara entre intentos.
+- **Le quita filo a T-51:** una misconception catalogada con `module_id` da una pista de módulo a
+  ítems que no lo tienen.
+
+**Camino de migración (los pasos 1–3 son reversibles y no rompen nada si se abandona a medias):**
+1. Migración que crea el catálogo vacío + las 4 columnas nullable. **Cero cambio de comportamiento**,
+   nada que probar.
+2. Catalogar **un solo módulo**, el más fallado — ahora medible con los 252 diagnósticos reales.
+   Es trabajo de contenido, o sea cae bajo [[../adr/ADR-016-ia-en-el-pipeline-de-autoria-no-en-runtime]].
+3. Migración que siembra esas misconceptions y hace backfill de las FK **solo de ese módulo**. El
+   resto del banco sigue en `null` y funciona idéntico.
+4. Extender `score_answer` para devolver también el slug (precedente: `026` ya lo extendió para
+   devolver `correcta`), guardarlo junto a `:selected-error` en la respuesta, y agrupar por él en
+   `universo.profile/build`.
+5. Recién ahí, si demostró valor: T-54 (enlazar recursos) y evaluar la normalización.
+
+- **Terminado cuando:** existe el ADR que fija el modelo, el catálogo está creado, y al menos un
+  módulo tiene sus distractores catalogados con la detección de error sistemático funcionando sobre
+  ellos.
+- **⚠ Orden respecto al go-live:** este trabajo **no acerca el proyecto a tener estudiantes**. El
+  paso 1 son ~20 minutos y puede quedar listo cuando sea; los pasos 2–4 van **después** de T-04.
+- **Relacionado:** T-54 (depende de esta), T-51, T-27, Q-07/T-26 (lazo externo),
+  [[../adr/ADR-005-banco-de-items-en-vez-de-cms]], [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]],
+  [[RISKS]] R-09, `sessions/SESSION-015.md`.
 
 ---
 

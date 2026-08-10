@@ -1,7 +1,9 @@
 # ROADMAP
 
-Última actualización: **2026-08-09** (F2 cerrada — T-01/R-10; F3 solo falta T-04; F5 cerrada — T-02;
-T-13/T-16/T-18 cerradas en F9/limpieza técnica; ver `sessions/SESSION-014.md`)
+Última actualización: **2026-08-09** — ⭐ **F8 (Go-live) cerrada con T-04**: primer cupo real
+publicado. F2, F3 y F5 también cerradas el mismo día. El proyecto deja de estar limitado por código
+y pasa a estarlo por difusión; **F10 (Medición) es ahora la fase que más importa**, porque sin ella
+no hay forma de saber dónde se cae el embudo. Ver `sessions/SESSION-016.md`.
 
 > Las fases F0–F6 son **reconstruidas** desde el historial de commits y el estado del código: no
 > existía un roadmap escrito. Las fases F8+ son propuestas y requieren confirmación del owner
@@ -16,15 +18,15 @@ T-13/T-16/T-18 cerradas en F9/limpieza técnica; ver `sessions/SESSION-014.md`)
 F0 Base técnica          ████████████ 100%  ✅ cerrada
 F1 Motor IRT             ████████████ 100%  ✅ cerrada
 F2 Perfil y plan         ████████████ 100%  ✅ cerrada 2026-08-09 (T-01, R-10)
-F3 Cohortes              ███████████░  95%  🟡 solo falta T-04 (cupos reales)
+F3 Cohortes              ████████████ 100%  ✅ cerrada 2026-08-09 (T-04)
 F4 Panel admin           ████████████ 100%  ✅ cerrada
 F5 Email de cohorte      ████████████ 100%  ✅ cerrada 2026-08-09
 F6 Captación / SEO       ██████████░░  90%  🟡 sin analytics
 F7 Project Memory (PMF)  ████████████ 100%  ✅ cerrada 2026-07-26
+F8 Go-live real          ████████████ 100%  ✅ cerrada 2026-08-09 ⭐
 ────────────────────────────────────── ← estamos aquí
-F8 Go-live real          █████████░░░  80%  ▶ solo falta T-04
 F9 Endurecimiento        ███░░░░░░░░░  25%  T-13 cerrada 2026-08-09
-F10 Medición             ░░░░░░░░░░░░   0%
+F10 Medición             ░░░░░░░░░░░░   0%  ▶ ahora es lo que más importa
 F11 Escala pedagógica    ░░░░░░░░░░░░   0%  (propuesta)
 ```
 
@@ -92,7 +94,7 @@ recurso para trabajarlo. ✅
 
 ---
 
-## F3 — Cohortes 🟡 95 %
+## F3 — Cohortes ✅ 100 % (2026-08-09)
 
 **Objetivo:** que el diagnóstico desemboque en un grupo de estudio viable.
 
@@ -107,11 +109,15 @@ recurso para trabajarlo. ✅
 | Cupos demo en bandas distintas | ✅ `003` |
 
 **Control de capacidad cerrado (Q-04, T-03, 2026-07-29):** trigger `011_enrollments_capacity_check.sql`
-aplicado en producción. **Falta para cerrar la fase:** publicar cupos reales (T-04) — el único
-pendiente, depende de ejecución del owner (fechas + salas de Jitsi), no de código.
-**Hito H3:** un grupo real se confirma solo al alcanzar su mínimo. 🟡
-**Riesgo:** cupos publicados que nunca alcanzan el mínimo → estudiantes en espera indefinida sin
-comunicación (R-11).
+aplicado en producción. **Cupos reales publicados (T-04, 2026-08-09):** primer cupo real para el
+sábado **2026-08-15 10:30** con enlace de Jitsi verdadero; cupos demo borrados. **Fase cerrada** —
+con el matiz de que se publicó un cupo, no uno por banda (ver [[BACKLOG]] T-04).
+**Hito H3:** un grupo real se confirma solo al alcanzar su mínimo. 🟡 **El mecanismo está completo y
+verificado en producción** (T-02: trigger → notificación → outbox → correo entregado). Lo que falta
+ya no es código: que se inscriban 3 estudiantes reales.
+**Riesgo, ahora activo:** cupos publicados que nunca alcanzan el mínimo → estudiantes en espera sin
+comunicación (R-11). Mitigación existente: cancelación manual (D-31) con aviso automático al
+inscrito (T-25, migración `012`).
 
 ---
 
@@ -187,7 +193,7 @@ principal en ambas pruebas. Ver [[BACKLOG]] T-02, `sessions/SESSION-013.md`.
 
 ---
 
-## F8 — Go-live real 🟡 80 % — solo falta T-04
+## F8 — Go-live real ✅ 100 % (2026-08-09) ⭐
 
 **Objetivo:** pasar de "MVP operable" a "MVP en uso por estudiantes reales".
 
@@ -196,16 +202,20 @@ principal en ambas pruebas. Ver [[BACKLOG]] T-02, `sessions/SESSION-013.md`.
 | Recurso publicado por módulo prioritario ✅ (2026-08-09) | T-01 |
 | Email de cohorte verificado end-to-end ✅ (2026-08-09) | T-02 |
 | Control de capacidad confirmado ✅ (2026-07-29) | T-03 |
-| **Cupos reales publicados (fecha, sala/enlace, mínimo)** — único pendiente | T-04 |
+| **Cupos reales publicados (fecha, sala/enlace, mínimo)** ✅ (2026-08-09, sábado 2026-08-15 10:30) | T-04 |
 | Árbol limpio y bundle recompilado y publicado en `main` ✅ (2026-07-29, reverificado 2026-08-09) | T-08 |
 | Banco de ítems ya no descargable, cerrado en producción ✅ (2026-08-09) | T-47 |
 | `difficulty` reescalada — topics ya alcanzables (calibración estadística sigue pendiente, T-29) ✅ | T-50 |
 | Preguntas de producto respondidas (Q-02 ✅, Q-04 ✅, Q-12 ✅; Q-07/Q-10/Q-14 siguen abiertas) | — |
 
+**Fase cerrada el 2026-08-09.** Todos los entregables de construcción están completos: el funnel
+funciona de punta a punta y hay un cupo real esperando inscritos.
+
 **Hito H8:** el primer estudiante externo completa el funnel y queda inscrito en un cupo real que
-se confirma. Con T-01/T-02/T-03/T-08/T-47/T-50 cerrados, **T-04 es el único bloqueo restante** y
-depende de ejecución del owner (fechas, salas de Jitsi), no de código.
-**Dependencias:** acceso a Supabase, definición de logística de clases.
+se confirma. **Todavía no ocurre, y ya no depende de código** — depende de que alguien externo
+llegue al sitio. Ese es el cambio de naturaleza del proyecto: cerrar F8 no significa tener
+estudiantes, significa que ya no hay excusa técnica para no tenerlos.
+**Dependencias ahora:** difusión y captación (sin ticket, porque no es trabajo de repositorio).
 **Riesgos:** R-01 (bus factor), R-11 (cupos que no confirman), R-06 (privacidad con usuarios
 reales menores de edad — **este es el riesgo que se activa al abrir a público**). R-10 y R-16 ya
 cerrados.
@@ -292,12 +302,12 @@ forzarlas dentro de F8–F11 (que son estrictamente "MVP actual → en uso").
 | H0 | Autorización confiable | ✅ |
 | H1 | Diagnóstico que para por precisión | ✅ |
 | H2 | Plan con explicación + recurso para el déficit principal | ✅ (2026-08-09) |
-| H3 | Cohorte real que se confirma sola | 🟡 solo falta T-04 |
+| H3 | Cohorte real que se confirma sola | 🟡 mecanismo completo y verificado; falta que se inscriban 3 personas |
 | H4 | Operación completa desde el panel | ✅ |
 | H5 | Email de confirmación recibido | ⚠️ |
 | H6 | Sitio indexable y claro | ✅ |
 | H7 | Memoria del proyecto autosuficiente | ✅ |
-| H8 | Primer estudiante externo inscrito en cupo confirmado | ▶ siguiente |
+| H8 | Primer estudiante externo inscrito en cupo confirmado | ▶ **plataforma lista desde 2026-08-09; ahora depende de difusión, no de código** |
 | H9 | Tests en CI + respaldo probado | ⛔ |
 | H10 | Funnel medido | ⛔ |
 

@@ -1,6 +1,7 @@
 # RISKS
 
-Última actualización: **2026-08-09** (R-21 cerrado tras limpieza de ramas; R-13 refrescado; ver
+Última actualización: **2026-08-09** (R-11 activado y R-19 pasa a dominante tras cerrar T-04;
+R-21 cerrado tras limpieza de ramas; R-13 refrescado; ver
 también R-10/R-16 ya cerrados en pasadas previas)
 
 > ⚠️ **Nota de vigencia:** esta pasada (2026-08-09) corrigió R-13 y R-21. El resto del cuerpo
@@ -33,13 +34,13 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | R-07 | Monolitos (`admin.cljs`, `crud.cljs`) | Medio | Media | Media | activo |
 | R-08 | Reglas duplicadas cliente/DB se desincronizan | Medio | Media | Media | activo |
 | R-09 | Contrato JSONB de `profile` sin esquema | Medio | Media | Media | activo |
-| R-11 | Cupos que nunca alcanzan el mínimo | Medio | Alta | Media-alta | activo |
+| R-11 | Cupos que nunca alcanzan el mínimo | Medio | Alta | Media-alta | ⚠️ **activado 2026-08-09** |
 | R-12 | Entregabilidad de email (spam / dominio no verificado) | Medio | Media | Media | mitigado |
 | R-15 | Dependencia total de Supabase (free tier / cambio de términos) | Alto | Baja | Media | aceptado |
 | R-16 | Banco de ítems descargable por cualquier cuenta | Alto | Baja | Baja | ✅ **cerrado 2026-08-09** (ADR-015) |
 | R-17 | `difficulty` no calibrada ⇒ θ sesgada | Medio | Media | Media | activo |
 | R-18 | Spam en guestbook / contacto (sin rate limit) | Bajo | Alta | Media | mitigado (moderación) |
-| R-19 | Estacionalidad PAES: ventana de captación estrecha | Medio | Alta | Media-alta | activo |
+| R-19 | Estacionalidad PAES: ventana de captación estrecha | Medio | Alta | **Alta** | 🔺 **dominante 2026-08-09** |
 | R-20 | Grafo de conocimiento ciego a `.cljs` | Bajo | Alta | Media | activo |
 | R-21 | Deuda de ramas: trabajo perdido u olvidado | Medio | Media | Media | ✅ **cerrado 2026-08-09** |
 | R-22 | Bundle sin code splitting: crecimiento monótono | Bajo | Media | Baja | aceptado |
@@ -107,14 +108,21 @@ privacidad publicada ni consentimiento explícito. Ya no hay respaldo universita
 el riesgo normativo sube: la **Ley 21.719** entra en plena vigencia el 1/12/2026 con reglas de
 consentimiento por edad (ver [[OPEN_QUESTIONS]] Q-03), y hoy el signup no captura edad.
 **Impacto:** Alto (normativo; reputacional si se filtra o denuncia una mala práctica con menores).
-**Probabilidad:** Media — **se convierte en Alta al abrir a estudiantes reales (F8)**, y sube más
-cerca del 1/12/2026.
+**Probabilidad:** **Alta desde el 2026-08-09** — la condición que este riesgo esperaba ("abrir a
+estudiantes reales, F8") **ya ocurrió**: hay un cupo real publicado y el sitio queda a la espera de
+estudiantes. Sube más cerca del 1/12/2026, fecha que ahora cae **dentro** de la ventana de
+captación activa.
 **Mitigación:** T-10 — **2026-07-28: aviso de privacidad publicado**, checkbox de aceptación +
 declaración de edad en el registro, y flujo de solicitud de eliminación de cuenta (ver
 [[OPEN_QUESTIONS]] Q-03). **Queda pendiente:** eliminar la recolección de batería en `visitor`
 (sin uso justificado), aplicar la migración `009` en producción, y automatizar la retención a 12
 meses (T-34, hoy es solo una promesa en el texto).
-**Estado:** activo, mitigación en curso. **Bloquea moralmente F8** hasta que T-10 y T-34 cierren.
+**Estado:** activo, mitigación en curso. **Nota 2026-08-09:** este riesgo decía "bloquea moralmente
+F8 hasta que T-10 y T-34 cierren", y **F8 se cerró con T-34 todavía abierta**. No se reescribe la
+frase para simular que siempre supimos lo correcto (regla de gobernanza): se deja constancia de que
+el go-live ocurrió con una promesa pública —la retención automática a 12 meses del Aviso de
+Privacidad— **sin el proceso que la ejecute**. Cerrar T-34 pasa de "importante" a **deuda con fecha
+de vencimiento**: el 1/12/2026.
 
 ### R-07 · Monolitos
 **Descripción:** `components/admin.cljs` (1060), `db/crud.cljs` (975), `events/admin.cljs` (738)
@@ -151,14 +159,20 @@ T-24 (estado vacío honesto que igual entrega capa 0, en producción desde el 20
 3 recursos de video sin grabar (T-52) no bloquean ningún módulo prioritario.
 **Estado:** cerrado.
 
-### R-11 · Cupos que nunca confirman
+### R-11 · Cupos que nunca confirman — ⚠️ **ACTIVADO 2026-08-09**
 **Descripción:** un cupo con `min_enrollments` que no se alcanza deja a los inscritos esperando sin
 comunicación ni fecha límite.
 **Impacto:** Medio (abandono, mala experiencia). **Probabilidad:** Alta al inicio, cuando el volumen
 de estudiantes es bajo.
-**Mitigación:** T-25 — mostrar faltantes y plazo; definir qué pasa si no se alcanza (cancelar y
-avisar, o fusionar bandas contiguas). Considerar `min_enrollments` bajos al comienzo.
-**Estado:** activo.
+**Dejó de ser hipotético el 2026-08-09:** con T-04 hay un cupo real publicado (sábado 2026-08-15
+10:30) y `min_enrollments = 3` por D-27. Si no se inscriben 3 personas, el cupo no se confirma solo.
+**Mitigación ya implementada:** el estudiante ve "faltan N inscritos" (`slots.cljs`, vía
+`logic/remaining-to-confirm`); el admin puede cancelar a mano con un día de anticipación (D-28,
+D-31) y eso dispara un aviso automático a cada inscrito (T-25, migración `012`, aplicada).
+**Lo que sigue sin mitigar:** nadie *decide* revisar el cupo — la cancelación es manual y no hay
+recordatorio. Si el owner no lo mira antes del viernes 2026-08-14, los inscritos se enteran el mismo
+sábado o no se enteran.
+**Estado:** activo, mitigación parcial. **Acción concreta:** revisar el cupo el 2026-08-14.
 
 ### R-12 · Entregabilidad del email
 **Descripción:** enviar desde `onboarding@resend.dev` (default sin `EMAIL_FROM`) o desde un dominio
@@ -254,14 +268,21 @@ logits)— reescalando a mano y por orden relativo, no con datos de respuesta re
 llega a la landing sin aprobación. Añadir rate limit si el volumen molesta.
 **Estado:** mitigado.
 
-### R-19 · Estacionalidad PAES
+### R-19 · Estacionalidad PAES — 🔺 **AHORA ES EL RIESGO DOMINANTE (2026-08-09)**
 **Descripción:** la demanda se concentra en los meses previos a la rendición (fin de año en Chile).
 Un go-live tardío pierde la temporada completa.
 **Impacto:** Medio-alto sobre los objetivos de captación. **Probabilidad:** Alta.
-**Mitigación:** priorizar T-01/T-02/T-04 (lo único que separa del go-live) por sobre deuda técnica;
-aceptar deliberadamente deuda en F9 si el calendario aprieta, **excepto** en privacidad (R-06) y
-respaldo (R-03).
-**Estado:** activo.
+**Por qué sube de prioridad hoy:** cerrado T-04, **ya no hay ningún riesgo técnico que bloquee la
+captación**. El proyecto está listo y la única variable que queda es el tiempo. Al 2026-08-09 restan
+aproximadamente **12 semanas** de ventana útil antes de la rendición, y no hay una segunda
+oportunidad en este ciclo: después viene el verano chileno (diciembre–febrero), sin demanda.
+**Mitigación (T-01/T-02/T-04 ya cerradas):** lo que resta **no es trabajo de repositorio** — es
+difundir. Aceptar deliberadamente deuda en F9 si el calendario aprieta, **excepto** en privacidad
+(R-06, cuyo plazo legal del 1/12/2026 cae dentro de la ventana) y respaldo (R-03).
+**Riesgo derivado, y es el que más cuesta ver:** con la plataforma lista, la vía de fuga natural es
+seguir mejorando el producto en vez de buscar estudiantes — trabajo que se siente productivo y no
+mueve la aguja. Está desarrollado como causa #1 del pre-mortem conversado el 2026-08-09.
+**Estado:** activo, **dominante**.
 
 ### R-20 · Grafo ciego a `.cljs`
 **Descripción:** Graphify no indexa ClojureScript; el grafo cubre docs, SQL, JSON, HTML y el

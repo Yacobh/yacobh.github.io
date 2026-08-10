@@ -26,6 +26,26 @@
     {:id (.-id user)
      :email (.-email user)}))
 
+(defn session-refresh?
+  "True si el evento de Supabase corresponde a una sesión **ya establecida** para
+   el mismo usuario, es decir: no hay nada que reconstruir.
+
+   Existe por T-58: `@supabase/supabase-js` refresca la sesión cada vez que la
+   pestaña recupera visibilidad y emite `TOKEN_REFRESHED`. Tratarlo como un login
+   nuevo hace que `:auth/session-established` limpie `role`/`admin?`, lo que
+   desmonta la sección activa (`admin-panel` cae a su rama `(nil? role)`) y con
+   ella el estado local de sus formularios — el usuario pierde lo que estaba
+   escribiendo.
+
+   Se compara **id y email**: si cambió el correo (`USER_UPDATED`) sí hay que
+   reestablecer la sesión, aunque el id sea el mismo."
+  [db {:keys [id email]}]
+  (boolean
+   (and (get-in db [:auth :ready?])
+        id
+        (= id (get-in db [:auth :user :id]))
+        (= email (get-in db [:auth :user :email])))))
+
 ;; -----------------------------------------------------------------------------
 ;; Suscripciones
 ;; -----------------------------------------------------------------------------
@@ -91,6 +111,17 @@
                            [:notifications/load]]
                     load-dashboard? (conj [:dashboard/cargar email])
                     target (conj [:navigate-to target]))})))
+
+(re-frame/reg-event-fx
+ :auth/session-event
+ ;; Punto único de entrada de los eventos de sesión de Supabase (T-58). Filtra los
+ ;; refrescos de token —que no traen nada nuevo— antes de reconstruir la sesión.
+ ;; Cortar acá evita de una vez los dos efectos del refresco: el desmontaje de la
+ ;; sección activa y el `:admin/enter` que `:auth/profile-loaded` re-dispara.
+ (fn [{:keys [db]} [_ user-map]]
+   (if (session-refresh? db user-map)
+     {}
+     {:dispatch [:auth/session-established user-map false]})))
 
 (re-frame/reg-event-fx
  :auth/session-cleared
@@ -205,8 +236,11 @@
         (cond
           (#{"SIGNED_IN" "TOKEN_REFRESHED" "USER_UPDATED"} event-name)
           (when-let [user-map (js-user->map (some-> session .-user))]
-            ;; No navegar aquí: el form de login dispara navigate vía :auth/login-success
-            (re-frame/dispatch [:auth/session-established user-map false]))
+            ;; No navegar aquí: el form de login dispara navigate vía :auth/login-success.
+            ;; Va a :auth/session-event (no directo a session-established) porque solo
+            ;; ahí, con acceso a db, se puede distinguir un refresco de token de una
+            ;; sesión nueva (T-58).
+            (re-frame/dispatch [:auth/session-event user-map]))
 
           (= "SIGNED_OUT" event-name)
           (re-frame/dispatch [:auth/session-cleared {:navigate-to-login? false}])
