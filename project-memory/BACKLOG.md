@@ -953,7 +953,7 @@ tanto **no genera déficit accionable ni recursos**.
   existente, con test que lo verifique contra la lista de topics reales.
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-06.
 
-### T-44 · Filtro de respuestas no esforzadas (Fase 1 de ADR-014) — **P1** · `hecho` (2026-08-10; `028`/`032` aplicadas, ⏳ falta publicar el bundle)
+### T-44 · Filtro de respuestas no esforzadas (Fase 1 de ADR-014) — **P1** · `hecho` (2026-08-10, **en producción y verificado por hash**)
 
 Hace **verdadera** la afirmación ya publicada en la FAQ ("el tiempo de respuesta también se
 considera en la estimación"), hoy falsa (contradicción X-01, [[OPEN_QUESTIONS]] Q-17). Es la única
@@ -1000,10 +1000,13 @@ Dos decisiones que el ticket no especificaba y conviene conocer:
 prueba exacta del criterio de cierre: la misma respuesta contada vs. descartada deja θ idéntico y
 sube el SE al valor de no haberla respondido. `release app` 0 warnings, `clj-kondo` limpio.
 
-**2026-08-10, después:** `028` aplicada, y el piso bajado de 3 s a 2 s con datos (`032`) tras
-medir el histórico — ver T-59, hallazgo 4. **⏳ Lo único que falta para que la frase de la FAQ
-(X-01) deje de ser falsa en el sitio es mergear la rama y publicar el bundle**: la base ya está
-lista, el código está escrito y probado, pero `public/js/app.js` en producción todavía no lo tiene.
+**✅ Cerrada del todo el 2026-08-10.** `028` y `032` aplicadas (piso bajado de 3 s a 2 s con datos,
+ver T-59 hallazgo 4), rama mergeada a `main` vía **PR #34** y bundle publicado. **Verificado por
+hash** con el patrón de T-19/T-35/T-38: MD5 `ef97d814d66efd61d08d90711431aca9`, idéntico en
+`origin/main` y en `https://jacobocordova.com/public/js/app.js` (`age: 0`, CDN ya propagado).
+Confirmado además que la frase del FAQ **sigue publicada** — y ahora es cierta.
+**[[OPEN_QUESTIONS]] X-01 resuelta**: no se borró la afirmación, se cambió el sistema para que fuera
+verdad, que es exactamente lo que ADR-014 prescribía.
 
 ### T-59 · Tiempo típico por ítem aprendido de los datos, no fijado por el autor — **P1** · `bloqueado` (instrumentación: 91 % del histórico tiene `time-ms = 0`)
 

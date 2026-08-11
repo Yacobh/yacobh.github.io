@@ -661,6 +661,30 @@
 > lo tienen, así que esa mitad **se trasladó a T-60** (clasificar los bancos mezclados) en vez de
 > darla por cumplida.
 
+> # ⭐ **T-44 y T-51 en producción — X-01 resuelta (2026-08-10)**
+>
+> El owner mergeó **PR #34** (`t-44-t-51-tiempo-y-topics` → `main`, merge `c8ecc2d`) y publicó el
+> bundle. **Verificado por hash** con el patrón de T-19/T-35/T-38: MD5
+> `ef97d814d66efd61d08d90711431aca9`, idéntico en `origin/main` y en
+> `https://jacobocordova.com/public/js/app.js`, con `age: 0` (el CDN ya propagó). `clj -M:test` en
+> `main`: **58 / 332 / 0**.
+>
+> **La afirmación falsa más vieja del proyecto dejó de serlo.** La FAQ decía desde siempre que "el
+> tiempo de respuesta también se considera en la estimación" mientras el 1PL lo ignoraba por
+> completo (X-01, registrada desde la adopción de PMF). Se confirmó en vivo que **la frase sigue
+> publicada** — y ahora es cierta: bajo el umbral de esfuerzo la respuesta no aporta ni a θ ni a la
+> información de Fisher. No se borró el copy, se cambió el sistema, que es lo que ADR-014 había
+> prescrito.
+>
+> **Estado consolidado de la jornada:** ninguna migración pendiente (hasta `032`); ítems sin
+> `module_id` 199 → 128; módulos 18 → 20; topics canónicos garantizados por trigger; suite de 46/186
+> a 58/332; memoria auditada y `HANDOFF` reescrito.
+>
+> **⚠ Queda una sola afirmación falsa publicada: X-02** ("te muestra cómo se movió tu nivel").
+> Depende de Q-07/T-26, que siguen sin decidir. La materia prima existe —`tests` guarda un intento
+> por fila y `universo.access` ya agrega por topic—; lo que falta es decidir la semántica del
+> re-diagnóstico, no instrumentar nada.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

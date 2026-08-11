@@ -182,6 +182,18 @@ documentación. Hallazgos corregidos:
 **T-51 se cerró con una nota, no en silencio:** su criterio decía "todo ítem tiene `module_id`" y
 128 no lo tienen. Esa mitad se trasladó explícitamente a **T-60** en vez de darla por cumplida.
 
+### 9. Merge, publicación y verificación en producción (cierre real)
+
+El owner mergeó **PR #34** y publicó. Verificado con el patrón de la casa: MD5 del bundle
+`ef97d814d66efd61d08d90711431aca9`, idéntico en `origin/main` y en el dominio, `age: 0`.
+`clj -M:test` en `main`: 58/332/0.
+
+Se comprobó en vivo con `curl` que la frase del FAQ **sigue publicada**, que es justamente lo que se
+quería: **X-01 se resuelve sin borrar el copy, cambiando el sistema para que la afirmación sea
+cierta.** Era la contradicción más antigua registrada en la memoria del proyecto.
+
+Queda **X-02** como la única afirmación falsa publicada.
+
 ## Archivos revisados
 
 - `project-memory/{CURRENT_STATUS,HANDOFF,BACKLOG,OPEN_QUESTIONS,DECISIONS}.md`,
@@ -250,8 +262,8 @@ psql (fixture sintético)    → las 9 consultas de T-59 corridas antes de entre
 
 ## Bloqueos
 
-Ninguno técnico. **Depende del owner:** aplicar `028` y después `029` (el agente no aplica
-migraciones, [[../CLAUDE]] §9), y mergear la rama.
+Ninguno. Todo lo de esta sesión quedó aplicado, mergeado (PR #34) y verificado en producción.
+Lo que sigue abierto son tickets nuevos (T-59, T-60), no bloqueos de este trabajo.
 
 ## Preguntas abiertas nuevas
 

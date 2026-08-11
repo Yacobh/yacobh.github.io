@@ -1,6 +1,6 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-10** (Q-26 abierta y respondida el mismo día; X-01 actualizada)
+Última actualización: **2026-08-10** (Q-26 respondida; **X-01 resuelta en producción**)
 
 > **Regla fundamental de PMF: si falta información, no se asume — se registra aquí.**
 > Ninguna pregunta se borra: cuando se responde, se marca ✅ con la fecha y la respuesta, y si
@@ -378,8 +378,8 @@ T-18 (cerrada), [[RISKS]] R-21 (cerrado).
 
 | # | Contradicción | Documentos implicados | Resolución propuesta |
 |---|---------------|----------------------|----------------------|
-| X-01 | La FAQ dice que el tiempo de respuesta se considera en la estimación; el modelo 1PL no lo usa | `index.html`, `landing.cljs` vs `components/tetha.cljs` | *(Vía decidida 2026-08-08)* Se cambia el modelo, no el copy: [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]], Q-17 respondida. **T-44 implementado el 2026-08-10** (`universo.irt.effort`, migración `028`): el código ya hace verdadera la frase, pero **la contradicción sigue viva en producción** hasta aplicar `028` y publicar el bundle |
-| X-02 | La FAQ promete ver "cómo se movió tu nivel" al repetir el diagnóstico; `student_profiles` no guarda histórico | FAQ vs `001_mvp_schema.sql` | Q-07 / P-01 |
+| X-01 | ~~La FAQ dice que el tiempo de respuesta se considera en la estimación; el modelo 1PL no lo usa~~ | `index.html`, `landing.cljs` vs `components/tetha.cljs` | ✅ **RESUELTA en producción 2026-08-10.** No se borró la frase: **se cambió el sistema para que fuera cierta**, que es lo que ADR-014 prescribía (*"primero que sea verdad, después dejarla publicada"*). T-44 en producción vía PR #34, verificado por hash (MD5 `ef97d814d66efd61d08d90711431aca9`, idéntico en `origin/main` y en el dominio) y con la frase confirmada aún publicada. El tiempo de respuesta hoy **sí** entra en la estimación, como criterio de validez: bajo el umbral la respuesta no aporta a θ ni a la información de Fisher (`universo.irt.effort`, `test_configs.min_response_seconds`) |
+| X-02 | La FAQ promete ver "cómo se movió tu nivel" al repetir el diagnóstico; `student_profiles` no guarda histórico | FAQ vs `001_mvp_schema.sql` | 🔴 **Es ahora la única afirmación falsa publicada.** Q-07 / P-01 siguen sin decidir, y el sitio ya recibe tráfico. Dos vías, mismas que tuvo X-01: implementar el histórico (T-26, bloqueada por Q-07) o ajustar el copy mientras tanto. Ojo: `tests` **sí** guarda un intento por fila y `universo.access` ya agrega por topic, así que la materia prima existe — lo que falta es decidir la semántica, no instrumentar |
 | X-03 | `007` restringe SELECT de `questions` a admin, pero el estudiante debe leer preguntas | `007_questions_admin_rls.sql` vs flujo de `events/test.cljs` | ✅ *Resuelta 2026-08-09:* había una policy permisiva del dashboard (`using true`) que anulaba a `007` por OR. Eliminada en `025`; el estudiante ya no lee `questions` sino los RPC de ADR-015. **Cerrada y verificada en producción** — ver Q-12, T-47 |
 | X-04 | *(Resuelta 2026-08-09)* `.gitignore` ignoraba `src/universo/user.cljs`, pero el archivo estaba trackeado en Git | `.gitignore` vs `git ls-files` | Era código roto sin `ns`/requires, no compilado ni usado en ningún lado — borrado, `.gitignore` limpiado. Ver [[BACKLOG]] T-16 |
 | X-05 | *(Resuelta 2026-08-09)* `shadow-cljs` 3.0.4 en `deps.edn` vs `^2.19.2` en `package.json` | `deps.edn` vs `package.json` | `package.json` → `^3.0.4`, `npm install` corrido, `npx shadow-cljs release app` verificado en verde. Ver [[BACKLOG]] T-13 |
