@@ -1,12 +1,17 @@
 (ns universo.irt.progress
   "Helpers puros para evolución IRT (θ/dificultad) y stop rule diagnóstica."
-  (:require [universo.components.tetha :as tetha]))
+  (:require [universo.components.tetha :as tetha]
+            [universo.irt.effort :as effort]))
 
 (def default-stop-config
   {:min-items 5
    :max-items 12
    :se-threshold 0.35
-   :max-minutes nil})
+   :max-minutes nil
+   ;; Piso de esfuerzo en segundos (ADR-014 Fase 1). No es una regla de parada
+   ;; —vive acá porque es el mismo mapa de configuración por banco que viaja
+   ;; desde `test_configs`— sino el umbral que decide si una respuesta cuenta.
+   :min-response-seconds effort/default-min-response-seconds})
 
 ;; Ventana de búsqueda de ítems alrededor de θ (luego se elige el más cercano).
 (def selection-half-width 1.0)
@@ -23,7 +28,11 @@
            questions)))
 
 (defn fisher-information
-  "Información de Fisher I(θ) = Σ P(1-P) = -f''(θ) para 1PL."
+  "Información de Fisher I(θ) = Σ w·P(1-P) = -f''(θ) para 1PL.
+
+   El peso por respuesta de ADR-014 llega heredado de `second-derivative`: una
+   respuesta descartada por no esforzada no aporta información, así que el SE
+   sube en vez de mentir. Es el punto que el ADR marca como fácil de olvidar."
   [theta responses]
   (let [info (- (tetha/second-derivative theta responses))]
     (if (or (js/isNaN info) (neg? info))

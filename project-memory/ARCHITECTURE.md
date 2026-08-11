@@ -1,6 +1,6 @@
 # ARCHITECTURE
 
-Última actualización: **2026-07-29** · Verificado contra `src/`, `supabase/`, `shadow-cljs.edn`,
+Última actualización: **2026-08-10** · Verificado contra `src/`, `supabase/`, `shadow-cljs.edn`,
 `index.html` y `project-memory/graph/GRAPH_REPORT.md`
 
 ---
@@ -31,7 +31,8 @@
 │  └───────────────────────────────────────────────────────────────────┘    │
 │                                                                           │
 │  Lógica pura (sin I/O, testeada):                                         │
-│    components.tetha · irt.progress · profile · slots.logic                │
+│    components.tetha · irt.progress · irt.effort · profile · topics ·      │
+│    slots.logic                                                            │
 │    access · catalog                                                       │
 └──────────────────────────────┬────────────────────────────────────────────┘
                                │ HTTPS + JWT del usuario (supabase-js)
@@ -43,15 +44,20 @@
 │                                                                           │
 │  PostgreSQL + ROW LEVEL SECURITY  ← único límite de autorización          │
 │    profiles · questions · tests · guestbook · visitor · contacto           │
-│    modules · student_profiles · resources                                 │
+│    modules · student_profiles · resources · misconceptions                 │
 │    class_slots · enrollments · notifications · email_outbox                │
-│    función public.is_admin()                                              │
+│    test_configs (parada IRT + prerequisitos por banco)                     │
+│    funciones public.is_admin() · normalize_topic()                         │
+│    RPC security definer: next_question · score_answer · track_visitor      │
 │                                                                           │
 │  Triggers:                                                                │
 │    enrollments  → ¿activos ≥ min_enrollments? → class_slots.confirmed      │
+│    enrollments  → rechaza si el cupo llegó a capacity                      │
 │    class_slots confirmado → notifications (una por inscrito)               │
+│    class_slots cancelado  → notifications (aviso a los inscritos)          │
 │    notifications → email_outbox (pending)                                  │
 │    profiles → protect_last_admin                                          │
+│    questions/tests/test_configs → topic canónico (ADR-017)                │
 │                                                                           │
 │  Edge Function `send-enrollment-emails` (Deno, service_role)               │
 │    lee email_outbox pending (25 max) → Resend → sent | failed              │
@@ -95,9 +101,21 @@ Tres namespaces puros + un ns de eventos:
 |-----------|-----------|------|
 | `universo.components.tetha` | Modelo 1PL/Rasch: `probability-1pl`, derivadas de la log-verosimilitud, score y Hessiano MAP con prior N(0,1), `newton-raphson-iteration`, `clamp-theta` `[-3,3]`, `limit-theta-step` (Δθ ≤ 0,4) | `tetha_test.cljs` |
 | `universo.irt.progress` | `fisher-information` (`I(θ) = −f''(θ)`), `standard-error` (`1/√I`), `closest-question` (argmin `|b−θ|`), ventanas de selección (±1, ±2), `stop-reason` (min 5, max 12, SE ≤ 0,35), `progress-points` para el gráfico | `progress_test.cljs` |
-| `universo.profile` | `theta-band`, `band-label`, `deficits-from-responses`, `misconceptions-from`, `dominant-track`, `build` (perfil completo + estabilidad de θ) | `profile_test.cljs` |
+| `universo.irt.effort` | Filtro de respuestas no esforzadas (ADR-014 Fase 1): `min-response-seconds` (umbral `max(piso, largo/20)`), `response-weight` (1.0 / 0.0), `weigh-response`, `weight-of`. El peso se calcula al registrar la respuesta y viaja en `tests.test`; sin `:weight` cuenta como 1.0 | `effort_test.cljs` |
+| `universo.topics` | Forma canónica de `questions.topic` (**espejo de `public.normalize_topic()`**, ADR-017): `normalize`, `same-topic?`, `duplicate-groups`, `module-slug-for` (equivalencia explícita → sufijo único del slug), `track-for`, `unmapped` | `topics_test.cljs` |
+| `universo.profile` | `theta-band`, `band-label`, `deficits-from-responses`, `misconceptions-from`, `dominant-track`, `build` (perfil completo + estabilidad de θ). El mapeo topic → módulo lo delega en `universo.topics` | `profile_test.cljs` |
 | `universo.catalog` | Catálogo de evaluaciones: `topic-label` (precedencia `test_configs.display_name` → diccionario `topic-labels` → topic con guiones bajos como espacios), `count-by-topic` (preguntas por banco), `counts-truncated?` (detecta respuesta recortada de PostgREST) | `catalog_test.cljs` |
 | `universo.events.test` | Orquestación con I/O: `normalize-question`, `resolve-topic` (alias de topics), fetch de candidatos por ventana de dificultad, prefetch, registro de respuesta, evaluación de la parada, persistencia | — |
+
+**Invariantes que impone la base, no el cliente** (además de RLS):
+
+| Objeto | Qué garantiza |
+|--------|---------------|
+| `public.normalize_topic(text)` + triggers en `questions`, `tests`, `test_configs` | `topic` siempre canónico: sin acentos, minúsculas, sin bordes (ADR-017, `029`). **Espejo duplicado a propósito** en `universo.topics/normalize` |
+| `enforce_slot_capacity` (`011`) | No se puede superar `class_slots.capacity` al inscribirse. Espejo puro: `slots.logic/capacity-reached?` |
+| `confirm_slot_if_threshold` (`001`) | El cupo se confirma al llegar a `min_enrollments`. Espejo: `slots.logic/should-confirm-slot?` |
+| `profiles_protect_last_admin` (`006`) | No se puede degradar al último admin |
+| `notify_slot_cancelled` (`012`) | Avisa a los inscritos cuando el admin cancela un cupo |
 
 **Flujo de una respuesta:**
 
@@ -173,10 +191,11 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
 | Tabla | Claves / campos relevantes | Notas |
 |-------|---------------------------|-------|
 | `profiles` | `id` (FK `auth.users`), `email`, `role` (`user`\|`admin`) | Base del control de acceso. Índices en `role` y `email` |
-| `questions` | opciones A–D, `correct_option`, `error_a..error_d`, `difficulty`, `topic`, `order_index`, `module_id` (FK opcional) | **El activo del proyecto**: banco IRT con misconceptions. `correct_option` y `error_*` **nunca viajan al cliente** (ADR-015). Su DDL **no está versionado** — preexiste a `001` (T-48) |
+| `questions` | opciones A–D, `correct_option`, `error_a..error_d`, `difficulty`, `topic`, `order_index`, `module_id` (FK opcional), `misconception_a_id..d_id` (`027`) | **El activo del proyecto**: banco IRT con misconceptions. `correct_option` y `error_*` **nunca viajan al cliente** (ADR-015). `topic` lo mantiene canónico un **trigger** (`029`, ADR-017). Su DDL **no está versionado** — preexiste a `001` (T-48). 387 ítems, 128 sin `module_id` (T-60) |
 | `tests` | `test` (JSON del diagnóstico), `topic`, `theta` (columnas propias desde ADR-013), `email-user`, `user_id` | Histórico de diagnósticos; `topic`/`theta` alimentan `universo.access/unlocked-topics` |
-| `test_configs` | `topic` (PK), `display_name` (nullable), `min_items`, `max_items`, `se_threshold`, `max_minutes`, `prerequisite_topic` (self-FK nullable), `min_theta`, `active` | Config de parada IRT + cadena de prerequisitos por banco (ADR-013). Sin prerequisito = diagnóstico, siempre accesible. `display_name` es el nombre que ve el estudiante (T-42, migración `022`); null = fallback en `universo.catalog/topic-label` |
-| `modules` | `slug` (único), `title`, `track` (`aritmetica`\|`algebra`\|`geometria`), `order_index`, `historical_blurb` | Skills atómicas alineadas a Baldor |
+| `test_configs` | `topic` (PK), `display_name` (nullable), `min_items`, `max_items`, `se_threshold`, `max_minutes`, `prerequisite_topic` (self-FK nullable), `min_theta`, `active`, `min_response_seconds` | Config de parada IRT + cadena de prerequisitos por banco (ADR-013). Sin prerequisito = diagnóstico, siempre accesible. `display_name` es el nombre que ve el estudiante (T-42, migración `022`); null = fallback en `universo.catalog/topic-label`. `min_response_seconds` es el piso del umbral de esfuerzo (T-44, migración `028`), no una regla de parada. **`topic` se mantiene canónico por trigger** (ADR-017, migración `029`) |
+| `modules` | `slug` (único), `title`, `track` (`aritmetica`\|`algebra`\|`geometria`), `order_index`, `historical_blurb` | Skills atómicas alineadas a Baldor. **20 módulos**: 18 de `002` + `algebra/inecuaciones` y `aritmetica/operaciones_fundamentales` (`031`, D-37) |
+| `misconceptions` | `slug` (único, con check de formato), `name`, `description`, `module_id` | Catálogo curado de errores conceptuales con identidad propia (`027`, T-57). **Vacío todavía**; `null` en `questions.misconception_*_id` = "sin catalogar". RLS solo admin |
 | `student_profiles` | `theta`, `theta_band`, `profile` JSONB | Materialización del perfil (una por estudiante) |
 | `resources` | `module_id`, tipo (`text`/`video_url`/`audio_url`/`exercise`), `published` | Capa 1 del plan |
 | `class_slots` | `theta_band`, `track`, `modality`, `starts_at`, `location_or_link`, `capacity`, `min_enrollments`, `status`, `title` | Cupos de cohorte |

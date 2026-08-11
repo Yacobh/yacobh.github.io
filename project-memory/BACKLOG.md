@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-08-09**
+Última actualización: **2026-08-10**
 
 Prioridad: **P0** bloquea go-live · **P1** necesario a corto plazo · **P2** deseable · **P3** idea.
 Estado: `abierto` · `en curso` · `bloqueado` · `hecho` · `descartado`.
@@ -953,7 +953,7 @@ tanto **no genera déficit accionable ni recursos**.
   existente, con test que lo verifique contra la lista de topics reales.
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-06.
 
-### T-44 · Filtro de respuestas no esforzadas (Fase 1 de ADR-014) — **P1** · `abierto`
+### T-44 · Filtro de respuestas no esforzadas (Fase 1 de ADR-014) — **P1** · `hecho` (2026-08-10; `028`/`032` aplicadas, ⏳ falta publicar el bundle)
 
 Hace **verdadera** la afirmación ya publicada en la FAQ ("el tiempo de respuesta también se
 considera en la estimación"), hoy falsa (contradicción X-01, [[OPEN_QUESTIONS]] Q-17). Es la única
@@ -978,7 +978,146 @@ go-live. Diseño completo y alternativas descartadas en
 - **Relacionado:** [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]] §Fase 1,
   [[../adr/ADR-004-irt-1pl-map-y-regla-de-parada]], [[OPEN_QUESTIONS]] Q-17 y X-01, [[RISKS]] R-17.
 
-### T-45 · Velocidad (τ) como segundo eje del perfil (Fase 2 de ADR-014) — **P2** · `bloqueado` (datos: ≥ 30 tests)
+**✅ Implementado 2026-08-10.** `universo.irt.effort` (namespace puro nuevo) decide el peso;
+`tetha/first-derivative` y `second-derivative` lo aplican, y `progress/fisher-information` lo hereda
+—así el SE sube al descartar evidencia en vez de mentir, que es el punto que el ADR marca como fácil
+de olvidar—. El peso se calcula **una sola vez, al registrar la respuesta** (`:test/answer-scored`)
+y viaja dentro de `tests.test` (D-36): recalibrar el umbral después no reescribe la historia,
+porque `:time-ms` también sigue guardado. Migración `028_test_config_min_response_seconds.sql`
+(`not null default 3`, check 0–120) + campo "Segundos mínimos por respuesta" y columna "Mín. resp."
+en Admin → Configuración de tests.
+
+Dos decisiones que el ticket no especificaba y conviene conocer:
+
+- **`:time-ms = 0` NO descarta la respuesta.** La UI manda 0 cuando el cronómetro no llegó a
+  arrancar (`diagnostic_test.cljs:153`), así que 0 es el centinela de "no medido", no de "respondió
+  instantáneamente". Descartar por ese 0 sería tirar evidencia válida por un defecto de medición.
+  Ante la duda se conserva.
+- **Sin backfill.** Las respuestas ya rendidas no tienen `:weight` y cuentan con peso 1.0. Este
+  filtro no reinterpreta hacia atrás lo que ya se midió y se le mostró a alguien.
+
+`clj -M:test` **57 tests / 292 assertions / 0 failures** (antes 46/186, junto con T-51), incluida la
+prueba exacta del criterio de cierre: la misma respuesta contada vs. descartada deja θ idéntico y
+sube el SE al valor de no haberla respondido. `release app` 0 warnings, `clj-kondo` limpio.
+
+**2026-08-10, después:** `028` aplicada, y el piso bajado de 3 s a 2 s con datos (`032`) tras
+medir el histórico — ver T-59, hallazgo 4. **⏳ Lo único que falta para que la frase de la FAQ
+(X-01) deje de ser falsa en el sitio es mergear la rama y publicar el bundle**: la base ya está
+lista, el código está escrito y probado, pero `public/js/app.js` en producción todavía no lo tiene.
+
+### T-59 · Tiempo típico por ítem aprendido de los datos, no fijado por el autor — **P1** · `bloqueado` (instrumentación: 91 % del histórico tiene `time-ms = 0`)
+
+> ## ⭐ Medición ejecutada el 2026-08-10 — cinco hallazgos, dos de ellos corrigen al agente
+>
+> **1. Los datos existen pero no sirven: solo el 9 % tiene tiempo real.** 255 tests, 209 con
+> respuestas, **2178 respuestas**, todas con el campo `time-ms` presente… y solo **195 con valor
+> > 0**. El resto son ceros. No es que falte el campo: **el cronómetro no estaba registrando**.
+>
+> **Corrección al agente:** al abrir este ticket se argumentó que, como `git log -S ":time-ms"` sitúa
+> la instrumentación en 2025-09-09 (anterior al piloto UNAP), "los tiempos *deberían* estar ahí". Se
+> marcó como pendiente de verificar y **la verificación dice que no**. Que el campo exista en el
+> código desde 2025 no significa que estuviera midiendo: `diagnostic_test.cljs` manda `0` cuando el
+> cronómetro no arrancó, y el flujo del diagnóstico se reparó recién en `9e622d9` (2026-07-18). Las
+> 195 respuestas útiles son casi con seguridad de tests recientes, no de los 252 del piloto.
+>
+> **La premisa de ADR-014 se cae igual, pero por otra razón**: no es que no haya tests, es que no hay
+> tiempos. Y eso es peor, porque no se arregla esperando.
+>
+> **2. No hay ningún ítem calibrable.** De 387 ítems del banco: **0 con ≥30 respuestas**, 2 con ≥10,
+> 13 con ≥5, 84 con alguna. El parámetro por ítem que este ticket quiere aprender **no se puede
+> estimar hoy** para prácticamente ningún ítem.
+>
+> **3. El promedio simple queda empíricamente refutado.** En los pocos ítems con datos, media y
+> mediana se separan brutalmente: el ítem 361 tiene **media 78,7 s, mediana 4,8 s, media geométrica
+> 10,3 s** (desviación 188 s). El ítem 178: media 14,0 vs mediana 4,8. Es exactamente el problema de
+> contaminación por outliers que se anotó como objeción (1) al abrir el ticket, y ahora está medido
+> en los datos del propio proyecto. **Cuando T-59 sea viable, tiene que usar mediana o media
+> geométrica**; la media simple mentiría por un factor de 16 en el peor caso visto.
+>
+> **4. El piso autoral de 3 s estaba mal, y los datos dicen cuál es el bueno.** Barriendo el piso y
+> mirando la tasa de acierto de las respuestas **descartadas** (con 4 alternativas, adivinar acierta
+> 25 %): piso 0 → 18 %, piso 1 → 21 %, piso 2 → 27 %, **piso 3 → 34 %**, piso 4 → 42 %. Mientras las
+> descartadas aciertan cerca de 25 % se tira ruido; cuando suben, se tira conocimiento. El 3 ya
+> estaba del lado equivocado. **Corregido a 2 s** en `032_min_response_seconds_calibrado.sql` y en
+> `universo.irt.effort`. Que la columna fuera configurable es lo que permitió que esto sea un
+> `update` de una línea.
+>
+> **5. Segunda corrección al agente: el campo del panel NO sobra.** Al validar las consultas contra
+> un fixture se conjeturó que, con enunciados de 40–200 caracteres, la regla proporcional
+> (`largo/20`) dominaría al piso y por lo tanto el campo configurable de T-44 sería inútil. **Los
+> enunciados reales son mucho más cortos**: largo mediano **50** caracteres (medio 62, mínimo 16,
+> máximo 341), así que el piso manda en **234 de 387 ítems (60 %)**. La conjetura salió de largos
+> inventados por el agente. El campo se queda.
+>
+> **6. La correlación θ↔tiempo no se puede calcular.** `n = 17` (solo los tests con columna `theta`
+> poblada, que existe desde `021`, del 2026-08-08), y 12 de esas 17 respuestas caen en una sola
+> banda. El ρ = 0,697 que devuelve la consulta **no significa nada** y no debe citarse. La Fase 3 de
+> ADR-014 sigue sin poder evaluarse.
+>
+> **Qué desbloquea este ticket ahora:** ya no es "acumular 30 tests". Es **verificar y arreglar la
+> instrumentación**: confirmar que los diagnósticos que se rinden hoy sí guardan `time-ms > 0`, y si
+> no, arreglarlo antes de difundir el cupo. Cada test que se rinda sin tiempo es un dato que no se
+> recupera. Consulta de seguimiento al final de
+> `supabase/queries/T-59_calibracion_tiempos.sql`.
+
+Abierta el 2026-08-10 a partir de una crítica del owner a T-44, que **es correcta**: el umbral de
+esfuerzo de T-44 depende de dos constantes elegidas a mano (piso de 3 s, 20 caracteres/segundo de
+lectura), y sostener números inventados es trabajo de mantenimiento permanente. Su propuesta: que
+cada ítem **aprenda cuánto tarda** a partir de los tests que se van rindiendo, y que el umbral se
+derive de ahí.
+
+**La premisa que se cayó, y que es lo que hace viable esta tarea hoy.**
+[[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]] (2026-08-08) difirió el modelo empírico con
+la frase *"el proyecto tiene **cero estudiantes reales**"*, y puso como precondición ≥ 30 tests. Al
+día siguiente, T-01 midió **80 usuarios y 252 diagnósticos ya rendidos** (piloto UNAP). Y
+`git log -S ":time-ms"` muestra que la instrumentación del cronómetro existe desde **2025-09-09**,
+o sea **anterior** al piloto. Es decir: **la precondición probablemente ya estaba cumplida desde
+hace casi un año** y el ADR se escribió sobre una foto vieja del proyecto. Falta confirmarlo con
+datos → [[OPEN_QUESTIONS]] Q-26.
+
+- **Primer paso, sin escribir código:** correr `supabase/queries/T-59_calibracion_tiempos.sql`
+  (solo lectura, ya validado contra un Postgres real). Responde cobertura de `time-ms`, forma de la
+  distribución (¿existe la moda de clickeo rápido que ADR-014 predice?), tiempo típico por ítem con
+  tres estimadores, cuántos ítems tienen ya datos suficientes, **qué fracción del histórico habría
+  descartado el umbral autoral de T-44**, y la correlación θ↔tiempo.
+- **Trabajo, si los datos acompañan:**
+  - Columnas `response_count` y `mean_log_time` en `questions`, en escala **logarítmica** (el tiempo
+    es multiplicativo, y es exactamente el `β_i` que ADR-014 Fase 2 ya define).
+  - Actualización incremental. **Quién escribe:** no el cliente — ADR-015 le revocó hasta la lectura
+    de `questions`. La costura ya existe: `score_answer` es `security definer` y corre en cada
+    respuesta.
+  - El umbral pasa a derivarse del dato para ítems con `response_count ≥ N`, y **cae al piso autoral
+    de T-44 para los que no lo tienen**. El caso frío no es transitorio: el banco sigue creciendo
+    bajo ADR-016, siempre habrá ítems nuevos sin datos.
+  - Recalibrar retroactivamente con los tests que ya existen, no esperar a acumular nuevos.
+- **Tres cosas que hay que resolver y no son obvias** (salieron al discutir la propuesta):
+  1. **El promedio se contamina con lo que el filtro debe eliminar.** Los clicks al azar bajan la
+     media, que baja el umbral, que admite más clicks al azar. Es realimentación positiva. El owner
+     ya intuyó la salida ("el más rápido no debería afectar tan pronunciadamente al promedio"):
+     estimador robusto (mediana o media recortada), no media simple. Se arranca con media simple
+     igual, como él propuso, pero sabiendo que este defecto está ahí.
+  2. **La constante no desaparece, se muda.** "Descartar si tarda menos que *X* respecto del típico
+     del ítem" sigue teniendo un *X* autoral. La ganancia real es pasar de dos constantes en
+     unidades arbitrarias a **una sola interpretable** ("menos del 15 % de lo típico de este ítem").
+  3. **Ponderar por θ tiene una circularidad**: θ se estima *a partir de* las respuestas que el
+     filtro debe validar. Se resuelve separando **calibración** (offline, por lotes, ahí sí se puede
+     usar el θ final del test cerrado) de **filtrado** (en vivo, solo con lo ya calibrado). Y la
+     variable natural a descontar no es la habilidad θ sino la **velocidad τ**
+     (`ln T = β_ítem − τ_persona + ε`): que θ y τ correlacionen es empírico, es el ρ de la Fase 3.
+- **Terminado cuando:** el umbral de un ítem con datos suficientes sale de `questions`, no de una
+  constante; el piso autoral queda solo como caso frío; hay test en el namespace puro que verifique
+  ambas ramas; y el resultado de la calibración sobre el histórico está registrado (incluido el
+  resultado negativo, si la moda de clickeo rápido no aparece).
+- **Ojo:** `time-ms` es el **delta** por pregunta, no un par de timestamps. No se puede reconstruir
+  hacia atrás si el estudiante se levantó a la mitad. Si esa distinción importa para el modelo, hay
+  que instrumentarla **ahora**, porque no es recuperable.
+- **Relacionado:** T-44 (la capa de caso frío que esta tarea presupone), T-45 (es su Fase 2: si
+  T-59 aterriza, T-45 deja de estar bloqueada), T-29 (calibrar `difficulty` tiene la misma forma y
+  los mismos datos), [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]],
+  [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]] (define quién puede escribir),
+  [[OPEN_QUESTIONS]] Q-26, [[RISKS]] R-17.
+
+### T-45 · Velocidad (τ) como segundo eje del perfil (Fase 2 de ADR-014) — **P2** · `bloqueado` (datos: ≥ 30 tests — ⚠ la precondición puede estar cumplida hace un año, ver T-59)
 
 Materializa el eje de **frecuencia (λ)** que [[VISION_LIBRO_PROYECTO]] §3.3 propone, en su forma
 rigurosa (parámetro de velocidad τ del marco de van der Linden). **No se implementa antes de la
@@ -1056,7 +1195,7 @@ Supabase real; el cierre se da por el reporte del owner, mismo patrón que T-03/
 consistentes entre sí, no una calibración estadística a partir de respuestas reales. R-17
 (`difficulty` no calibrada empíricamente) sigue activo; T-29 sigue abierta.
 
-### T-51 · Higiene de `topic` y `module_id` en el banco — **P1** · `abierto`
+### T-51 · Higiene de `topic` y `module_id` en el banco — **P1** · `hecho` (2026-08-10, aplicado y verificado; la clasificación de los bancos mezclados se traslada a T-60)
 
 Misma medición del 2026-08-09:
 
@@ -1074,7 +1213,128 @@ Misma medición del 2026-08-09:
 - **Ojo:** unificar topics toca `test_configs` (keyed por `topic`, con self-FK de prerequisitos) y
   la columna `tests.topic` del historial que alimenta `universo.access`. No es un simple UPDATE.
 - **Relacionado:** T-28 (es la misma brecha, ahora con datos), [[OPEN_QUESTIONS]] Q-06,
-  [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]].
+  [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]],
+  [[../adr/ADR-017-topic-canonico-por-trigger]].
+
+**2026-08-10 — hecho lo que se puede hacer sin decidir contenido.**
+
+`029_topic_normalization.sql` + `universo.topics` (namespace puro nuevo, espejo de la función SQL) +
+[[../adr/ADR-017-topic-canonico-por-trigger]]. La normalización deja de ser una tabla de variantes
+que crece con cada acento: `universo.topics/normalize` canoniza el topic antes de buscarlo, y
+`profile.cljs` ya no lleva los dos diccionarios literales que tenía.
+
+Lo que la migración hace, en orden obligado por la auto-FK de `test_configs`: crea la fila canónica
+con la config de la variante **con más preguntas** (incluido su prerequisito), repunta los
+prerequisitos, normaliza `questions.topic` y `tests.topic` —los dos juntos, o `universo.access`
+perdería avances ya conseguidos— y borra las variantes. Después rellena `module_id` por
+equivalencia explícita y por coincidencia única de sufijo (`triangulos` → `geometria/triangulos`).
+Y deja triggers en las tres tablas para que el defecto no se reconstruya con el próximo ítem
+cargado a mano.
+
+**Verificada de verdad, no solo revisada:** se montó un PostgreSQL 14 desechable con un fixture que
+reproduce el desorden medido (los cuatro pares duplicados, bancos mezclados, prerequisitos entre
+variantes, un topic prerequisito de sí mismo tras normalizar). Resultado: 0 topics fuera de forma
+canónica en las tres tablas, FK íntegra, **idempotente** (segunda corrida sin diferencias), triggers
+normalizando altas nuevas. En el fixture, 38 de 44 preguntas quedaron con módulo.
+
+**Encontrado y corregido durante esa prueba:** la primera versión hacía ganar a la fila que ya
+estaba escrita en forma canónica, y eso **borraba un prerequisito configurado** (una variante exigía
+otro topic con θ mínimo y se perdía al fusionar). No es cosmética: define quién puede rendir el
+test. Sin la prueba contra un Postgres real no se habría visto.
+
+**Lo que sigue abierto y por qué no lo cierra un agente:** los **128 ítems de `diagnostico` (84) y
+`PAES_M1` (44)** son bancos **mezclados**, con preguntas de varios módulos. Asignarles un módulo por
+su topic sería un dato falso con apariencia de dato bueno. Necesitan clasificación **por ítem**, que
+es contenido (ADR-016), no SQL. La consulta (ii) del final de `029` los deja listados.
+
+**2026-08-10, medición real tras aplicar `029`.** El owner aplicó `028` y `029` y corrió las tres
+consultas: **0 topics fuera de forma canónica** en las tres tablas (la normalización funcionó), e
+ítems sin `module_id` de 199 → **156**.
+
+Pero la consulta (ii) mostró que **28 de los 156 sí eran mapeables** y habían fallado por dos
+motivos, uno de ellos un error de criterio:
+
+1. **El topic no se llama igual que el sufijo de su módulo** (`sistemas_ecuaciones` →
+   `algebra/sistemas`, `potenciacion` → `aritmetica/potencias`, `numeros_relativos` →
+   `aritmetica/enteros`). Faltaba la equivalencia explícita, nada más.
+2. **Topics con espacios** (`ecuaciones lineales`, `expresiones algebraicas`,
+   `suma de numeros enteros`), que no tenían equivalencia porque el mapeo solo contemplaba la
+   variante con guion bajo.
+
+> **Corrección (mismo día, tras medirlo).** Al ver los espacios se escribió acá que el argumento de
+> ADR-017 para no unificar espacios con guiones bajos "se había caído" y que había sido
+> "conservadurismo sin datos". **Eso era falso y se midió:** la consulta que agrupa por
+> `normalize_topic(replace(topic,' ','_'))` buscando grupos con más de una escritura **devolvió cero
+> filas**. No hay ningún banco partido en dos por espacio vs. guion bajo — `ecuaciones lineales` es
+> la única escritura de ese banco y la entrada `ecuaciones_lineales` del mapeo era, como estaba
+> documentado, un no-op. **La decisión de ADR-017 se sostiene**: el problema era de *mapeo*, no de
+> *normalización*, y `030` lo resuelve listando las variantes una por una sin tocar la regla. Se
+> deja constancia en vez de borrar, por la regla de gobernanza.
+
+**`030_backfill_module_id_restante.sql`** agrega las 11 equivalencias que faltaban (incluidas las
+variantes con espacio, **listadas una por una**, sin cambiar la regla de normalización) y su espejo
+en `universo.topics`. Verificada contra un Postgres desechable con la distribución real medida:
+156 → **132**, idempotente, y quedan exactamente los esperados.
+
+**Las 4 ambigüedades restantes las resolvió el profesor el mismo día**, y dos de ellas **creando
+módulo** en vez de forzar el ítem dentro de uno que no le corresponde (`031`):
+
+| Topic | Decisión | Cómo se resuelve |
+|---|---|---|
+| `inecuaciones` (2) | **módulo nuevo** `algebra/inecuaciones` (`order_index` 125) | Por regla de sufijo, sin entrada explícita |
+| `operaciones_fundamentales` (1) | **módulo nuevo** `aritmetica/operaciones_fundamentales` (15) | Ídem |
+| `ecuaciones cuadraticas` (1) | `algebra/ecuaciones` | Equivalencia explícita: una *ecuación* cuadrática no es una *función* cuadrática |
+
+Los módulos pasan de **18 a 20**. Verificado con `030` + `031` sobre la distribución real:
+156 → **128**, idempotente, y lo único que queda son los dos bancos mezclados.
+
+**⚠ Consecuencia:** los dos módulos nuevos nacen **sin ningún recurso publicado**. Un estudiante
+cuyo déficit principal caiga ahí verá el estado vacío de T-24 en "Mi plan" — preferible a mostrarle
+material de otro tema rotulado como suyo (criterio de T-53), pero es contenido pendiente que se suma
+a T-27/T-56 bajo ADR-016.
+
+**Los 128 que quedan** son `diagnostico` (84) y `paes_m1` (44): bancos mezclados que necesitan
+clasificación **por ítem**, contenido y no SQL. Ninguna migración los cierra.
+
+**✅ Cerrada 2026-08-10.** El owner aplicó `029`, `030`, `031` y `032`. Estado final medido:
+**0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id` **199 → 128**.
+
+**Nota sobre el criterio de cierre, para no dar por hecho lo que no lo está.** El criterio original
+decía "todo ítem tiene `module_id`", y **128 no lo tienen**. Se cierra igual porque esos 128 son
+`diagnostico` (84) y `paes_m1` (44), bancos **mezclados** cuya clasificación es trabajo de contenido
+por ítem, de naturaleza distinta a la higiene de datos que este ticket cubría, y que ninguna
+migración puede hacer. Esa mitad del criterio **se traslada explícitamente a T-60**, no se descarta.
+Lo técnico —normalización, triggers, fusión de configuraciones, mapeo completo y su espejo puro con
+tests— está hecho, aplicado y verificado.
+
+### T-60 · Clasificar por ítem los dos bancos mezclados (`diagnostico`, `paes_m1`) — **P1** · `abierto`
+
+Hereda la mitad del criterio de cierre de T-51 que ninguna migración puede cumplir: **128 preguntas
+sin `module_id`** repartidas en dos topics que no son temas sino contenedores —`diagnostico` (84) y
+`paes_m1` (44)—, con ítems de varios módulos adentro.
+
+- **Por qué importa:** sin `module_id` no hay déficit accionable ni recursos que ofrecer. Son el
+  **33 % del banco** (128 de 387), y `diagnostico` es además el topic por el que probablemente entra
+  la mayoría de los estudiantes nuevos. Mientras sigan sin módulo, esos estudiantes caen en la rama
+  `:general` de "Mi plan" (T-53) por más contenido que se publique.
+- **Por qué no lo cierra una migración:** asignar módulo por el topic sería un dato falso con
+  apariencia de dato bueno. Hay que mirar cada pregunta.
+- **Trabajo:** clasificar los 128 ítems contra los 20 módulos. Cae bajo
+  [[../adr/ADR-016-ia-en-el-pipeline-de-autoria-no-en-runtime]]: la IA puede **proponer** la
+  clasificación en una migración con la asignación explícita ítem por ítem, y el profesor la audita
+  antes de aplicarla — igual que se hizo con los 39 recursos de `018`/`019` en T-01. La edición en
+  línea del panel (Admin → Preguntas, hecha para T-50) sirve para correcciones puntuales, pero 128
+  ítems uno por uno desde la UI es demasiado.
+- **Decisión previa a tomar:** si además conviene **renombrar el topic** de esos ítems al del módulo
+  que les corresponda, o dejar `topic = diagnostico` y usar solo `module_id`. No es cosmético:
+  `topic` es la clave de `test_configs` y de la progresión por prerequisitos (ADR-013), así que
+  moverlos cambia qué evaluaciones existen y qué ve el estudiante en el selector. **Requiere
+  decisión del owner antes de escribir nada.**
+- **Terminado cuando:** ningún ítem de `questions` tiene `module_id` nulo, o los que queden están
+  documentados con su razón; y la consulta (ii) de `029` devuelve vacío o solo excepciones
+  justificadas.
+- **Relacionado:** T-51 (de donde viene), T-53 (el que dejó a la vista la consecuencia), T-27, T-56,
+  [[OPEN_QUESTIONS]] Q-06, [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]].
 
 ### T-29 · Calibrar `difficulty` con datos reales — **P3** · `abierto`
 
@@ -1358,7 +1618,7 @@ desactualizados (lista de módulos previa al MVP).
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60 |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52 |
 

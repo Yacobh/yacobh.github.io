@@ -3,6 +3,7 @@
    [re-frame.core :as re-frame]
    [universo.access :as access]
    [universo.components.tetha :as tetha]
+   [universo.irt.effort :as effort]
    [universo.irt.progress :as progress]
    [cljs.core.async :as async :refer [go <!]]
    [universo.db.crud :as crud]
@@ -142,7 +143,12 @@
                           {:min-items (:min_items cfg)
                            :max-items (:max_items cfg)
                            :se-threshold (:se_threshold cfg)
-                           :max-minutes (:max_minutes cfg)}
+                           :max-minutes (:max_minutes cfg)
+                           ;; Si la columna todavía no existe en la base (028 sin
+                           ;; aplicar) el campo llega nil y `effort` cae a su piso
+                           ;; por defecto: el filtro funciona igual, solo deja de
+                           ;; ser configurable por banco.
+                           :min-response-seconds (:min_response_seconds cfg)}
                           progress/default-stop-config)]
          {:db (-> db
                   (assoc-in [:test :status] :questions)
@@ -370,23 +376,29 @@
                               explanation time-ms]}]]
    (let [questions (get-in db [:test :questions])
          question (some #(when (= (:id %) question-id) %) questions)
-         new-response {:question-id question-id
-                       :selected-option selected
-                       :correct? correct?
-                       :correct-option correct-option
-                       :time-ms (or time-ms 0)
-                       :difficulty (or (:difficulty question) 0.0)
-                       :topic (or (:topic question) (get-in db [:test :topic]))
-                       :module-id (:module-id question)
-                       :module-slug (:module-slug question)
-                       :selected-error explanation
-                       :question-text (:question question)}
+         stop-config (get-in db [:test :stop-config] progress/default-stop-config)
+         ;; El peso se fija acá, una sola vez, con el enunciado y el tiempo a la
+         ;; vista, y viaja con la respuesta hasta `tests.test` (ADR-014 Fase 1).
+         ;; Calcularlo después, en cada estimación, obligaría a tener el texto
+         ;; del ítem disponible para siempre.
+         new-response (effort/weigh-response
+                       {:question-id question-id
+                        :selected-option selected
+                        :correct? correct?
+                        :correct-option correct-option
+                        :time-ms (or time-ms 0)
+                        :difficulty (or (:difficulty question) 0.0)
+                        :topic (or (:topic question) (get-in db [:test :topic]))
+                        :module-id (:module-id question)
+                        :module-slug (:module-slug question)
+                        :selected-error explanation
+                        :question-text (:question question)}
+                       (:min-response-seconds stop-config))
          updated-db (update-in db [:test :responses] conj new-response)
          new-theta (tetha/calculate-theta-auto (:test updated-db))
          responses (get-in updated-db [:test :responses])
          start-time (get-in db [:test :start-time])
          elapsed-minutes (when start-time (/ (- (.now js/Date) start-time) 60000.0))
-         stop-config (get-in db [:test :stop-config] progress/default-stop-config)
          reason (progress/stop-reason responses new-theta elapsed-minutes stop-config)
          db-with-theta (-> updated-db
                            (assoc-in [:test :theta] new-theta)

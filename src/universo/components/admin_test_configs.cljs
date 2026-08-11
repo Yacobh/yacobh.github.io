@@ -99,7 +99,7 @@
                 :on-change #(re-frame/dispatch
                              [:admin/update-test-config-draft :se_threshold (.. % -target -value)])}]]]
 
-     [:div {:class "mb-2 grid grid-cols-1 gap-4 sm:grid-cols-3"}
+     [:div {:class "mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2"}
       [field "Tiempo máximo (min)" "Vacío = sin límite de tiempo"
        [:input {:class input-class :type "number" :step "1"
                 :value (or (:max_minutes draft) "")
@@ -107,6 +107,20 @@
                              [:admin/update-test-config-draft :max_minutes
                               (let [v (.. % -target -value)] (when (pos? (count v)) v))])}]]
 
+      ;; No es una regla de parada sino de validez: por debajo de este piso la
+      ;; respuesta no cuenta para θ (ADR-014 Fase 1). El umbral real de cada
+      ;; ítem sube solo con enunciados largos, y eso no se configura acá.
+      [field "Segundos mínimos por respuesta"
+       "Bajo este piso la respuesta no cuenta para el nivel. Sube solo con enunciados largos. 0 = sin piso"
+       [:input {:class input-class :type "number" :step "0.5" :min "0" :max "120"
+                :value (if (some? (:min_response_seconds draft))
+                         (:min_response_seconds draft)
+                         "")
+                :on-change #(re-frame/dispatch
+                             [:admin/update-test-config-draft :min_response_seconds
+                              (.. % -target -value)])}]]]
+
+     [:div {:class "mb-2 grid grid-cols-1 gap-4 sm:grid-cols-2"}
       [field "Prerequisito" "Vacío = sin prerequisito (diagnóstico, siempre accesible)"
        [:select {:class input-class
                  :value (or (:prerequisite_topic draft) "")
@@ -159,6 +173,9 @@
           [:th {:class "px-3 py-2"} "Ítems"]
           [:th {:class "px-3 py-2"} "SE"]
           [:th {:class "px-3 py-2"} "Tiempo"]
+          [:th {:class "px-3 py-2"
+                :title "Segundos mínimos para que una respuesta cuente en la estimación"}
+           "Mín. resp."]
           [:th {:class "px-3 py-2"} "Prerequisito"]
           [:th {:class "px-3 py-2"} "θ mín."]
           [:th {:class "px-3 py-2"} "Activo"]
@@ -176,6 +193,12 @@
             [:td {:class "px-3 py-2 tabular-nums"} (str (:min_items c) "–" (:max_items c))]
             [:td {:class "px-3 py-2 tabular-nums"} (:se_threshold c)]
             [:td {:class "px-3 py-2 tabular-nums"} (or (:max_minutes c) "—")]
+            ;; nil = la columna todavía no existe en la base (028 sin aplicar);
+            ;; el filtro igual corre con el piso por defecto del cliente.
+            [:td {:class "px-3 py-2 tabular-nums"}
+             (if (some? (:min_response_seconds c))
+               (str (:min_response_seconds c) " s")
+               "—")]
             [:td {:class "px-3 py-2"} (or (:prerequisite_topic c) "—")]
             [:td {:class "px-3 py-2 tabular-nums"} (or (theta->display (:min_theta c)) "—")]
             [:td {:class "px-3 py-2"} (if (:active c) "Sí" "No (borrador)")]

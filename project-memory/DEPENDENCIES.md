@@ -1,6 +1,6 @@
 # DEPENDENCIES
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-08-10**
 
 Cuatro tipos: **externas** (servicios de terceros), **de librería** (código), **internas**
 (acoplamientos del propio sistema) y **humanas / organizacionales**.
@@ -19,7 +19,7 @@ Cuatro tipos: **externas** (servicios de terceros), **de librería** (código), 
 | **GitHub Pages** | Hosting del sitio | **Crítica** | — | Sitio caído | Cualquier hosting estático (los artefactos ya están construidos) |
 | **GitHub (repo)** | Código + fuente de verdad de la memoria PMF | **Crítica** | credenciales del owner | Se pierde el flujo de trabajo y el historial remoto | Clon local; PMF es Markdown portable |
 | **DNS `jacobocordova.com`** | Dominio de producción | Alta | registrador (no documentado) | El sitio queda accesible solo por `*.github.io` | `CNAME` reversible |
-| **jsDelivr CDN** | CSS de KaTeX 0.16.9 | Baja | — | Fórmulas sin estilo, legibles | Servir KaTeX desde el propio bundle |
+| **jsDelivr CDN** | CSS de KaTeX 0.16.22 | Baja | — | Fórmulas sin estilo, legibles | Servir KaTeX desde el propio bundle |
 | **API de IP / geolocalización** | `ip.cljs`, `geo.cljs` para tracking | Baja | — | Tracking incompleto | Prescindible (ver Q-19) |
 | **Google OAuth** (vía Supabase) *(no activa hoy)* | Login social | N/A | `sign-in-with-google` existe en `universo.supabase` sin llamador en la UI | No aplica -- no hay botón que pueda caerse | Login por email/contraseña (el único que existe) |
 
@@ -37,7 +37,7 @@ Cuatro tipos: **externas** (servicios de terceros), **de librería** (código), 
 | `org.clojure/clojurescript` | 1.12.38 | Lenguaje de la app | |
 | `reagent/reagent` | 1.2.0 | Componentes React | Atada a React 17 |
 | `re-frame/re-frame` | 1.4.3 | Estado, eventos, efectos, suscripciones | Núcleo de la arquitectura del cliente |
-| `thheller/shadow-cljs` | 3.0.4 | Compilador y dev server | ⚠️ `package.json` declara `^2.19.2` (T-13) |
+| `thheller/shadow-cljs` | 3.0.4 | Compilador y dev server | Alineado con `package.json` (T-13, 2026-08-09) |
 | `binaryage/devtools` | 1.0.7 | Solo desarrollo | |
 | `nrepl/nrepl` | 1.0.0 | REPL / editor | |
 | `cljs.core.async` | (con ClojureScript) | `go`/`<!` en `db.crud` | Estilo de I/O de toda la capa de datos |
@@ -52,7 +52,7 @@ Cuatro tipos: **externas** (servicios de terceros), **de librería** (código), 
 | `tailwindcss` | ^3.4.17 | Estilos (dev) |
 | `postcss` | ^8.5.4 | Pipeline CSS (dev) |
 | `autoprefixer` | ^10.4.21 | Prefijos CSS (dev) |
-| `shadow-cljs` | ^2.19.2 | ⚠️ duplicado/desalineado con `deps.edn` |
+| `shadow-cljs` | ^3.0.4 | Alineado con `deps.edn` (T-13) |
 
 ### Edge Function (Deno)
 

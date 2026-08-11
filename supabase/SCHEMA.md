@@ -214,11 +214,30 @@ amplían para mostrar los datos nuevos cuando existen.
 27. `migrations/026_score_answer_devuelve_correcta.sql` — ✅ aplicada 2026-08-09 (**antes de `025`**)
 28. `migrations/025_questions_revoke_lectura_directa.sql` — ✅ aplicada 2026-08-09, **después** de
     publicar el bundle de T-47 y verificar el diagnóstico con cuenta de estudiante
-29. `migrations/027_misconceptions.sql` — ⏳ **pendiente de aplicar** (aditiva, sin riesgo)
-30. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+29. `migrations/027_misconceptions.sql` — ✅ aplicada 2026-08-10 (tabla creada y vacía,
+    confirmado por el owner)
+30. `migrations/028_test_config_min_response_seconds.sql` — ✅ aplicada 2026-08-10
+31. `migrations/029_topic_normalization.sql` — ✅ aplicada 2026-08-10, después de `028`
+32. `migrations/030_backfill_module_id_restante.sql` — ✅ aplicada 2026-08-10
+33. `migrations/031_modulos_inecuaciones_y_operaciones_fundamentales.sql` — ✅ aplicada 2026-08-10, después de `030`
+34. `migrations/032_min_response_seconds_calibrado.sql` — ✅ aplicada 2026-08-10
+35. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
-> ⏳ **Pendiente de aplicar en el proyecto real:** solo `027_misconceptions.sql` (2026-08-10).
-> No bloquea nada: mientras no se aplique, la tabla simplemente no existe.
+> ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
+> final de `029`: **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id`
+> de 199 → **156**.
+>
+> ✅ **`030`, `031` y `032` aplicadas por el owner el 2026-08-10.** Con eso **no queda ninguna
+> migración pendiente**: el repositorio y la base quedan alineados por primera vez desde que se
+> lleva este registro.
+>
+> Estado resultante: ítems sin `module_id` **156 → 128**; módulos **18 → 20**
+> (`algebra/inecuaciones` y `aritmetica/operaciones_fundamentales`, D-37); piso de esfuerzo por
+> defecto **3 s → 2 s** (calibrado con datos, T-59).
+>
+> Los **128** que quedan sin módulo son `diagnostico` (84) y `paes_m1` (44): bancos mezclados que
+> necesitan clasificación **por ítem** (contenido, ADR-016), no SQL. Ninguna migración los cierra —
+> ver [[../project-memory/BACKLOG]] T-60.
 >
 > **Corrección 2026-08-10:** `022` figuraba sin marca de aplicada y se sospechó que estaba
 > pendiente. **Lo estaba solo en la documentación**: el owner verificó con
@@ -346,7 +365,72 @@ redundante, no un arreglo. Consolidado en `023`.
 
 ---
 
-## Catálogo de misconceptions (`027_misconceptions.sql`) — ⏳ pendiente de aplicar
+## Umbral de esfuerzo por banco (`028` + `032`) — ✅ aplicadas 2026-08-10
+
+Columna `test_configs.min_response_seconds` (`double precision not null default 2`, check
+`0 ≤ x ≤ 120`). Es el **piso** del umbral bajo el cual una respuesta se considera no esforzada y
+deja de contar en la estimación de θ. El umbral efectivo de cada ítem es
+`max(min_response_seconds, largo_del_enunciado / 20)`: el piso cubre los enunciados cortos y la
+parte proporcional los largos. Solo el piso es configurable — la velocidad de lectura es una
+constante del cliente (`universo.irt.effort/chars-per-second`), no una decisión administrativa.
+
+`not null default 2` y no nullable **a propósito** (`028` lo creó en 3; `032` lo bajó a 2 tras
+calibrarlo contra el histórico — ver T-59): lo que se configura es cuán estricto ser, no si
+el filtro existe. Con default, el filtro queda activo en todos los bancos ya sembrados sin que
+nadie toque el panel; si fuera nullable, la afirmación publicada en la FAQ ("el tiempo de respuesta
+también se considera en la estimación") seguiría siendo falsa hasta configurar cada topic uno por
+uno. `0` deja actuar solo la regla proporcional.
+
+No hay backfill de `tests`: las respuestas ya rendidas no tienen peso registrado y
+`universo.irt.effort/weight-of` las cuenta con 1.0. Este filtro **no reinterpreta hacia atrás** lo
+que ya se midió y se le mostró a alguien. Ver [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]]
+§Fase 1 y [[../project-memory/BACKLOG]] T-44.
+
+**El 2 no lo eligió el autor, lo eligieron los datos (`032`).** `028` había puesto 3 s por criterio.
+Al aplicar el umbral retroactivamente a las 195 respuestas del histórico que tienen tiempo real,
+barriendo el piso, la tasa de acierto de las respuestas **descartadas** fue 18 % / 21 % / 27 % /
+**34 %** / 42 % con piso 0/1/2/3/4 s. Con cuatro alternativas, adivinar acierta 25 %: mientras las
+descartadas ronden ese 25 % se descarta ruido, y cuando lo superan se descarta conocimiento. El 3
+estaba del lado equivocado. **No es una calibración sólida** —esas 195 respuestas son el 9 % del
+histórico— sino un número inventado reemplazado por el mejor dato disponible. Ver T-59.
+
+## Higiene de `topic` y backfill de `module_id` (`029` + `030` + `031`) — ✅ aplicadas 2026-08-10
+
+**Es la única migración pendiente que modifica datos existentes.** Leer antes de aplicar.
+
+| Objeto | Qué es |
+|---|---|
+| `public.normalize_topic(text)` | Forma canónica de un topic: sin acentos → minúsculas → sin bordes. `immutable`. **Espejo de `universo.topics/normalize`** — si cambia una, cambia la otra en el mismo commit |
+| `questions_normalize_topic` | Trigger `before insert or update of topic` sobre `questions` |
+| `tests_normalize_topic` | Ídem sobre `tests` (el historial que alimenta `universo.access`) |
+| `test_configs_normalize_topics` | Ídem sobre `test_configs`, normalizando además `prerequisite_topic` y anulando la auto-referencia que quedaría |
+
+**Qué corrige:** 26 topics donde varios son el mismo banco escrito de dos formas
+(`factorización`/`factorizacion`, `Polinomios`/`polinomios`, …). Cada variante tenía su propia fila
+en `test_configs`, su propio historial en `tests` y su propio conjunto de ítems para la selección
+adaptativa — el sistema los trataba como bancos distintos **sin avisar**.
+
+**Orden obligado** por la auto-FK `prerequisite_topic → topic`, que no tiene `on update cascade`:
+crear la fila canónica → repuntar prerequisitos → normalizar `questions`/`tests` → borrar variantes
+(previo `set prerequisite_topic = null`, porque el `on delete restrict` se evalúa fila por fila).
+
+**Quién gana al fusionar:** la variante que respalda **más preguntas**, con su configuración y su
+prerequisito. Dejar ganar a la que ya estaba bien escrita es arbitrario y puede tirar un
+prerequisito configurado, que no es cosmética: define quién puede rendir el test.
+
+**Backfill de `module_id`** en dos reglas: equivalencias explícitas (espejo de
+`universo.topics/explicit-topic->module-slug`) y coincidencia única por sufijo del slug del módulo
+(`triangulos` → `geometria/triangulos`). **No le asigna módulo a `diagnostico` (84 ítems) ni a
+`PAES_M1` (44)**: son bancos mezclados y cualquier asignación por topic sería un dato falso con
+apariencia de dato bueno. Esos ítems necesitan clasificación por ítem, que es contenido y no SQL.
+
+**Verificado antes de entregarla** (2026-08-10) contra un PostgreSQL 14 desechable con un fixture
+que reproduce el desorden medido: 0 topics fuera de forma canónica en las tres tablas, FK íntegra,
+prerequisito configurado conservado, fusión correcta, triggers normalizando altas nuevas, y
+**idempotente** (segunda corrida: 0 diferencias). El fixture no es el esquema real — T-48 sigue
+abierto — así que la verificación cubre la lógica de la migración, no el estado real de la base.
+
+## Catálogo de misconceptions (`027_misconceptions.sql`) — ✅ aplicada 2026-08-10
 
 **Paso 1 de [[../project-memory/BACKLOG]] T-57.** Puramente aditiva: crea una tabla vacía y cuatro
 columnas nullable. No mueve ningún dato, no cambia el comportamiento de la app, y se puede aplicar

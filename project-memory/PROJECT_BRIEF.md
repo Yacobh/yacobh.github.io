@@ -132,7 +132,7 @@ primero y con qué grupo hacerlo.
 
 | # | Criterio | Estado |
 |---|----------|--------|
-| S-07 | `clj -M:test` en verde | ✅ 34 tests / 133 assertions / 0 failures |
+| S-07 | `clj -M:test` en verde | ✅ 58 tests / 332 assertions / 0 failures (2026-08-10) |
 | S-08 | Reglas de negocio críticas en namespaces puros con test | ✅ `profile`, `slots.logic`, `irt.progress`, `tetha` |
 | S-09 | Costo de infraestructura ≈ 0 | ✅ GitHub Pages + Supabase free tier |
 | S-10 | Cualquier sesión nueva puede continuar el proyecto leyendo `project-memory/` | ✅ desde este framework (2026-07-26) |

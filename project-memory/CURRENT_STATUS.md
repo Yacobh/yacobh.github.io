@@ -539,6 +539,128 @@
 > ya había prescrito el plan de respaldo para esta situación exacta: *"primero que sea verdad,
 > después dejarla publicada"*. Corrección estimada: ~15 minutos.
 
+> **T-44 y T-51 implementados (2026-08-10, sesión posterior a T-57 paso 1).** El owner aplicó `027`
+> (tabla `misconceptions` creada y vacía, confirmado) y encargó los dos tickets, autorizando trabajo
+> autónomo. Ambos van en la rama `t-44-t-51-tiempo-y-topics`, **sin mergear a `main`**.
+>
+> **T-44 — el tiempo de respuesta ya entra en la estimación.** Fase 1 de ADR-014: namespace puro
+> nuevo `universo.irt.effort` que decide un peso por respuesta (umbral
+> `max(piso_configurado, largo_enunciado / 20)`), aplicado en las dos derivadas de
+> `components.tetha` y heredado por `irt.progress/fisher-information` — de modo que descartar una
+> respuesta **sube el SE** en vez de dejarlo mentir, que es el punto que el ADR marcaba como fácil de
+> olvidar. El peso se calcula una sola vez al registrar la respuesta y viaja dentro de `tests.test`
+> (D-36), así que recalibrar el umbral en la Fase 2 no reescribe la historia. Migración `028`
+> (`test_configs.min_response_seconds`, `not null default 3`) + campo en Admin → Configuración de
+> tests. **Decisión que no estaba en el ticket:** `:time-ms = 0` **no** descarta la respuesta, porque
+> la UI manda 0 cuando el cronómetro no arrancó — es el centinela de "no medido", no de "respondió al
+> instante".
+>
+> **T-51 — los topics duplicados dejan de existir, y de poder volver a existir.** `029` normaliza
+> `questions.topic`, `tests.topic` y `test_configs.topic` (sin acentos, minúsculas), fusiona las
+> filas de configuración cuidando la auto-FK de prerequisitos, rellena `module_id` por equivalencia
+> explícita y por coincidencia única de sufijo, y deja **triggers** en las tres tablas para que el
+> defecto no se reconstruya con el próximo ítem cargado a mano ([[../adr/ADR-017-topic-canonico-por-trigger]],
+> D-36 acompaña a T-44). Del lado del cliente, `universo.topics` (puro, con tests) reemplaza los dos
+> diccionarios literales que vivían en `profile.cljs`.
+>
+> **Verificado contra un PostgreSQL 14 real, no solo revisado.** Se montó una base desechable con un
+> fixture que reproduce el desorden medido el 2026-08-09 y se aplicaron `028`/`029` de verdad:
+> 0 topics fuera de forma canónica, FK íntegra, idempotente en la segunda corrida, triggers
+> normalizando altas nuevas. **La prueba encontró un defecto real**: la primera versión hacía ganar
+> a la fila que ya estaba bien escrita, y eso borraba un prerequisito configurado (θ mínimo incluido)
+> — no es cosmética, define quién puede rendir el test. Corregido para que gane la variante con más
+> preguntas, con su configuración y su prerequisito.
+>
+> `clj -M:test` **57 tests / 292 assertions / 0 failures** (antes 46/186). `shadow-cljs release app`
+> 0 warnings, bundle recompilado; `npm run build:css` sin cambios (se reusó vocabulario de clases ya
+> existente). `clj-kondo` limpio en todo lo tocado.
+>
+> **⏳ Lo que falta y depende del owner:** aplicar **`028` y después `029`** (en ese orden), correr
+> las tres consultas de verificación del final de `029`, y mergear/publicar. **Hasta que eso pase, la
+> frase de la FAQ sobre el tiempo de respuesta (X-01) sigue siendo falsa en el sitio.**
+>
+> **Lo que T-51 deja abierto a propósito:** los 128 ítems de `diagnostico` (84) y `PAES_M1` (44) son
+> bancos **mezclados** y siguen sin `module_id`. Asignarles módulo por su topic sería inventar el
+> dato; necesitan clasificación por ítem, que es contenido (ADR-016) y no SQL. Por eso T-51 queda
+> `en curso` y no `hecho`. Detalle en `sessions/SESSION-018.md`.
+>
+> **Revisión del owner a T-44 → se abre T-59 y se corrige una premisa de ADR-014 (2026-08-10).** El
+> owner cuestionó que el umbral de esfuerzo dependa de dos constantes elegidas por el autor (piso de
+> 3 s, 20 caracteres/segundo): sostener números inventados es mantenimiento permanente, y propuso
+> que cada ítem **aprenda cuánto tarda** a partir de los tests rendidos. **Tiene razón, y la revisión
+> destapó algo más grande:** ADR-014 difirió el modelo empírico con la premisa *"el proyecto tiene
+> cero estudiantes reales"* — y esa premisa **se cayó al día siguiente de escribirse** (T-01 midió
+> 80 usuarios y 252 diagnósticos el 2026-08-09), con la instrumentación de `time-ms` datando de
+> **2025-09-09**, anterior al piloto UNAP. La precondición de ≥30 tests de la Fase 2 probablemente
+> está cumplida hace casi un año, y nadie lo notó porque el ADR se escribió sobre una foto vieja.
+>
+> **Medición real tras aplicar `028`/`029` (2026-08-10).** El owner las aplicó y verificó:
+> **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id` de 199 → **156**.
+> De esos 156, 28 sí eran mapeables y fallaron por falta de equivalencias, no por la normalización
+> — se cerraron con `030` (11 equivalencias) y `031` (dos **módulos nuevos** decididos por el
+> profesor: `algebra/inecuaciones` y `aritmetica/operaciones_fundamentales`, D-37; los módulos pasan
+> de 18 a 20). Verificado sobre la distribución real: **156 → 128**, idempotente. Los 128 restantes
+> son `diagnostico` (84) y `paes_m1` (44), los bancos mezclados. **Se corrigió una afirmación propia
+> del mismo día:** se había escrito que la decisión de ADR-017 de no unificar espacios "se había
+> caído"; se midió y **no hay ningún banco partido por espacio vs. guion bajo**, así que la decisión
+> se sostiene y el hueco era solo de mapeo. Los dos módulos nuevos nacen **sin recursos publicados**.
+>
+> Decidido (opción (a) del owner): **T-44 se mergea igual** —es la capa de caso frío que hace falta
+> para ítems sin datos, que siempre habrá bajo ADR-016— y el trabajo empírico se abre como **T-59**
+> (`P1`). ADR-014 lleva ahora una nota de corrección explícita en §Contexto; el párrafo original no
+> se borra. Consultas de solo lectura listas y **validadas contra un Postgres real** en
+> `supabase/queries/T-59_calibracion_tiempos.sql` → [[OPEN_QUESTIONS]] Q-26.
+
+> **T-59 medido: el problema no es falta de estudiantes, es que el cronómetro no medía (2026-08-10).**
+> Se corrieron las consultas contra el proyecto real: **2178 respuestas en 209 tests, y solo 195
+> (9 %) con `time-ms > 0`**. El campo está siempre presente y casi siempre en 0. **Corrige la
+> inferencia con la que se abrió T-59:** que la instrumentación datara de 2025-09-09 hacía esperar
+> que los tiempos estuvieran ahí; se marcó como pendiente de verificar y la verificación dio que no.
+> Consecuencias: **0 de 387 ítems tienen ≥30 respuestas** con tiempo (nada calibrable); el
+> **promedio simple queda refutado con los datos del propio proyecto** (ítem 361: media 78,7 s vs
+> mediana 4,8 s); ρ(θ, tiempo) **no calculable** (n = 17). T-59 pasa a `bloqueado` **por
+> instrumentación**, que no se arregla esperando → consulta 6 del archivo de queries, para saber si
+> el cronómetro registra hoy. **Q-26 respondida.**
+>
+> **Lo que sí se pudo hacer con esas 195 respuestas:** corregir el piso de esfuerzo de **3 s a 2 s**
+> con evidencia (`032`). El barrido mostró que con piso 3 las respuestas descartadas acertaban 34 %
+> cuando el azar es 25 % — se estaba tirando conocimiento. Y una **tercera corrección al agente**:
+> la conjetura de que el campo del panel de T-44 sobraba era falsa; con enunciado mediano de 50
+> caracteres, el piso manda en **234 de 387 ítems**, y que fuera configurable es lo que permitió que
+> el arreglo sea un `update` de una línea.
+>
+> **Backfill de T-51 cerrado hasta donde llega sin clasificar contenido:** `030` + `031` llevan los
+> ítems sin `module_id` de 156 a **128** (solo `diagnostico` y `paes_m1`), con dos módulos nuevos
+> decididos por el profesor (D-37). Ver `sessions/SESSION-018.md`.
+
+> **Las tres migraciones aplicadas; auditoría de memoria (2026-08-10, cierre).** El owner aplicó
+> `030`, `031` y `032`. **Por primera vez desde que se lleva este registro no queda ninguna migración
+> pendiente**: repositorio y base alineados. Estado medido: ítems sin `module_id` **199 → 128**,
+> módulos **18 → 20**, piso de esfuerzo **3 s → 2 s**.
+>
+> A pedido del owner se revisó toda `project-memory/` buscando desincronizaciones. Corregidas:
+> - **`HANDOFF.md` estaba congelado en el 2026-07-26** — el archivo que existe para retomar el
+>   proyecto sin contexto decía que el árbol estaba sucio, que no se sabía qué había en producción,
+>   que faltaba publicar contenido y verificar el email, y listaba como bloqueantes seis tareas ya
+>   cerradas. Reescritas sus secciones de estado, pendientes, riesgos, preguntas y próximos pasos.
+> - **Conteo de tests desactualizado** en cuatro archivos (`AGENT_INSTRUCTIONS` decía 34/133 como
+>   "estado de referencia" contra el que comparar; también `PROJECT_BRIEF`, `LESSONS_LEARNED` y la
+>   tabla de este archivo). Ahora **58/332**, verificado en vivo.
+> - **`TECH_STACK` y `DEPENDENCIES` seguían marcando con ⚠️ el desajuste de versiones de
+>   shadow-cljs y KaTeX que T-13 cerró el 2026-08-09.** Verificado contra `package.json` e
+>   `index.html` antes de corregir: ambos están alineados.
+> - **`ARCHITECTURE`** no tenía `test_configs`, `misconceptions`, `normalize_topic()` ni los
+>   triggers de canonicalización; se agregó además una tabla de **invariantes que impone la base**
+>   (capacidad, confirmación, último admin, topic canónico) con su espejo puro cuando lo hay.
+> - **`TERMINOLOGY`** no tenía el vocabulario que ADR-014 pedía reflejar: respuesta no esforzada,
+>   peso `w`, intensidad temporal β, velocidad τ, y por qué se usa media geométrica y no simple.
+> - **`RISKS` R-17** ahora distingue lo que T-44 mitiga (respuestas al azar) de lo que no (el
+>   parámetro `b` sin calibrar), y advierte que T-29 hereda el problema de cobertura de datos.
+>
+> **T-51 cerrada** con una nota explícita: su criterio decía "todo ítem tiene `module_id`" y 128 no
+> lo tienen, así que esa mitad **se trasladó a T-60** (clasificar los bancos mezclados) en vez de
+> darla por cumplida.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".
@@ -547,7 +669,7 @@
 
 ## 1. Estado general
 
-**Fase: MVP operable, en cierre de go-live.**
+**Fase: go-live cerrado (2026-08-09). Lo que sigue no es construir, es difundir.**
 
 El funnel completo funciona de punta a punta: un estudiante puede registrarse, hacer el
 diagnóstico adaptativo, obtener su perfil (θ, banda, déficits, misconceptions), ver su plan e
@@ -555,19 +677,24 @@ inscribirse en un cupo de su banda, con confirmación automática del grupo y no
 El panel de administración permite operar todo el ciclo (preguntas, recursos, cupos, roles,
 moderación).
 
-Lo que falta para declarar go-live no es código: es **contenido** (recursos publicados por módulo)
-y **verificación de operación** (envío de email en el proyecto Supabase real).
+**Ningún bloqueo de F8 (Go-live) queda abierto:** contenido publicado (T-01, 58/61 recursos), email
+verificado en producción (T-02) y primer cupo real con sala de Jitsi (T-04). El riesgo dominante
+pasó a ser **R-19 (estacionalidad)**: la PAES se rinde a fin de año y la ventana de captación son
+las próximas semanas.
 
 | Dimensión | Estado |
 |-----------|--------|
 | Funcionalidad del funnel | ✅ operativa |
 | Panel admin | ✅ operativo |
-| Tests | ✅ `42 tests / 162 assertions / 0 failures` (`clj -M:test`, 2026-08-08) |
-| Contenido pedagógico | 🟡 módulos y blurbs sembrados; faltan recursos publicados |
+| Tests | ✅ `58 tests / 332 assertions / 0 failures` (`clj -M:test`, 2026-08-10) |
+| Contenido pedagógico | 🟡 58/61 recursos publicados (T-01); faltan los 2 módulos nuevos de `031` y los 7 de geometría (T-56) |
+| Banco de ítems | 🟡 387 ítems; topics canónicos y 259 con módulo, **128 sin módulo** (bancos mezclados, T-60) |
+| Migraciones | ✅ **ninguna pendiente** — repo y base alineados (2026-08-10, hasta `032`) |
 | Email de cohorte | ✅ desplegado y verificado en producción (T-02, 2026-08-09) |
-| Documentación / memoria | ✅ PMF adoptado hoy (2026-07-26) |
-| CI / staging / monitoreo | ⛔ inexistentes |
-| Estado del árbol de trabajo | ✅ limpio (verificado 2026-08-09; ver nota de sesión al inicio de este archivo) |
+| Documentación / memoria | ✅ PMF operativo desde 2026-07-26; auditada el 2026-08-10 |
+| CI | 🟡 `.github/workflows/test.yml` existe (T-06); staging y monitoreo ⛔ inexistentes |
+| Analítica del embudo | ⛔ inexistente (T-20) — el sitio ya recibe tráfico sin medición |
+| Estado del árbol de trabajo | ✅ limpio; rama `t-44-t-51-tiempo-y-topics` **sin mergear** (2026-08-10) |
 
 ---
 
@@ -577,13 +704,13 @@ y **verificación de operación** (envío de email en el proyecto Supabase real)
 |------|----------|--------|-------|
 | **F0 — Base técnica** | SPA + Supabase + auth + RLS | **100 %** | `admin_rls.sql`, sesión rehidratada, rutas protegidas |
 | **F1 — Motor IRT** | Diagnóstico adaptativo con parada por precisión | **100 %** | 1PL + MAP, Δθ acotado, SE ≤ 0,35, prefetch; parada + tiempo configurables por banco y progresión por prerequisitos (T-39, ADR-013, en producción) |
-| **F2 — Perfil y plan** | θ → banda → déficits → plan en 2 capas | **95 %** | Falta contenido publicado (capa 1) |
-| **F3 — Cohortes** | Cupos por banda, inscripción, confirmación | **95 %** | Falta verificar control de `capacity` (Q-04) |
+| **F2 — Perfil y plan** | θ → banda → déficits → plan en 2 capas | **95 %** | Contenido publicado (T-01) y recomendación personalizada arreglada (T-53). El techo real hoy son los 128 ítems sin módulo (T-60), no el contenido |
+| **F3 — Cohortes** | Cupos por banda, inscripción, confirmación | **100 %** | Control de `capacity` en la base (T-03, `011`); primer cupo real publicado (T-04). Falta oferta en las demás bandas, que es operación y no código |
 | **F4 — Admin** | Operar contenido, cupos, usuarios, moderación | **100 %** | Editor de preguntas restaurado en `48bf525` |
 | **F5 — Email de cohorte** | Aviso por correo al confirmar grupo | **100 %** | Desplegado y verificado en producción (T-02, 2026-08-09): envío real confirmado, cron activo |
 | **F6 — Captación** | Landing + SEO | **90 %** | Landing rehecha (`38fbb96`), JSON-LD acotado (`b6ae903`); sin analytics |
 | **F7 — Memoria del proyecto** | PMF operativo | **100 %** | Este framework, 2026-07-26 |
-| **F8 — Endurecimiento** | CI, staging, backups, monitoreo | **5 %** | Solo tests manuales |
+| **F8 — Endurecimiento** | CI, staging, backups, monitoreo | **20 %** | CI existe (T-06); sin staging (T-09), sin respaldo probado (T-07), sin monitoreo. El esquema tampoco se puede reconstruir desde el repo (T-48) |
 
 ---
 

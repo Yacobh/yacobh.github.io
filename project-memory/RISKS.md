@@ -1,6 +1,6 @@
 # RISKS
 
-Última actualización: **2026-08-09** (R-11 activado y R-19 pasa a dominante tras cerrar T-04;
+Última actualización: **2026-08-10** (nota de T-44/T-59 en R-17; R-11 activado y R-19 dominante tras cerrar T-04;
 R-21 cerrado tras limpieza de ramas; R-13 refrescado; ver
 también R-10/R-16 ya cerrados en pasadas previas)
 
@@ -260,6 +260,12 @@ landing ya lo hace ("nivel estimado").
 incompatibles que dejaban topics enteros sin ítems alcanzables (`enteros` en 10–90 en vez de
 logits)— reescalando a mano y por orden relativo, no con datos de respuesta real. Este riesgo
 (calibración estadística ausente) sigue sin mitigar; T-29 sigue abierta.
+**Nota 2026-08-10 (T-44):** el filtro de respuestas no esforzadas ataca una fuente **distinta** de
+sesgo de θ —las respuestas al azar, que antes entraban al cálculo como evidencia— y la mitiga desde
+el primer estudiante, sin necesidad de calibrar. No toca este riesgo, que es sobre el parámetro `b`.
+Al medir el histórico para T-59 se descubrió además que **solo el 9 % de las respuestas guarda
+tiempo real**: la calibración de T-29, que usaría los mismos datos, hereda ese problema — conviene
+verificar la cobertura de datos antes de darla por viable.
 
 ### R-18 · Spam en guestbook y contacto
 **Descripción:** inserción pública sin captcha ni rate limit.

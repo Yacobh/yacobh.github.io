@@ -1,6 +1,6 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-09** (Q-20 respondida; X-04/X-05/X-06 resueltas)
+Última actualización: **2026-08-10** (Q-26 abierta y respondida el mismo día; X-01 actualizada)
 
 > **Regla fundamental de PMF: si falta información, no se asume — se registra aquí.**
 > Ninguna pregunta se borra: cuando se responde, se marca ✅ con la fecha y la respuesta, y si
@@ -179,6 +179,51 @@ en `unknown/<topic>`, lo que produce un déficit **sin módulo** y por lo tanto 
 **Nota (2026-08-08, ADR-013):** el desbloqueo de tests por prerequisito (T-39) se diseñó
 deliberadamente **por `topic` directo**, no por `module-slug`, precisamente para no heredar esta
 brecha — no la resuelve, solo evita depender de ella.
+**Nota (2026-08-10, T-51/ADR-017):** el mapeo dejó de ser una lista de variantes: `universo.topics`
+normaliza el topic antes de buscarlo y resuelve por **coincidencia de sufijo** con el slug del
+módulo, así que ya no hace falta una entrada por cada topic que se llama igual que su módulo. La
+pregunta **sigue abierta en su parte de fondo** (¿los topics cubren los ejes reales de la PAES M1?),
+que es una pregunta de contenido, no de mapeo. `universo.topics/unmapped` responde la parte
+mecánica sobre cualquier lista de topics, y la consulta (ii) de `029` la responde contra la base.
+
+### ✅ Q-26 · ¿Cuántos de los diagnósticos ya rendidos traen `time-ms` utilizable? — Respondida 2026-08-10
+> **Respuesta: casi ninguno. 195 de 2178 respuestas (9 %).** El campo `time-ms` está presente en el
+> 100 % de las respuestas pero vale **0** en el 91 %: el cronómetro no estaba midiendo. De 387 ítems
+> del banco, **0 tienen ≥30 respuestas con tiempo** y solo 13 tienen ≥5.
+>
+> **Corrige la inferencia con la que se abrió la pregunta:** que `git log -S ":time-ms"` situara la
+> instrumentación en 2025-09-09 (anterior al piloto) hacía esperar que los tiempos estuvieran ahí.
+> Se marcó como "falta confirmarlo" y la confirmación dio que no — el campo existía en el código,
+> pero `diagnostic_test.cljs` manda `0` cuando el cronómetro no arrancó, y el flujo del diagnóstico
+> se reparó recién en `9e622d9` (2026-07-18).
+>
+> **Consecuencia:** T-59 queda `bloqueado`, pero **no por falta de estudiantes** sino por
+> instrumentación. Eso no se arregla esperando. La pregunta que queda viva es si el cronómetro mide
+> **hoy** → consulta 6 de `supabase/queries/T-59_calibracion_tiempos.sql`.
+>
+> **Lo que sí se pudo usar** con esas 195 respuestas: corregir el piso de esfuerzo de 3 s a 2 s con
+> evidencia (migración `032`), y refutar el promedio simple como estimador.
+
+Abierta 2026-08-10. **Es la pregunta que decide si T-59 se hace ahora o hay que esperar**, y de
+paso si la precondición de datos de la Fase 2 de ADR-014 estaba cumplida hace un año sin que nadie
+lo notara.
+
+Lo que ya se sabe **sin consultar la base**: el panel mostró **80 usuarios y 252 diagnósticos**
+rendidos (T-01, 2026-08-09), y `git log -S ":time-ms"` sitúa la instrumentación del cronómetro en
+**2025-09-09**, o sea **anterior** al piloto UNAP (oct–nov 2025). Los tiempos *deberían* estar ahí.
+
+Lo que **no** se sabe y solo responde una consulta: si esas filas efectivamente tienen `time-ms`
+poblado y distinto de 0 dentro de `tests.test`, si aparece la moda izquierda de clickeo rápido que
+ADR-014 predice, y cuántos ítems tienen ya suficientes respuestas para calibrarse solos.
+
+**Cómo responderla:** `supabase/queries/T-59_calibracion_tiempos.sql` (solo lectura, validado
+contra un Postgres real antes de entregarlo). Las consultas 1 y 3 responden esta pregunta; la 4
+además contrasta el umbral autoral de T-44 contra el histórico.
+**Ojo:** `time-ms` es el **delta** por pregunta, no un par de timestamps — lo que no se instrumente
+ahora no se recupera después.
+**Bloquea:** T-59, y desbloquea o confirma el bloqueo de T-45.
+**Relacionado:** [[BACKLOG]] T-59, T-44, T-45, T-29 · [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]]
+§Corrección 2026-08-10 · [[RISKS]] R-17.
 
 ### 🔴 Q-07 · ¿Qué semántica tiene repetir el diagnóstico?
 `student_profiles` es una materialización única por estudiante. La FAQ promete explícitamente que
@@ -333,7 +378,7 @@ T-18 (cerrada), [[RISKS]] R-21 (cerrado).
 
 | # | Contradicción | Documentos implicados | Resolución propuesta |
 |---|---------------|----------------------|----------------------|
-| X-01 | La FAQ dice que el tiempo de respuesta se considera en la estimación; el modelo 1PL no lo usa | `index.html`, `landing.cljs` vs `components/tetha.cljs` | *(Vía decidida 2026-08-08)* Se cambia el modelo, no el copy: [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]], Q-17 respondida. **La contradicción sigue viva en producción** hasta que T-44 se despliegue |
+| X-01 | La FAQ dice que el tiempo de respuesta se considera en la estimación; el modelo 1PL no lo usa | `index.html`, `landing.cljs` vs `components/tetha.cljs` | *(Vía decidida 2026-08-08)* Se cambia el modelo, no el copy: [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]], Q-17 respondida. **T-44 implementado el 2026-08-10** (`universo.irt.effort`, migración `028`): el código ya hace verdadera la frase, pero **la contradicción sigue viva en producción** hasta aplicar `028` y publicar el bundle |
 | X-02 | La FAQ promete ver "cómo se movió tu nivel" al repetir el diagnóstico; `student_profiles` no guarda histórico | FAQ vs `001_mvp_schema.sql` | Q-07 / P-01 |
 | X-03 | `007` restringe SELECT de `questions` a admin, pero el estudiante debe leer preguntas | `007_questions_admin_rls.sql` vs flujo de `events/test.cljs` | ✅ *Resuelta 2026-08-09:* había una policy permisiva del dashboard (`using true`) que anulaba a `007` por OR. Eliminada en `025`; el estudiante ya no lee `questions` sino los RPC de ADR-015. **Cerrada y verificada en producción** — ver Q-12, T-47 |
 | X-04 | *(Resuelta 2026-08-09)* `.gitignore` ignoraba `src/universo/user.cljs`, pero el archivo estaba trackeado en Git | `.gitignore` vs `git ls-files` | Era código roto sin `ns`/requires, no compilado ni usado en ningún lado — borrado, `.gitignore` limpiado. Ver [[BACKLOG]] T-16 |
