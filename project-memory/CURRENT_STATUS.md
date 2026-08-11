@@ -701,6 +701,24 @@
 > en vez de saltar al extremo caro; el umbral global ya es alcanzable con los datos actuales, y la
 > capa autoral de T-44 pasa a ser el piso permanente, no un parche transitorio.
 
+> **Experimento paralelo entregado (2026-08-11, rama `experimento-cuantica`).** Un track de
+> **Mecánica Cuántica** montado sobre el mismo motor IRT, para uso personal del autor en su examen
+> universitario: migraciones `033`–`040` con 15 módulos, 77 misconceptions, **123 ítems** con sus 4
+> explicaciones cada uno, 32 recursos y 15 configuraciones de banco. **No es contenido del producto
+> y no cambia el estado del MVP PAES**: es 100 % datos, no toca ClojureScript, no recompila el
+> bundle, y `clj -M:test` sigue igual. Está aislado del estudiante por `test_configs.active = false`
+> ([[RISKS]] R-23) y `published = false` en los recursos. Ver [[../adr/ADR-018-track-experimental-cuantica]],
+> [[BACKLOG]] T-61 y [[../supabase/SCHEMA]] §Track experimental.
+>
+> **Estado: entregado y verificado, pendiente de aplicar.** Las 8 migraciones no se corrieron contra
+> producción: se verificaron contra un PostgreSQL 14 desechable (aplicación limpia, idempotencia,
+> contenido PAES intacto, reversión probada). Dependen de que `027` esté aplicada — hay una
+> contradicción entre [[BACKLOG]] T-57 y [[../supabase/SCHEMA]] sobre eso, anotada y sin resolver.
+>
+> **Consecuencia práctica para cualquier métrica de contenido:** a partir de que se apliquen, las
+> consultas sobre el banco PAES necesitan `where topic not like 'mq\_%'`; si no, `questions` pasa a
+> contar 510 en vez de 387.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

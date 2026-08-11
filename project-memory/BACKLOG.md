@@ -1474,6 +1474,13 @@ del track `geometria` no tienen ninguna fuente**: el owner subió los volúmenes
 
 ### T-57 · Modelar la misconception como entidad, no como texto libre — **P2** · `en curso` (paso 1 hecho 2026-08-10; ⏳ falta aplicar `027`)
 
+> **Contradicción detectada 2026-08-11:** este encabezado dice que falta aplicar `027`, pero
+> [[../supabase/SCHEMA]] §Orden de aplicación la marca **✅ aplicada 2026-08-10 (tabla creada y
+> vacía, confirmado por el owner)**. No se resuelve acá en silencio ([[../CLAUDE]] §6): confirmar
+> con `select count(*) from public.misconceptions;` (0 filas = aplicada y vacía; error de relación
+> inexistente = no aplicada) y corregir el que esté mal. **Bloquea `034`–`038`**, que insertan en
+> esa tabla y en las cuatro columnas `misconception_*_id` que crea `027`.
+
 Diseño conversado con el owner el 2026-08-09, a partir del análisis de arquitectura de la
 retroalimentación. **Es prerequisito de T-54**: no se pueden enlazar recursos a misconceptions
 mientras las misconceptions no existan como entidad.
@@ -1655,6 +1662,33 @@ desactualizados (lista de módulos previa al MVP).
 
 ---
 
+---
+
+### T-61 · Experimento: track de Mecánica Cuántica sobre el motor IRT — **P3** · `entregado, pendiente de aplicar` (2026-08-11)
+
+Contenido completo de un curso universitario de Mecánica Cuántica cargado sobre el mismo motor
+IRT del producto, para uso personal del autor de cara a su examen. **No es contenido del producto**
+y no compite con ninguna tarea PAES: entra como P3 porque el trabajo ya está hecho y lo único que
+queda es aplicarlo y usarlo.
+
+- **Entregado** (rama `experimento-cuantica`, migraciones `033`–`040`): 15 módulos, 77
+  misconceptions, **123 ítems** con sus 4 explicaciones cada uno, 32 recursos, 15 configuraciones de
+  banco con cadena de prerequisitos.
+- **Decisión y alternativas descartadas:** [[../adr/ADR-018-track-experimental-cuantica]] (D-38).
+- **Aislamiento:** `test_configs.active = false` en los 15 bancos + `published = false` en los 32
+  recursos. Riesgo residual en [[RISKS]] R-23.
+- **Verificado antes de entregar** contra un PostgreSQL 14 desechable: aplicación limpia,
+  idempotencia (2ª corrida = 0 diferencias), contenido PAES intacto, reversión completa probada.
+- **Depende de `027`** (ver la nota de contradicción en T-57): confirmar que está aplicada **antes**
+  de correr `034`.
+- **Terminado cuando:** las 8 migraciones estén aplicadas, la batería de control del final de `040`
+  dé los valores esperados, y el autor haya rendido `mq_momento_angular` al menos una vez.
+- **Después del examen:** decidir si se revierte (procedimiento completo en `040`) o se conserva.
+- **Lo que este experimento le devuelve al producto**, aunque se revierta: es la primera evidencia
+  de que el motor funciona con un temario ajeno sin tocar una línea de ClojureScript, y deja un
+  patrón de carga de contenido en volumen reutilizable para T-27, T-56 y T-60 (ver
+  [[../supabase/CONTENT]]).
+
 ## Resumen por prioridad
 
 | Prioridad | Tareas |
@@ -1662,7 +1696,7 @@ desactualizados (lista de módulos previa al MVP).
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60 |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49 |
-| **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52 |
+| **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61 |
 
 ---
 

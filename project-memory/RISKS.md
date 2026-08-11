@@ -1,6 +1,6 @@
 # RISKS
 
-Última actualización: **2026-08-10** (nota de T-44/T-59 en R-17; R-11 activado y R-19 dominante tras cerrar T-04;
+Última actualización: **2026-08-11** (R-23 nuevo, track experimental de cuántica; nota de T-44/T-59 en R-17; R-11 activado y R-19 dominante tras cerrar T-04;
 R-21 cerrado tras limpieza de ramas; R-13 refrescado; ver
 también R-10/R-16 ya cerrados en pasadas previas)
 
@@ -320,6 +320,24 @@ el panel admin, y el artefacto versionado crece en cada commit inflando el repos
 **Mitigación:** aceptado por ahora; revisar si el bundle o el peso del repo se vuelven un problema
 medible.
 **Estado:** aceptado.
+
+### R-23 · Contenido experimental de cuántica visible para un estudiante de PAES
+**Descripción:** las migraciones `033`–`040` ([[../adr/ADR-018-track-experimental-cuantica]]) cargan
+15 bancos de Mecánica Cuántica en la **misma base de producción**. Lo único que impide que un
+estudiante de PAES M1 los vea en su selector de evaluaciones es `test_configs.active = false`,
+combinado con la policy `test_configs_select` de `020` (`active = true or is_admin()`). **No hay
+segunda barrera:** `questions` no tiene columna `published`, y `next_question` es `security definer`,
+así que sirve cualquier topic que se le pida.
+**Impacto:** Medio — no hay fuga de datos personales ni de seguridad; el daño es de producto:
+un estudiante que viene a preparar la PAES ve "Momento angular ★" en su lista y el sitio pierde
+credibilidad justo donde la necesita.
+**Probabilidad:** Baja — requiere que alguien ponga `active = true` a mano en el panel de admin o en
+SQL. No hay ningún camino automático que lo haga.
+**Mitigación:** aviso en bloque al principio de `040_cuantica_test_configs.sql` explicando la
+consecuencia exacta; prefijo `mq_` reconocible a simple vista en el panel; procedimiento de
+reversión completo escrito y probado en el mismo archivo. Consulta de control:
+`select count(*) from public.test_configs where topic like 'mq\_%' and active;` debe dar **0**.
+**Estado:** aceptado y monitoreado. Se cierra si el experimento se revierte después del examen.
 
 ---
 

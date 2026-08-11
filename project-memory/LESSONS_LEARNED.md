@@ -375,6 +375,45 @@ que pase por `math/latex`) debe escapar el signo peso como `\$`, nunca escribirl
 forma de garantizar que todo el contenido futuro (incluido el que escriba el profesor a mano desde
 Admin → Recursos) esté siempre bien formado.
 
+## Un `left join` por slug al sembrar contenido falla en silencio
+
+**Fecha:** 2026-08-11 (SESSION-019, migraciones `033`–`040`)
+
+**Qué pasó:** el patrón cómodo para sembrar contenido relacionado es un CTE con `values` y un
+`left join` que resuelve las FK por slug legible:
+
+```sql
+left join public.misconceptions xa on xa.slug = i.mis_a
+```
+
+La primera corrida de `035` insertó los 36 ítems sin una sola queja. **Seis de los slugs
+referenciados no existían** en el catálogo de `034`: el `left join` los resolvió como `null` y la
+columna quedó vacía. Ningún error, ninguna advertencia, ninguna fila rechazada — exactamente el
+mismo modo de fallo que [[../adr/ADR-017-topic-canonico-por-trigger]] describe para los topics
+duplicados por acento.
+
+**Por qué no se usa `join` a secas:** porque entonces la fila entera desaparece del insert. Se
+perdería el ítem completo por un slug mal escrito en **un** distractor, que es peor.
+
+**Regla:** después de cualquier siembra de contenido con FK resueltas por slug, correr el **control
+cruzado** — los slugs referenciados en el archivo contra los que existen en la tabla:
+
+```bash
+grep -ho '\$qm\$mq/[a-z0-9/-]*\$qm\$' supabase/migrations/03[5-8]*.sql \
+  | sed 's/\$qm\$//g' | sort -u > /tmp/refs.txt
+psql -tAc "select slug from public.misconceptions order by 1" > /tmp/cat.txt
+comm -23 /tmp/refs.txt /tmp/cat.txt   # referenciados pero inexistentes -> debe estar vacío
+```
+
+Y dejar la versión SQL del control en la batería de verificación de la migración, para que no
+dependa de que alguien se acuerde. La de `040` incluye además el chequeo espejo (entradas del
+catálogo que nadie usa), que detecta el error inverso: un slug que se escribió bien en el catálogo
+y mal en el ítem aparece en **las dos** listas.
+
+**Generalización:** todo `left join` que resuelve una referencia opcional convierte "no encontré
+esto" en "esto no estaba especificado". Cuando esas dos cosas significan algo distinto —y acá lo
+significan: `null` es "sin catalogar a propósito"— el join no puede ser la única verificación.
+
 ---
 
 Relacionado: [[AGENT_INSTRUCTIONS]] · [[RISKS]] · [[DECISIONS]] · [[OPEN_QUESTIONS]] · [[TECH_STACK]]

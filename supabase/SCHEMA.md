@@ -243,7 +243,15 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 32. `migrations/030_backfill_module_id_restante.sql` — ✅ aplicada 2026-08-10
 33. `migrations/031_modulos_inecuaciones_y_operaciones_fundamentales.sql` — ✅ aplicada 2026-08-10, después de `030`
 34. `migrations/032_min_response_seconds_calibrado.sql` — ✅ aplicada 2026-08-10
-35. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+35. `migrations/033_cuantica_track_y_modulos.sql` — ⏳ **pendiente** · experimento, ver §Track `cuantica`
+36. `migrations/034_cuantica_misconceptions.sql` — ⏳ pendiente, después de `033`
+37. `migrations/035_cuantica_questions_fundamentos.sql` — ⏳ pendiente, después de `034`
+38. `migrations/036_cuantica_questions_sistemas.sql` — ⏳ pendiente
+39. `migrations/037_cuantica_questions_momento_angular.sql` — ⏳ pendiente
+40. `migrations/038_cuantica_questions_aplicaciones.sql` — ⏳ pendiente
+41. `migrations/039_cuantica_resources.sql` — ⏳ pendiente, después de `033`
+42. `migrations/040_cuantica_test_configs.sql` — ⏳ pendiente, **última**
+43. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
 > final de `029`: **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id`
@@ -254,6 +262,10 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > lleva este registro.
 >
 > Estado resultante: ítems sin `module_id` **156 → 128**; módulos **18 → 20**
+>
+> ⏳ **`033`–`040` (2026-08-11) son el experimento de Mecánica Cuántica y NO son parte del
+> producto.** Son opcionales: si no se aplican, la base sigue siendo exactamente la del MVP PAES.
+> Ver la sección de más abajo y [[../adr/ADR-018-track-experimental-cuantica]].
 > (`algebra/inecuaciones` y `aritmetica/operaciones_fundamentales`, D-37); piso de esfuerzo por
 > defecto **3 s → 2 s** (calibrado con datos, T-59).
 >
@@ -492,3 +504,40 @@ misconception presente en un solo ítem es sospechosa.
 **Qué NO hace esta migración** (pasos 2–5 de T-57, cada uno con su propia decisión): catalogar
 módulos, extender `score_answer` para devolver el slug, agrupar por misconception en
 `universo.profile/build`, ni enlazar recursos (T-54).
+
+---
+
+## Track experimental `cuantica` (`033`–`040`) — ⏳ pendientes de aplicar
+
+**No es contenido del producto.** Es un experimento de estudio personal del autor para su examen
+universitario de Mecánica Cuántica, montado sobre el mismo motor IRT. Decisión completa, alternativas
+descartadas y riesgo residual en [[../adr/ADR-018-track-experimental-cuantica]].
+
+| Migración | Qué hace |
+|---|---|
+| `033_cuantica_track_y_modulos.sql` | Amplía el `check` de `modules.track` a un cuarto valor, `cuantica` (único cambio de esquema de todo el experimento), y siembra **15 módulos** con `historical_blurb` |
+| `034_cuantica_misconceptions.sql` | **77 misconceptions** con prefijo `mq/`. Es el primer contenido que puebla la tabla creada vacía por `027` |
+| `035`–`038` | **123 ítems** en 15 topics con prefijo `mq_`, cada uno con sus 4 `error_*` y sus `misconception_*_id` |
+| `039_cuantica_resources.sql` | **32 recursos** de capa 1, todos `published = false` (ADR-016 §1) |
+| `040_cuantica_test_configs.sql` | **15 configuraciones**, todas `active = false`, con cadena de prerequisitos. Trae la batería de control y el procedimiento de reversión |
+
+**Qué lo mantiene separado del producto:**
+
+- `test_configs.active = false` en los 15 bancos → la policy `test_configs_select` (`020`) los oculta
+  a todo no-admin. **Es la única barrera** (`questions` no tiene `published`, y `next_question` es
+  `security definer`): ver [[../project-memory/RISKS]] R-23.
+- `resources.published = false` en los 32.
+- Prefijos: `topic` → `mq_`, misconception `slug` → `mq/`, module `slug` → `cuantica/`,
+  `track = 'cuantica'`. Cualquier consulta de métricas del banco PAES necesita
+  `where topic not like 'mq\_%'` de aquí en adelante.
+
+**Es 100 % datos.** No se toca ClojureScript, no se recompila `public/js/app.js`, `clj -M:test` no
+cambia. `universo.topics/module-slugs` sigue con 20 módulos a propósito (ese set solo valida los
+mapeos explícitos topic→módulo, y este experimento no agrega ninguno: cada ítem trae su `module_id`
+escrito por la migración).
+
+**Verificación previa (2026-08-11).** Aplicadas contra un PostgreSQL 14 desechable con un fixture del
+esquema: aplicación limpia sobre base vacía y sobre base con contenido PAES, **idempotencia**
+(segunda corrida → 0 diferencias), contenido PAES intacto (0 filas modificadas), y **reversión
+completa probada** (deja la base exactamente como estaba). El fixture no es el esquema real (T-48
+sigue abierto): antes de aplicar en producción, correr `queries/verificacion_esquema.sql`.
