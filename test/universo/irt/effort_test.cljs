@@ -41,7 +41,11 @@
 
   (testing "piso nil cae al valor por defecto"
     (is (= effort/default-min-response-seconds
-           (effort/min-response-seconds enunciado-corto nil)))))
+           (effort/min-response-seconds enunciado-corto nil))))
+
+  (testing "el default es el calibrado contra el histórico (032/T-59), no el autoral de 028"
+    (is (= 2.0 effort/default-min-response-seconds)
+        "si cambia, tiene que cambiar junto con el default de la columna en Postgres")))
 
 (deftest peso-descarta-solo-lo-no-esforzado
   (testing "por debajo del umbral: peso 0"

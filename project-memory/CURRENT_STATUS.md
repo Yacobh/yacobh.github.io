@@ -611,6 +611,28 @@
 > se borra. Consultas de solo lectura listas y **validadas contra un Postgres real** en
 > `supabase/queries/T-59_calibracion_tiempos.sql` → [[OPEN_QUESTIONS]] Q-26.
 
+> **T-59 medido: el problema no es falta de estudiantes, es que el cronómetro no medía (2026-08-10).**
+> Se corrieron las consultas contra el proyecto real: **2178 respuestas en 209 tests, y solo 195
+> (9 %) con `time-ms > 0`**. El campo está siempre presente y casi siempre en 0. **Corrige la
+> inferencia con la que se abrió T-59:** que la instrumentación datara de 2025-09-09 hacía esperar
+> que los tiempos estuvieran ahí; se marcó como pendiente de verificar y la verificación dio que no.
+> Consecuencias: **0 de 387 ítems tienen ≥30 respuestas** con tiempo (nada calibrable); el
+> **promedio simple queda refutado con los datos del propio proyecto** (ítem 361: media 78,7 s vs
+> mediana 4,8 s); ρ(θ, tiempo) **no calculable** (n = 17). T-59 pasa a `bloqueado` **por
+> instrumentación**, que no se arregla esperando → consulta 6 del archivo de queries, para saber si
+> el cronómetro registra hoy. **Q-26 respondida.**
+>
+> **Lo que sí se pudo hacer con esas 195 respuestas:** corregir el piso de esfuerzo de **3 s a 2 s**
+> con evidencia (`032`). El barrido mostró que con piso 3 las respuestas descartadas acertaban 34 %
+> cuando el azar es 25 % — se estaba tirando conocimiento. Y una **tercera corrección al agente**:
+> la conjetura de que el campo del panel de T-44 sobraba era falsa; con enunciado mediano de 50
+> caracteres, el piso manda en **234 de 387 ítems**, y que fuera configurable es lo que permitió que
+> el arreglo sea un `update` de una línea.
+>
+> **Backfill de T-51 cerrado hasta donde llega sin clasificar contenido:** `030` + `031` llevan los
+> ítems sin `module_id` de 156 a **128** (solo `diagnostico` y `paes_m1`), con dos módulos nuevos
+> decididos por el profesor (D-37). Ver `sessions/SESSION-018.md`.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

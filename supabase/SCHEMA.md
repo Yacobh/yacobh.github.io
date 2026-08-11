@@ -220,7 +220,8 @@ amplían para mostrar los datos nuevos cuando existen.
 31. `migrations/029_topic_normalization.sql` — ✅ aplicada 2026-08-10, después de `028`
 32. `migrations/030_backfill_module_id_restante.sql` — ⏳ **pendiente de aplicar**, después de `029`
 33. `migrations/031_modulos_inecuaciones_y_operaciones_fundamentales.sql` — ⏳ **pendiente**, después de `030`
-34. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+34. `migrations/032_min_response_seconds_calibrado.sql` — ⏳ **pendiente** (baja el piso de esfuerzo de 3 s a 2 s con datos; independiente de `030`/`031`)
+35. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
 > final de `029`: **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id`

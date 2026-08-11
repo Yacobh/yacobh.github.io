@@ -739,8 +739,9 @@
       :min_theta (parse-num (:min_theta row) js/parseFloat)
       :max_minutes (parse-num (:max_minutes row) js/parseFloat)
       ;; A diferencia de max_minutes, la columna es NOT NULL: vacío significa
-      ;; "el piso por defecto", no "sin filtro" (028, ADR-014 Fase 1).
-      :min_response_seconds (or (parse-num (:min_response_seconds row) js/parseFloat) 3)
+      ;; "el piso por defecto", no "sin filtro" (028, ADR-014 Fase 1). El 2 es
+      ;; el default calibrado en 032; espejo de effort/default-min-response-seconds.
+      :min_response_seconds (or (parse-num (:min_response_seconds row) js/parseFloat) 2)
       :active (boolean (:active row))})))
 
 (defn upsert-test-config!

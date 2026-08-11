@@ -113,6 +113,47 @@ Al validarlas contra el fixture apareció una hipótesis a medir con datos reale
 siempre**, con lo que el campo configurable por banco de T-44 casi no actuaría. Si se confirma, ese
 campo del panel sobra. Hay una consulta dedicada a responderlo.
 
+### 6. Cierre del backfill de T-51 con la medición real (`030`, `031`)
+
+El owner aplicó `028` y `029` y corrió las verificaciones: **0 topics fuera de forma canónica**, e
+ítems sin `module_id` de 199 → **156**. De esos 156, **28 sí eran mapeables**: faltaban
+equivalencias explícitas para topics que no se llaman como el sufijo de su módulo
+(`sistemas_ecuaciones`, `potenciacion`, `numeros_relativos`) y para variantes con espacio.
+
+`030` agregó las 11 equivalencias. Las 4 ambigüedades restantes las decidió el profesor, y **dos de
+ellas creando módulo** (D-37): `algebra/inecuaciones` y `aritmetica/operaciones_fundamentales` —
+meter inecuaciones dentro de `algebra/ecuaciones` habría producido el mismo defecto que T-53 acababa
+de arreglar. `031` los crea (18 → 20 módulos) y cierra las 3 preguntas. Verificado sobre la
+distribución real: **156 → 128**, idempotente; quedan solo `diagnostico` (84) y `paes_m1` (44).
+
+**Corrección de una afirmación propia del mismo día:** se había escrito que la decisión de ADR-017
+de no unificar espacios con guiones bajos "se había caído" y que fue "conservadurismo sin datos". Se
+midió con la consulta de duplicados y **devolvió cero filas**: ningún banco está partido por espacio
+vs. guion bajo. La decisión se sostiene; el hueco era de *mapeo*, no de *normalización*.
+
+### 7. T-59: se corrieron las consultas y el resultado cambia el ticket
+
+**El hallazgo que ordena todo lo demás: solo el 9 % del histórico tiene tiempo real.** 2178
+respuestas en 209 tests, todas con el campo `time-ms` presente, **195 con valor > 0**. El cronómetro
+no estaba midiendo.
+
+**Segunda corrección al agente:** al abrir T-59 se argumentó que, como la instrumentación data de
+2025-09-09 (anterior al piloto UNAP), los tiempos "deberían estar ahí". Se marcó como pendiente de
+verificar, y la verificación dice que no. Que el campo exista en el código no implica que midiera.
+
+De ahí, cinco consecuencias registradas en T-59: (a) **0 ítems con ≥30 respuestas** de 387 — nada
+calibrable; (b) el **promedio simple queda refutado con los datos del propio proyecto** (ítem 361:
+media 78,7 s vs mediana 4,8 s), confirmando la objeción de contaminación por outliers; (c) el piso
+autoral de **3 s descartaba respuestas con 34 % de acierto** cuando el azar es 25 % — se corrigió a
+**2 s** con `032`, apoyado en el barrido completo; (d) **tercera corrección al agente**: la conjetura
+de que el campo del panel sobraba era falsa — con enunciado mediano de **50 caracteres**, el piso
+manda en **234 de 387 ítems**, y que fuera configurable es lo que hizo que (c) sea un `update` de
+una línea; (e) ρ(θ, tiempo) **no calculable** (n = 17, 12 en una sola banda).
+
+T-59 pasa de `abierto` a **`bloqueado`**, y el bloqueo cambia de naturaleza: no es "acumular tests",
+es **arreglar la instrumentación**. Se agregó la consulta 6 al archivo de queries para determinar si
+el cronómetro registra hoy. Q-26 abierta y respondida el mismo día.
+
 ## Archivos revisados
 
 - `project-memory/{CURRENT_STATUS,HANDOFF,BACKLOG,OPEN_QUESTIONS,DECISIONS}.md`,
@@ -146,11 +187,12 @@ campo del panel sobra. Hay una consulta dedicada a responderlo.
 ## Comandos ejecutados y resultados
 
 ```
-clj -M:test                → 57 tests / 292 assertions / 0 failures  (entrada: 46/186)
-npx shadow-cljs release app → 226 archivos, 25 compilados, 0 warnings
+clj -M:test                → 58 tests / 332 assertions / 0 failures  (entrada: 46/186)
+npx shadow-cljs release app → 0 warnings (recompilado en cada tanda)
 npm run build:css           → sin cambios (se reusó vocabulario de clases existente)
 clj-kondo --lint <tocados>  → 0 errors, 0 warnings
-psql (base desechable)      → 028 + 029 aplicadas, verificación en 4 bloques, idempotencia OK
+psql (bases desechables)    → 028+029, luego 030+031: verificación por bloques e idempotencia OK
+psql (fixture sintético)    → las 9 consultas de T-59 corridas antes de entregarlas
 ```
 
 ## Decisiones tomadas
@@ -200,18 +242,23 @@ corresponde a cada uno de los 128 ítems de `diagnostico` y `PAES_M1`**.
 
 ## Próximos pasos
 
-1. **Aplicar `028`, después `029`**, y correr las tres consultas de verificación del final de `029`.
-   La segunda lista lo que quedó sin módulo: es el pendiente real de T-51.
-2. **Publicar el bundle.** Recién ahí la frase de la FAQ sobre el tiempo de respuesta (X-01) deja de
-   ser falsa. **X-02** ("te muestra cómo se movió tu nivel") **sigue falsa** y no la toca este
-   trabajo: depende de Q-07/T-26.
-3. Sin relación con estos tickets, y sigue siendo lo que más importa: **difundir el cupo del
-   2026-08-15** (R-19) y **revisarlo el viernes 14** por R-11.
+1. **Aplicar `030` → `031` → `032`** (las dos primeras en ese orden; `032` es independiente) y
+   verificar que queden 128 ítems sin `module_id`.
+2. **Correr la consulta 6 de T-59.** Es lo más urgente de esta lista: dice si el cronómetro está
+   registrando **hoy**. Cada diagnóstico que se rinda sin tiempo es un dato que no se recupera, y el
+   cupo del 2026-08-15 va a traer los primeros estudiantes externos.
+3. **Mergear la rama y publicar el bundle.** Recién ahí la frase de la FAQ sobre el tiempo de
+   respuesta (X-01) deja de ser falsa. **X-02** ("te muestra cómo se movió tu nivel") **sigue
+   falsa** y no la toca este trabajo: depende de Q-07/T-26.
+4. Lo que más importa y no es código: **difundir el cupo del 2026-08-15** (R-19) y **revisarlo el
+   viernes 14** por R-11.
 
 ## Pendientes
 
-- `028` y `029` sin aplicar; rama sin mergear.
-- 128 ítems de bancos mezclados sin `module_id`.
+- `030`, `031` y `032` sin aplicar; rama sin mergear.
+- 128 ítems de bancos mezclados sin `module_id` (contenido, no SQL).
+- Los dos módulos nuevos nacen **sin recursos publicados**.
+- T-59 bloqueado por instrumentación, no por volumen de datos.
 - La consulta del módulo más fallado (paso 2 de T-57) sigue sin llegar.
 
 ## Actualizaciones requeridas en Project Memory

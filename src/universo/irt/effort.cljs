@@ -21,10 +21,19 @@
   (:require [clojure.string :as str]))
 
 ;; Piso por defecto en segundos, usado cuando el banco no configura el suyo
-;; (`test_configs.min_response_seconds`). Coincide con el default de la
-;; columna en 028_test_config_min_response_seconds.sql: son dos caras del
-;; mismo número y hay que moverlas juntas.
-(def default-min-response-seconds 3.0)
+;; (`test_configs.min_response_seconds`). Coincide con el default de la columna
+;; en 032_min_response_seconds_calibrado.sql: son dos caras del mismo número y
+;; hay que moverlas juntas.
+;;
+;; **2.0 y no 3.0 porque lo dijeron los datos, no el autor** (2026-08-10). Al
+;; aplicar el umbral retroactivamente a las 195 respuestas con tiempo real del
+;; histórico, barriendo el piso de 0 a 10 s, la tasa de acierto de las
+;; respuestas DESCARTADAS es: 18 % con piso 0, 21 % con 1, 27 % con 2, **34 %
+;; con 3**, 42 % con 4. Con cuatro alternativas, adivinar da 25 %: mientras las
+;; descartadas aciertan cerca de ese 25 % se está tirando ruido, y en cuanto
+;; suben claramente por encima se está tirando conocimiento. El 3 autoral ya
+;; estaba del lado equivocado de esa línea. Ver T-59.
+(def default-min-response-seconds 2.0)
 
 ;; Caracteres por segundo de lectura. El texto matemático se lee más lento que
 ;; la prosa (un estudiante no "lee" 3/4 + 2/5, lo procesa), así que 20 c/s es

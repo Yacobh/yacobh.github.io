@@ -1003,7 +1003,60 @@ sube el SE al valor de no haberla respondido. `release app` 0 warnings, `clj-kon
 **⏳ Pendiente para que sea verdad en producción:** aplicar `028` y publicar el bundle. Hasta
 entonces **la frase de la FAQ (X-01) sigue siendo falsa en el sitio**.
 
-### T-59 · Tiempo típico por ítem aprendido de los datos, no fijado por el autor — **P1** · `abierto`
+### T-59 · Tiempo típico por ítem aprendido de los datos, no fijado por el autor — **P1** · `bloqueado` (instrumentación: 91 % del histórico tiene `time-ms = 0`)
+
+> ## ⭐ Medición ejecutada el 2026-08-10 — cinco hallazgos, dos de ellos corrigen al agente
+>
+> **1. Los datos existen pero no sirven: solo el 9 % tiene tiempo real.** 255 tests, 209 con
+> respuestas, **2178 respuestas**, todas con el campo `time-ms` presente… y solo **195 con valor
+> > 0**. El resto son ceros. No es que falte el campo: **el cronómetro no estaba registrando**.
+>
+> **Corrección al agente:** al abrir este ticket se argumentó que, como `git log -S ":time-ms"` sitúa
+> la instrumentación en 2025-09-09 (anterior al piloto UNAP), "los tiempos *deberían* estar ahí". Se
+> marcó como pendiente de verificar y **la verificación dice que no**. Que el campo exista en el
+> código desde 2025 no significa que estuviera midiendo: `diagnostic_test.cljs` manda `0` cuando el
+> cronómetro no arrancó, y el flujo del diagnóstico se reparó recién en `9e622d9` (2026-07-18). Las
+> 195 respuestas útiles son casi con seguridad de tests recientes, no de los 252 del piloto.
+>
+> **La premisa de ADR-014 se cae igual, pero por otra razón**: no es que no haya tests, es que no hay
+> tiempos. Y eso es peor, porque no se arregla esperando.
+>
+> **2. No hay ningún ítem calibrable.** De 387 ítems del banco: **0 con ≥30 respuestas**, 2 con ≥10,
+> 13 con ≥5, 84 con alguna. El parámetro por ítem que este ticket quiere aprender **no se puede
+> estimar hoy** para prácticamente ningún ítem.
+>
+> **3. El promedio simple queda empíricamente refutado.** En los pocos ítems con datos, media y
+> mediana se separan brutalmente: el ítem 361 tiene **media 78,7 s, mediana 4,8 s, media geométrica
+> 10,3 s** (desviación 188 s). El ítem 178: media 14,0 vs mediana 4,8. Es exactamente el problema de
+> contaminación por outliers que se anotó como objeción (1) al abrir el ticket, y ahora está medido
+> en los datos del propio proyecto. **Cuando T-59 sea viable, tiene que usar mediana o media
+> geométrica**; la media simple mentiría por un factor de 16 en el peor caso visto.
+>
+> **4. El piso autoral de 3 s estaba mal, y los datos dicen cuál es el bueno.** Barriendo el piso y
+> mirando la tasa de acierto de las respuestas **descartadas** (con 4 alternativas, adivinar acierta
+> 25 %): piso 0 → 18 %, piso 1 → 21 %, piso 2 → 27 %, **piso 3 → 34 %**, piso 4 → 42 %. Mientras las
+> descartadas aciertan cerca de 25 % se tira ruido; cuando suben, se tira conocimiento. El 3 ya
+> estaba del lado equivocado. **Corregido a 2 s** en `032_min_response_seconds_calibrado.sql` y en
+> `universo.irt.effort`. Que la columna fuera configurable es lo que permitió que esto sea un
+> `update` de una línea.
+>
+> **5. Segunda corrección al agente: el campo del panel NO sobra.** Al validar las consultas contra
+> un fixture se conjeturó que, con enunciados de 40–200 caracteres, la regla proporcional
+> (`largo/20`) dominaría al piso y por lo tanto el campo configurable de T-44 sería inútil. **Los
+> enunciados reales son mucho más cortos**: largo mediano **50** caracteres (medio 62, mínimo 16,
+> máximo 341), así que el piso manda en **234 de 387 ítems (60 %)**. La conjetura salió de largos
+> inventados por el agente. El campo se queda.
+>
+> **6. La correlación θ↔tiempo no se puede calcular.** `n = 17` (solo los tests con columna `theta`
+> poblada, que existe desde `021`, del 2026-08-08), y 12 de esas 17 respuestas caen en una sola
+> banda. El ρ = 0,697 que devuelve la consulta **no significa nada** y no debe citarse. La Fase 3 de
+> ADR-014 sigue sin poder evaluarse.
+>
+> **Qué desbloquea este ticket ahora:** ya no es "acumular 30 tests". Es **verificar y arreglar la
+> instrumentación**: confirmar que los diagnósticos que se rinden hoy sí guardan `time-ms > 0`, y si
+> no, arreglarlo antes de difundir el cupo. Cada test que se rinda sin tiempo es un dato que no se
+> recupera. Consulta de seguimiento al final de
+> `supabase/queries/T-59_calibracion_tiempos.sql`.
 
 Abierta el 2026-08-10 a partir de una crítica del owner a T-44, que **es correcta**: el umbral de
 esfuerzo de T-44 depende de dos constantes elegidas a mano (piso de 3 s, 20 caracteres/segundo de

@@ -1,6 +1,6 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-09** (Q-20 respondida; X-04/X-05/X-06 resueltas)
+Última actualización: **2026-08-10** (Q-26 abierta y respondida el mismo día; X-01 actualizada)
 
 > **Regla fundamental de PMF: si falta información, no se asume — se registra aquí.**
 > Ninguna pregunta se borra: cuando se responde, se marca ✅ con la fecha y la respuesta, y si
@@ -186,7 +186,24 @@ pregunta **sigue abierta en su parte de fondo** (¿los topics cubren los ejes re
 que es una pregunta de contenido, no de mapeo. `universo.topics/unmapped` responde la parte
 mecánica sobre cualquier lista de topics, y la consulta (ii) de `029` la responde contra la base.
 
-### 🔴 Q-26 · ¿Cuántos de los 252 diagnósticos ya rendidos traen `time-ms` utilizable?
+### ✅ Q-26 · ¿Cuántos de los diagnósticos ya rendidos traen `time-ms` utilizable? — Respondida 2026-08-10
+> **Respuesta: casi ninguno. 195 de 2178 respuestas (9 %).** El campo `time-ms` está presente en el
+> 100 % de las respuestas pero vale **0** en el 91 %: el cronómetro no estaba midiendo. De 387 ítems
+> del banco, **0 tienen ≥30 respuestas con tiempo** y solo 13 tienen ≥5.
+>
+> **Corrige la inferencia con la que se abrió la pregunta:** que `git log -S ":time-ms"` situara la
+> instrumentación en 2025-09-09 (anterior al piloto) hacía esperar que los tiempos estuvieran ahí.
+> Se marcó como "falta confirmarlo" y la confirmación dio que no — el campo existía en el código,
+> pero `diagnostic_test.cljs` manda `0` cuando el cronómetro no arrancó, y el flujo del diagnóstico
+> se reparó recién en `9e622d9` (2026-07-18).
+>
+> **Consecuencia:** T-59 queda `bloqueado`, pero **no por falta de estudiantes** sino por
+> instrumentación. Eso no se arregla esperando. La pregunta que queda viva es si el cronómetro mide
+> **hoy** → consulta 6 de `supabase/queries/T-59_calibracion_tiempos.sql`.
+>
+> **Lo que sí se pudo usar** con esas 195 respuestas: corregir el piso de esfuerzo de 3 s a 2 s con
+> evidencia (migración `032`), y refutar el promedio simple como estimador.
+
 Abierta 2026-08-10. **Es la pregunta que decide si T-59 se hace ahora o hay que esperar**, y de
 paso si la precondición de datos de la Fase 2 de ADR-014 estaba cumplida hace un año sin que nadie
 lo notara.

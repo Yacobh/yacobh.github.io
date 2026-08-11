@@ -7,9 +7,26 @@
 --
 -- Para qué: ADR-014 difirió el modelo empírico de tiempos con la premisa de
 -- que el proyecto tenía "cero estudiantes reales". Esa premisa se cayó el
--- 2026-08-09 (80 usuarios, 252 diagnósticos rendidos), y la instrumentación de
--- `time-ms` es de 2025-09-09, o sea **anterior** al piloto UNAP. Estas
--- consultas responden si esos datos existen de verdad y sirven.
+-- 2026-08-09 (80 usuarios, 252 diagnósticos rendidos). Estas consultas
+-- responden si esos datos existen de verdad y sirven.
+--
+-- ✅ **YA SE CORRIERON (2026-08-10). Resultado resumido, para no repetir el
+--    trabajo antes de tiempo:**
+--    · 2178 respuestas en 209 tests; **solo 195 (9 %) con `time-ms > 0`**. El
+--      campo está siempre, pero casi siempre en 0: el cronómetro no medía.
+--    · **0 ítems con ≥30 respuestas**, 2 con ≥10, 13 con ≥5, de 387 del banco.
+--      No hay nada calibrable todavía.
+--    · Media vs mediana se separan por un factor de hasta 16 en los ítems con
+--      datos (ítem 361: media 78,7 s, mediana 4,8 s) → el promedio simple
+--      miente; usar mediana o media geométrica.
+--    · El piso de 3 s descartaba respuestas con 34 % de acierto (azar = 25 %):
+--      demasiado. Corregido a **2 s** en `../migrations/032_…sql`.
+--    · Largo mediano de enunciado: **50 caracteres** → el piso manda en 234 de
+--      387 ítems, no la regla proporcional.
+--    · ρ(θ, tiempo) **no calculable**: n = 17, y 12 en una sola banda.
+--
+--    Lo que hay que volver a correr es la **consulta 6** (al final), que dice
+--    si el cronómetro está registrando HOY. Ver [[BACKLOG]] T-59.
 --
 -- Forma del JSONB (`tests.test`): lo escribe `clj->js` sobre el mapa de
 -- ClojureScript, así que las claves conservan el nombre del keyword con guion:
@@ -280,3 +297,60 @@ where time_ms > 0
 group by banda
 order by case banda when 'inicial' then 1 when 'basico' then 2
                     when 'intermedio' then 3 else 4 end;
+
+-- ===========================================================================
+-- 6. ⭐ SEGUIMIENTO (agregada 2026-08-10, tras la primera medición)
+--    ¿El cronómetro está registrando HOY?
+-- ===========================================================================
+-- La primera corrida mostró que de 2178 respuestas solo 195 (9 %) tienen
+-- `time-ms > 0`: el campo está siempre presente, pero casi siempre en 0. O sea
+-- el cronómetro no estaba midiendo. `diagnostic_test.cljs` manda 0 cuando
+-- `started-at` es nil, y el flujo del diagnóstico se reparó en `9e622d9`
+-- (2026-07-18), así que lo esperable es que los tests viejos tengan 0 y los
+-- nuevos no.
+--
+-- **Esto es lo que hay que confirmar antes de difundir el cupo**: cada
+-- diagnóstico que se rinda sin tiempo es un dato que no se recupera después.
+-- Si la cobertura reciente NO es alta, hay un bug vivo que arreglar.
+--
+-- Si `tests` no tuviera columna de fecha, usar `id` como proxy de antigüedad
+-- (los más nuevos tienen id más alto).
+with r as (
+  select t.id as test_id,
+         nullif(e.value ->> 'time-ms','')::double precision as time_ms
+  from public.tests t
+  cross join lateral jsonb_array_elements(
+    coalesce(t.test::jsonb -> 'responses', '[]'::jsonb)) as e(value)
+),
+por_test as (
+  select test_id,
+         count(*) as respuestas,
+         count(*) filter (where time_ms > 0) as con_tiempo
+  from r group by test_id
+)
+select case when con_tiempo = 0 then 'sin ningún tiempo'
+            when con_tiempo = respuestas then 'todos con tiempo'
+            else 'parcial' end                     as cobertura,
+       count(*)                                     as tests,
+       min(test_id)                                 as id_mas_antiguo,
+       max(test_id)                                 as id_mas_reciente
+from por_test
+group by 1
+order by 2 desc;
+
+-- Los 20 tests más recientes, uno por línea: si los últimos aparecen con
+-- `con_tiempo = 0`, el cronómetro sigue roto y es un bug P0 para T-59.
+with r as (
+  select t.id as test_id,
+         nullif(e.value ->> 'time-ms','')::double precision as time_ms
+  from public.tests t
+  cross join lateral jsonb_array_elements(
+    coalesce(t.test::jsonb -> 'responses', '[]'::jsonb)) as e(value)
+)
+select test_id,
+       count(*)                            as respuestas,
+       count(*) filter (where time_ms > 0) as con_tiempo
+from r
+group by test_id
+order by test_id desc
+limit 20;
