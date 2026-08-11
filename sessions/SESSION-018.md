@@ -154,6 +154,34 @@ T-59 pasa de `abierto` a **`bloqueado`**, y el bloqueo cambia de naturaleza: no 
 es **arreglar la instrumentación**. Se agregó la consulta 6 al archivo de queries para determinar si
 el cronómetro registra hoy. Q-26 abierta y respondida el mismo día.
 
+### 8. Migraciones aplicadas y auditoría de memoria (cierre)
+
+El owner aplicó `030`, `031` y `032`. **No queda ninguna migración pendiente** — repo y base
+alineados por primera vez desde que se lleva el registro. Pidió después revisar toda la
+documentación. Hallazgos corregidos:
+
+- **`HANDOFF.md` estaba congelado en el 2026-07-26.** El archivo que existe justamente para retomar
+  el proyecto sin contexto afirmaba que el árbol estaba sucio, que no se sabía qué versión servía
+  producción, que faltaba publicar contenido y verificar el email, y listaba como bloqueantes seis
+  tareas cerradas hace días. Es el peor lugar donde puede haber información vieja. Reescritas sus
+  secciones de estado, pendientes, riesgos, preguntas abiertas, decisiones y próximos pasos.
+- **Conteo de tests desactualizado en cuatro archivos**, incluido `AGENT_INSTRUCTIONS` §7, que lo usa
+  como "estado de referencia" contra el que un agente debe comparar — decía 34/133 cuando la suite
+  está en 58/332. Un agente siguiendo esa instrucción habría concluido que sobraban tests.
+- **`TECH_STACK` y `DEPENDENCIES` marcaban con ⚠️ un desajuste ya resuelto**: shadow-cljs
+  `2.19.2` vs `3.0.4` y KaTeX `0.16.9` vs `0.16.22`, que T-13 alineó el 2026-08-09. Verificado
+  contra `package.json` e `index.html` antes de corregir, no asumido.
+- **`ARCHITECTURE`** no tenía `test_configs` ni `misconceptions` en el diagrama, ni
+  `normalize_topic()`, ni los triggers de canonicalización. Se agregó además una tabla de
+  **invariantes que impone la base** con su espejo puro cuando existe.
+- **`TERMINOLOGY`** no tenía el vocabulario que el propio ADR-014 se había comprometido a reflejar
+  (τ, intensidad temporal). Se agregaron cinco entradas.
+- **`RISKS` R-17** ahora distingue lo que T-44 mitiga de lo que no, y advierte que T-29 hereda el
+  problema de cobertura de datos descubierto en T-59.
+
+**T-51 se cerró con una nota, no en silencio:** su criterio decía "todo ítem tiene `module_id`" y
+128 no lo tienen. Esa mitad se trasladó explícitamente a **T-60** en vez de darla por cumplida.
+
 ## Archivos revisados
 
 - `project-memory/{CURRENT_STATUS,HANDOFF,BACKLOG,OPEN_QUESTIONS,DECISIONS}.md`,

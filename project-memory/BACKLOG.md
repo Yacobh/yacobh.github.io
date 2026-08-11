@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-08-09**
+Última actualización: **2026-08-10**
 
 Prioridad: **P0** bloquea go-live · **P1** necesario a corto plazo · **P2** deseable · **P3** idea.
 Estado: `abierto` · `en curso` · `bloqueado` · `hecho` · `descartado`.
@@ -953,7 +953,7 @@ tanto **no genera déficit accionable ni recursos**.
   existente, con test que lo verifique contra la lista de topics reales.
 - **Relacionado:** [[OPEN_QUESTIONS]] Q-06.
 
-### T-44 · Filtro de respuestas no esforzadas (Fase 1 de ADR-014) — **P1** · `hecho` (2026-08-10, ⏳ falta aplicar `028` y publicar)
+### T-44 · Filtro de respuestas no esforzadas (Fase 1 de ADR-014) — **P1** · `hecho` (2026-08-10; `028`/`032` aplicadas, ⏳ falta publicar el bundle)
 
 Hace **verdadera** la afirmación ya publicada en la FAQ ("el tiempo de respuesta también se
 considera en la estimación"), hoy falsa (contradicción X-01, [[OPEN_QUESTIONS]] Q-17). Es la única
@@ -1000,8 +1000,10 @@ Dos decisiones que el ticket no especificaba y conviene conocer:
 prueba exacta del criterio de cierre: la misma respuesta contada vs. descartada deja θ idéntico y
 sube el SE al valor de no haberla respondido. `release app` 0 warnings, `clj-kondo` limpio.
 
-**⏳ Pendiente para que sea verdad en producción:** aplicar `028` y publicar el bundle. Hasta
-entonces **la frase de la FAQ (X-01) sigue siendo falsa en el sitio**.
+**2026-08-10, después:** `028` aplicada, y el piso bajado de 3 s a 2 s con datos (`032`) tras
+medir el histórico — ver T-59, hallazgo 4. **⏳ Lo único que falta para que la frase de la FAQ
+(X-01) deje de ser falsa en el sitio es mergear la rama y publicar el bundle**: la base ya está
+lista, el código está escrito y probado, pero `public/js/app.js` en producción todavía no lo tiene.
 
 ### T-59 · Tiempo típico por ítem aprendido de los datos, no fijado por el autor — **P1** · `bloqueado` (instrumentación: 91 % del histórico tiene `time-ms = 0`)
 
@@ -1193,7 +1195,7 @@ Supabase real; el cierre se da por el reporte del owner, mismo patrón que T-03/
 consistentes entre sí, no una calibración estadística a partir de respuestas reales. R-17
 (`difficulty` no calibrada empíricamente) sigue activo; T-29 sigue abierta.
 
-### T-51 · Higiene de `topic` y `module_id` en el banco — **P1** · `en curso` (2026-08-10: normalización hecha; ⏳ falta aplicar `029`, y los bancos mezclados siguen sin módulo)
+### T-51 · Higiene de `topic` y `module_id` en el banco — **P1** · `hecho` (2026-08-10, aplicado y verificado; la clasificación de los bancos mezclados se traslada a T-60)
 
 Misma medición del 2026-08-09:
 
@@ -1294,8 +1296,45 @@ a T-27/T-56 bajo ADR-016.
 **Los 128 que quedan** son `diagnostico` (84) y `paes_m1` (44): bancos mezclados que necesitan
 clasificación **por ítem**, contenido y no SQL. Ninguna migración los cierra.
 
-**⏳ Pendiente:** aplicar `030` y después `031`; clasificar los bancos mezclados; publicar contenido
-para los dos módulos nuevos.
+**✅ Cerrada 2026-08-10.** El owner aplicó `029`, `030`, `031` y `032`. Estado final medido:
+**0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id` **199 → 128**.
+
+**Nota sobre el criterio de cierre, para no dar por hecho lo que no lo está.** El criterio original
+decía "todo ítem tiene `module_id`", y **128 no lo tienen**. Se cierra igual porque esos 128 son
+`diagnostico` (84) y `paes_m1` (44), bancos **mezclados** cuya clasificación es trabajo de contenido
+por ítem, de naturaleza distinta a la higiene de datos que este ticket cubría, y que ninguna
+migración puede hacer. Esa mitad del criterio **se traslada explícitamente a T-60**, no se descarta.
+Lo técnico —normalización, triggers, fusión de configuraciones, mapeo completo y su espejo puro con
+tests— está hecho, aplicado y verificado.
+
+### T-60 · Clasificar por ítem los dos bancos mezclados (`diagnostico`, `paes_m1`) — **P1** · `abierto`
+
+Hereda la mitad del criterio de cierre de T-51 que ninguna migración puede cumplir: **128 preguntas
+sin `module_id`** repartidas en dos topics que no son temas sino contenedores —`diagnostico` (84) y
+`paes_m1` (44)—, con ítems de varios módulos adentro.
+
+- **Por qué importa:** sin `module_id` no hay déficit accionable ni recursos que ofrecer. Son el
+  **33 % del banco** (128 de 387), y `diagnostico` es además el topic por el que probablemente entra
+  la mayoría de los estudiantes nuevos. Mientras sigan sin módulo, esos estudiantes caen en la rama
+  `:general` de "Mi plan" (T-53) por más contenido que se publique.
+- **Por qué no lo cierra una migración:** asignar módulo por el topic sería un dato falso con
+  apariencia de dato bueno. Hay que mirar cada pregunta.
+- **Trabajo:** clasificar los 128 ítems contra los 20 módulos. Cae bajo
+  [[../adr/ADR-016-ia-en-el-pipeline-de-autoria-no-en-runtime]]: la IA puede **proponer** la
+  clasificación en una migración con la asignación explícita ítem por ítem, y el profesor la audita
+  antes de aplicarla — igual que se hizo con los 39 recursos de `018`/`019` en T-01. La edición en
+  línea del panel (Admin → Preguntas, hecha para T-50) sirve para correcciones puntuales, pero 128
+  ítems uno por uno desde la UI es demasiado.
+- **Decisión previa a tomar:** si además conviene **renombrar el topic** de esos ítems al del módulo
+  que les corresponda, o dejar `topic = diagnostico` y usar solo `module_id`. No es cosmético:
+  `topic` es la clave de `test_configs` y de la progresión por prerequisitos (ADR-013), así que
+  moverlos cambia qué evaluaciones existen y qué ve el estudiante en el selector. **Requiere
+  decisión del owner antes de escribir nada.**
+- **Terminado cuando:** ningún ítem de `questions` tiene `module_id` nulo, o los que queden están
+  documentados con su razón; y la consulta (ii) de `029` devuelve vacío o solo excepciones
+  justificadas.
+- **Relacionado:** T-51 (de donde viene), T-53 (el que dejó a la vista la consecuencia), T-27, T-56,
+  [[OPEN_QUESTIONS]] Q-06, [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]].
 
 ### T-29 · Calibrar `difficulty` con datos reales — **P3** · `abierto`
 
@@ -1579,7 +1618,7 @@ desactualizados (lista de módulos previa al MVP).
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60 |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52 |
 

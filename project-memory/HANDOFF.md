@@ -1,6 +1,7 @@
 # HANDOFF
 
-**Fecha del handoff: 2026-07-26** · Commit `48bf525` · Rama `cursor/mvp-operable-funnel`
+**Fecha del handoff: 2026-08-10** · Rama `main` @ `8a9db53` · Trabajo en curso sin mergear en
+`t-44-t-51-tiempo-y-topics`
 
 > Este documento existe para que **una persona o un agente de IA sin acceso al historial de
 > conversaciones** pueda continuar el proyecto. Si solo puedes leer un archivo, lee este.
@@ -26,8 +27,10 @@ el plan son gratuitos; las clases de los cupos tendrán costo (ver más abajo).
 Functions) como único backend. No hay servidor propio: el navegador habla directo con Supabase y
 **toda la autorización se hace con Row Level Security**.
 
-**Estado:** el funnel completo funciona. Lo que falta para abrir a estudiantes reales **no es
-código**: es contenido pedagógico publicado y verificar el envío de emails.
+**Estado (2026-08-10): el go-live está cerrado.** El funnel funciona de punta a punta, hay contenido
+publicado, el email de cohorte está verificado en producción y existe un primer cupo real con sala de
+videollamada. **Lo que sigue no es construir, es difundir** — y hay reloj: la PAES se rinde a fin de
+año ([[RISKS]] R-19).
 
 ---
 
@@ -93,13 +96,16 @@ Edge Function (Deno) send-enrollment-emails → Resend
 - **Tablas:** `profiles`, `questions`, `tests`, `guestbook`, `visitor`, `contacto` (previas) +
   `modules`, `student_profiles`, `resources`, `class_slots`, `enrollments`, `notifications`,
   `email_outbox` (MVP).
-- **Migraciones:** scripts SQL en `supabase/migrations/` (19 al 2026-08-02), aplicados **a mano**
-  en el SQL Editor, en el orden de `supabase/SCHEMA.md` -- esa es la lista que se mantiene al día,
-  no se duplica el número aquí. No hay `db push`.
+- **Migraciones:** scripts SQL en `supabase/migrations/`, aplicados **a mano** en el SQL Editor, en
+  el orden de `supabase/SCHEMA.md` -- esa es la lista que se mantiene al día, no se duplica el número
+  aquí. No hay `db push`. **Al 2026-08-10 no queda ninguna pendiente**: repo y base alineados.
+  ⚠️ Pero el esquema **no se puede reconstruir desde cero** con esas migraciones: `public.questions`
+  y `public.is_admin()` preexisten y no están versionados (T-48).
 - **Deploy:** GitHub Pages sobre `main`. **El bundle `public/js/app.js` está versionado en Git**: sin
   `npx shadow-cljs release app` + commit, un cambio de código **no llega a producción**.
-- **Tests:** `clj -M:test` → **34 tests / 133 assertions / 0 failures** (verificado 2026-07-26).
-- **No hay:** CI, staging, monitoreo, analytics, backups propios verificados, router de URL.
+- **Tests:** `clj -M:test` → **58 tests / 332 assertions / 0 failures** (verificado 2026-08-10).
+- **No hay:** staging, monitoreo, analytics, backups propios verificados, router de URL. CI sí existe
+  (`.github/workflows/test.yml`, T-06).
 
 Detalle: [[ARCHITECTURE]] · [[TECH_STACK]] · [[DEPENDENCIES]].
 
@@ -112,13 +118,15 @@ Detalle: [[ARCHITECTURE]] · [[TECH_STACK]] · [[DEPENDENCIES]].
 | Funnel completo (login → diagnóstico → perfil → plan → cupo) | ✅ operativo |
 | Motor IRT (1PL + MAP + parada por SE) | ✅ implementado y testeado |
 | Panel de administración | ✅ operativo |
-| Contenido pedagógico | 🟡 módulos y blurbs sembrados; **faltan recursos publicados** |
-| Email de cohorte | ⚠️ código y migración listos; **despliegue no verificado** |
-| Landing y SEO | ✅ (sin analytics) |
-| Memoria del proyecto (PMF) | ✅ creada hoy |
-| CI / staging / respaldos / monitoreo | ⛔ inexistentes |
-| Árbol de trabajo | ⚠️ **sucio**: `public/js/app.js` con +73/−24 sin commitear |
-| ¿Está el MVP en producción? | ❓ **por verificar**: `cursor/mvp-operable-funnel` puede no estar mergeada a `main` |
+| Contenido pedagógico | 🟡 58/61 recursos publicados (T-01); faltan geometría (T-56) y los 2 módulos creados en `031` |
+| Banco de ítems | 🟡 387 ítems, topics canónicos; **128 sin `module_id`** (bancos mezclados, T-60) |
+| Email de cohorte | ✅ desplegado y **verificado en vivo** en producción (T-02) |
+| Cupos reales | ✅ uno publicado (2026-08-15) con Jitsi; falta oferta en las demás bandas |
+| Landing y SEO | ✅ (sin analytics — T-20) |
+| Memoria del proyecto (PMF) | ✅ operativa; auditada 2026-08-10 |
+| CI | 🟡 existe (T-06); staging / respaldos / monitoreo ⛔ |
+| Árbol de trabajo | ✅ limpio; rama `t-44-t-51-tiempo-y-topics` **sin mergear** |
+| ¿Está el MVP en producción? | ✅ sí, verificado por hash contra `origin/main` |
 
 Detalle por fase: [[CURRENT_STATUS]] · [[ROADMAP]].
 
@@ -149,20 +157,20 @@ Detalle por fase: [[CURRENT_STATUS]] · [[ROADMAP]].
 
 ## Pending Work
 
-**Bloqueantes para abrir a estudiantes reales:**
+**Ya no hay bloqueantes de go-live: los seis que había están cerrados** (T-01, T-02, T-03, T-04,
+T-08, T-19). Lo que importa ahora, en orden:
 
 | # | Pendiente | Tipo | Tarea |
 |---|-----------|------|-------|
-| 1 | Publicar ≥ 1 recurso por módulo prioritario | Contenido (humano) | T-01 |
-| 2 | Aplicar `005`, desplegar la Edge Function, setear `RESEND_API_KEY`, verificar un envío real | Operación | T-02 |
-| 3 | Verificar que la inscripción respete `capacity` | Técnico | T-03 |
-| 4 | Publicar cupos reales (fecha, sala/enlace, mínimo) y retirar los demo | Negocio | T-04 |
-| 5 | Recompilar el bundle, dejar el árbol limpio y publicar en `main` | Técnico | T-08 |
-| 6 | Verificar qué versión sirve realmente el dominio | Técnico | T-19 |
+| 1 | **Difundir el cupo del 2026-08-15** y revisarlo el día 14 (si no hay 3 inscritos, no se confirma) | Negocio | R-19, R-11 |
+| 2 | Mergear `t-44-t-51-tiempo-y-topics` y publicar el bundle — hasta entonces una frase del FAQ sigue siendo falsa | Técnico | T-44, X-01 |
+| 3 | **Verificar que el cronómetro del diagnóstico registre**: hoy el 91 % de las respuestas guarda `time-ms = 0` | Técnico | T-59 |
+| 4 | Instrumentar el embudo: el sitio recibe tráfico y no se mide nada | Producto | T-20 |
+| 5 | Clasificar los 128 ítems de `diagnostico`/`paes_m1` sin módulo (33 % del banco) | Contenido | T-60 |
+| 6 | Versionar el DDL real del esquema: hoy el repo no puede reconstruirlo | Técnico | T-48 |
 
-**Importante a corto plazo:** aviso de privacidad (T-10), CI con `clj -M:test` (T-06), respaldo de
-base de datos probado (T-07), completar el mapeo `topic → module-slug` (T-28), estados vacíos
-honestos en plan y cupos (T-24), router de URL (T-05).
+**Importante a corto plazo:** la banda del estudiante no está protegida en la base (T-49), respaldo
+probado (T-07), staging (T-09), router de URL (T-05), duplicación de `index.html` (T-12).
 
 Backlog completo con criterios de terminado: [[BACKLOG]].
 
@@ -183,11 +191,13 @@ Los cinco que importan (lista completa en [[RISKS]]):
 4. **R-06 Datos personales de menores sin aviso de privacidad.** Se recolecta email, IP,
    ciudad/país, dispositivo y respuestas de un público mayoritariamente menor de edad, con respaldo
    universitario visible. Este riesgo **se activa al abrir a público real**.
-5. **R-10 "Mi plan" vacío.** El mecanismo funciona pero sin recursos publicados el estudiante ve una
-   pantalla pobre justo en el momento de mayor expectativa.
+5. **R-19 Estacionalidad — hoy el riesgo dominante.** La PAES se rinde a fin de año: la ventana de
+   captación son estas semanas y no hay una segunda oportunidad este ciclo. El producto está listo;
+   lo que falta es que alguien lo use.
 
-Además: R-03 (sin respaldo verificado), R-13 (bundle desalineado del fuente), R-17 (`difficulty`
-posiblemente no calibrada ⇒ θ sesgada).
+Además: R-11 (si no llegan 3 inscritos el cupo no se confirma), R-03 (sin respaldo verificado),
+R-13 (bundle desalineado del fuente), R-17 (`difficulty` reescalada a mano, **no** calibrada
+empíricamente ⇒ θ posiblemente sesgada). **R-10 ("Mi plan" vacío) se cerró** con T-01.
 
 ---
 
@@ -195,25 +205,31 @@ posiblemente no calibrada ⇒ θ sesgada).
 
 Las que hay que responder antes de avanzar (lista completa en [[OPEN_QUESTIONS]]):
 
-- **Q-02** ¿Las clases de los cupos tienen costo? (define copy, JSON-LD y T-04)
-- **Q-04** ¿La inscripción respeta `capacity`? (cierra F3)
-- **Q-07** ¿Qué pasa al repetir el diagnóstico: sobrescribir, versionar o histórico? La FAQ **promete**
-  ver "cómo se movió tu nivel", lo que exige histórico que hoy probablemente no existe
-- **Q-12** ¿Qué policy usa el estudiante para leer `questions`? Si es amplia, el banco de ítems es
-  descargable
-- **Q-13** ¿Qué versión está realmente en producción?
-- **Q-05 / Q-06** ¿Están calibradas las dificultades? ¿Están mapeados todos los topics a módulos?
+- **Q-07** ¿Qué pasa al repetir el diagnóstico: sobrescribir, versionar o histórico? La FAQ
+  **promete** ver "cómo se movió tu nivel", lo que exige un histórico que `student_profiles` hoy no
+  guarda. Bloquea T-26 y mantiene viva la contradicción X-02
+- **Q-06** ¿Los topics del banco cubren los ejes reales de la PAES M1? El mapeo mecánico ya está
+  resuelto (T-51); lo que queda es la pregunta de contenido
+- **Q-05** ¿Están calibradas las dificultades? Se reescalaron a mano en T-50, que **no** es
+  calibración empírica (T-29 sigue abierta)
+- **Q-10** ¿Qué define un "módulo prioritario"? La lista dice basarse en déficits reales, sin
+  respaldo en el repo
 
-**Contradicciones documentadas** (no resolver en silencio): la FAQ dice que el tiempo de respuesta
-influye en la estimación (el modelo 1PL no lo usa); `007` restringe `questions` a admin pero el
-estudiante debe leerlas; `.gitignore` ignora un archivo que está trackeado; versiones desalineadas de
-shadow-cljs y KaTeX. Ver [[OPEN_QUESTIONS]] §Contradicciones.
+Respondidas hace poco y útiles para no re-abrirlas: **Q-02** (precio, $10.000 CLP/hora), **Q-04**
+(sí, `011` lo controla en la base), **Q-12** (era una policy abierta; cerrada por ADR-015),
+**Q-13** (producción = `origin/main`, verificado por hash), **Q-26** (solo el 9 % de las respuestas
+tiene tiempo real: el cronómetro no medía).
+
+**Contradicciones vivas** (no resolver en silencio): **X-01** la FAQ dice que el tiempo de respuesta
+influye en la estimación — el código de T-44 ya lo hace verdad, pero **no está publicado**;
+**X-02** la FAQ promete mostrar "cómo se movió tu nivel", que sigue sin existir. Ver
+[[OPEN_QUESTIONS]] §Contradicciones.
 
 ---
 
 ## Critical Decisions
 
-Diez decisiones que explican por qué el sistema es como es (detalle en `../adr/`):
+Diecisiete ADRs explican por qué el sistema es como es (detalle en `../adr/`). Los diez fundacionales:
 
 | ADR | Decisión | Por qué importa saberlo |
 |-----|----------|-------------------------|
@@ -228,21 +244,33 @@ Diez decisiones que explican por qué el sistema es como es (detalle en `../adr/
 | ADR-009 | Reglas de negocio en namespaces puros | Toda regla nueva va a un ns puro con test, no dentro de un handler |
 | ADR-010 | Project Memory First | Actualizar la memoria es parte de terminar una tarea, no un extra |
 
+Y los siete posteriores, que tocan lo que se está trabajando hoy:
+
+| ADR | Decisión | Por qué importa saberlo |
+|-----|----------|-------------------------|
+| ADR-011 | La visión del Libro es el norte; el MVP es una fase | Explica por qué hay tickets que apuntan más allá del alcance actual |
+| ADR-012 | Tema oscuro por mapeo global de CSS | No agregar `dark:` por elemento: el mapeo vive en `src/css/app.css` |
+| ADR-013 | Config de parada por banco + prerequisitos derivados del historial | No hay tabla de permisos: el acceso se calcula desde `tests` |
+| ADR-014 | El tiempo de respuesta es un eje **separado** de θ, en tres fases | No meter el tiempo dentro del 1PL: destruye el perfil "sabe pero lento" |
+| ADR-015 | El cliente **no lee `questions`** | El ítem viaja sin respuesta; corrige el servidor. No reabrir esa policy |
+| ADR-016 | La IA produce contenido solo en el pipeline de autoría, nunca en runtime | No hay dónde poner una API key (ADR-002) y rompería el costo ≈ $0 |
+| ADR-017 | `topic` canónico garantizado por trigger en la base | La regla está duplicada a propósito en `universo.topics/normalize`: si cambia una, cambia la otra |
+
 ---
 
 ## Immediate Next Steps
 
 1. **Verificar la realidad antes de tocar nada:** `git status`, `git log main..HEAD --oneline`,
-   `clj -M:test`. Decidir qué hacer con el `public/js/app.js` modificado (T-08, T-19).
-2. **Responder Q-04** leyendo los triggers de `supabase/migrations/001_mvp_schema.sql` y, si falta el
-   control de capacidad, agregarlo con su test espejo en `universo.slots.logic` (T-03).
-3. **Cerrar el pipeline de email** (T-02): aplicar `005`, `functions deploy`, `secrets set`, invocar
-   y comprobar que una fila de `email_outbox` pasa a `sent`.
-4. **Contenido mínimo** (T-01): al menos un recurso publicado por módulo prioritario de
-   `supabase/CONTENT.md`. Es el paso que más cambia la experiencia del estudiante.
-5. **Cupos reales** (T-04) una vez definidos Q-02 y Q-09.
-6. **Endurecimiento mínimo**: CI con `clj -M:test` (T-06) y un respaldo de base de datos probado
-   (T-07). Antes de abrir a público real: aviso de privacidad (T-10).
+   `clj -M:test` (esperado: 58/332/0). Comprobar si `t-44-t-51-tiempo-y-topics` sigue sin mergear.
+2. **Mergear esa rama y publicar el bundle.** Es lo único que separa a T-44 de ser verdad en
+   producción, y con ello la frase del FAQ (X-01) deja de ser falsa.
+3. **Comprobar que el cronómetro registre** (T-59, consulta 6 de
+   `supabase/queries/T-59_calibracion_tiempos.sql`). Cada diagnóstico rendido sin tiempo es un dato
+   que no se recupera, y están por llegar los primeros estudiantes externos.
+4. **Instrumentar el embudo** (T-20): hay tráfico y no se mide nada.
+5. **Clasificar los bancos mezclados** (T-60): 128 ítems, el 33 % del banco, sin módulo.
+6. **Endurecimiento**: `000_baseline` del esquema (T-48), proteger `theta_band` (T-49), respaldo
+   probado (T-07), staging (T-09).
 
 **Antes de empezar, y en serio:** lee [[AGENT_INSTRUCTIONS]]. Al terminar, cierra la sesión con
 `../prompts/session-close-memory-update.md` — actualizar [[CURRENT_STATUS]] y crear el

@@ -1,6 +1,6 @@
 # TECH_STACK
 
-Última actualización: **2026-07-26** · Verificado contra `deps.edn`, `shadow-cljs.edn`,
+Última actualización: **2026-08-10** · Verificado contra `deps.edn`, `shadow-cljs.edn`,
 `package.json`, `tailwind.config.js`, `postcss.config.js`
 
 ## 1. Resumen
@@ -9,13 +9,13 @@
 |------|-----------|---------|--------|
 | Lenguaje (host) | Clojure | 1.12.0 | `deps.edn` |
 | Lenguaje (app) | ClojureScript | 1.12.38 | `deps.edn` |
-| Compilador / dev server | shadow-cljs | **3.0.4** (deps.edn) / **^2.19.2** (package.json devDep) ⚠️ | `deps.edn`, `package.json` |
+| Compilador / dev server | shadow-cljs | **3.0.4** (`deps.edn` y `package.json`, alineados en T-13) | `deps.edn`, `package.json` |
 | UI | Reagent | 1.2.0 | `deps.edn`, `shadow-cljs.edn` |
 | Estado / eventos | re-frame | 1.4.3 | `deps.edn`, `shadow-cljs.edn` |
 | Runtime UI | React / React-DOM | ^17.0.2 | `package.json` |
 | Estilos | Tailwind CSS | ^3.4.17 | `package.json` |
 | CSS toolchain | PostCSS ^8.5.4 + Autoprefixer ^10.4.21 | | `postcss.config.js` |
-| Matemática | KaTeX | ^0.16.22 (npm) / 0.16.9 (CSS por CDN) ⚠️ | `package.json`, `index.html` |
+| Matemática | KaTeX | 0.16.22 (npm y CDN, alineados en T-13) | `package.json`, `index.html` |
 | Cliente backend | `@supabase/supabase-js` | ^2.49.8 | `package.json` |
 | Backend | Supabase (PostgreSQL + Auth + RLS + Edge Functions) | proyecto `jmnqklhxcdccvdhuuiji` | `src/universo/supabase.cljs` |
 | Edge runtime | Deno (Supabase Edge Functions) | `supabase-js@2.49.1` vía esm.sh | `supabase/functions/send-enrollment-emails/index.ts` |
@@ -26,9 +26,11 @@
 | Grafo del repo | Graphify | CLI en `/opt/anaconda3/bin/graphify` | `.claude/settings.json` |
 
 ⚠️ **Inconsistencias de versión conocidas** (no rompen hoy, pero deben resolverse — [[BACKLOG]] T-13):
-- `shadow-cljs` aparece como 3.0.4 en `deps.edn` y `^2.19.2` en `package.json`. El build por
-  `clojure -M:shadow-cljs` usa el de `deps.edn`; el de npm solo importa si se invoca
-  `npx shadow-cljs`. Dos versiones distintas del mismo compilador en el mismo repo.
+- ~~`shadow-cljs` aparece como 3.0.4 en `deps.edn` y `^2.19.2` en `package.json`.~~
+  **Resuelto 2026-08-09 (T-13):** `package.json` alineado a `^3.0.4` y verificado con un
+  `release app` real. Se deja la nota porque explica por qué existían dos rutas de build
+  (`clojure -M:shadow-cljs` usa `deps.edn`; `npx shadow-cljs` usa el de npm) — eso sigue siendo
+  cierto, lo que ya no es cierto es que apunten a versiones distintas.
 - KaTeX: el CSS se carga desde CDN en 0.16.9 mientras el paquete npm es ^0.16.22.
 
 ## 2. Builds (`shadow-cljs.edn`)

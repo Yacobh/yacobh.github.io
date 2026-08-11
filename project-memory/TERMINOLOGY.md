@@ -88,6 +88,34 @@ descendente. Producidos por `universo.profile/deficits-from-responses`. Son el i
 Estimar los parámetros de los ítems (aquí, `difficulty`) a partir de respuestas reales, en lugar de
 asignarlos a criterio. **Pendiente en este proyecto** ([[OPEN_QUESTIONS]] Q-05, [[RISKS]] R-17).
 
+**Respuesta no esforzada** (*response time effort*, Wise & Kong)
+Respuesta emitida en menos tiempo del que toma leer el enunciado: no informa sobre habilidad, es
+equivalente a una moneda al aire. Incluirla **corrompe** θ, así que se descarta. Implementado en
+`universo.irt.effort` (ADR-014 Fase 1, T-44): el umbral de cada ítem es
+`max(min_response_seconds, largo_del_enunciado / 20)` y por debajo la respuesta recibe **peso 0**.
+
+**Peso de una respuesta (`w`)**
+Factor 1.0 o 0.0 que multiplica el aporte de una respuesta a la log-verosimilitud **y a la
+información de Fisher**. Que entre en las dos cosas es lo que hace que descartar evidencia **suba el
+SE** en vez de dejarlo mentir. Se calcula una sola vez, al registrar la respuesta, y se guarda con
+ella dentro de `tests.test`.
+
+**Intensidad temporal de un ítem (β_i)**
+Cuánto tarda típicamente un ítem en ser respondido, estimado como el promedio de `ln(tiempo)` sobre
+quienes lo respondieron. Es el parámetro que [[BACKLOG]] T-59 quiere aprender de los datos en vez de
+fijar por criterio. **No estimable hoy:** ningún ítem tiene suficientes respuestas con tiempo real.
+
+**Velocidad de una persona (τ)**
+Segundo rasgo latente del marco de van der Linden, separado de la habilidad θ:
+`ln T_ij = β_i − τ_j + ε`, que tiene la misma forma aditiva persona−ítem que `logit P = θ_j − b_i`.
+Permite el perfil *"sabe pero lento"* (θ alto, τ bajo), que desaparecería si el tiempo se fundiera
+dentro de θ. **No implementado** (ADR-014 Fase 2, T-45).
+
+**Media geométrica vs. media simple (en tiempos)**
+El tiempo es multiplicativo, no aditivo: una respuesta de 300 s no es "un poco más" que una de 5 s.
+La media simple la arrastra un solo valor extremo — medido en este proyecto: el ítem 361 tiene media
+78,7 s y mediana 4,8 s. Por eso los estimadores de tiempo usan mediana o `exp(promedio de ln t)`.
+
 ---
 
 ## Dominio: educación chilena

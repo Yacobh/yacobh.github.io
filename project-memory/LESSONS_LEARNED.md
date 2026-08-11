@@ -233,7 +233,7 @@ una contradicción, registrarla en [[OPEN_QUESTIONS]] en lugar de resolverla en 
 recompilado y commiteado, y revisar el sitio real ([[BACKLOG]] T-19).
 
 ### L-27 · Correr los tests es barato; no correrlos, caro
-**Dato:** la suite completa (34 tests / 133 assertions) corre en un solo comando y cubre justamente
+**Dato:** la suite completa (58 tests / 332 assertions al 2026-08-10) corre en un solo comando y cubre justamente
 las reglas que más duelen si se rompen (IRT, bandas, filtros de cupos).
 **Regla:** `clj -M:test` antes de cada commit. Sin CI, ese comando **es** la red de seguridad
 ([[RISKS]] R-04).

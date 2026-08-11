@@ -633,6 +633,34 @@
 > ítems sin `module_id` de 156 a **128** (solo `diagnostico` y `paes_m1`), con dos módulos nuevos
 > decididos por el profesor (D-37). Ver `sessions/SESSION-018.md`.
 
+> **Las tres migraciones aplicadas; auditoría de memoria (2026-08-10, cierre).** El owner aplicó
+> `030`, `031` y `032`. **Por primera vez desde que se lleva este registro no queda ninguna migración
+> pendiente**: repositorio y base alineados. Estado medido: ítems sin `module_id` **199 → 128**,
+> módulos **18 → 20**, piso de esfuerzo **3 s → 2 s**.
+>
+> A pedido del owner se revisó toda `project-memory/` buscando desincronizaciones. Corregidas:
+> - **`HANDOFF.md` estaba congelado en el 2026-07-26** — el archivo que existe para retomar el
+>   proyecto sin contexto decía que el árbol estaba sucio, que no se sabía qué había en producción,
+>   que faltaba publicar contenido y verificar el email, y listaba como bloqueantes seis tareas ya
+>   cerradas. Reescritas sus secciones de estado, pendientes, riesgos, preguntas y próximos pasos.
+> - **Conteo de tests desactualizado** en cuatro archivos (`AGENT_INSTRUCTIONS` decía 34/133 como
+>   "estado de referencia" contra el que comparar; también `PROJECT_BRIEF`, `LESSONS_LEARNED` y la
+>   tabla de este archivo). Ahora **58/332**, verificado en vivo.
+> - **`TECH_STACK` y `DEPENDENCIES` seguían marcando con ⚠️ el desajuste de versiones de
+>   shadow-cljs y KaTeX que T-13 cerró el 2026-08-09.** Verificado contra `package.json` e
+>   `index.html` antes de corregir: ambos están alineados.
+> - **`ARCHITECTURE`** no tenía `test_configs`, `misconceptions`, `normalize_topic()` ni los
+>   triggers de canonicalización; se agregó además una tabla de **invariantes que impone la base**
+>   (capacidad, confirmación, último admin, topic canónico) con su espejo puro cuando lo hay.
+> - **`TERMINOLOGY`** no tenía el vocabulario que ADR-014 pedía reflejar: respuesta no esforzada,
+>   peso `w`, intensidad temporal β, velocidad τ, y por qué se usa media geométrica y no simple.
+> - **`RISKS` R-17** ahora distingue lo que T-44 mitiga (respuestas al azar) de lo que no (el
+>   parámetro `b` sin calibrar), y advierte que T-29 hereda el problema de cobertura de datos.
+>
+> **T-51 cerrada** con una nota explícita: su criterio decía "todo ítem tiene `module_id`" y 128 no
+> lo tienen, así que esa mitad **se trasladó a T-60** (clasificar los bancos mezclados) en vez de
+> darla por cumplida.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".
@@ -641,7 +669,7 @@
 
 ## 1. Estado general
 
-**Fase: MVP operable, en cierre de go-live.**
+**Fase: go-live cerrado (2026-08-09). Lo que sigue no es construir, es difundir.**
 
 El funnel completo funciona de punta a punta: un estudiante puede registrarse, hacer el
 diagnóstico adaptativo, obtener su perfil (θ, banda, déficits, misconceptions), ver su plan e
@@ -649,19 +677,24 @@ inscribirse en un cupo de su banda, con confirmación automática del grupo y no
 El panel de administración permite operar todo el ciclo (preguntas, recursos, cupos, roles,
 moderación).
 
-Lo que falta para declarar go-live no es código: es **contenido** (recursos publicados por módulo)
-y **verificación de operación** (envío de email en el proyecto Supabase real).
+**Ningún bloqueo de F8 (Go-live) queda abierto:** contenido publicado (T-01, 58/61 recursos), email
+verificado en producción (T-02) y primer cupo real con sala de Jitsi (T-04). El riesgo dominante
+pasó a ser **R-19 (estacionalidad)**: la PAES se rinde a fin de año y la ventana de captación son
+las próximas semanas.
 
 | Dimensión | Estado |
 |-----------|--------|
 | Funcionalidad del funnel | ✅ operativa |
 | Panel admin | ✅ operativo |
-| Tests | ✅ `42 tests / 162 assertions / 0 failures` (`clj -M:test`, 2026-08-08) |
-| Contenido pedagógico | 🟡 módulos y blurbs sembrados; faltan recursos publicados |
+| Tests | ✅ `58 tests / 332 assertions / 0 failures` (`clj -M:test`, 2026-08-10) |
+| Contenido pedagógico | 🟡 58/61 recursos publicados (T-01); faltan los 2 módulos nuevos de `031` y los 7 de geometría (T-56) |
+| Banco de ítems | 🟡 387 ítems; topics canónicos y 259 con módulo, **128 sin módulo** (bancos mezclados, T-60) |
+| Migraciones | ✅ **ninguna pendiente** — repo y base alineados (2026-08-10, hasta `032`) |
 | Email de cohorte | ✅ desplegado y verificado en producción (T-02, 2026-08-09) |
-| Documentación / memoria | ✅ PMF adoptado hoy (2026-07-26) |
-| CI / staging / monitoreo | ⛔ inexistentes |
-| Estado del árbol de trabajo | ✅ limpio (verificado 2026-08-09; ver nota de sesión al inicio de este archivo) |
+| Documentación / memoria | ✅ PMF operativo desde 2026-07-26; auditada el 2026-08-10 |
+| CI | 🟡 `.github/workflows/test.yml` existe (T-06); staging y monitoreo ⛔ inexistentes |
+| Analítica del embudo | ⛔ inexistente (T-20) — el sitio ya recibe tráfico sin medición |
+| Estado del árbol de trabajo | ✅ limpio; rama `t-44-t-51-tiempo-y-topics` **sin mergear** (2026-08-10) |
 
 ---
 
@@ -671,13 +704,13 @@ y **verificación de operación** (envío de email en el proyecto Supabase real)
 |------|----------|--------|-------|
 | **F0 — Base técnica** | SPA + Supabase + auth + RLS | **100 %** | `admin_rls.sql`, sesión rehidratada, rutas protegidas |
 | **F1 — Motor IRT** | Diagnóstico adaptativo con parada por precisión | **100 %** | 1PL + MAP, Δθ acotado, SE ≤ 0,35, prefetch; parada + tiempo configurables por banco y progresión por prerequisitos (T-39, ADR-013, en producción) |
-| **F2 — Perfil y plan** | θ → banda → déficits → plan en 2 capas | **95 %** | Falta contenido publicado (capa 1) |
-| **F3 — Cohortes** | Cupos por banda, inscripción, confirmación | **95 %** | Falta verificar control de `capacity` (Q-04) |
+| **F2 — Perfil y plan** | θ → banda → déficits → plan en 2 capas | **95 %** | Contenido publicado (T-01) y recomendación personalizada arreglada (T-53). El techo real hoy son los 128 ítems sin módulo (T-60), no el contenido |
+| **F3 — Cohortes** | Cupos por banda, inscripción, confirmación | **100 %** | Control de `capacity` en la base (T-03, `011`); primer cupo real publicado (T-04). Falta oferta en las demás bandas, que es operación y no código |
 | **F4 — Admin** | Operar contenido, cupos, usuarios, moderación | **100 %** | Editor de preguntas restaurado en `48bf525` |
 | **F5 — Email de cohorte** | Aviso por correo al confirmar grupo | **100 %** | Desplegado y verificado en producción (T-02, 2026-08-09): envío real confirmado, cron activo |
 | **F6 — Captación** | Landing + SEO | **90 %** | Landing rehecha (`38fbb96`), JSON-LD acotado (`b6ae903`); sin analytics |
 | **F7 — Memoria del proyecto** | PMF operativo | **100 %** | Este framework, 2026-07-26 |
-| **F8 — Endurecimiento** | CI, staging, backups, monitoreo | **5 %** | Solo tests manuales |
+| **F8 — Endurecimiento** | CI, staging, backups, monitoreo | **20 %** | CI existe (T-06); sin staging (T-09), sin respaldo probado (T-07), sin monitoreo. El esquema tampoco se puede reconstruir desde el repo (T-48) |
 
 ---
 

@@ -218,23 +218,26 @@ amplían para mostrar los datos nuevos cuando existen.
     confirmado por el owner)
 30. `migrations/028_test_config_min_response_seconds.sql` — ✅ aplicada 2026-08-10
 31. `migrations/029_topic_normalization.sql` — ✅ aplicada 2026-08-10, después de `028`
-32. `migrations/030_backfill_module_id_restante.sql` — ⏳ **pendiente de aplicar**, después de `029`
-33. `migrations/031_modulos_inecuaciones_y_operaciones_fundamentales.sql` — ⏳ **pendiente**, después de `030`
-34. `migrations/032_min_response_seconds_calibrado.sql` — ⏳ **pendiente** (baja el piso de esfuerzo de 3 s a 2 s con datos; independiente de `030`/`031`)
+32. `migrations/030_backfill_module_id_restante.sql` — ✅ aplicada 2026-08-10
+33. `migrations/031_modulos_inecuaciones_y_operaciones_fundamentales.sql` — ✅ aplicada 2026-08-10, después de `030`
+34. `migrations/032_min_response_seconds_calibrado.sql` — ✅ aplicada 2026-08-10
 35. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
 > final de `029`: **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id`
 > de 199 → **156**.
 >
-> ⏳ **Pendiente:** `030` y después `031`, que juntas cierran los 28 ítems mapeables que `029` dejó
-> fuera: **156 → 128**. `030` agrega las equivalencias que faltaban; `031` crea **dos módulos
-> nuevos** (`algebra/inecuaciones` y `aritmetica/operaciones_fundamentales`, decisión del profesor
-> del 2026-08-10) y los módulos pasan de 18 a **20**. Ambas son aditivas y solo tocan filas con
-> `module_id is null`. Verificadas contra un Postgres desechable cargado con la distribución real.
+> ✅ **`030`, `031` y `032` aplicadas por el owner el 2026-08-10.** Con eso **no queda ninguna
+> migración pendiente**: el repositorio y la base quedan alineados por primera vez desde que se
+> lleva este registro.
 >
-> Lo que queda sin módulo después de `031` son **128** ítems: `diagnostico` (84) y `paes_m1` (44),
-> bancos mezclados que necesitan clasificación por ítem (contenido, ADR-016), no SQL.
+> Estado resultante: ítems sin `module_id` **156 → 128**; módulos **18 → 20**
+> (`algebra/inecuaciones` y `aritmetica/operaciones_fundamentales`, D-37); piso de esfuerzo por
+> defecto **3 s → 2 s** (calibrado con datos, T-59).
+>
+> Los **128** que quedan sin módulo son `diagnostico` (84) y `paes_m1` (44): bancos mezclados que
+> necesitan clasificación **por ítem** (contenido, ADR-016), no SQL. Ninguna migración los cierra —
+> ver [[../project-memory/BACKLOG]] T-60.
 >
 > **Corrección 2026-08-10:** `022` figuraba sin marca de aplicada y se sospechó que estaba
 > pendiente. **Lo estaba solo en la documentación**: el owner verificó con
@@ -362,16 +365,17 @@ redundante, no un arreglo. Consolidado en `023`.
 
 ---
 
-## Umbral de esfuerzo por banco (`028_test_config_min_response_seconds.sql`) — ⏳ pendiente
+## Umbral de esfuerzo por banco (`028` + `032`) — ✅ aplicadas 2026-08-10
 
-Columna `test_configs.min_response_seconds` (`double precision not null default 3`, check
+Columna `test_configs.min_response_seconds` (`double precision not null default 2`, check
 `0 ≤ x ≤ 120`). Es el **piso** del umbral bajo el cual una respuesta se considera no esforzada y
 deja de contar en la estimación de θ. El umbral efectivo de cada ítem es
 `max(min_response_seconds, largo_del_enunciado / 20)`: el piso cubre los enunciados cortos y la
 parte proporcional los largos. Solo el piso es configurable — la velocidad de lectura es una
 constante del cliente (`universo.irt.effort/chars-per-second`), no una decisión administrativa.
 
-`not null default 3` y no nullable **a propósito**: lo que se configura es cuán estricto ser, no si
+`not null default 2` y no nullable **a propósito** (`028` lo creó en 3; `032` lo bajó a 2 tras
+calibrarlo contra el histórico — ver T-59): lo que se configura es cuán estricto ser, no si
 el filtro existe. Con default, el filtro queda activo en todos los bancos ya sembrados sin que
 nadie toque el panel; si fuera nullable, la afirmación publicada en la FAQ ("el tiempo de respuesta
 también se considera en la estimación") seguiría siendo falsa hasta configurar cada topic uno por
@@ -382,7 +386,15 @@ No hay backfill de `tests`: las respuestas ya rendidas no tienen peso registrado
 que ya se midió y se le mostró a alguien. Ver [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]]
 §Fase 1 y [[../project-memory/BACKLOG]] T-44.
 
-## Higiene de `topic` y backfill de `module_id` (`029_topic_normalization.sql`) — ⏳ pendiente
+**El 2 no lo eligió el autor, lo eligieron los datos (`032`).** `028` había puesto 3 s por criterio.
+Al aplicar el umbral retroactivamente a las 195 respuestas del histórico que tienen tiempo real,
+barriendo el piso, la tasa de acierto de las respuestas **descartadas** fue 18 % / 21 % / 27 % /
+**34 %** / 42 % con piso 0/1/2/3/4 s. Con cuatro alternativas, adivinar acierta 25 %: mientras las
+descartadas ronden ese 25 % se descarta ruido, y cuando lo superan se descarta conocimiento. El 3
+estaba del lado equivocado. **No es una calibración sólida** —esas 195 respuestas son el 9 % del
+histórico— sino un número inventado reemplazado por el mejor dato disponible. Ver T-59.
+
+## Higiene de `topic` y backfill de `module_id` (`029` + `030` + `031`) — ✅ aplicadas 2026-08-10
 
 **Es la única migración pendiente que modifica datos existentes.** Leer antes de aplicar.
 
