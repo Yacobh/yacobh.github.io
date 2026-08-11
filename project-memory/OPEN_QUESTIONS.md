@@ -197,9 +197,11 @@ mecánica sobre cualquier lista de topics, y la consulta (ii) de `029` la respon
 > pero `diagnostic_test.cljs` manda `0` cuando el cronómetro no arrancó, y el flujo del diagnóstico
 > se reparó recién en `9e622d9` (2026-07-18).
 >
-> **Consecuencia:** T-59 queda `bloqueado`, pero **no por falta de estudiantes** sino por
-> instrumentación. Eso no se arregla esperando. La pregunta que queda viva es si el cronómetro mide
-> **hoy** → consulta 6 de `supabase/queries/T-59_calibracion_tiempos.sql`.
+> **Cerrada del todo el mismo día:** el owner corrió el seguimiento y confirmó que **el cronómetro
+> sí registra hoy**. No hay bug vivo; los ceros son históricos, de tests anteriores al arreglo del
+> flujo del diagnóstico (`9e622d9`, 2026-07-18). Entonces T-59 vuelve a estar bloqueado **por
+> volumen de datos**, como decía ADR-014 originalmente — con la diferencia de que ahora se sabe que
+> el contador arranca casi de cero y que **cada diagnóstico nuevo suma**.
 >
 > **Lo que sí se pudo usar** con esas 195 respuestas: corregir el piso de esfuerzo de 3 s a 2 s con
 > evidencia (migración `032`), y refutar el promedio simple como estimador.

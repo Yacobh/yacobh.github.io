@@ -685,6 +685,22 @@
 > por fila y `universo.access` ya agrega por topic—; lo que falta es decidir la semántica del
 > re-diagnóstico, no instrumentar nada.
 
+> **Cronómetro verificado (2026-08-10, cierre de jornada).** El owner confirmó que el diagnóstico
+> **sí registra `time-ms` hoy**: no hay bug vivo, los ceros del histórico son de tests anteriores al
+> arreglo del flujo (`9e622d9`, 2026-07-18). **T-59 vuelve a estar bloqueado por volumen de datos**,
+> no por instrumentación.
+>
+> Lo bueno: cada diagnóstico que se rinda de ahora en adelante es dato utilizable sin trabajo extra,
+> así que **difundir el cupo construye también el dataset**. Lo malo e irreversible: las 2178
+> respuestas históricas no sirven para tiempos y nunca van a servir.
+>
+> **Hallazgo de escala que conviene tener presente antes de invertir en T-59:** las 195 respuestas
+> útiles se reparten en 84 ítems a 2,3 por ítem. Llegar a 30 respuestas por ítem en los 387 del banco
+> exigiría ~1.200–1.400 diagnósticos completos — otro orden de magnitud de tráfico. Por eso T-59 se
+> replanteó como una **escalera jerárquica** (constante → distribución global → por topic → por ítem)
+> en vez de saltar al extremo caro; el umbral global ya es alcanzable con los datos actuales, y la
+> capa autoral de T-44 pasa a ser el piso permanente, no un parche transitorio.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

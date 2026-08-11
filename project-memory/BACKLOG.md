@@ -1014,7 +1014,7 @@ Confirmado además que la frase del FAQ **sigue publicada** — y ahora es ciert
 **[[OPEN_QUESTIONS]] X-01 resuelta**: no se borró la afirmación, se cambió el sistema para que fuera
 verdad, que es exactamente lo que ADR-014 prescribía.
 
-### T-59 · Tiempo típico por ítem aprendido de los datos, no fijado por el autor — **P1** · `bloqueado` (instrumentación: 91 % del histórico tiene `time-ms = 0`)
+### T-59 · Tiempo típico por ítem aprendido de los datos, no fijado por el autor — **P1** · `bloqueado` (datos: hay que acumularlos desde hoy; el cronómetro **sí** registra)
 
 > ## ⭐ Medición ejecutada el 2026-08-10 — cinco hallazgos, dos de ellos corrigen al agente
 >
@@ -1063,10 +1063,43 @@ verdad, que es exactamente lo que ADR-014 prescribía.
 > banda. El ρ = 0,697 que devuelve la consulta **no significa nada** y no debe citarse. La Fase 3 de
 > ADR-014 sigue sin poder evaluarse.
 >
-> **Qué desbloquea este ticket ahora:** ya no es "acumular 30 tests". Es **verificar y arreglar la
-> instrumentación**: confirmar que los diagnósticos que se rinden hoy sí guardan `time-ms > 0`, y si
-> no, arreglarlo antes de difundir el cupo. Cada test que se rinda sin tiempo es un dato que no se
-> recupera. Consulta de seguimiento al final de
+> **✅ Instrumentación verificada por el owner el 2026-08-10: el cronómetro SÍ registra hoy.** No
+> hay bug vivo. Los ceros son históricos: tests anteriores al arreglo del flujo del diagnóstico
+> (`9e622d9`, 2026-07-18). *(Cierre por reporte del owner, sin verificación del agente — mismo
+> patrón que T-03/T-25/T-50.)*
+>
+> **Consecuencia buena:** cada diagnóstico que se rinda de ahora en adelante es dato utilizable, sin
+> trabajo extra. Difundir el cupo no solo trae estudiantes: **construye el dataset que este ticket
+> necesita**.
+>
+> **Consecuencia mala, irreversible:** las 2178 respuestas históricas no sirven para tiempos y nunca
+> van a servir. El contador arranca prácticamente de cero, con las ~195 respuestas útiles como
+> semilla.
+>
+> ### ⚠ Lo que hay que replantear antes de implementar: el objetivo "por ítem" está muy lejos
+>
+> Las 195 respuestas útiles se reparten en **84 ítems, a 2,3 respuestas por ítem**. Para que los 387
+> ítems del banco lleguen a 30 respuestas cada uno harían falta ~11.600 respuestas ≈ **1.200–1.400
+> diagnósticos completos**. A escala de este proyecto eso no es "en unos meses", es otro orden de
+> magnitud de tráfico. La selección adaptativa concentra en los ítems cercanos a θ, así que unos
+> pocos acumularán más rápido — pero el grueso del banco **no va a tener datos propios en mucho
+> tiempo**, y encima el banco sigue creciendo bajo ADR-016.
+>
+> **Reformulación propuesta (a decidir con el owner):** en vez de saltar de "constante autoral" a
+> "estimación por ítem", que es el extremo caro, usar la escalera que los datos sí permiten:
+>
+> | Nivel | Precondición | Estado |
+> |---|---|---|
+> | Constante autoral (`max(piso, largo/20)`) | ninguna | ✅ en producción (T-44), piso ya calibrado a 2 s con el global |
+> | **Umbral desde la distribución global** (percentil bajo de `ln t`) | ~200 respuestas | ✅ **alcanzable ya**: hay 195 |
+> | **Umbral por topic** (pooling de los ítems del mismo banco) | ~30 respuestas por topic | 🟡 alcanzable en el mediano plazo |
+> | Estimación por ítem (β_i) | ~30 respuestas por ítem | 🔴 lejos, y solo para los ítems más servidos |
+>
+> Esto es exactamente la forma jerárquica que ADR-014 §Fase 2 ya insinúa: el ítem hereda del topic
+> cuando no tiene datos propios, y el topic hereda del global. **La capa de caso frío de T-44 deja de
+> ser un parche transitorio y pasa a ser el piso permanente de esa jerarquía.**
+>
+> Consulta de seguimiento (para repetir cuando haya más tráfico): bloque 6 de
 > `supabase/queries/T-59_calibracion_tiempos.sql`.
 
 Abierta el 2026-08-10 a partir de una crítica del owner a T-44, que **es correcta**: el umbral de
