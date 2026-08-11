@@ -183,6 +183,28 @@ el sistema (ver `016`)—, mismo criterio que `guestbook` ya usa para sus column
 `fetch-admin-contacto` (`db/crud.cljs`) y `contacto-panel` en el admin (`components/admin.cljs`) se
 amplían para mostrar los datos nuevos cuando existen.
 
+## ¿Cómo verifico que la base es lo que dice este archivo?
+
+Este documento es **prosa mantenida a mano**, y las migraciones se aplican a mano, sin `db push` y
+sin staging (R-02): nada garantiza que la base sea lo que acá se afirma. Hay precedente concreto —
+la auditoría de T-47 (2026-08-09) encontró **ocho policies creadas desde el dashboard** que el repo
+no conocía, una de ellas dejaba el banco de ítems descargable por cualquier cuenta.
+
+**`queries/verificacion_esquema.sql`** es el contraste automático, de solo lectura. Siete bloques:
+
+| Bloque | Qué responde |
+|--------|--------------|
+| A | Inventario de tablas con RLS y tamaño (esperado: 16 tablas, todas con RLS) |
+| B | **Semáforo de seguridad**: tablas sin RLS (expuestas) o con RLS y cero policies (rotas en silencio), más las policies `using (true)` |
+| C | Si llegaron las columnas de cada migración — el check que faltó cuando se creyó dos días que `display_name` no existía |
+| D | Funciones y triggers esperados: si falta uno, la invariante desaparece sin que nada falle |
+| E | Huérfanos que las FK no atrapan |
+| F | Invariantes de datos que esta memoria afirma, con el valor esperado al lado |
+| G | **Volcado del DDL real** de las tablas no versionadas — es lo que falta para escribir `000_baseline.sql` y cerrar T-48 |
+
+Correr después de cada tanda de migraciones. Los bloques B y F son los que conviene mirar siempre;
+si B devuelve filas, hay un problema de seguridad o un producto roto en silencio.
+
 ## Orden de aplicación
 
 1. `admin_rls.sql` (si aún no)

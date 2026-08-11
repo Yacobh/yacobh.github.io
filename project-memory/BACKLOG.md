@@ -427,6 +427,12 @@ error. Documentado como nota fechada dentro del ADR, no editando la decisión or
 
 ### T-48 · Versionar el DDL real del esquema (`000_baseline`) — **P1** · `abierto`
 
+**2026-08-10:** el paso que faltaba para poder escribirla ya está hecho. El **bloque G** de
+`supabase/queries/verificacion_esquema.sql` vuelca columnas, restricciones y cuerpo de funciones de
+las tablas no versionadas (`questions`, `profiles`, `tests`, `guestbook`, `visitor`, `contacto`) más
+`is_admin()`. Con esa salida se escribe `000_baseline.sql` directamente — el ticket pasa a ser
+"pegar el resultado", no "averiguar qué hay".
+
 Hallazgo de la misma auditoría: **`public.questions` no se crea en ninguna migración.**
 `001_mvp_schema.sql` declara "Requiere: `public.questions`" y solo le agrega `module_id`. Lo mismo
 pasaba con la tabla huérfana `dashboard` (eliminada en `023`). Es decir: **un entorno nuevo no se
