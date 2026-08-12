@@ -1,6 +1,7 @@
 (ns universo.profile
   "Funciones puras: responses + questions → perfil de aprendizaje."
   (:require [clojure.string :as str]
+            [universo.irt.fluency :as fluency]
             [universo.topics :as topics]))
 
 ;; El mapeo topic → módulo vivía acá como dos tablas literales que había que
@@ -122,6 +123,7 @@
         misconceptions (misconceptions-from responses questions)
         band (theta-band theta)
         track (dominant-track topic deficits)
+        fluencia (fluency/classify responses)
         history (vec (or theta-history []))
         stability (when (>= (count history) 3)
                     (let [tail (take-last 3 history)
@@ -136,4 +138,14 @@
      :topic topic
      :deficits deficits
      :misconceptions misconceptions
-     :stability stability}))
+     :stability stability
+     ;; Eje 2 de VISION §3.3. Aditivo: quien no lo lea sigue viendo el mismo
+     ;; perfil de antes, y los perfiles ya guardados en `student_profiles.profile`
+     ;; simplemente no traen estas claves. **No se recalcula hacia atrás**, por
+     ;; el mismo criterio de ADR-014: no reinterpretar lo que ya se le mostró a
+     ;; alguien.
+     :fluency fluencia
+     ;; El cruce θ × λ. nil mientras falte cualquiera de los dos ejes, que es
+     ;; lo habitual en un diagnóstico corto: sin banda de fluidez no hay
+     ;; cuadrante, y sin cuadrante la UI no muestra nada. Preferimos callar.
+     :fluency-profile (fluency/profile-for band (:band fluencia))}))

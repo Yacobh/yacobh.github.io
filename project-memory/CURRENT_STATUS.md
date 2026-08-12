@@ -731,6 +731,28 @@
 > que no pueda mentir ([[DECISIONS]] D-40). Deja a la vista un hecho que estaba oculto: el cuerpo se
 > renderiza con `math/latex`, que **no** entiende encabezados `##`, listas `-` ni tablas de Markdown.
 
+> **Segundo eje del perfil: fluidez (λ) — 2026-08-12.** `universo.irt.fluency` mide cuánto le
+> cuesta al estudiante llegar al resultado, normalizado por el tiempo de lectura del enunciado, y lo
+> cruza con θ en cuatro perfiles con acciones distintas. El caso que motiva todo: **«sabe pero le
+> cuesta» ya no es el mismo estudiante que «sabe y automatizó»** — el primero necesita práctica de
+> fluidez, no más teoría, y hasta hoy el sistema les recomendaba lo mismo. Se ve en «Mi plan» como
+> una tarjeta con el 2×2. Cero cambios de esquema: reusa `time-ms` y `:weight` de ADR-014.
+> Ver [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] y [[BACKLOG]] T-63.
+>
+> **Y una decisión que conviene tener presente:** el **Eje 3 de VISION §3.3 (estilos de aprendizaje)
+> no se va a implementar.** No por prioridad: la hipótesis de emparejar enseñanza con "canal
+> preferente" no tiene respaldo empírico, y es el único componente del producto que un colegio o un
+> competidor podría usar para desarmar la credibilidad del resto. El stub `:traits` de
+> `universo.db/default-db` —que aparecía en un solo lugar del repo y nadie leía— queda anotado como
+> muerto (D-41). Esto deja una tensión abierta con VISION, que lo declaraba diferenciador.
+
+> **El repositorio es público — verificado 2026-08-12.** `visibility: public`. Eso expone
+> `project-memory/`, `adr/`, `sessions/` y `prompts/`: precios y su historial, contexto de negocio,
+> la visión completa y 19 ADRs. El foso real (banco de ítems y diagnósticos) **no** está expuesto:
+> vive en Supabase bajo RLS y ADR-015 ya lo cerró. Procedimiento de split preparado en
+> `docs/SPLIT_MEMORIA_PRIVADA.md` ([[BACKLOG]] T-64), **no ejecutado**. Advertencia central: mover
+> los archivos hoy no despublica el pasado — 51 de 169 commits tocan `project-memory/`.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

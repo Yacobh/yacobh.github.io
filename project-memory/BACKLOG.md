@@ -1728,13 +1728,47 @@ Hallazgo de la vista previa lateral (D-40): `plan/resource-card` renderiza `reso
 **No se resolvió en esta sesión a propósito:** las migraciones ya están aplicadas, así que tocar
 `039` dejaría el archivo diciendo algo distinto de lo que hay en la base — peor que el problema.
 
+---
+
+### T-63 · Eje de fluidez (λ) — **P2** · `hecho` (2026-08-12)
+
+Segundo eje de la huella cognitiva de VISION §3.3, construido como
+`universo.irt.fluency`. Distingue «sabe pero le cuesta» de «sabe y automatizó», que
+hoy eran el mismo estudiante para el sistema.
+
+- **Decisión completa** en [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]].
+  Incluye por qué **no** se implementa el Eje 3 (estilos de aprendizaje).
+- **Entregado:** namespace puro + 14 tests, integración en `universo.profile/build`
+  (`:fluency`, `:fluency-profile`), y tarjeta en «Mi plan» con el 2×2 de θ × λ.
+- **Cero cambios de esquema**: reusa `time-ms` y `:weight`, que ADR-014 ya guardaba.
+- **Deuda conocida:** los umbrales (3 y 6 tiempos de lectura) son autorales. Ver T-59.
+- **Terminado cuando:** ~~el eje exista y se vea~~ (hecho). Queda verificarlo con un
+  diagnóstico real rendido de punta a punta.
+
+### T-64 · Sacar la memoria del repositorio público — **P2** · `preparado, no ejecutado` (2026-08-12)
+
+El repo es público (`visibility: public`) y expone `project-memory/`, `adr/`,
+`sessions/` y `prompts/`: precios y su historial, contexto de negocio, la visión
+completa y 19 ADRs.
+
+- **Procedimiento** en `docs/SPLIT_MEMORIA_PRIVADA.md`, con los comandos exactos.
+- **Los pasos 1-3 son del owner** (crear el repo privado en GitHub y empujar).
+  El paso 4 —arreglar las 72 referencias cruzadas— es mecánico y se puede automatizar.
+- **Advertencia que hay que leer antes:** mover los archivos **no despublica el
+  pasado**. 51 de 169 commits tocan `project-memory/`. Despublicar de verdad exige
+  reescribir el historial (`git filter-repo` + force push), que es otra operación.
+- **Decisión de alcance pendiente:** mover las 4 carpetas (protege todo, rompe el
+  flujo de trabajo que hace bueno a este repo) o solo `BUSINESS_CONTEXT` +
+  `VISION_LIBRO_PROYECTO` (protege lo comercial, cuesta media hora). El documento
+  recomienda lo segundo y explica por qué.
+
 ## Resumen por prioridad
 
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-64 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
 ---

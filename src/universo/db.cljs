@@ -133,7 +133,20 @@
           ;; Esto es crucial para los cálculos de IRT.
           :responses [] ; e.g., [{:question-id :q1 :selected-option 1 :correct? true :time-ms 5234}]
 
-          :traits {:logical 0.0 :visual 0.0 :verbal 0.0 :exploratory 0.0} ;; Perfil psicométrico
+          ;; ⚠ STUB MUERTO. Nada escribe ni lee esta clave: no hay función que
+          ;; la calcule, ninguna vista que la muestre y ningún test que la
+          ;; toque. Apuntaba al **Eje 3** de VISION §3.3 (canal visual /
+          ;; auditivo / kinestésico), que ese mismo documento declara "fase
+          ;; futura, sin diseño técnico".
+          ;;
+          ;; No se implementó, y ADR-019 explica por qué **no se va a
+          ;; implementar así**: la hipótesis de los estilos de aprendizaje no
+          ;; tiene respaldo empírico. El eje que sí se construyó es el **Eje 2**
+          ;; (fluidez), en `universo.irt.fluency`.
+          ;;
+          ;; Se conserva la clave para no cambiar la forma de `app-db` sin
+          ;; necesidad, pero **no la uses**: si algo la lee, está leyendo ceros.
+          :traits {:logical 0.0 :visual 0.0 :verbal 0.0 :exploratory 0.0}
           :score 0
 
           ;; Parámetros para Item Response Theory (IRT)

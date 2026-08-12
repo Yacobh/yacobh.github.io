@@ -2,6 +2,7 @@
   (:require
    [re-frame.core :as re-frame]
    [reagent.core :as r]
+   [universo.irt.fluency :as fluency]
    [universo.profile :as profile]
    [universo.components.math-render :as math]
    [universo.components.ui :as ui]))
@@ -55,6 +56,65 @@
    (when-let [slug (or (:module_slug r) (get-in r [:modules :slug]))]
      [:p.text-xs.text-gray-400.mt-2 slug])])
 
+(defn- fluency-grid
+  "El 2×2 de θ × λ con la celda del estudiante encendida.
+
+   Se dibuja el mapa completo y no solo la etiqueta a propósito: ver los otros
+   tres cuadrantes es lo que le da sentido al propio. «Sabe pero le cuesta» no
+   significa nada suelto; significa algo al lado de «consolidado»."
+  [activo]
+  (let [celda (fn [id etiqueta]
+                [:div {:class (str "rounded-md px-2 py-3 text-center text-xs leading-tight transition "
+                                   (if (= id activo)
+                                     "bg-indigo-600 font-semibold text-white shadow-sm"
+                                     "bg-gray-50 text-gray-400"))}
+                 etiqueta])]
+    [:div.shrink-0
+     [:div {:class "grid grid-cols-2 gap-1.5" :style {:width "180px"}}
+      [celda :rapido-sin-base "Rápido, sin base"]
+      [celda :consolidado "Consolidado"]
+      [celda :en-construccion "En construcción"]
+      [celda :sabe-pero-lento "Sabe, pero le cuesta"]]
+     [:div.mt-1.flex.justify-between {:style {:width "180px"}}
+      [:span.text-xs.text-gray-400 "← menos nivel"]
+      [:span.text-xs.text-gray-400 "más nivel →"]]]))
+
+(defn- fluency-card
+  "Cómo estudia, no solo cuánto sabe. Eje 2 de VISION §3.3.
+
+   No se muestra nada si no hay cuadrante: con pocas respuestas medidas la
+   mediana no significa nada, y etiquetar a alguien con dos ítems es peor que
+   no decir nada. `fluency/profile-for` ya devuelve nil en ese caso."
+  [fluencia perfil]
+  (when perfil
+    [:div.bg-white.rounded-xl.shadow.p-6
+     [:div.flex.items-start.justify-between.gap-2.mb-1
+      [:h2.text-lg.font-bold.text-gray-800 "Cómo estás resolviendo"]
+      [:span.text-xs.text-gray-400.shrink-0 "Fluidez · λ"]]
+     [:p.text-xs.text-gray-500.mb-4
+      "Además de cuánto sabes, cuánto te cuesta llegar al resultado."]
+
+     [:div.flex.flex-col.gap-5 {:class "sm:flex-row sm:items-start"}
+      [fluency-grid (:id perfil)]
+
+      [:div.min-w-0.flex-1
+       [:p.font-semibold.text-gray-900 (:titulo perfil)]
+       [:p.text-sm.text-gray-600.mt-1 (:descripcion perfil)]
+       [:div.mt-3.rounded-lg.bg-indigo-50.border.border-indigo-100.p-3
+        [:p.text-xs.font-semibold.uppercase.tracking-wide.text-indigo-700.mb-1
+         "Qué conviene hacer"]
+        [:p.text-sm.text-indigo-900 (:accion perfil)]]]]
+
+     ;; La medición, en letra chica y sin adornos. Es el número con el que se
+     ;; puede discutir la etiqueta, así que tiene que estar a la vista.
+     (when-let [t-rel (:t-rel fluencia)]
+       [:p.text-xs.text-gray-400.mt-4
+        (str "Medido sobre " (:n fluencia)
+             (if (= 1 (:n fluencia)) " respuesta correcta" " respuestas correctas")
+             ": tardaste "
+             (.toFixed (js/Number t-rel) 1)
+             " veces lo que toma leer cada enunciado.")])]))
+
 (defn plan-panel []
   (r/create-class
    {:display-name "plan-panel"
@@ -75,7 +135,13 @@
             has-profile? (or (number? (:theta profile-map))
                              (number? (:theta built))
                              (seq deficits)
-                             (seq layer0))]
+                             (seq layer0))
+            fluencia (:fluency built)
+            ;; Se recalcula el cuadrante en vez de leer `:fluency-profile` del
+            ;; JSONB: los textos guardados podrían ser de una versión anterior
+            ;; del catálogo de perfiles, y `profile-for` tolera que las bandas
+            ;; lleguen como string tras el round-trip.
+            fluency-profile (fluency/profile-for band (:band fluencia))]
         [:div.py-8.px-4
          [:div.max-w-3xl.mx-auto.space-y-6
           [:div.bg-white.rounded-xl.shadow.p-6
@@ -99,6 +165,10 @@
 
             :else
             [:div.space-y-6
+             ;; Va primero: responde «cómo estudiar», que condiciona la lectura
+             ;; de todo lo que sigue («qué estudiar»).
+             [fluency-card fluencia fluency-profile]
+
              (when (seq deficits)
                [:div.bg-white.rounded-xl.shadow.p-6
                 [:h2.text-lg.font-bold.text-gray-800.mb-3 "Dónde necesitas ayuda"]
