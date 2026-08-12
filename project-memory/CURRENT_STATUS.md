@@ -701,6 +701,36 @@
 > en vez de saltar al extremo caro; el umbral global ya es alcanzable con los datos actuales, y la
 > capa autoral de T-44 pasa a ser el piso permanente, no un parche transitorio.
 
+> **Experimento paralelo entregado (2026-08-11, rama `experimento-cuantica`).** Un track de
+> **Mecánica Cuántica** montado sobre el mismo motor IRT, para uso personal del autor en su examen
+> universitario: migraciones `033`–`040` con 15 módulos, 77 misconceptions, **123 ítems** con sus 4
+> explicaciones cada uno, 32 recursos y 15 configuraciones de banco. **No es contenido del producto
+> y no cambia el estado del MVP PAES**: es 100 % datos, no toca ClojureScript, no recompila el
+> bundle, y `clj -M:test` sigue igual. Está aislado del estudiante por `test_configs.active = false`
+> ([[RISKS]] R-23) y `published = false` en los recursos. Ver [[../adr/ADR-018-track-experimental-cuantica]],
+> [[BACKLOG]] T-61 y [[../supabase/SCHEMA]] §Track experimental.
+>
+> **✅ Aplicadas en producción por el owner el 2026-08-11.** Antes se habían verificado contra un
+> PostgreSQL 14 desechable (aplicación limpia, idempotencia, contenido PAES intacto, reversión
+> probada). Que `034` corriera **cierra la contradicción de T-57**: `027` sí estaba aplicada.
+> ⏳ Falta correr la batería de control del final de `040`.
+>
+> **Consecuencia práctica, ya vigente:** las consultas de métricas sobre el banco PAES necesitan
+> `where topic not like 'mq\_%'`. Sin ese filtro, `questions` cuenta **510** en vez de 387.
+
+> **Diagnóstico: θ inicial baja de 0,0 a −1,0 (2026-08-11).** Cambio del owner en
+> `universo.events.test`, publicado en esta sesión. El test ahora arranca por ítems **más fáciles**
+> que la media del banco en vez de por el centro de la escala. `next_question` elige por cercanía a
+> θ, así que esto cambia la trayectoria de estimación de **todos** los estudiantes, no solo la
+> primera pregunta. Registrado como [[DECISIONS]] D-39, con la inconsistencia que deja abierta
+> (`db/default-db` y `test_subs` siguen en 0.0).
+
+> **Editor de recursos con vista previa lateral (2026-08-11).** Admin → Recursos pasa a dos columnas
+> desde `lg`: formulario a la izquierda, y a la derecha la tarjeta del recurso **tal como la ve el
+> estudiante**, en vivo. La previa reusa `plan/resource-card`, la misma función de "Mi plan", para
+> que no pueda mentir ([[DECISIONS]] D-40). Deja a la vista un hecho que estaba oculto: el cuerpo se
+> renderiza con `math/latex`, que **no** entiende encabezados `##`, listas `-` ni tablas de Markdown.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".

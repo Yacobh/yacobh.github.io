@@ -1,0 +1,266 @@
+-- EXPERIMENTO · Banco de ítems, bloque II: sistemas modelo en 1D (16 ítems).
+-- Topics: mq_pozos · mq_oscilador
+--
+-- ⚠ APLICAR DESPUÉS DE 033, 034 y 035.
+-- El patrón de inserción (dollar-quoting, `error_*` de la correcta,
+-- misconceptions `null`, escala de `difficulty`, idempotencia) está explicado en
+-- la cabecera de 035 y no se repite acá.
+
+with items (topic, module_slug, difficulty, order_index,
+            question, option_a, option_b, option_c, option_d, correct_option,
+            error_a, error_b, error_c, error_d,
+            mis_a, mis_b, mis_c, mis_d) as (
+  values
+
+  -- ===========================================================================
+  -- mq_pozos · Pozos, escalones y efecto túnel
+  -- ===========================================================================
+
+  ($qm$mq_pozos$qm$::text, $qm$cuantica/pozos$qm$::text,
+   (-1.0)::double precision, 10::int,
+   $qm$Para una partícula en un pozo infinito de ancho $a$, $E_n = \dfrac{n^{2}\pi^{2}\hbar^{2}}{2ma^{2}}$ con $n = 1,2,3,\dots$ ¿Por qué se excluye $n=0$?$qm$::text,
+   $qm$Porque $n=0$ daría $\psi \equiv 0$ en todo el pozo, y eso no describe ninguna partícula.$qm$::text,
+   $qm$Porque $E_0 = 0$ está permitido, pero es un caso trivial que no se suele escribir.$qm$::text,
+   $qm$Porque con $n=0$ la energía saldría negativa, y eso es imposible.$qm$::text,
+   $qm$Porque el conteo arranca en 1 por convención: $n=0$ describe el mismo estado que $n=1$.$qm$::text,
+   $qm$A$qm$::text,
+   $qm$Correcto. Con $n=0$, $\psi(x) = A\sin(0) = 0$ en todo punto: no hay estado que normalizar. Y es coherente con la incertidumbre, que exige energía cinética mínima a toda partícula confinada.$qm$::text,
+   $qm$No está permitido: energía cero significaría momentum perfectamente definido e igual a cero, con la partícula confinada en $\Delta x = a$. Eso viola $\Delta x\,\Delta p \geq \hbar/2$.$qm$::text,
+   $qm$Con $n=0$ la fórmula da exactamente $E=0$, no un valor negativo: $n$ aparece al cuadrado. El problema es otro -- que la función de onda se anula idénticamente.$qm$::text,
+   $qm$No son el mismo estado: $n=1$ da $\psi = A\sin(\pi x/a)$, una función perfectamente no nula, mientras que $n=0$ da la función cero. No es cuestión de dónde empieza a contarse.$qm$::text,
+   null::text, $qm$mq/pozo/energia-cero-permitida$qm$::text, null::text, null::text),
+
+  ($qm$mq_pozos$qm$, $qm$cuantica/pozos$qm$, -0.5, 20,
+   $qm$En el pozo infinito, ¿cómo cambia la separación entre niveles consecutivos a medida que crece $n$?$qm$,
+   $qm$Es constante: todos los niveles están igualmente espaciados.$qm$,
+   $qm$Crece, porque $E_{n+1}-E_n \propto (2n+1)$.$qm$,
+   $qm$Decrece y los niveles se acumulan, como en el átomo de hidrógeno.$qm$,
+   $qm$Depende de la masa de la partícula, pero no de $n$.$qm$,
+   $qm$B$qm$,
+   $qm$Ese es el espectro del **oscilador armónico**, donde la separación es siempre $\hbar\omega$. En el pozo infinito $E_n \propto n^2$, así que los niveles se separan cada vez más.$qm$,
+   $qm$Correcto. $E_{n+1}-E_n = \frac{\pi^2\hbar^2}{2ma^2}\big[(n+1)^2 - n^2\big] = \frac{\pi^2\hbar^2}{2ma^2}(2n+1)$: la separación crece linealmente con $n$.$qm$,
+   $qm$El hidrógeno sí acumula niveles ($E_n \propto -1/n^2$ converge a cero), pero es el caso opuesto: allí el electrón está cada vez menos ligado. En un pozo infinito la partícula nunca escapa y las energías crecen sin cota.$qm$,
+   $qm$La masa fija la escala global de energías, pero la **forma** del espectro la fija $n^2$: la separación depende de $n$ y de la masa a la vez.$qm$,
+   $qm$mq/pozo/niveles-equiespaciados$qm$, null, null, null),
+
+  ($qm$mq_pozos$qm$, $qm$cuantica/pozos$qm$, 0.0, 30,
+   $qm$¿Cuántos nodos tiene en el **interior** del pozo la función de onda del tercer estado ($n=3$) de un pozo infinito?$qm$,
+   $qm$3$qm$,
+   $qm$2$qm$,
+   $qm$0: una función de onda de estado ligado no puede anularse.$qm$,
+   $qm$4, contando los dos extremos donde $\psi = 0$.$qm$,
+   $qm$B$qm$,
+   $qm$Se confundió el índice con el número de nodos. $\psi_n(x) = A\sin(n\pi x/a)$ se anula en el interior en $x = a/3$ y $x = 2a/3$: son $n-1 = 2$ nodos.$qm$,
+   $qm$Correcto. La regla general vale para cualquier potencial 1D: el $n$-ésimo estado ligado tiene $n-1$ nodos interiores, y por eso contar nodos permite identificar un estado a partir de su gráfico.$qm$,
+   $qm$Los estados excitados sí se anulan en puntos interiores; el que no lo hace es solo el **fundamental**. Que $\psi$ se anule en un punto no significa que la partícula esté prohibida ahí en el sentido clásico: significa que ahí la amplitud de probabilidad es nula.$qm$,
+   $qm$Los extremos no son nodos interiores: $\psi(0)=\psi(a)=0$ es la condición de contorno del pozo y vale para **todos** los estados, así que no distingue a ninguno.$qm$,
+   $qm$mq/pozo/nodos-mal-contados$qm$, null, null,
+   $qm$mq/pozo/nodos-mal-contados$qm$),
+
+  ($qm$mq_pozos$qm$, $qm$cuantica/pozos$qm$, 0.5, 40,
+   $qm$Una partícula con energía $E > V_0$ incide sobre un escalón de potencial de altura $V_0$. Clásicamente lo supera siempre. ¿Qué predice la mecánica cuántica?$qm$,
+   $qm$Lo supera siempre, igual que en el caso clásico.$qm$,
+   $qm$Hay una probabilidad de reflexión **no nula**, aunque la energía alcance de sobra.$qm$,
+   $qm$Se refleja siempre, porque toda discontinuidad del potencial refleja.$qm$,
+   $qm$Lo supera siempre, pero su energía total baja a $E - V_0$.$qm$,
+   $qm$B$qm$,
+   $qm$La reflexión sobre un escalón con $E>V_0$ es uno de los efectos no clásicos más limpios: aparece porque el empalme de $\psi$ y $\psi'$ en la discontinuidad no admite solución con onda reflejada nula, salvo en el límite $V_0/E \to 0$.$qm$,
+   $qm$Correcto. $R = \left(\dfrac{k_1-k_2}{k_1+k_2}\right)^{2}$ con $k_i = \sqrt{2m(E-V_i)}/\hbar$, que solo se anula si $k_1 = k_2$. Es el análogo cuántico de la reflexión parcial de la luz al cambiar de medio.$qm$,
+   $qm$La reflexión es parcial, no total: $T = 1-R > 0$. Y si el escalón fuera suave en vez de abrupto, la reflexión tendería a cero.$qm$,
+   $qm$La energía **total** se conserva: es $E$ antes y después. Lo que baja al pasar el escalón es la energía **cinética**, que vale $E-V_0$, porque parte de la energía pasó a potencial.$qm$,
+   null, null, null,
+   $qm$mq/tunel/particula-pierde-energia$qm$),
+
+  ($qm$mq_pozos$qm$, $qm$cuantica/pozos$qm$, 1.0, 50,
+   $qm$Para una barrera de ancho $L$ y altura $V_0 > E$, la transmisión es aproximadamente $T \approx e^{-2\kappa L}$, con $\kappa = \sqrt{2m(V_0-E)}/\hbar$. Si se **duplica** el ancho $L$, ¿qué le pasa a $T$?$qm$,
+   $qm$Se reduce a la mitad.$qm$,
+   $qm$Pasa de $T$ a $T^{2}$: cae muchísimo más que a la mitad.$qm$,
+   $qm$No cambia: $T$ depende solo de la altura de la barrera.$qm$,
+   $qm$Se anula exactamente: con el doble de ancho ya no hay efecto túnel.$qm$,
+   $qm$B$qm$,
+   $qm$La dependencia con el ancho es **exponencial**, no lineal. Es justamente lo que hace del efecto túnel un fenómeno de escala atómica: unos pocos ångström de más lo apagan.$qm$,
+   $qm$Correcto. $e^{-2\kappa(2L)} = \left(e^{-2\kappa L}\right)^{2}$. Con $T = 10^{-4}$, duplicar el ancho lo lleva a $10^{-8}$. En eso se basa el microscopio de efecto túnel: la corriente cambia órdenes de magnitud ante variaciones de la fracción de un ångström.$qm$,
+   $qm$Altura y ancho entran juntos, en el producto $\kappa L$: subir la barrera aumenta $\kappa$ y ensancharla aumenta $L$, y ambos suprimen $T$ exponencialmente.$qm$,
+   $qm$La exponencial nunca se anula exactamente: se vuelve inobservablemente pequeña. La diferencia importa, porque el túnel a través de barreras "imposibles" es lo que explica la desintegración alfa, con vidas medias de miles de millones de años.$qm$,
+   $qm$mq/tunel/dependencia-no-exponencial$qm$, null,
+   $qm$mq/tunel/dependencia-no-exponencial$qm$, null),
+
+  ($qm$mq_pozos$qm$, $qm$cuantica/pozos$qm$, 1.4, 60,
+   $qm$Una partícula de energía $E$ atraviesa por efecto túnel una barrera de altura $V_0 > E$. ¿Con qué energía emerge del otro lado?$qm$,
+   $qm$Con $E - V_0$, habiendo gastado la altura de la barrera al atravesarla.$qm$,
+   $qm$Con la misma energía $E$ que traía.$qm$,
+   $qm$Con $E + V_0$: la barrera la impulsa al salir.$qm$,
+   $qm$Con $E$, pero solo si $E$ supera la mitad de $V_0$; por debajo el túnel no ocurre.$qm$,
+   $qm$B$qm$,
+   $qm$Eso daría energía negativa, y la partícula transmitida es libre del otro lado. El túnel no es perforar un muro gastando energía: el proceso es elástico, y lo que la barrera reduce es la **probabilidad** de transmisión, no la energía de la que pasa.$qm$,
+   $qm$Correcto. La energía se conserva y la transmisión es elástica: sale con $E$. Lo que decae exponencialmente con la barrera es $T$, la fracción de partículas que la atraviesan.$qm$,
+   $qm$La barrera no entrega energía: es una región donde la energía potencial es más alta, no una fuente. La energía total antes y después es la misma.$qm$,
+   $qm$No hay ningún umbral de ese tipo. $T$ decae de forma continua al bajar $E$, sin ningún valor crítico por debajo del cual se apague de golpe.$qm$,
+   $qm$mq/tunel/particula-pierde-energia$qm$, null,
+   $qm$mq/tunel/particula-pierde-energia$qm$, null),
+
+  ($qm$mq_pozos$qm$, $qm$cuantica/pozos$qm$, 1.8, 70,
+   $qm$Un pozo cuadrado **finito** unidimensional, de profundidad $V_0$ y ancho $a$. ¿Cuántos estados ligados admite?$qm$,
+   $qm$Infinitos, igual que el pozo infinito.$qm$,
+   $qm$Un número finito, que crece con $V_0a^{2}$; y en una dimensión siempre hay **al menos uno**, por poco profundo que sea el pozo.$qm$,
+   $qm$Ninguno si $V_0$ es suficientemente pequeño.$qm$,
+   $qm$Exactamente uno, siempre.$qm$,
+   $qm$B$qm$,
+   $qm$Solo el pozo infinito tiene infinitos: en el finito, por encima de $V_0$ los estados dejan de estar ligados y pasan a ser un continuo de estados de dispersión.$qm$,
+   $qm$Correcto. El número de estados ligados es del orden de $\sqrt{2mV_0a^2/\hbar^2}/\pi$, y la existencia de al menos uno es un resultado específico de una y dos dimensiones. En tres dimensiones sí existe una profundidad mínima por debajo de la cual no hay estado ligado.$qm$,
+   $qm$Es lo que uno esperaría, pero en 1D es falso: la ecuación trascendental que da los niveles siempre tiene al menos una solución par, por chico que sea $V_0$. En 3D, en cambio, esta respuesta sí sería correcta.$qm$,
+   $qm$El número crece con la profundidad y el ancho: un pozo suficientemente hondo tiene muchos estados ligados. Lo que es siempre cierto en 1D es que hay al menos uno, no que haya exactamente uno.$qm$,
+   null, null, null, null),
+
+  ($qm$mq_pozos$qm$, $qm$cuantica/pozos$qm$, 2.2, 80,
+   $qm$Comparado con el pozo **infinito** del mismo ancho $a$, el estado fundamental de un pozo **finito** tiene energía...$qm$,
+   $qm$mayor, porque la función de onda se comprime dentro del pozo.$qm$,
+   $qm$igual, porque el ancho es el mismo y la energía depende del ancho.$qm$,
+   $qm$menor, porque $\psi$ penetra en las regiones clásicamente prohibidas, y eso equivale a un pozo efectivamente más ancho.$qm$,
+   $qm$cero, porque la partícula puede escapar del pozo.$qm$,
+   $qm$C$qm$,
+   $qm$Es al revés: en el pozo finito $\psi$ no está obligada a anularse en las paredes, sino que decae exponencialmente hacia afuera. Se **extiende** más, no menos.$qm$,
+   $qm$El ancho nominal es el mismo, pero el ancho **efectivo** no: la cola exponencial fuera del pozo aumenta la longitud de onda de $\psi$ y por lo tanto baja la energía cinética.$qm$,
+   $qm$Correcto. Una longitud de onda mayor significa menor $k$ y menor $E = \hbar^2k^2/2m$. Es la misma idea que en el punto anterior: confinar más es pagar más energía, y confinar menos, pagar menos.$qm$,
+   $qm$Un estado **ligado** tiene $E < V_0$ y no escapa: su función de onda decae exponencialmente afuera, no se propaga. Además, la energía nula sigue prohibida por la incertidumbre.$qm$,
+   null, null, null,
+   $qm$mq/pozo/energia-cero-permitida$qm$),
+
+  -- ===========================================================================
+  -- mq_oscilador · Oscilador armónico y operadores escalera
+  -- ===========================================================================
+
+  ($qm$mq_oscilador$qm$, $qm$cuantica/oscilador$qm$, -0.9, 10,
+   $qm$Los niveles del oscilador armónico son $E_n = \left(n+\tfrac{1}{2}\right)\hbar\omega$, con $n = 0,1,2,\dots$ ¿Qué significa el término $\tfrac{1}{2}\hbar\omega$?$qm$,
+   $qm$Que el estado fundamental tiene energía no nula: la energía de punto cero.$qm$,
+   $qm$Que hay que empezar a contar desde $n=1$ para que el fundamental tenga energía correcta.$qm$,
+   $qm$Que $E_0 = 0$ si se elige bien el origen de energías, así que el término es convencional.$qm$,
+   $qm$Que es una pequeña corrección relativista al resultado clásico.$qm$,
+   $qm$A$qm$,
+   $qm$Correcto. Ni siquiera en su estado más bajo el oscilador está en reposo en el fondo del pozo: eso exigiría $x$ y $p$ nulos simultáneamente. La energía de punto cero es medible -- se manifiesta, por ejemplo, en que el helio no solidifica a presión ordinaria ni en el cero absoluto.$qm$,
+   $qm$El índice arranca en $n=0$, y ese estado ya tiene $E_0 = \hbar\omega/2$. Correr el índice no elimina el término: lo mueve de lugar.$qm$,
+   $qm$Se puede correr el cero de energías por conveniencia, pero eso no borra el hecho físico: la **diferencia** entre el mínimo del potencial y el estado fundamental es real y observable, y no depende de dónde pongamos el cero.$qm$,
+   $qm$No tiene nada de relativista: sale de la ecuación de Schrödinger no relativista y de la relación de incertidumbre. Además no es pequeña: para una molécula diatómica es del orden de una décima de eV.$qm$,
+   null, null,
+   $qm$mq/oscilador/sin-energia-de-punto-cero$qm$, null),
+
+  ($qm$mq_oscilador$qm$, $qm$cuantica/oscilador$qm$, -0.3, 20,
+   $qm$¿Cómo es la separación entre niveles consecutivos del oscilador armónico?$qm$,
+   $qm$Crece con $n$, igual que en el pozo infinito.$qm$,
+   $qm$Constante e igual a $\hbar\omega$ para todo $n$.$qm$,
+   $qm$Decrece con $n$ y los niveles se acumulan.$qm$,
+   $qm$Depende de $n$ de una forma que no tiene expresión cerrada.$qm$,
+   $qm$B$qm$,
+   $qm$Ese es el pozo infinito, donde $E_n\propto n^2$. Acá $E_n$ es **lineal** en $n$, así que la diferencia es constante.$qm$,
+   $qm$Correcto. $E_{n+1}-E_n = \hbar\omega$ siempre. Por eso el oscilador cuántico absorbe y emite en una sola frecuencia, la clásica $\omega$, y por eso sirve para describir modos de campo con $n$ como número de cuantos.$qm$,
+   $qm$Eso ocurre en potenciales que se aplanan al alejarse, como el de Coulomb. El potencial armónico hace lo contrario: crece sin cota, y su espectro es perfectamente equiespaciado.$qm$,
+   $qm$La expresión cerrada existe y es de las más simples de toda la teoría: la diferencia vale exactamente $\hbar\omega$.$qm$,
+   $qm$mq/oscilador/espectro-no-equiespaciado$qm$, null,
+   $qm$mq/oscilador/espectro-no-equiespaciado$qm$, null),
+
+  ($qm$mq_oscilador$qm$, $qm$cuantica/oscilador$qm$, 0.3, 30,
+   $qm$Si $a$ es el operador de aniquilación y $|n\rangle$ un autoestado del número, ¿cuánto vale $a|n\rangle$?$qm$,
+   $qm$$|n-1\rangle$$qm$,
+   $qm$$\sqrt{n}\,|n-1\rangle$$qm$,
+   $qm$$\sqrt{n+1}\,|n+1\rangle$$qm$,
+   $qm$$n\,|n-1\rangle$$qm$,
+   $qm$B$qm$,
+   $qm$La dirección es correcta pero falta el factor. Sin él, $N = a^{\dagger}a$ no daría $n|n\rangle$: se comprueba haciendo $a^{\dagger}a|n\rangle$ con y sin el $\sqrt{n}$.$qm$,
+   $qm$Correcto. El $\sqrt{n}$ sale de exigir que el resultado quede normalizado: $\|a|n\rangle\|^2 = \langle n|a^{\dagger}a|n\rangle = n$. Como caso particular, $a|0\rangle = 0$, que es lo que corta la escalera por abajo.$qm$,
+   $qm$Ese es $a^{\dagger}$, el operador de **creación**. $a$ baja el nivel; $a^{\dagger}$ lo sube y lleva $\sqrt{n+1}$.$qm$,
+   $qm$El factor es la raíz de $n$, no $n$. Con $n$ el estado quedaría sin normalizar y $N=a^{\dagger}a$ daría $n^2$ en vez de $n$.$qm$,
+   $qm$mq/oscilador/factor-raiz-omitido$qm$, null, null,
+   $qm$mq/oscilador/factor-raiz-omitido$qm$),
+
+  ($qm$mq_oscilador$qm$, $qm$cuantica/oscilador$qm$, 0.8, 40,
+   $qm$¿Cuál de estos operadores del oscilador es hermítico, y por lo tanto puede ser un observable?$qm$,
+   $qm$$a$$qm$,
+   $qm$$a^{\dagger}$$qm$,
+   $qm$$a - a^{\dagger}$$qm$,
+   $qm$$N = a^{\dagger}a$$qm$,
+   $qm$D$qm$,
+   $qm$$a$ no es hermítico: su adjunto es $a^{\dagger}$, que hace lo contrario (sube en vez de bajar). Ningún operador que cambie el estado a otro distinto puede tener autovalores reales sobre esa base.$qm$,
+   $qm$Mismo problema que con $a$: su adjunto es $a$, no él mismo. Y en rigor $a^{\dagger}$ ni siquiera tiene autovectores normalizables.$qm$,
+   $qm$Es **anti**hermítico: $(a-a^{\dagger})^{\dagger} = a^{\dagger}-a = -(a-a^{\dagger})$. Multiplicado por $i$ sí queda hermítico -- y de hecho $\hat P \propto i(a^{\dagger}-a)$.$qm$,
+   $qm$Correcto. $(a^{\dagger}a)^{\dagger} = a^{\dagger}a$, así que $N$ es hermítico, con autovalores $0,1,2,\dots$ El Hamiltoniano es $H = \hbar\omega(N+\tfrac12)$: contar cuantos es el observable, y subirlos o bajarlos es solo una herramienta algebraica.$qm$,
+   $qm$mq/oscilador/escalera-hermitica$qm$,
+   $qm$mq/oscilador/escalera-hermitica$qm$,
+   $qm$mq/formalismo/operador-hermitico-vs-unitario$qm$, null),
+
+  ($qm$mq_oscilador$qm$, $qm$cuantica/oscilador$qm$, 1.2, 50,
+   $qm$¿Cuánto vale $[a, a^{\dagger}]$?$qm$,
+   $qm$$0$$qm$,
+   $qm$$1$$qm$,
+   $qm$$i\hbar$$qm$,
+   $qm$$2N$$qm$,
+   $qm$B$qm$,
+   $qm$Si conmutaran, $N$ y toda la construcción de la escalera se derrumbarían: es precisamente $[a,a^{\dagger}]=1$ lo que produce $[N,a^{\dagger}] = a^{\dagger}$ y con eso el espectro equiespaciado.$qm$,
+   $qm$Correcto. Es 1 (adimensional): $a$ y $a^{\dagger}$ se definen justamente reescalando $\hat X$ y $\hat P$ para que las constantes queden absorbidas y $[a,a^{\dagger}]$ salga limpio.$qm$,
+   $qm$Ese es $[\hat X,\hat P]$. Los operadores escalera están construidos como combinaciones adimensionales de $\hat X$ y $\hat P$, con factores $\sqrt{m\omega/2\hbar}$ elegidos para que el $\hbar$ desaparezca del conmutador.$qm$,
+   $qm$$2N$ no es correcto (sí aparecen combinaciones como $a^{\dagger}a + aa^{\dagger} = 2N+1$). El conmutador es un número, no un operador: por eso la escalera sube y baja de a un escalón parejo.$qm$,
+   $qm$mq/conmutadores/asume-conmutatividad$qm$, null,
+   $qm$mq/conmutadores/canonico-sin-i$qm$, null),
+
+  ($qm$mq_oscilador$qm$, $qm$cuantica/oscilador$qm$, 1.6, 60,
+   $qm$¿Cuánto vale $a^{\dagger}|2\rangle$?$qm$,
+   $qm$$|3\rangle$$qm$,
+   $qm$$\sqrt{2}\,|3\rangle$$qm$,
+   $qm$$\sqrt{3}\,|3\rangle$$qm$,
+   $qm$$\sqrt{3}\,|1\rangle$$qm$,
+   $qm$C$qm$,
+   $qm$El estado resultante es proporcional a $|3\rangle$, pero no normalizado a 1: falta el factor $\sqrt{n+1} = \sqrt{3}$. Si se omite, la probabilidad total deja de conservarse en cálculos posteriores.$qm$,
+   $qm$Ese es el factor de $a$ (que lleva $\sqrt{n}$), no el de $a^{\dagger}$ (que lleva $\sqrt{n+1}$). Con $n=2$: bajar da $\sqrt2$, subir da $\sqrt3$.$qm$,
+   $qm$Correcto. $a^{\dagger}|n\rangle = \sqrt{n+1}\,|n+1\rangle$, así que con $n=2$ queda $\sqrt{3}\,|3\rangle$.$qm$,
+   $qm$El factor es correcto pero la dirección no: $a^{\dagger}$ **crea** un cuanto y lleva de $|2\rangle$ a $|3\rangle$. Bajar a $|1\rangle$ es tarea de $a$.$qm$,
+   $qm$mq/oscilador/factor-raiz-omitido$qm$,
+   $qm$mq/oscilador/factor-raiz-omitido$qm$, null, null),
+
+  ($qm$mq_oscilador$qm$, $qm$cuantica/oscilador$qm$, 2.0, 70,
+   $qm$¿Cuánto vale $\langle n|\hat X|n\rangle$ en el oscilador armónico?$qm$,
+   $qm$$0$, para todo $n$.$qm$,
+   $qm$Crece como $\sqrt{n}$, porque el estado se extiende más.$qm$,
+   $qm$$\sqrt{\hbar/2m\omega}$, independientemente de $n$.$qm$,
+   $qm$No se puede saber sin escribir explícitamente los polinomios de Hermite.$qm$,
+   $qm$A$qm$,
+   $qm$Correcto. Como $\hat X \propto (a + a^{\dagger})$, aplicarlo a $|n\rangle$ da una combinación de $|n-1\rangle$ y $|n+1\rangle$, ambos **ortogonales** a $|n\rangle$: el producto interno se anula sin calcular ninguna integral.$qm$,
+   $qm$Lo que crece como $\sqrt{n}$ es la **dispersión** $\Delta x = \sqrt{\langle X^2\rangle - \langle X\rangle^2}$, no el valor esperado. La distribución se ensancha, pero sigue centrada en el origen por simetría.$qm$,
+   $qm$Ese factor aparece en $\langle X^2\rangle$, no en $\langle X\rangle$. Además, un valor esperado de posición no nulo rompería la simetría par del potencial, que no tiene razón para romperse.$qm$,
+   $qm$Justamente lo interesante es que **no** hacen falta: el método algebraico de Dirac resuelve esto en una línea, y ese fue el punto de introducirlo. Con los polinomios de Hermite el resultado es el mismo, pero cuesta una integral por cada $n$.$qm$,
+   null, null, null, null),
+
+  ($qm$mq_oscilador$qm$, $qm$cuantica/oscilador$qm$, 2.4, 80,
+   $qm$¿Por qué el oscilador armónico aparece en problemas tan distintos entre sí (vibración molecular, modos del campo electromagnético, fonones en un cristal)?$qm$,
+   $qm$Porque cualquier potencial suave, cerca de un mínimo, es aproximadamente cuadrático: al desarrollar en Taylor con $V'(x_0) = 0$, el primer término no trivial es el armónico.$qm$,
+   $qm$Porque es el único potencial con solución analítica exacta.$qm$,
+   $qm$Porque todo sistema físico tiende al equilibrio armónico por disipación.$qm$,
+   $qm$Porque es el único potencial cuyo espectro es equiespaciado.$qm$,
+   $qm$A$qm$,
+   $qm$Correcto. $V(x) \approx V(x_0) + \tfrac12 V''(x_0)(x-x_0)^2$, con el término lineal nulo por ser un mínimo. Toda pequeña oscilación alrededor de un equilibrio estable es, en primera aproximación, armónica -- y ahí se acaba la lista de sistemas físicos que no son un oscilador.$qm$,
+   $qm$Hay varios potenciales con solución exacta (pozo infinito, Coulomb, Morse, Pöschl-Teller). La ubicuidad del oscilador no viene de ser soluble sino de ser la aproximación universal cerca de un mínimo.$qm$,
+   $qm$La disipación no interviene: el Hamiltoniano del oscilador es conservativo. El argumento es geométrico, sobre la forma del potencial cerca de un mínimo, no dinámico.$qm$,
+   $qm$Es una propiedad notable del oscilador, pero no es la razón de su ubicuidad ni es exclusiva (un rotor rígido en 2D también tiene un espectro sencillo). La razón es la aproximación de Taylor.$qm$,
+   null, null, null, null)
+
+)
+insert into public.questions
+  (topic, module_id, difficulty, order_index,
+   question, option_a, option_b, option_c, option_d, correct_option,
+   error_a, error_b, error_c, error_d,
+   misconception_a_id, misconception_b_id, misconception_c_id, misconception_d_id)
+select i.topic, m.id, i.difficulty, i.order_index,
+       i.question, i.option_a, i.option_b, i.option_c, i.option_d, i.correct_option,
+       i.error_a, i.error_b, i.error_c, i.error_d,
+       xa.id, xb.id, xc.id, xd.id
+from items i
+left join public.modules m       on m.slug  = i.module_slug
+left join public.misconceptions xa on xa.slug = i.mis_a
+left join public.misconceptions xb on xb.slug = i.mis_b
+left join public.misconceptions xc on xc.slug = i.mis_c
+left join public.misconceptions xd on xd.slug = i.mis_d
+where not exists (
+  select 1 from public.questions q
+   where q.topic = i.topic and q.question = i.question
+);
+
+-- Verificación: mq_pozos 8 · mq_oscilador 8. Ver la cabecera de 040 para la
+-- batería completa de consultas de control del experimento.

@@ -243,7 +243,15 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 32. `migrations/030_backfill_module_id_restante.sql` — ✅ aplicada 2026-08-10
 33. `migrations/031_modulos_inecuaciones_y_operaciones_fundamentales.sql` — ✅ aplicada 2026-08-10, después de `030`
 34. `migrations/032_min_response_seconds_calibrado.sql` — ✅ aplicada 2026-08-10
-35. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+35. `migrations/033_cuantica_track_y_modulos.sql` — ✅ aplicada 2026-08-11 · experimento, ver §Track `cuantica`
+36. `migrations/034_cuantica_misconceptions.sql` — ✅ aplicada 2026-08-11
+37. `migrations/035_cuantica_questions_fundamentos.sql` — ✅ aplicada 2026-08-11
+38. `migrations/036_cuantica_questions_sistemas.sql` — ✅ aplicada 2026-08-11
+39. `migrations/037_cuantica_questions_momento_angular.sql` — ✅ aplicada 2026-08-11
+40. `migrations/038_cuantica_questions_aplicaciones.sql` — ✅ aplicada 2026-08-11
+41. `migrations/039_cuantica_resources.sql` — ✅ aplicada 2026-08-11
+42. `migrations/040_cuantica_test_configs.sql` — ✅ aplicada 2026-08-11
+43. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
 > final de `029`: **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id`
@@ -254,6 +262,14 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > lleva este registro.
 >
 > Estado resultante: ítems sin `module_id` **156 → 128**; módulos **18 → 20**
+>
+> ✅ **`033`–`040` aplicadas por el owner el 2026-08-11.** Son el experimento de Mecánica Cuántica y
+> **NO son parte del producto**; se aplicaron porque son opcionales e inertes para el estudiante
+> (`active = false`). Ver la sección de más abajo y
+> [[../adr/ADR-018-track-experimental-cuantica]]. De paso confirman que `027` **sí estaba aplicada**:
+> `034` inserta en `public.misconceptions` y en las columnas `misconception_*_id`, así que no habría
+> podido correr si esa tabla no existiera. Queda cerrada la contradicción anotada en
+> [[../project-memory/BACKLOG]] T-57.
 > (`algebra/inecuaciones` y `aritmetica/operaciones_fundamentales`, D-37); piso de esfuerzo por
 > defecto **3 s → 2 s** (calibrado con datos, T-59).
 >
@@ -492,3 +508,48 @@ misconception presente en un solo ítem es sospechosa.
 **Qué NO hace esta migración** (pasos 2–5 de T-57, cada uno con su propia decisión): catalogar
 módulos, extender `score_answer` para devolver el slug, agrupar por misconception en
 `universo.profile/build`, ni enlazar recursos (T-54).
+
+---
+
+## Track experimental `cuantica` (`033`–`040`) — ✅ aplicadas 2026-08-11
+
+**No es contenido del producto.** Es un experimento de estudio personal del autor para su examen
+universitario de Mecánica Cuántica, montado sobre el mismo motor IRT. Decisión completa, alternativas
+descartadas y riesgo residual en [[../adr/ADR-018-track-experimental-cuantica]].
+
+| Migración | Qué hace |
+|---|---|
+| `033_cuantica_track_y_modulos.sql` | Amplía el `check` de `modules.track` a un cuarto valor, `cuantica` (único cambio de esquema de todo el experimento), y siembra **15 módulos** con `historical_blurb` |
+| `034_cuantica_misconceptions.sql` | **77 misconceptions** con prefijo `mq/`. Es el primer contenido que puebla la tabla creada vacía por `027` |
+| `035`–`038` | **123 ítems** en 15 topics con prefijo `mq_`, cada uno con sus 4 `error_*` y sus `misconception_*_id` |
+| `039_cuantica_resources.sql` | **32 recursos** de capa 1, todos `published = false` (ADR-016 §1) |
+| `040_cuantica_test_configs.sql` | **15 configuraciones**, todas `active = false`, con cadena de prerequisitos. Trae la batería de control y el procedimiento de reversión |
+
+**Qué lo mantiene separado del producto:**
+
+- `test_configs.active = false` en los 15 bancos → la policy `test_configs_select` (`020`) los oculta
+  a todo no-admin. **Es la única barrera** (`questions` no tiene `published`, y `next_question` es
+  `security definer`): ver [[../project-memory/RISKS]] R-23.
+- `resources.published = false` en los 32.
+- Prefijos: `topic` → `mq_`, misconception `slug` → `mq/`, module `slug` → `cuantica/`,
+  `track = 'cuantica'`. Cualquier consulta de métricas del banco PAES necesita
+  `where topic not like 'mq\_%'` de aquí en adelante.
+
+**Es 100 % datos.** No se toca ClojureScript, no se recompila `public/js/app.js`, `clj -M:test` no
+cambia. `universo.topics/module-slugs` sigue con 20 módulos a propósito (ese set solo valida los
+mapeos explícitos topic→módulo, y este experimento no agrega ninguno: cada ítem trae su `module_id`
+escrito por la migración).
+
+**Verificación previa (2026-08-11).** Aplicadas antes contra un PostgreSQL 14 desechable con un
+fixture del esquema: aplicación limpia sobre base vacía y sobre base con contenido PAES,
+**idempotencia** (segunda corrida → 0 diferencias), contenido PAES intacto (0 filas modificadas), y
+**reversión completa probada**. El fixture no era el esquema real (T-48 sigue abierto), así que esa
+verificación cubría la lógica de las migraciones, no el estado de la base.
+
+**Aplicadas en producción el 2026-08-11** por el owner, sin incidentes reportados. Que `034`–`038`
+hayan corrido confirma de paso dos cosas que el repo daba por supuestas y no estaban verificadas
+contra la base real: que `027` estaba aplicada (existen `misconceptions` y las cuatro columnas
+`misconception_*_id`), y que `questions.id` tiene default — las migraciones insertan sin `id`.
+
+**Pendiente:** correr la batería de control del final de `040` y contrastar con los valores
+esperados. Aplicar sin verificar deja el mismo hueco que T-48 describe para el resto del esquema.

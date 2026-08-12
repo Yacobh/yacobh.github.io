@@ -159,7 +159,7 @@
                   (assoc-in [:test :prefetched-question] nil)
                   (assoc-in [:test :prefetching?] false)
                   (assoc-in [:test :start-time] (.now js/Date))
-                  (assoc-in [:test :theta] 0.0)
+                  (assoc-in [:test :theta] -1.0)
                   (assoc-in [:test :theta-history] [])
                   (assoc-in [:test :stop-reason] nil)
                   (assoc-in [:test :stop-config] stop-config)
