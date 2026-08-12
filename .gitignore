@@ -55,3 +55,7 @@ profiles.clj
 *.jar
 *.class
 
+
+# Bibliografia local de consulta: pesada y con derechos de autor vigentes.
+# Se usa para escribir contenido, nunca se versiona (el repo es publico, D-42).
+docs/libros mecanica cuantica/

@@ -742,6 +742,12 @@
       ;; "el piso por defecto", no "sin filtro" (028, ADR-014 Fase 1). El 2 es
       ;; el default calibrado en 032; espejo de effort/default-min-response-seconds.
       :min_response_seconds (or (parse-num (:min_response_seconds row) js/parseFloat) 2)
+      ;; Umbrales del eje de fluidez (041, ADR-019). Mismo criterio que
+      ;; min_response_seconds: columna NOT NULL con default, así que vacío
+      ;; significa "los cortes por defecto", no "sin eje". Espejo de
+      ;; universo.irt.fluency/default-thresholds.
+      :fluency_fluida_max (or (parse-num (:fluency_fluida_max row) js/parseFloat) 3)
+      :fluency_media_max (or (parse-num (:fluency_media_max row) js/parseFloat) 6)
       :active (boolean (:active row))})))
 
 (defn upsert-test-config!

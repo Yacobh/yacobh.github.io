@@ -3,6 +3,7 @@
    [re-frame.core :as re-frame]
    [cljs.core.async :refer [go <!]]
    [universo.db.crud :as crud]
+   [universo.irt.fluency :as fluency]
    [universo.plan :as plan]))
 
 (re-frame/reg-sub
@@ -43,6 +44,11 @@
  (fn [{:keys [db]} _]
    (let [uid (get-in db [:auth :user :id])]
      {:db (assoc-in db [:plan :loading?] true)
+      ;; El último test alimenta el eje de fluidez cuando el perfil guardado no
+      ;; lo trae (perfiles anteriores a ADR-019). Va aparte de `:dispatch-n`
+      ;; porque no debe bloquear ni ensuciar `:plan/loading?`: si falla, la
+      ;; página se ve igual, solo sin la tarjeta de fluidez.
+      :plan/fetch-last-test! uid
       :dispatch-n [[:profile/load uid]
                    [:plan/load-resources]
                    [:notifications/load]]})))
@@ -82,3 +88,79 @@
        (assoc-in [:plan :loading?] false)
        (assoc-in [:plan :error] msg)
        (assoc-in [:plan :resources] []))))
+
+;; -----------------------------------------------------------------------------
+;; Respuestas del último test — insumo del eje de fluidez (ADR-019)
+;; -----------------------------------------------------------------------------
+;; `student_profiles.profile` solo trae `:fluency` si lo escribió una versión del
+;; bundle posterior a ADR-019. Todos los perfiles anteriores —incluido el de
+;; cualquiera que haya rendido antes de publicar esta versión— no lo tienen, y
+;; sin esto el eje no existiría para nadie hasta que volviera a rendir un test.
+;;
+;; No hace falta: los datos crudos ya están en `tests.test`, que guarda el mapa
+;; completo del test con sus `:responses`, cada una con `:time-ms`, `:weight` y
+;; `:question-text` desde ADR-014 Fase 1. La fluidez se recalcula desde ahí.
+;;
+;; **Esto NO contradice el criterio de "no reinterpretar hacia atrás" de
+;; ADR-014.** Aquel decía que el filtro de esfuerzo no debe cambiar θ ya
+;; estimado y mostrado. Acá no se toca θ ni ningún resultado previo: se calcula
+;; un eje **nuevo** a partir de datos que siempre estuvieron guardados, y que
+;; hasta ahora nadie leía.
+
+(defn- test-map
+  "El mapa del test guardado en la fila de `tests`.
+
+   La columna `test` puede venir como objeto ya parseado (si es JSONB) o como
+   string (si es text). [[../supabase/SCHEMA]] deja constancia de que el tipo
+   real no está verificado contra la base — ver la nota de `021` — así que se
+   toleran las dos formas en vez de suponer una."
+  [row]
+  (let [t (:test row)]
+    (cond
+      (map? t) t
+      (string? t) (try
+                    (js->clj (js/JSON.parse t) :keywordize-keys true)
+                    (catch :default _ nil))
+      :else nil)))
+
+(re-frame/reg-fx
+ :plan/fetch-last-test!
+ (fn [user-id]
+   (go
+     (let [result (<! (crud/fetch-user-tests user-id))]
+       ;; `fetch-tests` ordena por `created_at` descendente, así que el primero
+       ;; es el más reciente. Un fallo acá no es un error del plan: simplemente
+       ;; no se muestra la tarjeta de fluidez, y el resto de la página funciona
+       ;; igual. Por eso no hay evento de error.
+       (when (:success result)
+         (let [ultimo (first (:data result))
+               t (test-map ultimo)
+               responses (:responses t)
+               ;; Los umbrales de fluidez son por banco (041), así que hay que
+               ;; saber de qué banco fue este test. `:topic` está tanto en la
+               ;; columna como dentro del JSON; se prefiere la columna, que es la
+               ;; que el trigger de 029 mantiene en forma canónica.
+               topic (or (:topic ultimo) (:topic t))
+               configs (<! (crud/fetch-test-configs))
+               cfg (when (:success configs)
+                     (first (filter #(= (:topic %) topic) (:data configs))))]
+           (re-frame/dispatch [:plan/last-test-loaded
+                               responses
+                               (fluency/thresholds-from-config cfg)])))))))
+
+(re-frame/reg-event-db
+ :plan/last-test-loaded
+ (fn [db [_ responses thresholds]]
+   (-> db
+       (assoc-in [:plan :last-responses] (vec (or responses [])))
+       (assoc-in [:plan :fluency-thresholds] thresholds))))
+
+(re-frame/reg-sub
+ :plan/last-responses
+ (fn [db _]
+   (get-in db [:plan :last-responses] [])))
+
+(re-frame/reg-sub
+ :plan/fluency-thresholds
+ (fn [db _]
+   (get-in db [:plan :fluency-thresholds] fluency/default-thresholds)))

@@ -1728,13 +1728,68 @@ Hallazgo de la vista previa lateral (D-40): `plan/resource-card` renderiza `reso
 **No se resolvió en esta sesión a propósito:** las migraciones ya están aplicadas, así que tocar
 `039` dejaría el archivo diciendo algo distinto de lo que hay en la base — peor que el problema.
 
+---
+
+### T-63 · Eje de fluidez (λ) — **P2** · `hecho` (2026-08-12)
+
+Segundo eje de la huella cognitiva de VISION §3.3, construido como
+`universo.irt.fluency`. Distingue «sabe pero le cuesta» de «sabe y automatizó», que
+hoy eran el mismo estudiante para el sistema.
+
+- **Decisión completa** en [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]].
+  Incluye por qué **no** se implementa el Eje 3 (estilos de aprendizaje).
+- **Entregado:** namespace puro + 14 tests, integración en `universo.profile/build`
+  (`:fluency`, `:fluency-profile`), y tarjeta en «Mi plan» con el 2×2 de θ × λ.
+- **Cero cambios de esquema**: reusa `time-ms` y `:weight`, que ADR-014 ya guardaba.
+- **Deuda conocida:** los umbrales (3 y 6 tiempos de lectura) son autorales. Ver T-59.
+- **Terminado cuando:** ~~el eje exista y se vea~~ (hecho). Queda verificarlo con un
+  diagnóstico real rendido de punta a punta.
+
+---
+
+### T-65 · Calibrar el umbral de fluidez con ítems conceptuales — **P2** · `parcialmente hecho` (2026-08-12)
+
+**Falsa alarma descartada primero:** apareció una fila de `tests` de `mq_momento_angular`
+con 15 respuestas contra `max_items = 12`, y se sospechó un fallo de la regla de
+parada. **No lo era:** el owner había subido `max_items` desde Admin → Configuración
+de tests. `universo.irt.progress/stop-reason` funciona bien.
+
+**Lo que sí queda,** y es el primer dato real sobre los umbrales de ADR-019: sobre
+8 respuestas usables de ese test, la mediana de tiempo relativo fue **2,19** — el
+owner respondió en ~2,2 veces lo que toma leer el enunciado, en un banco de mecánica
+cuántica de nivel universitario.
+
+- Con `default-thresholds` (`:fluida` ≤ 3,0) eso cae en **`:fluida`**.
+- **Es discutible.** En un ítem conceptual que exige una derivación, responder en
+  2,2× el tiempo de lectura se parece más a **reconocer** la alternativa que a
+  resolver con fluidez. El umbral de 3,0 se pensó con ítems tipo PAES, más cortos y
+  más mecánicos.
+- Es exactamente la situación de `028` antes de `032`: un número autoral razonable
+  que los datos pueden mostrar del lado equivocado. La herramienta para decidirlo ya
+  existe: `universo.irt.fluency/calibration-report`.
+- ✅ **Hecho: el umbral es configurable por banco** (migración `041`, editable en
+  Admin → Configuración de tests). Un banco de cuántica y uno de enteros ya no
+  comparten qué cuenta como fluido.
+- ⏳ **Falta lo que importa: elegir los números con datos.** Que sea configurable no
+  calibra nada; solo mueve la decisión a un lugar donde se puede corregir sin tocar
+  código. Los defaults siguen siendo el 3/6 autoral.
+
+**Terminado cuando:** haya suficientes diagnósticos con tiempo real para correr
+`calibration-report` y reemplazar el 3,0/6,0 autoral por cortes medidos.
+
+**Aviso relacionado, si `max_items` quedó en 15:** el banco `mq_momento_angular`
+tiene exactamente 15 ítems. Sin holgura, la selección adaptativa se queda sin
+candidatos cerca del final —`next_question` filtra por cercanía a θ— y el test corta
+por agotamiento en vez de por precisión. La consulta de control está al final de
+`supabase/migrations/040_cuantica_test_configs.sql` (§4).
+
 ## Resumen por prioridad
 
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
 ---
