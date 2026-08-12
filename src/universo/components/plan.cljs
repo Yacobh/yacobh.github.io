@@ -29,7 +29,16 @@
    (when (:module-slug m)
      [:p.text-xs.text-gray-500.mt-2 (:module-slug m)])])
 
-(defn- resource-card [r]
+(defn resource-card
+  "Tarjeta de un recurso **tal como la ve el estudiante**.
+
+   Pública a propósito: el editor de recursos del panel admin la reusa para su
+   vista previa (`universo.components.admin/resource-form`). Duplicar el markup
+   allá haría que las dos vistas se separen con el primer cambio, y una vista
+   previa que no coincide con lo que se publica es peor que no tener ninguna:
+   deja al autor corrigiendo un problema que no existe, o publicando uno que sí.
+   Si esta función cambia, la vista previa cambia con ella."
+  [r]
   [:div.border.border-gray-200.rounded-lg.p-4.bg-white
    [:div.flex.justify-between.gap-2.mb-1
     [:h4.font-semibold.text-gray-800 (or (:title r) "Recurso")]

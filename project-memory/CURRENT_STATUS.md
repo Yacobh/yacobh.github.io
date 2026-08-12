@@ -710,14 +710,26 @@
 > ([[RISKS]] R-23) y `published = false` en los recursos. Ver [[../adr/ADR-018-track-experimental-cuantica]],
 > [[BACKLOG]] T-61 y [[../supabase/SCHEMA]] §Track experimental.
 >
-> **Estado: entregado y verificado, pendiente de aplicar.** Las 8 migraciones no se corrieron contra
-> producción: se verificaron contra un PostgreSQL 14 desechable (aplicación limpia, idempotencia,
-> contenido PAES intacto, reversión probada). Dependen de que `027` esté aplicada — hay una
-> contradicción entre [[BACKLOG]] T-57 y [[../supabase/SCHEMA]] sobre eso, anotada y sin resolver.
+> **✅ Aplicadas en producción por el owner el 2026-08-11.** Antes se habían verificado contra un
+> PostgreSQL 14 desechable (aplicación limpia, idempotencia, contenido PAES intacto, reversión
+> probada). Que `034` corriera **cierra la contradicción de T-57**: `027` sí estaba aplicada.
+> ⏳ Falta correr la batería de control del final de `040`.
 >
-> **Consecuencia práctica para cualquier métrica de contenido:** a partir de que se apliquen, las
-> consultas sobre el banco PAES necesitan `where topic not like 'mq\_%'`; si no, `questions` pasa a
-> contar 510 en vez de 387.
+> **Consecuencia práctica, ya vigente:** las consultas de métricas sobre el banco PAES necesitan
+> `where topic not like 'mq\_%'`. Sin ese filtro, `questions` cuenta **510** en vez de 387.
+
+> **Diagnóstico: θ inicial baja de 0,0 a −1,0 (2026-08-11).** Cambio del owner en
+> `universo.events.test`, publicado en esta sesión. El test ahora arranca por ítems **más fáciles**
+> que la media del banco en vez de por el centro de la escala. `next_question` elige por cercanía a
+> θ, así que esto cambia la trayectoria de estimación de **todos** los estudiantes, no solo la
+> primera pregunta. Registrado como [[DECISIONS]] D-39, con la inconsistencia que deja abierta
+> (`db/default-db` y `test_subs` siguen en 0.0).
+
+> **Editor de recursos con vista previa lateral (2026-08-11).** Admin → Recursos pasa a dos columnas
+> desde `lg`: formulario a la izquierda, y a la derecha la tarjeta del recurso **tal como la ve el
+> estudiante**, en vivo. La previa reusa `plan/resource-card`, la misma función de "Mi plan", para
+> que no pueda mentir ([[DECISIONS]] D-40). Deja a la vista un hecho que estaba oculto: el cuerpo se
+> renderiza con `math/latex`, que **no** entiende encabezados `##`, listas `-` ni tablas de Markdown.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para

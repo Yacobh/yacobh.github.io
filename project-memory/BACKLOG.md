@@ -1474,12 +1474,16 @@ del track `geometria` no tienen ninguna fuente**: el owner subió los volúmenes
 
 ### T-57 · Modelar la misconception como entidad, no como texto libre — **P2** · `en curso` (paso 1 hecho 2026-08-10; ⏳ falta aplicar `027`)
 
-> **Contradicción detectada 2026-08-11:** este encabezado dice que falta aplicar `027`, pero
-> [[../supabase/SCHEMA]] §Orden de aplicación la marca **✅ aplicada 2026-08-10 (tabla creada y
-> vacía, confirmado por el owner)**. No se resuelve acá en silencio ([[../CLAUDE]] §6): confirmar
-> con `select count(*) from public.misconceptions;` (0 filas = aplicada y vacía; error de relación
-> inexistente = no aplicada) y corregir el que esté mal. **Bloquea `034`–`038`**, que insertan en
-> esa tabla y en las cuatro columnas `misconception_*_id` que crea `027`.
+> **Contradicción RESUELTA 2026-08-11:** el encabezado decía que faltaba aplicar `027` y
+> [[../supabase/SCHEMA]] la daba por aplicada. Gana SCHEMA: el 2026-08-11 se aplicó `034`, que
+> inserta en `public.misconceptions` y en las cuatro columnas `misconception_*_id`, y corrió sin
+> error — cosa imposible si `027` no estuviera aplicada. **El paso 1 de T-57 está hecho y aplicado.**
+> Lo que sigue abierto son los pasos 2-5 (catalogar módulos PAES, extender `score_answer`, agrupar
+> en `universo.profile/build`, enlazar recursos), no la migración.
+>
+> Nota: el catálogo ya **no** está vacío, pero lo que tiene son las 77 entradas del experimento de
+> cuántica (T-61), todas con prefijo `mq/`. Para el producto sigue vacío:
+> `select count(*) from public.misconceptions where slug not like 'mq/%';` → 0.
 
 Diseño conversado con el owner el 2026-08-09, a partir del análisis de arquitectura de la
 retroalimentación. **Es prerequisito de T-54**: no se pueden enlazar recursos a misconceptions
@@ -1664,7 +1668,7 @@ desactualizados (lista de módulos previa al MVP).
 
 ---
 
-### T-61 · Experimento: track de Mecánica Cuántica sobre el motor IRT — **P3** · `entregado, pendiente de aplicar` (2026-08-11)
+### T-61 · Experimento: track de Mecánica Cuántica sobre el motor IRT — **P3** · `aplicado` (2026-08-11)
 
 Contenido completo de un curso universitario de Mecánica Cuántica cargado sobre el mismo motor
 IRT del producto, para uso personal del autor de cara a su examen. **No es contenido del producto**
@@ -1679,15 +1683,50 @@ queda es aplicarlo y usarlo.
   recursos. Riesgo residual en [[RISKS]] R-23.
 - **Verificado antes de entregar** contra un PostgreSQL 14 desechable: aplicación limpia,
   idempotencia (2ª corrida = 0 diferencias), contenido PAES intacto, reversión completa probada.
-- **Depende de `027`** (ver la nota de contradicción en T-57): confirmar que está aplicada **antes**
-  de correr `034`.
-- **Terminado cuando:** las 8 migraciones estén aplicadas, la batería de control del final de `040`
-  dé los valores esperados, y el autor haya rendido `mq_momento_angular` al menos una vez.
+- ✅ **Aplicado en producción el 2026-08-11.** Que `034` corriera **resuelve la contradicción de
+  T-57**: `027` sí estaba aplicada (si no, no existirían `misconceptions` ni las columnas
+  `misconception_*_id` y la migración habría fallado).
+- **Terminado cuando:** ~~las 8 migraciones estén aplicadas~~ (hecho), la batería de control del
+  final de `040` dé los valores esperados (⏳ pendiente), y el autor haya rendido
+  `mq_momento_angular` al menos una vez (⏳ pendiente).
 - **Después del examen:** decidir si se revierte (procedimiento completo en `040`) o se conserva.
 - **Lo que este experimento le devuelve al producto**, aunque se revierta: es la primera evidencia
   de que el motor funciona con un temario ajeno sin tocar una línea de ClojureScript, y deja un
   patrón de carga de contenido en volumen reutilizable para T-27, T-56 y T-60 (ver
   [[../supabase/CONTENT]]).
+
+---
+
+### T-62 · El cuerpo de `resources` no renderiza tablas de Markdown — **P3** · `abierto` (2026-08-11)
+
+Hallazgo de la vista previa lateral (D-40): `plan/resource-card` renderiza `resources.body` con
+`math/latex`, **no** con `math/parse-markdown-latex`. `math/latex` entiende `$…$`, `$$…$$`,
+`**negrita**` y `*cursiva*`; no entiende encabezados `##`, listas `-` ni tablas.
+
+**Alcance medido, que es menor de lo que suena:**
+
+- Los recursos PAES (`004`, `018`, `019`) **no usan** nada de eso: fueron escritos contra este
+  renderizador. **0 recursos afectados.**
+- Los 32 recursos del experimento de cuántica (`039`) usan `**Negrita.**` como encabezado de
+  sección, que **sí** renderiza. Las 33 líneas de lista `- ` salen como texto pero el
+  `whitespace-pre-wrap` del contenedor conserva los saltos, así que se leen como lista igual.
+- **El daño real son 2 tablas de Markdown** (10 filas en total), en
+  `cuantica/suma_momentos` (bases acoplada/desacoplada) y `cuantica/identicas` (conteo de estados).
+  Salen como filas de texto con barras verticales.
+
+**Opciones, en orden de costo:**
+
+1. Reescribir esas 2 tablas como líneas de texto desde Admin → Recursos. 5 minutos, y es
+   exactamente el flujo que la vista previa nueva habilita. Los recursos están en `published =
+   false`, así que nadie los ve mientras tanto.
+2. Migración `041` con `update` sobre esos dos `body`. Deja el cambio versionado, que es lo que
+   ADR-016 prefiere para contenido.
+3. Cambiar `plan/resource-card` a `math/parse-markdown-latex`. **La más tentadora y la más
+   riesgosa:** afectaría a los 58 recursos PAES publicados, que nadie revisó contra ese
+   renderizador. Requiere revisar los 58 antes, y por eso no se hace de pasada.
+
+**No se resolvió en esta sesión a propósito:** las migraciones ya están aplicadas, así que tocar
+`039` dejaría el archivo diciendo algo distinto de lo que hay en la base — peor que el problema.
 
 ## Resumen por prioridad
 
@@ -1696,7 +1735,7 @@ queda es aplicarlo y usarlo.
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60 |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49 |
-| **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61 |
+| **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
 ---
 

@@ -2,7 +2,8 @@
 
 ## Estado
 
-Aprobada — implementada en `supabase/migrations/033`–`040` (rama `experimento-cuantica`).
+Aprobada — implementada en `supabase/migrations/033`–`040` (rama `experimento-cuantica`) y
+**aplicada en producción el 2026-08-11**.
 
 ## Fecha
 
@@ -125,8 +126,10 @@ recursos, 15 configuraciones de banco.
 
 ## Seguimiento
 
-- Aplicar `033`–`040` en el SQL Editor, **en orden**, y correr la batería de control del final de
-  `040`.
+- ✅ **Aplicadas en producción el 2026-08-11.** Con eso el conteo de `questions` pasa de 387 a 510:
+  toda consulta de métricas del banco PAES necesita `where topic not like 'mq\_%'` de aquí en
+  adelante.
+- ⏳ Correr la batería de control del final de `040` y contrastar con los valores esperados.
 - Rendir `mq_momento_angular` antes del examen y anotar qué misconceptions aparecen: es el dato que
   esta herramienta existe para producir.
 - Después del examen, decidir si el experimento se revierte (procedimiento en `040`) o se conserva.

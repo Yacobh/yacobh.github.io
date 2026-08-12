@@ -6,6 +6,7 @@
    [reagent.core :as r]
    [universo.components.admin-questions :as admin-q]
    [universo.components.admin-test-configs :as admin-tc]
+   [universo.components.plan :as plan]
    [universo.components.ui :as ui]))
 
 ;; -----------------------------------------------------------------------------
@@ -602,6 +603,59 @@
   {:title "" :type "text" :module_id "" :body "" :media_url ""
    :historical_context "" :published true :order_index "1"})
 
+(defn- resource-preview-pane
+  "Panel derecho del editor: lo que el estudiante va a ver, en vivo.
+
+   Renderiza con `plan/resource-card`, **la misma función** que dibuja el recurso
+   en «Mi plan». No es una aproximación: si acá se ve bien y allá mal, es un bug
+   de esa función, no del editor.
+
+   Importante para el autor: el cuerpo pasa por `math/latex`, que entiende
+   `$…$`, `$$…$$`, `**negrita**` y `*cursiva*` — pero **no** encabezados `##`,
+   listas `-` ni tablas de Markdown, que se muestran tal cual se escriben. El
+   `historical_context` se muestra como texto plano, sin LaTeX. Que eso se vea
+   acá es justamente el punto."
+  [{:keys [form modules]}]
+  (let [{:keys [title type module_id body media_url historical_context published]} form
+        slug (some (fn [m] (when (= (str (:id m)) (str module_id)) (:slug m))) modules)
+        vacio? (and (str/blank? (str title))
+                    (str/blank? (str body))
+                    (str/blank? (str media_url)))]
+    [:div {:class "lg:sticky lg:top-4 lg:self-start"}
+     [:div {:class "mb-2 flex items-center justify-between gap-2"}
+      [:span {:class "text-xs font-medium uppercase tracking-wide text-gray-500"}
+       "Vista previa · lo que ve el estudiante"]
+      (if published
+        [badge :green "publicado"]
+        [badge :amber "borrador"])]
+
+     [:div {:class "rounded-xl border border-dashed border-indigo-200 bg-white/70 p-3"}
+      (if vacio?
+        [:p {:class "px-2 py-10 text-center text-sm text-gray-400"}
+         "Escribe un título o contenido y aparecerá acá."]
+        [plan/resource-card
+         {:title (when (seq (str title)) title)
+          :type type
+          :body (when (seq (str body)) body)
+          :media_url (when (seq (str media_url)) media_url)
+          :historical_context (when (seq (str historical_context)) historical_context)
+          :module_slug slug}])]
+
+     (when-not published
+       [:p {:class "mt-2 text-xs text-amber-700"}
+        "Está en borrador: nadie lo ve todavía. Publícalo con la casilla de la izquierda."])
+
+     [:details {:class "mt-3 text-xs text-gray-500"}
+      [:summary {:class "cursor-pointer select-none hover:text-gray-700"}
+       "Qué formato entiende el contenido"]
+      [:ul {:class "mt-2 space-y-1 pl-4"}
+       [:li "• " [:code "$x^2$"] " fórmula en línea · " [:code "$$x^2$$"] " fórmula centrada"]
+       [:li "• " [:code "**negrita**"] " y " [:code "*cursiva*"]]
+       [:li "• " [:code "\\$"] " para un signo peso literal (si no, rompe el parseo)"]
+       [:li {:class "text-amber-700"}
+        "• Los encabezados " [:code "##"] ", las listas " [:code "-"]
+        " y las tablas de Markdown NO se renderizan: salen como texto."]]]]))
+
 (defn- resource-form
   "Crea o edita un recurso. `editing` viene del app-db al pulsar «Editar»."
   []
@@ -638,57 +692,67 @@
                     :on-click #(re-frame/dispatch [:admin/cancel-edit-resource])}
                "Cancelar edición"])]
 
-           [:div {:class "grid grid-cols-1 gap-4 sm:grid-cols-2"}
-            [field "Título"
-             [:input {:class input-class
-                      :placeholder "Ej: Fracciones equivalentes"
-                      :value (:title @form)
-                      :on-change #(swap! form assoc :title (.. % -target -value))}]]
-            [field "Tipo"
-             [:select {:class input-class
-                       :value (:type @form)
-                       :on-change #(swap! form assoc :type (.. % -target -value))}
-              (for [[v label] resource-types]
-                ^{:key v} [:option {:value v} label])]]
-            [field "Módulo"
-             [:select {:class input-class
-                       :value (:module_id @form)
-                       :on-change #(swap! form assoc :module_id (.. % -target -value))}
-              [:option {:value ""} "Selecciona un módulo…"]
-              (for [m modules]
-                ^{:key (:id m)}
-                [:option {:value (:id m)} (str (:slug m) " — " (:title m))])]]
-            [field (str "URL del material" (when-not media-required? " (opcional)"))
-             [:input {:class input-class
-                      :type "url"
-                      :placeholder "https://…"
-                      :value (:media_url @form)
-                      :on-change #(swap! form assoc :media_url (.. % -target -value))}]]
-            [field "Orden"
-             [:input {:class input-class
-                      :type "number"
-                      :min "0"
-                      :value (:order_index @form)
-                      :on-change #(swap! form assoc :order_index (.. % -target -value))}]]
-            [field "Contexto histórico (opcional)"
-             [:input {:class input-class
-                      :placeholder "Dato o anécdota para enganchar"
-                      :value (:historical_context @form)
-                      :on-change #(swap! form assoc :historical_context (.. % -target -value))}]]]
+           ;; Dos columnas desde `lg`: edición a la izquierda, vista previa viva
+           ;; a la derecha. Por debajo de `lg` se apilan (la previa queda abajo),
+           ;; porque lado a lado en un móvil deja dos columnas ilegibles.
+           [:div {:class "grid grid-cols-1 gap-6 lg:grid-cols-2"}
+            [:div
+             [:div {:class "grid grid-cols-1 gap-4 sm:grid-cols-2"}
+              [field "Título"
+               [:input {:class input-class
+                        :placeholder "Ej: Fracciones equivalentes"
+                        :value (:title @form)
+                        :on-change #(swap! form assoc :title (.. % -target -value))}]]
+              [field "Tipo"
+               [:select {:class input-class
+                         :value (:type @form)
+                         :on-change #(swap! form assoc :type (.. % -target -value))}
+                (for [[v label] resource-types]
+                  ^{:key v} [:option {:value v} label])]]
+              [field "Módulo"
+               [:select {:class input-class
+                         :value (:module_id @form)
+                         :on-change #(swap! form assoc :module_id (.. % -target -value))}
+                [:option {:value ""} "Selecciona un módulo…"]
+                (for [m modules]
+                  ^{:key (:id m)}
+                  [:option {:value (:id m)} (str (:slug m) " — " (:title m))])]]
+              [field (str "URL del material" (when-not media-required? " (opcional)"))
+               [:input {:class input-class
+                        :type "url"
+                        :placeholder "https://…"
+                        :value (:media_url @form)
+                        :on-change #(swap! form assoc :media_url (.. % -target -value))}]]
+              [field "Orden"
+               [:input {:class input-class
+                        :type "number"
+                        :min "0"
+                        :value (:order_index @form)
+                        :on-change #(swap! form assoc :order_index (.. % -target -value))}]]
+              [field "Contexto histórico (opcional)"
+               [:input {:class input-class
+                        :placeholder "Dato o anécdota para enganchar"
+                        :value (:historical_context @form)
+                        :on-change #(swap! form assoc :historical_context (.. % -target -value))}]]]
 
-           [:div {:class "mt-4"}
-            [field "Contenido (admite KaTeX)"
-             [:textarea {:class (str input-class " h-28")
-                         :placeholder "Explicación, pasos, ejemplos…"
-                         :value (:body @form)
-                         :on-change #(swap! form assoc :body (.. % -target -value))}]]]
+             ;; Sin clase de alto: el `rows` manda. Monoespaciada porque acá se
+             ;; escribe LaTeX, donde alinear `{}` y `\\` a ojo importa.
+             [:div {:class "mt-4"}
+              [field "Contenido (admite KaTeX)"
+               [:textarea {:class (str input-class " font-mono leading-relaxed")
+                           :rows 14
+                           :placeholder "Explicación, pasos, ejemplos…"
+                           :value (:body @form)
+                           :on-change #(swap! form assoc :body (.. % -target -value))}]]]
 
-           [:label {:class "mt-4 flex items-center gap-2 text-sm text-gray-700"}
-            [:input {:type "checkbox"
-                     :class "h-4 w-4 rounded border-gray-300 text-indigo-600"
-                     :checked (boolean (:published @form))
-                     :on-change #(swap! form assoc :published (.. % -target -checked))}]
-            "Publicado (visible para estudiantes)"]
+             [:label {:class "mt-4 flex items-center gap-2 text-sm text-gray-700"}
+              [:input {:type "checkbox"
+                       :class "h-4 w-4 rounded border-gray-300 text-indigo-600"
+                       :checked (boolean (:published @form))
+                       :on-change #(swap! form assoc :published (.. % -target -checked))}]
+              "Publicado (visible para estudiantes)"]]
+
+            [resource-preview-pane {:form @form :modules modules}]]
 
            (when (seq errors)
              [:ul {:class "mt-3 space-y-1"}
