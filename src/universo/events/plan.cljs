@@ -3,6 +3,7 @@
    [re-frame.core :as re-frame]
    [cljs.core.async :refer [go <!]]
    [universo.db.crud :as crud]
+   [universo.irt.fluency :as fluency]
    [universo.plan :as plan]))
 
 (re-frame/reg-sub
@@ -133,15 +134,33 @@
        ;; igual. Por eso no hay evento de error.
        (when (:success result)
          (let [ultimo (first (:data result))
-               responses (:responses (test-map ultimo))]
-           (re-frame/dispatch [:plan/last-test-loaded responses])))))))
+               t (test-map ultimo)
+               responses (:responses t)
+               ;; Los umbrales de fluidez son por banco (041), así que hay que
+               ;; saber de qué banco fue este test. `:topic` está tanto en la
+               ;; columna como dentro del JSON; se prefiere la columna, que es la
+               ;; que el trigger de 029 mantiene en forma canónica.
+               topic (or (:topic ultimo) (:topic t))
+               configs (<! (crud/fetch-test-configs))
+               cfg (when (:success configs)
+                     (first (filter #(= (:topic %) topic) (:data configs))))]
+           (re-frame/dispatch [:plan/last-test-loaded
+                               responses
+                               (fluency/thresholds-from-config cfg)])))))))
 
 (re-frame/reg-event-db
  :plan/last-test-loaded
- (fn [db [_ responses]]
-   (assoc-in db [:plan :last-responses] (vec (or responses [])))))
+ (fn [db [_ responses thresholds]]
+   (-> db
+       (assoc-in [:plan :last-responses] (vec (or responses [])))
+       (assoc-in [:plan :fluency-thresholds] thresholds))))
 
 (re-frame/reg-sub
  :plan/last-responses
  (fn [db _]
    (get-in db [:plan :last-responses] [])))
+
+(re-frame/reg-sub
+ :plan/fluency-thresholds
+ (fn [db _]
+   (get-in db [:plan :fluency-thresholds] fluency/default-thresholds)))

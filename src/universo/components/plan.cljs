@@ -175,7 +175,9 @@
             fluencia (let [guardada (:fluency built)]
                        (if (pos? (or (:n guardada) 0))
                          guardada
-                         (fluency/classify last-responses)))
+                         (fluency/classify
+                          last-responses
+                          @(re-frame/subscribe [:plan/fluency-thresholds]))))
             ;; Se recalcula el cuadrante en vez de leer `:fluency-profile` del
             ;; JSONB: los textos guardados podrían ser de una versión anterior
             ;; del catálogo de perfiles, y `profile-for` tolera que las bandas

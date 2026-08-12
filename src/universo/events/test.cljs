@@ -4,6 +4,7 @@
    [universo.access :as access]
    [universo.components.tetha :as tetha]
    [universo.irt.effort :as effort]
+   [universo.irt.fluency :as fluency]
    [universo.irt.progress :as progress]
    [cljs.core.async :as async :refer [go <!]]
    [universo.db.crud :as crud]
@@ -148,7 +149,13 @@
                            ;; aplicar) el campo llega nil y `effort` cae a su piso
                            ;; por defecto: el filtro funciona igual, solo deja de
                            ;; ser configurable por banco.
-                           :min-response-seconds (:min_response_seconds cfg)}
+                           :min-response-seconds (:min_response_seconds cfg)
+                           ;; Umbrales del eje de fluidez del banco (041). Se
+                           ;; resuelven acá, con la config a la vista, y viajan
+                           ;; con el test: así el perfil se construye con los
+                           ;; cortes del banco que se rindió y no con los del
+                           ;; banco que esté configurado el día que se lea.
+                           :fluency-thresholds (fluency/thresholds-from-config cfg)}
                           progress/default-stop-config)]
          {:db (-> db
                   (assoc-in [:test :status] :questions)

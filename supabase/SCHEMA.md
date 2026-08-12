@@ -251,7 +251,9 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 40. `migrations/038_cuantica_questions_aplicaciones.sql` — ✅ aplicada 2026-08-11
 41. `migrations/039_cuantica_resources.sql` — ✅ aplicada 2026-08-11
 42. `migrations/040_cuantica_test_configs.sql` — ✅ aplicada 2026-08-11
-43. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+43. `migrations/041_test_config_fluency_thresholds.sql` — ⏳ **pendiente** · umbrales del eje de
+    fluidez por banco (ADR-019, T-65). Aditiva, aplicable en cualquier momento
+44. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
 > final de `029`: **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id`
@@ -553,3 +555,38 @@ contra la base real: que `027` estaba aplicada (existen `misconceptions` y las c
 
 **Pendiente:** correr la batería de control del final de `040` y contrastar con los valores
 esperados. Aplicar sin verificar deja el mismo hueco que T-48 describe para el resto del esquema.
+
+---
+
+## Umbrales del eje de fluidez por banco (`041`) — ⏳ pendiente
+
+Dos columnas en `test_configs`, ambas `not null` con default y con un check que impide invertirlas:
+
+| Columna | Qué es | Default |
+|---|---|---|
+| `fluency_fluida_max` | Tiempo relativo máximo (en múltiplos del tiempo de lectura del enunciado) para la banda `:fluida` | 3 |
+| `fluency_media_max` | Ídem para `:media`; por encima es `:laboriosa`. El check exige que sea mayor que el anterior | 6 |
+
+**Por qué por banco.** `universo.irt.fluency` (ADR-019) mide el tiempo en múltiplos del tiempo de
+lectura. El primer dato real (T-65) puso en duda el corte global: una mediana de **2,19** en
+`mq_momento_angular` cae en `:fluida` con el corte de 3, pero en un ítem que exige una derivación
+eso se parece más a reconocer la alternativa que a resolver con fluidez. En un ítem mecánico de
+PAES, no. No hay un número que sirva para los dos casos — mismo razonamiento que llevó
+`min_response_seconds` a ser por banco en `028`.
+
+**Los defaults 3 y 6 NO son una calibración**: son los mismos valores autorales de
+`universo.irt.fluency/default-thresholds`, puestos como default para que ningún banco cambie de
+comportamiento al aplicar la migración. Espejo mutuo: si cambia uno, cambia el otro.
+
+La migración deja **comentado a propósito** un `update` sugerido para `mq_momento_angular` (2,0 /
+4,5). No se aplica solo: bajar el corte por un único test rendido por una persona sería exactamente
+el error que la migración documenta.
+
+**Recorrido completo del valor:** `test_configs` → `crud/fetch-test-configs` →
+`:test/start` lo mete en `:stop-config` → `profile/build` lo pasa a `fluency/classify` → el perfil
+se guarda con la banda ya resuelta. Para perfiles viejos sin `:fluency`, `:plan/fetch-last-test!`
+vuelve a leer la config del topic del último test. Editable en **Admin → Configuración de tests**.
+
+**Verificada (2026-08-12)** contra un PostgreSQL 14 desechable: aplica limpia, defaults correctos,
+el check rechaza bandas invertidas, e idempotente (segunda corrida solo emite los `NOTICE` de
+`add column if not exists`).

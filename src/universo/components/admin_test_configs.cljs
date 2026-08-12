@@ -120,6 +120,31 @@
                              [:admin/update-test-config-draft :min_response_seconds
                               (.. % -target -value)])}]]]
 
+     ;; Eje de fluidez (ADR-019, migración 041). Los cortes son por banco porque
+     ;; «cuánto es rápido» depende de qué se pregunta: en un ítem que exige una
+     ;; derivación, 2 veces el tiempo de lectura puede ser reconocer la
+     ;; alternativa; en uno mecánico, resolver de verdad (T-65).
+     [:div {:class "mb-2 grid grid-cols-1 gap-4 sm:grid-cols-2"}
+      [field "Fluidez: hasta cuándo es «fluida»"
+       "En múltiplos del tiempo de lectura del enunciado. Por defecto 3: responder en hasta 3 veces lo que toma leerlo"
+       [:input {:class input-class :type "number" :step "0.5" :min "0.5"
+                :value (if (some? (:fluency_fluida_max draft))
+                         (:fluency_fluida_max draft)
+                         "")
+                :on-change #(re-frame/dispatch
+                             [:admin/update-test-config-draft :fluency_fluida_max
+                              (.. % -target -value)])}]]
+
+      [field "Fluidez: hasta cuándo es «media»"
+       "Por encima de este valor se considera laboriosa. Por defecto 6. Debe ser mayor que el anterior"
+       [:input {:class input-class :type "number" :step "0.5" :min "1"
+                :value (if (some? (:fluency_media_max draft))
+                         (:fluency_media_max draft)
+                         "")
+                :on-change #(re-frame/dispatch
+                             [:admin/update-test-config-draft :fluency_media_max
+                              (.. % -target -value)])}]]]
+
      [:div {:class "mb-2 grid grid-cols-1 gap-4 sm:grid-cols-2"}
       [field "Prerequisito" "Vacío = sin prerequisito (diagnóstico, siempre accesible)"
        [:select {:class input-class
@@ -176,6 +201,9 @@
           [:th {:class "px-3 py-2"
                 :title "Segundos mínimos para que una respuesta cuente en la estimación"}
            "Mín. resp."]
+          [:th {:class "px-3 py-2"
+                :title "Cortes de las bandas de fluidez, en múltiplos del tiempo de lectura"}
+           "Fluidez"]
           [:th {:class "px-3 py-2"} "Prerequisito"]
           [:th {:class "px-3 py-2"} "θ mín."]
           [:th {:class "px-3 py-2"} "Activo"]
@@ -198,6 +226,12 @@
             [:td {:class "px-3 py-2 tabular-nums"}
              (if (some? (:min_response_seconds c))
                (str (:min_response_seconds c) " s")
+               "—")]
+            ;; nil = 041 sin aplicar; el eje corre igual con los cortes por
+            ;; defecto del cliente, solo deja de ser configurable por banco.
+            [:td {:class "px-3 py-2 tabular-nums"}
+             (if (some? (:fluency_fluida_max c))
+               (str (:fluency_fluida_max c) " / " (:fluency_media_max c))
                "—")]
             [:td {:class "px-3 py-2"} (or (:prerequisite_topic c) "—")]
             [:td {:class "px-3 py-2 tabular-nums"} (or (theta->display (:min_theta c)) "—")]

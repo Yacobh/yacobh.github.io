@@ -237,3 +237,26 @@ local**, no en producción.
 Relacionado: [[SESSION-020]] · [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] ·
 [[../project-memory/BACKLOG]] T-63, T-64 · [[../project-memory/CURRENT_STATUS]] ·
 `../docs/SPLIT_MEMORIA_PRIVADA.md`
+
+## Addendum 2 — umbrales de fluidez por banco (mismo día)
+
+A pedido del owner tras ver su propio resultado (2,19 en `mq_momento_angular`, que con el corte
+global de 3,0 daba `:fluida` y probablemente no lo era).
+
+**Migración `041`:** `test_configs.fluency_fluida_max` / `fluency_media_max`, `not null` con default
+3/6 y un check que impide invertirlas. Verificada contra PostgreSQL 14 desechable: aplica limpia,
+defaults correctos, el check rechaza la inversión, idempotente.
+
+**Recorrido completo del valor**, espejando cómo viaja `min_response_seconds` (028):
+`test_configs` → `crud` → `:test/start` lo pone en `:stop-config` → `profile/build` lo pasa a
+`fluency/classify`. Para perfiles viejos sin `:fluency`, `:plan/fetch-last-test!` relee la config del
+topic del último test. Editable en Admin → Configuración de tests (dos campos nuevos + columna en la
+tabla).
+
+**Lo que NO se hizo, a propósito:** bajar el corte de `mq_momento_angular` a 2,0/4,5. El `update`
+está escrito y **comentado** en la migración. Aplicarlo por un único test rendido por una persona
+sería exactamente el error que ADR-019 documenta: fijar un número por criterio y presentarlo como
+medición.
+
+**Estado del eje:** 74 tests / 410 assertions / 0 failures. Que sea configurable no calibra nada —
+solo mueve la decisión a donde se puede corregir sin tocar código (T-65 sigue abierto por eso).

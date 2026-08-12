@@ -100,6 +100,9 @@
           ;; Respuestas del último test rendido. Solo alimentan el eje de
           ;; fluidez (ADR-019) cuando el perfil guardado no lo trae.
           :last-responses []
+          ;; Cortes de fluidez del banco del último test (041). Se guardan
+          ;; junto a las respuestas porque el recálculo necesita los dos.
+          :fluency-thresholds nil
           :error nil}
 
    :slots {:loading? false

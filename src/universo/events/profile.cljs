@@ -68,7 +68,11 @@
                               :topic (:topic test)
                               :responses responses
                               :questions questions
-                              :theta-history (:theta-history test)})
+                              :theta-history (:theta-history test)
+                              ;; Cortes del banco que se acaba de rendir, no los
+                              ;; del banco tal como esté configurado el día que
+                              ;; alguien lea este perfil (041).
+                              :fluency-thresholds (get-in test [:stop-config :fluency-thresholds])})
          row {"user_id" user-id
               "theta" (:theta built)
               "theta_band" (:theta-band built)

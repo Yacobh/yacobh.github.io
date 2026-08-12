@@ -125,6 +125,46 @@
     (is (= :laboriosa (fluency/band 3.0 {:fluida 1.0 :media 2.0})))))
 
 ;; -----------------------------------------------------------------------------
+;; Umbrales por banco (041)
+;; -----------------------------------------------------------------------------
+
+(deftest thresholds-from-config-lee-la-configuracion-del-banco
+  (testing "usa los cortes de la fila de test_configs"
+    (is (= {:fluida 2.0 :media 4.5}
+           (fluency/thresholds-from-config {:topic "mq_momento_angular"
+                                            :fluency_fluida_max 2.0
+                                            :fluency_media_max 4.5}))))
+
+  (testing "sin config (041 sin aplicar, o banco inexistente) cae a los defaults"
+    (is (= fluency/default-thresholds (fluency/thresholds-from-config nil)))
+    (is (= fluency/default-thresholds (fluency/thresholds-from-config {})))
+    (is (= fluency/default-thresholds
+           (fluency/thresholds-from-config {:fluency_fluida_max nil
+                                            :fluency_media_max nil}))))
+
+  (testing "valores invertidos o absurdos caen a los defaults en vez de producir bandas imposibles"
+    (is (= fluency/default-thresholds
+           (fluency/thresholds-from-config {:fluency_fluida_max 6.0
+                                            :fluency_media_max 3.0})))
+    (is (= fluency/default-thresholds
+           (fluency/thresholds-from-config {:fluency_fluida_max 0
+                                            :fluency_media_max 6.0})))))
+
+(deftest el-mismo-tiempo-cambia-de-banda-segun-el-banco
+  (testing "es el punto de T-65: 2,19 en un banco conceptual no es lo mismo que en uno mecánico"
+    (let [rs (repeat 5 (respuesta {:t-rel 2.19}))
+          paes (fluency/thresholds-from-config {:fluency_fluida_max 3.0
+                                                :fluency_media_max 6.0})
+          cuantica (fluency/thresholds-from-config {:fluency_fluida_max 2.0
+                                                    :fluency_media_max 4.5})]
+      (is (= :fluida (:band (fluency/classify rs paes)))
+          "con los cortes pensados para PAES, 2,19 es fluidez")
+      (is (= :media (:band (fluency/classify rs cuantica)))
+          "con cortes exigentes, el mismo tiempo deja de serlo")
+      (is (= 2.19 (:t-rel (fluency/classify rs paes)))
+          "la MEDICIÓN no cambia: lo que cambia es dónde se pone el corte"))))
+
+;; -----------------------------------------------------------------------------
 ;; El cruce θ × λ
 ;; -----------------------------------------------------------------------------
 

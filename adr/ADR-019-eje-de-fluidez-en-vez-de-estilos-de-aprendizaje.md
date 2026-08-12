@@ -106,6 +106,14 @@ con datos que **ya estamos guardando** desde ADR-014.
 - **Los umbrales (3 y 6 tiempos de lectura) son autorales y no están calibrados.** Es exactamente la
   situación que `032` corrigió para el filtro de esfuerzo. Están como constante con nombre y como
   parámetro de `classify` para que recalibrar sea cambiar un argumento.
+
+  **Actualización 2026-08-12 (migración `041`):** el primer dato real —una mediana de 2,19 en
+  `mq_momento_angular`— mostró que un corte global no puede servir a la vez para un ítem que exige
+  una derivación y para uno mecánico de PAES. Los umbrales pasan a ser **por banco**, en
+  `test_configs.fluency_fluida_max` / `fluency_media_max`, editables desde el panel. Eso **no los
+  calibra**: solo mueve la decisión a un lugar donde se corrige sin tocar código. Los defaults
+  siguen siendo el 3/6 autoral, y `calibration-report` sigue siendo la vía para reemplazarlos.
+  Ver [[../project-memory/BACKLOG]] T-65.
 - **La muestra va a ser chica.** Con `max_items` entre 4 y 12 y contando solo correctas, muchos
   diagnósticos no van a alcanzar `min-responses`. En esos casos no se muestra nada, que es lo
   correcto pero significa que el eje no aparecerá siempre.

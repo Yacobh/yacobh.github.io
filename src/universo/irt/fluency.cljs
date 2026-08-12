@@ -113,6 +113,10 @@
 ;;
 ;; Criterio provisional: hasta 3 tiempos de lectura se siente inmediato; más de
 ;; 6 es claramente pelear con el ítem. El medio es el medio.
+;; **Espejo de los defaults de `041_test_config_fluency_thresholds.sql`.** Desde
+;; esa migración los cortes son configurables por banco (`test_configs`), y estos
+;; valores son solo el fallback para cuando no hay config o la columna todavía no
+;; existe. Si cambia uno, cambia el otro en el mismo commit.
 (def default-thresholds
   {:fluida 3.0      ;; t_rel ≤ 3  → automatizado
    :media  6.0})    ;; 3 < t_rel ≤ 6 → resuelve, pero le cuesta
@@ -123,6 +127,30 @@
 ;; este proyecto tienen `max_items` entre 4 y 12, así que exigir más dejaría al
 ;; eje sin poder pronunciarse casi nunca.
 (def min-responses 4)
+
+(defn thresholds-from-config
+  "Umbrales del banco, a partir de una fila de `test_configs`.
+
+   Espejo de `041_test_config_fluency_thresholds.sql`. Los cortes son por banco
+   porque «cuánto es rápido» depende de qué se pregunta: en un ítem que exige
+   una derivación, responder en 2,2 veces el tiempo de lectura se parece más a
+   reconocer la alternativa que a resolver con fluidez, y en uno mecánico de
+   PAES no (T-65).
+
+   Cae a `default-thresholds` campo por campo si la columna no existe todavía
+   (041 sin aplicar) o si llega nil. Ese fallback no es cosmético: sin él, un
+   banco sin configurar clasificaría a todo el mundo como `:laboriosa`, que es
+   peor que no clasificar."
+  [config]
+  (let [num (fn [v d] (if (and (number? v) (pos? v)) (double v) d))
+        fluida (num (:fluency_fluida_max config) (:fluida default-thresholds))
+        media (num (:fluency_media_max config) (:media default-thresholds))]
+    ;; Si vienen invertidos (config vieja, o alguien editando la base a mano por
+    ;; fuera del check de 041) se cae a los defaults en vez de producir bandas
+    ;; imposibles. El check de la migración es la garantía real; esto es la red.
+    (if (> media fluida)
+      {:fluida fluida :media media}
+      default-thresholds)))
 
 (defn band
   "Banda de fluidez a partir del tiempo relativo mediano.

@@ -117,13 +117,16 @@
   - :topic
   - :responses
   - :questions
-  - :theta-history (opcional, para estabilidad)"
-  [{:keys [theta se topic responses questions theta-history]}]
+  - :theta-history (opcional, para estabilidad)
+  - :fluency-thresholds (opcional) cortes del eje de fluidez del banco (041).
+    Sin esto se usan los de `universo.irt.fluency/default-thresholds`."
+  [{:keys [theta se topic responses questions theta-history fluency-thresholds]}]
   (let [deficits (deficits-from-responses responses questions topic)
         misconceptions (misconceptions-from responses questions)
         band (theta-band theta)
         track (dominant-track topic deficits)
-        fluencia (fluency/classify responses)
+        fluencia (fluency/classify responses (or fluency-thresholds
+                                                fluency/default-thresholds))
         history (vec (or theta-history []))
         stability (when (>= (count history) 3)
                     (let [tail (take-last 3 history)
