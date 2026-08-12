@@ -746,12 +746,17 @@
 > `universo.db/default-db` —que aparecía en un solo lugar del repo y nadie leía— queda anotado como
 > muerto (D-41). Esto deja una tensión abierta con VISION, que lo declaraba diferenciador.
 
-> **El repositorio es público — verificado 2026-08-12.** `visibility: public`. Eso expone
-> `project-memory/`, `adr/`, `sessions/` y `prompts/`: precios y su historial, contexto de negocio,
-> la visión completa y 19 ADRs. El foso real (banco de ítems y diagnósticos) **no** está expuesto:
-> vive en Supabase bajo RLS y ADR-015 ya lo cerró. Procedimiento de split preparado en
-> `docs/SPLIT_MEMORIA_PRIVADA.md` ([[BACKLOG]] T-64), **no ejecutado**. Advertencia central: mover
-> los archivos hoy no despublica el pasado — 51 de 169 commits tocan `project-memory/`.
+> **El repositorio se mantiene público, y ahora es una decisión y no un descuido (2026-08-12).**
+> Se verificó que es público (`visibility: public`), lo que expone `project-memory/`, `adr/`,
+> `sessions/` y `prompts/`. Se evaluó moverlo a privado y **el owner decidió que no** (D-42): la
+> visibilidad ayuda de cara a financiamiento externo, tener el PMF solo en local es un riesgo peor
+> que el que se evita, y el foso real —banco de ítems calibrado y diagnósticos— no está acá: vive en
+> Supabase bajo RLS, cerrado por ADR-015. Se revisará cuando exista una versión estable reconstruible
+> desde cero en un repo más compacto.
+>
+> Dato para esa revisión futura, que no cambia con el tiempo: **mover archivos no despublica el
+> pasado.** 51 de los 169 commits tocan `project-memory/`; despublicar de verdad exigiría reescribir
+> el historial.
 
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para

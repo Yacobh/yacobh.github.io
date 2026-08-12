@@ -44,7 +44,10 @@ trabajo.
    y **no aparece en ninguna parte de la landing**. Solo se ve como una línea en cursiva dentro de
    una tarjeta, después de rendir un diagnóstico.
 3. **Eje de fluidez (λ)** — el trabajo principal. Ver ADR-019.
-4. **Procedimiento de split del repo** preparado y documentado, no ejecutado.
+4. **Split del repo: preparado y después descartado por el owner en la misma sesión** (D-42).
+   El procedimiento se escribió, se leyó, y el owner decidió mantener el repositorio público. Se
+   revirtió `docs/SPLIT_MEMORIA_PRIVADA.md` y T-64; la decisión y su razonamiento quedan en D-42
+   en vez de perderse con el archivo.
 5. Anotación del stub `:traits` (D-41) y actualización de la memoria.
 
 **Lo que se descartó y por qué:**
@@ -56,8 +59,10 @@ trabajo.
 - **λ no se definió como "respuestas por minuto"**, que es la letra de VISION §3.3: confunde
   velocidad con largo de enunciado. Se normaliza por `effort/reading-seconds`, reusando la constante
   que ya existía en vez de inventar una segunda.
-- **No se ejecutó el split del repo.** Crear el repo privado y empujar son acciones del owner, y hay
-  una decisión de alcance pendiente que cambia bastante el costo.
+- **El split del repo se preparó y se descartó.** Crear el repo privado era acción del owner, y al
+  ver el procedimiento decidió que no: la visibilidad le sirve para financiamiento, el PMF solo en
+  local es peor riesgo, y el foso está en Supabase y no acá (D-42). El documento se borró; el
+  razonamiento quedó registrado, que es lo que importa conservar.
 
 ## Archivos revisados
 
@@ -78,10 +83,9 @@ trabajo.
 | `src/universo/components/plan.cljs` | `fluency-card` + `fluency-grid` (el 2×2), primero en «Mi plan» |
 | `src/universo/db.cljs` | `:traits` anotado como stub muerto (D-41) |
 | `adr/ADR-019-…` | **Nuevo.** La decisión y por qué no se hace el Eje 3 |
-| `docs/SPLIT_MEMORIA_PRIVADA.md` | **Nuevo.** Procedimiento del split, con la advertencia del historial |
-| `project-memory/DECISIONS.md` | Fila ADR-019 + D-41 |
-| `project-memory/BACKLOG.md` | T-63 (hecho) y T-64 (preparado) |
-| `project-memory/CURRENT_STATUS.md` | Dos notas: eje λ y repositorio público |
+| `project-memory/DECISIONS.md` | Fila ADR-019 + D-41 + D-42 |
+| `project-memory/BACKLOG.md` | T-63 (hecho). T-64 se creó y se revirtió en la misma sesión |
+| `project-memory/CURRENT_STATUS.md` | Dos notas: eje λ y repositorio público (como decisión, D-42) |
 | `public/js/app.js`, `public/css/app.css` | Recompilados |
 
 ## Comandos ejecutados y resultados
@@ -107,27 +111,25 @@ reemplazaron por clases estándar.
 |----------|-------|------------------------|
 | El Eje 2 mide fluidez; el Eje 3 (estilos de aprendizaje) no se implementa | **Sí** | [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] |
 | `:traits` se conserva anotado como muerto, no se borra ni se implementa | No | [[../project-memory/DECISIONS]] D-41 |
-| El split del repo se prepara pero no se ejecuta | No | [[../project-memory/BACKLOG]] T-64 |
+| El repositorio **se mantiene público**; el split se prepara y se descarta | No | [[../project-memory/DECISIONS]] D-42 |
 
 ## Riesgos identificados
 
 | Riesgo | Severidad | Registrado en |
 |--------|-----------|---------------|
 | Umbrales de fluidez autorales, sin calibrar (mismo patrón que el 3 de `028`) | Medio | ADR-019 §Consecuencias; se cruza con T-59 |
-| Toda la estrategia del proyecto es legible por cualquiera | Medio | [[CURRENT_STATUS]], T-64. **No** se abrió riesgo en RISKS: es una condición conocida con procedimiento asociado, no un riesgo latente |
+| Toda la estrategia del proyecto es legible por cualquiera | Bajo, **aceptado** | D-42. No se abre riesgo en RISKS: dejó de ser un pendiente para pasar a ser una decisión con razones registradas |
 | El cuadrante `:rapido-sin-base` puede ser un artefacto de adivinación | Bajo | ADR-019; el texto de acción lo dice explícitamente |
 
 ## Bloqueos
 
-Ninguno técnico. T-64 espera dos acciones del owner (crear el repo privado, empujar) y una decisión
-de alcance.
+Ninguno.
 
 ## Preguntas abiertas nuevas
 
 | Pregunta | Registrada en |
 |----------|---------------|
 | VISION §3.3 declara el Eje 3 como diferenciador y ADR-019 decide no construirlo — ¿se corrige VISION? | ADR-019 §Seguimiento. **Pendiente de llevar a OPEN_QUESTIONS** |
-| ¿El split del repo mueve las 4 carpetas o solo lo comercial? | `docs/SPLIT_MEMORIA_PRIVADA.md` |
 
 ## Supuestos aplicados
 
@@ -140,7 +142,6 @@ de alcance.
 ## Próximos pasos
 
 1. **Ver la tarjeta de fluidez con un diagnóstico real.** No se verificó visualmente (ver Pendientes).
-2. Decidir el alcance de T-64 y ejecutar los pasos 1-3; el paso 4 lo puedo automatizar.
 3. Con datos acumulados, correr `fluency/calibration-report` y reemplazar los umbrales autorales.
 4. **La conversación de diseño quedó abierta.** El owner eligió empezar por λ, pero el diagnóstico
    de por qué la página se ve genérica está hecho y sin actuar: estructura de plantilla en
