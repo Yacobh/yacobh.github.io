@@ -82,28 +82,58 @@
 (defn- fluency-card
   "Cómo estudia, no solo cuánto sabe. Eje 2 de VISION §3.3.
 
-   No se muestra nada si no hay cuadrante: con pocas respuestas medidas la
-   mediana no significa nada, y etiquetar a alguien con dos ítems es peor que
-   no decir nada. `fluency/profile-for` ya devuelve nil en ese caso."
+   Tres estados, no dos:
+   - **con cuadrante** → el perfil y su acción;
+   - **con datos pero insuficientes** → se dice cuántos faltan y por qué. Este
+     estado nació de un caso real (3 aciertos de 10 en `mq_momento_angular`,
+     2026-08-12): la primera versión escondía la tarjeta entera y dejaba sin
+     enterarse justo a quien más lejos estaba del umbral;
+   - **sin ningún dato de tiempo** → no se muestra nada, porque no hay nada que
+     decir y el eje simplemente no aplica."
   [fluencia perfil]
-  (when perfil
-    [:div.bg-white.rounded-xl.shadow.p-6
-     [:div.flex.items-start.justify-between.gap-2.mb-1
-      [:h2.text-lg.font-bold.text-gray-800 "Cómo estás resolviendo"]
-      [:span.text-xs.text-gray-400.shrink-0 "Fluidez · λ"]]
-     [:p.text-xs.text-gray-500.mb-4
-      "Además de cuánto sabes, cuánto te cuesta llegar al resultado."]
+  (let [n (or (:n fluencia) 0)
+        ;; Sin cuadrante hay dos situaciones muy distintas, y confundirlas fue el
+        ;; error de la primera versión: **no hay ningún dato de tiempo** (el eje
+        ;; no aplica y no hay nada que decir) o **hay datos pero no alcanzan**
+        ;; para una mediana confiable. Lo segundo sí hay que decirlo: esconder la
+        ;; tarjeta dejaba sin enterarse justo a quien más lejos está del umbral.
+        insuficiente? (and (nil? perfil) (pos? n))]
+    (when (or perfil insuficiente?)
+      [:div.bg-white.rounded-xl.shadow.p-6
+       [:div.flex.items-start.justify-between.gap-2.mb-1
+        [:h2.text-lg.font-bold.text-gray-800 "Cómo estás resolviendo"]
+        [:span.text-xs.text-gray-400.shrink-0 "Fluidez · λ"]]
+       [:p.text-xs.text-gray-500.mb-4
+        "Además de cuánto sabes, cuánto te cuesta llegar al resultado."]
 
-     [:div.flex.flex-col.gap-5 {:class "sm:flex-row sm:items-start"}
-      [fluency-grid (:id perfil)]
+       [:div.flex.flex-col.gap-5 {:class "sm:flex-row sm:items-start"}
+        [fluency-grid (:id perfil)]
 
-      [:div.min-w-0.flex-1
-       [:p.font-semibold.text-gray-900 (:titulo perfil)]
-       [:p.text-sm.text-gray-600.mt-1 (:descripcion perfil)]
-       [:div.mt-3.rounded-lg.bg-indigo-50.border.border-indigo-100.p-3
-        [:p.text-xs.font-semibold.uppercase.tracking-wide.text-indigo-700.mb-1
-         "Qué conviene hacer"]
-        [:p.text-sm.text-indigo-900 (:accion perfil)]]]]
+        (if insuficiente?
+          [:div.min-w-0.flex-1
+           [:p.font-semibold.text-gray-900 "Todavía no alcanza para ubicarte"]
+           [:p.text-sm.text-gray-600.mt-1
+            "La fluidez se mide solo sobre las preguntas que respondes "
+            [:strong "bien"]
+            ": una equivocada tarda lo mismo la sepas o no, así que su tiempo no "
+            "dice nada. Por ahora hay "
+            [:strong (str n (if (= 1 n) " respuesta correcta" " respuestas correctas"))]
+            (str " con tiempo medido, y hacen falta " fluency/min-responses ".")]
+           [:div.mt-3.rounded-lg.bg-amber-50.border.border-amber-100.p-3
+            [:p.text-xs.font-semibold.uppercase.tracking-wide.text-amber-800.mb-1
+             "Qué conviene hacer"]
+            [:p.text-sm.text-amber-900
+             (str "Nada especial por la fluidez: con este resultado, lo que manda "
+                  "es el contenido. Vuelve acá cuando estés acertando más y este "
+                  "eje va a tener algo que decirte.")]]]
+
+          [:div.min-w-0.flex-1
+           [:p.font-semibold.text-gray-900 (:titulo perfil)]
+           [:p.text-sm.text-gray-600.mt-1 (:descripcion perfil)]
+           [:div.mt-3.rounded-lg.bg-indigo-50.border.border-indigo-100.p-3
+            [:p.text-xs.font-semibold.uppercase.tracking-wide.text-indigo-700.mb-1
+             "Qué conviene hacer"]
+            [:p.text-sm.text-indigo-900 (:accion perfil)]]])]
 
      ;; La medición, en letra chica y sin adornos. Es el número con el que se
      ;; puede discutir la etiqueta, así que tiene que estar a la vista.
@@ -113,7 +143,7 @@
              (if (= 1 (:n fluencia)) " respuesta correcta" " respuestas correctas")
              ": tardaste "
              (.toFixed (js/Number t-rel) 1)
-             " veces lo que toma leer cada enunciado.")])]))
+             " veces lo que toma leer cada enunciado.")])])))
 
 (defn plan-panel []
   (r/create-class
@@ -136,7 +166,16 @@
                              (number? (:theta built))
                              (seq deficits)
                              (seq layer0))
-            fluencia (:fluency built)
+            last-responses @(re-frame/subscribe [:plan/last-responses])
+            ;; El perfil guardado trae `:fluency` solo si lo escribió una versión
+            ;; posterior a ADR-019. Si no lo trae, se recalcula desde las
+            ;; respuestas del último test, que ya guardaban tiempo y peso. Sin
+            ;; este fallback el eje no existiría para nadie hasta que volviera a
+            ;; rendir un diagnóstico.
+            fluencia (let [guardada (:fluency built)]
+                       (if (pos? (or (:n guardada) 0))
+                         guardada
+                         (fluency/classify last-responses)))
             ;; Se recalcula el cuadrante en vez de leer `:fluency-profile` del
             ;; JSONB: los textos guardados podrían ser de una versión anterior
             ;; del catálogo de perfiles, y `profile-for` tolera que las bandas

@@ -191,3 +191,36 @@ Ninguno.
 Relacionado: [[SESSION-020]] · [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] ·
 [[../project-memory/BACKLOG]] T-63, T-64 · [[../project-memory/CURRENT_STATUS]] ·
 `../docs/SPLIT_MEMORIA_PRIVADA.md`
+
+## Addendum — verificación con datos reales (mismo día)
+
+El owner rindió `mq_momento_angular` (cerrando el pendiente de T-61) y reportó **3 aciertos de 10**.
+De ahí salieron dos correcciones que la implementación original necesitaba y que ninguna cantidad de
+tests unitarios habría revelado:
+
+1. **El eje no existía para ningún perfil ya guardado.** `:fluency` solo se escribe al construir el
+   perfil, así que todo diagnóstico anterior a ADR-019 quedaba sin eje hasta volver a rendir. Se
+   agregó el recálculo desde `tests.test`, que ya guardaba `:time-ms`, `:weight` y `:question-text`
+   por ADR-014 Fase 1 (`:plan/fetch-last-test!`). **No contradice el "no reinterpretar hacia atrás"
+   de ADR-014**: no se toca θ ni ningún resultado previo, se calcula un eje nuevo sobre datos que ya
+   estaban y que nadie leía.
+2. **Con 3 correctas de 10, la tarjeta desaparecía en silencio.** `min-responses` es 4, así que el
+   eje se ocultaba entero justo para quien peor le fue, sin decir qué faltaba. Se agregó un tercer
+   estado explícito ("todavía no alcanza", con cuántas correctas hay y cuántas faltan). Una
+   funcionalidad que se esconde sola es peor que no tenerla: nadie se entera de que existe.
+
+**Queda abierto y sin decidir:** si `min-responses = 4` es el número correcto para bancos difíciles,
+o si el eje debería medirse de otra forma cuando la tasa de acierto es baja. Es la misma clase de
+número autoral que ADR-019 ya reconoce sin calibrar.
+
+**Nota de método:** dos intentos de verificación visual fallaron porque el owner estaba mirando
+`jacobocordova.com` (producción, servida desde `main`, que **no tiene** `irt/fluency`) mientras el
+agente controlaba una pestaña en `127.0.0.1`. La sesión de Supabase vive por origen y no viaja entre
+las dos. Para verificar UI de una rama no publicada hay que entrar **en la pestaña del servidor
+local**, no en producción.
+
+---
+
+Relacionado: [[SESSION-020]] · [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] ·
+[[../project-memory/BACKLOG]] T-63, T-64 · [[../project-memory/CURRENT_STATUS]] ·
+`../docs/SPLIT_MEMORIA_PRIVADA.md`

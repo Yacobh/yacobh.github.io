@@ -97,6 +97,9 @@
    ;; déficits del perfil lo hace la suscripción :plan/resources (universo.plan).
    :plan {:loading? false
           :resources []
+          ;; Respuestas del último test rendido. Solo alimentan el eje de
+          ;; fluidez (ADR-019) cuando el perfil guardado no lo trae.
+          :last-responses []
           :error nil}
 
    :slots {:loading? false
