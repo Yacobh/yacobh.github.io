@@ -213,7 +213,19 @@ tests unitarios habría revelado:
 o si el eje debería medirse de otra forma cuando la tasa de acierto es baja. Es la misma clase de
 número autoral que ADR-019 ya reconoce sin calibrar.
 
-**Nota de método:** dos intentos de verificación visual fallaron porque el owner estaba mirando
+**Verificado por el owner (2026-08-12).** La tarjeta funciona. Sobre su test de `mq_momento_angular`:
+8 respuestas usables y `t_rel` mediana **2,19** → banda `:fluida`. La predicción del agente («vas a
+ver el estado insuficiente, tenés 3 correctas») **fue incorrecta**: el owner había contado 7 malas de
+10, pero los datos daban 8 usables. Conviene no predecir sobre lo que el usuario recuerda cuando la
+base tiene el número exacto.
+
+**Dos hallazgos de esa verificación**, ambos en [[../project-memory/BACKLOG]] T-65: una fila de
+`tests` con 15 respuestas contra `max_items = 12` (a confirmar si es un intento viejo o un bug de la
+regla de parada), y la primera evidencia de que el umbral `:fluida` = 3,0 puede ser demasiado
+generoso para ítems conceptuales.
+
+**Nota de método:** cinco intentos de verificación visual fallaron porque el owner usa **Comet** y la
+extensión solo controla Chrome; además estaba mirando
 `jacobocordova.com` (producción, servida desde `main`, que **no tiene** `irt/fluency`) mientras el
 agente controlaba una pestaña en `127.0.0.1`. La sesión de Supabase vive por origen y no viaja entre
 las dos. Para verificar UI de una rama no publicada hay que entrar **en la pestaña del servidor

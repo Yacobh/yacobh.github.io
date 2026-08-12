@@ -1745,12 +1745,37 @@ hoy eran el mismo estudiante para el sistema.
 - **Terminado cuando:** ~~el eje exista y se vea~~ (hecho). Queda verificarlo con un
   diagnóstico real rendido de punta a punta.
 
+---
+
+### T-65 · Un test guardado con 15 respuestas y `max_items = 12` — **P1** · `a verificar` (2026-08-12)
+
+Consultando `tests` para el eje de fluidez apareció una fila de `mq_momento_angular`
+con **15 respuestas**, cuando ese banco está configurado con `max_items = 12` y la
+regla de parada corta en `(>= n max-items)`.
+
+- **Puede no ser nada:** el owner describió una sesión de 10 preguntas, así que la
+  fila de 15 podría ser un intento anterior y la consulta agarró la equivocada
+  (`order by created_at desc limit 1`).
+- **Si hay una sola fila**, entonces `universo.irt.progress/stop-reason` no se está
+  aplicando en algún camino, y eso es un bug que afecta a **todos** los bancos: un
+  test que no para consume el banco y desvirtúa la regla de parada de ADR-013.
+- **Cómo decidirlo:** la consulta está en el hilo de la sesión — lista todos los
+  intentos del topic con su cantidad de respuestas y su `stop-reason` guardado. Si
+  el `stop-reason` de la fila de 15 es `nil`, el test nunca decidió parar.
+- **Dato colateral de la misma consulta**, útil para T-59 y ADR-019: sobre 8
+  respuestas usables, la mediana de tiempo relativo fue **2,19** — o sea respondió
+  en ~2,2 veces lo que toma leer el enunciado, en un banco de mecánica cuántica.
+  Con el umbral actual eso cae en `:fluida`, y es discutible: en ítems conceptuales,
+  2,2× tiempo de lectura puede ser reconocimiento y no fluidez. **Primera evidencia
+  real de que el 3,0 autoral puede estar del lado equivocado**, igual que el 3 de
+  `028` antes de `032`.
+
 ## Resumen por prioridad
 
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-65 |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
