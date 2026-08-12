@@ -219,10 +219,11 @@ ver el estado insuficiente, tenés 3 correctas») **fue incorrecta**: el owner h
 10, pero los datos daban 8 usables. Conviene no predecir sobre lo que el usuario recuerda cuando la
 base tiene el número exacto.
 
-**Dos hallazgos de esa verificación**, ambos en [[../project-memory/BACKLOG]] T-65: una fila de
-`tests` con 15 respuestas contra `max_items = 12` (a confirmar si es un intento viejo o un bug de la
-regla de parada), y la primera evidencia de que el umbral `:fluida` = 3,0 puede ser demasiado
-generoso para ítems conceptuales.
+**Un hallazgo de esa verificación**, en [[../project-memory/BACKLOG]] T-65: la primera evidencia de
+que el umbral `:fluida` = 3,0 puede ser demasiado generoso para ítems conceptuales. La sospecha
+inicial de un bug en la regla de parada (15 respuestas contra `max_items = 12`) **quedó descartada**:
+el owner había subido `max_items` desde el panel. Vale como recordatorio de no escalar una anomalía
+a bug antes de preguntar por la configuración.
 
 **Nota de método:** cinco intentos de verificación visual fallaron porque el owner usa **Comet** y la
 extensión solo controla Chrome; además estaba mirando

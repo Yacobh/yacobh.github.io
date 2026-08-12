@@ -1747,36 +1747,46 @@ hoy eran el mismo estudiante para el sistema.
 
 ---
 
-### T-65 · Un test guardado con 15 respuestas y `max_items = 12` — **P1** · `a verificar` (2026-08-12)
+### T-65 · Calibrar el umbral de fluidez con ítems conceptuales — **P2** · `abierto` (2026-08-12)
 
-Consultando `tests` para el eje de fluidez apareció una fila de `mq_momento_angular`
-con **15 respuestas**, cuando ese banco está configurado con `max_items = 12` y la
-regla de parada corta en `(>= n max-items)`.
+**Falsa alarma descartada primero:** apareció una fila de `tests` de `mq_momento_angular`
+con 15 respuestas contra `max_items = 12`, y se sospechó un fallo de la regla de
+parada. **No lo era:** el owner había subido `max_items` desde Admin → Configuración
+de tests. `universo.irt.progress/stop-reason` funciona bien.
 
-- **Puede no ser nada:** el owner describió una sesión de 10 preguntas, así que la
-  fila de 15 podría ser un intento anterior y la consulta agarró la equivocada
-  (`order by created_at desc limit 1`).
-- **Si hay una sola fila**, entonces `universo.irt.progress/stop-reason` no se está
-  aplicando en algún camino, y eso es un bug que afecta a **todos** los bancos: un
-  test que no para consume el banco y desvirtúa la regla de parada de ADR-013.
-- **Cómo decidirlo:** la consulta está en el hilo de la sesión — lista todos los
-  intentos del topic con su cantidad de respuestas y su `stop-reason` guardado. Si
-  el `stop-reason` de la fila de 15 es `nil`, el test nunca decidió parar.
-- **Dato colateral de la misma consulta**, útil para T-59 y ADR-019: sobre 8
-  respuestas usables, la mediana de tiempo relativo fue **2,19** — o sea respondió
-  en ~2,2 veces lo que toma leer el enunciado, en un banco de mecánica cuántica.
-  Con el umbral actual eso cae en `:fluida`, y es discutible: en ítems conceptuales,
-  2,2× tiempo de lectura puede ser reconocimiento y no fluidez. **Primera evidencia
-  real de que el 3,0 autoral puede estar del lado equivocado**, igual que el 3 de
-  `028` antes de `032`.
+**Lo que sí queda,** y es el primer dato real sobre los umbrales de ADR-019: sobre
+8 respuestas usables de ese test, la mediana de tiempo relativo fue **2,19** — el
+owner respondió en ~2,2 veces lo que toma leer el enunciado, en un banco de mecánica
+cuántica de nivel universitario.
+
+- Con `default-thresholds` (`:fluida` ≤ 3,0) eso cae en **`:fluida`**.
+- **Es discutible.** En un ítem conceptual que exige una derivación, responder en
+  2,2× el tiempo de lectura se parece más a **reconocer** la alternativa que a
+  resolver con fluidez. El umbral de 3,0 se pensó con ítems tipo PAES, más cortos y
+  más mecánicos.
+- Es exactamente la situación de `028` antes de `032`: un número autoral razonable
+  que los datos pueden mostrar del lado equivocado. La herramienta para decidirlo ya
+  existe: `universo.irt.fluency/calibration-report`.
+- **Posible salida:** que el umbral sea configurable **por banco**, como ya lo es
+  `min_response_seconds` en `test_configs`. Un banco de cuántica y uno de enteros no
+  tienen por qué compartir qué cuenta como fluido.
+
+**Terminado cuando:** haya suficientes diagnósticos con tiempo real para correr
+`calibration-report` y reemplazar el 3,0/6,0 autoral por cortes medidos.
+
+**Aviso relacionado, si `max_items` quedó en 15:** el banco `mq_momento_angular`
+tiene exactamente 15 ítems. Sin holgura, la selección adaptativa se queda sin
+candidatos cerca del final —`next_question` filtra por cercanía a θ— y el test corta
+por agotamiento en vez de por precisión. La consulta de control está al final de
+`supabase/migrations/040_cuantica_test_configs.sql` (§4).
 
 ## Resumen por prioridad
 
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-65 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
 ---
