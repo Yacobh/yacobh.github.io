@@ -53,8 +53,14 @@ BLANCO = "#FFFFFF"
 PARES = [
     ("claro · texto principal",        GRAFITO["900"], GRAFITO["100"], 4.5),
     ("claro · texto secundario",       GRAFITO["600"], GRAFITO["100"], 4.5),
-    ("claro · acción principal",       GRAFITO["900"], SENAL["500"],   4.5),
-    ("claro · acción principal hover", BLANCO,         SENAL["600"],   4.5),
+    # El owner vio el naranja demasiado oscuro y pidió bajarlo un escalón. Como
+    # encima va texto oscuro, aclararlo **sube** el contraste: 4.83 → 6.03. La
+    # preferencia estética y la accesibilidad coincidieron.
+    ("claro · acción principal",       GRAFITO["900"], SENAL["400"],   4.5),
+    ("claro · acción principal hover", GRAFITO["900"], SENAL["300"],   4.5),
+    # El símbolo ∫ es la marca y nunca había estado medido: en senal-500 daba
+    # 2.02 sobre la nav, por debajo incluso del 3.0 de texto grande.
+    ("claro · símbolo ∫ en la nav",    SENAL["700"],   PANEL["200"],   3.0),
     ("claro · botón secundario",       BLANCO,         GRAFITO["800"], 4.5),
     ("claro · señal como texto",       SENAL["700"],   GRAFITO["100"], 4.5),
     ("claro · medalla (relleno)",      SENAL["500"],   GRAFITO["100"], 3.0),
@@ -118,6 +124,7 @@ PROHIBIDOS = [
     # Los valores que tenía la gráfica antes de medirla:
     ("ejes de la gráfica en #78716c (viejo)", "#78716c", PANEL["100"]),
     ("serie dificultad en #e36414 (viejo)",   "#e36414", PANEL["100"]),
+    ("símbolo ∫ en senal-500 sobre la nav (viejo)", SENAL["500"], PANEL["200"]),
 ]
 
 

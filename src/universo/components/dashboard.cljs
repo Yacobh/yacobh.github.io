@@ -226,7 +226,7 @@
            ;; con la señal —el que empieza una evaluación, que es a lo que vino
            ;; el estudiante— y los otros dos son neutros.
            [:div.flex.flex-row.flex-wrap.gap-3.mt-10
-            [:button.control.bg-senal-500.text-grafito-900.font-medium.py-2.5.px-5.rounded.hover:bg-senal-400
+            [:button.control.bg-senal-400.text-grafito-900.font-medium.py-2.5.px-5.rounded.hover:bg-senal-300
              {:type "button"
               :on-click #(do
                            (re-frame/dispatch [:test/open-selection])

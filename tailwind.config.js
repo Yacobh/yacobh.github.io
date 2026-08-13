@@ -46,13 +46,20 @@ const grafito = {
 
 // El único color. Naranja Braun (ET66, T3). Se usa en la acción principal de
 // cada pantalla y en las medallas de la línea del tiempo. En ningún otro lado.
+//
+// Qué tono usar, que no es libre:
+//   · relleno de acción → 400 (el owner vio el 500 demasiado oscuro, y como
+//     encima va texto grafito, aclararlo SUBE el contraste: 4.83 → 6.03)
+//   · texto o regla sobre fondo claro → 700 (el 500 da 2.75 y no alcanza)
+//   · el símbolo ∫ sobre la nav clara → 700 (en 500 daba 2.02)
+// Todos los cortes están declarados en scripts/audit_contraste.py.
 const senal = {
   50: '#FDF0E9',
   100: '#FADCCB',
   200: '#F5B99B',
   300: '#F0956B',
-  400: '#EE7A45',  // señal sobre fondo oscuro
-  500: '#E85D0D',  // ← la señal
+  400: '#EE7A45',  // ← el relleno de la acción principal, en ambos temas
+  500: '#E85D0D',  // el naranja Braun puro; queda para el ∫ sobre fondo oscuro
   600: '#C74C0A',  // hover, y foco visible en ambos temas
   700: '#9E3C08',  // señal como texto sobre fondo claro
   800: '#762D06',

@@ -73,7 +73,7 @@
   [:button
    {:type "button"
     :class (str "inline-flex items-center justify-center gap-2 rounded "
-                "bg-senal-500 px-7 py-3.5 "
+                "bg-senal-400 px-7 py-3.5 "
                 "text-base font-medium text-grafito-900 "
                 "transition hover:bg-senal-600 hover:text-white "
                 "focus:outline-none focus:ring-2 focus:ring-senal-600 focus:ring-offset-2 "
@@ -110,7 +110,7 @@
       [:span {:class "text-4xl font-bold text-gray-900"} "θ = 0,42"]
       [:span {:class "text-sm text-gray-500"} "nivel estimado"]]
      [:div {:class "mt-3 h-2.5 w-full overflow-hidden rounded-full bg-gray-100"}
-      [:div {:class "h-full rounded-full bg-senal-500"
+      [:div {:class "h-full rounded-full bg-senal-400"
              :style {:width "46%"}}]]
      [:div {:class "mt-1.5 flex justify-between text-xs text-gray-400"}
       [:span "inicial"] [:span "básico"] [:span "intermedio"] [:span "avanzado"]]]

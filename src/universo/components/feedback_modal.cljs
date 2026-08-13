@@ -206,8 +206,8 @@
 ;; ============================================================================
 
 (defn action-buttons [stop-reason]
-  [:button {:class (str "control mt-6 bg-senal-500 text-grafito-900 px-6 py-2.5 rounded "
-                        "text-sm font-medium hover:bg-senal-400")
+  [:button {:class (str "control mt-6 bg-senal-400 text-grafito-900 px-6 py-2.5 rounded "
+                        "text-sm font-medium hover:bg-senal-300")
             :on-click #(re-frame/dispatch [:test/continue])}
    (if stop-reason "Ver resultados →" "Continuar →")])
 

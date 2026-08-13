@@ -30,7 +30,7 @@
                 (.preventDefault e)
                 (re-frame/dispatch [:navigate-to :main]))}
    [:span "Academia"]
-   [:span.mx-1.5.text-3xl.font-light.text-senal-500 "∫"]
+   [:span.mx-1.5.text-3xl.font-light.text-senal-700 "∫"]
    [:span "Integral"]])
 
 (def ^:private link-class
@@ -41,8 +41,8 @@
 ;; hubiera dos, ninguno sería el principal (ADR-022). Texto grafito sobre el
 ;; naranja, no blanco — es lo que hacía Braun y además lo que pasa AA.
 (def ^:private cta-class
-  (str "control inline-flex items-center rounded bg-senal-500 "
-       "px-5 py-2.5 text-sm font-medium text-grafito-900 hover:bg-senal-400 "
+  (str "control inline-flex items-center rounded bg-senal-400 "
+       "px-5 py-2.5 text-sm font-medium text-grafito-900 hover:bg-senal-300 "
        "focus:outline-none focus-visible:ring-2 focus-visible:ring-senal-700 "
        "focus-visible:ring-offset-2"))
 
