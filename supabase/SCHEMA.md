@@ -251,8 +251,10 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 40. `migrations/038_cuantica_questions_aplicaciones.sql` — ✅ aplicada 2026-08-11
 41. `migrations/039_cuantica_resources.sql` — ✅ aplicada 2026-08-11
 42. `migrations/040_cuantica_test_configs.sql` — ✅ aplicada 2026-08-11
-43. `migrations/041_test_config_fluency_thresholds.sql` — ⏳ **pendiente** · umbrales del eje de
-    fluidez por banco (ADR-019, T-65). Aditiva, aplicable en cualquier momento
+43. `migrations/041_test_config_fluency_thresholds.sql` — ✅ **aplicada 2026-08-13** por el owner ·
+    umbrales del eje de fluidez por banco (ADR-019, T-65). **Columnas verificadas contra la base
+    real** (ver abajo); el check y los valores quedan por confirmar con el bloque H de
+    `queries/verificacion_esquema.sql`
 44. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
@@ -558,7 +560,7 @@ esperados. Aplicar sin verificar deja el mismo hueco que T-48 describe para el r
 
 ---
 
-## Umbrales del eje de fluidez por banco (`041`) — ⏳ pendiente
+## Umbrales del eje de fluidez por banco (`041`) — ✅ aplicada 2026-08-13
 
 Dos columnas en `test_configs`, ambas `not null` con default y con un check que impide invertirlas:
 
@@ -586,6 +588,26 @@ el error que la migración documenta.
 `:test/start` lo mete en `:stop-config` → `profile/build` lo pasa a `fluency/classify` → el perfil
 se guarda con la banda ya resuelta. Para perfiles viejos sin `:fluency`, `:plan/fetch-last-test!`
 vuelve a leer la config del topic del último test. Editable en **Admin → Configuración de tests**.
+
+### Verificación de que llegó (2026-08-13)
+
+**Lo que está confirmado:** las dos columnas existen en la base real. Se comprobó desde fuera, con
+la anon key pública y sin sesión, contra PostgREST — pidiendo las columnas y comparando el código de
+respuesta contra dos controles:
+
+| Consulta | Resultado | Qué prueba |
+|---|---|---|
+| `select=fluency_fluida_max,fluency_media_max` | `200` | Las columnas de `041` existen |
+| `select=min_response_seconds` (columna conocida de `028`) | `200` | Control positivo: así responde una columna que sí está |
+| `select=columna_que_no_existe` | `400` · `42703` | Control negativo: así responde una que no está |
+
+Sin los dos controles el `200` no significaría nada; con ellos, sí. Las filas volvieron vacías
+(`[]`) porque la policy `test_configs_select` no le muestra nada a un anónimo — eso es lo correcto,
+y es la razón de que este método pruebe la **existencia** de la columna pero no sus valores.
+
+**Lo que falta confirmar**, y solo se ve desde el SQL Editor: el `not null`, los defaults, el check
+`test_configs_fluency_bands_ordenadas` y los valores por banco. Está todo en el **bloque H** de
+[`queries/verificacion_esquema.sql`](queries/verificacion_esquema.sql).
 
 **Verificada (2026-08-12)** contra un PostgreSQL 14 desechable: aplica limpia, defaults correctos,
 el check rechaza bandas invertidas, e idempotente (segunda corrida solo emite los `NOTICE` de

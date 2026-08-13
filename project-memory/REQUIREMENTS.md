@@ -59,7 +59,7 @@ Leyenda de estado: ✅ implementado y testeado · 🟡 implementado sin test aut
 | RF-3.8 | El perfil incluye un **segundo eje, fluidez (λ)**: mediana del tiempo relativo (`segundos observados / segundos de lectura`) sobre las respuestas correctas, medidas y esforzadas | ✅ | `universo.irt.fluency/classify`, `fluency_test.cljs`, ADR-019 |
 | RF-3.9 | Con menos de 4 respuestas usables **no se asigna banda de fluidez**: se informa la medición sin etiquetar | ✅ | `fluency/min-responses`, `classify` (`:enough?`) + test |
 | RF-3.10 | El cruce banda de θ × banda de λ produce uno de cuatro perfiles, cada uno con una **acción distinta** | ✅ | `fluency/profiles`, `profile-for` + test |
-| RF-3.11 | Los cortes de fluidez son **configurables por banco** (`test_configs.fluency_fluida_max` / `fluency_media_max`); sin config se usan los defaults del código | 🟡 | `fluency/thresholds-from-config`, migración `041` ⏳ **sin aplicar** |
+| RF-3.11 | Los cortes de fluidez son **configurables por banco** (`test_configs.fluency_fluida_max` / `fluency_media_max`); sin config se usan los defaults del código | ✅ | `fluency/thresholds-from-config`, migración `041` aplicada 2026-08-13 |
 
 ### RF-4 — Mi plan
 

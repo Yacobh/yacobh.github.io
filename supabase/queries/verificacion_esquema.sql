@@ -12,7 +12,7 @@
 -- cualquier cuenta gratuita.
 --
 -- Correr esto después de cada tanda de migraciones, y ante cualquier duda.
--- El bloque H sirve además para cerrar T-48 (versionar el DDL real).
+-- El bloque G sirve además para cerrar T-48 (versionar el DDL real).
 
 -- ===========================================================================
 -- A. Inventario: qué tablas existen, con RLS y tamaño aproximado
@@ -96,6 +96,8 @@ with esperado (tabla, columna, migracion) as (values
   ('test_configs',     'prerequisite_topic',     '020'),
   ('test_configs',     'display_name',           '022'),
   ('test_configs',     'min_response_seconds',   '028'),
+  ('test_configs',     'fluency_fluida_max',     '041'),
+  ('test_configs',     'fluency_media_max',      '041'),
   ('misconceptions',   'slug',                   '027'),
   ('misconceptions',   'module_id',              '027'),
   ('modules',          'slug',                   '001'),
@@ -264,3 +266,61 @@ where n.nspname = 'public'
   and p.proname in ('is_admin', 'normalize_topic', 'next_question',
                     'score_answer', 'track_visitor')
 order by p.proname;
+
+-- ===========================================================================
+-- H. ⏱ Migración 041 — umbrales del eje de fluidez por banco (ADR-019)
+-- ===========================================================================
+-- El bloque C ya dice si las columnas llegaron. Esto verifica lo que una
+-- columna presente todavía no garantiza: el tipo, el `not null`, los defaults
+-- y —lo que más importa— el check que impide invertir las bandas.
+--
+-- Por qué el check importa más que el resto: sin él, un
+-- `fluency_media_max < fluency_fluida_max` produce bandas imposibles y
+-- `universo.irt.fluency/thresholds-from-config` se cae de vuelta a los
+-- defaults en silencio. El estudiante vería una clasificación que no
+-- corresponde a lo configurado, sin ningún error a la vista.
+
+-- H.1 — Definición real de las dos columnas.
+-- Esperado: double precision · is_nullable = NO · default 3 y 6.
+select column_name, data_type, is_nullable, column_default
+from information_schema.columns
+where table_schema = 'public'
+  and table_name = 'test_configs'
+  and column_name in ('fluency_fluida_max', 'fluency_media_max')
+order by column_name;
+
+-- H.2 — El check de bandas ordenadas.
+-- Esperado: exactamente una fila, con
+--   ((fluency_fluida_max > 0) AND (fluency_media_max > fluency_fluida_max))
+select con.conname as restriccion,
+       pg_get_constraintdef(con.oid) as definicion
+from pg_constraint con
+join pg_class rel on rel.oid = con.conrelid
+join pg_namespace n on n.oid = rel.relnamespace
+where n.nspname = 'public'
+  and rel.relname = 'test_configs'
+  and con.conname = 'test_configs_fluency_bands_ordenadas';
+
+-- H.3 — Valores por banco, y si alguno quedó fuera de rango.
+-- Esperado tras aplicar 041 sin editar nada: todos en 3 / 6.
+-- ⚠ `mq_%` es el track experimental (ADR-018), no producto PAES.
+select topic,
+       fluency_fluida_max,
+       fluency_media_max,
+       case when fluency_media_max <= fluency_fluida_max then '❌ INVERTIDO'
+            when fluency_fluida_max = 3 and fluency_media_max = 6 then 'default (sin calibrar)'
+            else 'configurado a mano' end as estado
+from public.test_configs
+order by topic;
+
+-- H.4 — Prueba destructiva del check, SOLO si querés confirmarlo en vivo.
+-- Está comentada a propósito: escribe. Corre dentro de una transacción que
+-- termina en `rollback`, así que no deja rastro, pero igual escribe.
+-- Esperado: ERROR ... violates check constraint
+--   "test_configs_fluency_bands_ordenadas"
+--
+--   begin;
+--     update public.test_configs
+--        set fluency_media_max = 1
+--      where topic = (select topic from public.test_configs order by topic limit 1);
+--   rollback;

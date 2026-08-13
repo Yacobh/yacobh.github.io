@@ -1767,9 +1767,11 @@ cuántica de nivel universitario.
 - Es exactamente la situación de `028` antes de `032`: un número autoral razonable
   que los datos pueden mostrar del lado equivocado. La herramienta para decidirlo ya
   existe: `universo.irt.fluency/calibration-report`.
-- ✅ **Hecho: el umbral es configurable por banco** (migración `041`, editable en
-  Admin → Configuración de tests). Un banco de cuántica y uno de enteros ya no
-  comparten qué cuenta como fluido.
+- ✅ **Hecho: el umbral es configurable por banco** (migración `041`, **aplicada en
+  producción el 2026-08-13**, editable en Admin → Configuración de tests). Un banco
+  de cuántica y uno de enteros ya no comparten qué cuenta como fluido. Columnas
+  verificadas contra la base real; el check y los valores por banco se confirman
+  con el bloque H de `supabase/queries/verificacion_esquema.sql`.
 - ⏳ **Falta lo que importa: elegir los números con datos.** Que sea configurable no
   calibra nada; solo mueve la decisión a un lugar donde se puede corregir sin tocar
   código. Los defaults siguen siendo el 3/6 autoral.

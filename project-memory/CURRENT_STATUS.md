@@ -782,11 +782,13 @@
 > Ese número es la primera evidencia de que el corte `:fluida` = 3,0 puede ser **demasiado generoso
 > para ítems conceptuales** ([[BACKLOG]] T-65).
 >
-> **Migración `041` — ⏳ pendiente de aplicar.** Hace configurables por banco los cortes de fluidez
+> **Migración `041` — ✅ aplicada el 2026-08-13.** Hace configurables por banco los cortes de fluidez
 > (`test_configs.fluency_fluida_max` / `fluency_media_max`, `not null default 3`/`6` con check que
-> impide invertirlos), editables en Admin → Configuración de tests. Verificada contra un PostgreSQL
-> 14 desechable (aplica limpia, defaults correctos, el check rechaza la inversión, idempotente).
-> Hasta que el owner la aplique, el código cae a `fluency/default-thresholds` y todo funciona igual.
+> impide invertirlos), editables en Admin → Configuración de tests. Se había probado contra un
+> PostgreSQL 14 desechable, y tras aplicarla **se verificó contra la base real de producción** que
+> las dos columnas existen (PostgREST + anon key, con control positivo y negativo — ver
+> [[../supabase/SCHEMA]] §Verificación). Falta confirmar el check y los valores por banco: eso solo
+> se ve desde el SQL Editor, con el **bloque H** de `supabase/queries/verificacion_esquema.sql`.
 > **Lo que a propósito NO se hizo:** bajar el corte de `mq_momento_angular` a 2,0/4,5. El `update`
 > está escrito y **comentado** dentro de la migración: aplicarlo por un único test rendido por una
 > sola persona sería fijar un número por criterio y presentarlo como medición — exactamente el error
@@ -825,7 +827,7 @@ las próximas semanas.
 | Perfil del estudiante | ✅ dos ejes: θ (IRT) y **fluidez λ** (ADR-019), con la tarjeta 2×2 en «Mi plan», en producción desde el 2026-08-12. Umbrales de λ **sin calibrar** (T-65) |
 | Contenido pedagógico | 🟡 58/61 recursos publicados (T-01); faltan los 2 módulos nuevos de `031` y los 7 de geometría (T-56) |
 | Banco de ítems | 🟡 387 ítems PAES; topics canónicos y 259 con módulo, **128 sin módulo** (bancos mezclados, T-60). Además 123 ítems `mq_` del track experimental, **aislados** (`active = false`) — las métricas necesitan `where topic not like 'mq\_%'` |
-| Migraciones | 🟡 `033`–`040` aplicadas (2026-08-11); **`041` pendiente de aplicar** (umbrales de fluidez por banco). Sin ella el código usa los defaults y no se rompe nada |
+| Migraciones | ✅ **ninguna pendiente** — `033`–`040` aplicadas el 2026-08-11 y **`041` el 2026-08-13**; las columnas de `041` se verificaron contra la base real (ver [[../supabase/SCHEMA]] §Verificación) |
 | Email de cohorte | ✅ desplegado y verificado en producción (T-02, 2026-08-09) |
 | Documentación / memoria | ✅ PMF operativo desde 2026-07-26; auditada el 2026-08-10, actualizada el 2026-08-12 |
 | CI | 🟡 `.github/workflows/test.yml` existe (T-06); staging y monitoreo ⛔ inexistentes |

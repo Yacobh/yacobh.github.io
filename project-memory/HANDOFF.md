@@ -1,7 +1,8 @@
 # HANDOFF
 
-**Fecha del handoff: 2026-08-12** · Rama `main` @ `52afdae` (merge de PR #36) · Sin trabajo sin
-mergear · ⏳ una migración escrita y **sin aplicar**: `041` (umbrales de fluidez por banco)
+**Fecha del handoff: 2026-08-13** · Rama `main` @ `daa52f9` · Sin trabajo sin mergear ·
+**Ninguna migración pendiente**: `041` se aplicó el 2026-08-13 y sus columnas se verificaron contra
+la base real
 
 > Este documento existe para que **una persona o un agente de IA sin acceso al historial de
 > conversaciones** pueda continuar el proyecto. Si solo puedes leer un archivo, lee este.
@@ -104,8 +105,8 @@ Edge Function (Deno) send-enrollment-emails → Resend
   `email_outbox` (MVP).
 - **Migraciones:** scripts SQL en `supabase/migrations/`, aplicados **a mano** en el SQL Editor, en
   el orden de `supabase/SCHEMA.md` -- esa es la lista que se mantiene al día, no se duplica el número
-  aquí. No hay `db push`. **Al 2026-08-12 queda una sola pendiente: `041`** (umbrales de fluidez por
-  banco). Sin ella el cliente usa `fluency/default-thresholds` y nada se rompe.
+  aquí. No hay `db push`. **Al 2026-08-13 no queda ninguna pendiente**: `041` se aplicó y sus
+  columnas se verificaron contra la base real (`SCHEMA.md` §Verificación).
   ⚠️ Pero el esquema **no se puede reconstruir desde cero** con esas migraciones: `public.questions`
   y `public.is_admin()` preexisten y no están versionados (T-48).
 - **Deploy:** GitHub Pages sobre `main`. **El bundle `public/js/app.js` está versionado en Git**: sin
@@ -124,7 +125,7 @@ Detalle: [[ARCHITECTURE]] · [[TECH_STACK]] · [[DEPENDENCIES]].
 |------|--------|
 | Funnel completo (login → diagnóstico → perfil → plan → cupo) | ✅ operativo |
 | Motor IRT (1PL + MAP + parada por SE) | ✅ implementado y testeado |
-| Eje de fluidez λ (ADR-019) | ✅ en producción (2026-08-12); 🟡 umbrales **sin calibrar** (T-65) y migración `041` sin aplicar |
+| Eje de fluidez λ (ADR-019) | ✅ en producción (2026-08-12), configurable por banco desde `041` (2026-08-13); 🟡 umbrales **sin calibrar** — siguen en el 3/6 autoral (T-65) |
 | Panel de administración | ✅ operativo |
 | Contenido pedagógico | 🟡 58/61 recursos publicados (T-01); faltan geometría (T-56) y los 2 módulos creados en `031` |
 | Banco de ítems | 🟡 387 ítems, topics canónicos; **128 sin `module_id`** (bancos mezclados, T-60) |
@@ -172,8 +173,8 @@ T-08, T-19). Lo que importa ahora, en orden:
 | # | Pendiente | Tipo | Tarea |
 |---|-----------|------|-------|
 | 1 | **Difundir el cupo del 2026-08-15** y revisarlo el día 14 (si no hay 3 inscritos, no se confirma) | Negocio | R-19, R-11 |
-| 2 | **Aplicar la migración `041`** en el SQL Editor (umbrales de fluidez por banco) | Técnico | T-65 |
-| 3 | **Calibrar los umbrales de fluidez con datos** (`fluency/calibration-report`), no con criterio: el 3,0/6,0 es autoral, igual que el `3` de `028` antes de `032` | Producto | T-65 |
+| 2 | **Calibrar los umbrales de fluidez con datos** (`fluency/calibration-report`), no con criterio: el 3,0/6,0 es autoral, igual que el `3` de `028` antes de `032`. Que `041` esté aplicada no calibra nada — solo mueve la decisión a un lugar editable | Producto | T-65 |
+| 3 | Correr el **bloque H** de `supabase/queries/verificacion_esquema.sql`: confirma el check y los valores de `041`, que la verificación externa no alcanza a ver | Técnico | T-65 |
 | 4 | Instrumentar el embudo: el sitio recibe tráfico y no se mide nada | Producto | T-20 |
 | 5 | Clasificar los 128 ítems de `diagnostico`/`paes_m1` sin módulo (33 % del banco) | Contenido | T-60 |
 | 6 | Versionar el DDL real del esquema: hoy el repo no puede reconstruirlo | Técnico | T-48 |
@@ -277,9 +278,10 @@ Y los nueve posteriores, que tocan lo que se está trabajando hoy:
 
 1. **Verificar la realidad antes de tocar nada:** `git status`, `git log main..HEAD --oneline`,
    `clj -M:test` (esperado: 74/410/0). Comprobar si sigue habiendo migraciones sin aplicar
-   (`supabase/SCHEMA.md` marca `041` como ⏳).
-2. **Aplicar `041`** en el SQL Editor de Supabase. Es idempotente y ya se probó contra un
-   PostgreSQL 14 desechable; hasta aplicarla, los cortes de fluidez son los defaults del código.
+   (`supabase/SCHEMA.md` lleva la lista; al 2026-08-13 no hay ninguna ⏳).
+2. **Confirmar `041` del todo** con el bloque H de `supabase/queries/verificacion_esquema.sql`: las
+   columnas ya se verificaron desde fuera, pero el check y los valores por banco solo se ven desde
+   el SQL Editor.
 3. **Calibrar los umbrales de fluidez con datos** (T-65): correr `fluency/calibration-report` sobre
    el histórico y reemplazar el 3,0/6,0 autoral por cortes medidos. Es la misma deuda que `032`
    saldó para `min_response_seconds` — un número puesto a mano puede estar del lado equivocado.
