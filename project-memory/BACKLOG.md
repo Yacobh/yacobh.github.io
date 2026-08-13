@@ -2076,13 +2076,103 @@ separando el embudo (bloquea) del panel de administración (informativo: se usa 
 
 - **Relacionado:** T-67 (verificación visual, sigue abierta), [[../adr/ADR-021-linea-del-tiempo-historica]].
 
+### T-74 · Archivar el blog `jacobocordova.blogspot.com` antes de que desaparezca — **P2** · `abierta` (2026-08-13)
+
+El blog **"Academia Integral"** (<https://jacobocordova.blogspot.com/>, 21 entradas, jul 2010 – feb
+2012) es la única evidencia de la implementación de software del Sistema Llovizna y del origen del
+nombre que el producto usa hoy. Ver [[RAIZ_SISTEMA_LLOVIZNA]] §1–2.
+
+**Por qué es urgente aunque sea P2:** está alojado en Blogger, sin ningún compromiso de permanencia,
+sobre una cuenta personal de hace 16 años. A diferencia de la tesis y la propuesta de 2012, el owner
+**no tiene el documento fuente**: el contenido *es* la plataforma. Es el tipo de dependencia externa
+que [[DEPENDENCIES]] registra.
+
+**Qué hacer:**
+1. Exportar el blog completo desde Blogger (Configuración → Administrar blog → Copia de seguridad
+   del contenido) — genera un XML con entradas y comentarios.
+2. Convertir a Markdown y versionar en `docs/blog-academia-integral/`, con el mismo criterio de
+   R-26: **revisar datos personales antes del `git add`**.
+3. Descargar las imágenes referenciadas (diagramas de arquitectura y capturas del sistema de
+   2011–2012, que hoy solo existen en los servidores de Blogger).
+
+**Criterio de terminado:** el contenido del blog es legible desde el repositorio sin conexión a
+Blogger y sin datos personales. **Archivar no es publicar:** en la memoria solo entra lo que informe
+una decisión del producto.
+
+**Relacionado:** [[RAIZ_SISTEMA_LLOVIZNA]], [[../adr/ADR-024-raiz-en-la-tesis-2010]], [[RISKS]] R-26
+(criterio de redacción), [[DEPENDENCIES]].
+
+---
+
+### T-75 · Responder en la landing la objeción "¿para qué medir, si puedo preguntar?" — **P1** · ✅ `hecha` (2026-08-13)
+
+**Implementada el mismo día que se abrió.** Nueva entrada del FAQ, sincronizada en los **tres**
+lugares (R-05) y colocada justo después de *"¿Qué necesito para empezar?"* — que es donde el lector
+acaba de leer "toma alrededor de 20 minutos" y se hace exactamente esta pregunta:
+
+> **¿Por qué no me preguntan directamente qué no entiendo?**
+> Porque casi nadie puede responder eso con precisión, y no es culpa tuya: cuando arrastras un error
+> conceptual sientes que estás aplicando bien la regla, así que el error es invisible desde adentro.
+> A eso se suma que decir «no entendí» delante del curso cuesta, y que aunque pudieras nombrar todas
+> tus dudas, seguirías sin saber cuál atacar primero. Por eso el diagnóstico no te pregunta qué te
+> falta: lo mide, lo ordena por prioridad y te muestra el error concreto detrás de cada respuesta
+> equivocada.
+
+Las tres cláusulas son los tres argumentos de la tesis, en lenguaje de estudiante y sin jerga: el
+déficit no es consciente · la presión social suprime la pregunta (Fies 2005) · preguntar no ordena.
+La última frase describe capacidades **que el producto sí tiene** (`deficits` ordenados por tasa de
+error + capa 0 desde `questions.error_a..d`), así que sigue siendo defendible.
+
+**Verificado:** `src/universo/components/landing.cljs`, `index.html` y `public/index.html` con el
+mismo texto; `clj -M:test` → **83 tests / 454 assertions / 0 failures**; `npx shadow-cljs release
+app` → 0 warnings y la frase presente en `public/js/app.js`; `npm run build:css`;
+`audit_contraste.py` y `audit_movil.py` en verde.
+
+**Queda pendiente medir si sirve:** sin analítica (T-20) no se sabrá si mejora la conversión
+landing → cuenta. Es una decisión de copy fundada en evidencia de 2011, no una hipótesis validada.
+
+<details><summary>Planteamiento original de la tarea</summary>
+
+**De dónde sale:** no de una hipótesis de marketing. Es la objeción que la propuesta viene recibiendo
+desde que se expuso en público por primera vez, en 2011, planteada entonces por varias personas
+distintas ([[OPEN_QUESTIONS]] Q-31): *¿para qué un diagnóstico de 20 minutos, si el estudiante puede
+decir qué no entiende?*
+
+**Por qué hay que responderla y no ignorarla:** es la primera pregunta que se hace una familia frente
+a la propuesta, y **el copy publicado hoy no la toca**. La landing argumenta que el diagnóstico
+personaliza y que agrupa por nivel; no argumenta por qué **medir** es distinto de **preguntar**.
+
+**La respuesta ya existe y es del proyecto, no inventada** — viene de la tesis de 2010 (Fies 2005) y
+de la distinción medición ≠ evaluación:
+
+1. **El estudiante que no sabe qué le falta no puede decirlo.** El déficit no es consciente: quien
+   arrastra un error conceptual cree que está aplicando bien la regla. Preguntar solo recoge lo que
+   el estudiante ya sabe que ignora.
+2. **La presión social suprime la pregunta.** Nadie levanta la mano delante de treinta compañeros
+   para decir que no entendió — es literalmente el hallazgo de Fies (2005) que el owner ya citaba en
+   2011.
+3. **Preguntar no ordena.** Aunque el estudiante nombrara sus dudas, no puede priorizarlas ni
+   ubicarlas en una progresión; θ y los déficits por módulo sí.
+
+**Criterio de terminado:** la landing (o el FAQ) contiene una respuesta explícita a *"¿por qué no
+simplemente me preguntan qué no entiendo?"*, en lenguaje de estudiante y sin jerga psicométrica.
+Recordar que el copy vive en **tres lugares** ([[RISKS]] R-05) y que publicar exige
+`npx shadow-cljs release app` + commit de `app.js` (ADR-003).
+
+**Relacionado:** [[OPEN_QUESTIONS]] Q-31, [[RISKS]] R-19 (difundir sin responder esto es difundir
+peor), [[BUSINESS_CONTEXT]] §3, T-20 (sin analítica, no se sabrá si mejora la conversión).
+
+</details>
+
+---
+
 ## Resumen por prioridad
 
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
 ---

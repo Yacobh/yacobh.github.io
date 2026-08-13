@@ -53,6 +53,11 @@
     :a "El diagnóstico, tu perfil y el plan de estudio no tienen costo. Es un proyecto personal del profesor Jacobo Córdova, que se originó en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat."}
    {:q "¿Qué necesito para empezar?"
     :a "Solo una cuenta con tu correo. El diagnóstico se hace desde el navegador, en computador o teléfono, y toma alrededor de 20 minutos."}
+   ;; Responde la objeción de fondo al producto: «¿para qué medir, si puedo preguntar?».
+   ;; No es una hipótesis de marketing — es la crítica que el sistema recibió en 2011 y que
+   ;; sigue siendo la primera que se hace cualquiera. Ver BACKLOG T-75 y OPEN_QUESTIONS Q-31.
+   {:q "¿Por qué no me preguntan directamente qué no entiendo?"
+    :a "Porque casi nadie puede responder eso con precisión, y no es culpa tuya: cuando arrastras un error conceptual sientes que estás aplicando bien la regla, así que el error es invisible desde adentro. A eso se suma que decir «no entendí» delante del curso cuesta, y que aunque pudieras nombrar todas tus dudas, seguirías sin saber cuál atacar primero. Por eso el diagnóstico no te pregunta qué te falta: lo mide, lo ordena por prioridad y te muestra el error concreto detrás de cada respuesta equivocada."}
    {:q "¿Puedo usar calculadora en el diagnóstico?"
     :a "No. El diagnóstico busca reflejar tus habilidades tal como las usarás en la PAES, así que no debes usar calculadora ni ayudas externas. El tiempo de respuesta también se considera en la estimación."}
    {:q "¿Qué pasa si me va mal en el diagnóstico?"

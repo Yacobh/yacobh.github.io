@@ -10,6 +10,12 @@ Libro del Proyecto", Borrador v0.1, compartido por Jacobo Córdova el 2026-07-27
 > [[PROJECT_BRIEF]] (alcance del MVP actual) ni a [[ROADMAP]] (fases reconstruidas del historial
 > de commits) — los complementa como el destino declarado hacia el que el owner quiere avanzar.
 >
+> **2026-08-13 — este documento tiene un antecedente de 2010.** Varias de sus ideas centrales (el
+> control retroalimentado de §3.2, la frecuencia del Eje 2 en §3.3) ya estaban planteadas en la
+> **tesis de grado del owner (UNEXPO, 2010)**, que es la raíz real del proyecto. El libro es el
+> **norte**; la tesis es la **raíz**. No compiten: ver [[RAIZ_SISTEMA_LLOVIZNA]] y
+> [[../adr/ADR-024-raiz-en-la-tesis-2010]].
+>
 > **2026-07-30 (owner, Q-21, [[../adr/ADR-011-vision-libro-como-norte-estrategico]]):** esta visión
 > queda confirmada como el **norte estratégico**; el MVP es explícitamente "una versión menor que
 > busca llegar a ese objetivo", no un producto final alternativo. Esto resuelve la tensión de
@@ -72,6 +78,24 @@ error no es un fracaso sino información que calibra el modelo del estudiante.
 Esto es, en esencia, una descripción de alto nivel de lo que el motor IRT (1PL/MAP) ya hace en el
 código actual — ver [[TERMINOLOGY]] "IRT / TRI" y [[../adr/ADR-004-irt-1pl-map-y-regla-de-parada]].
 El libro lo generaliza como principio de diseño, no introduce un mecanismo distinto.
+
+> ### Antecedente de 2010: esta idea no nace con el libro (nota del 2026-08-13)
+>
+> El capítulo I de la **tesis de grado del owner (UNEXPO, 2010)** ya plantea exactamente esto, y de
+> forma más específica: no solo "el aula es un sistema de control", sino **cuál es la variable a
+> corregir**. Cita textual (§1.1): *"Tomando un enfoque industrial se podrá ver el aula de clases
+> como una planta […] el proceso de enseñanza-aprendizaje es un proceso social con control
+> discreto"*; y (§1.1.1): *"entre mayor es el periodo de muestreo, más descontrolada y menos
+> eficiente es una planta"*.
+>
+> **Esto no debilita al libro: lo respalda.** Deja de ser una analogía traída para explicar un
+> producto ya construido y pasa a ser una línea de trabajo de dieciséis años, con tesis aprobada
+> detrás. Y explica de dónde sale el Eje 2: **λ como "respuestas por minuto" es literalmente una
+> frecuencia de muestreo** en el sentido de 2010 — ver el recuadro de §3.3 sobre por qué ADR-019
+> terminó midiéndolo con otra fórmula.
+>
+> Ver [[RAIZ_SISTEMA_LLOVIZNA]] y [[../adr/ADR-024-raiz-en-la-tesis-2010]]. **No se edita el texto del
+> owner** — se anota, igual que se hizo con el Eje 3 (D-41).
 
 ### 3.3 Modelo de clasificación de dos (y eventualmente tres) ejes
 

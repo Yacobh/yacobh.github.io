@@ -7,10 +7,21 @@ migraciones SQL, landing y `PROJECT_SUMMARY.md`
 > una visión de negocio de largo plazo más amplia (multi-materia, pago por clase, contenido
 > narrativo-histórico) documentada en [[VISION_LIBRO_PROYECTO]] — **no implementada**, y en
 > tensión directa con las exclusiones de §6. No asumir que ese documento ya rige el producto.
+>
+> **Y tiene una raíz anterior al código.** Este producto es la continuación de la tesis de grado del
+> owner en Ingeniería Electrónica (**UNEXPO, Venezuela, 2010**): un sistema de respuesta en el aula
+> que ya planteaba el aula como planta, la evaluación como muestreo y la distinción medición ≠
+> evaluación. Lo que aquí se llama MVP es la **recomendación no implementada de esa tesis**
+> —individualizar la evaluación— ejecutada sobre otra capa tecnológica. Ver [[RAIZ_SISTEMA_LLOVIZNA]] y
+> [[../adr/ADR-024-raiz-en-la-tesis-2010]] (2026-08-13).
 
 ## 1. Nombre del proyecto
 
 **Academia Integral** — plataforma de diagnóstico adaptativo y preparación PAES Matemática 1.
+
+> **El nombre es de julio de 2010**, no de esta etapa: es el título del blog con que el owner
+> documentó el proyecto raíz, con justificación escrita en 2012. Dieciséis años y tres reescrituras
+> técnicas después, sobrevivió. Ver [[RAIZ_SISTEMA_LLOVIZNA]] §2.1 y [[OPEN_QUESTIONS]] Q-23.
 
 - Repositorio: `Yacobh/yacobh.github.io` (GitHub)
 - Dominio de producción: <https://jacobocordova.com>
@@ -110,8 +121,9 @@ primero y con qué grupo hacerlo.
 
 | Rol | Quién | Interés / responsabilidad |
 |-----|-------|---------------------------|
-| Owner / desarrollador / profesor | **Jacobo Córdova** (`jacobocordova@gmail.com`) | Decide producto, escribe el código, dicta el contenido pedagógico. Único responsable técnico. |
-| Origen histórico del proyecto | **Universidad Arturo Prat (UNAP)**, Iquique | Convenio de desarrollo a honorarios, oct–nov 2025, **ya terminado**; sin alianza institucional ni autorización de marca vigente. Se menciona solo como nota histórica de origen en footer/FAQ (D-18), no como patrocinio activo. |
+| Owner / desarrollador / profesor | **Jacobo Córdova** (`jacobocordova@gmail.com`) | Decide producto, escribe el código, dicta el contenido pedagógico. Único responsable técnico. **Autor de la tesis raíz de 2010** ([[RAIZ_SISTEMA_LLOVIZNA]]): la continuidad conceptual del proyecto depende de una sola persona, igual que la técnica ([[RISKS]] R-01). |
+| Origen intelectual del proyecto | **UNEXPO**, Vicerrectorado Puerto Ordaz (Venezuela), 2010 | Institución donde el owner presentó el trabajo de grado que es la raíz de este producto. Vínculo **histórico y terminado**; no hay relación vigente ni autorización de marca. No se menciona en producción todavía — la redacción está sin decidir ([[OPEN_QUESTIONS]] Q-30). |
+| Episodio de financiamiento (no es el origen) | **Universidad Arturo Prat (UNAP)**, Iquique | Convenio de desarrollo a honorarios, oct–nov 2025, **ya terminado**; sin alianza institucional ni autorización de marca vigente. **Corregido 2026-08-13 (D-45):** el repositorio arranca el **2025-05-03**, cinco meses antes del convenio — la UNAP financió una etapa, no originó el proyecto. Hoy el copy publicado todavía dice lo contrario (D-18): ver X-09. |
 | Estudiantes | Postulantes a la PAES M1, principalmente Iquique / región de Tarapacá y online en Chile | Usuarios finales: hacen el diagnóstico, siguen el plan, se inscriben en cupos. |
 | Administradores de plataforma | Cuentas con `profiles.role = 'admin'` | Cargan preguntas y recursos, publican cupos, moderan testimonios, gestionan roles. |
 | Proveedores | Supabase, GitHub Pages, Resend, jsDelivr (CDN KaTeX) | Servicios de los que depende la operación. Ver [[DEPENDENCIES]]. |
@@ -120,6 +132,11 @@ primero y con qué grupo hacerlo.
 > **Resuelto (D-18, 2026-07-28):** el vínculo con UNAP fue un convenio a honorarios de alcance
 > acotado (oct–nov 2025), ya terminado, sin autorización de marca ni alianza institucional
 > vigente. Ver [[OPEN_QUESTIONS]] Q-01 (respondida) y [[DECISIONS]] D-18.
+>
+> **Corregido (D-45 / [[../adr/ADR-024-raiz-en-la-tesis-2010]], 2026-08-13):** D-18 acertó al bajar a
+> la UNAP de respaldo vigente a nota histórica, pero al hacerlo fijó el convenio como **origen**, y
+> no lo es. La raíz es la tesis UNEXPO de 2010 ([[RAIZ_SISTEMA_LLOVIZNA]]). El copy público sigue diciendo
+> *"se originó en 2025…"*: corregirlo es Q-30 y depende del owner.
 
 ## 8. Criterios de éxito
 

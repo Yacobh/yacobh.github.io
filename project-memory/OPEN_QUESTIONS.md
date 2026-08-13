@@ -1,7 +1,8 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-12** (Q-27 nueva: el mínimo de respuestas del eje de fluidez;
-Q-26 respondida; **X-01 resuelta en producción**)
+Última actualización: **2026-08-13** (Q-28 evaluada: la publicidad **no** califica como ingreso;
+Q-29 y Q-30 nuevas y **X-09 nueva**: la raíz del proyecto es la tesis de 2010, no el convenio UNAP —
+ver [[RAIZ_SISTEMA_LLOVIZNA]] y [[../adr/ADR-024-raiz-en-la-tesis-2010]])
 
 > **Regla fundamental de PMF: si falta información, no se asume — se registra aquí.**
 > Ninguna pregunta se borra: cuando se responde, se marca ✅ con la fecha y la respuesta, y si
@@ -124,6 +125,121 @@ para roadmapear el camino hacia esa visión — **todavía sin decidir el cómo*
 **Relacionado:** Q-22, Q-23 (siguen abiertas — nombre de marca y taxonomía de bandas del libro vs.
 el código no se resolvieron con esta confirmación, son decisiones de implementación separadas).
 
+### ✅ Q-28 · ¿La publicidad califica como fuente de ingresos para este sitio? — Evaluada 2026-08-13
+**Pregunta del owner (2026-08-13):** una página web puede ganar dinero con publicidad; ¿es coherente
+con este sitio?
+**Respuesta (evaluación del agente sobre la memoria del proyecto, **no** decisión del owner):
+**no, hoy no califica.** Cuatro razones, ninguna de opinión:
+
+1. **Contradice una promesa ya publicada.** `src/universo/components/privacidad.cljs:54` dice
+   textualmente *"No vendemos tus datos a terceros ni los usamos con fines publicitarios"*. Toda red
+   publicitaria inyecta scripts de terceros que perfilan al visitante. Ponerla obliga a retractar ese
+   texto, que además está triplicado ([[RISKS]] R-05).
+2. **Público mayoritariamente menor de edad, con plazo legal encima.** [[RISKS]] R-06 está en
+   severidad **Alta y activa**; la **Ley 21.719** entra en plena vigencia el **1/12/2026** con
+   consentimiento escalonado por edad, y el registro solo pide una declaración propia sin fecha de
+   nacimiento (Q-03). Las propias redes publicitarias prohíben anuncios personalizados a menores de
+   18. Sería subir el riesgo más crítico del proyecto justo dentro de la ventana de captación.
+3. **La aritmética no da.** El producto es un embudo de **una sesión de ~20 min por persona**, con
+   pocas páginas vistas por usuario y **sin analítica conectada** (M-01…M-09 sin instrumentar,
+   [[BACKLOG]] T-20). Con RPM típicos de Chile (orden de US$0,5–3 por mil impresiones) harían falta
+   decenas de miles de vistas para igualar **una hora de clase a $10.000 CLP** (D-32). Además los
+   costos de infraestructura ya son **$0** (B-05, S-09): no hay déficit que cubrir, y el costo real
+   dominante —el tiempo del profesor, [[RISKS]] R-01— la publicidad no lo paga a esta escala.
+4. **Erosiona el único activo de credibilidad que queda.** Tras D-18 el proyecto ya no se apoya en
+   respaldo institucional vigente y su credibilidad descansa en el método (B-07). Banners dentro de
+   un diagnóstico psicométrico para menores destruyen eso, y contradicen el lenguaje visual adoptado
+   en [[../adr/ADR-022-lenguaje-braun-rams]] / [[../adr/ADR-023-panel-de-instrumento]].
+
+**Lo que sí es coherente:** (a) el ingreso ya decidido y **no implementado** — clases a $10.000
+CLP/hora, falta pasarela, [[BACKLOG]] T-04; (b) **B2B a colegios / licencia institucional**
+([[VISION_LIBRO_PROYECTO]] §4.3–4.4); (c) **patrocinio o auspicio nombrado** — mención estática de un
+aliado, sin scripts de terceros ni tracking: no rompe la promesa de privacidad porque no hay
+perfilamiento, y es distinto de publicidad programática. Nótese que la inversión que sí mueve la
+aguja va en dirección contraria: **gastar** en publicidad para captar estudiantes antes de la
+temporada PAES ([[BUSINESS_CONTEXT]] §7, estacionalidad), no vender espacio.
+**Advertencia de capacidad:** integrar y mantener publicidad competiría por el mismo tiempo del único
+desarrollador (R-01) que necesitan T-04 y la captación — exactamente la vía de fuga de [[RISKS]] R-19.
+**Consecuencia:** [[DECISIONS]] D-46. Si el owner quiere revertir esto, la vía menos costosa es (c),
+no una red publicitaria.
+
+### ✅ Q-29 · ¿De dónde sale el nombre "Sistema Llovizna"? — Respondida 2026-08-13
+**Planteada y respondida el mismo día.** Se registró como pregunta porque el nombre **no aparece en
+ninguna parte de `docs/tesis.md`**; el owner aportó entonces `docs/sistema_llovizna.md`, que lo
+resuelve.
+**Respuesta:** el nombre es de **2012**, no de la tesis. Es el título de una **propuesta de
+financiamiento presentada al Estado venezolano** — *"Sistema Llovizna: Diseño, fabricación y puesta
+en marcha de un sistema de TIC para mejorar el rendimiento académico dentro de las aulas de clases"*
+(Ciudad Guayana, estado Bolívar, 2012). El propio documento declara su linaje en §8: *"La propuesta
+se inició como propuesta de tesis para la Universidad Nacional Experimental Politécnica Antonio José
+de Sucre"*. **La postulación no prosperó** (testimonio del owner; el presupuesto del formulario quedó
+en blanco). Es, además, un nombre clave usado en esa gestión de financiamiento.
+**Consecuencia:** el archivo de memoria se renombró a **`RAIZ_SISTEMA_LLOVIZNA.md`** — la raíz no es
+un documento sino una línea de trabajo con dos actos documentados (2010 y 2012). Ver
+[[RAIZ_SISTEMA_LLOVIZNA]] §2 y [[../adr/ADR-024-raiz-en-la-tesis-2010]].
+**Lo que sigue sin documentar (no se asume):** el período **2012–2025**, ~13 años sin registro en
+este repositorio. **Relacionado:** Q-23 (el proyecto ya arrastra cuatro nombres: "Academia Integral",
+"Academia Online de Matemáticas", `universo` y "Sistema Llovizna"), Q-30, [[RISKS]] R-26.
+
+### 🔴 Q-30 · ¿Cómo se cuenta públicamente el origen del proyecto, ahora que se sabe que no es la UNAP?
+**Planteada 2026-08-13.** El copy publicado en los tres lugares (`index.html`, `public/index.html`,
+`landing.cljs`) dice: *"Es un proyecto personal del profesor Jacobo Córdova, que se originó en 2025 a
+partir de un convenio de desarrollo con la Universidad Arturo Prat."* Con
+[[../adr/ADR-024-raiz-en-la-tesis-2010]] eso queda **incorrecto**, y ya lo era según el propio
+repositorio: **el primer commit es del 2025-05-03**, cinco meses antes del convenio (oct–nov 2025).
+**Por qué está sin decidir:** es texto de cara al público, afecta el JSON-LD y toca los tres lugares
+(R-05) + recompilación (ADR-003). Qué contar del origen es decisión del owner, no del agente.
+**Redacción propuesta (a validar):** *"Proyecto personal del profesor Jacobo Córdova. Nace de su
+trabajo de grado en Ingeniería Electrónica (UNEXPO, 2010) sobre sistemas de respuesta en el aula, y
+en 2025 tuvo una etapa de desarrollo a honorarios con la Universidad Arturo Prat, ya terminada."*
+**Decisiones que dependen de esto:** si se menciona la UNEXPO como institución (¿hay que pedir
+autorización de marca, como enseñó Q-01?), si se nombra "Sistema Llovizna" (Q-29, ya respondida: es
+el nombre de una propuesta de financiamiento de 2012), y si el origen entra en el FAQ o solo en la
+página del profesor (`:jacobocordova`).
+**Dato nuevo del 2026-08-13 que hay que sopesar antes de responder:** la propuesta de 2012 está
+redactada dentro del marco político que exigía el formulario estatal venezolano de la época
+(*"Testamento político del comandante Hugo Chávez"*, *"Construcción del Socialismo Bolivariano del
+siglo XXI […] como alternativa al modelo salvaje del capitalismo"*). No dice nada del producto de
+hoy, pero **es parte del documento fuente**, y el repositorio es público (D-42). Contar el origen
+"desde 2010" no obliga a exhibir 2012, ni exhibir 2012 obliga a citar su encuadre — pero conviene
+que la decisión sea consciente y no un descuido. Ver [[RAIZ_SISTEMA_LLOVIZNA]] §2.
+**Credencial disponible (2026-08-13):** el owner fue **ponente oral en el II Congreso Venezolano de
+Ciencia, Tecnología e Innovación** (Caracas, 7–10 nov. 2013) con *"Sistema Llovizna, propuesta para
+la instalación de un computador grupal para las aulas de clases"*, certificado por el Ministerio del
+Poder Popular para Ciencia, Tecnología e Innovación. Es la validación externa más fuerte del proyecto
+y **no depende de ninguna institución vigente** — pero el certificado lleva impresos "Gobierno
+Bolivariano" y "Constructores del Socialismo", y es de hace trece años. Decidir si se cita, y cómo
+(por ejemplo: *"ponencia en el II Congreso Venezolano de Ciencia, Tecnología e Innovación, 2013"*,
+sin reproducir el certificado). Ver [[RAIZ_SISTEMA_LLOVIZNA]] §2.1.
+**Antes de publicar cualquier cosa:** resolver [[RISKS]] **R-26** (cédula, teléfono y fecha de
+nacimiento del owner en los documentos fuente; el certificado la lleva también, por eso no se
+versiona).
+**Mientras siga abierta:** X-09 permanece como contradicción activa entre la memoria y producción.
+**Relacionado:** Q-01, Q-29, [[RAIZ_SISTEMA_LLOVIZNA]], [[RISKS]] R-05.
+
+### ✅ Q-31 · ¿Qué objeciones recibió la propuesta cuando se expuso al público? — Respondida 2026-08-13
+**Contexto:** en 2011 el owner difundió el Sistema Llovizna en un video público y recibió críticas.
+Se revisaron para ver si contenían señal aprovechable para el producto de hoy.
+
+**Respuesta: sí, dos objeciones sustantivas.** El resto no era información de producto y **no se
+documenta** — no aporta a ninguna decisión y este repositorio es público.
+
+1. **"¿Para qué medir, si el estudiante puede decir qué no entiende?"** — planteada por varias
+   personas. **Es la objeción de fondo a la propuesta**, entonces con botones y hoy con un
+   diagnóstico. La respuesta está en la tesis de 2010 (el déficit no es consciente; la presión social
+   suprime la pregunta, vía Fies 2005; nombrar dudas no las prioriza) y **ya está publicada en el
+   FAQ** — [[BACKLOG]] T-75, implementada el 2026-08-13.
+2. **El costo de intervenir el mobiliario de todas las aulas.** Era correcta: esa versión no podía
+   escalar. El producto actual no tiene hardware y corre en el navegador del estudiante, así que la
+   objeción está resuelta por diseño.
+
+**Dato que sí cambia el plan:** aquel alcance **no fue audiencia calificada** — llegó por difusión
+ajena al proyecto, no por interés en la propuesta. La premisa de [[RISKS]] **R-19** se mantiene
+intacta: el proyecto **nunca** ha tenido alcance real ante estudiantes.
+**Consecuencia para Q-30:** no apareció rechazo al encuadre político. Esa evidencia **no** respalda
+el temor de que contar el origen levante ese tipo de objeción.
+**Relacionado:** [[BACKLOG]] T-75, [[RISKS]] R-19, Q-30.
+
 ### 🟡 Q-22 · ¿"Grupos de conocimiento" (3, libro) reemplazan a las bandas de θ (4, código)?
 El libro clasifica en Básico/Medio/Avanzado; el código ya implementado usa
 `inicial/basico/intermedio/avanzado`. No está dicho si son la misma idea con nombres distintos, si
@@ -137,6 +253,16 @@ No está dicho si es un rebranding planeado, un nombre de trabajo interno, o dos
 relacionadas pero separadas (una académica/UNAP, otra comercial/startup).
 **Por qué importa:** afecta copy, dominio, JSON-LD y la relación declarada con UNAP (Q-01) si el
 proyecto se reposiciona como startup con inversión externa.
+**Dato decisivo aparecido el 2026-08-13 (sigue abierta, pero cambia de forma):** **"Academia
+Integral" es el nombre fundacional, de julio de 2010** — es el título del blog
+<https://jacobocordova.blogspot.com/> (*"Bitácora del desarrollo de una academia que integre todo el
+conocimiento humano…"*), y tiene una **justificación escrita** en la entrada *"¿Porqué Academia
+integral?"* (2012-02-01), apoyada en el derecho constitucional a la educación y en la cita de Bolívar
+sobre la ignorancia. No es un nombre comercial reciente: lleva **dieciséis años** y sobrevivió a tres
+reescrituras técnicas. Esto **no decide** cuál usar —"Academia Online de Matemáticas" describe mejor
+el alcance actual de una sola materia, y "Integral" promete algo que el MVP no entrega— pero sí
+invierte la carga: el que tiene que justificarse ahora es el nombre nuevo, no el publicado.
+Ver [[RAIZ_SISTEMA_LLOVIZNA]] §2.1. **Relacionado:** Q-30, Q-29.
 
 ### ✅ Q-24 · ¿Google Meet o Jitsi para las videollamadas de los cupos? — Respondida 2026-07-30
 **Jitsi**, elegido por ser la opción más fácil de implementar: sala ad-hoc por URL
@@ -410,6 +536,7 @@ T-18 (cerrada), [[RISKS]] R-21 (cerrado).
 | X-05 | *(Resuelta 2026-08-09)* `shadow-cljs` 3.0.4 en `deps.edn` vs `^2.19.2` en `package.json` | `deps.edn` vs `package.json` | `package.json` → `^3.0.4`, `npm install` corrido, `npx shadow-cljs release app` verificado en verde. Ver [[BACKLOG]] T-13 |
 | X-06 | *(Resuelta 2026-08-09)* KaTeX `^0.16.22` por npm vs CSS 0.16.9 por CDN | `package.json` vs `index.html` | CDN de `index.html`/`public/index.html` → `0.16.22`. Ver [[BACKLOG]] T-13 |
 | X-07 | `PROJECT_SUMMARY.md` describe una estructura de módulos previa al MVP (menciona `views.cljs` con componentes principales, `jardin`, `voz`… como parte del producto) que ya no refleja el sistema | `PROJECT_SUMMARY.md` vs [[ARCHITECTURE]] | T-33: reducir a puntero o archivar |
+| X-09 | El copy publicado dice que el proyecto *"se originó en 2025 a partir de un convenio con la Universidad Arturo Prat"*; la raíz real es la tesis UNEXPO de 2010, y el primer commit (2025-05-03) es **anterior** al convenio (oct–nov 2025) | `index.html`, `public/index.html`, `landing.cljs` vs [[RAIZ_SISTEMA_LLOVIZNA]], `git log` | 🔴 **Abierta.** [[../adr/ADR-024-raiz-en-la-tesis-2010]] corrige la memoria; el copy público espera decisión del owner sobre la redacción (Q-30). Mismo patrón que X-01: primero que sea verdad, después dejarlo publicado |
 | X-08 | *(Parcialmente resuelta 2026-07-30)* El "Libro del Proyecto" proponía pago por clase, multi-materia e internacionalización | [[VISION_LIBRO_PROYECTO]] §4.4 vs [[PROJECT_BRIEF]] §6, [[BUSINESS_CONTEXT]] §5 | **Pago por clase: resuelto** (D-19/D-26/D-32, $10.000 CLP/hora). **Multi-materia e internacionalización: siguen sin decidir** -- Q-21 confirmó la dirección general, pero no estas decisiones puntuales |
 
 ---

@@ -4,6 +4,40 @@
 *(el cuerpo histórico de este archivo arranca en el corte del 2026-07-26, commit `48bf525`, rama
 `cursor/mvp-operable-funnel`; las notas de sesión de más abajo son la capa vigente)*
 
+> ### 🌱 Se corrigió el origen del proyecto (2026-08-13, sin cambios de código salvo T-75)
+>
+> El owner aportó las fuentes de la etapa venezolana del proyecto y quedó claro que **el relato
+> publicado era falso**: no *"se originó en 2025 a partir de un convenio con la UNAP"* — el primer
+> commit del repo es del **2025-05-03**, cinco meses *antes* del convenio. La raíz es su **tesis de
+> grado (UNEXPO, 2010)** y la línea **Sistema Llovizna**, que llegó hasta una **ponencia oral en el
+> II Congreso Venezolano de Ciencia, Tecnología e Innovación (Caracas, nov. 2013)**.
+>
+> **Lo que esto cambia para el producto de hoy** — el detalle está en [[RAIZ_SISTEMA_LLOVIZNA]], que
+> se mantiene corto a propósito: no es un archivo histórico, solo lo que informa una decisión:
+>
+> - **"Academia Integral" es el nombre de 2010**, no de esta etapa. Reencuadra Q-23: el que debe
+>   justificarse es el nombre nuevo del [[VISION_LIBRO_PROYECTO]], no el publicado.
+> - **La visión de largo plazo no es nueva:** es la ambición de 2012 (base de datos nacional,
+>   contenido de profesores, multi-aula) reformulada. Ya se intentó a esa escala y no se sostuvo. La
+>   pregunta útil no es si volver a ser tan ambiciosos, sino **qué cambió desde entonces**.
+> - **Tres etapas, un mismo cuello de botella:** nunca fue la idea ni la capacidad técnica, fue
+>   llegar a los estudiantes y sostenerlo con una sola persona (R-19 + R-01). Agregar producto sin
+>   resolver eso repite el patrón por cuarta vez.
+> - **Credibilidad:** la ponencia de 2013 es respaldo propio que no depende de ninguna institución
+>   vigente — el vacío que D-18 dejó en B-07. Cautelas en Q-30 (es de 2013, con encuadre político
+>   venezolano).
+> - **Kahoot/AhaSlides** validaron el mecanismo del CRS con el teléfono, **no** este producto: miden
+>   al grupo, no estiman θ ni producen un plan. Encuadre para colegios en [[RAIZ_SISTEMA_LLOVIZNA]] §2.5.
+> - ✅ **T-75 implementada:** la objeción de fondo —*"¿para qué medir si puedo preguntar?"*— ya está
+>   respondida en el FAQ, en los tres lugares. `clj -M:test` **83/454/0**, `release app` sin
+>   warnings, audits en verde, `app.js` commiteado.
+>
+> **Pendiente y es del owner: Q-30** — el copy publicado todavía dice *"se originó en 2025…"*
+> (contradicción X-09). **T-74:** archivar el blog, única fuente fuera del control del proyecto.
+>
+> **Criterio adoptado:** la raíz es **contexto, no mandato**. Este producto es otro y puede llegar a
+> respuestas distintas a propósito; el precedente es D-41.
+
 > ⚠️ **Nota 2026-07-29:** el cuerpo de este archivo (secciones 1–9) sigue describiendo el corte del
 > 26-07. Desde entonces se mergeó a `main` (commit `4998785`, PR #15 "Configuracion") el trabajo de
 > UNAP/privacidad/pricing y la sección "Configuración de cuenta" (nombre, teléfono, solicitud de

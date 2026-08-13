@@ -19,11 +19,29 @@ perfil tiene un **segundo eje, la fluidez (λ)**, que separa "sabe" de "sabe y a
 identidad visual es el **lenguaje Braun / Dieter Rams** sobre un panel de instrumento
 ([[adr/ADR-022-lenguaje-braun-rams]], [[adr/ADR-023-panel-de-instrumento]]).
 
-Es un **proyecto personal del profesor Jacobo Córdova**, que se originó en 2025 a partir de un
-convenio de desarrollo (a honorarios, de alcance acotado, oct–nov 2025, **ya terminado**) con la
-Universidad Arturo Prat — no hay alianza institucional ni autorización de marca vigente hoy (ver
-[[project-memory/OPEN_QUESTIONS]] Q-01, [[project-memory/DECISIONS]] D-18). El diagnóstico, el
-perfil y el plan **no tienen costo**.
+Es un **proyecto personal del profesor Jacobo Córdova**. Su **raíz es la tesis de grado del owner en
+Ingeniería Electrónica (UNEXPO, Puerto Ordaz, 2010)**: un sistema de respuesta en el aula que ya
+planteaba el aula como planta y la evaluación como muestreo, y cuya recomendación final
+—individualizar la evaluación— es lo que este producto ejecuta. En **2012** esa línea se llamó
+**"Sistema Llovizna"** y se postuló a financiamiento estatal venezolano sin éxito; ese documento ya
+especificaba la recomendación automática de recursos que hoy es la capa 1 de "Mi plan". El
+**convenio con la Universidad
+Arturo Prat** (a honorarios, alcance acotado, oct–nov 2025, **ya terminado**) fue un **episodio de
+financiamiento, no el origen**: el primer commit del repo es del 2025-05-03, anterior al convenio. No
+hay alianza institucional ni autorización de marca vigente hoy (ver
+[[project-memory/RAIZ_SISTEMA_LLOVIZNA]], [[adr/ADR-024-raiz-en-la-tesis-2010]],
+[[project-memory/OPEN_QUESTIONS]] Q-01/Q-30, [[project-memory/DECISIONS]] D-18/D-45). El
+diagnóstico, el perfil y el plan **no tienen costo**; las clases sí ($10.000 CLP/hora, D-32), y la
+**publicidad está descartada** como fuente de ingresos (D-46).
+
+> **Cuidado con el copy publicado:** los tres lugares de producción (`index.html`,
+> `public/index.html`, `landing.cljs`) todavía dicen *"se originó en 2025 a partir de un convenio…"*.
+> Es una contradicción conocida (X-09) a la espera de decisión del owner (Q-30) — **no la corrijas
+> por tu cuenta**: es copy de cara al público y toca el JSON-LD.
+>
+> **Y antes de commitear `docs/tesis.md` o `docs/sistema_llovizna.md`:** contienen cédula, teléfono y
+> fecha de nacimiento del owner, sobre un repo público. Ver [[project-memory/RISKS]] **R-26** —
+> redactar primero; después del commit quedan en el historial.
 
 - Sitio en producción: <https://jacobocordova.com> (GitHub Pages + `CNAME`)
 - Estado: **MVP operable**, checklist de go-live parcialmente completo
@@ -175,13 +193,14 @@ python3 scripts/audit_movil.py        # objetivos táctiles, padding fijo, texto
 |---------|----------|
 | [[project-memory/HANDOFF]] | Continuar el proyecto sin contexto previo |
 | [[project-memory/PROJECT_BRIEF]] | Qué es, para quién, alcance y exclusiones |
+| [[project-memory/RAIZ_SISTEMA_LLOVIZNA]] | **De dónde viene**: tesis UNEXPO 2010 + propuesta "Sistema Llovizna" 2012, y qué de ellas sigue vivo en el código |
 | [[project-memory/BUSINESS_CONTEXT]] | Negocio, stakeholders, métricas |
 | [[project-memory/REQUIREMENTS]] | RF, RNF, reglas de negocio, casos de uso |
 | [[project-memory/TECH_STACK]] | Versiones y herramientas |
 | [[project-memory/ARCHITECTURE]] | Componentes, flujos, infra, seguridad |
 | [[project-memory/CURRENT_STATUS]] | Estado real hoy, bloqueos, próximos pasos |
 | [[project-memory/ROADMAP]] | Fases, hitos, entregables |
-| [[project-memory/VISION_LIBRO_PROYECTO]] | Visión de negocio de largo plazo del fundador (no implementada; en tensión con el alcance del MVP) |
+| [[project-memory/VISION_LIBRO_PROYECTO]] | Visión de negocio de largo plazo del fundador (no implementada; en tensión con el alcance del MVP). Es el **norte**; la raíz es `RAIZ_SISTEMA_LLOVIZNA` |
 | [[project-memory/BACKLOG]] | Épicas, features, tareas priorizadas |
 | [[project-memory/RISKS]] | Riesgos con severidad y mitigación |
 | [[project-memory/DECISIONS]] | Índice de decisiones → ADRs |

@@ -3,8 +3,9 @@
 > Mapa de contenidos (MOC) de la memoria del proyecto. Punto de entrada para humanos en Obsidian
 > y para agentes que necesiten navegar. **La fuente de verdad es este directorio, en Git.**
 
-Última revisión: **2026-08-12** (se agregan los archivos que faltaban en el mapa:
-[[VISION_LIBRO_PROYECTO]], [[AVISO_PRIVACIDAD_BORRADOR]], [[RTK_INTEGRATION_GUIDE]])
+Última revisión: **2026-08-13** (nuevo: [[RAIZ_SISTEMA_LLOVIZNA]] — la raíz del proyecto es la tesis
+UNEXPO de 2010, no el convenio UNAP. Antes: [[VISION_LIBRO_PROYECTO]],
+[[AVISO_PRIVACIDAD_BORRADOR]], [[RTK_INTEGRATION_GUIDE]])
 
 ## Empezar aquí
 
@@ -14,6 +15,7 @@
 
 ## Negocio y alcance
 
+- [[RAIZ_SISTEMA_LLOVIZNA]] — **de dónde viene el proyecto**: tesis UNEXPO 2010 + propuesta de 2012 (ADR-024)
 - [[BUSINESS_CONTEXT]] — problema, propuesta de valor, stakeholders, métricas
 - [[REQUIREMENTS]] — RF, RNF, reglas de negocio, casos de uso, criterios de aceptación
 - [[TERMINOLOGY]] — glosario (θ, banda de fluidez, capa 0, cupo, PAES, misconception…)

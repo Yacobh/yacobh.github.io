@@ -1,6 +1,8 @@
 # RISKS
 
-Última actualización: **2026-08-13** (R-25 nuevo, cambio visual sin verificar en vivo) ·
+Última actualización: **2026-08-13** (**R-26 nuevo y activo**: datos personales del owner en
+`docs/tesis.md` y `docs/sistema_llovizna.md`, todavía sin commitear — ventana abierta para
+redactarlos barato; R-25 nuevo, cambio visual sin verificar en vivo) ·
 2026-08-12 (R-24 nuevo, umbrales de fluidez sin calibrar; R-23 agregado a
 la tabla resumen, donde faltaba; R-23 nuevo el 2026-08-11 por el track experimental de cuántica;
 nota de T-44/T-59 en R-17; R-11 activado y R-19 dominante tras cerrar T-04;
@@ -49,6 +51,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | R-22 | Bundle sin code splitting: crecimiento monótono | Bajo | Media | Baja | aceptado |
 | R-23 | Contenido experimental de cuántica visible para un estudiante de PAES | Medio | Baja | Baja | aceptado y monitoreado |
 | R-24 | El eje de fluidez etiqueta con umbrales autorales sin calibrar | Medio | Media | Media | activo (2026-08-12) |
+| R-26 | Datos personales del owner (cédula, teléfono, fecha de nacimiento) en documentos históricos añadidos a un repo público | Alto | Alta si se commitea | Alta | ✅ **cerrado 2026-08-13** (redactados antes del primer commit) |
 | R-25 | Cambio visual amplio sin verificación en vivo, sobre un sitio con tráfico | Medio | Baja | Baja | ✅ **mitigado 2026-08-13** (verificado por el owner, incl. teléfono) |
 
 ---
@@ -294,6 +297,15 @@ difundir. Aceptar deliberadamente deuda en F9 si el calendario aprieta, **except
 **Riesgo derivado, y es el que más cuesta ver:** con la plataforma lista, la vía de fuga natural es
 seguir mejorando el producto en vez de buscar estudiantes — trabajo que se siente productivo y no
 mueve la aguja. Está desarrollado como causa #1 del pre-mortem conversado el 2026-08-09.
+
+**Precisión histórica (2026-08-13):** el proyecto lleva tres etapas —2010–2013 en Venezuela, 2025
+convenio UNAP, 2026 MVP— y en ninguna llegó a estudiantes de forma sostenida
+([[RAIZ_SISTEMA_LLOVIZNA]] §2.4). Hubo una difusión pública en 2011 con alcance aparente, pero **no
+fue audiencia calificada**: la premisa de este riesgo se mantiene intacta.
+**Advertencia que sí es accionable:** de aquella difusión salió la objeción de fondo al producto
+—*"¿para qué medir, si el estudiante puede decir qué no entiende?"*—, ya respondida en el FAQ
+([[BACKLOG]] T-75). Difundir sigue siendo lo que falta, pero difundir sin responder esa objeción es
+difundir peor.
 **Estado:** activo, **dominante**.
 
 ### R-20 · Grafo ciego a `.cljs`
@@ -365,6 +377,50 @@ mínimo la tarjeta dice explícitamente que no alcanza, en vez de inventar una b
 `fluency/calibration-report` produce los deciles con los que reemplazar el 3/6 por cortes medidos;
 (4) el eje **no toca θ**: si el número está mal, la etiqueta está mal, no el diagnóstico.
 **Estado:** activo. Se cierra cuando T-65 reemplace los umbrales autorales por medidos.
+
+### R-26 · Datos personales del owner en documentos históricos de un repositorio público
+**Descripción:** el 2026-08-13 se añadieron `docs/tesis.md` y `docs/sistema_llovizna.md` como fuentes
+primarias del origen del proyecto ([[RAIZ_SISTEMA_LLOVIZNA]], [[../adr/ADR-024-raiz-en-la-tesis-2010]]).
+Ambos contienen datos personales identificables del owner:
+
+| Dato | Dónde |
+|---|---|
+| Cédula de identidad venezolana | `docs/sistema_llovizna.md:17` · `docs/tesis.md:21` y `:92` · **certificado del congreso 2013 (PDF), impresa en el cuerpo del documento** |
+| Teléfono personal | `docs/sistema_llovizna.md:19` |
+| Fecha de nacimiento | `docs/sistema_llovizna.md:23` |
+| Estado civil | `docs/sistema_llovizna.md:25` |
+
+Este repositorio es **público y así se decidió a conciencia** (D-42). El proyecto **ya tiene la regla
+opuesta para datos personales**: en Q-01 se dejó explícitamente fuera el detalle del convenio UNAP
+—folio, montos, datos personales— *"por ser un repositorio público"*. Añadir estos archivos sin
+redactar contradice ese precedente. Nótese que en `sistema_llovizna.md` el propio owner **ya redactó**
+dirección, parroquia y municipio (`xxxxx`) pero no la cédula, el teléfono ni la fecha de nacimiento.
+
+**Impacto:** Alto. Cédula + fecha de nacimiento + teléfono es material suficiente para suplantación
+de identidad, y una cédula venezolana no caduca ni se puede rotar como una contraseña.
+**Probabilidad:** Alta **si se commitea**; hoy los dos archivos están **sin trackear** (`git status`
+los muestra como `??`), así que la exposición todavía **no ocurrió**.
+**Agravante estructural:** commitear y luego borrar **no basta** — quedaría en el historial, y este
+repositorio ya tiene registrado que despublicar exige reescribir el historial (D-42, sobre los 51
+commits que tocan `project-memory/`). La ventana para arreglarlo barato es **antes del primer commit**.
+**Mitigación aplicada (2026-08-13, decisión del owner):** se **redactaron los seis campos con
+`xxxxx`** —el mismo estilo que el owner ya había usado para dirección/parroquia/municipio— **antes
+del primer commit**, en `docs/sistema_llovizna.md` (cédula, teléfono, fecha de nacimiento, estado
+civil) y `docs/tesis.md` (cédula en portada y en el acta de aprobación). Se descartó no versionar los
+originales: la trazabilidad a la fuente primaria es lo que ADR-024 buscaba, y el valor documental no
+depende de la cédula. Verificado con un `grep` de los valores concretos sobre `docs/`, `project-memory/`, `adr/` y
+`sessions/` → **0 coincidencias**. (Los valores no se transcriben aquí: escribir el número dentro del
+comando de verificación lo reintroduce en el repositorio, que es justo lo que este riesgo evita.)
+**Caso aparte, mismo día — el certificado del congreso de 2013:** lleva la cédula impresa a la vez en
+la capa de texto y en la imagen del PDF, así que **no es redactable de forma limpia**. Se resolvió
+**no versionarlo**: los datos que importan (evento, título de la ponencia, fecha, firmantes) están
+en [[RAIZ_SISTEMA_LLOVIZNA]] §2.1 y el original queda con el owner. Es el mismo criterio de Q-01.
+**Estado:** ✅ **cerrado 2026-08-13**. Como los archivos nunca se commitearon con los datos, **no
+quedó nada en el historial** y no hace falta reescribirlo. **Regla que deja para el futuro:** todo
+documento histórico que entre a `docs/` se revisa por datos personales **antes** del primer `git
+add`, no después; y si no se puede redactar limpiamente, **se registra el dato en la memoria y no se
+versiona el archivo**.
+**Relacionado:** [[../adr/ADR-024-raiz-en-la-tesis-2010]], [[OPEN_QUESTIONS]] Q-01, D-42, R-06.
 
 ### R-25 · Un cambio visual amplio llegó a `main` sin que nadie lo viera
 **Descripción:** el 2026-08-13 se cambió el color de marca de toda la app

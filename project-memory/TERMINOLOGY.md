@@ -79,6 +79,9 @@ produce con `band-label`.
 **Distractor**
 Alternativa incorrecta de un ítem de selección múltiple. En este producto cada distractor debe
 corresponder a una idea errónea identificable, no a un relleno.
+*Origen del término en este proyecto:* se fijó el **2011-11-30**, en una conversación del owner con
+un pedagogo sobre cómo nombrar las tablas de la base de datos; el **2011-12-26** ya existía una tabla
+`distractores` en MySQL. Ver [[RAIZ_SISTEMA_LLOVIZNA]] §2.1.
 
 **Misconception — idea errónea**
 El error conceptual concreto detrás de haber elegido un distractor determinado. Se almacena como
@@ -379,6 +382,73 @@ legibles ("Números"), traducidas por `topic-aliases` en `events/test.cljs`. Ade
 **Bundle (`public/js/app.js`)**
 El artefacto compilado por shadow-cljs. **Está versionado en Git y es el mecanismo de despliegue**
 ([[../adr/ADR-003-github-pages-artefacto-versionado]]).
+
+---
+
+## Raíz histórica (tesis UNEXPO 2010)
+
+Términos de [[RAIZ_SISTEMA_LLOVIZNA]], el origen del proyecto. **No describen el sistema actual** —
+describen de dónde vino, y por qué el sistema actual tiene la forma que tiene.
+
+**Sistema Llovizna**
+Nombre de la **propuesta de financiamiento de 2012** al Estado venezolano (*"Sistema Llovizna:
+Diseño, fabricación y puesta en marcha de un sistema de TIC para mejorar el rendimiento académico
+dentro de las aulas de clases"*, Ciudad Guayana). **No aparece en la tesis de 2010** — es el nombre
+que el owner le dio a la línea de trabajo cuando buscó fondos para llevarla del prototipo al aula.
+La postulación **no prosperó**. Hoy nombra la genealogía completa del proyecto, no un sistema
+existente; no usarlo como marca ni en copy público hasta cerrar Q-30. Ver
+[[RAIZ_SISTEMA_LLOVIZNA]] §2.
+
+**Computador Grupal (CG)**
+Concepto central de la propuesta de 2012: un computador con **muchos usuarios simultáneos en el
+mismo espacio físico** —CPU + videoproyector + un dispositivo de respuesta por pupitre— en vez de un
+computador por persona. Es el eslabón entre el CRS de 2010 y la plataforma actual: la web reemplazó
+al aula, pero la idea de "un sistema que atiende a un grupo entero y a cada uno por separado"
+sobrevive en las bandas de θ y los cupos.
+
+**Reactivo**
+Término psicométrico estándar para **ítem** (una pregunta con sus alternativas). Aparece en el
+proyecto el **2011-11-30**, en la lista de nombres de tabla que el owner acordó con un pedagogo
+—*"niveles cognitivos, profundidad, unidad didáctica, alevín, reactivos y distractores"*— según la
+bitácora del blog. **No se usa en el código actual** (que dice `questions` / ítem), pero explica de
+dónde viene el vocabulario. Ver [[RAIZ_SISTEMA_LLOVIZNA]] §2.1.
+
+**Lluvia**
+Nombre de la **fase siguiente** planificada en 2012, después de Llovizna: una vez que el sistema
+tuviera la base de datos nacional de preguntas, pasaría a generar contenidos nuevos. Nunca existió.
+Se registra porque explica que "Llovizna" era el **diminutivo deliberado** de algo mayor, no un
+nombre suelto.
+
+**DIMe — Dispositivo de Interacción Mejorado**
+Nombre que la propuesta de 2012 le da al dispositivo de pupitre, sucesor del *end device* con
+sensores de tacto de la tesis: cuatro opciones por estudiante. Nunca se fabricó.
+
+**CRS — Classroom Response System** (*sistema de respuesta del aula*)
+Hardware o software que permite a todos los estudiantes de una clase responder una pregunta a la vez
+y muestra el resultado agregado en el momento. También llamados *clickers* o ARS (*audience response
+system*). Es lo que construyó la tesis de 2010: sensores de tacto en los pupitres + radios ZigBee
+(XBee) + un software en Python que graficaba las respuestas. **Diferencia clave con el producto
+actual:** el CRS mide **al grupo, de forma anónima y síncrona**; Academia Integral mide **a la
+persona, de forma nominal y asíncrona**. Ese salto es la recomendación final de la tesis, y también
+el origen de [[RISKS]] R-06 (individualizar exige datos personales).
+
+**Período / frecuencia de muestreo** (aplicado a la evaluación)
+Marco de la tesis (§1.1.1): si el aula es una planta bajo control discreto, evaluar es **muestrear**,
+y un período de muestreo largo (una prueba cada varias semanas) deja el proceso descontrolado. Es el
+antecedente directo del "control retroalimentado" de [[VISION_LIBRO_PROYECTO]] §3.2 y de la
+definición original de la **fluidez (λ)** como "respuestas por minuto" — que
+[[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] terminó midiendo con otra fórmula.
+
+**Medición ≠ evaluación**
+Distinción de la tesis (Conclusiones, siguiendo a César Coll): el instrumento **mide**; **evaluar**
+—comparar la medida contra un criterio y decidir— es del profesor. Es la razón conceptual del copy
+publicado *"no es una nota ni queda en ningún registro académico"*, y el motivo por el que el
+diagnóstico entrega un **mapa de errores** en vez de un puntaje.
+
+**η = 5/8,2** (eficiencia del proceso educativo)
+Métrica fundacional de la tesis (§1.1): en la UNEXPO Puerto Ordaz un estudiante se graduaba en 8,2
+años contra 5 necesarios. Fija el objetivo del proyecto en **tiempo hasta la competencia**, no en
+puntaje — que es el mismo criterio del objetivo 1 de [[../CLAUDE]] §2 ("una sesión de ~20 min").
 
 ---
 
