@@ -1,6 +1,7 @@
 # RISKS
 
-Última actualización: **2026-08-12** (R-24 nuevo, umbrales de fluidez sin calibrar; R-23 agregado a
+Última actualización: **2026-08-13** (R-25 nuevo, cambio visual sin verificar en vivo) ·
+2026-08-12 (R-24 nuevo, umbrales de fluidez sin calibrar; R-23 agregado a
 la tabla resumen, donde faltaba; R-23 nuevo el 2026-08-11 por el track experimental de cuántica;
 nota de T-44/T-59 en R-17; R-11 activado y R-19 dominante tras cerrar T-04;
 R-21 cerrado tras limpieza de ramas; R-13 refrescado; ver
@@ -48,6 +49,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | R-22 | Bundle sin code splitting: crecimiento monótono | Bajo | Media | Baja | aceptado |
 | R-23 | Contenido experimental de cuántica visible para un estudiante de PAES | Medio | Baja | Baja | aceptado y monitoreado |
 | R-24 | El eje de fluidez etiqueta con umbrales autorales sin calibrar | Medio | Media | Media | activo (2026-08-12) |
+| R-25 | Cambio visual amplio sin verificación en vivo, sobre un sitio con tráfico | Medio | Media | Media | activo (2026-08-13) |
 
 ---
 
@@ -363,6 +365,27 @@ mínimo la tarjeta dice explícitamente que no alcanza, en vez de inventar una b
 `fluency/calibration-report` produce los deciles con los que reemplazar el 3/6 por cortes medidos;
 (4) el eje **no toca θ**: si el número está mal, la etiqueta está mal, no el diagnóstico.
 **Estado:** activo. Se cierra cuando T-65 reemplace los umbrales autorales por medidos.
+
+### R-25 · Un cambio visual amplio llegó a `main` sin que nadie lo viera
+**Descripción:** el 2026-08-13 se cambió el color de marca de toda la app
+([[../adr/ADR-020-identidad-visual-por-tokens]]) redefiniendo la escala `indigo`, más las superficies
+del tema oscuro y el fondo de página. **Ninguna pantalla se revisó con ojos.** Lo verificado es real
+pero indirecto: el bundle compila con 0 warnings, 83 tests pasan, los dos audits dan verde y el CSS
+compilado tiene los valores esperados. Nada de eso ve un botón mal contrastado sobre un fondo que no
+se previó, ni un texto que quedó encima de otro.
+
+El agravante es de calendario: el sitio recibe tráfico y la ventana de captación de la PAES es
+justo ahora (R-19). Una regresión visual en la landing cuesta más esta semana que en marzo.
+
+**Impacto:** Medio — no hay pérdida de datos ni riesgo de seguridad; el daño es de producto y
+reversible con un `git revert`, pero puede costar visitantes mientras dure.
+**Probabilidad:** Media — el enfoque por tokens es global y consistente, que juega a favor; en
+contra, cambió el color de **todo** de una vez.
+**Mitigación:** (1) T-67 abierta con el recorrido concreto por las seis secciones en ambos temas;
+(2) el cambio vive en una rama, no en `main`, hasta que el owner lo apruebe; (3) los valores están
+en un solo archivo, así que corregir un tono es un commit de una línea; (4) `audit_contraste.py`
+descarta al menos la clase de fallo más común, el contraste insuficiente.
+**Estado:** activo. Se cierra con T-67 (y de paso T-38, que arrastra la misma deuda desde ADR-012).
 
 ---
 

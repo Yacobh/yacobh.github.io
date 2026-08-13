@@ -814,16 +814,40 @@ original que motivó T-39.
 - **Relacionado:** [[BACKLOG]] T-39, T-42, `src/universo/catalog.cljs`,
   `src/universo/components/admin_test_configs.cljs`.
 
-### T-41 · Revisar la paleta del tema oscuro — **P2** · `idea` (sin especificar)
+### T-41 · Revisar la paleta del tema oscuro — **P2** · `hecho` (2026-08-13, falta verificación visual del owner)
 
 Feedback del owner tras probar T-39 en local (2026-08-08): "mejorar la paleta oscura de alguna
 forma", sin precisar qué concretamente (¿contraste, combinación de colores, algún componente en
-particular?). Por regla de gobernanza de la memoria, no se inventa el detalle faltante.
+particular?). Por regla de gobernanza de la memoria, no se inventó el detalle faltante, y la tarea
+quedó cinco días parada esperándolo.
 
-- **Terminado cuando:** el owner especifique qué no le convence del tema oscuro actual y se
-  implemente el ajuste correspondiente.
-- **Relacionado:** [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] (mapeo global `.dark
-  .clase-existente` en `src/css/app.css`).
+**El detalle llegó el 2026-08-13** y resultó ser dos cosas distintas:
+
+1. **Un bug de legibilidad**: "el tema oscuro tiene en algunos casos del panel letras negras,
+   imposible de leer".
+2. **Un problema de identidad**: "se parece mucho a otras páginas, es algo genérica, en su paleta de
+   colores".
+
+**Lo que se encontró al investigar** (el audit está en `scripts/audit_dark_theme.py`): la cobertura
+por clase de ADR-012 estaba bien — 164 clases usadas contra 91 mapeadas. El agujero era otro:
+
+- **el tema oscuro nunca definió un color de texto base**, así que todo elemento sin clase `text-*`
+  explícita heredaba el negro del navegador. Por eso fallaba en "algunos casos" y no en toda la app;
+- **las `<option>` no heredan el color del `<select>`**, y el panel usa desplegables por todos lados;
+- **`tailwind.config.js` tenía `theme: { extend: {} }`**: cero tokens propios. Esa es la razón
+  técnica de lo genérico — no que "la IA le dé el mismo código a todos", sino que nunca se definió
+  una identidad y quedó el default de fábrica.
+
+**Hecho:** las tres correcciones, más la paleta "tinta y pergamino" que eligió el owner, aplicada
+redefiniendo la escala `indigo` para no tocar los ~15 componentes
+([[../adr/ADR-020-identidad-visual-por-tokens]]).
+
+- **Terminado cuando:** ~~el owner especifique qué no le convence~~ ✅ especificado e implementado.
+  Los 15 pares de la paleta cumplen su umbral WCAG (`scripts/audit_contraste.py`), 12 en AAA.
+  ⏳ **Falta que el owner lo vea aplicado** y diga si ajusta algún valor — los tokens están en un
+  solo archivo, así que ajustar es barato.
+- **Relacionado:** [[../adr/ADR-012-tema-oscuro-mapeo-css-global]], T-38 (verificación visual de los
+  paneles protegidos, sigue abierta).
 
 ### T-42 · Nombre de fantasía editable por test — **P2** · `hecho` (2026-08-10)
 
@@ -1791,13 +1815,46 @@ candidatos cerca del final —`next_question` filtra por cercanía a θ— y el 
 por agotamiento en vez de por precisión. La consulta de control está al final de
 `supabase/migrations/040_cuantica_test_configs.sql` (§4).
 
+### T-66 · Línea del tiempo histórica en el tablero — **P2** · `hecho, sin publicar` (2026-08-13)
+
+La idea es del owner: una "regla del tiempo" al pie del tablero donde los recursos aparezcan
+como medallas que se van descubriendo. Se construyó sobre el hallazgo de
+[[../sessions/SESSION-021]]: hay contenido histórico guardado desde `002` —20 módulos con
+`historical_blurb`, 15 más de cuántica, decenas de recursos con `historical_context`— que **nadie
+veía nunca**. La línea es la superficie que faltaba.
+
+**Hecho:**
+- `supabase/migrations/042_modules_historical_timeline.sql` — año, era y figura por módulo. Probada
+  contra PostgreSQL 14 desechable: aplica limpia, idempotente, 35 ubicados / 0 sin ubicar.
+- `universo.timeline` (puro, 10 tests) + `universo.components.timeline` + eventos y subs.
+- Medallas derivadas del mejor θ en `tests`: **funcionan retroactivamente** con los 252 diagnósticos
+  ya rendidos. Ver [[../adr/ADR-021-linea-del-tiempo-historica]].
+
+**Terminado cuando:**
+1. ⏳ el owner **audite los 35 años** y aplique `042` (los años son contenido — ADR-016; la
+   migración declara sus tres puntos débiles para que la revisión se concentre ahí);
+2. ⏳ se verifique en vivo, que hoy **no se pudo**: sin `042` aplicada no hay hitos que dibujar, y el
+   tablero exige sesión.
+
+### T-67 · Verificar en vivo la identidad visual y la línea del tiempo — **P1** · `abierto` (2026-08-13)
+
+Todo lo de T-41 y T-66 está compilado y con los audits en verde, pero **ninguna pantalla se miró con
+ojos**. Es la misma deuda que T-38 arrastra desde ADR-012, ahora sobre un cambio visual mucho más
+grande y con el sitio recibiendo tráfico (R-19).
+
+- **Terminado cuando:** recorrido en claro y oscuro por `admin` (con los desplegables abiertos, que
+  son el bug que motivó todo), `dashboard`, `plan`, `cupos`, `cuenta` y el diagnóstico, en
+  `http://127.0.0.1:3000` y **no en producción** (ver la nota de método de SESSION-021: cinco
+  intentos fallaron por mirar el dominio mientras el cambio estaba en local).
+- Cierra de paso T-38.
+
 ## Resumen por prioridad
 
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
 ---

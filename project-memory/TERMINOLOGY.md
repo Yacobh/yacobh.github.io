@@ -1,8 +1,8 @@
 # TERMINOLOGY
 
-Última actualización: **2026-08-12** (eje de fluidez λ, `t_rel`, banda de fluidez y cuadrante θ × λ;
-θ inicial corregida a `-1.0`; aviso en "Frecuencia (λ)" porque la implementación no usa la fórmula
-del libro)
+Última actualización: **2026-08-13** (hito, era y medalla de la línea del tiempo) · 2026-08-12 (eje
+de fluidez λ, `t_rel`, banda de fluidez y cuadrante θ × λ; θ inicial corregida a `-1.0`; aviso en
+"Frecuencia (λ)" porque la implementación no usa la fórmula del libro)
 
 Glosario del proyecto. Incluye términos del dominio (psicometría, PAES), del producto y del código.
 **Si un término aparece en el código con un nombre distinto al del negocio, aquí se registran ambos.**
@@ -143,6 +143,24 @@ cuatro perfiles con **acciones distintas**: *Consolidado*, *Sabe pero le cuesta*
 fluidez, **no** más teoría), *Rápido sin base* y *En construcción*. La acción es la razón de existir
 del eje: sin ella el cuadrante sería una etiqueta bonita. `:media` cae del lado "no fluida" a
 propósito — ante la duda, ofrecer práctica de fluidez no le hace daño a nadie.
+
+**Hito (línea del tiempo)**
+Un módulo ubicado en el año en que su contenido apareció por primera vez en una forma reconocible
+(ADR-021). No es "la unidad 4": `algebra/expresiones` es 1591, Viète escribiendo letras para lo
+conocido y lo desconocido. Vive en `modules.historical_year` / `historical_era` /
+`historical_figure` (migración `042`). Un módulo **sin año no es un hito** y no aparece en la línea.
+
+**Era**
+Agrupación de hitos para repartir el espacio de la línea: `antiguedad` (…500), `medieval`
+(501–1400), `renacimiento` (1401–1650), `moderna` (1651–1899), `contemporanea` (1900…). Existe
+porque el eje **no puede ser lineal**: entre el papiro de Moscú (−1850) y John Bell (1964) hay 3800
+años, pero 14 de los 35 hitos caen entre 1900 y 1964. El corte de 1900 es el cuanto de Planck.
+
+**Medalla**
+Estado de un hito para un estudiante: `:oro` (θ ≥ 2), `:plata` (θ ≥ 1), `:bronce` (rendido) o
+apagado (sin rendir). **Es una lectura del θ que ya existe, no una recompensa nueva**: no otorga
+nada ni cambia el plan. Los cortes son espejo de la banda de θ — si divergieran, alguien vería
+"Avanzado" en su perfil y plata en la línea por el mismo test.
 
 **Media geométrica vs. media simple (en tiempos)**
 El tiempo es multiplicativo, no aditivo: una respuesta de 300 s no es "un poco más" que una de 5 s.

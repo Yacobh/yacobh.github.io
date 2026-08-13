@@ -11,16 +11,20 @@
 
 ## Snapshot actual
 
-- **Commit:** `5207882a`
-- **Fecha:** 2026-08-12
-- **Tamaño:** 1 560 nodos · 1 898 aristas · 144 comunidades (141 archivos, ~1,1 M palabras)
-- **Extracción:** 100 % `EXTRACTED` · 0 % `INFERRED`
+- **Commit:** `14c00faa`
+- **Fecha:** 2026-08-13
+- **Tamaño:** 2 583 nodos · 6 690 aristas · 173 comunidades
+- **Extracción:** ver el encabezado de `GRAPH_REPORT.md`
 - **Ciclos de importación:** ninguno
 
-> **Historial de tamaños** (para no leer el crecimiento como crecimiento del proyecto): 105 nodos al
-> 2026-07-26 (`48bf5254`) · 2 376 nodos al 2026-08-10, inflados por el `app.js` minificado, cuyos
-> símbolos ofuscados (`v()`, `K()`…) coparon los god nodes · 1 560 nodos hoy, con la documentación
-> como núcleo. Los god nodes actuales son los que corresponde: el esquema de Supabase y las sesiones.
+> **Historial de tamaños:** 105 nodos al 2026-07-26 (`48bf5254`) · 2 376 al 2026-08-10 · 1 560 al
+> 2026-08-13 por la mañana · 2 583 el mismo día por la tarde.
+>
+> **El número sube y baja según si el `app.js` minificado entró al índice en esa corrida, no según
+> cuánto crezca el proyecto.** Cuando entra, sus símbolos ofuscados (`v()`, `K()`, `C()`…) copan los
+> god nodes y multiplican las aristas; cuando no, el núcleo vuelve a ser la documentación y el
+> esquema. **Comparar dos snapshots por su tamaño no dice nada útil** — para eso está el commit del
+> que se construyó cada uno.
 
 ## Por qué existe esta carpeta
 

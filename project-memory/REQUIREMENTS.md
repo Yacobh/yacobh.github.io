@@ -74,6 +74,17 @@ Leyenda de estado: ✅ implementado y testeado · 🟡 implementado sin test aut
 | RF-4.7 | El plan muestra la **tarjeta del cuadrante θ × λ** con la acción del perfil; si no hay evidencia suficiente lo dice explícitamente en vez de ocultarse | ✅ | `components/plan.cljs` `fluency-card`/`fluency-grid` |
 | RF-4.8 | Para perfiles guardados antes de ADR-019, la fluidez se **recalcula desde el último test**; θ y el resto del perfil no se reinterpretan | ✅ | `:plan/fetch-last-test!` en `events/plan.cljs` |
 
+### RF-6 — Línea del tiempo del tablero (ADR-021)
+
+| ID | Requisito | Estado | Evidencia |
+|----|-----------|--------|-----------|
+| RF-6.1 | El tablero muestra una línea del tiempo con los módulos ubicados en su año histórico | 🟡 | `components/timeline.cljs`; requiere `042` aplicada |
+| RF-6.2 | Los hitos se agrupan por era y no en un eje lineal, para que los 14 hitos del siglo XX no se apilen | ✅ | `timeline/by-era` + test |
+| RF-6.3 | Cada hito se enciende como medalla según el mejor θ del estudiante en ese módulo: oro ≥ 2, plata ≥ 1, bronce rendido | ✅ | `timeline/medal-for`, `milestones` + tests |
+| RF-6.4 | Las medallas se calculan **desde `tests`**, sin tabla nueva, y funcionan retroactivamente | ✅ | `timeline/best-theta-by-module` sobre `access/best-theta-by-topic` |
+| RF-6.5 | Al abrir un hito se muestra su figura, año y `historical_blurb` — el único lugar de la app donde ese contenido se ve | 🟡 | `components/timeline.cljs`, sin verificar en vivo |
+| RF-6.6 | Un módulo sin año no aparece, en vez de recibir una fecha inventada | ✅ | `timeline/milestones` + test |
+
 ### RF-5 — Cupos e inscripción
 
 | ID | Requisito | Estado | Evidencia |
