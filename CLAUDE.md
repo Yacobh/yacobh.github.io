@@ -15,7 +15,9 @@
 concretos** que comete, generar un **plan de estudio personalizado** y ubicarlo en un **grupo de
 estudio (cupo) de su misma banda de nivel**, online o presencial en Iquique. Desde el 2026-08-12 el
 perfil tiene un **segundo eje, la fluidez (λ)**, que separa "sabe" de "sabe y automatizó"
-(ver [[adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]]).
+(ver [[adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]]), y desde el 2026-08-13 la
+identidad visual es el **lenguaje Braun / Dieter Rams** sobre un panel de instrumento
+([[adr/ADR-022-lenguaje-braun-rams]], [[adr/ADR-023-panel-de-instrumento]]).
 
 Es un **proyecto personal del profesor Jacobo Córdova**, que se originó en 2025 a partir de un
 convenio de desarrollo (a honorarios, de alcance acotado, oct–nov 2025, **ya terminado**) con la
@@ -92,6 +94,10 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
 - **Estado de UI por sección** en `app-db` (ver `universo.db/default-db`): cada pestaña de admin
   tiene su propio `:loading?`/`:error` para no contaminar a las demás.
 - **Comentarios en español**, explicando el *por qué* (invariantes, salvaguardas), no el *qué*.
+- **UI:** el color y el tamaño se verifican con los tres `scripts/audit_*.py`, no a ojo. Toda clase
+  de color nueva se mapea en `src/css/app.css` (ADR-012) y todo par nuevo se declara en
+  `audit_contraste.py`. Las piezas del panel (`.control`, `.alojamiento`, `.led`, `.placa`,
+  `.visor`, `.grabado`) se reutilizan en vez de rehacerse con utilidades sueltas (ADR-023).
 - Commits en español, imperativo, una intención por commit.
 - No introducir dependencias npm/maven nuevas sin registrar la decisión (§9).
 
@@ -104,6 +110,10 @@ npx shadow-cljs release app          # build de producción → public/js/app.js
 npm run build:css                    # CSS minificado → public/css/app.css
 clj -M:test                          # suite de tests (node-test)
 clj-kondo --lint src test             # lint + análisis de namespaces/vars CLJS (complemento de graphify, ver §13)
+
+python3 scripts/audit_dark_theme.py   # texto oscuro / fondo claro sin mapear en el tema oscuro
+python3 scripts/audit_contraste.py    # los 38 pares de la paleta contra su umbral WCAG
+python3 scripts/audit_movil.py        # objetivos táctiles, padding fijo, texto diminuto
 ```
 
 ## 6. Convenciones de documentación

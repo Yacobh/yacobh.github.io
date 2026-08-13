@@ -1,6 +1,7 @@
 # TERMINOLOGY
 
-Última actualización: **2026-08-13** (hito, era y medalla de la línea del tiempo) · 2026-08-12 (eje
+Última actualización: **2026-08-13** (vocabulario del panel: control, alojamiento, LED, placa,
+visor, grabado, señal; hito, era y medalla de la línea del tiempo) · 2026-08-12 (eje
 de fluidez λ, `t_rel`, banda de fluidez y cuadrante θ × λ; θ inicial corregida a `-1.0`; aviso en
 "Frecuencia (λ)" porque la implementación no usa la fórmula del libro)
 
@@ -166,6 +167,52 @@ nada ni cambia el plan. Los cortes son espejo de la banda de θ — si divergier
 El tiempo es multiplicativo, no aditivo: una respuesta de 300 s no es "un poco más" que una de 5 s.
 La media simple la arrastra un solo valor extremo — medido en este proyecto: el ítem 361 tiene media
 78,7 s y mediana 4,8 s. Por eso los estimadores de tiempo usan mediana o `exp(promedio de ln t)`.
+
+---
+
+## Interfaz: el panel de instrumento
+
+Vocabulario de ADR-022 y ADR-023. Son **cinco clases** definidas una sola vez en `src/css/app.css`,
+no utilidades sueltas: si se repiten a mano divergen al tercer componente.
+
+**Panel**
+La superficie de la página: gris medio, plana y callada. No es la hoja blanca de un documento, es la
+carcasa de un aparato. Consecuencia medida que ordena todo lo demás: **sobre el panel no resalta
+nada** (el LED da 1.04 de contraste, el naranja 1.68), así que el contraste lo tiene que poner el
+control, no el fondo.
+
+**Control (`.control`)**
+Algo que se puede accionar. Bisel con filo claro arriba y sombra abajo; se hunde al presionar. El
+relieve **no es adorno**: es lo único que delimita un botón sobre un panel que no contrasta.
+
+**Alojamiento (`.alojamiento`)**
+El hueco oscuro y hundido donde vive un LED. Sin él, un LED sobre el panel claro es invisible; dentro,
+llega a 7.20 de contraste. Es la razón por la que en la referencia de Braun ningún diodo está sobre
+la carcasa.
+
+**LED (`.led`, `.led--on`)**
+Indica **estado**, nunca acción: encendido significa "esto es verdad ahora" — un hito descubierto, un
+nivel alcanzado. Cian. Apagado no desaparece: se ve como un diodo sin corriente, porque el estado
+vacío también informa.
+
+**Placa (`.placa`)**
+Un módulo montado sobre el panel (una tarjeta). Se delimita con **luz** —filo claro arriba, sombra
+proyectada abajo— y no con color: el borde de color no alcanzaba (2.08 de contraste).
+
+**Visor (`.visor`)**
+Superficie clara propia, **igual en ambos temas**, para contenido que trae sus propios colores y no
+puede reaccionar al tema: la gráfica IRT, que pinta el SVG con literales por una razón documentada.
+Es lo que permite que un solo juego de colores funcione en claro y en oscuro.
+
+**Grabado (`.grabado`)**
+Leyenda impresa en la carcasa: mismo material, un tono más oscuro, nunca un color. **Dentro de un
+alojamiento o un visor va iluminada, no grabada** — la distinción costó tres rondas de corrección:
+una etiqueta grabada sobre su propio fondo es invisible, y aun con contraste AA (5.50) seguía sin
+leerse por tamaño y sombra.
+
+**Señal (`senal-*`)**
+El naranja Braun. Marca **acción**: hay una sola por pantalla. Los cortes no son libres — relleno en
+400, texto o regla sobre fondo claro en 700 — y están declarados en `scripts/audit_contraste.py`.
 
 ---
 

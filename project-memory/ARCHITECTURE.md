@@ -89,6 +89,7 @@ contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 | Lectura | `universo.subs` | Suscripciones globales de UI (`:current-page`, `:current-section`, `:transitioning`) |
 | Ruteo | `universo.views` + `universo.home` | `views/pages` solo resuelve `:home`. El **ruteo real** es por *sección* dentro de `home/main-content` (`case current-section`) |
 | Layout | `universo.home` | Nav fija (links según `:auth/ready?`, `logged-in?`, `admin?`, botón de tema), contenido con transición de opacidad, footer con contacto |
+| Panel de instrumento | `src/css/app.css` (bloque «PANEL DE INSTRUMENTO») | **Cinco clases de componente** —`.control`, `.alojamiento`, `.led`, `.placa`, `.visor`, `.grabado`— definidas una sola vez (ADR-023). No son utilidades sueltas a propósito: repetirlas a mano diverge al tercer componente. El relieve es funcional, no decorativo: sobre el panel gris el LED da 1.04 de contraste y el naranja 1.68, así que el bisel y el alojamiento son lo que los vuelve visibles |
 | Tema | `universo.events.theme` + `src/css/app.css` | Claro/oscuro (`:theme` en `app-db`, `:theme/init`/`:theme/toggle`, persistido en `localStorage`, clase `dark` en `<html>` aplicada antes de `app.js` vía script inline en `index.html`). El tema oscuro de los ~15 componentes se cubre con un mapeo global de clases en `app.css` (`.dark .clase-existente`), no con `dark:` por elemento — ver [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] *(2026-08-05)* |
 
 > **Nota de arquitectura:** no hay router de URL. La navegación es estado en `app-db`
@@ -496,6 +497,30 @@ la ejecute todavía** ([[BACKLOG]] T-34). Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]
 | A-10 | **Grafo de conocimiento parcial** | Graphify no indexa `.cljs`: el análisis automático no ve la lógica principal |
 
 Priorizados con impacto/probabilidad en [[RISKS]].
+
+---
+
+## 10-bis. Verificación versionada (`scripts/`)
+
+El proyecto no tiene CI que corra sobre cada push (T-06 existe pero sin verificar), así que las
+comprobaciones que importan viven como scripts en el repo, en la misma línea que
+`supabase/queries/verificacion_esquema.sql`: **un hallazgo que no se versiona se pierde.**
+
+| Script | Qué comprueba | Modo de fallo que ataja |
+|--------|---------------|-------------------------|
+| `audit_dark_theme.py` | Texto oscuro (tono ≥ 600) y **fondo claro (≤ 200) sin mapear** en `app.css` | El riesgo que ADR-012 anticipó: un componente queda sin tema oscuro **sin aviso** |
+| `audit_contraste.py` | 38 pares de la paleta contra su umbral WCAG, más las combinaciones **prohibidas** con su número | "Se ve mejor" no es verificable y no sobrevive a la siguiente opinión |
+| `audit_movil.py` | Objetivos táctiles, padding fijo, texto diminuto, tablas sin scroll, anchos fijos | Se diseña en pantalla grande: nada avisa cuando algo no entra en 360 px |
+
+**Los tres se probaron contra un caso que debería fallar antes de creerles**, y no es ceremonia: el
+audit de móvil tenía un falso negativo silencioso en su primera versión —capturaba `"button"` como
+si fuera la lista de clases— y daba todas las pantallas del panel por buenas. Un chequeo que no
+encuentra nada es indistinguible de uno que funciona.
+
+**Lo que ninguno cubre**, y está dicho en cada docstring: no ven lo que no está escrito (un elemento
+sin clase de color), no ven una clase del sistema encima de otra, no ven estilos inline, y **no
+dicen cuándo algo está bien** — solo cuándo está mal. Un par puede aprobar AA y seguir sin leerse
+por tamaño y sombra; pasó, y por eso la verificación visual (T-67) no es reemplazable.
 
 ---
 

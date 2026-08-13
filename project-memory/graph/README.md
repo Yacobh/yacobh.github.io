@@ -11,9 +11,9 @@
 
 ## Snapshot actual
 
-- **Commit:** `14c00faa`
+- **Commit:** `5fad7419`
 - **Fecha:** 2026-08-13
-- **Tamaño:** 2 583 nodos · 6 690 aristas · 173 comunidades
+- **Tamaño:** 2644 nodos · 6795 aristas · 179 comunidades
 - **Extracción:** ver el encabezado de `GRAPH_REPORT.md`
 - **Ciclos de importación:** ninguno
 

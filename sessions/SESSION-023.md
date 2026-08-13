@@ -285,6 +285,32 @@ sigue sin decidir. La tarjeta puede hacerse sin resolverla porque solo **muestra
 componente entero habría matado ese flujo sin ningún error visible. El formulario del footer salió
 de la columna estrecha —era 1 de 4— y pasó a ser una placa de ancho completo.
 
+## Addendum 4 — cierre: cinco rondas de corrección y el merge
+
+Después del panel de instrumento el owner probó y reportó **cinco veces**. Vale anotar el patrón,
+porque se repitió idéntico: **cada vez la causa estaba una capa más abajo de donde se veía.**
+
+| Lo que se veía | Dónde estaba la causa |
+|---|---|
+| "Letras negras en el panel" | El tema oscuro nunca definió un color de texto **base** |
+| "Rosa con letras blancas" | Un **fondo** claro sin mapear, no el texto |
+| "No se lee «Pregunta»" | `.grabado` y `.alojamiento` con **el mismo valor exacto** |
+| "Sigue sin leerse" | Pasaba AA (5.50) y aun así no se leía: **tamaño y sombra** |
+| "La gráfica en oscuro" | El visor puesto en el **sitio de llamada** y no en el componente |
+
+Cada ronda dejó una comprobación versionada. El audit de tema oscuro pasó de mirar solo texto a
+mirar también fondos; el de contraste pasó de 15 a 38 pares con cinco combinaciones prohibidas
+declaradas; y apareció un tercero, `audit_movil.py`, porque **había dos chequeos de color y ninguno
+de tamaño**.
+
+**La revisión de móvil, pedida antes de mergear, encontró que lo peor adaptado era lo más nuevo:**
+la línea del tiempo no tenía ni una clase responsiva, y el plan aprobado prometía una "tira
+compacta" que nunca se construyó. Los hitos eran botones de ~34 px alrededor de un punto de 10 px.
+
+**Y una advertencia que conviene no perder de vista al leer todo esto:** los tres audits dicen
+cuándo algo está **mal**, nunca cuándo está **bien**. El caso más claro fue la etiqueta que aprobaba
+AA y seguía sin leerse. **T-67 —mirar las pantallas— sigue abierta y no es reemplazable.**
+
 ---
 
 Relacionado: [[SESSION-021]] · [[../adr/ADR-020-identidad-visual-por-tokens]] ·
