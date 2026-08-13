@@ -17,7 +17,7 @@
    [:path {:d "M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"}]])
 
 (defn icon-warning []
-  [:svg {:class "w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" :fill "currentColor" :viewBox "0 0 20 20"}
+  [:svg {:class "w-5 h-5 text-senal-600 mt-0.5 flex-shrink-0" :fill "currentColor" :viewBox "0 0 20 20"}
    [:path {:d "M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"}]])
 
 (defn icon-close-button []
@@ -40,8 +40,10 @@
 ;; ============================================================================
 
 (defn status-badge [is-correct?]
-  [:div {:class (str "flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full animate-pulse "
-                     (if is-correct? "bg-green-100" "bg-red-100"))}
+  ;; Sin `animate-pulse`: latía para siempre, y una animación que no termina no
+  ;; comunica nada — solo pide atención (ADR-022).
+  [:div {:class (str "flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full "
+                     (if is-correct? "bg-green-600" "bg-red-600"))}
    (if is-correct?
      [icon-check-stroke]
      [icon-cross-stroke])])
@@ -52,7 +54,7 @@
    (if is-correct? "¡Correcto!" "Incorrecto")])
 
 (defn close-button []
-  [:button {:class "text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+  [:button {:class "text-gray-500 hover:text-gray-900 transition-colors p-2 hover:bg-panel-100 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-senal-600"
             :aria-label "Cerrar modal"
             :on-click #(re-frame/dispatch [:test/continue])}
    [icon-close-button]])
@@ -73,12 +75,13 @@
 ;; ============================================================================
 
 (defn question-section [question]
-  [:div {:class (str "mb-6 sm:mb-8 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-indigo-50 "
-                      "rounded-2xl border border-blue-100 shadow-sm "
-                      "dark:from-blue-950 dark:to-indigo-950 dark:border-blue-900")}
-   [:h3 {:class "text-xs sm:text-sm font-semibold text-blue-700 mb-2 sm:mb-3 uppercase tracking-wide"}
-    "Pregunta"]
-   [:div {:class "text-base sm:text-lg text-gray-800 leading-relaxed overflow-x-auto"}
+  ;; ADR-023: el enunciado va en un alojamiento, hundido en la placa. Antes era
+  ;; un degradado azul→índigo con los azules **de fábrica** de Tailwind — este
+  ;; componente es la excepción `dark:` de ADR-012 y por eso se quedó fuera de
+  ;; las tres pasadas de identidad (T-68).
+  [:div {:class "alojamiento mb-6 sm:mb-8 rounded p-4 sm:p-6"}
+   [:h3 {:class "grabado mb-2 sm:mb-3"} "Pregunta"]
+   [:div {:class "text-base sm:text-lg text-panel-100 leading-relaxed overflow-x-auto"}
     [math/latex (:question question)]]])
 
 ;; ============================================================================
@@ -91,19 +94,19 @@
     [:div {:class "flex-shrink-0"}
      (cond
        (and is-selected? is-correct-answer?)
-       [:div {:class "w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-500 flex items-center justify-center"}
+       [:div {:class "w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-600 flex items-center justify-center"}
         [icon-check]]
 
        (and is-selected? (not is-correct-answer?))
-       [:div {:class "w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-red-500 flex items-center justify-center"}
+       [:div {:class "w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-red-600 flex items-center justify-center"}
         [icon-cross]]
 
        is-correct-answer?
-       [:div {:class "w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-500 flex items-center justify-center"}
+       [:div {:class "w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-600 flex items-center justify-center"}
         [icon-check]]
 
        :else
-       [:div {:class "w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-gray-300"}])]))
+       [:div {:class "w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-panel-500"}])]))
 
 ;; ============================================================================
 ;; BADGE DE RESPUESTA SELECCIONADA
@@ -111,10 +114,10 @@
 
 (defn selected-badge [value selected correct]
   (when (= value selected)
-    [:span {:class (str "ml-2 relative -translate-y-[2px] inline-block px-2 py-1 rounded-full text-xs font-semibold align-middle "
+    [:span {:class (str "ml-2 relative -translate-y-[2px] inline-block px-2 py-0.5 rounded text-xs font-medium align-middle "
                         (if (= value correct)
-                          "bg-green-500 text-white"
-                          "bg-red-500 text-white"))}
+                          "bg-green-700 text-white"
+                          "bg-red-700 text-white"))}
      (if (= value correct) "Tu respuesta ✓" "Tu respuesta")]))
 
 ;; ============================================================================
@@ -124,19 +127,23 @@
 (defn option-classes [value selected correct]
   (let [is-selected? (= value selected)
         is-correct-answer? (= value correct)]
-    (str "relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl text-base sm:text-lg border-2 transition-all duration-200 "
+    ;; El verde y el rojo se conservan: acá el color SÍ informa (acertaste /
+    ;; fallaste) y es la única lectura que importa en esta pantalla. Lo que se
+    ;; fue es el adorno — el escalado al pasar el mouse y las sombras difusas,
+    ;; que sugerían que la opción era accionable cuando ya no lo es (ADR-023).
+    (str "relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded text-base sm:text-lg border "
          (cond
            (and is-selected? is-correct-answer?)
-           "bg-green-50 border-green-300 text-green-800 shadow-md transform scale-[1.02] hover:scale-[1.03]"
+           "bg-green-50 border-green-600 text-green-900"
 
            (and is-selected? (not is-correct-answer?))
-           "bg-red-50 border-red-300 text-red-800 shadow-md"
+           "bg-red-50 border-red-600 text-red-900"
 
            is-correct-answer?
-           "bg-green-50 border-green-300 text-green-700 shadow-sm hover:shadow-md"
+           "bg-green-50 border-green-600 text-green-900"
 
            :else
-           "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 hover:shadow-sm"))))
+           "bg-panel-100 border-panel-400 text-gray-800"))))
 
 ;; ============================================================================
 ;; ITEM DE OPCIÓN
@@ -161,7 +168,7 @@
                                  correct-opt (first (filter #(= (:value %) correct) (:options question)))]
                              [selected-opt correct-opt]))]
     [:div {:class "mb-6 sm:mb-8 space-y-2 sm:space-y-3"}
-     [:h3 {:class "text-xs sm:text-sm font-semibold text-gray-600 mb-3 sm:mb-4 uppercase tracking-wide"}
+     [:h3 {:class "grabado mb-3 sm:mb-4"}
       (if (= selected correct)
         "Tu respuesta correcta"
         "Comparación de respuestas")]
@@ -182,13 +189,15 @@
    (explanation-section response false))
   ([response _is-correct?]
    (when-let [err-msg (:selected-error response)]
-     [:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-slate-50 border-l-4 border-slate-300 rounded-r-xl"}
+     ;; Es la parte más valiosa de la pantalla —el diferencial del producto es
+     ;; explicar el error, no puntuarlo— así que lleva la regla naranja al
+     ;; costado: lo único que la señal marca acá.
+     [:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-panel-50 border-l-2 border-senal-600 rounded-r"}
       [:div {:class "flex items-start gap-3"}
        [icon-warning]
        [:div {:class "min-w-0"}
-        [:h4 {:class "font-semibold text-slate-700 mb-1 text-base sm:text-lg"}
-         "Explicación:"]
-        [:div {:class "text-slate-600 leading-relaxed text-base sm:text-lg"}
+        [:h4 {:class "grabado mb-1"} "Explicación"]
+        [:div {:class "text-gray-800 leading-relaxed text-base sm:text-lg"}
          (math/parse-markdown-latex err-msg)]]]])))
 
 ;; ============================================================================
@@ -196,7 +205,8 @@
 ;; ============================================================================
 
 (defn action-buttons [stop-reason]
-  [:button {:class "mt-6 bg-indigo-600 text-white px-6 py-2 rounded-full text-sm hover:bg-indigo-700 transition"
+  [:button {:class (str "control mt-6 bg-senal-500 text-grafito-900 px-6 py-2.5 rounded "
+                        "text-sm font-medium hover:bg-senal-400")
             :on-click #(re-frame/dispatch [:test/continue])}
    (if stop-reason "Ver resultados →" "Continuar →")])
 
@@ -205,11 +215,11 @@
 ;; ============================================================================
 
 (defn modal-content [question response selected correct is-correct? points stop-reason]
-  [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6
+  [:div.placa.bg-white.rounded.p-6.sm:p-8.space-y-6
    [question-section question]
    [options-section question selected correct]
    [explanation-section response is-correct?]
-   [:div {:class "pt-2 border-t border-stone-100"}
+   [:div {:class "pt-2 border-t border-panel-300"}
     [irt-chart/irt-progress-chart points stop-reason]]
    [action-buttons stop-reason]])
 
@@ -219,11 +229,25 @@
 
 (defn modal-overlay
   "Backdrop del modal de feedback. El click afuera dispara :test/continue —
-   el mismo evento que ya usan el botón X y 'Continuar', no hay lógica nueva."
+   el mismo evento que ya usan el botón X y 'Continuar', no hay lógica nueva.
+
+   ── El bug que arregla `m-auto` (T-68) ─────────────────────────────────────
+   Antes esto era `flex items-center justify-center` **junto con**
+   `overflow-y-auto` en el mismo elemento. Es un fallo conocido de flexbox: con
+   `align-items: center`, un hijo más alto que el contenedor se desborda por
+   arriba **y** por abajo, y el desbordamiento superior queda **inalcanzable**
+   —el scroll no llega ahí—. O sea que en un ítem largo el estudiante perdía el
+   encabezado y el enunciado, justo en los ítems que más explicación necesitan.
+
+   La corrección es `items-start` + `m-auto` en el hijo: los márgenes
+   automáticos centran cuando sobra espacio y **no recortan** cuando falta, que
+   es exactamente lo que `align-items: center` no sabe hacer."
   [content]
-  [:div {:class "fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto"
+  [:div {:class (str "fixed inset-0 z-50 flex items-start justify-center overflow-y-auto "
+                     "bg-black/60 backdrop-blur-sm p-3 sm:p-4")
          :on-click #(re-frame/dispatch [:test/continue])}
-   [:div {:on-click #(.stopPropagation %)}
+   [:div {:class "m-auto w-full max-w-2xl"
+          :on-click #(.stopPropagation %)}
     content]])
 
 ;; ============================================================================

@@ -83,6 +83,14 @@ PARES = [
     ("alojamiento · año apagado",      PANEL["300"],   PANEL["700"],   4.5),
     ("panel oscuro · texto principal", GRAFITO["50"],  PANEL["800"],   4.5),
     ("panel oscuro · etiqueta",        PANEL["400"],   PANEL["800"],   4.5),
+
+    # Modal de feedback (T-68). El enunciado vive en un alojamiento, así que su
+    # texto es claro sobre oscuro aunque el modal esté en tema claro.
+    ("modal · enunciado en alojamiento", PANEL["100"],  PANEL["700"],   4.5),
+    ("modal · opción neutra",           "#1F2937",      PANEL["100"],   4.5),
+    ("modal · texto de la explicación", "#1F2937",      PANEL["50"],    4.5),
+    # senal-500 daba 2.75 acá y no llegaba ni a objeto gráfico: va en 600.
+    ("modal · regla de la explicación", SENAL["600"],   PANEL["50"],    3.0),
 ]
 
 # Combinaciones prohibidas, documentadas para que nadie las reinvente.

@@ -1848,7 +1848,7 @@ grande y con el sitio recibiendo tráfico (R-19).
   intentos fallaron por mirar el dominio mientras el cambio estaba en local).
 - Cierra de paso T-38.
 
-### T-68 · El modal de feedback: tres defectos distintos — **P1** · `abierto` (2026-08-13)
+### T-68 · El modal de feedback: tres defectos distintos — **P1** · `hecho` (2026-08-13, falta verlo)
 
 Reportado por el owner al probar el diagnóstico. Parecen un problema pero son tres, con causas
 independientes y arreglos independientes:
@@ -1875,9 +1875,21 @@ la explicación **en línea, debajo del ítem**, con la pregunta todavía a la v
 - ⚠️ **No decidir esto sin mirar el flujo completo:** el modal también muestra el gráfico de θ y el
   botón de continuar, así que no es solo "mover un texto".
 
-- **Terminado cuando:** (1) el contenido nunca queda inalcanzable, en cualquier alto de ítem y de
-  ventana; (2) el modal usa los tokens del sistema en claro y oscuro; (3) hay una decisión tomada
-  sobre modal vs. en línea, registrada.
+**Resuelto el 2026-08-13:**
+
+- ✅ **(1) El desbordamiento.** `items-start` + `m-auto` en el hijo. Los márgenes automáticos centran
+  cuando sobra espacio y **no recortan** cuando falta, que es exactamente lo que `align-items:
+  center` no sabe hacer.
+- ✅ **(2) El lenguaje visual.** El enunciado pasó a un `alojamiento` —queda hundido en la placa, y
+  de paso su texto claro sobre oscuro da 7.83 de contraste—; la explicación lleva la regla naranja al
+  costado, que es lo único que la señal marca en esa pantalla, porque explicar el error es el
+  diferencial del producto. Se fueron el degradado azul→índigo de fábrica, el `animate-pulse` que
+  latía sin terminar y el escalado al pasar el mouse sobre opciones que **ya no son accionables**.
+  **El verde y el rojo se conservan**: ahí el color sí informa.
+- ✅ **(3) Decisión del owner: se mantiene el modal.** Se corrigen sus defectos y no se mueve la
+  explicación a la página. Queda registrado para no reabrirlo por costumbre.
+- 📐 Cuatro pares nuevos entraron al contrato de contraste; uno falló al medirlo (la regla naranja
+  daba 2.75 y no llegaba ni a objeto gráfico) y se subió a `senal-600`. **31/31.**
 - **Relacionado:** [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] (la excepción que lo dejó afuera),
   [[../adr/ADR-023-panel-de-instrumento]].
 
