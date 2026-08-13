@@ -82,12 +82,17 @@ module.exports = {
         acento: acento,
         // Superficie clara cálida. Reemplaza al blanco puro como fondo de
         // página: el papel del pergamino, no la hoja de un formulario.
+        //
+        // Bajada un escalón de luz el 2026-08-13 a pedido del owner ("me gusta,
+        // pero un poco menos claro"). El matiz se conserva; lo que cambia es la
+        // luminosidad. Contraste reverificado: texto principal 12.31, texto
+        // secundario 7.05, medalla 3.73 — todos por encima de su umbral.
         pergamino: {
-          DEFAULT: '#FBF7F0',
-          50: '#FEFDFB',
-          100: '#FBF7F0',
-          200: '#F4ECDF',
-          300: '#E9DCC7',
+          DEFAULT: '#F4EEE2',
+          50: '#FBF7F0',
+          100: '#F4EEE2',
+          200: '#EBE3D3',
+          300: '#DCD1BA',
         },
       },
       fontFamily: {

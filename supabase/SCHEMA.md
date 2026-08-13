@@ -255,12 +255,10 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     umbrales del eje de fluidez por banco (ADR-019, T-65). **Columnas verificadas contra la base
     real** (ver abajo); el check y los valores quedan por confirmar con el bloque H de
     `queries/verificacion_esquema.sql`
-44. `migrations/042_modules_historical_timeline.sql` — ⏳ **pendiente, y a propósito** · año, era y
-    figura histórica por módulo, para la línea del tiempo del tablero (ADR-021, T-66). Probada
-    contra PostgreSQL 14 desechable (aplica limpia, idempotente, 35 ubicados / 0 sin ubicar, los dos
-    checks rechazan lo que deben). **No se aplica hasta que el profesor audite los 35 años:** son
-    contenido, no código (ADR-016), y la migración declara sus tres puntos débiles para que la
-    revisión se concentre ahí
+44. `migrations/042_modules_historical_timeline.sql` — ✅ **aplicada 2026-08-13** por el owner, tras
+    auditar los 35 años (ADR-016) · año, era y figura histórica por módulo, para la línea del tiempo
+    del tablero (ADR-021, T-66). Control corrido en producción: **35 ubicados / 0 sin ubicar**, o
+    sea que los 35 slugs del `update` coincidieron con la tabla y ninguno se perdió en silencio
 45. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del

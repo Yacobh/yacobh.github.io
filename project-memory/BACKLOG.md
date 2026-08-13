@@ -1831,10 +1831,10 @@ veía nunca**. La línea es la superficie que faltaba.
   ya rendidos. Ver [[../adr/ADR-021-linea-del-tiempo-historica]].
 
 **Terminado cuando:**
-1. ⏳ el owner **audite los 35 años** y aplique `042` (los años son contenido — ADR-016; la
-   migración declara sus tres puntos débiles para que la revisión se concentre ahí);
-2. ⏳ se verifique en vivo, que hoy **no se pudo**: sin `042` aplicada no hay hitos que dibujar, y el
-   tablero exige sesión.
+1. ✅ **el owner auditó los 35 años y aplicó `042` el 2026-08-13.** Control en producción:
+   **35 ubicados / 0 sin ubicar**;
+2. ⏳ se verifique la línea funcionando con una cuenta con historial (el owner ya tiene el sitio
+   levantado en `localhost:3000`).
 
 ### T-67 · Verificar en vivo la identidad visual y la línea del tiempo — **P1** · `abierto` (2026-08-13)
 

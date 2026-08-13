@@ -40,7 +40,7 @@ ACENTO = {
     "400": "#D9A25C", "500": "#C9873A", "600": "#A96C2C", "700": "#855224",
     "800": "#5F3B1B", "900": "#3E2712", "950": "#24160A",
 }
-PERGAMINO = {"50": "#FEFDFB", "100": "#FBF7F0", "200": "#F4ECDF", "300": "#E9DCC7"}
+PERGAMINO = {"50": "#FBF7F0", "100": "#F4EEE2", "200": "#EBE3D3", "300": "#DCD1BA"}
 BLANCO = "#FFFFFF"
 
 # (descripción, frente, fondo, umbral)

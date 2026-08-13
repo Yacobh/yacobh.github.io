@@ -873,7 +873,7 @@ las próximas semanas.
 | Perfil del estudiante | ✅ dos ejes: θ (IRT) y **fluidez λ** (ADR-019), con la tarjeta 2×2 en «Mi plan», en producción desde el 2026-08-12. Umbrales de λ **sin calibrar** (T-65) |
 | Contenido pedagógico | 🟡 58/61 recursos publicados (T-01); faltan los 2 módulos nuevos de `031` y los 7 de geometría (T-56) |
 | Banco de ítems | 🟡 387 ítems PAES; topics canónicos y 259 con módulo, **128 sin módulo** (bancos mezclados, T-60). Además 123 ítems `mq_` del track experimental, **aislados** (`active = false`) — las métricas necesitan `where topic not like 'mq\_%'` |
-| Migraciones | 🟡 `033`–`041` aplicadas y verificadas contra la base real (ver [[../supabase/SCHEMA]] §Verificación); **`042` escrita y sin aplicar** — espera la auditoría de contenido del profesor |
+| Migraciones | ✅ **ninguna pendiente** — `033`–`042` aplicadas y verificadas contra la base real (ver [[../supabase/SCHEMA]]); `042` la aplicó el owner el 2026-08-13 tras auditar los años: **35 ubicados / 0 sin ubicar** |
 | Email de cohorte | ✅ desplegado y verificado en producción (T-02, 2026-08-09) |
 | Documentación / memoria | ✅ PMF operativo desde 2026-07-26; auditada el 2026-08-10, actualizada el 2026-08-12 |
 | CI | 🟡 `.github/workflows/test.yml` existe (T-06); staging y monitoreo ⛔ inexistentes |
