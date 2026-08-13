@@ -1990,6 +1990,19 @@ el caso 1 le pasó por al lado — el texto estaba bien mapeado, el roto era el 
 revisa **fondos claros (tono ≤ 200) sin mapear**, que es exactamente esa forma de fallar. Verificado
 con control negativo: quitando la regla de `bg-senal-50`, el script lo reporta.
 
+**Segunda ronda (T-72b), tras volver a probar el owner:** la etiqueta "Pregunta" del modal seguía
+sin leerse en tema claro. La causa era mía y tonta: **`.grabado` pinta `panel-700` y `.alojamiento`
+tiene `panel-700` de fondo** — el mismo valor exacto, letras invisibles sobre su propio fondo.
+
+Es una clase de error que **ninguno de los dos audits puede ver**: no es una utilidad de Tailwind
+sin mapear ni un par de paleta declarado, es **una clase del sistema encima de otra**. Solo se
+atrapa declarando el par, que es lo que se hizo (32/32).
+
+De paso, revisando el mismo componente aparecieron dos fondos claros **fijos por estilo inline** en
+`math-render`, que fallan igual en oscuro porque un estilo inline no se puede remapear: el bloque
+de matemática desplegada (`#f8fafc`) y la cita (borde `#3b82f6`, texto `#64748b`). Los dos pasaron
+a clases con tokens.
+
 - **Falta:** verlo (T-67).
 - **Relacionado:** T-68, [[../adr/ADR-012-tema-oscuro-mapeo-css-global]], [[../adr/ADR-023-panel-de-instrumento]].
 

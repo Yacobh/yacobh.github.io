@@ -400,3 +400,33 @@
   border-color: theme('colors.panel.950');
   box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.45);
 }
+
+/* --- Etiqueta grabada DENTRO de un alojamiento (T-72b) -------------------- */
+/* El fallo: `.grabado` pinta `panel-700` y `.alojamiento` tiene `panel-700` de
+   fondo. **El mismo valor exacto** — en tema claro la etiqueta "Pregunta" del
+   modal era invisible sobre su propio fondo. El sombreado blanco tampoco tenía
+   sentido ahí: es luz de arriba sobre una carcasa clara, no dentro de un hueco.
+
+   Es una clase de error que ninguno de los dos audits puede ver: no es una
+   utilidad de Tailwind sin mapear, es **una clase del sistema encima de otra**.
+   Los audits comparan clase contra mapeo y contraste contra pares declarados;
+   una colisión entre dos piezas propias solo se atrapa declarando el par, que
+   es lo que se hizo en `audit_contraste.py`. */
+.alojamiento .grabado,
+.visor .grabado {
+  color: theme('colors.panel.300');
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.45);
+}
+.dark .alojamiento .grabado,
+.dark .visor .grabado {
+  color: theme('colors.panel.400');
+}
+
+/* Cita dentro de una explicación (T-72b). Antes traía un borde azul `#3b82f6` y
+   un texto `#64748b`, los dos literales de fábrica y fijos por estilo inline.
+   Acá son tokens y el texto se hereda del contenedor, que sí reacciona al tema. */
+.explanation-note-tokens {
+  border-left: 2px solid theme('colors.senal.600');
+  color: inherit;
+  opacity: 0.85;
+}
