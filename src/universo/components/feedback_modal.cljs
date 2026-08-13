@@ -220,11 +220,8 @@
    [question-section question]
    [options-section question selected correct]
    [explanation-section response is-correct?]
-   ;; T-72: la gráfica va en un visor con superficie clara propia, en ambos
-   ;; temas. Sus colores son literales dentro del SVG (ver la cabecera de
-   ;; `irt-chart`), así que sobre fondo oscuro su tinta desaparecía.
-   [:div {:class "visor rounded p-3 sm:p-4"}
-    [irt-chart/irt-progress-chart points stop-reason]]
+   ;; El visor lo pone el propio componente (T-72d).
+   [irt-chart/irt-progress-chart points stop-reason]
    [action-buttons stop-reason]])
 
 ;; ============================================================================

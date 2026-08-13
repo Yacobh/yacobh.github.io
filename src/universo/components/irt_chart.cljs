@@ -13,12 +13,25 @@
 
 ;; Colores literales: var(--x) en atributos SVG fill/stroke a menudo
 ;; no resuelve y el fill por defecto queda negro.
-(def ^:private color-theta "#0f4c5c")
-(def ^:private color-diff "#e36414")
-(def ^:private color-grid "#d6d3d1")
-(def ^:private color-ink "#292524")
-(def ^:private color-muted "#57534e")
-(def ^:private color-axis "#78716c")
+;;
+;; Por eso el componente se dibuja dentro de un `.visor` (ADR-023): una
+;; superficie clara **en ambos temas**, como el visor de un instrumento. Esa
+;; decisión es lo que permite que un solo juego de literales funcione en claro y
+;; en oscuro, en vez de duplicarlos o reescribir el SVG para que reaccione al
+;; tema.
+;;
+;; T-72d — medidos contra el visor por primera vez, dos no pasaban:
+;;   · `axis` era #78716c → 3.29 sobre el visor, y rotula texto (-3, 0, 3,
+;;     "Pregunta", la leyenda), así que necesita 4.5.
+;;   · `diff` era #e36414 → 2.36, por debajo del 3.0 de un objeto gráfico. De
+;;     paso era un naranja distinto del de la marca, compitiendo con él.
+;; Los valores nuevos están en el contrato de `scripts/audit_contraste.py`.
+(def ^:private color-theta "#0f4c5c")   ;; serie θ — 6.52
+(def ^:private color-diff "#9E3C08")    ;; serie dificultad — 4.64, y es senal-700
+(def ^:private color-grid "#9E9E9A")    ;; grilla — referencia sutil, no dato
+(def ^:private color-ink "#292524")     ;; título — 10.41
+(def ^:private color-muted "#57534e")   ;; descripción — 5.23
+(def ^:private color-axis "#423F3B")    ;; ejes y leyenda — 7.18
 
 
 (defn- clamp-y [v]
@@ -64,7 +77,13 @@
          diff-pts (when (pos? n) (polyline-points pts :difficulty))
          last-pt (last pts)
          reason-txt (stop-reason-label stop-reason)]
-     [:div {:class "irt-progress-chart"}
+     ;; T-72d: el visor va acá y no en cada sitio de llamada. Este componente
+     ;; pinta con colores LITERALES (ver la cabecera del ns), así que necesita
+     ;; una superficie clara SIEMPRE — y si esa superficie la tiene que poner
+     ;; quien lo usa, alguien se la olvida. Pasó exactamente eso: se puso en el
+     ;; modal de feedback y la pantalla de resultados quedó sin ella, con la
+     ;; tinta oscura del gráfico sobre el fondo oscuro del tema.
+     [:div {:class "irt-progress-chart visor rounded p-3 sm:p-4"}
       [:div {:class "mb-2"}
        [:p {:class "text-sm font-semibold tracking-tight"
             :style {:color color-ink}}

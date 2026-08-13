@@ -96,6 +96,16 @@ PARES = [
     # Sube a panel-100: con panel-300 daba 5.50 —AA aprobado— y el owner igual
     # no la leía. Una etiqueta dentro de un visor va iluminada, no grabada.
     ("alojamiento · etiqueta encendida", PANEL["100"],  PANEL["700"],   4.5),
+
+    # Gráfica IRT (T-72d). Sus colores son literales dentro del SVG por una
+    # razón documentada, así que el contrato tiene que vivir acá. Se miden
+    # contra el visor MÁS OSCURO de los dos (el de tema oscuro), que es el caso
+    # peor. Antes de medirlos, dos reprobaban.
+    ("gráfica · título",               "#292524",      PANEL["100"],   4.5),
+    ("gráfica · descripción",          "#57534e",      PANEL["100"],   4.5),
+    ("gráfica · ejes y leyenda",       "#423F3B",      PANEL["100"],   4.5),
+    ("gráfica · serie θ",              "#0f4c5c",      PANEL["100"],   3.0),
+    ("gráfica · serie dificultad",     "#9E3C08",      PANEL["100"],   3.0),
 ]
 
 # Combinaciones prohibidas, documentadas para que nadie las reinvente.
@@ -105,6 +115,9 @@ PROHIBIDOS = [
     ("blanco sobre el naranja de la señal", BLANCO, SENAL["500"]),
     # Por qué el LED necesita alojamiento y no se puede poner suelto:
     ("LED sobre el panel claro (sin alojamiento)", LED["500"], PANEL["300"]),
+    # Los valores que tenía la gráfica antes de medirla:
+    ("ejes de la gráfica en #78716c (viejo)", "#78716c", PANEL["100"]),
+    ("serie dificultad en #e36414 (viejo)",   "#e36414", PANEL["100"]),
 ]
 
 

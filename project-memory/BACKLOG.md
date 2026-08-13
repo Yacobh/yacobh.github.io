@@ -1990,6 +1990,19 @@ el caso 1 le pasó por al lado — el texto estaba bien mapeado, el roto era el 
 revisa **fondos claros (tono ≤ 200) sin mapear**, que es exactamente esa forma de fallar. Verificado
 con control negativo: quitando la regla de `bg-senal-50`, el script lo reporta.
 
+**Cuarta ronda (T-72d):** los textos de la gráfica —título, descripción, ejes, leyenda— no se leían
+en oscuro **en la pantalla de resultados**. Dos causas:
+
+1. **El visor lo había puesto en el sitio de llamada, no en el componente.** Lo agregué en el modal
+   de feedback y `diagnostic_test` quedó sin él. Ese es el error de fondo: si la superficie la tiene
+   que poner quien usa el componente, alguien se la olvida. **El visor pasó adentro de
+   `irt-chart`**, que es su dueño natural, y el sitio de llamada dejó de envolverlo.
+2. **Los colores literales de la gráfica nunca se habían medido.** Al hacerlo, dos reprobaban:
+   los ejes y la leyenda daban **3.29** (rotulan texto: necesitan 4.5) y la serie de dificultad
+   **2.36** (necesita 3.0), además de ser un naranja distinto del de la marca, compitiendo con él.
+   Corregidos a 7.18 y 4.64, y **los cinco colores entraron al contrato** con los valores viejos
+   anotados como prohibidos. 37/37.
+
 **Tercera ronda (T-72c):** con el color corregido, el owner seguía sin leer "Pregunta" — "se ve
 apenas el borde". El CSS estaba bien aplicado y el par daba **5.50, o sea AA aprobado**. El
 problema era de diseño: en un aparato hay **dos** tipos de etiqueta y las traté como una sola. La
