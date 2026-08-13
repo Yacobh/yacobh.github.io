@@ -30,9 +30,9 @@
         admin? @(re-frame/subscribe [:auth/admin?])
         loading? @(re-frame/subscribe [:test/topics-loading?])
         error @(re-frame/subscribe [:test/topics-error])]
-    [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
+    [:div {:class "max-w-2xl mx-auto p-5 sm:p-8 bg-white rounded-lg shadow-lg"}
      [:div {:class "text-center mb-8"}
-      [:h2 {:class "text-3xl font-bold text-gray-800 mb-3"}
+      [:h2 {:class "text-2xl sm:text-3xl font-bold text-gray-800 mb-3"}
        "Elige una evaluación"]
       [:p {:class "text-gray-600"}
        "Selecciona el tema que quieres practicar. Las opciones se cargan desde el banco de preguntas."]]
@@ -44,7 +44,7 @@
        error
        [:div {:class "text-center py-8 space-y-4"}
         [:p {:class "text-red-600"} error]
-        [:button {:class "bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-5 rounded-lg transition"
+        [:button {:class "min-h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-5 rounded-lg transition"
                   :type "button"
                   :on-click #(re-frame/dispatch [:test/load-topics])}
          "Reintentar"]]
@@ -81,7 +81,7 @@
 ;; -------------------------------
 
 (defn loading-component []
-  [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg"}
+  [:div {:class "max-w-2xl mx-auto p-5 sm:p-8 bg-white rounded-lg shadow-lg"}
    [ui/loading-block "Cargando siguiente pregunta..."]])
 
 ;; -------------------------------
@@ -89,7 +89,7 @@
 ;; -------------------------------
 
 (defn completion-component []
-  [:div {:class "max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg text-center"}
+  [:div {:class "max-w-2xl mx-auto p-5 sm:p-8 bg-white rounded-lg shadow-lg text-center"}
    [:div {:class "w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"}
     [:svg {:class "w-8 h-8 text-green-600" :fill "currentColor" :viewBox "0 0 20 20"}
      [:path {:d "M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"}]]]
@@ -125,10 +125,10 @@
         (reset! started-at (.now js/Date)))
 
       (if question
-        [:div.max-w-2xl.mx-auto.bg-white.rounded-xl.shadow-md.p-8.space-y-6
+        [:div {:class "max-w-2xl mx-auto bg-white rounded-xl shadow-md p-5 sm:p-8 space-y-6"}
 
          ;; 🔹 Título / encabezado
-         [:h2.text-2xl.font-bold.text-gray-800.text-center
+         [:h2 {:class "text-xl sm:text-2xl font-bold text-gray-800 text-center"}
           (str "Pregunta " question-index)]
          (when topic
            [:p.text-sm.text-indigo-600.text-center
@@ -230,17 +230,17 @@
 
      [:div {:class "space-y-3"}
       [:button
-       {:class "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg"
+       {:class "min-h-11 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-lg"
         :type "button"
         :on-click #(re-frame/dispatch [:navigate-to :plan])}
        "Ver mi plan"]
       [:button
-       {:class "w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg"
+       {:class "min-h-11 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-4 rounded-lg"
         :type "button"
         :on-click #(re-frame/dispatch [:navigate-to :cupos])}
        "Ver cupos para mi nivel"]
       [:button
-       {:class "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg"
+       {:class "min-h-11 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-lg"
         :type "button"
         :on-click #(re-frame/dispatch [:test/start topic])}
        "Repetir evaluación"]

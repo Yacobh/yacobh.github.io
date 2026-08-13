@@ -1081,3 +1081,75 @@
  (fn [{:keys [db]} [_ msg]]
    {:db (assoc-in db [:admin :test-config-saving?] false)
     :dispatch [:admin/toast :error msg]}))
+
+;; -----------------------------------------------------------------------------
+;; Apariencia del sitio (ADR-022, migración 043)
+;; -----------------------------------------------------------------------------
+;; Estado propio (`[:admin :status :apariencia]`), como cada pestaña del panel:
+;; un error acá no debe apagar el resto del admin.
+
+(re-frame/reg-event-fx
+ :admin/cargar-apariencia
+ (fn [{:keys [db]} _]
+   {:db (assoc-in db [:admin :status :apariencia :error] nil)
+    :fx/cargar-apariencia nil}))
+
+(re-frame/reg-fx
+ :fx/cargar-apariencia
+ (fn [_]
+   (go
+     (let [res (<! (crud/fetch-site-settings))]
+       (if (:success res)
+         (re-frame/dispatch [:admin/apariencia-cargada (get-in res [:data :theme_default])])
+         (re-frame/dispatch [:admin/apariencia-error (:error res)]))))))
+
+(re-frame/reg-event-db
+ :admin/apariencia-cargada
+ (fn [db [_ valor]]
+   (-> db
+       (assoc-in [:admin :apariencia] (or valor "sistema"))
+       (assoc-in [:admin :status :apariencia :guardando?] false))))
+
+(re-frame/reg-event-db
+ :admin/apariencia-error
+ (fn [db [_ error]]
+   (-> db
+       (assoc-in [:admin :status :apariencia :error] error)
+       (assoc-in [:admin :status :apariencia :guardando?] false))))
+
+(re-frame/reg-event-fx
+ :admin/guardar-apariencia
+ (fn [{:keys [db]} [_ valor]]
+   ;; Se pinta el valor nuevo de inmediato y se confirma con la respuesta. Si la
+   ;; policy rechaza (no es admin de verdad), `:admin/apariencia-error` lo dice y
+   ;; la recarga devuelve el valor real: la UI no se queda mintiendo.
+   {:db (-> db
+            (assoc-in [:admin :apariencia] valor)
+            (assoc-in [:admin :status :apariencia :guardando?] true)
+            (assoc-in [:admin :status :apariencia :error] nil))
+    :fx/guardar-apariencia {:valor valor
+                            :user-id (get-in db [:auth :user :id])}}))
+
+(re-frame/reg-fx
+ :fx/guardar-apariencia
+ (fn [{:keys [valor user-id]}]
+   (go
+     (let [res (<! (crud/update-site-settings! {:theme-default valor :user-id user-id}))]
+       (if (:success res)
+         (do (re-frame/dispatch [:admin/apariencia-cargada valor])
+             (re-frame/dispatch [:toast/show {:kind :success
+                                              :message "Apariencia por defecto actualizada."}]))
+         (do (re-frame/dispatch [:admin/apariencia-error (:error res)])
+             (re-frame/dispatch [:admin/cargar-apariencia])))))))
+
+(re-frame/reg-sub
+ :admin/apariencia
+ (fn [db _] (get-in db [:admin :apariencia] "sistema")))
+
+(re-frame/reg-sub
+ :admin/apariencia-guardando?
+ (fn [db _] (get-in db [:admin :status :apariencia :guardando?] false)))
+
+(re-frame/reg-sub
+ :admin/apariencia-error
+ (fn [db _] (get-in db [:admin :status :apariencia :error])))

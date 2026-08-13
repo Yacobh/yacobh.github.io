@@ -1,7 +1,8 @@
 # ARCHITECTURE
 
-Última actualización: **2026-08-12** · Verificado contra `src/`, `supabase/`, `shadow-cljs.edn`,
-`index.html` y `project-memory/graph/GRAPH_REPORT.md`
+Última actualización: **2026-08-13** (identidad Braun/Rams, línea del tiempo, `site_settings`) · Verificado
+contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
+`project-memory/graph/GRAPH_REPORT.md`
 
 ---
 
@@ -32,7 +33,7 @@
 │                                                                           │
 │  Lógica pura (sin I/O, testeada):                                         │
 │    components.tetha · irt.progress · irt.effort · irt.fluency ·           │
-│    profile · topics · slots.logic                                         │
+│    profile · topics · slots.logic · timeline                              │
 │    access · catalog                                                       │
 └──────────────────────────────┬────────────────────────────────────────────┘
                                │ HTTPS + JWT del usuario (supabase-js)
@@ -47,6 +48,7 @@
 │    modules · student_profiles · resources · misconceptions                 │
 │    class_slots · enrollments · notifications · email_outbox                │
 │    test_configs (parada IRT + prerequisitos por banco)                     │
+│    site_settings (apariencia por defecto, una sola fila)                  │
 │    funciones public.is_admin() · normalize_topic()                         │
 │    RPC security definer: next_question · score_answer · track_visitor      │
 │                                                                           │
@@ -87,6 +89,7 @@
 | Lectura | `universo.subs` | Suscripciones globales de UI (`:current-page`, `:current-section`, `:transitioning`) |
 | Ruteo | `universo.views` + `universo.home` | `views/pages` solo resuelve `:home`. El **ruteo real** es por *sección* dentro de `home/main-content` (`case current-section`) |
 | Layout | `universo.home` | Nav fija (links según `:auth/ready?`, `logged-in?`, `admin?`, botón de tema), contenido con transición de opacidad, footer con contacto |
+| Panel de instrumento | `src/css/app.css` (bloque «PANEL DE INSTRUMENTO») | **Cinco clases de componente** —`.control`, `.alojamiento`, `.led`, `.placa`, `.visor`, `.grabado`— definidas una sola vez (ADR-023). No son utilidades sueltas a propósito: repetirlas a mano diverge al tercer componente. El relieve es funcional, no decorativo: sobre el panel gris el LED da 1.04 de contraste y el naranja 1.68, así que el bisel y el alojamiento son lo que los vuelve visibles |
 | Tema | `universo.events.theme` + `src/css/app.css` | Claro/oscuro (`:theme` en `app-db`, `:theme/init`/`:theme/toggle`, persistido en `localStorage`, clase `dark` en `<html>` aplicada antes de `app.js` vía script inline en `index.html`). El tema oscuro de los ~15 componentes se cubre con un mapeo global de clases en `app.css` (`.dark .clase-existente`), no con `dark:` por elemento — ver [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] *(2026-08-05)* |
 
 > **Nota de arquitectura:** no hay router de URL. La navegación es estado en `app-db`
@@ -105,6 +108,7 @@ Tres namespaces puros + un ns de eventos:
 | `universo.irt.fluency` | **Eje 2 — fluidez (λ)**, ADR-019: `usable?` (correcta + con tiempo + esforzada), `relative-time` (`t_rel` = segundos observados / `effort/reading-seconds` del enunciado), `classify` (mediana de `t_rel`, banda `:fluida`/`:media`/`:laboriosa`, `min-responses` = 4), `thresholds-from-config` (cortes por banco, `041`), `profile-for` (cruce 2×2 con la banda de θ), `calibration-report` (deciles para recalibrar). **No mide estilos de aprendizaje** — el Eje 3 de VISION §3.3 se descarta (D-41) | `fluency_test.cljs` |
 | `universo.topics` | Forma canónica de `questions.topic` (**espejo de `public.normalize_topic()`**, ADR-017): `normalize`, `same-topic?`, `duplicate-groups`, `module-slug-for` (equivalencia explícita → sufijo único del slug), `track-for`, `unmapped` | `topics_test.cljs` |
 | `universo.profile` | `theta-band`, `band-label`, `deficits-from-responses`, `misconceptions-from`, `dominant-track`, `build` (perfil completo + estabilidad de θ). El mapeo topic → módulo lo delega en `universo.topics` | `profile_test.cljs` |
+| `universo.timeline` | **Línea del tiempo histórica** (ADR-021): `era-of` y `eras` (espejo del check de `042`), `medal-for` (espejo de `profile/theta-band`: oro θ≥2, plata θ≥1, bronce rendido), `best-theta-by-module`, `milestones` (cruza módulos con el historial), `by-era`, `progress`. Reutiliza `access/best-theta-by-topic` y `topics/module-slug-for` | `timeline_test.cljs` |
 | `universo.catalog` | Catálogo de evaluaciones: `topic-label` (precedencia `test_configs.display_name` → diccionario `topic-labels` → topic con guiones bajos como espacios), `count-by-topic` (preguntas por banco), `counts-truncated?` (detecta respuesta recortada de PostgREST) | `catalog_test.cljs` |
 | `universo.events.test` | Orquestación con I/O: `normalize-question`, `resolve-topic` (alias de topics), fetch de candidatos por ventana de dificultad, prefetch, registro de respuesta, evaluación de la parada, persistencia | — |
 
@@ -145,6 +149,7 @@ fácil" a "imposible"; parada por SE en lugar de número fijo de preguntas.
 | Fluidez | `universo.irt.fluency` + `events/plan.cljs` | El eje se **recalcula en el cliente** desde el último test (`:plan/fetch-last-test!`) cuando el perfil guardado no trae `:fluency` — todo diagnóstico anterior a ADR-019 quedó sin él. No reinterpreta θ ni ningún resultado previo: usa `:time-ms`/`:weight`/`:question-text`, que ADR-014 Fase 1 ya guardaba en `tests.test` y nadie leía. Con menos de `min-responses` correctas usables la tarjeta muestra un tercer estado explícito ("todavía no alcanza"), en vez de desaparecer |
 | Cupos | `events/slots.cljs` + `components/slots.cljs` + `universo.slots.logic` | `slots.logic` es el **espejo puro** de reglas que la DB también impone: filtro por banda, conteo activo, faltantes, confirmación |
 | Cuenta | `events/account.cljs` + `components/cuenta.cljs` | Sección propia (`:cuenta`, protegida por sesión): editar `full_name`/`phone` en `profiles` y solicitar eliminación de cuenta (inserta una `notifications` con `kind = 'account_deletion_request'`; el admin la atiende desde `components/admin.cljs`, pestaña Usuarios) |
+| Línea del tiempo | `universo.timeline` + `components/timeline.cljs` + subs en `events/dashboard.cljs` | Barra fija al pie del **tablero** (no de toda la app). Los módulos se cargan una vez (catálogo) y se cruzan con el historial del estudiante; el detalle de cada hito es el **único lugar de la app donde se muestra `modules.historical_blurb`**. Si ningún módulo tiene año —`042` sin aplicar— no se dibuja nada: es una ausencia de despliegue, no un estado del estudiante (ADR-021) |
 | UI compartida | `events/ui.cljs` + `components/ui.cljs` | Piezas transversales (2026-07-29): `ui/spinner`/`ui/loading-block` (spinner único con `role="status"`, usado por dashboard, plan, cupos, cuenta, diagnóstico, guestbook y admin) y `ui/confirm-dialog` (diálogo de confirmación global vía `[:confirm/ask {...}]`, reemplaza `js/confirm` nativo; montado una sola vez en `home.cljs`) |
 
 > **Duplicación deliberada:** la regla de confirmación existe en el trigger SQL (fuente de verdad)
@@ -196,7 +201,7 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
 | `questions` | opciones A–D, `correct_option`, `error_a..error_d`, `difficulty`, `topic`, `order_index`, `module_id` (FK opcional), `misconception_a_id..d_id` (`027`) | **El activo del proyecto**: banco IRT con misconceptions. `correct_option` y `error_*` **nunca viajan al cliente** (ADR-015). `topic` lo mantiene canónico un **trigger** (`029`, ADR-017). Su DDL **no está versionado** — preexiste a `001` (T-48). 387 ítems, 128 sin `module_id` (T-60) |
 | `tests` | `test` (JSON del diagnóstico), `topic`, `theta` (columnas propias desde ADR-013), `email-user`, `user_id` | Histórico de diagnósticos; `topic`/`theta` alimentan `universo.access/unlocked-topics` |
 | `test_configs` | `topic` (PK), `display_name` (nullable), `min_items`, `max_items`, `se_threshold`, `max_minutes`, `prerequisite_topic` (self-FK nullable), `min_theta`, `active`, `min_response_seconds`, `fluency_fluida_max`, `fluency_media_max` | Config de parada IRT + cadena de prerequisitos por banco (ADR-013). Sin prerequisito = diagnóstico, siempre accesible. `display_name` es el nombre que ve el estudiante (T-42, migración `022`); null = fallback en `universo.catalog/topic-label`. `min_response_seconds` es el piso del umbral de esfuerzo (T-44, migración `028`), no una regla de parada. Las dos columnas `fluency_*` son los cortes del eje λ por banco (ADR-019, migración **`041`, aplicada 2026-08-13**), `not null default 3`/`6` con check que impide invertirlas; el fallback de `fluency/thresholds-from-config` a `default-thresholds` sigue vigente para configs viejas o nulas. **`topic` se mantiene canónico por trigger** (ADR-017, migración `029`) |
-| `modules` | `slug` (único), `title`, `track` (`aritmetica`\|`algebra`\|`geometria`), `order_index`, `historical_blurb` | Skills atómicas alineadas a Baldor. **20 módulos**: 18 de `002` + `algebra/inecuaciones` y `aritmetica/operaciones_fundamentales` (`031`, D-37) |
+| `modules` | `slug` (único), `title`, `track` (`aritmetica`\|`algebra`\|`geometria`\|`cuantica`), `order_index`, `historical_blurb`, `historical_year`, `historical_era`, `historical_figure` | Skills atómicas alineadas a Baldor. **20 módulos PAES**: 18 de `002` + `algebra/inecuaciones` y `aritmetica/operaciones_fundamentales` (`031`, D-37), más 15 de cuántica (`033`, ADR-018). Las tres columnas `historical_*` de ubicación temporal son de `042` (ADR-021), con `check` de vocabulario y de coherencia año↔era; `historical_year` es nullable a propósito: un módulo sin año no aparece en la línea en vez de recibir una fecha inventada |
 | `misconceptions` | `slug` (único, con check de formato), `name`, `description`, `module_id` | Catálogo curado de errores conceptuales con identidad propia (`027`, T-57). **Vacío todavía**; `null` en `questions.misconception_*_id` = "sin catalogar". RLS solo admin |
 | `student_profiles` | `theta`, `theta_band`, `profile` JSONB | Materialización del perfil (una por estudiante) |
 | `resources` | `module_id`, tipo (`text`/`video_url`/`audio_url`/`exercise`), `published` | Capa 1 del plan |
@@ -204,6 +209,7 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
 | `enrollments` | estudiante ↔ cupo, `status` (`pending`/`confirmed`/…) | |
 | `notifications` | destinatario + mensaje | Banner in-app |
 | `email_outbox` | `to_email`, `subject`, `body`, `kind`, `meta`, `status` (`pending`/`sent`/`failed`), `attempts`, `last_error`, `sent_at` | Índice parcial sobre `pending` |
+| `site_settings` | `id` (booleano fijo en `true`), `theme_default` (`claro`/`oscuro`/`sistema`), `updated_at`, `updated_by` | Configuración global, **una sola fila** garantizada por un `check` sobre la PK (`043`, ADR-022). Lectura pública a propósito: el visitante anónimo necesita el valor antes de autenticarse. Escritura solo admin |
 | `guestbook` | firma pública, `is_approved` tri-state (`null`/`true`/`false`) | Fuente de los testimonios |
 | `visitor` | IP, ciudad, país, idioma, navegador, SO | Tracking |
 | `contacto` | mensajes del formulario | |
@@ -468,6 +474,10 @@ la ejecute todavía** ([[BACKLOG]] T-34). Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]
 | [[../adr/ADR-017-topic-canonico-por-trigger]] | `topic` canónico por trigger en la DB, con espejo puro en `universo.topics` |
 | [[../adr/ADR-018-track-experimental-cuantica]] | Track experimental de Mecánica Cuántica sobre el mismo motor, aislado por `active = false` |
 | [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] | El segundo eje del perfil mide **fluidez (λ)**, no estilos de aprendizaje |
+| [[../adr/ADR-020-identidad-visual-por-tokens]] | La identidad visual vive en tokens de Tailwind; se redefine la escala `indigo` en vez de reescribir los componentes |
+| [[../adr/ADR-021-linea-del-tiempo-historica]] | Línea del tiempo histórica en el tablero, con medallas derivadas de `tests` en vez de una tabla de logros |
+| [[../adr/ADR-022-lenguaje-braun-rams]] | La identidad es el lenguaje Braun/Rams: una escala neutra y un color de señal; la apariencia por defecto se configura en `site_settings` (`043`) |
+| [[../adr/ADR-023-panel-de-instrumento]] | Panel de instrumento: la física vive en los controles (`.control`, `.alojamiento`, `.led`, `.placa`, `.grabado` en `app.css`), no en la superficie |
 
 ---
 
@@ -487,6 +497,30 @@ la ejecute todavía** ([[BACKLOG]] T-34). Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]
 | A-10 | **Grafo de conocimiento parcial** | Graphify no indexa `.cljs`: el análisis automático no ve la lógica principal |
 
 Priorizados con impacto/probabilidad en [[RISKS]].
+
+---
+
+## 10-bis. Verificación versionada (`scripts/`)
+
+El proyecto no tiene CI que corra sobre cada push (T-06 existe pero sin verificar), así que las
+comprobaciones que importan viven como scripts en el repo, en la misma línea que
+`supabase/queries/verificacion_esquema.sql`: **un hallazgo que no se versiona se pierde.**
+
+| Script | Qué comprueba | Modo de fallo que ataja |
+|--------|---------------|-------------------------|
+| `audit_dark_theme.py` | Texto oscuro (tono ≥ 600) y **fondo claro (≤ 200) sin mapear** en `app.css` | El riesgo que ADR-012 anticipó: un componente queda sin tema oscuro **sin aviso** |
+| `audit_contraste.py` | 38 pares de la paleta contra su umbral WCAG, más las combinaciones **prohibidas** con su número | "Se ve mejor" no es verificable y no sobrevive a la siguiente opinión |
+| `audit_movil.py` | Objetivos táctiles, padding fijo, texto diminuto, tablas sin scroll, anchos fijos | Se diseña en pantalla grande: nada avisa cuando algo no entra en 360 px |
+
+**Los tres se probaron contra un caso que debería fallar antes de creerles**, y no es ceremonia: el
+audit de móvil tenía un falso negativo silencioso en su primera versión —capturaba `"button"` como
+si fuera la lista de clases— y daba todas las pantallas del panel por buenas. Un chequeo que no
+encuentra nada es indistinguible de uno que funciona.
+
+**Lo que ninguno cubre**, y está dicho en cada docstring: no ven lo que no está escrito (un elemento
+sin clase de color), no ven una clase del sistema encima de otra, no ven estilos inline, y **no
+dicen cuándo algo está bien** — solo cuándo está mal. Un par puede aprobar AA y seguir sin leerse
+por tamaño y sombra; pasó, y por eso la verificación visual (T-67) no es reemplazable.
 
 ---
 

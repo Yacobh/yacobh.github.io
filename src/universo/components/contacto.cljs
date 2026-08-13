@@ -18,9 +18,11 @@
             :placeholder "¿Tienes alguna pregunta o comentario?"
             :value @mensaje
             :on-change #(reset! mensaje (.. % -target -value))}]
-          [:button.bg-indigo-600.hover:bg-indigo-700.text-white.py-1.rounded.transition
-           {:type "button"
-            :on-click (fn [e]
+          ;; T-73: era `py-1` (~26px de alto), por debajo del mínimo táctil.
+          [:button {:type "button"
+                    :class (str "control min-h-11 w-full bg-senal-400 text-grafito-900 "
+                                "px-4 py-2.5 rounded font-medium hover:bg-senal-300")
+                    :on-click (fn [e]
                         (.preventDefault e)
                         (when-not enviando?
                           (re-frame/dispatch [:enviar-contacto {:mensaje @mensaje}])

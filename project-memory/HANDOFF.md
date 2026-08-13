@@ -1,8 +1,8 @@
 # HANDOFF
 
-**Fecha del handoff: 2026-08-13** · Rama `main` @ `daa52f9` · Sin trabajo sin mergear ·
-**Ninguna migración pendiente**: `041` se aplicó el 2026-08-13 y sus columnas se verificaron contra
-la base real
+**Fecha del handoff: 2026-08-13 (tarde)** · Rama `main`, con la identidad visual nueva mergeada ·
+⏳ **una migración sin aplicar: `043`** (`site_settings`). Hasta que se aplique, la pestaña
+**Apariencia** del panel admin muestra un error al cargar — degrada, no rompe.
 
 > Este documento existe para que **una persona o un agente de IA sin acceso al historial de
 > conversaciones** pueda continuar el proyecto. Si solo puedes leer un archivo, lee este.
@@ -88,7 +88,7 @@ Requisitos con evidencia línea por línea: [[REQUIREMENTS]].
 Navegador: index.html → public/js/app.js (bundle) → universo.core/init!
   re-frame: events/* → app-db → subs → components (Reagent/React 17)
   Lógica pura testeada: components.tetha · irt.progress · irt.effort · irt.fluency
-                        profile · topics · slots.logic · catalog · access
+                        profile · topics · slots.logic · catalog · access · timeline
   I/O centralizado: universo.db.crud
         │ supabase-js con JWT del usuario
         ▼
@@ -105,13 +105,15 @@ Edge Function (Deno) send-enrollment-emails → Resend
   `email_outbox` (MVP).
 - **Migraciones:** scripts SQL en `supabase/migrations/`, aplicados **a mano** en el SQL Editor, en
   el orden de `supabase/SCHEMA.md` -- esa es la lista que se mantiene al día, no se duplica el número
-  aquí. No hay `db push`. **Al 2026-08-13 no queda ninguna pendiente**: `041` se aplicó y sus
-  columnas se verificaron contra la base real (`SCHEMA.md` §Verificación).
+  aquí. No hay `db push`. **Al 2026-08-13 queda una pendiente: `043`** (`site_settings`). `041` y
+  `042` se aplicaron y se verificaron contra la base real (`SCHEMA.md` §Verificación).
   ⚠️ Pero el esquema **no se puede reconstruir desde cero** con esas migraciones: `public.questions`
   y `public.is_admin()` preexisten y no están versionados (T-48).
 - **Deploy:** GitHub Pages sobre `main`. **El bundle `public/js/app.js` está versionado en Git**: sin
   `npx shadow-cljs release app` + commit, un cambio de código **no llega a producción**.
-- **Tests:** `clj -M:test` → **74 tests / 410 assertions / 0 failures** (verificado 2026-08-12).
+- **Tests:** `clj -M:test` → **83 tests / 454 assertions / 0 failures** (verificado 2026-08-13).
+- **Verificación de UI:** tres scripts en `scripts/` (tema oscuro, contraste, móvil). No hay CI que
+  los corra: se ejecutan a mano, como los tests.
 - **No hay:** staging, monitoreo, analytics, backups propios verificados, router de URL. CI sí existe
   (`.github/workflows/test.yml`, T-06).
 
@@ -132,6 +134,8 @@ Detalle: [[ARCHITECTURE]] · [[TECH_STACK]] · [[DEPENDENCIES]].
 | Email de cohorte | ✅ desplegado y **verificado en vivo** en producción (T-02) |
 | Cupos reales | ✅ uno publicado (2026-08-15) con Jitsi; falta oferta en las demás bandas |
 | Landing y SEO | ✅ (sin analytics — T-20) |
+| Identidad visual | ✅ lenguaje Braun/Rams sobre panel de instrumento (ADR-022, ADR-023). 38/38 pares WCAG. 🟡 **sin verificación visual** (T-67) |
+| Línea del tiempo histórica | ✅ 35 hitos, medallas derivadas de `tests` (ADR-021); `042` aplicada |
 | Memoria del proyecto (PMF) | ✅ operativa; auditada 2026-08-10 |
 | CI | 🟡 existe (T-06); staging / respaldos / monitoreo ⛔ |
 | Árbol de trabajo | ✅ limpio; `experimento-cuantica` mergeada a `main` (PR #36) — nada sin publicar |

@@ -175,20 +175,25 @@
     :h5          [:h5.explanation-subsubtitle (latex content)]
 
     :quote       [:blockquote.explanation-note
-                  {:style {:padding-left "1rem"
-                           :border-left "3px solid #3b82f6"
+                  ;; T-72b: el azul y el gris eran literales de fábrica. La
+                  ;; regla pasa al naranja de la marca y el color del texto se
+                  ;; hereda, para que el tema lo pueda cambiar.
+                  {:class "explanation-note-tokens"
+                   :style {:padding-left "1rem"
                            :margin "0.5rem 0"
-                           :color "#64748b"
                            :font-style "italic"}}
                   (latex content)]
 
     :list-item   [:li.explanation-item (latex content)]
 
-    :display-math [:div.math-display
+    ;; T-72b: el fondo era `#f8fafc` fijo por estilo inline. Un estilo inline no
+    ;; se puede remapear, así que en tema oscuro quedaba claro mientras el texto
+    ;; encima sí se aclaraba: claro sobre claro. Pasa a una clase (`visor`), que
+    ;; es la misma pieza que usa la gráfica y ya está resuelta en ambos temas.
+    :display-math [:div.math-display.visor
                    {:style {:margin "1rem 0"
                             :padding "1rem"
-                            :background "#f8fafc"
-                            :border-radius "8px"
+                            :border-radius "2px"
                             :text-align "center"}}
                    (render-latex-math content)]
 

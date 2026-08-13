@@ -814,16 +814,40 @@ original que motivó T-39.
 - **Relacionado:** [[BACKLOG]] T-39, T-42, `src/universo/catalog.cljs`,
   `src/universo/components/admin_test_configs.cljs`.
 
-### T-41 · Revisar la paleta del tema oscuro — **P2** · `idea` (sin especificar)
+### T-41 · Revisar la paleta del tema oscuro — **P2** · `hecho` (2026-08-13, falta verificación visual del owner)
 
 Feedback del owner tras probar T-39 en local (2026-08-08): "mejorar la paleta oscura de alguna
 forma", sin precisar qué concretamente (¿contraste, combinación de colores, algún componente en
-particular?). Por regla de gobernanza de la memoria, no se inventa el detalle faltante.
+particular?). Por regla de gobernanza de la memoria, no se inventó el detalle faltante, y la tarea
+quedó cinco días parada esperándolo.
 
-- **Terminado cuando:** el owner especifique qué no le convence del tema oscuro actual y se
-  implemente el ajuste correspondiente.
-- **Relacionado:** [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] (mapeo global `.dark
-  .clase-existente` en `src/css/app.css`).
+**El detalle llegó el 2026-08-13** y resultó ser dos cosas distintas:
+
+1. **Un bug de legibilidad**: "el tema oscuro tiene en algunos casos del panel letras negras,
+   imposible de leer".
+2. **Un problema de identidad**: "se parece mucho a otras páginas, es algo genérica, en su paleta de
+   colores".
+
+**Lo que se encontró al investigar** (el audit está en `scripts/audit_dark_theme.py`): la cobertura
+por clase de ADR-012 estaba bien — 164 clases usadas contra 91 mapeadas. El agujero era otro:
+
+- **el tema oscuro nunca definió un color de texto base**, así que todo elemento sin clase `text-*`
+  explícita heredaba el negro del navegador. Por eso fallaba en "algunos casos" y no en toda la app;
+- **las `<option>` no heredan el color del `<select>`**, y el panel usa desplegables por todos lados;
+- **`tailwind.config.js` tenía `theme: { extend: {} }`**: cero tokens propios. Esa es la razón
+  técnica de lo genérico — no que "la IA le dé el mismo código a todos", sino que nunca se definió
+  una identidad y quedó el default de fábrica.
+
+**Hecho:** las tres correcciones, más la paleta "tinta y pergamino" que eligió el owner, aplicada
+redefiniendo la escala `indigo` para no tocar los ~15 componentes
+([[../adr/ADR-020-identidad-visual-por-tokens]]).
+
+- **Terminado cuando:** ~~el owner especifique qué no le convence~~ ✅ especificado e implementado.
+  Los 15 pares de la paleta cumplen su umbral WCAG (`scripts/audit_contraste.py`), 12 en AAA.
+  ⏳ **Falta que el owner lo vea aplicado** y diga si ajusta algún valor — los tokens están en un
+  solo archivo, así que ajustar es barato.
+- **Relacionado:** [[../adr/ADR-012-tema-oscuro-mapeo-css-global]], T-38 (verificación visual de los
+  paneles protegidos, sigue abierta).
 
 ### T-42 · Nombre de fantasía editable por test — **P2** · `hecho` (2026-08-10)
 
@@ -1791,13 +1815,265 @@ candidatos cerca del final —`next_question` filtra por cercanía a θ— y el 
 por agotamiento en vez de por precisión. La consulta de control está al final de
 `supabase/migrations/040_cuantica_test_configs.sql` (§4).
 
+### T-66 · Línea del tiempo histórica en el tablero — **P2** · `hecho, sin publicar` (2026-08-13)
+
+La idea es del owner: una "regla del tiempo" al pie del tablero donde los recursos aparezcan
+como medallas que se van descubriendo. Se construyó sobre el hallazgo de
+[[../sessions/SESSION-021]]: hay contenido histórico guardado desde `002` —20 módulos con
+`historical_blurb`, 15 más de cuántica, decenas de recursos con `historical_context`— que **nadie
+veía nunca**. La línea es la superficie que faltaba.
+
+**Hecho:**
+- `supabase/migrations/042_modules_historical_timeline.sql` — año, era y figura por módulo. Probada
+  contra PostgreSQL 14 desechable: aplica limpia, idempotente, 35 ubicados / 0 sin ubicar.
+- `universo.timeline` (puro, 10 tests) + `universo.components.timeline` + eventos y subs.
+- Medallas derivadas del mejor θ en `tests`: **funcionan retroactivamente** con los 252 diagnósticos
+  ya rendidos. Ver [[../adr/ADR-021-linea-del-tiempo-historica]].
+
+**Terminado cuando:**
+1. ✅ **el owner auditó los 35 años y aplicó `042` el 2026-08-13.** Control en producción:
+   **35 ubicados / 0 sin ubicar**;
+2. ⏳ se verifique la línea funcionando con una cuenta con historial (el owner ya tiene el sitio
+   levantado en `localhost:3000`).
+
+### T-67 · Verificar en vivo la identidad visual y la línea del tiempo — **P1** · `abierto` (2026-08-13)
+
+Todo lo de T-41 y T-66 está compilado y con los audits en verde, pero **ninguna pantalla se miró con
+ojos**. Es la misma deuda que T-38 arrastra desde ADR-012, ahora sobre un cambio visual mucho más
+grande y con el sitio recibiendo tráfico (R-19).
+
+- **Terminado cuando:** recorrido en claro y oscuro por `admin` (con los desplegables abiertos, que
+  son el bug que motivó todo), `dashboard`, `plan`, `cupos`, `cuenta` y el diagnóstico, en
+  `http://127.0.0.1:3000` y **no en producción** (ver la nota de método de SESSION-021: cinco
+  intentos fallaron por mirar el dominio mientras el cambio estaba en local).
+- Cierra de paso T-38.
+
+### T-68 · El modal de feedback: tres defectos distintos — **P1** · `hecho` (2026-08-13, falta verlo)
+
+Reportado por el owner al probar el diagnóstico. Parecen un problema pero son tres, con causas
+independientes y arreglos independientes:
+
+**1. Se sale de la pantalla (bug de CSS, no de diseño).** `modal-overlay` combina
+`flex items-center justify-center` con `overflow-y-auto` en el mismo elemento
+(`components/feedback_modal.cljs:224`). Es un fallo clásico y conocido de flexbox: cuando el
+contenido es **más alto que el viewport**, el centrado lo desborda por arriba **y** por abajo, y el
+scroll no puede alcanzar la parte de arriba — queda contenido inaccesible. Se nota más en ítems
+largos, que son justamente los que necesitan más explicación.
+- **Arreglo:** el patrón habitual es `items-start` con `my-auto` en el hijo, o mover el scroll
+  adentro del contenido (`max-h-[85vh] overflow-y-auto`) y dejar el overlay sin scroll.
+
+**2. No heredó el lenguaje visual.** Es el componente que ADR-012 dejó como excepción con `dark:`
+propio, y por eso quedó fuera de las tres pasadas de identidad: conserva el degradado
+`from-blue-50 to-indigo-50` del enunciado, `border-stone-100`, `bg-slate-50` y `text-amber-600`.
+El azul y el ámbar **no** pasan por los tokens, así que son los de fábrica de Tailwind: es la única
+pantalla que sigue viéndose como el template viejo (ADR-022, ADR-023).
+
+**3. Que sea un modal es una decisión de producto, no un defecto.** El owner observa que la
+explicación "aparece como un modal sobre todo el texto". Tapar el enunciado justo cuando el
+estudiante quiere comparar su error con la pregunta es discutible. Alternativa a evaluar: mostrar
+la explicación **en línea, debajo del ítem**, con la pregunta todavía a la vista.
+- ⚠️ **No decidir esto sin mirar el flujo completo:** el modal también muestra el gráfico de θ y el
+  botón de continuar, así que no es solo "mover un texto".
+
+**Resuelto el 2026-08-13:**
+
+- ✅ **(1) El desbordamiento.** `items-start` + `m-auto` en el hijo. Los márgenes automáticos centran
+  cuando sobra espacio y **no recortan** cuando falta, que es exactamente lo que `align-items:
+  center` no sabe hacer.
+- ✅ **(2) El lenguaje visual.** El enunciado pasó a un `alojamiento` —queda hundido en la placa, y
+  de paso su texto claro sobre oscuro da 7.83 de contraste—; la explicación lleva la regla naranja al
+  costado, que es lo único que la señal marca en esa pantalla, porque explicar el error es el
+  diferencial del producto. Se fueron el degradado azul→índigo de fábrica, el `animate-pulse` que
+  latía sin terminar y el escalado al pasar el mouse sobre opciones que **ya no son accionables**.
+  **El verde y el rojo se conservan**: ahí el color sí informa.
+- ✅ **(3) Decisión del owner: se mantiene el modal.** Se corrigen sus defectos y no se mueve la
+  explicación a la página. Queda registrado para no reabrirlo por costumbre.
+- 📐 Cuatro pares nuevos entraron al contrato de contraste; uno falló al medirlo (la regla naranja
+  daba 2.75 y no llegaba ni a objeto gráfico) y se subió a `senal-600`. **31/31.**
+- **Relacionado:** [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] (la excepción que lo dejó afuera),
+  [[../adr/ADR-023-panel-de-instrumento]].
+
+### T-69 · La línea del tiempo como recta real, y los hitos como distribuciones — **P2** · `idea` (2026-08-13)
+
+Idea del owner, para cuando haya más hitos cargados. Hoy la línea agrupa por era y reparte los
+puntos dentro de cada bloque (ADR-021), que era lo necesario para que 14 de 35 hitos no se apilaran
+en el siglo XX. La evolución propuesta va más lejos y es más honesta con el dato:
+
+- **Que se parezca a la recta real.** Escala, marcas mayores y menores, y distancias que signifiquen
+  algo — no bloques de ancho igual. Implica resolver la compresión de escala sin perder la lectura.
+- **Manejabilidad:** desplazamiento y acercamiento sobre la recta, en vez de scroll horizontal
+  simple; precisión para distinguir hitos cercanos.
+- **Un hito no siempre es un punto.** Un acontecimiento que duró décadas —o un módulo cuya
+  matemática se desarrolló a lo largo de un siglo— se representaría como una **campana** sobre la
+  recta y no como un punto: el centro donde está el grueso, la anchura como duración o
+  incertidumbre. El owner lo formuló como "una onda, algo parecido a la ecuación de onda", y en la
+  práctica es una gaussiana por hito.
+- **Por qué vale la pena:** es más científico y también más verdadero. La fecha exacta de un hito
+  matemático casi siempre es una convención (ver los tres puntos débiles que declara la migración
+  `042`); una campana **muestra esa incertidumbre en vez de esconderla detrás de un punto**.
+
+- **Precondición:** más hitos y, sobre todo, decidir de dónde sale la anchura de cada campana —
+  hoy `modules` solo guarda un año (`historical_year`). Haría falta algo como
+  `historical_year_from`/`historical_year_to`, o una desviación explícita. **Eso es contenido, así
+  que lo audita el profesor** (ADR-016).
+- **Terminado cuando:** el owner defina el modelo de duración/incertidumbre y la recta lo dibuje sin
+  perder legibilidad en móvil.
+- **Relacionado:** [[../adr/ADR-021-linea-del-tiempo-historica]], T-67.
+
+### T-70 · Agrupar el historial por evaluación, con «rendir de nuevo» y evolución — **P1** · `abierto` (2026-08-13)
+
+Pedido del owner. Hoy el tablero lista los diagnósticos **uno por fila, en orden cronológico**
+(`fila-historial`): quien rindió "números" cuatro veces ve cuatro filas sueltas y tiene que
+reconstruir mentalmente si mejoró.
+
+Tres partes:
+
+1. **Agrupar por evaluación.** Una tarjeta por topic, con lo que ya se calcula: cuántas veces la
+   rindió, el mejor θ, el último, la fecha más reciente.
+2. **Botón «Rendir de nuevo»** en cada tarjeta, que arranca ese topic directamente en vez de pasar
+   por el selector.
+3. **Ver la evolución de ese topic**: cómo se movió θ entre intentos.
+
+**Lo que ya existe y hay que reusar, no reescribir:**
+- `universo.access/best-theta-by-topic` ya agrupa por topic y se queda con el mejor θ.
+- `tests` guarda **un intento por fila**, así que la serie histórica ya está en la base — no hace
+  falta esquema nuevo.
+- `components/irt_chart.cljs` ya dibuja una progresión de θ; el eje cambia (intentos en vez de
+  ítems), la pieza no.
+
+⚠️ **Toca [[OPEN_QUESTIONS]] Q-07 / P-01**, que sigue sin decidir: qué significa repetir el
+diagnóstico (¿se sobrescribe el perfil, se versiona, se guarda histórico?). Esta tarjeta **muestra**
+el histórico que ya existe en `tests` sin cambiar `student_profiles`, así que puede hacerse sin
+resolver Q-07 — pero conviene no cerrar Q-07 en contra de lo que esta pantalla muestre.
+
+- **Terminado cuando:** el tablero agrupa por evaluación, cada tarjeta permite volver a rendir con
+  un clic y ver la evolución de θ de ese topic entre intentos.
+- **Relacionado:** T-26 (histórico del perfil), Q-07, `components/irt_chart.cljs`.
+
+### T-71 · Quitar el botón flotante de contacto y agrandar la caja del footer — **P2** · `hecho` (2026-08-13)
+
+Decisión del owner: el ícono flotante de llamada tapaba contenido y duplicaba una función que la
+caja del footer ya cumple.
+
+**Hecho:** se quitó `contacto-fab` de `home.cljs`. **El panel se conserva** porque *Cupos* lo abre
+desde "Avisarme cuando haya cupo" (`:contacto/abrir-panel`, `slots.cljs:150`) — quitarlo habría roto
+ese flujo en silencio. El formulario del footer salió de la columna estrecha (era 1 de 4) y pasó a
+ser una placa de ancho completo con su propio encabezado, en el lenguaje de ADR-023.
+
+- **Falta:** verlo (T-67).
+
+### T-72 · Tres fallas de contraste que el audit no veía — **P1** · `hecho` (2026-08-13, falta verlo)
+
+Reportadas por el owner probando en local. Las tres son de fondo, no de texto, y por eso las tres se
+escaparon:
+
+1. **Panel admin → Apariencia, tema oscuro: rosa claro con letras blancas.** La opción seleccionada
+   usaba `bg-senal-50` (un durazno muy claro) y **esa clase no estaba mapeada en oscuro**, así que
+   se quedaba clara mientras el texto encima sí se mapeaba a casi blanco.
+2. **La gráfica del modal, en oscuro, no se entendía.** `irt-chart` pinta el SVG con colores
+   **literales** y no con clases — está documentado en su cabecera: `var(--x)` en atributos
+   `fill`/`stroke` a menudo no resuelve y el relleno queda negro. Esa decisión es razonable, pero
+   deja una gráfica de tinta oscura invisible sobre fondo oscuro.
+3. **El modal en tema claro no separaba sus bloques.** Blanco, `panel-50` y `panel-100` son tres
+   valores casi iguales: el modal quedaba como una mancha clara.
+
+**Hecho:**
+- Mapeados los tintes claros que faltaban (`bg-senal-50/100`, `bg-panel-50/100/200` y sus bordes).
+- La gráfica pasa a un **`visor`**: superficie clara propia **en ambos temas**, igual que el visor de
+  un instrumento. Resuelve la legibilidad **sin tocar el SVG** ni pelear con la decisión documentada
+  de usar colores literales.
+- Más separación de valor dentro del modal, con bordes funcionales (`panel-500`, 3.76 de contraste)
+  en vez de tintes casi iguales.
+
+**Lo que más importa de este ticket:** `scripts/audit_dark_theme.py` **solo miraba texto**, así que
+el caso 1 le pasó por al lado — el texto estaba bien mapeado, el roto era el fondo. Ahora también
+revisa **fondos claros (tono ≤ 200) sin mapear**, que es exactamente esa forma de fallar. Verificado
+con control negativo: quitando la regla de `bg-senal-50`, el script lo reporta.
+
+**Cuarta ronda (T-72d):** los textos de la gráfica —título, descripción, ejes, leyenda— no se leían
+en oscuro **en la pantalla de resultados**. Dos causas:
+
+1. **El visor lo había puesto en el sitio de llamada, no en el componente.** Lo agregué en el modal
+   de feedback y `diagnostic_test` quedó sin él. Ese es el error de fondo: si la superficie la tiene
+   que poner quien usa el componente, alguien se la olvida. **El visor pasó adentro de
+   `irt-chart`**, que es su dueño natural, y el sitio de llamada dejó de envolverlo.
+2. **Los colores literales de la gráfica nunca se habían medido.** Al hacerlo, dos reprobaban:
+   los ejes y la leyenda daban **3.29** (rotulan texto: necesitan 4.5) y la serie de dificultad
+   **2.36** (necesita 3.0), además de ser un naranja distinto del de la marca, compitiendo con él.
+   Corregidos a 7.18 y 4.64, y **los cinco colores entraron al contrato** con los valores viejos
+   anotados como prohibidos. 37/37.
+
+**Tercera ronda (T-72c):** con el color corregido, el owner seguía sin leer "Pregunta" — "se ve
+apenas el borde". El CSS estaba bien aplicado y el par daba **5.50, o sea AA aprobado**. El
+problema era de diseño: en un aparato hay **dos** tipos de etiqueta y las traté como una sola. La
+**grabada en la carcasa** es de bajo contraste a propósito; la que va **dentro de un visor está
+iluminada**. A 11px, en versalitas espaciadas y con sombra, esta quedó grabada cuando debía estar
+encendida. Se subió a 7.83, un punto más grande, menos espaciada y sin sombra.
+
+> **La lección, que vale más que el arreglo:** el umbral de contraste es **necesario y no
+> suficiente**. Un par puede aprobar AA y seguir sin leerse si el tamaño, el espaciado y la sombra
+> juegan en contra. El audit dice cuándo algo está *mal*; no dice cuándo está *bien*.
+
+**Segunda ronda (T-72b), tras volver a probar el owner:** la etiqueta "Pregunta" del modal seguía
+sin leerse en tema claro. La causa era mía y tonta: **`.grabado` pinta `panel-700` y `.alojamiento`
+tiene `panel-700` de fondo** — el mismo valor exacto, letras invisibles sobre su propio fondo.
+
+Es una clase de error que **ninguno de los dos audits puede ver**: no es una utilidad de Tailwind
+sin mapear ni un par de paleta declarado, es **una clase del sistema encima de otra**. Solo se
+atrapa declarando el par, que es lo que se hizo (32/32).
+
+De paso, revisando el mismo componente aparecieron dos fondos claros **fijos por estilo inline** en
+`math-render`, que fallan igual en oscuro porque un estilo inline no se puede remapear: el bloque
+de matemática desplegada (`#f8fafc`) y la cita (borde `#3b82f6`, texto `#64748b`). Los dos pasaron
+a clases con tokens.
+
+- **Falta:** verlo (T-67).
+- **Relacionado:** T-68, [[../adr/ADR-012-tema-oscuro-mapeo-css-global]], [[../adr/ADR-023-panel-de-instrumento]].
+
+### T-73 · Revisión de adaptación a teléfonos antes del merge — **P1** · `hecho` (2026-08-13)
+
+Pedido del owner antes de mergear: comprobar si el sitio quedó bien adaptado a teléfonos después de
+tres pasadas de identidad visual. La respuesta corta es que **casi todo estaba bien y lo peor era
+lo recién construido**.
+
+**Lo que ya estaba bien:** `viewport` correcto en ambos `index.html`; ninguna tabla sin contenedor
+scrollable; ningún ancho fijo en píxeles; la landing (43 cortes responsivos) y el modal (34) bien
+cubiertos.
+
+**Lo que estaba mal:**
+
+1. **La línea del tiempo no tenía ni una clase responsiva.** El plan aprobado prometía "en móvil la
+   barra colapsa a una tira compacta" y eso **nunca se implementó**. Además cada hito era un botón
+   de ~34 px de alto alrededor de un punto de 10 px, con el año en 10 px: la interacción principal
+   de la función más nueva era la peor adaptada al teléfono. Ahora los hitos miden 44 px
+   (`min-h-11`), el punto creció y **el año se oculta por debajo de `sm`**, que es lo que vuelve
+   compacta la tira. El dato no se pierde: está en el `aria-label` y en el panel de detalle.
+2. **`p-8` fijo en cinco pantallas del embudo.** En 360 px se come 64 px de ancho útil. Pasó a
+   `p-5 sm:p-8` en diagnóstico, tablero, plan, cupos y libro de visitas. Curiosamente la pantalla
+   de resultados ya lo hacía bien: estaba resuelto en un lugar y no en los otros.
+3. **Objetivos táctiles por debajo del mínimo** en el diagnóstico y en el formulario de contacto.
+4. **La reserva de alto del tablero** (`pb-40` = 160 px) era casi un cuarto de una pantalla de
+   667 px. Baja a `pb-28` en móvil.
+
+**`scripts/audit_movil.py` (nuevo).** El proyecto tenía dos chequeos de color y **ninguno de
+tamaño**. Revisa objetivos táctiles, padding fijo, texto diminuto, tablas sin scroll y anchos fijos,
+separando el embudo (bloquea) del panel de administración (informativo: se usa desde escritorio).
+
+> **Su primera versión tenía un falso negativo silencioso** y lo encontró el control de casos
+> conocidos: al buscar el `:class` de un botón capturaba el primer literal de texto, que en
+> `[:button {:type "button" :class …}]` es `"button"`. Daba **todas** las pantallas del panel por
+> buenas. Un chequeo que no encuentra nada es indistinguible de uno que funciona — por eso ningún
+> audit de este repo se da por bueno sin probarlo contra un caso que debería fallar.
+
+- **Relacionado:** T-67 (verificación visual, sigue abierta), [[../adr/ADR-021-linea-del-tiempo-historica]].
+
 ## Resumen por prioridad
 
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
 ---

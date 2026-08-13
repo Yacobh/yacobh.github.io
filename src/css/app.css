@@ -28,28 +28,48 @@
  * universo.components.feedback-modal (banner de pregunta).
  */
 
-/* ---------- Superficies neutras ---------- */
+/* ---------- Color de texto base ----------
+   El mapeo de abajo cubre los elementos que llevan una clase text-* escrita
+   a mano, que son la mayoría. Pero un elemento SIN clase de texto hereda el
+   color por defecto del navegador —negro— y en modo oscuro eso queda ilegible
+   sobre las superficies que sí se remapean. Es un fallo intermitente por
+   naturaleza: aparece solo donde el markup no declaró color, así que se ve en
+   "algunas partes" del panel y no en toda la app, que es justo lo que lo hace
+   difícil de encontrar mirando componentes.
+
+   Va en `body` y no en `html` para no pisar el gradiente de fondo de
+   universo.home, y con la especificidad más baja posible (`.dark body`) para
+   que cualquier text-* explícita del markup siga ganando. */
+.dark body { color: theme('colors.grafito.100'); }
+
+/* ---------- Superficies neutras ----------
+   Desde ADR-022 las superficies son la escala grafito, un neutro cálido: el
+   oscuro Braun no es negro puro ni gris azulado. La jerarquía es
+   página grafito.950 → tarjeta grafito.900 → elevación grafito.800. */
 .dark .bg-white,
 .dark .bg-white\/70,
-.dark .bg-white\/80 { background-color: theme('colors.slate.800'); }
+.dark .bg-white\/80 { background-color: theme('colors.grafito.900'); }
 .dark .bg-slate-50,
-.dark .bg-gray-50 { background-color: theme('colors.slate.900'); }
-.dark .bg-gray-100 { background-color: theme('colors.slate.700'); }
-.dark .bg-gray-200 { background-color: theme('colors.slate.700'); }
+.dark .bg-gray-50 { background-color: theme('colors.grafito.950'); }
+.dark .bg-gray-100 { background-color: theme('colors.grafito.800'); }
+.dark .bg-gray-200 { background-color: theme('colors.grafito.800'); }
 .dark .bg-gray-300,
-.dark .bg-gray-400 { background-color: theme('colors.slate.600'); }
+.dark .bg-gray-400 { background-color: theme('colors.grafito.700'); }
 
-.dark .hover\:bg-white:hover { background-color: theme('colors.slate.800'); }
+.dark .hover\:bg-white:hover { background-color: theme('colors.grafito.900'); }
 .dark .hover\:bg-gray-50:hover,
-.dark .hover\:bg-gray-100:hover { background-color: theme('colors.slate.700'); }
+.dark .hover\:bg-gray-100:hover { background-color: theme('colors.grafito.800'); }
 .dark .hover\:bg-gray-200:hover,
-.dark .hover\:bg-gray-300:hover { background-color: theme('colors.slate.600'); }
+.dark .hover\:bg-gray-300:hover { background-color: theme('colors.grafito.700'); }
 
-/* ---------- Texto neutro ---------- */
-.dark .text-gray-900 { color: theme('colors.slate.50'); }
-.dark .text-gray-800 { color: theme('colors.slate.100'); }
+/* ---------- Texto neutro ----------
+   Los tres primeros niveles usan grafito (el neutro cálido del sistema); los
+   secundarios se quedan en slate, que a esa luminosidad es indistinguible y no
+   justifica tocar reglas que ya funcionan. */
+.dark .text-gray-900 { color: theme('colors.grafito.50'); }
+.dark .text-gray-800 { color: theme('colors.grafito.100'); }
 .dark .text-gray-700,
-.dark .text-slate-700 { color: theme('colors.slate.200'); }
+.dark .text-slate-700 { color: theme('colors.grafito.200'); }
 .dark .text-gray-600,
 .dark .text-slate-600 { color: theme('colors.slate.300'); }
 .dark .text-gray-500 { color: theme('colors.slate.400'); }
@@ -65,11 +85,11 @@
 
 /* ---------- Bordes / separadores neutros ---------- */
 .dark .border-gray-100,
-.dark .divide-gray-100 { border-color: theme('colors.slate.800'); }
+.dark .divide-gray-100 { border-color: theme('colors.grafito.800'); }
 .dark .border-gray-200,
-.dark .divide-gray-200 { border-color: theme('colors.slate.700'); }
+.dark .divide-gray-200 { border-color: theme('colors.grafito.700'); }
 .dark .border-gray-300,
-.dark .border-slate-300 { border-color: theme('colors.slate.600'); }
+.dark .border-slate-300 { border-color: theme('colors.grafito.600'); }
 .dark .border-gray-400 { border-color: theme('colors.slate.500'); }
 .dark .ring-gray-100,
 .dark .ring-gray-200 { --tw-ring-color: theme('colors.slate.700'); }
@@ -80,24 +100,29 @@
 .dark .hover\:border-gray-300:hover { border-color: theme('colors.slate.500'); }
 .dark .hover\:border-gray-400:hover { border-color: theme('colors.slate.400'); }
 
-/* ---------- Acento índigo/púrpura ---------- */
+/* ---------- Acento de marca ----------
+   Ojo: desde ADR-022 `indigo-*` ES grafito, o sea que estas reglas ya no pintan
+   un acento sino el neutro del sistema. Es deliberado — en Braun el color se
+   reserva para la acción principal, que se marca a mano con `senal-*`, y todo
+   el vocabulario heredado se vuelve gris. Las superficies tenues van a 800/700
+   y no a 950, que es el fondo de la página y las haría desaparecer. */
 .dark .text-indigo-900,
-.dark .text-indigo-800 { color: theme('colors.indigo.200'); }
-.dark .text-indigo-700 { color: theme('colors.indigo.300'); }
+.dark .text-indigo-800 { color: theme('colors.grafito.100'); }
+.dark .text-indigo-700 { color: theme('colors.grafito.200'); }
 .dark .text-indigo-600,
-.dark .text-indigo-500 { color: theme('colors.indigo.400'); }
-.dark .bg-indigo-50 { background-color: theme('colors.indigo.950'); }
-.dark .bg-indigo-100 { background-color: theme('colors.indigo.900'); }
+.dark .text-indigo-500 { color: theme('colors.grafito.300'); }
+.dark .bg-indigo-50 { background-color: theme('colors.grafito.800'); }
+.dark .bg-indigo-100 { background-color: theme('colors.grafito.700'); }
 .dark .border-indigo-100,
-.dark .border-indigo-200 { border-color: theme('colors.indigo.800'); }
-.dark .border-indigo-300 { border-color: theme('colors.indigo.700'); }
+.dark .border-indigo-200 { border-color: theme('colors.grafito.700'); }
+.dark .border-indigo-300 { border-color: theme('colors.grafito.600'); }
 
 .dark .hover\:text-indigo-700:hover,
-.dark .hover\:text-indigo-800:hover { color: theme('colors.indigo.300'); }
-.dark .hover\:text-indigo-900:hover { color: theme('colors.indigo.200'); }
-.dark .hover\:bg-indigo-50:hover { background-color: theme('colors.indigo.950'); }
-.dark .hover\:bg-indigo-100:hover { background-color: theme('colors.indigo.900'); }
-.dark .hover\:border-indigo-300:hover { border-color: theme('colors.indigo.600'); }
+.dark .hover\:text-indigo-800:hover { color: theme('colors.grafito.200'); }
+.dark .hover\:text-indigo-900:hover { color: theme('colors.grafito.100'); }
+.dark .hover\:bg-indigo-50:hover { background-color: theme('colors.grafito.800'); }
+.dark .hover\:bg-indigo-100:hover { background-color: theme('colors.grafito.700'); }
+.dark .hover\:border-indigo-300:hover { border-color: theme('colors.grafito.500'); }
 
 /* ---------- Otros acentos de marca (badges de nivel, enlaces puntuales) ---------- */
 .dark .text-purple-600 { color: theme('colors.purple.400'); }
@@ -129,6 +154,19 @@
 .dark .border-green-300 { border-color: theme('colors.green.700'); }
 .dark .hover\:text-green-900:hover { color: theme('colors.green.300'); }
 
+/* Tonos oscuros de texto que el mapeo original no cubría. `text-red-800` es el
+   único alcanzable desde el flujo del estudiante (feedback_modal), pero los
+   demás se mapean igual: cuestan una línea y evitan que el problema vuelva por
+   la puerta de atrás si alguno de esos componentes se reactiva. */
+.dark .text-red-800 { color: theme('colors.red.300'); }
+.dark .text-red-900 { color: theme('colors.red.200'); }
+.dark .text-blue-800 { color: theme('colors.blue.300'); }
+.dark .text-blue-900 { color: theme('colors.blue.200'); }
+.dark .text-yellow-600 { color: theme('colors.yellow.400'); }
+.dark .text-yellow-800 { color: theme('colors.yellow.300'); }
+.dark .text-orange-800 { color: theme('colors.orange.300'); }
+.dark .bg-yellow-100 { background-color: theme('colors.yellow.900'); }
+
 .dark .bg-amber-50 { background-color: theme('colors.amber.950'); }
 .dark .bg-amber-100 { background-color: theme('colors.amber.900'); }
 .dark .text-amber-600 { color: theme('colors.amber.400'); }
@@ -154,9 +192,20 @@
 .dark input:not([type]),
 .dark textarea,
 .dark select {
-  background-color: theme('colors.slate.800');
-  color: theme('colors.slate.100');
+  background-color: theme('colors.grafito.800');
+  color: theme('colors.grafito.50');
 }
+/* Las <option> son elementos aparte: no heredan el color del <select> que las
+   contiene. El navegador las pinta con su propio par fondo/texto, así que un
+   select remapeado a oscuro abría una lista de opciones ilegible. Es el caso
+   más visible del panel, que usa selects para módulo, banda, modalidad y
+   topic. `optgroup` va junto porque falla igual. */
+.dark select option,
+.dark select optgroup {
+  background-color: theme('colors.grafito.800');
+  color: theme('colors.grafito.50');
+}
+
 .dark input[type="text"]::placeholder,
 .dark input[type="email"]::placeholder,
 .dark input[type="password"]::placeholder,
@@ -165,4 +214,231 @@
 .dark input[type="number"]::placeholder,
 .dark textarea::placeholder {
   color: theme('colors.slate.500');
+}
+
+/* =============================================================================
+   PANEL DE INSTRUMENTO (ADR-023)
+   =============================================================================
+   Síntesis entre el lenguaje Braun de ADR-022 y la referencia skeuomórfica que
+   trajo el owner: una mesa de controles con perillas, conmutadores y LEDs.
+
+   No son enfoques opuestos —el SK4, el T3 y el regie 308 de Braun son
+   exactamente eso— pero sí chocan en un punto: Rams pide "tan poco diseño como
+   sea posible", y un botón de pantalla que finge ser plástico moldeado es
+   decoración.
+
+   La regla que los concilia, y que este bloque implementa:
+
+       El panel es plano y callado.
+       Solo los CONTROLES tienen física.
+       La luz viene de arriba, siempre.
+       El color solo se enciende donde algo es verdad.
+
+   Y el relieve acá no es gusto, es necesidad medida: sobre el gris medio del
+   panel, el naranja de acción da 1.68 de contraste y el cian 1.04 — ninguno
+   llega al 3:1 que exige un objeto gráfico. El bisel y el alojamiento oscuro
+   son lo que vuelve visible al control. Rams §4: buen diseño hace comprensible
+   al producto.
+
+   Se define acá y no con utilidades sueltas porque son cuatro piezas que se
+   repiten y tienen que verse iguales en toda la app; veinte clases de Tailwind
+   por botón divergen al tercer componente. */
+
+/* --- Control: algo que se puede accionar ---------------------------------- */
+.control {
+  background-image: linear-gradient(180deg,
+                    rgb(255 255 255 / 0.85) 0%,
+                    rgb(255 255 255 / 0.20) 45%,
+                    rgb(0 0 0 / 0.06) 100%);
+  border: 1px solid rgb(0 0 0 / 0.28);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.75),   /* filo iluminado arriba */
+    inset 0 -1px 0 rgb(0 0 0 / 0.12),        /* sombra propia abajo */
+    0 1px 2px rgb(0 0 0 / 0.30);             /* proyectada sobre el panel */
+  transition: box-shadow 90ms ease, transform 90ms ease;
+}
+
+/* Hundido al presionar. Es la única animación del sistema y existe porque
+   confirma la acción: la luz se invierte, como en un botón real. */
+.control:active {
+  box-shadow:
+    inset 0 2px 4px rgb(0 0 0 / 0.35),
+    inset 0 -1px 0 rgb(255 255 255 / 0.20);
+  transform: translateY(0.5px);
+}
+
+.dark .control {
+  background-image: linear-gradient(180deg,
+                    rgb(255 255 255 / 0.14) 0%,
+                    rgb(255 255 255 / 0.04) 45%,
+                    rgb(0 0 0 / 0.20) 100%);
+  border-color: rgb(0 0 0 / 0.55);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.16),
+    inset 0 -1px 0 rgb(0 0 0 / 0.40),
+    0 1px 2px rgb(0 0 0 / 0.45);
+}
+
+/* --- Alojamiento: el hueco oscuro donde vive un LED ----------------------- */
+/* Sin esto un LED sobre el panel claro es invisible (1.04 de contraste). Con
+   alojamiento, el mismo cian llega a 8.78. */
+.alojamiento {
+  background-color: theme('colors.panel.700');
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 0.55),
+    0 1px 0 rgb(255 255 255 / 0.55);
+}
+.dark .alojamiento {
+  background-color: theme('colors.panel.950');
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 0.70),
+    0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+/* --- LED ------------------------------------------------------------------ */
+/* Apagado: no desaparece, se ve como un diodo sin corriente. Que el hueco siga
+   ahí es lo que comunica "esto podría encenderse" — el estado vacío también
+   informa. */
+.led {
+  background-color: rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.55);
+}
+.led--on {
+  background-color: theme('colors.led.500');
+  box-shadow:
+    inset 0 0 1px rgb(255 255 255 / 0.85),
+    0 0 6px rgb(46 230 197 / 0.75);          /* el halo del diodo encendido */
+}
+/* Grados de la línea del tiempo: mismo diodo, distinta corriente. */
+.led--oro    { background-color: theme('colors.led.400');
+               box-shadow: inset 0 0 1px rgb(255 255 255 / 0.9), 0 0 8px rgb(76 235 204 / 0.85); }
+.led--plata  { background-color: theme('colors.led.600');
+               box-shadow: inset 0 0 1px rgb(255 255 255 / 0.6), 0 0 5px rgb(22 199 154 / 0.55); }
+.led--bronce { background-color: theme('colors.led.700');
+               box-shadow: inset 0 0 1px rgb(255 255 255 / 0.4), 0 0 3px rgb(14 158 122 / 0.40); }
+
+/* --- Etiqueta grabada ----------------------------------------------------- */
+/* Las leyendas de un panel van impresas sobre la carcasa: mismo material, un
+   tono más oscuro, nunca un color. Como el "mono / stereo" o el "min / max"
+   de la referencia. */
+.grabado {
+  color: theme('colors.panel.700');   /* 600 daba 3.55 sobre el panel: reprobaba AA */
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.6875rem;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.45);
+}
+.dark .grabado {
+  color: theme('colors.panel.400');
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.5);
+}
+
+/* --- Placa: un módulo montado sobre el panel ------------------------------ */
+/* La superficie blanca sobre gris da 1.99 de contraste: suficiente para leerse
+   como pieza aparte, insuficiente como único delimitador. Un borde de color
+   tampoco alcanzaba (2.08 con panel-500). Se resuelve como en el aparato real:
+   la placa está **por encima** del panel, y eso se dice con luz — filo claro
+   arriba, sombra proyectada abajo. El borde queda como refuerzo, no como única
+   señal. */
+.placa {
+  border: 1px solid theme('colors.panel.400');
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 1px 3px rgb(0 0 0 / 0.22);
+}
+.dark .placa {
+  border-color: theme('colors.panel.950');
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.07),
+    0 1px 3px rgb(0 0 0 / 0.45);
+}
+
+/* --- Tintes de la señal en oscuro (T-72) ---------------------------------- */
+/* El fallo que arreglan: `bg-senal-50` es un durazno muy claro. Sin mapeo se
+   quedaba claro en tema oscuro, mientras el texto encima SÍ se mapeaba a casi
+   blanco — blanco sobre rosa, ilegible. Apareció en la pestaña Apariencia del
+   panel, en la opción seleccionada.
+   El audit de tema oscuro no lo vio porque solo miraba clases de TEXTO sin
+   mapear; acá el texto estaba bien y el roto era el fondo. El script ahora
+   también revisa fondos claros sin mapear. */
+.dark .bg-senal-50 { background-color: theme('colors.senal.900'); }
+.dark .bg-senal-100 { background-color: theme('colors.senal.800'); }
+.dark .text-senal-700 { color: theme('colors.senal.300'); }
+.dark .text-senal-800 { color: theme('colors.senal.200'); }
+.dark .border-senal-200 { border-color: theme('colors.senal.700'); }
+
+/* --- Tintes del panel en oscuro ------------------------------------------- */
+/* Mismo razonamiento: son superficies claras por definición y sin mapeo
+   quedarían claras sobre el tema oscuro. */
+.dark .bg-panel-50 { background-color: theme('colors.panel.900'); }
+.dark .bg-panel-100 { background-color: theme('colors.panel.800'); }
+.dark .bg-panel-200 { background-color: theme('colors.panel.800'); }
+.dark .border-panel-300 { border-color: theme('colors.panel.700'); }
+.dark .border-panel-400 { border-color: theme('colors.panel.950'); }
+.dark .border-panel-500 { border-color: theme('colors.panel.600'); }
+.dark .text-panel-600 { color: theme('colors.panel.300'); }
+.dark .text-panel-700 { color: theme('colors.panel.200'); }
+
+/* --- El visor de la gráfica (T-72) ---------------------------------------- */
+/* `universo.components.irt-chart` pinta el SVG con colores LITERALES y no con
+   clases: está documentado en su cabecera —`var(--x)` en atributos fill/stroke
+   a menudo no resuelve y el relleno queda negro—. Esa decisión es razonable,
+   pero deja una gráfica de tinta oscura que en tema oscuro no se ve.
+
+   En vez de reescribir el SVG para que reaccione al tema, la gráfica se trata
+   como lo que es en un panel de instrumentos: un **visor**, con su propia
+   superficie clara, igual en ambos temas. Es la misma lógica del alojamiento
+   —una pieza con su propio fondo— y de paso la hace legible sin tocar el
+   componente. */
+.visor {
+  background-color: theme('colors.panel.50');
+  border: 1px solid theme('colors.panel.400');
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.18);
+}
+.dark .visor {
+  background-color: theme('colors.panel.100');   /* clara a propósito, no se invierte */
+  border-color: theme('colors.panel.950');
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.45);
+}
+
+/* --- Etiqueta grabada DENTRO de un alojamiento (T-72b) -------------------- */
+/* El fallo: `.grabado` pinta `panel-700` y `.alojamiento` tiene `panel-700` de
+   fondo. **El mismo valor exacto** — en tema claro la etiqueta "Pregunta" del
+   modal era invisible sobre su propio fondo. El sombreado blanco tampoco tenía
+   sentido ahí: es luz de arriba sobre una carcasa clara, no dentro de un hueco.
+
+   Es una clase de error que ninguno de los dos audits puede ver: no es una
+   utilidad de Tailwind sin mapear, es **una clase del sistema encima de otra**.
+   Los audits comparan clase contra mapeo y contraste contra pares declarados;
+   una colisión entre dos piezas propias solo se atrapa declarando el par, que
+   es lo que se hizo en `audit_contraste.py`. */
+/* Corrección de fondo (segunda pasada): no alcanzaba con subir el tono. En un
+   aparato hay DOS tipos de etiqueta y acá se estaban tratando como una sola:
+   la **grabada en la carcasa** es de bajo contraste a propósito —tinta sobre
+   gris, se lee de cerca y no compite—, pero la que va **dentro de un visor
+   está iluminada**. A 11px, en versalitas espaciadas y con sombra, esta quedó
+   grabada cuando tenía que estar encendida: técnicamente pasaba AA (5.50) y
+   aun así el owner no la leía. El umbral era necesario y no suficiente.
+
+   Se enciende: más clara (7.83), un punto más grande, menos espaciada y sin
+   sombra, que a ese tamaño solo ensuciaba los bordes de las letras. */
+.alojamiento .grabado,
+.visor .grabado {
+  color: theme('colors.panel.100');
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-shadow: none;
+}
+.dark .alojamiento .grabado,
+.dark .visor .grabado {
+  color: theme('colors.panel.100');
+}
+
+/* Cita dentro de una explicación (T-72b). Antes traía un borde azul `#3b82f6` y
+   un texto `#64748b`, los dos literales de fábrica y fijos por estilo inline.
+   Acá son tokens y el texto se hereda del contenedor, que sí reacciona al tema. */
+.explanation-note-tokens {
+  border-left: 2px solid theme('colors.senal.600');
+  color: inherit;
+  opacity: 0.85;
 }

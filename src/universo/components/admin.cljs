@@ -1156,6 +1156,63 @@
                 [roster-view (:id s)])]))])]]))
 
 ;; -----------------------------------------------------------------------------
+;; Apariencia (ADR-022, migración 043)
+;; -----------------------------------------------------------------------------
+
+(def ^:private opciones-apariencia
+  [["sistema" "Según el sistema del visitante"
+    "Cada persona ve claro u oscuro según su configuración. Es lo que hacía el sitio antes de existir este ajuste."]
+   ["claro" "Claro"
+    "Todo el mundo entra en claro, sin importar su sistema."]
+   ["oscuro" "Oscuro"
+    "Todo el mundo entra en oscuro."]])
+
+(defn- apariencia-panel []
+  (r/with-let [_ (re-frame/dispatch [:admin/cargar-apariencia])]
+    (let [actual @(re-frame/subscribe [:admin/apariencia])
+          guardando? @(re-frame/subscribe [:admin/apariencia-guardando?])
+          error @(re-frame/subscribe [:admin/apariencia-error])]
+      [:section {:class "space-y-6"}
+       [:div
+        [:h2 {:class "text-lg font-medium text-gray-900"} "Apariencia del sitio"]
+        [:p {:class "mt-1 text-sm text-gray-600 max-w-2xl"}
+         "Define qué ve alguien que entra por primera vez. "
+         [:strong "No cambia lo que ya eligió un visitante"]
+         ": si usó el botón de sol/luna, su preferencia manda sobre esto — y así debe ser, "
+         "es su pantalla."]]
+
+       (when error
+         [:div {:class "rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+                :role "alert"}
+          error])
+
+       [:fieldset {:class "space-y-2"}
+        [:legend {:class "sr-only"} "Apariencia por defecto"]
+        (for [[valor titulo detalle] opciones-apariencia]
+          ^{:key valor}
+          [:label {:class (str "flex gap-3 rounded border p-4 cursor-pointer transition "
+                               (if (= valor actual)
+                                 "border-senal-600 bg-senal-50 dark:bg-senal-900"
+                                 "border-panel-500 hover:border-panel-600"))}
+           [:input {:type "radio"
+                    :name "apariencia"
+                    :value valor
+                    :checked (= valor actual)
+                    :disabled guardando?
+                    :class "mt-1"
+                    :on-change #(re-frame/dispatch [:admin/guardar-apariencia valor])}]
+           [:span
+            [:span {:class "block text-sm font-medium text-gray-900"} titulo]
+            [:span {:class "block text-sm text-gray-600"} detalle]]])]
+
+       (when guardando?
+         [:p {:class "text-sm text-gray-500"} "Guardando…"])
+
+       [:p {:class "text-xs text-gray-500 max-w-2xl"}
+        "La paleta del sitio no se configura acá y no es un tema elegible: es la identidad del "
+        "producto (lenguaje Braun, ADR-022). Lo que se elige es claro u oscuro."]])))
+
+;; -----------------------------------------------------------------------------
 ;; Panel
 ;; -----------------------------------------------------------------------------
 
@@ -1168,7 +1225,8 @@
    [:resources "Recursos"]
    [:slots "Cupos"]
    [:guestbook "Moderación"]
-   [:contacto "Contacto"]])
+   [:contacto "Contacto"]
+   [:apariencia "Apariencia"]])
 
 (defn- tab-btn
   [id label current]
@@ -1234,6 +1292,7 @@
               :slots [slots-admin-panel]
               :guestbook [guestbook-panel]
               :contacto [contacto-panel]
+              :apariencia [apariencia-panel]
               [overview-panel])])
 
          [toast-view]]))}))

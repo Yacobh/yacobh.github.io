@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-12** · Commit `52afdae` (merge de PR #36) · Rama `main`
+**Fecha de corte: 2026-08-13** · Rama `main`, tras mergear `ui-identidad-y-linea-del-tiempo` (16 commits)
 *(el cuerpo histórico de este archivo arranca en el corte del 2026-07-26, commit `48bf525`, rama
 `cursor/mvp-operable-funnel`; las notas de sesión de más abajo son la capa vigente)*
 
@@ -801,6 +801,52 @@
 > la regla de parada; el owner había subido `max_items` desde el panel. Recordatorio de no escalar
 > una anomalía a bug antes de preguntar por la configuración.
 
+> # 🎨 **UI: identidad propia y línea del tiempo (2026-08-13, rama `ui-identidad-y-linea-del-tiempo`)**
+>
+> **El bug de las letras negras tenía una causa de fondo, no una clase suelta.** El mapeo de ADR-012
+> estaba bien (164 clases usadas, 91 mapeadas); lo que faltaba era que **el tema oscuro nunca definió
+> un color de texto base**, así que todo elemento sin `text-*` explícita heredaba el negro del
+> navegador. Por eso fallaba en "algunas partes" y era imposible de encontrar revisando componentes.
+> Segundo hallazgo: las `<option>` no heredan el color del `<select>`, y el panel usa desplegables
+> por todos lados.
+>
+> **Y la razón de que se viera genérica era literal:** `tailwind.config.js` tenía
+> `theme: { extend: {} }` — cero tokens propios. El índigo, los grises, los radios y la tipografía
+> eran los valores de fábrica de Tailwind. No es que la IA reparta el mismo código: **nunca se
+> definió una identidad y quedó el default**. Cualquier proyecto que instale Tailwind y no configure
+> nada llega al mismo lugar.
+>
+> ⚠️ **Superado el mismo día:** el owner probó la paleta en local, pidió menos luz en el pergamino
+> y después otra dirección entera — el lenguaje **Braun / Dieter Rams**
+> ([[../adr/ADR-022-lenguaje-braun-rams]]). Lo que sigue describe la pasada intermedia; el mecanismo
+> (tokens, escala `indigo` redefinida, audits) es el mismo, la paleta y la forma no.
+>
+> Se aplicó la paleta **"tinta y pergamino"** que eligió el owner, redefiniendo la escala `indigo`
+> con los valores del azul tinta: los cientos de `bg-indigo-600` ya escritos cambiaron de color **sin
+> editar un solo `.cljs`** (verificado en el CSS compilado: `rgb(58 79 122)`). Ver
+> [[../adr/ADR-020-identidad-visual-por-tokens]], que cierra **T-41** tras cinco días parada por
+> falta de especificación.
+>
+> **La línea del tiempo pone a trabajar el contenido histórico** que SESSION-021 había marcado como
+> muerto: 35 módulos ubicados en el año en que su matemática apareció, con medallas derivadas del
+> mejor θ en `tests` — **funcionan retroactivamente**, quien ya rindió las ve encendidas la primera
+> vez que abre el tablero. Cero tablas nuevas. Ver [[../adr/ADR-021-linea-del-tiempo-historica]].
+>
+> **Estado real, sin adornos:**
+>
+> | | |
+> |---|---|
+> | `clj -M:test` | ✅ 83 tests / 454 assertions / 0 failures (eran 74/410) |
+> | Compilación | ✅ bundle y CSS recompilados, 0 warnings |
+> | Contraste | ✅ 15/15 pares WCAG, 12 en AAA (`scripts/audit_contraste.py`) |
+> | Tema oscuro | ✅ sin clases de texto sin mapear (`scripts/audit_dark_theme.py`) |
+> | **Verificación visual** | ⛔ **ninguna pantalla se miró con ojos** — T-67, R-25 |
+> | Migración `042` | ⏳ escrita y probada, **sin aplicar**: los años son contenido y los audita el profesor (ADR-016) |
+> | Rama | ⏳ sin mergear a `main` |
+>
+> Las dos últimas filas se implican: **sin `042` aplicada la línea no se dibuja**, así que tampoco se
+> puede verificar en vivo todavía.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".
@@ -826,11 +872,15 @@ las próximas semanas.
 |-----------|--------|
 | Funcionalidad del funnel | ✅ operativa |
 | Panel admin | ✅ operativo |
-| Tests | ✅ `74 tests / 410 assertions / 0 failures` (`clj -M:test`, 2026-08-12) |
+| Tests | ✅ `83 tests / 454 assertions / 0 failures` (`clj -M:test`, 2026-08-13) |
+| Verificación de UI | ✅ tres scripts versionados en `scripts/`: tema oscuro, contraste (38 pares) y móvil. Los tres probados contra un caso que debe fallar |
+| Identidad visual | ✅ **panel de instrumento** (ADR-023, sobre el lenguaje Braun de ADR-022): página gris medio, física solo en los controles, LEDs para estado y naranja para acción. **38/38 pares WCAG**, tema oscuro y adaptación a móvil en verde. 🟡 **ninguna pantalla vista con ojos** (T-67, R-25) |
+| Línea del tiempo | 🟡 implementada y testeada (ADR-021); `042` aplicada (35/0). Falta verla funcionando con una cuenta con historial |
+| Apariencia configurable | 🟡 `site_settings` (`043`, **sin aplicar**) + pestaña «Apariencia» en el panel: el admin fija qué ve un visitante nuevo, la preferencia local de cada persona gana |
 | Perfil del estudiante | ✅ dos ejes: θ (IRT) y **fluidez λ** (ADR-019), con la tarjeta 2×2 en «Mi plan», en producción desde el 2026-08-12. Umbrales de λ **sin calibrar** (T-65) |
 | Contenido pedagógico | 🟡 58/61 recursos publicados (T-01); faltan los 2 módulos nuevos de `031` y los 7 de geometría (T-56) |
 | Banco de ítems | 🟡 387 ítems PAES; topics canónicos y 259 con módulo, **128 sin módulo** (bancos mezclados, T-60). Además 123 ítems `mq_` del track experimental, **aislados** (`active = false`) — las métricas necesitan `where topic not like 'mq\_%'` |
-| Migraciones | ✅ **ninguna pendiente** — `033`–`040` aplicadas el 2026-08-11 y **`041` el 2026-08-13**; las columnas de `041` se verificaron contra la base real (ver [[../supabase/SCHEMA]] §Verificación) |
+| Migraciones | 🟡 `033`–`042` aplicadas y verificadas (`042` el 2026-08-13: **35 ubicados / 0 sin ubicar**); **`043` escrita y sin aplicar** — `site_settings`. ⚠️ Hasta aplicarla, la pestaña **Apariencia** del panel muestra error al cargar (degrada, no rompe) |
 | Email de cohorte | ✅ desplegado y verificado en producción (T-02, 2026-08-09) |
 | Documentación / memoria | ✅ PMF operativo desde 2026-07-26; auditada el 2026-08-10, actualizada el 2026-08-12 |
 | CI | 🟡 `.github/workflows/test.yml` existe (T-06); staging y monitoreo ⛔ inexistentes |

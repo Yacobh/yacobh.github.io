@@ -3,7 +3,7 @@
    [reagent.core :as r]
    [re-frame.core :as re-frame]
    [universo.components.resume :as resume]
-   [universo.components.contacto :refer [contacto-form contacto-fab contacto-panel]]
+   [universo.components.contacto :refer [contacto-form contacto-panel]]
    [universo.components.admin :as admin]
    [universo.components.cuenta :as cuenta]
    [universo.components.dashboard :as dashboard]
@@ -19,26 +19,32 @@
 ;; seccion principal variable con atomo de reagent, dinamico
 
 (defn- brand []
-  [:a.flex.items-center.text-xl.font-bold.text-gray-800
+  ;; ADR-022: el logotipo era texto con degradado azul→púrpura, el recurso más
+  ;; reconocible del template genérico. Ahora es lo que Braun haría: una sola
+  ;; letra, peso y espaciado. El ∫ va en naranja porque **es** la marca — es el
+  ;; único adorno que sobrevive, y sobrevive por ser el símbolo del producto.
+  [:a.flex.items-center.text-xl.font-medium.tracking-tight.text-gray-800
    {:href "#"
     :aria-label "Academia Integral — inicio"
     :on-click (fn [e]
                 (.preventDefault e)
                 (re-frame/dispatch [:navigate-to :main]))}
-   [:span.bg-gradient-to-r.from-blue-600.to-purple-600.bg-clip-text.text-transparent
-    "Academia"]
-   [:span.mx-2.text-3xl.font-light.text-indigo-600 "∫"]
-   [:span.bg-gradient-to-r.from-purple-600.to-indigo-700.bg-clip-text.text-transparent
-    "Integral"]])
+   [:span "Academia"]
+   [:span.mx-1.5.text-3xl.font-light.text-senal-700 "∫"]
+   [:span "Integral"]])
 
 (def ^:private link-class
   (str "rounded px-2 py-2 text-sm font-medium text-gray-700 transition "
        "hover:text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"))
 
+;; La acción principal de la barra. Es el único naranja de la navegación: si
+;; hubiera dos, ninguno sería el principal (ADR-022). Texto grafito sobre el
+;; naranja, no blanco — es lo que hacía Braun y además lo que pasa AA.
 (def ^:private cta-class
-  (str "inline-flex items-center rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 "
-       "px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 "
-       "focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300"))
+  (str "control inline-flex items-center rounded bg-senal-400 "
+       "px-5 py-2.5 text-sm font-medium text-grafito-900 hover:bg-senal-300 "
+       "focus:outline-none focus-visible:ring-2 focus-visible:ring-senal-700 "
+       "focus-visible:ring-offset-2"))
 
 (defn- scroll-to-section!
   "Navega al inicio y luego hace scroll al ancla (la landing debe estar montada)."
@@ -155,8 +161,11 @@
                       [guest-links {:on-navigate close!
                                     :stacked? stacked?}]))]
         [:nav
-         {:class (str "fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white/90 "
-                      "backdrop-blur dark:border-slate-800 dark:bg-slate-900/90")}
+         ;; Excepción documentada en ADR-012/ADR-020: el `dark:` va acá y no en
+         ;; el mapeo global porque `bg-white/90` con blur es una aparición
+         ;; única, no vocabulario compartido.
+         {:class (str "fixed top-0 left-0 right-0 z-50 border-b border-panel-400 bg-panel-200/95 "
+                      "backdrop-blur dark:border-panel-950 dark:bg-panel-900/95")}
          [:div.mx-auto.max-w-7xl.px-4.sm:px-6.lg:px-8
           [:div.flex.h-16.items-center.justify-between
            [brand]
@@ -182,22 +191,36 @@
              [links true]]])]))))
 
 (defn footer []
-  [:footer.mt-auto.bg-gradient-to-br.from-slate-900.via-indigo-950.to-slate-900.text-white
+  [:footer.mt-auto.bg-grafito-900.text-white
    [:div.mx-auto.max-w-7xl.px-4.py-12.sm:px-6.lg:px-8
-    [:div.grid.grid-cols-1.gap-10.md:grid-cols-4
+    ;; Contacto primero y a lo ancho (T-71). Antes vivía apretado en una de
+    ;; cuatro columnas, con un formulario que no entraba; ahora es una placa
+    ;; montada sobre el panel del footer, que es lo que le corresponde a la
+    ;; única vía de contacto del sitio.
+    [:div {:id "contacto"
+           :class (str "placa mb-10 rounded bg-panel-800/60 p-6 sm:p-8 "
+                       "grid gap-6 md:grid-cols-2 md:items-start")}
+     [:div
+      [:h4 {:class "text-lg font-medium text-white"} "¿Hablamos?"]
+      [:p {:class "mt-2 max-w-sm text-sm leading-relaxed text-panel-200"}
+       "Dudas sobre el diagnóstico, sobre los grupos de estudio o sobre cualquier "
+       "otra cosa. Responde el profesor, no un formulario automático."]]
+     [contacto-form]]
+
+    [:div.grid.grid-cols-1.gap-10.md:grid-cols-3
      ;; Marca (más ancha: el párrafo necesita más espacio del que le daba 1/3)
      [:div.md:col-span-2
       [:div.mb-4.flex.items-center
-       [:span.mr-2.text-2xl.text-indigo-300 "∫"]
+       [:span.mr-2.text-2xl.text-senal-500 "∫"]
        [:h3.text-xl.font-bold "Academia Integral"]]
-      [:p {:class "max-w-md text-sm leading-relaxed text-indigo-100/70"}
+      [:p {:class "max-w-md text-sm leading-relaxed text-panel-200"}
        "Preparación de PAES Matemática 1 con diagnóstico adaptativo, plan personalizado "
        "y grupos de estudio por nivel. Un proyecto del profesor Jacobo Córdova, que se originó "
        "en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat."]]
 
      ;; Enlaces
      [:div
-      [:h4.mb-4.text-sm.font-semibold.uppercase.tracking-wider.text-indigo-300 "Explorar"]
+      [:h4.mb-4.grabado.text-panel-300 "Explorar"]
       [:ul.space-y-2.text-sm
        (for [[label handler]
              [["Comenzar diagnóstico" #(re-frame/dispatch [:landing/start])]
@@ -209,18 +232,14 @@
          ^{:key label}
          [:li
           [:button {:type "button"
-                    :class "text-indigo-100/70 transition hover:text-white"
+                    :class "text-panel-200 transition hover:text-white"
                     :on-click handler}
            label]])]]
+  ]]
 
-     ;; Contacto
-     [:div {:id "contacto"}
-      [:h4.mb-4.text-sm.font-semibold.uppercase.tracking-wider.text-indigo-300 "Contacto"]
-      [contacto-form]]]]
-
-   [:div {:class "border-t border-indigo-900/50"}
+   [:div {:class "border-t border-panel-950"}
     [:div.mx-auto.max-w-7xl.px-4.py-5.sm:px-6.lg:px-8
-     [:p {:class "text-center text-sm text-indigo-100/50"}
+     [:p {:class "text-center text-sm text-panel-300"}
       (str "© " (.getFullYear (js/Date.)) " Academia Integral. Todos los derechos reservados.")]]]])
 
 ;; main content por atomo de reagent
@@ -255,14 +274,25 @@
 
 (defn home []
   [:div.flex.min-h-screen.flex-col
-   {:class (str "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 "
-                "dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950")}
+   ;; El fondo de página. Antes era el degradado azul→índigo→púrpura que trae
+   ;; todo template de Tailwind; ahora es papel cálido en claro y tinta profunda
+   ;; en oscuro (ADR-020). Los stops de gradiente no caben en el mapeo global
+   ;; porque usan variables --tw-gradient-*, así que van con `dark:` directo.
+   ;; La cara del panel (ADR-023). Plana y en gris medio: no es la hoja blanca
+   ;; de un documento, es la carcasa de un instrumento. El degradado diagonal
+   ;; que había antes era decoración; el gris no lo es — es lo que hace que las
+   ;; placas blancas y los controles se lean como piezas montadas encima.
+   {:class "bg-panel-300 dark:bg-panel-800"}
    [navigation]
    [:main.flex-1.pt-16  ;; pt-16 compensa la altura del nav fijo
     [main-content-wrapper]]
    [footer]
-   ;; Montados una sola vez: fab+panel de contacto y el diálogo de confirmación
+   ;; Montados una sola vez: el panel de contacto y el diálogo de confirmación
    ;; reaccionan a sus eventos globales sin importar la sección activa.
-   [contacto-fab]
+   ;;
+   ;; El botón flotante que abría el panel se quitó (T-71): la caja del footer
+   ;; ya cumple esa función y el FAB tapaba contenido en móvil. El panel sigue
+   ;; vivo porque **Cupos** lo abre desde "Avisarme cuando haya cupo"
+   ;; (`:contacto/abrir-panel`, slots.cljs) — quitarlo rompería ese flujo.
    [contacto-panel]
    [ui/confirm-dialog]])
