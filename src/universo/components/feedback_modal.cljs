@@ -143,7 +143,7 @@
            "bg-green-50 border-green-600 text-green-900"
 
            :else
-           "bg-panel-100 border-panel-400 text-gray-800"))))
+           "bg-panel-100 border-panel-500 text-gray-800"))))
 
 ;; ============================================================================
 ;; ITEM DE OPCIÓN
@@ -192,7 +192,8 @@
      ;; Es la parte más valiosa de la pantalla —el diferencial del producto es
      ;; explicar el error, no puntuarlo— así que lleva la regla naranja al
      ;; costado: lo único que la señal marca acá.
-     [:div {:class "mb-6 sm:mb-8 p-4 sm:p-5 bg-panel-50 border-l-2 border-senal-600 rounded-r"}
+     [:div {:class (str "mb-6 sm:mb-8 p-4 sm:p-5 bg-panel-100 border border-panel-500 "
+                        "border-l-2 border-l-senal-600 rounded-r")}
       [:div {:class "flex items-start gap-3"}
        [icon-warning]
        [:div {:class "min-w-0"}
@@ -215,11 +216,14 @@
 ;; ============================================================================
 
 (defn modal-content [question response selected correct is-correct? points stop-reason]
-  [:div.placa.bg-white.rounded.p-6.sm:p-8.space-y-6
+  [:div {:class "placa bg-white border-panel-600 rounded p-6 sm:p-8 space-y-6"}
    [question-section question]
    [options-section question selected correct]
    [explanation-section response is-correct?]
-   [:div {:class "pt-2 border-t border-panel-300"}
+   ;; T-72: la gráfica va en un visor con superficie clara propia, en ambos
+   ;; temas. Sus colores son literales dentro del SVG (ver la cabecera de
+   ;; `irt-chart`), así que sobre fondo oscuro su tinta desaparecía.
+   [:div {:class "visor rounded p-3 sm:p-4"}
     [irt-chart/irt-progress-chart points stop-reason]]
    [action-buttons stop-reason]])
 

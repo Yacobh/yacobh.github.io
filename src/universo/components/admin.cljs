@@ -1192,8 +1192,8 @@
           ^{:key valor}
           [:label {:class (str "flex gap-3 rounded border p-4 cursor-pointer transition "
                                (if (= valor actual)
-                                 "border-senal-500 bg-senal-50"
-                                 "border-gray-300 hover:border-gray-400"))}
+                                 "border-senal-600 bg-senal-50 dark:bg-senal-900"
+                                 "border-panel-500 hover:border-panel-600"))}
            [:input {:type "radio"
                     :name "apariencia"
                     :value valor

@@ -1962,12 +1962,43 @@ ser una placa de ancho completo con su propio encabezado, en el lenguaje de ADR-
 
 - **Falta:** verlo (T-67).
 
+### T-72 · Tres fallas de contraste que el audit no veía — **P1** · `hecho` (2026-08-13, falta verlo)
+
+Reportadas por el owner probando en local. Las tres son de fondo, no de texto, y por eso las tres se
+escaparon:
+
+1. **Panel admin → Apariencia, tema oscuro: rosa claro con letras blancas.** La opción seleccionada
+   usaba `bg-senal-50` (un durazno muy claro) y **esa clase no estaba mapeada en oscuro**, así que
+   se quedaba clara mientras el texto encima sí se mapeaba a casi blanco.
+2. **La gráfica del modal, en oscuro, no se entendía.** `irt-chart` pinta el SVG con colores
+   **literales** y no con clases — está documentado en su cabecera: `var(--x)` en atributos
+   `fill`/`stroke` a menudo no resuelve y el relleno queda negro. Esa decisión es razonable, pero
+   deja una gráfica de tinta oscura invisible sobre fondo oscuro.
+3. **El modal en tema claro no separaba sus bloques.** Blanco, `panel-50` y `panel-100` son tres
+   valores casi iguales: el modal quedaba como una mancha clara.
+
+**Hecho:**
+- Mapeados los tintes claros que faltaban (`bg-senal-50/100`, `bg-panel-50/100/200` y sus bordes).
+- La gráfica pasa a un **`visor`**: superficie clara propia **en ambos temas**, igual que el visor de
+  un instrumento. Resuelve la legibilidad **sin tocar el SVG** ni pelear con la decisión documentada
+  de usar colores literales.
+- Más separación de valor dentro del modal, con bordes funcionales (`panel-500`, 3.76 de contraste)
+  en vez de tintes casi iguales.
+
+**Lo que más importa de este ticket:** `scripts/audit_dark_theme.py` **solo miraba texto**, así que
+el caso 1 le pasó por al lado — el texto estaba bien mapeado, el roto era el fondo. Ahora también
+revisa **fondos claros (tono ≤ 200) sin mapear**, que es exactamente esa forma de fallar. Verificado
+con control negativo: quitando la regla de `bg-senal-50`, el script lo reporta.
+
+- **Falta:** verlo (T-67).
+- **Relacionado:** T-68, [[../adr/ADR-012-tema-oscuro-mapeo-css-global]], [[../adr/ADR-023-panel-de-instrumento]].
+
 ## Resumen por prioridad
 
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72 |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 

@@ -352,3 +352,51 @@
     inset 0 1px 0 rgb(255 255 255 / 0.07),
     0 1px 3px rgb(0 0 0 / 0.45);
 }
+
+/* --- Tintes de la señal en oscuro (T-72) ---------------------------------- */
+/* El fallo que arreglan: `bg-senal-50` es un durazno muy claro. Sin mapeo se
+   quedaba claro en tema oscuro, mientras el texto encima SÍ se mapeaba a casi
+   blanco — blanco sobre rosa, ilegible. Apareció en la pestaña Apariencia del
+   panel, en la opción seleccionada.
+   El audit de tema oscuro no lo vio porque solo miraba clases de TEXTO sin
+   mapear; acá el texto estaba bien y el roto era el fondo. El script ahora
+   también revisa fondos claros sin mapear. */
+.dark .bg-senal-50 { background-color: theme('colors.senal.900'); }
+.dark .bg-senal-100 { background-color: theme('colors.senal.800'); }
+.dark .text-senal-700 { color: theme('colors.senal.300'); }
+.dark .text-senal-800 { color: theme('colors.senal.200'); }
+.dark .border-senal-200 { border-color: theme('colors.senal.700'); }
+
+/* --- Tintes del panel en oscuro ------------------------------------------- */
+/* Mismo razonamiento: son superficies claras por definición y sin mapeo
+   quedarían claras sobre el tema oscuro. */
+.dark .bg-panel-50 { background-color: theme('colors.panel.900'); }
+.dark .bg-panel-100 { background-color: theme('colors.panel.800'); }
+.dark .bg-panel-200 { background-color: theme('colors.panel.800'); }
+.dark .border-panel-300 { border-color: theme('colors.panel.700'); }
+.dark .border-panel-400 { border-color: theme('colors.panel.950'); }
+.dark .border-panel-500 { border-color: theme('colors.panel.600'); }
+.dark .text-panel-600 { color: theme('colors.panel.300'); }
+.dark .text-panel-700 { color: theme('colors.panel.200'); }
+
+/* --- El visor de la gráfica (T-72) ---------------------------------------- */
+/* `universo.components.irt-chart` pinta el SVG con colores LITERALES y no con
+   clases: está documentado en su cabecera —`var(--x)` en atributos fill/stroke
+   a menudo no resuelve y el relleno queda negro—. Esa decisión es razonable,
+   pero deja una gráfica de tinta oscura que en tema oscuro no se ve.
+
+   En vez de reescribir el SVG para que reaccione al tema, la gráfica se trata
+   como lo que es en un panel de instrumentos: un **visor**, con su propia
+   superficie clara, igual en ambos temas. Es la misma lógica del alojamiento
+   —una pieza con su propio fondo— y de paso la hace legible sin tocar el
+   componente. */
+.visor {
+  background-color: theme('colors.panel.50');
+  border: 1px solid theme('colors.panel.400');
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.18);
+}
+.dark .visor {
+  background-color: theme('colors.panel.100');   /* clara a propósito, no se invierte */
+  border-color: theme('colors.panel.950');
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.45);
+}

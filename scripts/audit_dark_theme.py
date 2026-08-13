@@ -17,10 +17,20 @@ Este script convierte ese riesgo en una comprobación que se puede correr.
 
 QUÉ MIRA, Y QUÉ NO
 ------------------
-Solo reporta clases de **texto** (`text-*`, `placeholder-*`) sin mapear, que
-son las que producen ilegibilidad. Los fondos saturados (`bg-indigo-600`,
-`bg-green-600`, los gradientes de marca) se dejan intactos a propósito según
-ADR-012: ya contrastan bien sobre oscuro y mapearlos sería el error contrario.
+Dos cosas, y la segunda se agregó porque un bug real se escapó por ahí:
+
+1. **Texto oscuro sin mapear** (`text-*` de tono ≥ 600): queda negro sobre una
+   superficie que sí se oscureció.
+2. **Fondo claro sin mapear** (`bg-*` de tono ≤ 200): se queda claro en tema
+   oscuro mientras el texto encima sí se mapea a casi blanco. Eso fue
+   exactamente `bg-senal-50` en la pestaña Apariencia del panel — un durazno
+   claro con letras blancas encima, ilegible (T-72). La versión anterior de
+   este script no lo veía porque solo miraba el texto, y el texto estaba bien.
+
+Los fondos saturados (`bg-indigo-600`, `bg-green-600`, los gradientes de marca)
+se dejan intactos a propósito según ADR-012: ya contrastan bien sobre oscuro y
+mapearlos sería el error contrario. Por eso el corte está en 200: por encima de
+ese tono el fondo ya es medio u oscuro y se defiende solo.
 
 LÍMITE CONOCIDO
 ---------------
@@ -36,7 +46,7 @@ USO
     python3 scripts/audit_dark_theme.py          # reporta y sale 1 si hay fallas
     python3 scripts/audit_dark_theme.py --todas  # incluye fondos y bordes (informativo)
 
-Salida 0 = sin clases de texto sin mapear.
+Salida 0 = sin texto oscuro ni fondo claro sin mapear.
 """
 
 import glob
@@ -136,8 +146,15 @@ def main():
         # oscuro (el hero, la nav, el footer). Mapearlo rompería el contraste
         # en vez de arreglarlo, así que exigirlo convertiría este audit en
         # ruido, y un chequeo ruidoso se termina ignorando.
+        es_fondo = base.startswith("bg-")
         t = tono(base)
-        riesgo = es_texto and (base.endswith("-black") or (t is not None and t >= 600))
+        # Texto oscuro: se vuelve invisible sobre superficie oscura.
+        riesgo_texto = es_texto and (base.endswith("-black") or (t is not None and t >= 600))
+        # Fondo claro: se queda claro y el texto encima (que sí se mapea) queda
+        # blanco sobre blanco. `bg-white` ya está mapeado; el peligro son los
+        # tintes 50–200 de cualquier familia.
+        riesgo_fondo = es_fondo and (t is not None and t <= 200)
+        riesgo = riesgo_texto or riesgo_fondo
         if riesgo or todas:
             faltantes.append((clase, sorted(archivos), riesgo))
 
@@ -163,14 +180,15 @@ def main():
                 print(f"    {clase:32} {', '.join(archivos[:4])}")
 
     if activos:
-        print(f"\n✗ TEXTO SIN MAPEAR en componentes alcanzables ({len(activos)}):")
+        print(f"\n✗ SIN MAPEAR en componentes alcanzables ({len(activos)}) — "
+              f"texto oscuro (≥600) o fondo claro (≤200):")
         for clase, archivos, _ in sorted(activos):
             print(f"    {clase:32} {', '.join(archivos)}")
         print("\n  Agregar la regla en src/css/app.css (mapeo centralizado, "
               "no `dark:` suelto — ADR-012).")
         return 1
 
-    print("\n✓ Ninguna clase de texto sin mapear en componentes alcanzables.")
+    print("\n✓ Sin texto oscuro ni fondo claro sin mapear en componentes alcanzables.")
     return 0
 
 
