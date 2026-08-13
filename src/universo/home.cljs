@@ -155,8 +155,11 @@
                       [guest-links {:on-navigate close!
                                     :stacked? stacked?}]))]
         [:nav
-         {:class (str "fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white/90 "
-                      "backdrop-blur dark:border-slate-800 dark:bg-slate-900/90")}
+         ;; Excepción documentada en ADR-012/ADR-020: el `dark:` va acá y no en
+         ;; el mapeo global porque `bg-white/90` con blur es una aparición
+         ;; única, no vocabulario compartido.
+         {:class (str "fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-pergamino/90 "
+                      "backdrop-blur dark:border-tinta-800 dark:bg-tinta-950/90")}
          [:div.mx-auto.max-w-7xl.px-4.sm:px-6.lg:px-8
           [:div.flex.h-16.items-center.justify-between
            [brand]
@@ -255,8 +258,12 @@
 
 (defn home []
   [:div.flex.min-h-screen.flex-col
-   {:class (str "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 "
-                "dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950")}
+   ;; El fondo de página. Antes era el degradado azul→índigo→púrpura que trae
+   ;; todo template de Tailwind; ahora es papel cálido en claro y tinta profunda
+   ;; en oscuro (ADR-020). Los stops de gradiente no caben en el mapeo global
+   ;; porque usan variables --tw-gradient-*, así que van con `dark:` directo.
+   {:class (str "bg-gradient-to-br from-pergamino-50 via-pergamino-100 to-pergamino-200 "
+                "dark:from-tinta-950 dark:via-tinta-950 dark:to-tinta-900")}
    [navigation]
    [:main.flex-1.pt-16  ;; pt-16 compensa la altura del nav fijo
     [main-content-wrapper]]
