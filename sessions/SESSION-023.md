@@ -253,6 +253,38 @@ peligrosa.
 (ADR-020 → ADR-022 → ADR-023). El costo de cada giro fue bajo porque todo vive en tokens y cinco
 clases de CSS, pero conviene parar y mirar antes de seguir iterando.
 
+## Addendum 3 — feedback del owner sobre el panel (mismo día)
+
+Probó lo construido y salieron cuatro cosas. Tres se registraron como tickets en vez de improvisar,
+y una se hizo.
+
+**T-68 — el modal de feedback.** El owner lo reportó como un problema; al mirarlo son **tres**, con
+causas independientes: (1) un bug de CSS clásico —`flex items-center` junto a `overflow-y-auto` en
+el mismo elemento deja contenido inalcanzable cuando el ítem es más alto que la ventana—, (2) es el
+único componente que no heredó el lenguaje visual, porque ADR-012 lo dejó como excepción con `dark:`
+propio y quedó fuera de las tres pasadas de identidad, y (3) que la explicación sea un modal sobre
+el enunciado es una decisión de producto discutible, no un defecto. Separarlos importa: el primero
+es un arreglo de diez minutos, el tercero es una decisión.
+
+**T-69 — la recta real y los hitos como distribuciones.** Idea del owner para cuando haya más hitos:
+que la línea se parezca a la recta real, con desplazamiento y acercamiento, y que un acontecimiento
+largo se dibuje como una campana en vez de un punto. Vale la pena anotar **por qué es mejor y no
+solo más lindo**: la fecha exacta de un hito matemático casi siempre es una convención —los tres
+puntos débiles que declara la migración `042` son justamente eso—, y una campana **muestra esa
+incertidumbre en vez de esconderla detrás de un punto**. Precondición: decidir de dónde sale la
+anchura, que es contenido y lo audita el profesor.
+
+**T-70 — agrupar el historial por evaluación**, con «rendir de nuevo» y evolución de θ por topic.
+Se anotó lo que ya existe para no reescribirlo (`access/best-theta-by-topic`, una fila por intento
+en `tests`, `irt_chart`) y una advertencia: roza Q-07 (qué significa repetir el diagnóstico), que
+sigue sin decidir. La tarjeta puede hacerse sin resolverla porque solo **muestra** lo que ya está en
+`tests`, pero conviene no cerrar Q-07 en contra de lo que la pantalla muestre.
+
+**T-71 — hecho:** fuera el botón flotante de contacto. Detalle que evitó romper algo en silencio:
+**el panel se conserva**, porque *Cupos* lo abre desde "Avisarme cuando haya cupo"; borrar el
+componente entero habría matado ese flujo sin ningún error visible. El formulario del footer salió
+de la columna estrecha —era 1 de 4— y pasó a ser una placa de ancho completo.
+
 ---
 
 Relacionado: [[SESSION-021]] · [[../adr/ADR-020-identidad-visual-por-tokens]] ·

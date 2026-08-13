@@ -3,7 +3,7 @@
    [reagent.core :as r]
    [re-frame.core :as re-frame]
    [universo.components.resume :as resume]
-   [universo.components.contacto :refer [contacto-form contacto-fab contacto-panel]]
+   [universo.components.contacto :refer [contacto-form contacto-panel]]
    [universo.components.admin :as admin]
    [universo.components.cuenta :as cuenta]
    [universo.components.dashboard :as dashboard]
@@ -193,20 +193,34 @@
 (defn footer []
   [:footer.mt-auto.bg-grafito-900.text-white
    [:div.mx-auto.max-w-7xl.px-4.py-12.sm:px-6.lg:px-8
-    [:div.grid.grid-cols-1.gap-10.md:grid-cols-4
+    ;; Contacto primero y a lo ancho (T-71). Antes vivía apretado en una de
+    ;; cuatro columnas, con un formulario que no entraba; ahora es una placa
+    ;; montada sobre el panel del footer, que es lo que le corresponde a la
+    ;; única vía de contacto del sitio.
+    [:div {:id "contacto"
+           :class (str "placa mb-10 rounded bg-panel-800/60 p-6 sm:p-8 "
+                       "grid gap-6 md:grid-cols-2 md:items-start")}
+     [:div
+      [:h4 {:class "text-lg font-medium text-white"} "¿Hablamos?"]
+      [:p {:class "mt-2 max-w-sm text-sm leading-relaxed text-panel-200"}
+       "Dudas sobre el diagnóstico, sobre los grupos de estudio o sobre cualquier "
+       "otra cosa. Responde el profesor, no un formulario automático."]]
+     [contacto-form]]
+
+    [:div.grid.grid-cols-1.gap-10.md:grid-cols-3
      ;; Marca (más ancha: el párrafo necesita más espacio del que le daba 1/3)
      [:div.md:col-span-2
       [:div.mb-4.flex.items-center
-       [:span.mr-2.text-2xl.text-indigo-300 "∫"]
+       [:span.mr-2.text-2xl.text-senal-500 "∫"]
        [:h3.text-xl.font-bold "Academia Integral"]]
-      [:p {:class "max-w-md text-sm leading-relaxed text-indigo-100/70"}
+      [:p {:class "max-w-md text-sm leading-relaxed text-panel-200"}
        "Preparación de PAES Matemática 1 con diagnóstico adaptativo, plan personalizado "
        "y grupos de estudio por nivel. Un proyecto del profesor Jacobo Córdova, que se originó "
        "en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat."]]
 
      ;; Enlaces
      [:div
-      [:h4.mb-4.text-sm.font-semibold.uppercase.tracking-wider.text-indigo-300 "Explorar"]
+      [:h4.mb-4.grabado.text-panel-300 "Explorar"]
       [:ul.space-y-2.text-sm
        (for [[label handler]
              [["Comenzar diagnóstico" #(re-frame/dispatch [:landing/start])]
@@ -218,18 +232,14 @@
          ^{:key label}
          [:li
           [:button {:type "button"
-                    :class "text-indigo-100/70 transition hover:text-white"
+                    :class "text-panel-200 transition hover:text-white"
                     :on-click handler}
            label]])]]
+  ]]
 
-     ;; Contacto
-     [:div {:id "contacto"}
-      [:h4.mb-4.text-sm.font-semibold.uppercase.tracking-wider.text-indigo-300 "Contacto"]
-      [contacto-form]]]]
-
-   [:div {:class "border-t border-indigo-900/50"}
+   [:div {:class "border-t border-panel-950"}
     [:div.mx-auto.max-w-7xl.px-4.py-5.sm:px-6.lg:px-8
-     [:p {:class "text-center text-sm text-indigo-100/50"}
+     [:p {:class "text-center text-sm text-panel-300"}
       (str "© " (.getFullYear (js/Date.)) " Academia Integral. Todos los derechos reservados.")]]]])
 
 ;; main content por atomo de reagent
@@ -277,8 +287,12 @@
    [:main.flex-1.pt-16  ;; pt-16 compensa la altura del nav fijo
     [main-content-wrapper]]
    [footer]
-   ;; Montados una sola vez: fab+panel de contacto y el diálogo de confirmación
+   ;; Montados una sola vez: el panel de contacto y el diálogo de confirmación
    ;; reaccionan a sus eventos globales sin importar la sección activa.
-   [contacto-fab]
+   ;;
+   ;; El botón flotante que abría el panel se quitó (T-71): la caja del footer
+   ;; ya cumple esa función y el FAB tapaba contenido en móvil. El panel sigue
+   ;; vivo porque **Cupos** lo abre desde "Avisarme cuando haya cupo"
+   ;; (`:contacto/abrir-panel`, slots.cljs) — quitarlo rompería ese flujo.
    [contacto-panel]
    [ui/confirm-dialog]])

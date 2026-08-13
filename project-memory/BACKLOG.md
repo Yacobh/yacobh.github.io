@@ -1848,13 +1848,115 @@ grande y con el sitio recibiendo tráfico (R-19).
   intentos fallaron por mirar el dominio mientras el cambio estaba en local).
 - Cierra de paso T-38.
 
+### T-68 · El modal de feedback: tres defectos distintos — **P1** · `abierto` (2026-08-13)
+
+Reportado por el owner al probar el diagnóstico. Parecen un problema pero son tres, con causas
+independientes y arreglos independientes:
+
+**1. Se sale de la pantalla (bug de CSS, no de diseño).** `modal-overlay` combina
+`flex items-center justify-center` con `overflow-y-auto` en el mismo elemento
+(`components/feedback_modal.cljs:224`). Es un fallo clásico y conocido de flexbox: cuando el
+contenido es **más alto que el viewport**, el centrado lo desborda por arriba **y** por abajo, y el
+scroll no puede alcanzar la parte de arriba — queda contenido inaccesible. Se nota más en ítems
+largos, que son justamente los que necesitan más explicación.
+- **Arreglo:** el patrón habitual es `items-start` con `my-auto` en el hijo, o mover el scroll
+  adentro del contenido (`max-h-[85vh] overflow-y-auto`) y dejar el overlay sin scroll.
+
+**2. No heredó el lenguaje visual.** Es el componente que ADR-012 dejó como excepción con `dark:`
+propio, y por eso quedó fuera de las tres pasadas de identidad: conserva el degradado
+`from-blue-50 to-indigo-50` del enunciado, `border-stone-100`, `bg-slate-50` y `text-amber-600`.
+El azul y el ámbar **no** pasan por los tokens, así que son los de fábrica de Tailwind: es la única
+pantalla que sigue viéndose como el template viejo (ADR-022, ADR-023).
+
+**3. Que sea un modal es una decisión de producto, no un defecto.** El owner observa que la
+explicación "aparece como un modal sobre todo el texto". Tapar el enunciado justo cuando el
+estudiante quiere comparar su error con la pregunta es discutible. Alternativa a evaluar: mostrar
+la explicación **en línea, debajo del ítem**, con la pregunta todavía a la vista.
+- ⚠️ **No decidir esto sin mirar el flujo completo:** el modal también muestra el gráfico de θ y el
+  botón de continuar, así que no es solo "mover un texto".
+
+- **Terminado cuando:** (1) el contenido nunca queda inalcanzable, en cualquier alto de ítem y de
+  ventana; (2) el modal usa los tokens del sistema en claro y oscuro; (3) hay una decisión tomada
+  sobre modal vs. en línea, registrada.
+- **Relacionado:** [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] (la excepción que lo dejó afuera),
+  [[../adr/ADR-023-panel-de-instrumento]].
+
+### T-69 · La línea del tiempo como recta real, y los hitos como distribuciones — **P2** · `idea` (2026-08-13)
+
+Idea del owner, para cuando haya más hitos cargados. Hoy la línea agrupa por era y reparte los
+puntos dentro de cada bloque (ADR-021), que era lo necesario para que 14 de 35 hitos no se apilaran
+en el siglo XX. La evolución propuesta va más lejos y es más honesta con el dato:
+
+- **Que se parezca a la recta real.** Escala, marcas mayores y menores, y distancias que signifiquen
+  algo — no bloques de ancho igual. Implica resolver la compresión de escala sin perder la lectura.
+- **Manejabilidad:** desplazamiento y acercamiento sobre la recta, en vez de scroll horizontal
+  simple; precisión para distinguir hitos cercanos.
+- **Un hito no siempre es un punto.** Un acontecimiento que duró décadas —o un módulo cuya
+  matemática se desarrolló a lo largo de un siglo— se representaría como una **campana** sobre la
+  recta y no como un punto: el centro donde está el grueso, la anchura como duración o
+  incertidumbre. El owner lo formuló como "una onda, algo parecido a la ecuación de onda", y en la
+  práctica es una gaussiana por hito.
+- **Por qué vale la pena:** es más científico y también más verdadero. La fecha exacta de un hito
+  matemático casi siempre es una convención (ver los tres puntos débiles que declara la migración
+  `042`); una campana **muestra esa incertidumbre en vez de esconderla detrás de un punto**.
+
+- **Precondición:** más hitos y, sobre todo, decidir de dónde sale la anchura de cada campana —
+  hoy `modules` solo guarda un año (`historical_year`). Haría falta algo como
+  `historical_year_from`/`historical_year_to`, o una desviación explícita. **Eso es contenido, así
+  que lo audita el profesor** (ADR-016).
+- **Terminado cuando:** el owner defina el modelo de duración/incertidumbre y la recta lo dibuje sin
+  perder legibilidad en móvil.
+- **Relacionado:** [[../adr/ADR-021-linea-del-tiempo-historica]], T-67.
+
+### T-70 · Agrupar el historial por evaluación, con «rendir de nuevo» y evolución — **P1** · `abierto` (2026-08-13)
+
+Pedido del owner. Hoy el tablero lista los diagnósticos **uno por fila, en orden cronológico**
+(`fila-historial`): quien rindió "números" cuatro veces ve cuatro filas sueltas y tiene que
+reconstruir mentalmente si mejoró.
+
+Tres partes:
+
+1. **Agrupar por evaluación.** Una tarjeta por topic, con lo que ya se calcula: cuántas veces la
+   rindió, el mejor θ, el último, la fecha más reciente.
+2. **Botón «Rendir de nuevo»** en cada tarjeta, que arranca ese topic directamente en vez de pasar
+   por el selector.
+3. **Ver la evolución de ese topic**: cómo se movió θ entre intentos.
+
+**Lo que ya existe y hay que reusar, no reescribir:**
+- `universo.access/best-theta-by-topic` ya agrupa por topic y se queda con el mejor θ.
+- `tests` guarda **un intento por fila**, así que la serie histórica ya está en la base — no hace
+  falta esquema nuevo.
+- `components/irt_chart.cljs` ya dibuja una progresión de θ; el eje cambia (intentos en vez de
+  ítems), la pieza no.
+
+⚠️ **Toca [[OPEN_QUESTIONS]] Q-07 / P-01**, que sigue sin decidir: qué significa repetir el
+diagnóstico (¿se sobrescribe el perfil, se versiona, se guarda histórico?). Esta tarjeta **muestra**
+el histórico que ya existe en `tests` sin cambiar `student_profiles`, así que puede hacerse sin
+resolver Q-07 — pero conviene no cerrar Q-07 en contra de lo que esta pantalla muestre.
+
+- **Terminado cuando:** el tablero agrupa por evaluación, cada tarjeta permite volver a rendir con
+  un clic y ver la evolución de θ de ese topic entre intentos.
+- **Relacionado:** T-26 (histórico del perfil), Q-07, `components/irt_chart.cljs`.
+
+### T-71 · Quitar el botón flotante de contacto y agrandar la caja del footer — **P2** · `hecho` (2026-08-13)
+
+Decisión del owner: el ícono flotante de llamada tapaba contenido y duplicaba una función que la
+caja del footer ya cumple.
+
+**Hecho:** se quitó `contacto-fab` de `home.cljs`. **El panel se conserva** porque *Cupos* lo abre
+desde "Avisarme cuando haya cupo" (`:contacto/abrir-panel`, `slots.cljs:150`) — quitarlo habría roto
+ese flujo en silencio. El formulario del footer salió de la columna estrecha (era 1 de 4) y pasó a
+ser una placa de ancho completo con su propio encabezado, en el lenguaje de ADR-023.
+
+- **Falta:** verlo (T-67).
+
 ## Resumen por prioridad
 
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70 |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
 ---
