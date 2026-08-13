@@ -40,37 +40,36 @@
    Va en `body` y no en `html` para no pisar el gradiente de fondo de
    universo.home, y con la especificidad más baja posible (`.dark body`) para
    que cualquier text-* explícita del markup siga ganando. */
-.dark body { color: theme('colors.tinta.100'); }
+.dark body { color: theme('colors.grafito.100'); }
 
 /* ---------- Superficies neutras ----------
-   Desde ADR-020 las superficies oscuras son tinta, no el slate neutro: el
-   oscuro deja de ser "gris apagado" y pasa a ser el mismo azul de la marca en
-   su extremo profundo. La jerarquía es: página tinta.950 → tarjeta tinta.900
-   → elevación tinta.800. */
+   Desde ADR-022 las superficies son la escala grafito, un neutro cálido: el
+   oscuro Braun no es negro puro ni gris azulado. La jerarquía es
+   página grafito.950 → tarjeta grafito.900 → elevación grafito.800. */
 .dark .bg-white,
 .dark .bg-white\/70,
-.dark .bg-white\/80 { background-color: theme('colors.tinta.900'); }
+.dark .bg-white\/80 { background-color: theme('colors.grafito.900'); }
 .dark .bg-slate-50,
-.dark .bg-gray-50 { background-color: theme('colors.tinta.950'); }
-.dark .bg-gray-100 { background-color: theme('colors.tinta.800'); }
-.dark .bg-gray-200 { background-color: theme('colors.tinta.800'); }
+.dark .bg-gray-50 { background-color: theme('colors.grafito.950'); }
+.dark .bg-gray-100 { background-color: theme('colors.grafito.800'); }
+.dark .bg-gray-200 { background-color: theme('colors.grafito.800'); }
 .dark .bg-gray-300,
-.dark .bg-gray-400 { background-color: theme('colors.tinta.700'); }
+.dark .bg-gray-400 { background-color: theme('colors.grafito.700'); }
 
-.dark .hover\:bg-white:hover { background-color: theme('colors.tinta.900'); }
+.dark .hover\:bg-white:hover { background-color: theme('colors.grafito.900'); }
 .dark .hover\:bg-gray-50:hover,
-.dark .hover\:bg-gray-100:hover { background-color: theme('colors.tinta.800'); }
+.dark .hover\:bg-gray-100:hover { background-color: theme('colors.grafito.800'); }
 .dark .hover\:bg-gray-200:hover,
-.dark .hover\:bg-gray-300:hover { background-color: theme('colors.tinta.700'); }
+.dark .hover\:bg-gray-300:hover { background-color: theme('colors.grafito.700'); }
 
 /* ---------- Texto neutro ----------
-   Los tres primeros niveles usan tinta (texto principal, teñido de marca); los
-   secundarios se quedan en slate, que a esa luminosidad lee como gris neutro y
-   evita que TODO el texto quede azulado, que se ve barato. */
-.dark .text-gray-900 { color: theme('colors.tinta.50'); }
-.dark .text-gray-800 { color: theme('colors.tinta.100'); }
+   Los tres primeros niveles usan grafito (el neutro cálido del sistema); los
+   secundarios se quedan en slate, que a esa luminosidad es indistinguible y no
+   justifica tocar reglas que ya funcionan. */
+.dark .text-gray-900 { color: theme('colors.grafito.50'); }
+.dark .text-gray-800 { color: theme('colors.grafito.100'); }
 .dark .text-gray-700,
-.dark .text-slate-700 { color: theme('colors.tinta.200'); }
+.dark .text-slate-700 { color: theme('colors.grafito.200'); }
 .dark .text-gray-600,
 .dark .text-slate-600 { color: theme('colors.slate.300'); }
 .dark .text-gray-500 { color: theme('colors.slate.400'); }
@@ -86,11 +85,11 @@
 
 /* ---------- Bordes / separadores neutros ---------- */
 .dark .border-gray-100,
-.dark .divide-gray-100 { border-color: theme('colors.tinta.800'); }
+.dark .divide-gray-100 { border-color: theme('colors.grafito.800'); }
 .dark .border-gray-200,
-.dark .divide-gray-200 { border-color: theme('colors.tinta.700'); }
+.dark .divide-gray-200 { border-color: theme('colors.grafito.700'); }
 .dark .border-gray-300,
-.dark .border-slate-300 { border-color: theme('colors.tinta.600'); }
+.dark .border-slate-300 { border-color: theme('colors.grafito.600'); }
 .dark .border-gray-400 { border-color: theme('colors.slate.500'); }
 .dark .ring-gray-100,
 .dark .ring-gray-200 { --tw-ring-color: theme('colors.slate.700'); }
@@ -102,28 +101,28 @@
 .dark .hover\:border-gray-400:hover { border-color: theme('colors.slate.400'); }
 
 /* ---------- Acento de marca ----------
-   Ojo con el cambio de ADR-020: `indigo-*` ahora ES tinta, así que en modo
-   oscuro un acento índigo sobre fondo tinta sería el mismo color contra sí
-   mismo. Los tonos suben a la parte clara de la escala (200/300) para que el
-   acento siga leyéndose como acento, y las superficies tenues bajan a 800/700
-   en vez de 950 —que ahora es el fondo de la página y las haría desaparecer. */
+   Ojo: desde ADR-022 `indigo-*` ES grafito, o sea que estas reglas ya no pintan
+   un acento sino el neutro del sistema. Es deliberado — en Braun el color se
+   reserva para la acción principal, que se marca a mano con `senal-*`, y todo
+   el vocabulario heredado se vuelve gris. Las superficies tenues van a 800/700
+   y no a 950, que es el fondo de la página y las haría desaparecer. */
 .dark .text-indigo-900,
-.dark .text-indigo-800 { color: theme('colors.tinta.100'); }
-.dark .text-indigo-700 { color: theme('colors.tinta.200'); }
+.dark .text-indigo-800 { color: theme('colors.grafito.100'); }
+.dark .text-indigo-700 { color: theme('colors.grafito.200'); }
 .dark .text-indigo-600,
-.dark .text-indigo-500 { color: theme('colors.tinta.300'); }
-.dark .bg-indigo-50 { background-color: theme('colors.tinta.800'); }
-.dark .bg-indigo-100 { background-color: theme('colors.tinta.700'); }
+.dark .text-indigo-500 { color: theme('colors.grafito.300'); }
+.dark .bg-indigo-50 { background-color: theme('colors.grafito.800'); }
+.dark .bg-indigo-100 { background-color: theme('colors.grafito.700'); }
 .dark .border-indigo-100,
-.dark .border-indigo-200 { border-color: theme('colors.tinta.700'); }
-.dark .border-indigo-300 { border-color: theme('colors.tinta.600'); }
+.dark .border-indigo-200 { border-color: theme('colors.grafito.700'); }
+.dark .border-indigo-300 { border-color: theme('colors.grafito.600'); }
 
 .dark .hover\:text-indigo-700:hover,
-.dark .hover\:text-indigo-800:hover { color: theme('colors.tinta.200'); }
-.dark .hover\:text-indigo-900:hover { color: theme('colors.tinta.100'); }
-.dark .hover\:bg-indigo-50:hover { background-color: theme('colors.tinta.800'); }
-.dark .hover\:bg-indigo-100:hover { background-color: theme('colors.tinta.700'); }
-.dark .hover\:border-indigo-300:hover { border-color: theme('colors.tinta.500'); }
+.dark .hover\:text-indigo-800:hover { color: theme('colors.grafito.200'); }
+.dark .hover\:text-indigo-900:hover { color: theme('colors.grafito.100'); }
+.dark .hover\:bg-indigo-50:hover { background-color: theme('colors.grafito.800'); }
+.dark .hover\:bg-indigo-100:hover { background-color: theme('colors.grafito.700'); }
+.dark .hover\:border-indigo-300:hover { border-color: theme('colors.grafito.500'); }
 
 /* ---------- Otros acentos de marca (badges de nivel, enlaces puntuales) ---------- */
 .dark .text-purple-600 { color: theme('colors.purple.400'); }
@@ -193,8 +192,8 @@
 .dark input:not([type]),
 .dark textarea,
 .dark select {
-  background-color: theme('colors.tinta.800');
-  color: theme('colors.tinta.50');
+  background-color: theme('colors.grafito.800');
+  color: theme('colors.grafito.50');
 }
 /* Las <option> son elementos aparte: no heredan el color del <select> que las
    contiene. El navegador las pinta con su propio par fondo/texto, así que un
@@ -203,8 +202,8 @@
    topic. `optgroup` va junto porque falla igual. */
 .dark select option,
 .dark select optgroup {
-  background-color: theme('colors.tinta.800');
-  color: theme('colors.tinta.50');
+  background-color: theme('colors.grafito.800');
+  color: theme('colors.grafito.50');
 }
 
 .dark input[type="text"]::placeholder,

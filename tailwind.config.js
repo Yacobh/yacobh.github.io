@@ -1,65 +1,62 @@
 /** @type {import('tailwindcss').Config} */
 
 /*
- * IDENTIDAD VISUAL — "tinta y pergamino" (ADR-020)
+ * IDENTIDAD VISUAL — lenguaje Braun / Dieter Rams (ADR-022)
  *
- * Hasta el 2026-08-13 este archivo tenía `theme: { extend: {} }`: cero tokens
- * propios. Todo el color, la tipografía y los radios del sitio eran los valores
- * de fábrica de Tailwind, y esa es la razón técnica de que la página se viera
- * como cualquier otra hecha con Tailwind — no "la IA le da el mismo código a
- * todos", sino que nunca se definió una identidad y quedó el default.
+ * Reemplaza a "tinta y pergamino" (ADR-020, vivió un día). El owner pidió que
+ * el sitio "parezca un diseño de Dieter Rams Braun", y eso no es una paleta:
+ * es una manera de decidir. Los tres principios que mandan acá:
  *
- * ── La decisión que evita reescribir 15 componentes ──────────────────────────
- * `colors.indigo` se REDEFINE con la escala del azul tinta. Los componentes ya
- * tienen escritos cientos de `bg-indigo-600`, `text-indigo-700`,
- * `border-indigo-200`… y todos pasan a ser el color de marca sin editar un solo
- * .cljs. Es exactamente el argumento de ADR-012 (remapear el vocabulario que ya
- * existe en vez de anotar clase por clase), aplicado acá al tema claro.
+ *   · «Weniger, aber besser». Una escala neutra y UN color. Nada más.
+ *   · El color es señal, no decoración. El naranja marca lo accionable; si
+ *     aparece en un adorno, deja de significar algo cuando aparece en un botón.
+ *   · Buen diseño es discreto. Sin degradados, sin sombras difusas, sin bordes
+ *     redondos: el producto se calla para que se lea el contenido.
  *
- * Sí, el token se llama `indigo` y ya no es índigo. Es deuda de nombre asumida
- * a conciencia: renombrarlo obligaría a tocar los ~15 componentes, que es
- * justamente el costo que este enfoque evita. Para código NUEVO existe el alias
- * `tinta`, que apunta a la misma escala y no miente.
+ * ── Por qué `indigo` es gris ────────────────────────────────────────────────
+ * Los componentes tienen escritos cientos de `bg-indigo-600` y `text-indigo-700`
+ * (ver ADR-020). Redefinir esa escala como **grafito** convierte todo ese
+ * vocabulario heredado en neutro de un solo golpe, que es exactamente lo que
+ * Rams querría: el botón secundario no compite. El naranja se pone **a mano y
+ * de a uno**, solo donde hay una acción principal de verdad.
  *
- * ── Tipografía sin dependencia de red ───────────────────────────────────────
- * `font-display` usa el serif del sistema, no una fuente web. Una Google Font
- * daría más carácter, pero agrega un origen externo nuevo (hoy solo se depende
- * de jsDelivr para el CSS de KaTeX), un pedido de red bloqueante en cada carga
- * y una decisión que registrar en DEPENDENCIES. El serif del sistema ya da el
- * aire de tratado que la paleta busca, gratis y sin latencia.
+ * ── Texto oscuro sobre el naranja, no blanco ────────────────────────────────
+ * El naranja Braun auténtico (#E85D0D) con texto blanco da 3.50 de contraste:
+ * reprueba AA. Con `grafito-900` da 4.83. Y resulta que esa es también la
+ * solución histórica: Braun ponía glifos oscuros sobre las teclas naranjas.
+ * La respuesta accesible y la correcta eran la misma.
  */
 
-// Azul tinta. Escala construida alrededor de #1B2A4A, que es el 800: los tonos
-// oscuros mandan porque es un color de texto y de superficie profunda, no un
-// color de botón brillante.
-const tinta = {
-  50: '#F2F5FA',
-  100: '#E2E8F2',
-  200: '#C6D2E5',
-  300: '#9DB0D0',
-  400: '#6E87B4',
-  500: '#4C6699',
-  600: '#3A4F7A',
-  700: '#2A3B5C',
-  800: '#1B2A4A', // ← el color de marca
-  900: '#141F38',
-  950: '#0E1524', // ← fondo del tema oscuro
+// Escala neutra cálida. Es TODO el gris del sistema: superficies, texto,
+// bordes, botones secundarios. El calor viene del matiz (nunca gris azulado),
+// que es lo que separa un plástico Braun de una caja de software.
+const grafito = {
+  50: '#FAFAF8',   // tarjeta en claro
+  100: '#F2F0EB',  // página en claro — el "snow white" del SK4
+  200: '#E7E4DD',
+  300: '#D3CFC6',  // hairline decorativo
+  400: '#A8A49B',
+  500: '#7D7A72',  // borde funcional (3.76 sobre la página: delimita de verdad)
+  600: '#5C5A54',  // texto secundario
+  700: '#423F3B',
+  800: '#2E2C29',  // botón secundario, tarjeta en oscuro
+  900: '#1D1D1B',  // texto principal
+  950: '#121211',  // página en oscuro
 };
 
-// Ámbar/ocre. Es el acento: medallas de la línea del tiempo, hitos
-// descubiertos, destacados puntuales. Alrededor de #C9873A como 500.
-const acento = {
-  50: '#FDF8F1',
-  100: '#F9EDDC',
-  200: '#F2D9B6',
-  300: '#E7BF87',
-  400: '#D9A25C',
-  500: '#C9873A', // ← el acento
-  600: '#A96C2C',
-  700: '#855224',
-  800: '#5F3B1B',
-  900: '#3E2712',
-  950: '#24160A',
+// El único color. Naranja Braun (ET66, T3). Se usa en la acción principal de
+// cada pantalla y en las medallas de la línea del tiempo. En ningún otro lado.
+const senal = {
+  50: '#FDF0E9',
+  100: '#FADCCB',
+  200: '#F5B99B',
+  300: '#F0956B',
+  400: '#EE7A45',  // señal sobre fondo oscuro
+  500: '#E85D0D',  // ← la señal
+  600: '#C74C0A',  // hover, y foco visible en ambos temas
+  700: '#9E3C08',  // señal como texto sobre fondo claro
+  800: '#762D06',
+  900: '#4E1E04',
 };
 
 module.exports = {
@@ -75,46 +72,45 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Redefinición: cubre todo el vocabulario `indigo-*` ya escrito.
-        indigo: tinta,
-        // Alias honesto para código nuevo. Misma escala, otro nombre.
-        tinta: tinta,
-        acento: acento,
-        // Superficie clara cálida. Reemplaza al blanco puro como fondo de
-        // página: el papel del pergamino, no la hoja de un formulario.
-        //
-        // Bajada un escalón de luz el 2026-08-13 a pedido del owner ("me gusta,
-        // pero un poco menos claro"). El matiz se conserva; lo que cambia es la
-        // luminosidad. Contraste reverificado: texto principal 12.31, texto
-        // secundario 7.05, medalla 3.73 — todos por encima de su umbral.
-        pergamino: {
-          DEFAULT: '#F4EEE2',
-          50: '#FBF7F0',
-          100: '#F4EEE2',
-          200: '#EBE3D3',
-          300: '#DCD1BA',
-        },
+        grafito: grafito,
+        senal: senal,
+        // Vocabulario heredado: todo `indigo-*` de los componentes se vuelve
+        // neutro. Ver la cabecera.
+        indigo: grafito,
       },
       fontFamily: {
-        // Títulos: serif del sistema, sin fuente web (ver cabecera).
-        display: ['Georgia', 'ui-serif', 'Cambria', '"Times New Roman"', 'serif'],
+        // UNA familia para todo. En Rams la jerarquía se hace con tamaño y
+        // peso, no cambiando de letra. Grotesca neutra, y del sistema: no hay
+        // fuente web que descargar (misma razón que en ADR-020).
+        sans: ['Helvetica Neue', 'Helvetica', 'Inter', 'ui-sans-serif',
+               'system-ui', 'Arial', 'sans-serif'],
+        display: ['Helvetica Neue', 'Helvetica', 'Inter', 'ui-sans-serif',
+                  'system-ui', 'Arial', 'sans-serif'],
       },
       borderRadius: {
-        // Un punto menos redondeado que el default de Tailwind: el borde muy
-        // redondo es una de las marcas visuales del template genérico.
-        DEFAULT: '0.25rem',
-        lg: '0.375rem',
-        xl: '0.5rem',
-        '2xl': '0.75rem',
+        // Casi cero. El radio grande es la firma del template genérico; Braun
+        // redondeaba lo justo para que no corte, y nada más.
+        none: '0',
+        DEFAULT: '2px',
+        sm: '1px',
+        md: '2px',
+        lg: '2px',
+        xl: '3px',
+        '2xl': '3px',
+        '3xl': '4px',
+        full: '9999px',   // se conserva: los puntos de la línea del tiempo
       },
       boxShadow: {
-        // Sombras teñidas de tinta en vez del negro puro, que sobre superficie
-        // cálida se ve sucio.
-        sm: '0 1px 2px 0 rgb(27 42 74 / 0.06)',
-        DEFAULT: '0 1px 3px 0 rgb(27 42 74 / 0.10), 0 1px 2px -1px rgb(27 42 74 / 0.08)',
-        md: '0 4px 6px -1px rgb(27 42 74 / 0.10), 0 2px 4px -2px rgb(27 42 74 / 0.08)',
-        lg: '0 10px 15px -3px rgb(27 42 74 / 0.10), 0 4px 6px -4px rgb(27 42 74 / 0.08)',
-        xl: '0 20px 25px -5px rgb(27 42 74 / 0.12), 0 8px 10px -6px rgb(27 42 74 / 0.08)',
+        // Sin sombras difusas. La separación se hace con una línea, que es
+        // honesta sobre dónde termina una superficie. `shadow-lg` y compañía
+        // siguen existiendo para no romper el markup, pero ya casi no pintan.
+        none: 'none',
+        sm: '0 0 0 1px rgb(29 29 27 / 0.06)',
+        DEFAULT: '0 0 0 1px rgb(29 29 27 / 0.08)',
+        md: '0 0 0 1px rgb(29 29 27 / 0.10)',
+        lg: '0 0 0 1px rgb(29 29 27 / 0.12)',
+        xl: '0 0 0 1px rgb(29 29 27 / 0.14)',
+        '2xl': '0 0 0 1px rgb(29 29 27 / 0.16)',
       },
     },
   },

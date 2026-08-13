@@ -26,19 +26,19 @@
 ;; usa la tinta clara y el bronce el ámbar oscuro. Nada de gris para el bronce:
 ;; un módulo intentado tiene que verse encendido, no apagado.
 ;;
-;; Ojo con `acento-500`: NO se usa como texto sobre fondo claro (da 2.81 de
+;; Ojo con `senal-500`: NO se usa como texto sobre fondo claro (da 2.81 de
 ;; contraste, ver scripts/audit_contraste.py). Acá es relleno, que es su lugar.
 (def ^:private estilo-medalla
-  {:oro    {:punto "bg-acento-500 ring-acento-600 dark:bg-acento-400 dark:ring-acento-300"
-            :texto "text-acento-700 dark:text-acento-300"}
-   :plata  {:punto "bg-tinta-400 ring-tinta-500 dark:bg-tinta-300 dark:ring-tinta-200"
-            :texto "text-tinta-700 dark:text-tinta-200"}
-   :bronce {:punto "bg-acento-700 ring-acento-800 dark:bg-acento-600 dark:ring-acento-500"
-            :texto "text-acento-800 dark:text-acento-400"}})
+  {:oro    {:punto "bg-senal-500 ring-senal-600 dark:bg-senal-400 dark:ring-senal-300"
+            :texto "text-senal-700 dark:text-senal-300"}
+   :plata  {:punto "bg-grafito-400 ring-grafito-500 dark:bg-grafito-300 dark:ring-grafito-200"
+            :texto "text-grafito-700 dark:text-grafito-200"}
+   :bronce {:punto "bg-senal-700 ring-senal-800 dark:bg-senal-600 dark:ring-senal-500"
+            :texto "text-senal-800 dark:text-senal-400"}})
 
 (def ^:private estilo-apagado
-  {:punto "bg-transparent ring-tinta-300 dark:ring-tinta-600"
-   :texto "text-tinta-500 dark:text-tinta-400"})
+  {:punto "bg-transparent ring-grafito-300 dark:ring-grafito-600"
+   :texto "text-grafito-500 dark:text-grafito-400"})
 
 (defn- etiqueta-accesible
   "Lo que oye alguien con lector de pantalla. Dice el estado explícitamente:
@@ -58,8 +58,8 @@
      [:button
       {:type "button"
        :class (str "group flex flex-col items-center gap-1 px-2 py-1 rounded "
-                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-acento-500 "
-                   "focus-visible:ring-offset-1 dark:focus-visible:ring-offset-tinta-950")
+                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-senal-500 "
+                   "focus-visible:ring-offset-1 dark:focus-visible:ring-offset-grafito-950")
        :aria-label (etiqueta-accesible hito)
        :aria-pressed (boolean seleccionado?)
        :on-click #(on-select (when-not seleccionado? slug))}
@@ -69,18 +69,18 @@
                           punto)}]
       [:span {:class (str "text-[10px] tabular-nums "
                           (if discovered?
-                            "text-tinta-600 dark:text-tinta-300"
-                            "text-tinta-400 dark:text-tinta-500"))}
+                            "text-grafito-600 dark:text-grafito-300"
+                            "text-grafito-400 dark:text-grafito-500"))}
        (formatear-anio (:year hito))]]]))
 
 (defn- bloque-era
   [{:keys [label milestones]} seleccionado on-select]
   [:div {:class "flex flex-col gap-1 shrink-0"}
-   [:span {:class "text-[10px] uppercase tracking-widest text-tinta-500 dark:text-tinta-400 px-2"}
+   [:span {:class "text-[10px] uppercase tracking-widest text-grafito-500 dark:text-grafito-400 px-2"}
     label]
    [:ul {:role "list"
          :class (str "flex items-end gap-1 border-t border-dashed "
-                     "border-tinta-300 dark:border-tinta-700 pt-2")}
+                     "border-grafito-300 dark:border-grafito-700 pt-2")}
     (for [hito milestones]
       ^{:key (:slug hito)}
       [punto-hito hito (= seleccionado (:slug hito)) on-select])]])
@@ -90,30 +90,30 @@
    el `historical_blurb` de los módulos —escrito en 002 y guardado desde
    entonces— llega a los ojos de alguien."
   [{:keys [title year figure blurb medal discovered? theta]}]
-  [:div {:class (str "border-t border-tinta-200 dark:border-tinta-800 "
+  [:div {:class (str "border-t border-grafito-200 dark:border-grafito-800 "
                      "px-4 py-3 max-h-48 overflow-y-auto")}
    [:div {:class "flex flex-wrap items-baseline gap-x-3 gap-y-1"}
-    [:h4 {:class "font-display text-base font-semibold text-tinta-800 dark:text-tinta-100"}
+    [:h4 {:class "font-display text-base font-semibold text-grafito-800 dark:text-grafito-100"}
      title]
-    [:span {:class "text-sm tabular-nums text-tinta-600 dark:text-tinta-300"}
+    [:span {:class "text-sm tabular-nums text-grafito-600 dark:text-grafito-300"}
      (formatear-anio year)]
     (when figure
-      [:span {:class "text-sm italic text-tinta-600 dark:text-tinta-300"} figure])
+      [:span {:class "text-sm italic text-grafito-600 dark:text-grafito-300"} figure])
     (if discovered?
       [:span {:class (str "text-xs font-semibold uppercase tracking-wide "
                           (:texto (get estilo-medalla medal)))}
        (str "Medalla de " (get tl/medal-label medal))]
-      [:span {:class "text-xs uppercase tracking-wide text-tinta-500 dark:text-tinta-400"}
+      [:span {:class "text-xs uppercase tracking-wide text-grafito-500 dark:text-grafito-400"}
        "Por descubrir"])]
    (when blurb
-     [:p {:class "mt-2 text-sm leading-relaxed text-tinta-700 dark:text-tinta-200"} blurb])
+     [:p {:class "mt-2 text-sm leading-relaxed text-grafito-700 dark:text-grafito-200"} blurb])
    (if discovered?
-     [:p {:class "mt-2 text-xs text-tinta-500 dark:text-tinta-400"}
+     [:p {:class "mt-2 text-xs text-grafito-500 dark:text-grafito-400"}
       (str "Tu mejor resultado acá: θ = " (.toFixed (js/Number theta) 2) ".")]
      [:button
       {:type "button"
-       :class (str "mt-2 text-xs font-semibold text-tinta-700 dark:text-tinta-200 underline "
-                   "underline-offset-2 hover:text-tinta-900 dark:hover:text-tinta-50")
+       :class (str "mt-2 text-xs font-semibold text-grafito-700 dark:text-grafito-200 underline "
+                   "underline-offset-2 hover:text-grafito-900 dark:hover:text-grafito-50")
        :on-click #(do (re-frame/dispatch [:test/open-selection])
                       (re-frame/dispatch [:navigate-to :diagnostic-test]))}
       "Rendir una evaluación para descubrirlo →"])])
@@ -140,22 +140,22 @@
         [:aside
          {:aria-label "Línea del tiempo de la matemática"
           :class (str "fixed bottom-0 left-0 right-0 z-40 "
-                      "bg-pergamino-100/95 dark:bg-tinta-950/95 backdrop-blur "
-                      "border-t border-tinta-200 dark:border-tinta-800 shadow-lg")}
+                      "bg-grafito-100/95 dark:bg-grafito-950/95 backdrop-blur "
+                      "border-t border-grafito-200 dark:border-grafito-800 shadow-lg")}
 
          ;; Cabecera: progreso + plegar. Siempre visible, para que la línea se
          ;; pueda apartar sin perderla de vista.
          [:div {:class "flex items-center justify-between px-4 py-1.5"}
           [:div {:class "flex items-baseline gap-2 min-w-0"}
-           [:span {:class "font-display text-sm font-semibold text-tinta-800 dark:text-tinta-100"}
+           [:span {:class "font-display text-sm font-semibold text-grafito-800 dark:text-grafito-100"}
             "Tu recorrido por la historia"]
-           [:span {:class "text-xs tabular-nums text-tinta-600 dark:text-tinta-300"}
+           [:span {:class "text-xs tabular-nums text-grafito-600 dark:text-grafito-300"}
             (str descubiertos " de " total " hitos descubiertos")]]
           [:button
            {:type "button"
-            :class (str "text-xs font-semibold text-tinta-700 dark:text-tinta-200 "
-                        "px-2 py-1 rounded hover:bg-tinta-100 dark:hover:bg-tinta-800 "
-                        "focus:outline-none focus-visible:ring-2 focus-visible:ring-acento-500")
+            :class (str "text-xs font-semibold text-grafito-700 dark:text-grafito-200 "
+                        "px-2 py-1 rounded hover:bg-grafito-100 dark:hover:bg-grafito-800 "
+                        "focus:outline-none focus-visible:ring-2 focus-visible:ring-senal-500")
             :aria-expanded (boolean @abierta?)
             :on-click #(swap! abierta? not)}
            (if @abierta? "Ocultar ▾" "Mostrar ▴")]]

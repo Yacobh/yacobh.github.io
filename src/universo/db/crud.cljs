@@ -1291,3 +1291,36 @@
         (print res)))
 
   ,)
+
+;; -----------------------------------------------------------------------------
+;; Configuración del sitio (043, ADR-022)
+;; -----------------------------------------------------------------------------
+;; Una sola fila, garantizada por el check `site_settings_una_sola_fila`. Por eso
+;; `.single`: no hay ambigüedad sobre cuál es "la" configuración.
+
+(defn fetch-site-settings
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "site_settings")
+        (.select "*")
+        (.single)
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn update-site-settings!
+  "Solo admin: la policy `site_settings_update_admin` es el control real, el
+   `:auth/admin?` de la UI es únicamente UX (CLAUDE.md §7.4)."
+  [{:keys [theme-default user-id]}]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "site_settings")
+        (.update (clj->js (cond-> {:theme_default theme-default
+                                   :updated_at (.toISOString (js/Date.))}
+                            user-id (assoc :updated_by user-id))))
+        (.eq "id" true)
+        (.select)
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))

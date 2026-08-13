@@ -17,17 +17,19 @@
       (.toLocaleDateString fecha "es-ES" opciones))))
 
 (defn tarjeta-estadistica
-  "Componente para mostrar una estadística individual"
-  [titulo valor subtitulo icono color-bg color-text]
-  [:div {:class (str "bg-white rounded-lg shadow-md p-6 border-l-4 " color-bg)}
-   [:div.flex.items-center.justify-between
-    [:div
-     [:p.text-sm.font-medium.text-gray-600.uppercase.tracking-wide titulo]
-     [:p {:class (str "text-3xl font-bold mt-2 " color-text)} valor]
-     (when subtitulo
-       [:p.text-xs.text-gray-500.mt-1 subtitulo])]
-    [:div {:class (str "text-4xl " color-text)}
-     icono]]])
+  "Una estadística. El número manda; todo lo demás se aparta.
+
+   ADR-022: antes esta tarjeta tenía un emoji de 40px compitiendo con el dato y
+   un borde de color a la izquierda que no significaba nada (cada tarjeta tenía
+   el suyo, elegido por variedad). Los dos se fueron. Lo que queda es la
+   jerarquía tipográfica, que es como Braun ordenaba un panel: etiqueta chica,
+   valor grande, nota al pie."
+  [titulo valor subtitulo]
+  [:div {:class "bg-white border border-gray-200 rounded p-6"}
+   [:p.text-xs.font-medium.text-gray-600.uppercase.tracking-widest titulo]
+   [:p.text-4xl.font-light.tabular-nums.mt-3.text-gray-900 valor]
+   (when subtitulo
+     [:p.text-xs.text-gray-500.mt-2 subtitulo])])
 
 (defn barra-progreso
   "Componente de barra de progreso"
@@ -43,18 +45,31 @@
             :style {:width (str porcentaje-limitado "%")}}]]))
 
 (defn nivel-theta
-  "Componente para mostrar el nivel theta visualmente"
+  "Nivel del estudiante como escala de cuatro pasos.
+
+   ADR-022: cuatro emojis (🎯🌱📈🚀) y cuatro colores distintos comunicaban que
+   las bandas son categorías inconexas, cuando son **una escala ordenada**. Se
+   dibuja como lo que es: cuatro marcas, llenas hasta donde llegó. El color no
+   se usa para distinguir bandas —eso lo hace la posición— sino solo para
+   señalar dónde está parado."
   [theta]
   (let [nivel (cond
-                (>= theta 2.0) {:texto "Avanzado" :color "text-purple-600" :emoji "🚀"}
-                (>= theta 1.0) {:texto "Intermedio" :color "text-blue-600" :emoji "📈"}
-                (>= theta 0.0) {:texto "Básico" :color "text-green-600" :emoji "🌱"}
-                :else {:texto "Inicial" :color "text-gray-600" :emoji "🎯"})]
-    [:div.flex.items-center.gap-2
-     [:span.text-2xl (:emoji nivel)]
+                (>= theta 2.0) {:texto "Avanzado" :paso 4}
+                (>= theta 1.0) {:texto "Intermedio" :paso 3}
+                (>= theta 0.0) {:texto "Básico" :paso 2}
+                :else {:texto "Inicial" :paso 1})]
+    [:div.flex.items-center.gap-3
+     [:div.flex.items-end.gap-1 {:aria-hidden "true"}
+      (for [i (range 1 5)]
+        ^{:key i}
+        [:span {:class (str "block w-1.5 rounded-sm "
+                            (case i 1 "h-2" 2 "h-3" 3 "h-4" "h-5") " "
+                            (if (<= i (:paso nivel))
+                              "bg-senal-500"
+                              "bg-gray-200 dark:bg-grafito-700"))}])]
      [:div
-      [:p {:class (str "font-bold text-lg " (:color nivel))} (:texto nivel)]
-      [:p.text-xs.text-gray-500 (str "θ = " (js/Math.round (* theta 100)) "/100")]]]))
+      [:p.text-base.font-medium.text-gray-900 (:texto nivel)]
+      [:p.text-xs.tabular-nums.text-gray-500 (str "θ = " (js/Math.round (* theta 100)) "/100")]]]))
 
 (defn tarjeta-ultimo-test
   "Tarjeta detallada del último test"
@@ -183,12 +198,11 @@
        [:div {:class "max-w-6xl mx-auto"}
 
         ;; Header
-        [:div.bg-white.rounded-xl.shadow-lg.p-6.mb-8
-         [:div.flex.items-center.justify-between
-          [:div
-           [:h1.text-3xl.font-bold.text-gray-800.mb-2 "Tablero de Aprendizaje"]
-           [:p.text-gray-600 (str "Bienvenido, " correo)]]
-          [:div.text-5xl "📊"]]]
+        ;; ADR-022: la cabecera era una tarjeta blanca con sombra y un 📊 de
+        ;; 48px. Ahora es un encabezado: título, quién sos, y una línea.
+        [:div.border-b.border-gray-300.pb-5.mb-8
+         [:h1.text-2xl.font-medium.tracking-tight.text-gray-900 "Tablero de aprendizaje"]
+         [:p.text-sm.text-gray-600.mt-1 correo]]
 
         (if cargando?
           [:div.py-20
@@ -198,44 +212,29 @@
           [:div
            ;; Grid de estadísticas principales
            [:div.grid.grid-cols-1.sm:grid-cols-3.gap-4.mb-2
-            [tarjeta-estadistica
-             "Total Evaluaciones"
-             total-tests
-             "Realizadas hasta ahora"
-             "📝"
-             "border-blue-500"
-             "text-blue-600"]
-            [tarjeta-estadistica
-             "Completadas"
-             tests-completados
-             "Evaluaciones finalizadas"
-             "✅"
-             "border-green-500"
-             "text-green-600"]
-            [tarjeta-estadistica
-             "Promedio"
-             (str promedio "%")
-             (str "Theta avg: " theta-promedio)
-             "📈"
-             "border-indigo-500"
-             "text-indigo-600"]]
+            [tarjeta-estadistica "Evaluaciones" total-tests "Realizadas hasta ahora"]
+            [tarjeta-estadistica "Completadas" tests-completados "Terminadas de principio a fin"]
+            [tarjeta-estadistica "Promedio" (str promedio "%") (str "θ medio: " theta-promedio)]]
 
            [profile-block]
 
            ;; Acciones rápidas
-           [:div.flex.flex-row.flex-wrap.gap-4.justify-center.mt-10
-            [:button.bg-indigo-600.text-white.font-semibold.py-3.px-5.rounded-lg.hover:bg-indigo-700.transition.shadow-md.flex.items-center.gap-2
+           ;; ADR-022: tres botones de tres colores distintos (índigo, blanco,
+           ;; verde) hacían que ninguno fuera el principal. Ahora hay uno solo
+           ;; con la señal —el que empieza una evaluación, que es a lo que vino
+           ;; el estudiante— y los otros dos son neutros.
+           [:div.flex.flex-row.flex-wrap.gap-3.mt-10
+            [:button.bg-senal-500.text-grafito-900.font-medium.py-2.5.px-5.rounded.hover:bg-senal-600.hover:text-white.transition
              {:type "button"
               :on-click #(do
                            (re-frame/dispatch [:test/open-selection])
                            (re-frame/dispatch [:navigate-to :diagnostic-test]))}
-             [:span "🚀"]
-             [:span "Nueva Evaluación"]]
-            [:button.bg-white.border.border-indigo-200.text-indigo-700.font-semibold.py-3.px-5.rounded-lg.hover:bg-indigo-50.transition.shadow-sm
+             "Nueva evaluación"]
+            [:button.bg-white.border.border-gray-300.text-gray-900.font-medium.py-2.5.px-5.rounded.hover:bg-gray-50.transition
              {:type "button"
               :on-click #(re-frame/dispatch [:navigate-to :plan])}
              "Mi plan"]
-            [:button.bg-green-600.text-white.font-semibold.py-3.px-5.rounded-lg.hover:bg-green-700.transition.shadow-md
+            [:button.bg-white.border.border-gray-300.text-gray-900.font-medium.py-2.5.px-5.rounded.hover:bg-gray-50.transition
              {:type "button"
               :on-click #(re-frame/dispatch [:navigate-to :cupos])}
              "Cupos / Grupos"]]

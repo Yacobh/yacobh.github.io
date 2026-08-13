@@ -19,26 +19,32 @@
 ;; seccion principal variable con atomo de reagent, dinamico
 
 (defn- brand []
-  [:a.flex.items-center.text-xl.font-bold.text-gray-800
+  ;; ADR-022: el logotipo era texto con degradado azul→púrpura, el recurso más
+  ;; reconocible del template genérico. Ahora es lo que Braun haría: una sola
+  ;; letra, peso y espaciado. El ∫ va en naranja porque **es** la marca — es el
+  ;; único adorno que sobrevive, y sobrevive por ser el símbolo del producto.
+  [:a.flex.items-center.text-xl.font-medium.tracking-tight.text-gray-800
    {:href "#"
     :aria-label "Academia Integral — inicio"
     :on-click (fn [e]
                 (.preventDefault e)
                 (re-frame/dispatch [:navigate-to :main]))}
-   [:span.bg-gradient-to-r.from-blue-600.to-purple-600.bg-clip-text.text-transparent
-    "Academia"]
-   [:span.mx-2.text-3xl.font-light.text-indigo-600 "∫"]
-   [:span.bg-gradient-to-r.from-purple-600.to-indigo-700.bg-clip-text.text-transparent
-    "Integral"]])
+   [:span "Academia"]
+   [:span.mx-1.5.text-3xl.font-light.text-senal-500 "∫"]
+   [:span "Integral"]])
 
 (def ^:private link-class
   (str "rounded px-2 py-2 text-sm font-medium text-gray-700 transition "
        "hover:text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"))
 
+;; La acción principal de la barra. Es el único naranja de la navegación: si
+;; hubiera dos, ninguno sería el principal (ADR-022). Texto grafito sobre el
+;; naranja, no blanco — es lo que hacía Braun y además lo que pasa AA.
 (def ^:private cta-class
-  (str "inline-flex items-center rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 "
-       "px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 "
-       "focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300"))
+  (str "inline-flex items-center rounded bg-senal-500 "
+       "px-5 py-2.5 text-sm font-medium text-grafito-900 transition hover:bg-senal-600 "
+       "hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-senal-600 "
+       "focus-visible:ring-offset-2"))
 
 (defn- scroll-to-section!
   "Navega al inicio y luego hace scroll al ancla (la landing debe estar montada)."
@@ -158,8 +164,8 @@
          ;; Excepción documentada en ADR-012/ADR-020: el `dark:` va acá y no en
          ;; el mapeo global porque `bg-white/90` con blur es una aparición
          ;; única, no vocabulario compartido.
-         {:class (str "fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-pergamino/90 "
-                      "backdrop-blur dark:border-tinta-800 dark:bg-tinta-950/90")}
+         {:class (str "fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-grafito-100/90 "
+                      "backdrop-blur dark:border-grafito-800 dark:bg-grafito-950/90")}
          [:div.mx-auto.max-w-7xl.px-4.sm:px-6.lg:px-8
           [:div.flex.h-16.items-center.justify-between
            [brand]
@@ -185,7 +191,7 @@
              [links true]]])]))))
 
 (defn footer []
-  [:footer.mt-auto.bg-gradient-to-br.from-slate-900.via-indigo-950.to-slate-900.text-white
+  [:footer.mt-auto.bg-grafito-900.text-white
    [:div.mx-auto.max-w-7xl.px-4.py-12.sm:px-6.lg:px-8
     [:div.grid.grid-cols-1.gap-10.md:grid-cols-4
      ;; Marca (más ancha: el párrafo necesita más espacio del que le daba 1/3)
@@ -262,8 +268,11 @@
    ;; todo template de Tailwind; ahora es papel cálido en claro y tinta profunda
    ;; en oscuro (ADR-020). Los stops de gradiente no caben en el mapeo global
    ;; porque usan variables --tw-gradient-*, así que van con `dark:` directo.
-   {:class (str "bg-gradient-to-br from-pergamino-50 via-pergamino-100 to-pergamino-200 "
-                "dark:from-tinta-950 dark:via-tinta-950 dark:to-tinta-900")}
+   ;; Fondo plano. El degradado diagonal —primero azul→púrpura, después el de
+   ;; pergamino— era decoración: no informa de nada y compite con el contenido.
+   ;; Rams §1 y §10: buen diseño hace útil al producto y es tan poco diseño como
+   ;; sea posible. Una superficie, un color (ADR-022).
+   {:class "bg-grafito-100 dark:bg-grafito-950"}
    [navigation]
    [:main.flex-1.pt-16  ;; pt-16 compensa la altura del nav fijo
     [main-content-wrapper]]

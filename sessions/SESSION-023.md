@@ -155,7 +155,7 @@ Ninguna. Las cinco decisiones abiertas se resolvieron preguntando antes de const
 - [x] `project-memory/BACKLOG.md` (T-41 cerrada; T-66 y T-67 nuevas)
 - [x] `project-memory/RISKS.md` (R-25)
 - [x] `project-memory/DECISIONS.md`
-- [x] `adr/ADR-020-identidad-visual-por-tokens.md`, `adr/ADR-021-linea-del-tiempo-historica.md`
+- [x] `adr/ADR-020-identidad-visual-por-tokens.md` (reemplazada el mismo día), `adr/ADR-021-linea-del-tiempo-historica.md`, `adr/ADR-022-lenguaje-braun-rams.md`
 - [x] `project-memory/ARCHITECTURE.md`
 - [ ] `project-memory/ROADMAP.md` — sin cambio de fase: es trabajo dentro de F2/F6
 - [x] `project-memory/REQUIREMENTS.md`
@@ -176,6 +176,46 @@ escrito, no en lo que está mal escrito.
 detalle faltaba, y la memoria hizo bien en no inventarlo. Pero cinco días es mucho para una tarea
 bloqueada por una pregunta de una línea. Cuando algo quede en `idea (sin especificar)`, vale la pena
 preguntar en la sesión siguiente en vez de esperar a que el tema vuelva solo.
+
+## Addendum — el owner probó la paleta y pidió Dieter Rams (mismo día)
+
+Levantó el sitio en `localhost:3000` y dio tres señales:
+
+1. **El pergamino le gustó, pero lo quería menos claro.** Se bajó un escalón de luminosidad
+   (`#FBF7F0` → `#F4EEE2`), contraste reverificado.
+2. **Aplicó `042`.** Control en producción: **35 ubicados / 0 sin ubicar** — los 35 slugs
+   coincidieron. La línea del tiempo ya tiene con qué dibujarse.
+3. **Pidió otra dirección entera:** mencionó el sistema de color de IBM y después precisó —
+   *"que el sitio parezca un diseño de Dieter Rams Braun, eso quiero"*.
+
+**ADR-020 duró un día.** No es un fracaso del proceso: es lo que pasa cuando alguien elige una
+paleta viendo muestras de color y después la ve aplicada. El tokenizado hizo que corregir costara
+un archivo, que era exactamente su promesa.
+
+**Lo que obligó a un ADR nuevo en vez de cambiar valores:** Rams contradice a ADR-020 en su propio
+terreno — serif contra grotesca, acento cálido decorativo contra un solo color funcional, degradado
+contra superficie plana. Y algo más grande que ninguna paleta arreglaba: **el tablero usaba emojis
+como iconografía** (📝 ✅ 📈 🚀 📊), lo más lejano al referente que tenía el producto, y que no se
+veía como problema de color.
+
+**Hallazgo que vale guardar:** el naranja Braun auténtico con texto blanco da **3.50** y reprueba
+AA; con `grafito-900` da **4.83**. Y resulta que Braun ponía glifos oscuros sobre las teclas
+naranjas. La solución accesible y la históricamente correcta eran la misma — queda como combinación
+prohibida explícita en el audit, porque el reflejo de cualquiera es poner texto blanco.
+
+**Sobre la configuración desde el panel:** el owner pidió a la vez que Braun *reemplace* a pergamino
+("un producto con una identidad, no un selector de skins") y un selector de temas en el admin. Con
+un solo tema el selector no tiene qué elegir, así que lo que se construyó configura **qué apariencia
+ve un visitante nuevo** (claro/oscuro/sistema, tabla `site_settings`, migración `043`), con la
+preferencia local de cada persona ganando por encima. Eso también evitó el refactor a variables CSS:
+solo se justifica con dos paletas vivas, y construirlo para una sería maquinaria sin uso.
+
+**Verificado en esta pasada:** `clj -M:test` 83/454/0 · compilación 0 warnings · audit de tema
+oscuro en verde · **16/16 pares de contraste** · `043` probada contra PostgreSQL 14 (aplica limpia,
+idempotente, una fila, los dos checks rechazan, 2 policies).
+
+**Sigue sin verificarse visualmente**, y ahora la superficie es mucho mayor: 7 degradados eliminados
+solo en la landing, más el fondo, el logotipo, el footer, las tarjetas y los botones del tablero.
 
 ---
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verifica el contraste WCAG de la paleta de marca (ADR-020).
+"""Verifica el contraste WCAG de la paleta de marca (ADR-022).
 
 POR QUÉ EXISTE
 --------------
@@ -30,44 +30,46 @@ import sys
 
 # Espejo de `tailwind.config.js`. Si cambia allá, cambia acá — igual que el
 # espejo entre `universo.irt.fluency/default-thresholds` y la migración 041.
-TINTA = {
-    "50": "#F2F5FA", "100": "#E2E8F2", "200": "#C6D2E5", "300": "#9DB0D0",
-    "400": "#6E87B4", "500": "#4C6699", "600": "#3A4F7A", "700": "#2A3B5C",
-    "800": "#1B2A4A", "900": "#141F38", "950": "#0E1524",
+GRAFITO = {
+    "50": "#FAFAF8", "100": "#F2F0EB", "200": "#E7E4DD", "300": "#D3CFC6",
+    "400": "#A8A49B", "500": "#7D7A72", "600": "#5C5A54", "700": "#423F3B",
+    "800": "#2E2C29", "900": "#1D1D1B", "950": "#121211",
 }
-ACENTO = {
-    "50": "#FDF8F1", "100": "#F9EDDC", "200": "#F2D9B6", "300": "#E7BF87",
-    "400": "#D9A25C", "500": "#C9873A", "600": "#A96C2C", "700": "#855224",
-    "800": "#5F3B1B", "900": "#3E2712", "950": "#24160A",
+SENAL = {
+    "50": "#FDF0E9", "100": "#FADCCB", "200": "#F5B99B", "300": "#F0956B",
+    "400": "#EE7A45", "500": "#E85D0D", "600": "#C74C0A", "700": "#9E3C08",
+    "800": "#762D06", "900": "#4E1E04",
 }
-PERGAMINO = {"50": "#FBF7F0", "100": "#F4EEE2", "200": "#EBE3D3", "300": "#DCD1BA"}
 BLANCO = "#FFFFFF"
 
 # (descripción, frente, fondo, umbral)
 # Umbral 3.0 = objeto gráfico o texto grande; 4.5 = texto normal.
 PARES = [
-    ("claro · texto principal",        TINTA["800"],  PERGAMINO["100"], 4.5),
-    ("claro · texto secundario",       TINTA["600"],  PERGAMINO["100"], 4.5),
-    ("claro · botón de marca",         BLANCO,        TINTA["600"],     4.5),
-    ("claro · botón hover",            BLANCO,        TINTA["700"],     4.5),
-    ("claro · énfasis sobre tarjeta",  TINTA["700"],  BLANCO,           4.5),
-    ("claro · acento como texto",      ACENTO["700"], PERGAMINO["100"], 4.5),
-    ("claro · medalla (relleno)",      ACENTO["600"], PERGAMINO["100"], 3.0),
+    ("claro · texto principal",        GRAFITO["900"], GRAFITO["100"], 4.5),
+    ("claro · texto secundario",       GRAFITO["600"], GRAFITO["100"], 4.5),
+    ("claro · acción principal",       GRAFITO["900"], SENAL["500"],   4.5),
+    ("claro · acción principal hover", BLANCO,         SENAL["600"],   4.5),
+    ("claro · botón secundario",       BLANCO,         GRAFITO["800"], 4.5),
+    ("claro · señal como texto",       SENAL["700"],   GRAFITO["100"], 4.5),
+    ("claro · medalla (relleno)",      SENAL["500"],   GRAFITO["100"], 3.0),
+    ("claro · borde funcional",        GRAFITO["500"], GRAFITO["100"], 3.0),
+    ("claro · anillo de foco",         SENAL["600"],   GRAFITO["100"], 3.0),
 
-    ("oscuro · texto base",            TINTA["100"],  TINTA["950"],     4.5),
-    ("oscuro · texto en tarjeta",      TINTA["100"],  TINTA["900"],     4.5),
-    ("oscuro · texto suave",           TINTA["200"],  TINTA["900"],     4.5),
-    ("oscuro · acento de marca",       TINTA["300"],  TINTA["900"],     4.5),
-    ("oscuro · medalla (relleno)",     ACENTO["400"], TINTA["900"],     3.0),
-    ("oscuro · medalla sobre página",  ACENTO["300"], TINTA["950"],     3.0),
-    ("oscuro · campo de formulario",   TINTA["50"],   TINTA["800"],     4.5),
-    ("oscuro · botón de marca",        BLANCO,        TINTA["600"],     4.5),
+    ("oscuro · texto principal",       GRAFITO["100"], GRAFITO["950"], 4.5),
+    ("oscuro · texto en tarjeta",      GRAFITO["100"], GRAFITO["900"], 4.5),
+    ("oscuro · texto secundario",      GRAFITO["400"], GRAFITO["950"], 4.5),
+    ("oscuro · señal como texto",      SENAL["400"],   GRAFITO["950"], 4.5),
+    ("oscuro · medalla (relleno)",     SENAL["500"],   GRAFITO["950"], 3.0),
+    ("oscuro · anillo de foco",        SENAL["600"],   GRAFITO["950"], 3.0),
+    ("oscuro · campo de formulario",   GRAFITO["50"],  GRAFITO["800"], 4.5),
 ]
 
-# Combinación prohibida, documentada como tal para que nadie la reinvente:
-# el ocre medio sobre papel da 2.81 y no alcanza ni para objeto gráfico. En
-# tema claro el acento se usa en 600 (relleno) o 700 (texto), nunca en 500.
-PROHIBIDOS = [("acento-500 como texto sobre pergamino", ACENTO["500"], PERGAMINO["100"])]
+# Combinaciones prohibidas, documentadas para que nadie las reinvente.
+PROHIBIDOS = [
+    # La trampa del naranja Braun: el reflejo es poner texto blanco encima.
+    # Reprueba AA. Con grafito-900 da 4.83, y además es lo que hacía Braun.
+    ("blanco sobre el naranja de la señal", BLANCO, SENAL["500"]),
+]
 
 
 def _lineal(canal):

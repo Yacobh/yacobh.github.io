@@ -72,11 +72,11 @@
   [label & {:keys [full-width?]}]
   [:button
    {:type "button"
-    :class (str "inline-flex items-center justify-center gap-2 rounded-full "
-                "bg-gradient-to-r from-indigo-600 to-purple-600 px-7 py-3.5 "
-                "text-base font-semibold text-white shadow-lg shadow-indigo-600/25 "
-                "transition hover:opacity-90 hover:shadow-xl "
-                "focus:outline-none focus:ring-4 focus:ring-indigo-300 "
+    :class (str "inline-flex items-center justify-center gap-2 rounded "
+                "bg-senal-500 px-7 py-3.5 "
+                "text-base font-medium text-grafito-900 "
+                "transition hover:bg-senal-600 hover:text-white "
+                "focus:outline-none focus:ring-2 focus:ring-senal-600 focus:ring-offset-2 "
                 (when full-width? "w-full sm:w-auto"))
     :on-click #(re-frame/dispatch [:landing/start])}
    label
@@ -98,9 +98,7 @@
   "Muestra la salida real del producto (perfil θ + déficits) como demostración."
   []
   [:div {:class "relative"}
-   [:div {:class "absolute -inset-4 rounded-3xl bg-gradient-to-tr from-indigo-200/60 to-purple-200/60 blur-2xl"
-          :aria-hidden "true"}]
-   [:div {:class "relative rounded-2xl border border-gray-200 bg-white p-6 shadow-xl"}
+   [:div {:class "relative rounded border border-gray-300 bg-white p-6"}
     [:div {:class "flex items-center justify-between"}
      [:span {:class "text-xs font-semibold uppercase tracking-wider text-gray-400"}
       "Ejemplo de perfil"]
@@ -112,7 +110,7 @@
       [:span {:class "text-4xl font-bold text-gray-900"} "θ = 0,42"]
       [:span {:class "text-sm text-gray-500"} "nivel estimado"]]
      [:div {:class "mt-3 h-2.5 w-full overflow-hidden rounded-full bg-gray-100"}
-      [:div {:class "h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
+      [:div {:class "h-full rounded-full bg-senal-500"
              :style {:width "46%"}}]]
      [:div {:class "mt-1.5 flex justify-between text-xs text-gray-400"}
       [:span "inicial"] [:span "básico"] [:span "intermedio"] [:span "avanzado"]]]
@@ -146,7 +144,7 @@
 
       [:h1 {:class "mt-6 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-[3.4rem] lg:leading-[1.08]"}
        "Prepara la PAES de Matemática"
-       [:span {:class "block bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"}
+       [:span {:class "block text-senal-700 dark:text-senal-400"}
         "estudiando solo lo que te falta."]]
 
       [:p {:class "mt-6 max-w-xl text-lg leading-relaxed text-gray-600"}
@@ -196,7 +194,7 @@
        ^{:key n}
        [:li {:class (str "relative flex flex-col rounded-2xl border border-gray-200 bg-white p-6 "
                          "transition hover:border-indigo-300 hover:shadow-lg")}
-        [:span {:class "flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-lg font-bold text-white"}
+        [:span {:class "flex h-11 w-11 items-center justify-center rounded bg-grafito-900 text-lg font-medium text-white"}
          n]
         [:h3 {:class "mt-5 text-lg font-semibold text-gray-900"} title]
         [:span {:class "mt-1 text-xs font-medium uppercase tracking-wide text-indigo-600"} time]
@@ -300,7 +298,7 @@
    [:blockquote {:class "mt-2 flex-1 text-sm leading-relaxed text-gray-700"}
     message]
    [:figcaption {:class "mt-5 flex items-center gap-3 border-t border-gray-100 pt-4"}
-    [:span {:class "flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-sm font-bold text-white"}
+    [:span {:class "flex h-9 w-9 items-center justify-center rounded-full bg-grafito-800 text-sm font-medium text-white"}
      (initial name)]
     [:div
      [:p {:class "text-sm font-semibold text-gray-900"} name]
@@ -374,7 +372,7 @@
 
 (defn- final-cta []
   [:section {:class "px-4 pb-20 sm:px-6 lg:px-8"}
-   [:div {:class "mx-auto max-w-5xl overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-700 px-6 py-14 text-center shadow-2xl sm:px-14"}
+   [:div {:class "mx-auto max-w-5xl overflow-hidden rounded bg-grafito-900 px-6 py-14 text-center sm:px-14"}
     [:h2 {:class "text-3xl font-bold tracking-tight text-white sm:text-4xl"}
      "Descubre hoy qué te está frenando"]
     [:p {:class "mx-auto mt-4 max-w-xl text-lg leading-relaxed text-indigo-100"}

@@ -2,7 +2,13 @@
 
 ## Estado
 
-Aprobada
+**Reemplazada por [[ADR-022-lenguaje-braun-rams]]** (2026-08-13, el mismo día).
+
+> El owner probó "tinta y pergamino" en local y pidió otra dirección: el lenguaje Braun / Dieter
+> Rams. **El mecanismo de este ADR sobrevive entero** —tokens en `tailwind.config.js`, escala
+> `indigo` redefinida para no tocar los componentes, audits versionados—; lo que cambió son los
+> valores y el criterio de forma. Que haya durado un día es justamente lo que el enfoque por tokens
+> hacía barato. No se borra: registra por qué se probó esa dirección y qué se aprendió.
 
 ## Fecha
 

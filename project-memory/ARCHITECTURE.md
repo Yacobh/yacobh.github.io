@@ -1,6 +1,6 @@
 # ARCHITECTURE
 
-Última actualización: **2026-08-13** (identidad visual por tokens y línea del tiempo) · Verificado
+Última actualización: **2026-08-13** (identidad Braun/Rams, línea del tiempo, `site_settings`) · Verificado
 contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 `project-memory/graph/GRAPH_REPORT.md`
 
@@ -48,6 +48,7 @@ contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 │    modules · student_profiles · resources · misconceptions                 │
 │    class_slots · enrollments · notifications · email_outbox                │
 │    test_configs (parada IRT + prerequisitos por banco)                     │
+│    site_settings (apariencia por defecto, una sola fila)                  │
 │    funciones public.is_admin() · normalize_topic()                         │
 │    RPC security definer: next_question · score_answer · track_visitor      │
 │                                                                           │
@@ -207,6 +208,7 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
 | `enrollments` | estudiante ↔ cupo, `status` (`pending`/`confirmed`/…) | |
 | `notifications` | destinatario + mensaje | Banner in-app |
 | `email_outbox` | `to_email`, `subject`, `body`, `kind`, `meta`, `status` (`pending`/`sent`/`failed`), `attempts`, `last_error`, `sent_at` | Índice parcial sobre `pending` |
+| `site_settings` | `id` (booleano fijo en `true`), `theme_default` (`claro`/`oscuro`/`sistema`), `updated_at`, `updated_by` | Configuración global, **una sola fila** garantizada por un `check` sobre la PK (`043`, ADR-022). Lectura pública a propósito: el visitante anónimo necesita el valor antes de autenticarse. Escritura solo admin |
 | `guestbook` | firma pública, `is_approved` tri-state (`null`/`true`/`false`) | Fuente de los testimonios |
 | `visitor` | IP, ciudad, país, idioma, navegador, SO | Tracking |
 | `contacto` | mensajes del formulario | |
@@ -473,6 +475,7 @@ la ejecute todavía** ([[BACKLOG]] T-34). Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]
 | [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] | El segundo eje del perfil mide **fluidez (λ)**, no estilos de aprendizaje |
 | [[../adr/ADR-020-identidad-visual-por-tokens]] | La identidad visual vive en tokens de Tailwind; se redefine la escala `indigo` en vez de reescribir los componentes |
 | [[../adr/ADR-021-linea-del-tiempo-historica]] | Línea del tiempo histórica en el tablero, con medallas derivadas de `tests` en vez de una tabla de logros |
+| [[../adr/ADR-022-lenguaje-braun-rams]] | La identidad es el lenguaje Braun/Rams: una escala neutra y un color de señal; la apariencia por defecto se configura en `site_settings` (`043`) |
 
 ---
 

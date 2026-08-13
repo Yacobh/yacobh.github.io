@@ -816,6 +816,11 @@
 > definió una identidad y quedó el default**. Cualquier proyecto que instale Tailwind y no configure
 > nada llega al mismo lugar.
 >
+> ⚠️ **Superado el mismo día:** el owner probó la paleta en local, pidió menos luz en el pergamino
+> y después otra dirección entera — el lenguaje **Braun / Dieter Rams**
+> ([[../adr/ADR-022-lenguaje-braun-rams]]). Lo que sigue describe la pasada intermedia; el mecanismo
+> (tokens, escala `indigo` redefinida, audits) es el mismo, la paleta y la forma no.
+>
 > Se aplicó la paleta **"tinta y pergamino"** que eligió el owner, redefiniendo la escala `indigo`
 > con los valores del azul tinta: los cientos de `bg-indigo-600` ya escritos cambiaron de color **sin
 > editar un solo `.cljs`** (verificado en el CSS compilado: `rgb(58 79 122)`). Ver
@@ -868,12 +873,13 @@ las próximas semanas.
 | Funcionalidad del funnel | ✅ operativa |
 | Panel admin | ✅ operativo |
 | Tests | ✅ `83 tests / 454 assertions / 0 failures` (`clj -M:test`, 2026-08-13) |
-| Identidad visual | 🟡 paleta propia "tinta y pergamino" por tokens (ADR-020), con contraste WCAG verificado; **sin revisión visual** (T-67, R-25) y sin mergear |
-| Línea del tiempo | 🟡 implementada y testeada (ADR-021); espera que el owner audite los años de `042` y la aplique |
+| Identidad visual | 🟡 **lenguaje Braun / Dieter Rams** (ADR-022, reemplaza a ADR-020 el mismo día): escala neutra + un color de señal, sin degradados, sin sombras difusas, sin emojis. 16/16 pares WCAG. **Sin revisión visual completa** (T-67, R-25) y sin mergear |
+| Línea del tiempo | 🟡 implementada y testeada (ADR-021); `042` aplicada (35/0). Falta verla funcionando con una cuenta con historial |
+| Apariencia configurable | 🟡 `site_settings` (`043`, **sin aplicar**) + pestaña «Apariencia» en el panel: el admin fija qué ve un visitante nuevo, la preferencia local de cada persona gana |
 | Perfil del estudiante | ✅ dos ejes: θ (IRT) y **fluidez λ** (ADR-019), con la tarjeta 2×2 en «Mi plan», en producción desde el 2026-08-12. Umbrales de λ **sin calibrar** (T-65) |
 | Contenido pedagógico | 🟡 58/61 recursos publicados (T-01); faltan los 2 módulos nuevos de `031` y los 7 de geometría (T-56) |
 | Banco de ítems | 🟡 387 ítems PAES; topics canónicos y 259 con módulo, **128 sin módulo** (bancos mezclados, T-60). Además 123 ítems `mq_` del track experimental, **aislados** (`active = false`) — las métricas necesitan `where topic not like 'mq\_%'` |
-| Migraciones | ✅ **ninguna pendiente** — `033`–`042` aplicadas y verificadas contra la base real (ver [[../supabase/SCHEMA]]); `042` la aplicó el owner el 2026-08-13 tras auditar los años: **35 ubicados / 0 sin ubicar** |
+| Migraciones | 🟡 `033`–`042` aplicadas y verificadas (`042` el 2026-08-13: **35 ubicados / 0 sin ubicar**); **`043` escrita y sin aplicar** — `site_settings`, probada contra PostgreSQL 14 |
 | Email de cohorte | ✅ desplegado y verificado en producción (T-02, 2026-08-09) |
 | Documentación / memoria | ✅ PMF operativo desde 2026-07-26; auditada el 2026-08-10, actualizada el 2026-08-12 |
 | CI | 🟡 `.github/workflows/test.yml` existe (T-06); staging y monitoreo ⛔ inexistentes |
