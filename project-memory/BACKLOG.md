@@ -1775,6 +1775,12 @@ cuántica de nivel universitario.
 - ⏳ **Falta lo que importa: elegir los números con datos.** Que sea configurable no
   calibra nada; solo mueve la decisión a un lugar donde se puede corregir sin tocar
   código. Los defaults siguen siendo el 3/6 autoral.
+- 📊 **Medido el 2026-08-13, tras aplicar `041`:** los **37 bancos** quedaron en 3/6,
+  ninguno editado a mano (15 del track `mq_`, 22 de PAES). O sea que hoy el
+  comportamiento es idéntico al de antes de la migración: ningún estudiante recibe
+  una clasificación distinta. Los bancos `mq_` heredaron el corte pensado para ítems
+  PAES —incluido `mq_momento_angular`, el que abrió la duda—, y el `update` a 2,0/4,5
+  sigue comentado en la migración.
 
 **Terminado cuando:** haya suficientes diagnósticos con tiempo real para correr
 `calibration-report` y reemplazar el 3,0/6,0 autoral por cortes medidos.

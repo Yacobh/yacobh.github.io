@@ -605,9 +605,24 @@ Sin los dos controles el `200` no significaría nada; con ellos, sí. Las filas 
 (`[]`) porque la policy `test_configs_select` no le muestra nada a un anónimo — eso es lo correcto,
 y es la razón de que este método pruebe la **existencia** de la columna pero no sus valores.
 
-**Lo que falta confirmar**, y solo se ve desde el SQL Editor: el `not null`, los defaults, el check
-`test_configs_fluency_bands_ordenadas` y los valores por banco. Está todo en el **bloque H** de
-[`queries/verificacion_esquema.sql`](queries/verificacion_esquema.sql).
+**Valores por banco (bloque H.3, corrido por el owner el 2026-08-13):** **37 configuraciones, las
+37 en 3 / 6**, ninguna invertida y ninguna editada a mano. De esas, **15 son del track `mq_`**
+(ADR-018) y 22 del lado PAES.
+
+> **Consecuencia que conviene no pasar por alto:** con todos los bancos en el mismo valor que ya
+> tenía `universo.irt.fluency/default-thresholds`, **el comportamiento observable no cambió**. Ningún
+> estudiante recibe hoy una clasificación distinta de la que recibía antes de `041`. Lo que cambió es
+> la **capacidad** de corregir los cortes sin tocar código. La migración no calibra: habilita
+> calibrar (T-65, R-24).
+>
+> En particular, los 15 bancos `mq_` heredaron el corte pensado para ítems tipo PAES, incluido
+> `mq_momento_angular`, que es justamente el que motivó la duda. El `update` a 2,0 / 4,5 sigue
+> comentado dentro de la migración, a propósito.
+
+**Lo que falta confirmar** (bloques H.1 y H.2): el tipo y el `not null` con defaults, y sobre todo el
+check `test_configs_fluency_bands_ordenadas`. H.3 muestra que hoy ningún valor está invertido, pero
+**no** prueba que la base impida invertirlo mañana desde el panel — que es la razón de ser del check.
+Están en el **bloque H** de [`queries/verificacion_esquema.sql`](queries/verificacion_esquema.sql).
 
 **Verificada (2026-08-12)** contra un PostgreSQL 14 desechable: aplica limpia, defaults correctos,
 el check rechaza bandas invertidas, e idempotente (segunda corrida solo emite los `NOTICE` de
