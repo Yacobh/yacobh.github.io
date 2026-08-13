@@ -785,10 +785,13 @@
 > **Migración `041` — ✅ aplicada el 2026-08-13.** Hace configurables por banco los cortes de fluidez
 > (`test_configs.fluency_fluida_max` / `fluency_media_max`, `not null default 3`/`6` con check que
 > impide invertirlos), editables en Admin → Configuración de tests. Se había probado contra un
-> PostgreSQL 14 desechable, y tras aplicarla **se verificó contra la base real de producción** que
-> las dos columnas existen (PostgREST + anon key, con control positivo y negativo — ver
-> [[../supabase/SCHEMA]] §Verificación). Falta confirmar el check y los valores por banco: eso solo
-> se ve desde el SQL Editor, con el **bloque H** de `supabase/queries/verificacion_esquema.sql`.
+> PostgreSQL 14 desechable, y tras aplicarla **se verificó entera contra la base real de
+> producción**: columnas, tipos, `not null`, defaults `3`/`6`, el check que impide invertir las
+> bandas y los valores de los 37 bancos. Detalle en [[../supabase/SCHEMA]] §Verificación; repetible
+> con el bloque H de `supabase/queries/verificacion_esquema.sql`.
+>
+> **Los 37 bancos quedaron en 3/6**, así que el comportamiento observable **no cambió**: nadie recibe
+> hoy una clasificación distinta de la de ayer. `041` no calibra, habilita calibrar.
 > **Lo que a propósito NO se hizo:** bajar el corte de `mq_momento_angular` a 2,0/4,5. El `update`
 > está escrito y **comentado** dentro de la migración: aplicarlo por un único test rendido por una
 > sola persona sería fijar un número por criterio y presentarlo como medición — exactamente el error

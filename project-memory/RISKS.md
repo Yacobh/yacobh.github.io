@@ -356,8 +356,9 @@ con la autoridad de una medición. Decirle "ya lo tenés automatizado, subí la 
 que en realidad está reconociendo alternativas es peor que no decirle nada.
 **Probabilidad:** Media — depende del banco: los cortes se pensaron con ítems tipo PAES (cortos,
 mecánicos) y se aplican también a bancos conceptuales.
-**Mitigación:** (1) los umbrales son **configurables por banco** desde `041`, así que corregirlos no
-exige tocar código; (2) `fluency/min-responses = 4` evita etiquetar con muestras diminutas —bajo ese
+**Mitigación:** (1) los umbrales son **configurables por banco** desde `041` —aplicada y verificada
+contra la base el 2026-08-13, check incluido—, así que corregirlos no exige tocar código ni puede
+dejar bandas invertidas; (2) `fluency/min-responses = 4` evita etiquetar con muestras diminutas —bajo ese
 mínimo la tarjeta dice explícitamente que no alcanza, en vez de inventar una banda; (3)
 `fluency/calibration-report` produce los deciles con los que reemplazar el 3/6 por cortes medidos;
 (4) el eje **no toca θ**: si el número está mal, la etiqueta está mal, no el diagnóstico.

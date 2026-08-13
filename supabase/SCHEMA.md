@@ -619,10 +619,22 @@ y es la razón de que este método pruebe la **existencia** de la columna pero n
 > `mq_momento_angular`, que es justamente el que motivó la duda. El `update` a 2,0 / 4,5 sigue
 > comentado dentro de la migración, a propósito.
 
-**Lo que falta confirmar** (bloques H.1 y H.2): el tipo y el `not null` con defaults, y sobre todo el
-check `test_configs_fluency_bands_ordenadas`. H.3 muestra que hoy ningún valor está invertido, pero
-**no** prueba que la base impida invertirlo mañana desde el panel — que es la razón de ser del check.
-Están en el **bloque H** de [`queries/verificacion_esquema.sql`](queries/verificacion_esquema.sql).
+**Definición y check (bloques H.1 y H.2, 2026-08-13): confirmados.**
+
+| Comprobación | Resultado |
+|---|---|
+| Tipo | `double precision` en ambas |
+| Nulabilidad | `is_nullable = NO` en ambas |
+| Defaults | `3` y `6` |
+| Check | `CHECK ((fluency_fluida_max > 0) AND (fluency_media_max > fluency_fluida_max))` |
+
+Con esto la verificación de `041` queda **cerrada**: columnas, tipos, `not null`, defaults, check y
+valores por banco, todo contrastado contra la base real y no contra lo que dice el repo. La barrera
+que importa —que nadie pueda dejar `fluency_media_max` por debajo de `fluency_fluida_max` editando
+desde el panel— la impone la base, que es donde tiene que estar.
+
+Repetible en cualquier momento con el **bloque H** de
+[`queries/verificacion_esquema.sql`](queries/verificacion_esquema.sql).
 
 **Verificada (2026-08-12)** contra un PostgreSQL 14 desechable: aplica limpia, defaults correctos,
 el check rechaza bandas invertidas, e idempotente (segunda corrida solo emite los `NOTICE` de
