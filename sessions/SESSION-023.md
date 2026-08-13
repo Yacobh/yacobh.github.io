@@ -217,6 +217,42 @@ idempotente, una fila, los dos checks rechazan, 2 policies).
 **Sigue sin verificarse visualmente**, y ahora la superficie es mucho mayor: 7 degradados eliminados
 solo en la landing, más el fondo, el logotipo, el footer, las tarjetas y los botones del tablero.
 
+## Addendum 2 — el panel de instrumento (mismo día)
+
+El owner probó Braun ("está bien") y trajo una referencia: un kit skeuomórfico de perillas,
+conmutadores y LEDs cian sobre panel gris. Pidió mezclarlo con los principios de Rams.
+
+**No son opuestos.** El SK4, el T3 y el regie 308 de Braun son exactamente eso — controles sobre una
+carcasa gris. La UI skeuomórfica de equipos de audio salió de ahí. Chocan en un solo punto: Rams
+pide "tan poco diseño como sea posible", y un botón que finge ser plástico es decoración.
+
+**Lo que resolvió la discusión no fue una opinión de diseño, fue una medición.** Sobre el gris medio
+del panel, el LED cian da **1.04** de contraste, el naranja 1.68 y el rojo 2.61: ninguno llega al
+3:1 que exige un objeto gráfico. Y mirando la foto otra vez, ahí estaba la respuesta — **ningún LED
+de la referencia está sobre el panel gris**; todos viven dentro de perillas negras o alojamientos
+hundidos.
+
+Eso convierte el relieve de decorativo en **funcional**: es lo que hace visible el control sobre una
+superficie que no contrasta. Con ese argumento el híbrido deja de ser un compromiso y pasa a ser una
+consecuencia. Regla resultante, en ADR-023:
+
+> El panel es plano y callado. Solo los controles tienen física. La luz viene de arriba, siempre.
+> El color solo se enciende donde algo es verdad.
+
+**El audit hizo su trabajo, y esa es la noticia:** al medir la paleta nueva encontró **dos fallas
+reales** que se habrían publicado sin él — la etiqueta grabada daba 3.55 (reprobaba AA) y el borde
+de las placas 1.30 sobre el panel. La primera se corrigió subiendo un tono; la segunda mostró que el
+color no era la herramienta: una placa sobre un panel se delimita con **luz**, no con borde, que es
+como se delimita en el aparato real. Quedó en 27/27 pares.
+
+**Dos colores con sentidos que no se pisan:** naranja = acción ("hacé esto"), cian = estado ("esto
+es verdad ahora"). Es lo que hace la referencia, donde el cian marca estado y el rojo la acción
+peligrosa.
+
+**Advertencia honesta que quedó en el ADR:** es la tercera dirección visual del día
+(ADR-020 → ADR-022 → ADR-023). El costo de cada giro fue bajo porque todo vive en tokens y cinco
+clases de CSS, pero conviene parar y mirar antes de seguir iterando.
+
 ---
 
 Relacionado: [[SESSION-021]] · [[../adr/ADR-020-identidad-visual-por-tokens]] ·

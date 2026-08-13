@@ -28,17 +28,19 @@
 ;;
 ;; Ojo con `senal-500`: NO se usa como texto sobre fondo claro (da 2.81 de
 ;; contraste, ver scripts/audit_contraste.py). Acá es relleno, que es su lugar.
+;; ADR-023: cada hito es un LED en la regleta del panel. Los tres grados son el
+;; mismo diodo con distinta corriente, no tres colores distintos: la escala se
+;; lee como una sola magnitud que sube, que es lo que θ realmente es.
 (def ^:private estilo-medalla
-  {:oro    {:punto "bg-senal-500 ring-senal-600 dark:bg-senal-400 dark:ring-senal-300"
-            :texto "text-senal-700 dark:text-senal-300"}
-   :plata  {:punto "bg-grafito-400 ring-grafito-500 dark:bg-grafito-300 dark:ring-grafito-200"
-            :texto "text-grafito-700 dark:text-grafito-200"}
-   :bronce {:punto "bg-senal-700 ring-senal-800 dark:bg-senal-600 dark:ring-senal-500"
-            :texto "text-senal-800 dark:text-senal-400"}})
+  {:oro    {:punto "led led--oro"    :texto "text-led-700 dark:text-led-400"}
+   :plata  {:punto "led led--plata"  :texto "text-led-700 dark:text-led-500"}
+   :bronce {:punto "led led--bronce" :texto "text-panel-600 dark:text-led-600"}})
 
+;; Un hito por descubrir no desaparece: se ve como un diodo sin corriente. Que
+;; el hueco siga ahí es lo que comunica que **podría** encenderse.
 (def ^:private estilo-apagado
-  {:punto "bg-transparent ring-grafito-300 dark:ring-grafito-600"
-   :texto "text-grafito-500 dark:text-grafito-400"})
+  {:punto "led"
+   :texto "text-panel-600 dark:text-panel-400"})
 
 (defn- etiqueta-accesible
   "Lo que oye alguien con lector de pantalla. Dice el estado explícitamente:
@@ -63,24 +65,22 @@
        :aria-label (etiqueta-accesible hito)
        :aria-pressed (boolean seleccionado?)
        :on-click #(on-select (when-not seleccionado? slug))}
-      [:span {:class (str "block h-3 w-3 rounded-full ring-2 transition-transform "
+      [:span {:class (str "block h-2.5 w-2.5 rounded-full transition-transform "
                           "motion-safe:group-hover:scale-125 "
                           (when seleccionado? "scale-150 ")
                           punto)}]
       [:span {:class (str "text-[10px] tabular-nums "
                           (if discovered?
-                            "text-grafito-600 dark:text-grafito-300"
-                            "text-grafito-400 dark:text-grafito-500"))}
+                            "text-led-300"
+                            "text-panel-400"))}
        (formatear-anio (:year hito))]]]))
 
 (defn- bloque-era
   [{:keys [label milestones]} seleccionado on-select]
   [:div {:class "flex flex-col gap-1 shrink-0"}
-   [:span {:class "text-[10px] uppercase tracking-widest text-grafito-500 dark:text-grafito-400 px-2"}
-    label]
+   [:span {:class "grabado px-1"} label]
    [:ul {:role "list"
-         :class (str "flex items-end gap-1 border-t border-dashed "
-                     "border-grafito-300 dark:border-grafito-700 pt-2")}
+         :class "alojamiento flex items-center gap-2 rounded px-2.5 py-2"}
     (for [hito milestones]
       ^{:key (:slug hito)}
       [punto-hito hito (= seleccionado (:slug hito)) on-select])]])
@@ -140,8 +140,8 @@
         [:aside
          {:aria-label "Línea del tiempo de la matemática"
           :class (str "fixed bottom-0 left-0 right-0 z-40 "
-                      "bg-grafito-100/95 dark:bg-grafito-950/95 backdrop-blur "
-                      "border-t border-grafito-200 dark:border-grafito-800 shadow-lg")}
+                      "bg-panel-200/95 dark:bg-panel-900/95 backdrop-blur "
+                      "border-t border-panel-400 dark:border-panel-950")}
 
          ;; Cabecera: progreso + plegar. Siempre visible, para que la línea se
          ;; pueda apartar sin perderla de vista.

@@ -41,9 +41,9 @@
 ;; hubiera dos, ninguno sería el principal (ADR-022). Texto grafito sobre el
 ;; naranja, no blanco — es lo que hacía Braun y además lo que pasa AA.
 (def ^:private cta-class
-  (str "inline-flex items-center rounded bg-senal-500 "
-       "px-5 py-2.5 text-sm font-medium text-grafito-900 transition hover:bg-senal-600 "
-       "hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-senal-600 "
+  (str "control inline-flex items-center rounded bg-senal-500 "
+       "px-5 py-2.5 text-sm font-medium text-grafito-900 hover:bg-senal-400 "
+       "focus:outline-none focus-visible:ring-2 focus-visible:ring-senal-700 "
        "focus-visible:ring-offset-2"))
 
 (defn- scroll-to-section!
@@ -164,8 +164,8 @@
          ;; Excepción documentada en ADR-012/ADR-020: el `dark:` va acá y no en
          ;; el mapeo global porque `bg-white/90` con blur es una aparición
          ;; única, no vocabulario compartido.
-         {:class (str "fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-grafito-100/90 "
-                      "backdrop-blur dark:border-grafito-800 dark:bg-grafito-950/90")}
+         {:class (str "fixed top-0 left-0 right-0 z-50 border-b border-panel-400 bg-panel-200/95 "
+                      "backdrop-blur dark:border-panel-950 dark:bg-panel-900/95")}
          [:div.mx-auto.max-w-7xl.px-4.sm:px-6.lg:px-8
           [:div.flex.h-16.items-center.justify-between
            [brand]
@@ -268,11 +268,11 @@
    ;; todo template de Tailwind; ahora es papel cálido en claro y tinta profunda
    ;; en oscuro (ADR-020). Los stops de gradiente no caben en el mapeo global
    ;; porque usan variables --tw-gradient-*, así que van con `dark:` directo.
-   ;; Fondo plano. El degradado diagonal —primero azul→púrpura, después el de
-   ;; pergamino— era decoración: no informa de nada y compite con el contenido.
-   ;; Rams §1 y §10: buen diseño hace útil al producto y es tan poco diseño como
-   ;; sea posible. Una superficie, un color (ADR-022).
-   {:class "bg-grafito-100 dark:bg-grafito-950"}
+   ;; La cara del panel (ADR-023). Plana y en gris medio: no es la hoja blanca
+   ;; de un documento, es la carcasa de un instrumento. El degradado diagonal
+   ;; que había antes era decoración; el gris no lo es — es lo que hace que las
+   ;; placas blancas y los controles se lean como piezas montadas encima.
+   {:class "bg-panel-300 dark:bg-panel-800"}
    [navigation]
    [:main.flex-1.pt-16  ;; pt-16 compensa la altura del nav fijo
     [main-content-wrapper]]

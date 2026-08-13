@@ -40,6 +40,12 @@ SENAL = {
     "400": "#EE7A45", "500": "#E85D0D", "600": "#C74C0A", "700": "#9E3C08",
     "800": "#762D06", "900": "#4E1E04",
 }
+PANEL = {
+    "50": "#E4E4E1", "100": "#D6D6D2", "200": "#C5C5C1", "300": "#B5B4B0",
+    "400": "#9E9E9A", "500": "#7A7A76", "600": "#565652", "700": "#3A3A37",
+    "800": "#2B2B28", "900": "#1F1F1D", "950": "#151513",
+}
+LED = {"300": "#7BF2DA", "400": "#4CEBCC", "500": "#2EE6C5", "600": "#16C79A", "700": "#0E9E7A"}
 BLANCO = "#FFFFFF"
 
 # (descripción, frente, fondo, umbral)
@@ -62,6 +68,21 @@ PARES = [
     ("oscuro · medalla (relleno)",     SENAL["500"],   GRAFITO["950"], 3.0),
     ("oscuro · anillo de foco",        SENAL["600"],   GRAFITO["950"], 3.0),
     ("oscuro · campo de formulario",   GRAFITO["50"],  GRAFITO["800"], 4.5),
+
+    # Panel de instrumento (ADR-023). La regla que ordena todo esto: el LED
+    # SOLO existe dentro de un alojamiento oscuro. Sobre el panel claro da 1.04
+    # y sería invisible — por eso no hay ningún par "led sobre panel".
+    ("panel · texto principal",        GRAFITO["900"], PANEL["300"],   4.5),
+    ("panel · texto secundario",       GRAFITO["700"], PANEL["300"],   4.5),
+    ("panel · etiqueta grabada",       PANEL["700"],   PANEL["300"],   4.5),
+    ("panel · borde de control",       PANEL["600"],   PANEL["300"],   3.0),
+    ("alojamiento · LED encendido",    LED["500"],     PANEL["700"],   3.0),
+    ("alojamiento · LED oro",          LED["400"],     PANEL["700"],   3.0),
+    ("alojamiento · LED bronce",       LED["700"],     PANEL["700"],   3.0),
+    ("alojamiento · año descubierto",  LED["300"],     PANEL["700"],   4.5),
+    ("alojamiento · año apagado",      PANEL["300"],   PANEL["700"],   4.5),
+    ("panel oscuro · texto principal", GRAFITO["50"],  PANEL["800"],   4.5),
+    ("panel oscuro · etiqueta",        PANEL["400"],   PANEL["800"],   4.5),
 ]
 
 # Combinaciones prohibidas, documentadas para que nadie las reinvente.
@@ -69,6 +90,8 @@ PROHIBIDOS = [
     # La trampa del naranja Braun: el reflejo es poner texto blanco encima.
     # Reprueba AA. Con grafito-900 da 4.83, y además es lo que hacía Braun.
     ("blanco sobre el naranja de la señal", BLANCO, SENAL["500"]),
+    # Por qué el LED necesita alojamiento y no se puede poner suelto:
+    ("LED sobre el panel claro (sin alojamiento)", LED["500"], PANEL["300"]),
 ]
 
 

@@ -1,7 +1,7 @@
 # DECISIONS
 
-Última actualización: **2026-08-13** (ADR-020 identidad visual → **reemplazada por ADR-022,
-lenguaje Braun**; ADR-021 línea del tiempo)
+Última actualización: **2026-08-13** (ADR-020 → reemplazada por **ADR-022** lenguaje Braun, que a
+su vez extiende **ADR-023** panel de instrumento; ADR-021 línea del tiempo)
 
 Registro central de decisiones. Cada decisión con consecuencias arquitectónicas o de producto tiene
 un **ADR** en `../adr/`. Este archivo es el índice y el lugar donde viven las decisiones **menores**
@@ -38,6 +38,7 @@ alternativas relevantes o (d) alguien podría cuestionar en seis meses → **ADR
 | [[../adr/ADR-020-identidad-visual-por-tokens]] | La identidad visual se define con **tokens en `tailwind.config.js`** y se aplica **redefiniendo la escala `indigo`**: los cientos de `bg-indigo-600` ya escritos cambian de color sin editar un solo `.cljs`. Es ADR-012 aplicado al tema claro. Incluye la corrección de raíz del tema oscuro (color de texto base y `<option>`) y dos audits versionados | **Reemplazada por ADR-022** (mismo día; el mecanismo sobrevive, la paleta no) | 2026-08-13 | Frontend/UI |
 | [[../adr/ADR-021-linea-del-tiempo-historica]] | El tablero gana una **línea del tiempo histórica**: cada módulo se ubica en el año en que su contenido apareció (migración `042`), y las medallas se derivan del **mejor θ en `tests`** en vez de una tabla de logros — así funcionan retroactivamente con los 252 diagnósticos ya rendidos, mientras que una tabla nueva habría arrancado vacía para todos. Es la superficie que faltaba para que el contenido histórico guardado desde `002` deje de estar muerto | Aprobada | 2026-08-13 | Producto/Datos |
 | [[../adr/ADR-022-lenguaje-braun-rams]] | La identidad del producto es el **lenguaje Braun / Dieter Rams**: una escala neutra (`grafito`) y **un** color (`senal`, el naranja Braun) usado solo donde hay función. Se van degradados, sombras difusas, radios grandes y **todos los emojis**; el texto sobre el naranja es oscuro y no blanco (con blanco reprueba AA, y Braun lo hacía así). La identidad **no es configurable** —un producto, una identidad—; lo que el admin fija en `site_settings` (`043`) es qué apariencia ve un visitante nuevo, y la preferencia local de cada persona gana sobre eso | Aprobada | 2026-08-13 | Frontend/UI |
+| [[../adr/ADR-023-panel-de-instrumento]] | **La física está en los controles, no en la superficie.** El panel es gris medio y plano; solo botones, LEDs y placas tienen relieve. No es gusto: sobre el gris medio el LED da **1.04** de contraste y el naranja 1.68 — ninguno llega al 3:1, y el bisel/alojamiento es lo que los vuelve visibles, igual que en la referencia que trajo el owner (ningún LED de esa foto está sobre el panel). Dos colores con sentidos que no se pisan: naranja = acción, cian = estado | Aprobada | 2026-08-13 | Frontend/UI |
 
 > **(retro.)** = decisión tomada de facto en el código antes de existir este registro; el ADR la
 > documenta retroactivamente con la fecha aproximada del commit que la materializó. El contexto está

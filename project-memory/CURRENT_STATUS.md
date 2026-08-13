@@ -873,7 +873,7 @@ las próximas semanas.
 | Funcionalidad del funnel | ✅ operativa |
 | Panel admin | ✅ operativo |
 | Tests | ✅ `83 tests / 454 assertions / 0 failures` (`clj -M:test`, 2026-08-13) |
-| Identidad visual | 🟡 **lenguaje Braun / Dieter Rams** (ADR-022, reemplaza a ADR-020 el mismo día): escala neutra + un color de señal, sin degradados, sin sombras difusas, sin emojis. 16/16 pares WCAG. **Sin revisión visual completa** (T-67, R-25) y sin mergear |
+| Identidad visual | 🟡 **panel de instrumento** (ADR-023, sobre el lenguaje Braun de ADR-022): página gris medio, física solo en los controles, LEDs para estado y naranja para acción. **27/27 pares WCAG**. Tercera dirección visual en un día, **ninguna vista con ojos** (T-67, R-25); sin mergear |
 | Línea del tiempo | 🟡 implementada y testeada (ADR-021); `042` aplicada (35/0). Falta verla funcionando con una cuenta con historial |
 | Apariencia configurable | 🟡 `site_settings` (`043`, **sin aplicar**) + pestaña «Apariencia» en el panel: el admin fija qué ve un visitante nuevo, la preferencia local de cada persona gana |
 | Perfil del estudiante | ✅ dos ejes: θ (IRT) y **fluidez λ** (ADR-019), con la tarjeta 2×2 en «Mi plan», en producción desde el 2026-08-12. Umbrales de λ **sin calibrar** (T-65) |

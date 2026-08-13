@@ -25,7 +25,7 @@
    jerarquía tipográfica, que es como Braun ordenaba un panel: etiqueta chica,
    valor grande, nota al pie."
   [titulo valor subtitulo]
-  [:div {:class "bg-white border border-gray-200 rounded p-6"}
+  [:div {:class "placa bg-white rounded p-6"}
    [:p.text-xs.font-medium.text-gray-600.uppercase.tracking-widest titulo]
    [:p.text-4xl.font-light.tabular-nums.mt-3.text-gray-900 valor]
    (when subtitulo
@@ -59,14 +59,16 @@
                 (>= theta 0.0) {:texto "Básico" :paso 2}
                 :else {:texto "Inicial" :paso 1})]
     [:div.flex.items-center.gap-3
-     [:div.flex.items-end.gap-1 {:aria-hidden "true"}
+     ;; ADR-023: cuatro LEDs en un alojamiento hundido, como el indicador de
+     ;; nivel de una mesa de audio. El alojamiento no es adorno — sobre el gris
+     ;; del panel un LED da 1.04 de contraste y no se vería; dentro, 8.78.
+     [:div.alojamiento.flex.items-center.gap-1.5.rounded.px-2.py-1.5
+      {:role "img"
+       :aria-label (str "Nivel " (:texto nivel) ", " (:paso nivel) " de 4")}
       (for [i (range 1 5)]
         ^{:key i}
-        [:span {:class (str "block w-1.5 rounded-sm "
-                            (case i 1 "h-2" 2 "h-3" 3 "h-4" "h-5") " "
-                            (if (<= i (:paso nivel))
-                              "bg-senal-500"
-                              "bg-gray-200 dark:bg-grafito-700"))}])]
+        [:span {:class (str "block h-2 w-2 rounded-full led"
+                            (when (<= i (:paso nivel)) " led--on"))}])]
      [:div
       [:p.text-base.font-medium.text-gray-900 (:texto nivel)]
       [:p.text-xs.tabular-nums.text-gray-500 (str "θ = " (js/Math.round (* theta 100)) "/100")]]]))
@@ -134,7 +136,7 @@
         theta (or (:theta sp) (:theta built))
         deficits (take 4 (or (:deficits built) []))
         unread @(re-frame/subscribe [:notifications/unread])]
-    [:div.bg-white.rounded-xl.shadow-lg.p-6.mt-6.max-w-2xl.mx-auto
+    [:div.placa.bg-white.rounded.p-6.mt-6.max-w-2xl.mx-auto
      [:h3.text-xl.font-bold.text-indigo-700.mb-3 "Perfil de aprendizaje"]
      (when (seq unread)
        [:div.mb-4.rounded-lg.bg-green-50.border.border-green-200.p-3
@@ -170,7 +172,7 @@
          "Comenzar diagnóstico"]])]))
 
 (defn- enlace-configuracion-cuenta []
-  [:div.bg-white.rounded-xl.shadow-lg.p-6.mt-6.max-w-2xl.mx-auto.flex.items-center.justify-between
+  [:div.placa.bg-white.rounded.p-6.mt-6.max-w-2xl.mx-auto.flex.items-center.justify-between
    [:div
     [:h3.text-lg.font-bold.text-gray-800 "Configuración de cuenta"]
     [:p.text-sm.text-gray-500 "Edita tu nombre y teléfono, o solicita eliminar tu cuenta."]]
@@ -224,17 +226,17 @@
            ;; con la señal —el que empieza una evaluación, que es a lo que vino
            ;; el estudiante— y los otros dos son neutros.
            [:div.flex.flex-row.flex-wrap.gap-3.mt-10
-            [:button.bg-senal-500.text-grafito-900.font-medium.py-2.5.px-5.rounded.hover:bg-senal-600.hover:text-white.transition
+            [:button.control.bg-senal-500.text-grafito-900.font-medium.py-2.5.px-5.rounded.hover:bg-senal-400
              {:type "button"
               :on-click #(do
                            (re-frame/dispatch [:test/open-selection])
                            (re-frame/dispatch [:navigate-to :diagnostic-test]))}
              "Nueva evaluación"]
-            [:button.bg-white.border.border-gray-300.text-gray-900.font-medium.py-2.5.px-5.rounded.hover:bg-gray-50.transition
+            [:button.control.bg-panel-100.text-gray-900.font-medium.py-2.5.px-5.rounded.hover:bg-panel-50
              {:type "button"
               :on-click #(re-frame/dispatch [:navigate-to :plan])}
              "Mi plan"]
-            [:button.bg-white.border.border-gray-300.text-gray-900.font-medium.py-2.5.px-5.rounded.hover:bg-gray-50.transition
+            [:button.control.bg-panel-100.text-gray-900.font-medium.py-2.5.px-5.rounded.hover:bg-panel-50
              {:type "button"
               :on-click #(re-frame/dispatch [:navigate-to :cupos])}
              "Cupos / Grupos"]]
@@ -243,7 +245,7 @@
            (when ultimo
              (let [{:keys [tema fecha completado? correctas total porcentaje nota theta
                            duracion-min promedio-seg-pregunta]} ultimo]
-               [:div.bg-white.rounded-xl.shadow-lg.p-8.mt-6.max-w-2xl.mx-auto
+               [:div.placa.bg-white.rounded.p-8.mt-6.max-w-2xl.mx-auto
                 [:h3.text-xl.font-bold.text-indigo-700.mb-4 "Última evaluación"]
                 [:div.grid.grid-cols-1.sm:grid-cols-2.gap-x-8.gap-y-2
                  [:div [:span.font-semibold "Tema: "] (str tema)]
@@ -257,7 +259,7 @@
                  [:div [:span.font-semibold "Promedio por pregunta: "] (if promedio-seg-pregunta (str promedio-seg-pregunta " seg") "-")]]]))
 
            ;; Historial completo
-           [:div.bg-white.rounded-xl.shadow-lg.p-8.mt-6.max-w-2xl.mx-auto
+           [:div.placa.bg-white.rounded.p-8.mt-6.max-w-2xl.mx-auto
             [:h3.text-xl.font-bold.text-indigo-700.mb-2 "Historial de evaluaciones"]
             (if (seq historial)
               [:div

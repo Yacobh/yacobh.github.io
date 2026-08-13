@@ -59,6 +59,40 @@ const senal = {
   900: '#4E1E04',
 };
 
+// El panel del instrumento. Gris medio, como la carcasa de un SK4 o de una mesa
+// de audio: NO es un fondo blanco de documento, es la cara de un aparato.
+//
+// Consecuencia medida que define todo lo demás: sobre gris medio **no resalta
+// nada**. El cian da 1.04 de contraste, el naranja 1.68, el rojo 2.61 — los tres
+// por debajo del 3:1 que exige un objeto gráfico. En la foto de referencia pasa
+// lo mismo y está resuelto igual: ningún LED está sobre el panel, todos viven
+// dentro de un alojamiento oscuro. El gris es el fondo; el contraste lo pone el
+// control. Por eso el relieve es funcional y no adorno (ADR-023).
+const panel = {
+  50: '#E4E4E1',
+  100: '#D6D6D2',
+  200: '#C5C5C1',
+  300: '#B5B4B0',  // ← la cara del panel en claro
+  400: '#9E9E9A',
+  500: '#7A7A76',
+  600: '#565652',
+  700: '#3A3A37',  // ← alojamiento oscuro: el fondo que hace visible un LED
+  800: '#2B2B28',  // ← la cara del panel en oscuro
+  900: '#1F1F1D',
+  950: '#151513',
+};
+
+// LED. Estado, nunca acción: encendido significa "esto es verdad ahora"
+// (un hito descubierto, un nivel alcanzado). Solo se usa dentro de un
+// alojamiento oscuro — sobre el panel claro sería invisible.
+const led = {
+  300: '#7BF2DA',
+  400: '#4CEBCC',
+  500: '#2EE6C5',  // ← el LED
+  600: '#16C79A',
+  700: '#0E9E7A',
+};
+
 module.exports = {
   darkMode: 'class',
   content: [
@@ -74,6 +108,8 @@ module.exports = {
       colors: {
         grafito: grafito,
         senal: senal,
+        panel: panel,
+        led: led,
         // Vocabulario heredado: todo `indigo-*` de los componentes se vuelve
         // neutro. Ver la cabecera.
         indigo: grafito,

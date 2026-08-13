@@ -476,6 +476,7 @@ la ejecute todavía** ([[BACKLOG]] T-34). Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]
 | [[../adr/ADR-020-identidad-visual-por-tokens]] | La identidad visual vive en tokens de Tailwind; se redefine la escala `indigo` en vez de reescribir los componentes |
 | [[../adr/ADR-021-linea-del-tiempo-historica]] | Línea del tiempo histórica en el tablero, con medallas derivadas de `tests` en vez de una tabla de logros |
 | [[../adr/ADR-022-lenguaje-braun-rams]] | La identidad es el lenguaje Braun/Rams: una escala neutra y un color de señal; la apariencia por defecto se configura en `site_settings` (`043`) |
+| [[../adr/ADR-023-panel-de-instrumento]] | Panel de instrumento: la física vive en los controles (`.control`, `.alojamiento`, `.led`, `.placa`, `.grabado` en `app.css`), no en la superficie |
 
 ---
 

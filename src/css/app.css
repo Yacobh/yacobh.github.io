@@ -215,3 +215,140 @@
 .dark textarea::placeholder {
   color: theme('colors.slate.500');
 }
+
+/* =============================================================================
+   PANEL DE INSTRUMENTO (ADR-023)
+   =============================================================================
+   Síntesis entre el lenguaje Braun de ADR-022 y la referencia skeuomórfica que
+   trajo el owner: una mesa de controles con perillas, conmutadores y LEDs.
+
+   No son enfoques opuestos —el SK4, el T3 y el regie 308 de Braun son
+   exactamente eso— pero sí chocan en un punto: Rams pide "tan poco diseño como
+   sea posible", y un botón de pantalla que finge ser plástico moldeado es
+   decoración.
+
+   La regla que los concilia, y que este bloque implementa:
+
+       El panel es plano y callado.
+       Solo los CONTROLES tienen física.
+       La luz viene de arriba, siempre.
+       El color solo se enciende donde algo es verdad.
+
+   Y el relieve acá no es gusto, es necesidad medida: sobre el gris medio del
+   panel, el naranja de acción da 1.68 de contraste y el cian 1.04 — ninguno
+   llega al 3:1 que exige un objeto gráfico. El bisel y el alojamiento oscuro
+   son lo que vuelve visible al control. Rams §4: buen diseño hace comprensible
+   al producto.
+
+   Se define acá y no con utilidades sueltas porque son cuatro piezas que se
+   repiten y tienen que verse iguales en toda la app; veinte clases de Tailwind
+   por botón divergen al tercer componente. */
+
+/* --- Control: algo que se puede accionar ---------------------------------- */
+.control {
+  background-image: linear-gradient(180deg,
+                    rgb(255 255 255 / 0.85) 0%,
+                    rgb(255 255 255 / 0.20) 45%,
+                    rgb(0 0 0 / 0.06) 100%);
+  border: 1px solid rgb(0 0 0 / 0.28);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.75),   /* filo iluminado arriba */
+    inset 0 -1px 0 rgb(0 0 0 / 0.12),        /* sombra propia abajo */
+    0 1px 2px rgb(0 0 0 / 0.30);             /* proyectada sobre el panel */
+  transition: box-shadow 90ms ease, transform 90ms ease;
+}
+
+/* Hundido al presionar. Es la única animación del sistema y existe porque
+   confirma la acción: la luz se invierte, como en un botón real. */
+.control:active {
+  box-shadow:
+    inset 0 2px 4px rgb(0 0 0 / 0.35),
+    inset 0 -1px 0 rgb(255 255 255 / 0.20);
+  transform: translateY(0.5px);
+}
+
+.dark .control {
+  background-image: linear-gradient(180deg,
+                    rgb(255 255 255 / 0.14) 0%,
+                    rgb(255 255 255 / 0.04) 45%,
+                    rgb(0 0 0 / 0.20) 100%);
+  border-color: rgb(0 0 0 / 0.55);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.16),
+    inset 0 -1px 0 rgb(0 0 0 / 0.40),
+    0 1px 2px rgb(0 0 0 / 0.45);
+}
+
+/* --- Alojamiento: el hueco oscuro donde vive un LED ----------------------- */
+/* Sin esto un LED sobre el panel claro es invisible (1.04 de contraste). Con
+   alojamiento, el mismo cian llega a 8.78. */
+.alojamiento {
+  background-color: theme('colors.panel.700');
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 0.55),
+    0 1px 0 rgb(255 255 255 / 0.55);
+}
+.dark .alojamiento {
+  background-color: theme('colors.panel.950');
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 0.70),
+    0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+/* --- LED ------------------------------------------------------------------ */
+/* Apagado: no desaparece, se ve como un diodo sin corriente. Que el hueco siga
+   ahí es lo que comunica "esto podría encenderse" — el estado vacío también
+   informa. */
+.led {
+  background-color: rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.55);
+}
+.led--on {
+  background-color: theme('colors.led.500');
+  box-shadow:
+    inset 0 0 1px rgb(255 255 255 / 0.85),
+    0 0 6px rgb(46 230 197 / 0.75);          /* el halo del diodo encendido */
+}
+/* Grados de la línea del tiempo: mismo diodo, distinta corriente. */
+.led--oro    { background-color: theme('colors.led.400');
+               box-shadow: inset 0 0 1px rgb(255 255 255 / 0.9), 0 0 8px rgb(76 235 204 / 0.85); }
+.led--plata  { background-color: theme('colors.led.600');
+               box-shadow: inset 0 0 1px rgb(255 255 255 / 0.6), 0 0 5px rgb(22 199 154 / 0.55); }
+.led--bronce { background-color: theme('colors.led.700');
+               box-shadow: inset 0 0 1px rgb(255 255 255 / 0.4), 0 0 3px rgb(14 158 122 / 0.40); }
+
+/* --- Etiqueta grabada ----------------------------------------------------- */
+/* Las leyendas de un panel van impresas sobre la carcasa: mismo material, un
+   tono más oscuro, nunca un color. Como el "mono / stereo" o el "min / max"
+   de la referencia. */
+.grabado {
+  color: theme('colors.panel.700');   /* 600 daba 3.55 sobre el panel: reprobaba AA */
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.6875rem;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.45);
+}
+.dark .grabado {
+  color: theme('colors.panel.400');
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.5);
+}
+
+/* --- Placa: un módulo montado sobre el panel ------------------------------ */
+/* La superficie blanca sobre gris da 1.99 de contraste: suficiente para leerse
+   como pieza aparte, insuficiente como único delimitador. Un borde de color
+   tampoco alcanzaba (2.08 con panel-500). Se resuelve como en el aparato real:
+   la placa está **por encima** del panel, y eso se dice con luz — filo claro
+   arriba, sombra proyectada abajo. El borde queda como refuerzo, no como única
+   señal. */
+.placa {
+  border: 1px solid theme('colors.panel.400');
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 1px 3px rgb(0 0 0 / 0.22);
+}
+.dark .placa {
+  border-color: theme('colors.panel.950');
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.07),
+    0 1px 3px rgb(0 0 0 / 0.45);
+}
