@@ -8,7 +8,9 @@
 
 (defonce box-position (r/atom {:x 0 :y 0 :target-x 0}))
 
-(defn animate-step [timestamp]
+;; El argumento es el timestamp que pasa requestAnimationFrame; no se usa
+;; porque el paso es fijo (step-size), no proporcional al tiempo transcurrido.
+(defn animate-step [_timestamp]
   (swap! box-position
          (fn [current-pos]
            (let [current-x (:x current-pos)

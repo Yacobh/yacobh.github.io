@@ -1,6 +1,5 @@
 (ns universo.components.improved-math-academy
-  (:require [reagent.core :as r]
-            [clojure.string :as str]))
+  (:require [reagent.core :as r]))
 
 (def improved-math-questions
   [{:id 1

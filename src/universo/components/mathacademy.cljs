@@ -1,8 +1,6 @@
 (ns universo.components.mathacademy
   (:require [reagent.core :as r]
-            [clojure.string :as str]
-            [universo.components.improved-math-academy :as improved-math-academy]
-            [universo.db.supabase :as supabase]))
+            [universo.components.improved-math-academy :as improved-math-academy]))
 
 (def math-questions
   [{:id 1
@@ -49,21 +47,9 @@
             (show-main []
               (reset! current-section :main))
 
-            (answer-question [question-id answer-index]
-              (swap! test-answers assoc question-id answer-index))
-
-            (submit-test []
-              (let [correct-count (reduce (fn [acc question]
-                                            (if (= (get @test-answers (:id question))
-                                                   (:correct question))
-                                              (inc acc)
-                                              acc))
-                                          0 math-questions)
-                    percentage (* (/ correct-count (count math-questions)) 100)]
-                (reset! test-score {:correct correct-count
-                                    :total (count math-questions)
-                                    :percentage percentage})
-                (reset! current-section :results)))
+            ;; Legacy: el test de esta pantalla lo resuelve
+            ;; `improved-math-academy/improved-math-test` (sección :test), así que
+            ;; aquí ya no queda lógica propia de responder/corregir.
 
             (submit-booking [e]
                             (.preventDefault e)

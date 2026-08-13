@@ -62,7 +62,7 @@
                                                 (if (= @mode :login)
                                                   (reset! user (.. res -data -user))
                                                   (reset! message "¡Registro exitoso! Revisa tu email.")))))
-                                     (.catch (fn [err]
+                                     (.catch (fn [_err]
                                                (reset! loading false)
                                                (reset! error "Error de conexión"))))))}
 

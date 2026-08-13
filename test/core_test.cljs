@@ -1,5 +1,5 @@
 (ns core-test
-  (:require [cljs.test :refer-macros [deftest is testing run-tests]]
+  (:require [cljs.test :refer-macros [deftest is testing]]
             [universo.particulas :as particles]))
 
 (deftest test-numbers

@@ -118,8 +118,9 @@
 ;; 3️⃣ PARSER MARKDOWN: Títulos, bold, quotes
 ;; ========================================
 
-(defn parse-markdown-line [line]
+(defn parse-markdown-line
   "Parsea una línea y retorna tipo + contenido"
+  [line]
   (cond
     (str/starts-with? line "# ")      {:type :h3 :content (subs line 2)}
     (str/starts-with? line "## ")     {:type :h4 :content (subs line 3)}
@@ -167,8 +168,9 @@
 ;; 4️⃣ RENDERIZADO: Bloques Markdown → Hiccup
 ;; ========================================
 
-(defn render-markdown-block [{:keys [type content]}]
+(defn render-markdown-block
   "Convierte un bloque markdown en hiccup con LaTeX embebido"
+  [{:keys [type content]}]
   (case type
     :h3          [:h3.explanation-title (latex content)]
     :h4          [:h4.explanation-subtitle (latex content)]

@@ -3,7 +3,7 @@
 ;; Generador de partículas cuánticas simplificado
 (defn generate-quantum-particles [n]
   (vec
-   (for [i (range n)]
+   (for [_ (range n)]
      {:id (random-uuid)
       :x (rand-int 800)
       :y (rand-int 600)

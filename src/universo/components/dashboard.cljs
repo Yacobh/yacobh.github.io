@@ -77,7 +77,7 @@
   "Tarjeta detallada del último test"
   [ultimo-test]
   (when ultimo-test
-    (let [{:keys [tema fecha correctas total porcentaje completado? current-question theta]} ultimo-test]
+    (let [{:keys [tema fecha correctas total porcentaje completado? theta]} ultimo-test]
       [:div
        [:div.flex.items-center.justify-between.mb-4
         [:h3.text-xl.font-bold.text-gray-800 "Última Evaluación"]

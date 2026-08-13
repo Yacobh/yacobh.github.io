@@ -24,35 +24,33 @@
   (let [voices (list-voices)
         selected-voice-index (reagent/atom 0)]
     (fn []
-      (let [current-voice (get voices @selected-voice-index)]
-        [:div
-         [:select
-          {:value @selected-voice-index
-           :on-change (fn [e]
-                        (let [index (-> e .-target .-value js/parseInt)]
-                          (reset! selected-voice-index index)))}
-          (map-indexed
-           (fn [idx voice]
-             ^{:key idx}
-             [:option
-              {:value idx}
-              (str (.-name voice) " (" (.-lang voice) ")")])
-           voices)]
+      [:div
+       [:select
+        {:value @selected-voice-index
+         :on-change (fn [e]
+                      (let [index (-> e .-target .-value js/parseInt)]
+                        (reset! selected-voice-index index)))}
+        (map-indexed
+         (fn [idx voice]
+           ^{:key idx}
+           [:option
+            {:value idx}
+            (str (.-name voice) " (" (.-lang voice) ")")])
+         voices)]
 
-         [:button
-          {:on-click (fn []
-                       (let [selected-voice (nth voices @selected-voice-index 0)]
-                         (println "Voces disponibles:" voices)
-                         (println "Voces 1" (.-name (nth voices @selected-voice-index 0)))
-                         (println "Voces 2" (str (.-name (first voices)) " (" (.-lang (first voices)) ")"))
-                         (println "Índice seleccionado:" @selected-voice-index)
-                         (println "Voz seleccionada:" selected-voice)
-                         (println "Nombre de la voz:" (.-name selected-voice))
-                         (println "Idioma de la voz:" (.-lang selected-voice))
-                         (speak-with-voice "Hola nilda Bienvenida al portal de; Jacobo Córdova. ¿en qué puedo ayudarle?" selected-voice)
-                         #_(speak-with-voice "no" selected-voice)
-                         ))}
-          "Hablar"]]))))
+       [:button
+        {:on-click (fn []
+                     (let [selected-voice (nth voices @selected-voice-index 0)]
+                       (println "Voces disponibles:" voices)
+                       (println "Voces 1" (.-name (nth voices @selected-voice-index 0)))
+                       (println "Voces 2" (str (.-name (first voices)) " (" (.-lang (first voices)) ")"))
+                       (println "Índice seleccionado:" @selected-voice-index)
+                       (println "Voz seleccionada:" selected-voice)
+                       (println "Nombre de la voz:" (.-name selected-voice))
+                       (println "Idioma de la voz:" (.-lang selected-voice))
+                       (speak-with-voice "Hola nilda Bienvenida al portal de; Jacobo Córdova. ¿en qué puedo ayudarle?" selected-voice)
+                       #_(speak-with-voice "no" selected-voice)))}
+        "Hablar"]])))
 
 (defn speak-text [text]
   (when (exists? js/window.speechSynthesis)
