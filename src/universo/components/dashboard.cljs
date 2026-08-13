@@ -1,6 +1,7 @@
 (ns universo.components.dashboard
   (:require [re-frame.core :as re-frame]
             [reagent.core :as r]
+            [universo.components.timeline :as timeline]
             [universo.components.ui :as ui]))
 
 (defn formatear-fecha
@@ -176,7 +177,9 @@
           theta-promedio @(re-frame/subscribe [:dashboard/theta-promedio])
           ultimo (first historial)]
 
-      [:div {:class "py-8 px-4"}
+      ;; pb-40 reserva el alto de la línea del tiempo, que es `fixed`: sin eso
+      ;; taparía el final del historial y el enlace a configuración.
+      [:div {:class "py-8 px-4 pb-40"}
        [:div {:class "max-w-6xl mx-auto"}
 
         ;; Header
@@ -264,4 +267,8 @@
                  [fila-historial row])]
               [:p.text-gray-500.text-sm "Aún no hay evaluaciones registradas."])]
 
-           [enlace-configuracion-cuenta]])]])))
+           [enlace-configuracion-cuenta]])]
+
+       ;; Fuera del contenedor centrado a propósito: es una barra fija al
+       ;; viewport, no una tarjeta más del tablero.
+       [timeline/linea-del-tiempo]])))

@@ -3,7 +3,8 @@
    [re-frame.core :as re-frame]
    [cljs.core.async :refer [go <!]]
    [universo.db.crud :as crud]
-   [universo.supabase :as sb]))
+   [universo.supabase :as sb]
+   [universo.timeline :as timeline]))
 
 ;; -----------------------------------------------------------------------------
 ;; FUNCIONES AUXILIARES PARA PROCESAR TESTS
@@ -304,3 +305,59 @@
  :dashboard/error
  (fn [db _] (:dashboard/error db)))
 
+
+;; -----------------------------------------------------------------------------
+;; Línea del tiempo (ADR-021)
+;; -----------------------------------------------------------------------------
+;; Los módulos se cargan aparte del resto del tablero, y a propósito: la línea
+;; es contenido de catálogo (igual para todos) mientras que las estadísticas son
+;; del estudiante. Si esta consulta falla, el tablero completo tiene que seguir
+;; funcionando — por eso el error se guarda pero no bloquea nada.
+
+(re-frame/reg-event-fx
+ :dashboard/cargar-modulos
+ (fn [{:keys [db]} _]
+   (if (seq (:dashboard/modulos db))
+     {:db db}                                   ;; ya están: es catálogo, no cambia
+     {:fx/cargar-modulos-timeline nil})))
+
+(re-frame/reg-fx
+ :fx/cargar-modulos-timeline
+ (fn [_]
+   (go
+     (let [res (<! (crud/fetch-modules))]
+       (if (:success res)
+         (re-frame/dispatch [:dashboard/modulos-cargados (:data res)])
+         (re-frame/dispatch [:dashboard/modulos-error (:error res)]))))))
+
+(re-frame/reg-event-db
+ :dashboard/modulos-cargados
+ (fn [db [_ modulos]]
+   (assoc db :dashboard/modulos (vec (or modulos [])))))
+
+(re-frame/reg-event-db
+ :dashboard/modulos-error
+ (fn [db [_ error]]
+   (js/console.warn "⚠️ No se pudieron cargar los módulos de la línea del tiempo:" error)
+   (assoc db :dashboard/modulos-error error)))
+
+(re-frame/reg-sub
+ :dashboard/modulos
+ (fn [db _] (:dashboard/modulos db [])))
+
+;; El historial del tablero guarda el topic como `:tema` (ver `procesar-test`),
+;; pero `universo.access` y `universo.timeline` hablan de `:topic`. La traducción
+;; vive acá, en el borde, y no dentro de la lógica pura.
+(re-frame/reg-sub
+ :dashboard/hitos
+ :<- [:dashboard/modulos]
+ :<- [:dashboard/historial]
+ (fn [[modulos historial] _]
+   (timeline/milestones modulos
+                        (map (fn [row] {:topic (:tema row) :theta (:theta row)})
+                             (or historial [])))))
+
+(re-frame/reg-sub
+ :dashboard/hitos-progreso
+ :<- [:dashboard/hitos]
+ (fn [hitos _] (timeline/progress hitos)))
