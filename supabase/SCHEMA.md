@@ -259,11 +259,11 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     auditar los 35 años (ADR-016) · año, era y figura histórica por módulo, para la línea del tiempo
     del tablero (ADR-021, T-66). Control corrido en producción: **35 ubicados / 0 sin ubicar**, o
     sea que los 35 slugs del `update` coincidieron con la tabla y ninguno se perdió en silencio
-45. `migrations/043_site_settings.sql` — ⏳ **pendiente** · configuración global del sitio en una
-    sola fila (apariencia por defecto para visitantes nuevos), con sus dos policies en el mismo
-    archivo: lectura pública a propósito, escritura solo admin (ADR-022). Probada contra
-    PostgreSQL 14 desechable: aplica limpia, idempotente, 1 fila, los dos `check` rechazan (segunda
-    fila y valor inventado) y quedan 2 policies
+45. `migrations/043_site_settings.sql` — ✅ **aplicada 2026-08-13** por el owner · configuración
+    global del sitio en una sola fila (apariencia por defecto para visitantes nuevos), con sus dos
+    policies en el mismo archivo: lectura pública a propósito, escritura solo admin (ADR-022).
+    **Verificada en producción por su efecto:** la pestaña Apariencia del panel dejó de mostrar el
+    error de carga, que era exactamente lo que fallaba mientras la tabla no existía
 46. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del

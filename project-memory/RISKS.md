@@ -49,7 +49,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | R-22 | Bundle sin code splitting: crecimiento monótono | Bajo | Media | Baja | aceptado |
 | R-23 | Contenido experimental de cuántica visible para un estudiante de PAES | Medio | Baja | Baja | aceptado y monitoreado |
 | R-24 | El eje de fluidez etiqueta con umbrales autorales sin calibrar | Medio | Media | Media | activo (2026-08-12) |
-| R-25 | Cambio visual amplio sin verificación en vivo, sobre un sitio con tráfico | Medio | Media | Media | activo (2026-08-13) |
+| R-25 | Cambio visual amplio sin verificación en vivo, sobre un sitio con tráfico | Medio | Baja | Baja | ✅ **mitigado 2026-08-13** (verificado por el owner, incl. teléfono) |
 
 ---
 
@@ -385,7 +385,11 @@ contra, cambió el color de **todo** de una vez.
 (2) el cambio vive en una rama, no en `main`, hasta que el owner lo apruebe; (3) los valores están
 en un solo archivo, así que corregir un tono es un commit de una línea; (4) `audit_contraste.py`
 descarta al menos la clase de fallo más común, el contraste insuficiente.
-**Estado:** activo. Se cierra con T-67 (y de paso T-38, que arrastra la misma deuda desde ADR-012).
+**Estado:** ✅ **mitigado el 2026-08-13.** El owner verificó en local a lo largo de la sesión y en
+su teléfono al cierre. La mitigación real no fue el recorrido sino el **uso**: cinco rondas de
+reporte encontraron cinco fallas que los tres audits daban por buenas —incluida una que aprobaba
+AA y aun así no se leía—. Queda como riesgo residual bajo, no cerrado del todo, porque `cupos`,
+`cuenta` y la línea del tiempo con historial real siguen sin mirarse (ver T-67).
 
 ---
 

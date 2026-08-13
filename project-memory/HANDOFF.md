@@ -1,8 +1,8 @@
 # HANDOFF
 
-**Fecha del handoff: 2026-08-13 (tarde)** · Rama `main`, con la identidad visual nueva mergeada ·
-⏳ **una migración sin aplicar: `043`** (`site_settings`). Hasta que se aplique, la pestaña
-**Apariencia** del panel admin muestra un error al cargar — degrada, no rompe.
+**Fecha del handoff: 2026-08-13 (cierre)** · Rama `main` @ `b6c9a47`, con la identidad visual nueva
+mergeada y publicada · **Ninguna migración pendiente**: `043` se aplicó y la pestaña Apariencia
+dejó de dar error.
 
 > Este documento existe para que **una persona o un agente de IA sin acceso al historial de
 > conversaciones** pueda continuar el proyecto. Si solo puedes leer un archivo, lee este.
@@ -105,8 +105,8 @@ Edge Function (Deno) send-enrollment-emails → Resend
   `email_outbox` (MVP).
 - **Migraciones:** scripts SQL en `supabase/migrations/`, aplicados **a mano** en el SQL Editor, en
   el orden de `supabase/SCHEMA.md` -- esa es la lista que se mantiene al día, no se duplica el número
-  aquí. No hay `db push`. **Al 2026-08-13 queda una pendiente: `043`** (`site_settings`). `041` y
-  `042` se aplicaron y se verificaron contra la base real (`SCHEMA.md` §Verificación).
+  aquí. No hay `db push`. **Al 2026-08-13 no queda ninguna pendiente**: `041`, `042` y `043`
+  aplicadas y verificadas contra la base real (`SCHEMA.md` §Verificación).
   ⚠️ Pero el esquema **no se puede reconstruir desde cero** con esas migraciones: `public.questions`
   y `public.is_admin()` preexisten y no están versionados (T-48).
 - **Deploy:** GitHub Pages sobre `main`. **El bundle `public/js/app.js` está versionado en Git**: sin

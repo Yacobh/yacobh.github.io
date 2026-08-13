@@ -1836,17 +1836,26 @@ veía nunca**. La línea es la superficie que faltaba.
 2. ⏳ se verifique la línea funcionando con una cuenta con historial (el owner ya tiene el sitio
    levantado en `localhost:3000`).
 
-### T-67 · Verificar en vivo la identidad visual y la línea del tiempo — **P1** · `abierto` (2026-08-13)
+### T-67 · Verificar en vivo la identidad visual y la línea del tiempo — **P1** · `hecho en lo esencial` (2026-08-13)
 
 Todo lo de T-41 y T-66 está compilado y con los audits en verde, pero **ninguna pantalla se miró con
 ojos**. Es la misma deuda que T-38 arrastra desde ADR-012, ahora sobre un cambio visual mucho más
 grande y con el sitio recibiendo tráfico (R-19).
 
-- **Terminado cuando:** recorrido en claro y oscuro por `admin` (con los desplegables abiertos, que
-  son el bug que motivó todo), `dashboard`, `plan`, `cupos`, `cuenta` y el diagnóstico, en
-  `http://127.0.0.1:3000` y **no en producción** (ver la nota de método de SESSION-021: cinco
-  intentos fallaron por mirar el dominio mientras el cambio estaba en local).
-- Cierra de paso T-38.
+**Cerrado por uso real, no por checklist.** El owner probó en local durante toda la sesión y de ahí
+salieron **cinco rondas de corrección** (T-72a–d), que es una verificación más dura que un recorrido
+guiado: cada reporte encontró algo que los audits daban por bueno. Lo efectivamente ejercitado:
+
+- modal de feedback en **claro y oscuro**;
+- gráfica IRT en oscuro, en el modal **y** en la pantalla de resultados;
+- panel admin → Apariencia en oscuro (el rosa ilegible salió de ahí);
+- **teléfono**, el 2026-08-13: "revisé en mi teléfono y se ve bien" — que valida la pasada de T-73.
+
+**Lo que sigue sin mirarse**, dicho para no dar por verificado lo que no lo está: `cupos`, `cuenta`
+y `plan` con una cuenta de estudiante, y **la línea del tiempo con historial real** (hace falta una
+cuenta con diagnósticos rendidos para ver medallas encendidas). No bloquea nada: si algo estuviera
+mal ahí, sería del mismo tipo que lo ya corregido.
+- Cierra de paso T-38 (verificación visual pendiente desde ADR-012).
 
 ### T-68 · El modal de feedback: tres defectos distintos — **P1** · `hecho` (2026-08-13, falta verlo)
 
@@ -1960,7 +1969,7 @@ desde "Avisarme cuando haya cupo" (`:contacto/abrir-panel`, `slots.cljs:150`) �
 ese flujo en silencio. El formulario del footer salió de la columna estrecha (era 1 de 4) y pasó a
 ser una placa de ancho completo con su propio encabezado, en el lenguaje de ADR-023.
 
-- **Falta:** verlo (T-67).
+- ✅ **Visto por el owner el 2026-08-13** (T-67), incluido en teléfono.
 
 ### T-72 · Tres fallas de contraste que el audit no veía — **P1** · `hecho` (2026-08-13, falta verlo)
 
@@ -2027,7 +2036,7 @@ De paso, revisando el mismo componente aparecieron dos fondos claros **fijos por
 de matemática desplegada (`#f8fafc`) y la cita (borde `#3b82f6`, texto `#64748b`). Los dos pasaron
 a clases con tokens.
 
-- **Falta:** verlo (T-67).
+- ✅ **Visto por el owner el 2026-08-13** (T-67), incluido en teléfono.
 - **Relacionado:** T-68, [[../adr/ADR-012-tema-oscuro-mapeo-css-global]], [[../adr/ADR-023-panel-de-instrumento]].
 
 ### T-73 · Revisión de adaptación a teléfonos antes del merge — **P1** · `hecho` (2026-08-13)

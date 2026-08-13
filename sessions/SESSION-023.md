@@ -311,6 +311,23 @@ compacta" que nunca se construyó. Los hitos eran botones de ~34 px alrededor de
 cuándo algo está **mal**, nunca cuándo está **bien**. El caso más claro fue la etiqueta que aprobaba
 AA y seguía sin leerse. **T-67 —mirar las pantallas— sigue abierta y no es reemplazable.**
 
+## Cierre
+
+**Mergeado a `main` el 2026-08-13** (`b6c9a47`, 16 commits) y publicado. `043` aplicada por el owner
+inmediatamente después: la pestaña Apariencia dejó de dar error, que era su síntoma exacto. **El
+owner verificó en su teléfono: "se ve bien".**
+
+**Un incidente al mergear que casi publica un bundle equivocado.** El `git checkout main` disparó los
+watchers que el owner tenía corriendo (`tailwind --watch` y `shadow-cljs watch`), que recompilaron
+solos y dejaron un `app.js` de **9 MB sin minificar** —el build de desarrollo— donde debía ir el de
+producción. Es **L-30** al pie de la letra. Se detectó porque el árbol quedó sucio después de un
+merge que debía dejarlo limpio; se regeneró con `release` y se verificó que los artefactos quedaran
+**idénticos a los del commit de merge** antes de empujar. El bundle publicado pesa 1,29 MB.
+
+**Balance de la sesión:** 74→83 tests, tres audits nuevos versionados, cuatro ADRs (020 reemplazada
+por 022, más 021 y 023), tres migraciones (`042`, `043` aplicadas), seis tickets cerrados y tres
+abiertos (T-69, T-70 y el resto de T-67).
+
 ---
 
 Relacionado: [[SESSION-021]] · [[../adr/ADR-020-identidad-visual-por-tokens]] ·

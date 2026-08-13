@@ -874,13 +874,13 @@ las próximas semanas.
 | Panel admin | ✅ operativo |
 | Tests | ✅ `83 tests / 454 assertions / 0 failures` (`clj -M:test`, 2026-08-13) |
 | Verificación de UI | ✅ tres scripts versionados en `scripts/`: tema oscuro, contraste (38 pares) y móvil. Los tres probados contra un caso que debe fallar |
-| Identidad visual | ✅ **panel de instrumento** (ADR-023, sobre el lenguaje Braun de ADR-022): página gris medio, física solo en los controles, LEDs para estado y naranja para acción. **38/38 pares WCAG**, tema oscuro y adaptación a móvil en verde. 🟡 **ninguna pantalla vista con ojos** (T-67, R-25) |
+| Identidad visual | ✅ **panel de instrumento** (ADR-023, sobre el lenguaje Braun de ADR-022): página gris medio, física solo en los controles, LEDs para estado y naranja para acción. **38/38 pares WCAG**, tema oscuro y móvil en verde. ✅ **verificada por el owner en teléfono** el 2026-08-13, más las cinco rondas de corrección que salieron de su propio uso |
 | Línea del tiempo | 🟡 implementada y testeada (ADR-021); `042` aplicada (35/0). Falta verla funcionando con una cuenta con historial |
 | Apariencia configurable | 🟡 `site_settings` (`043`, **sin aplicar**) + pestaña «Apariencia» en el panel: el admin fija qué ve un visitante nuevo, la preferencia local de cada persona gana |
 | Perfil del estudiante | ✅ dos ejes: θ (IRT) y **fluidez λ** (ADR-019), con la tarjeta 2×2 en «Mi plan», en producción desde el 2026-08-12. Umbrales de λ **sin calibrar** (T-65) |
 | Contenido pedagógico | 🟡 58/61 recursos publicados (T-01); faltan los 2 módulos nuevos de `031` y los 7 de geometría (T-56) |
 | Banco de ítems | 🟡 387 ítems PAES; topics canónicos y 259 con módulo, **128 sin módulo** (bancos mezclados, T-60). Además 123 ítems `mq_` del track experimental, **aislados** (`active = false`) — las métricas necesitan `where topic not like 'mq\_%'` |
-| Migraciones | 🟡 `033`–`042` aplicadas y verificadas (`042` el 2026-08-13: **35 ubicados / 0 sin ubicar**); **`043` escrita y sin aplicar** — `site_settings`. ⚠️ Hasta aplicarla, la pestaña **Apariencia** del panel muestra error al cargar (degrada, no rompe) |
+| Migraciones | ✅ **ninguna pendiente** — `033`–`043` aplicadas y verificadas. `042` el 2026-08-13 (35 ubicados / 0 sin ubicar) y `043` el mismo día: la pestaña **Apariencia** dejó de dar error, que era su síntoma exacto |
 | Email de cohorte | ✅ desplegado y verificado en producción (T-02, 2026-08-09) |
 | Documentación / memoria | ✅ PMF operativo desde 2026-07-26; auditada el 2026-08-10, actualizada el 2026-08-12 |
 | CI | 🟡 `.github/workflows/test.yml` existe (T-06); staging y monitoreo ⛔ inexistentes |
