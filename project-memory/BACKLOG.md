@@ -2030,12 +2030,49 @@ a clases con tokens.
 - **Falta:** verlo (T-67).
 - **Relacionado:** T-68, [[../adr/ADR-012-tema-oscuro-mapeo-css-global]], [[../adr/ADR-023-panel-de-instrumento]].
 
+### T-73 · Revisión de adaptación a teléfonos antes del merge — **P1** · `hecho` (2026-08-13)
+
+Pedido del owner antes de mergear: comprobar si el sitio quedó bien adaptado a teléfonos después de
+tres pasadas de identidad visual. La respuesta corta es que **casi todo estaba bien y lo peor era
+lo recién construido**.
+
+**Lo que ya estaba bien:** `viewport` correcto en ambos `index.html`; ninguna tabla sin contenedor
+scrollable; ningún ancho fijo en píxeles; la landing (43 cortes responsivos) y el modal (34) bien
+cubiertos.
+
+**Lo que estaba mal:**
+
+1. **La línea del tiempo no tenía ni una clase responsiva.** El plan aprobado prometía "en móvil la
+   barra colapsa a una tira compacta" y eso **nunca se implementó**. Además cada hito era un botón
+   de ~34 px de alto alrededor de un punto de 10 px, con el año en 10 px: la interacción principal
+   de la función más nueva era la peor adaptada al teléfono. Ahora los hitos miden 44 px
+   (`min-h-11`), el punto creció y **el año se oculta por debajo de `sm`**, que es lo que vuelve
+   compacta la tira. El dato no se pierde: está en el `aria-label` y en el panel de detalle.
+2. **`p-8` fijo en cinco pantallas del embudo.** En 360 px se come 64 px de ancho útil. Pasó a
+   `p-5 sm:p-8` en diagnóstico, tablero, plan, cupos y libro de visitas. Curiosamente la pantalla
+   de resultados ya lo hacía bien: estaba resuelto en un lugar y no en los otros.
+3. **Objetivos táctiles por debajo del mínimo** en el diagnóstico y en el formulario de contacto.
+4. **La reserva de alto del tablero** (`pb-40` = 160 px) era casi un cuarto de una pantalla de
+   667 px. Baja a `pb-28` en móvil.
+
+**`scripts/audit_movil.py` (nuevo).** El proyecto tenía dos chequeos de color y **ninguno de
+tamaño**. Revisa objetivos táctiles, padding fijo, texto diminuto, tablas sin scroll y anchos fijos,
+separando el embudo (bloquea) del panel de administración (informativo: se usa desde escritorio).
+
+> **Su primera versión tenía un falso negativo silencioso** y lo encontró el control de casos
+> conocidos: al buscar el `:class` de un botón capturaba el primer literal de texto, que en
+> `[:button {:type "button" :class …}]` es `"button"`. Daba **todas** las pantallas del panel por
+> buenas. Un chequeo que no encuentra nada es indistinguible de uno que funciona — por eso ningún
+> audit de este repo se da por bueno sin probarlo contra un caso que debería fallar.
+
+- **Relacionado:** T-67 (verificación visual, sigue abierta), [[../adr/ADR-021-linea-del-tiempo-historica]].
+
 ## Resumen por prioridad
 
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72 |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73 |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71 |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 

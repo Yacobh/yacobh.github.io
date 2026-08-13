@@ -194,9 +194,11 @@
           theta-promedio @(re-frame/subscribe [:dashboard/theta-promedio])
           ultimo (first historial)]
 
-      ;; pb-40 reserva el alto de la línea del tiempo, que es `fixed`: sin eso
-      ;; taparía el final del historial y el enlace a configuración.
-      [:div {:class "py-8 px-4 pb-40"}
+      ;; Reserva el alto de la línea del tiempo, que es `fixed`: sin eso taparía
+      ;; el final del historial y el enlace a configuración. Menos en móvil,
+      ;; donde la tira va compacta (sin años) — 160px sobre una pantalla de 667
+      ;; era casi un cuarto del alto útil (T-73).
+      [:div {:class "py-8 px-4 pb-28 sm:pb-40"}
        [:div {:class "max-w-6xl mx-auto"}
 
         ;; Header
@@ -245,7 +247,7 @@
            (when ultimo
              (let [{:keys [tema fecha completado? correctas total porcentaje nota theta
                            duracion-min promedio-seg-pregunta]} ultimo]
-               [:div.placa.bg-white.rounded.p-8.mt-6.max-w-2xl.mx-auto
+               [:div.placa.bg-white.rounded.p-5.sm:p-8.mt-6.max-w-2xl.mx-auto
                 [:h3.text-xl.font-bold.text-indigo-700.mb-4 "Última evaluación"]
                 [:div.grid.grid-cols-1.sm:grid-cols-2.gap-x-8.gap-y-2
                  [:div [:span.font-semibold "Tema: "] (str tema)]
@@ -259,7 +261,7 @@
                  [:div [:span.font-semibold "Promedio por pregunta: "] (if promedio-seg-pregunta (str promedio-seg-pregunta " seg") "-")]]]))
 
            ;; Historial completo
-           [:div.placa.bg-white.rounded.p-8.mt-6.max-w-2xl.mx-auto
+           [:div.placa.bg-white.rounded.p-5.sm:p-8.mt-6.max-w-2xl.mx-auto
             [:h3.text-xl.font-bold.text-indigo-700.mb-2 "Historial de evaluaciones"]
             (if (seq historial)
               [:div

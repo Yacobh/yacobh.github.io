@@ -64,7 +64,7 @@
      [ui/loading-block]
 
      error
-     [:div {:class "space-y-3 rounded-xl bg-white p-8 text-center shadow-sm"}
+     [:div {:class "space-y-3 rounded-xl bg-white p-5 sm:p-8 text-center shadow-sm"}
       [:p {:class "text-red-600"} error]
       [:button {:type "button"
                 :class "rounded-lg bg-indigo-600 px-4 py-2 text-white transition hover:bg-indigo-700"
@@ -72,7 +72,7 @@
        "Reintentar"]]
 
      (empty? entries)
-     [:div {:class "rounded-xl bg-white p-8 text-center text-gray-500 shadow-sm"}
+     [:div {:class "rounded-xl bg-white p-5 sm:p-8 text-center text-gray-500 shadow-sm"}
       [:p "Aún no hay mensajes publicados. ¡Sé el primero en firmar!"]]
 
      :else

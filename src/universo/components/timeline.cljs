@@ -59,17 +59,25 @@
     [:li {:role "listitem"}
      [:button
       {:type "button"
-       :class (str "group flex flex-col items-center gap-1 px-2 py-1 rounded "
+       ;; T-73: `min-h-11` = 44px, el mínimo táctil recomendado. Antes el botón
+       ;; medía ~34px de alto alrededor de un punto de 10px: la interacción
+       ;; principal de esta función era la peor adaptada a un teléfono.
+       :class (str "group flex min-h-11 flex-col items-center justify-center gap-1 "
+                   "px-2.5 py-1.5 rounded "
                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-senal-500 "
                    "focus-visible:ring-offset-1 dark:focus-visible:ring-offset-grafito-950")
        :aria-label (etiqueta-accesible hito)
        :aria-pressed (boolean seleccionado?)
        :on-click #(on-select (when-not seleccionado? slug))}
-      [:span {:class (str "block h-2.5 w-2.5 rounded-full transition-transform "
+      [:span {:class (str "block h-3 w-3 rounded-full transition-transform "
                           "motion-safe:group-hover:scale-125 "
                           (when seleccionado? "scale-150 ")
                           punto)}]
-      [:span {:class (str "text-[10px] tabular-nums "
+      ;; El año se oculta en pantallas chicas: es lo que vuelve la regleta una
+      ;; **tira compacta** en el teléfono, que es lo que ADR-021 prometía y
+      ;; nunca se había implementado (T-73). El dato no se pierde — está en el
+      ;; `aria-label` del botón y en el panel de detalle al tocarlo.
+      [:span {:class (str "hidden sm:block text-xs tabular-nums "
                           (if discovered?
                             "text-led-300"
                             "text-panel-400"))}
@@ -145,16 +153,16 @@
 
          ;; Cabecera: progreso + plegar. Siempre visible, para que la línea se
          ;; pueda apartar sin perderla de vista.
-         [:div {:class "flex items-center justify-between px-4 py-1.5"}
-          [:div {:class "flex items-baseline gap-2 min-w-0"}
+         [:div {:class "flex flex-wrap items-center justify-between gap-x-3 px-4 py-1.5"}
+          [:div {:class "flex flex-wrap items-baseline gap-x-2 min-w-0"}
            [:span {:class "font-display text-sm font-semibold text-grafito-800 dark:text-grafito-100"}
             "Tu recorrido por la historia"]
            [:span {:class "text-xs tabular-nums text-grafito-600 dark:text-grafito-300"}
             (str descubiertos " de " total " hitos descubiertos")]]
           [:button
            {:type "button"
-            :class (str "text-xs font-semibold text-grafito-700 dark:text-grafito-200 "
-                        "px-2 py-1 rounded hover:bg-grafito-100 dark:hover:bg-grafito-800 "
+            :class (str "min-h-11 text-xs font-semibold text-grafito-700 dark:text-grafito-200 "
+                        "px-3 py-2 rounded hover:bg-grafito-100 dark:hover:bg-grafito-800 "
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-senal-500")
             :aria-expanded (boolean @abierta?)
             :on-click #(swap! abierta? not)}

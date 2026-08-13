@@ -8,7 +8,7 @@
    [universo.components.ui :as ui]))
 
 (defn- empty-no-profile []
-  [:div.bg-white.rounded-xl.shadow.p-8.text-center.max-w-xl.mx-auto
+  [:div.bg-white.rounded-xl.shadow.p-5.sm:p-8.text-center.max-w-xl.mx-auto
    [:h2.text-xl.font-bold.text-gray-800.mb-2 "Aún no hay plan"]
    [:p.text-gray-600.mb-6
     "Completa un diagnóstico adaptativo para identificar tus déficits y recomendarte recursos."]

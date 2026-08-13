@@ -127,7 +127,7 @@
         [ui/loading-block "Cargando cupos…"]
 
         (nil? band)
-        [:div.bg-white.rounded-xl.shadow.p-8.text-center
+        [:div.bg-white.rounded-xl.shadow.p-5.sm:p-8.text-center
          [:p.text-gray-600.mb-4
           "Necesitas un perfil de diagnóstico para ver cupos de tu banda."]
          [:button.bg-indigo-600.text-white.font-semibold.py-2.px-5.rounded-lg
@@ -138,7 +138,7 @@
           "Hacer diagnóstico"]]
 
         (empty? items)
-        [:div.bg-white.rounded-xl.shadow.p-8.text-center.space-y-3
+        [:div.bg-white.rounded-xl.shadow.p-5.sm:p-8.text-center.space-y-3
          [:p.text-gray-800.font-medium
           "Todavía no hay cupos abiertos para tu banda."]
          [:p.text-sm.text-gray-600.max-w-md.mx-auto

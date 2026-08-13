@@ -102,7 +102,9 @@ que la auditoría se concentre ahí.
 - El track experimental de cuántica aparece en la misma línea que PAES. Hoy no molesta porque sus
   bancos están inactivos (ADR-018), pero si un estudiante de PAES llegara a verlos, los vería
   también acá.
-- La barra `fixed` ocupa alto permanente en el tablero (`pb-40` compensa). En móvil es espacio caro.
+- La barra `fixed` ocupa alto permanente en el tablero (`pb-28 sm:pb-40` compensa). En móvil es
+  espacio caro: por eso ahí la tira va compacta, sin los años bajo cada LED — el dato no se pierde,
+  está en el `aria-label` y en el panel de detalle (T-73).
 - Si `042` no está aplicada, la línea no se dibuja. Es correcto para el estudiante y silencioso para
   quien despliega: queda documentado en el docstring del componente.
 
@@ -114,6 +116,7 @@ que la auditoría se concentre ahí.
 | Los cortes de medalla divergen de `theta-band` en un cambio futuro | Espejo documentado en ambos lados, como el de `fluency/default-thresholds` con `041` | [[ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] |
 | Un slug del `update` no coincide y el módulo queda sin año en silencio | Consulta de control en la migración: 35 ubicados / 0 sin ubicar. Es el modo de fallo del `left join` de `035` | [[../project-memory/LESSONS_LEARNED]] |
 | La gamificación desplaza el foco del diagnóstico | Las medallas no otorgan nada ni cambian el plan: son una lectura del θ que ya existe | — |
+| Prometer en el plan comportamiento que después no se construye | El plan aprobado decía "en móvil la barra colapsa a una tira compacta" y el componente se escribió **sin una sola clase responsiva**. Nadie lo habría notado hasta verlo en un teléfono. Se detectó en la revisión previa al merge y se implementó entonces (T-73); `scripts/audit_movil.py` convierte parte de esa promesa en comprobación | T-73 |
 
 ## Seguimiento
 
