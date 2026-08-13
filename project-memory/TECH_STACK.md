@@ -1,7 +1,7 @@
 # TECH_STACK
 
-Última actualización: **2026-08-10** · Verificado contra `deps.edn`, `shadow-cljs.edn`,
-`package.json`, `tailwind.config.js`, `postcss.config.js`
+Última actualización: **2026-08-12** (§5 Tests: listado real y estado 74/410) · Verificado contra
+`deps.edn`, `shadow-cljs.edn`, `package.json`, `tailwind.config.js`, `postcss.config.js`
 
 ## 1. Resumen
 
@@ -70,7 +70,7 @@ clojure -M:shadow-cljs watch app
 # REPL de navegador
 npx shadow-cljs browser-repl
 
-# Tests (34 tests / 133 assertions al 2026-07-26)
+# Tests (74 tests / 410 assertions al 2026-08-12)
 clj -M:test
 
 # CSS en watch
@@ -145,16 +145,22 @@ Total ClojureScript: **~10 290 líneas** en `src/`.
 ```
 test/
 ├── core_test.cljs
+├── universo/access_test.cljs
+├── universo/catalog_test.cljs
+├── universo/plan_test.cljs
 ├── universo/profile_test.cljs
+├── universo/topics_test.cljs
 ├── universo/slots/logic_test.cljs
 ├── universo/irt/progress_test.cljs
+├── universo/irt/effort_test.cljs
+├── universo/irt/fluency_test.cljs
 ├── universo/components/tetha_test.cljs
 ├── universo/events/auth_test.cljs
 ├── universo/events/dashboard_test.cljs
 └── universo/events/slots_test.cljs
 ```
 
-Estado al **2026-07-26**: `Ran 34 tests containing 133 assertions. 0 failures, 0 errors.`
+Estado al **2026-08-12**: `Ran 74 tests containing 410 assertions. 0 failures, 0 errors.`
 
 Cobertura concentrada en la **lógica pura** (IRT, perfil, bandas, cupos) y en algunos handlers
 puros de eventos. **Sin cobertura:** componentes de UI, `db/crud.cljs` (I/O real),

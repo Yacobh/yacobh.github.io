@@ -1,6 +1,7 @@
 # VISION_LIBRO_PROYECTO
 
-Última actualización: **2026-07-27** · Fuente: documento LaTeX "Academia Online de Matemáticas —
+Última actualización: **2026-08-12** (estado real de §3.3: Eje 2 implementado con otra fórmula,
+Eje 3 descartado) · Fuente: documento LaTeX "Academia Online de Matemáticas —
 Libro del Proyecto", Borrador v0.1, compartido por Jacobo Córdova el 2026-07-27.
 
 > **Naturaleza de este archivo:** es la visión de negocio y pedagógica de **largo plazo** del
@@ -81,17 +82,36 @@ usa el código hoy:
   (coincide con `questions.difficulty`, ya implementado).
 - **Eje 2 — Frecuencia (λ)**: *respuestas por minuto*, no "tiempo de respuesta" simple —
   `λ = n_respuestas / Δt_sesión`. Se compara explícitamente con la métrica de fluidez lectora
-  (palabras por minuto). **No implementado**: el código captura `time-ms` por respuesta
-  (ver [[OPEN_QUESTIONS]] Q-17) pero no lo agrega a una frecuencia de sesión ni lo usa para
-  clasificar.
+  (palabras por minuto). **✅ Implementado el 2026-08-12, con otra fórmula** (ver recuadro abajo).
 - **Eje 3 — Estilo de aprendizaje** *(fase futura, sin diseño técnico)*: evaluaciones para
   detectar canal preferente — auditivo, visual, kinestésico/procedimental, y un eje
   conductual/de personalidad (persistencia ante el error, tolerancia a la frustración). Declarado
   explícitamente como diferenciador competitivo, no como algo por construir en el corto plazo.
+  **⛔ Descartado el 2026-08-12** (ver recuadro abajo).
 
 Caso de uso que motiva el Eje 2: un estudiante con **conocimiento alto y frecuencia baja**
 ("sabe, pero lento") indica comprensión sin automatización, y requeriría un tipo de práctica
-distinto al de baja-conocimiento/baja-frecuencia. El código actual no distingue estos dos perfiles.
+distinto al de baja-conocimiento/baja-frecuencia.
+
+> ### Estado real de §3.3 al 2026-08-12
+>
+> **Eje 2: construido, y es el caso de uso de arriba el que lo justificó.** `universo.irt.fluency`
+> distingue "sabe y automatizó" de "sabe pero le cuesta" y les da acciones distintas — exactamente
+> lo que el libro pedía. Pero **la medida no es la del libro**: en vez de una frecuencia de sesión
+> (`n_respuestas / Δt_sesión`) se usa el **tiempo relativo por ítem**, `t_rel = segundos observados /
+> segundos de lectura del enunciado`, y se resume con la **mediana** sobre las respuestas correctas.
+> Razón: una frecuencia de sesión mide sobre todo las pausas de la persona (el test es
+> autoadministrado; alguien deja la pestaña abierta y va a buscar agua), y no es comparable entre
+> ítems de largos distintos. Se conserva el nombre λ y su dirección definiéndolo como `1/t_rel`.
+> Ver [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] y [[TERMINOLOGY]] "Fluidez (λ)".
+>
+> **Eje 3: no se va a implementar** ([[DECISIONS]] D-41). No es una postergación por prioridad: la
+> hipótesis de emparejar la enseñanza con un "canal preferente" se puso a prueba muchas veces en
+> investigación educativa y no se sostuvo. Es además el único componente del producto que un colegio
+> o un competidor podría usar para desarmar la credibilidad del resto. **Esto contradice a este
+> documento**, que lo declara diferenciador competitivo: la contradicción se resuelve a favor de
+> D-41, y se deja anotada acá en vez de editar la visión del owner. El stub `:traits` de
+> `universo.db/default-db` apuntaba a este eje y queda marcado como código muerto.
 
 ### 3.4 Tres grupos de conocimiento (vs. cuatro bandas de θ)
 

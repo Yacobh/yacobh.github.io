@@ -1,6 +1,7 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-10** (Q-26 respondida; **X-01 resuelta en producción**)
+Última actualización: **2026-08-12** (Q-27 nueva: el mínimo de respuestas del eje de fluidez;
+Q-26 respondida; **X-01 resuelta en producción**)
 
 > **Regla fundamental de PMF: si falta información, no se asume — se registra aquí.**
 > Ninguna pregunta se borra: cuando se responde, se marca ✅ con la fecha y la respuesta, y si
@@ -226,6 +227,28 @@ ahora no se recupera después.
 **Bloquea:** T-59, y desbloquea o confirma el bloqueo de T-45.
 **Relacionado:** [[BACKLOG]] T-59, T-44, T-45, T-29 · [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]]
 §Corrección 2026-08-10 · [[RISKS]] R-17.
+
+### 🟡 Q-27 · ¿`min-responses = 4` es el mínimo correcto para pronunciarse sobre fluidez, y sirve la misma medida en bancos difíciles?
+Abierta 2026-08-12, al verificar ADR-019 con datos reales.
+
+`universo.irt.fluency/min-responses` exige **4 respuestas correctas, medidas y esforzadas** para
+asignar banda. El número no salió de datos: salió de que los bancos de este proyecto tienen
+`max_items` entre 4 y 12, así que pedir más dejaría al eje mudo casi siempre. La verificación mostró
+el borde: con 3 correctas de 10 el eje no se pronuncia, y **es justo el estudiante al que peor le
+fue** el que se queda sin su segundo eje. (Se mitigó mostrando un tercer estado explícito en vez de
+esconder la tarjeta, pero eso resuelve la UI, no la pregunta.)
+
+Debajo hay una pregunta más de fondo: **la fluidez se mide solo sobre respuestas correctas** —a
+propósito, porque una incorrecta rápida y una incorrecta lenta significan lo mismo—, y esa decisión
+implica que cuanto peor le va a alguien, menos evidencia hay para hablar de su fluidez. Puede ser
+correcto (sin la herramienta, la velocidad no informa) o puede estar dejando fuera un caso real:
+quien falla **y** tarda muchísimo.
+
+**Cómo responderla:** con volumen. `fluency/calibration-report` sobre el histórico dice cuántos
+estudiantes quedan bajo el mínimo con cada valor de `min-responses`, y con qué tasa de acierto.
+**No asumir** que 4 está bien porque hoy nadie se quejó: hoy casi no hay diagnósticos con tiempo real.
+**Relacionado:** [[BACKLOG]] T-65 · [[RISKS]] R-24 ·
+[[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] · [[../sessions/SESSION-021]].
 
 ### 🔴 Q-07 · ¿Qué semántica tiene repetir el diagnóstico?
 `student_profiles` es una materialización única por estudiante. La FAQ promete explícitamente que

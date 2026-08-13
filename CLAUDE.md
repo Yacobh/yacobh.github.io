@@ -13,7 +13,9 @@
 (Chile). Aplica un **diagnóstico adaptativo basado en Teoría de Respuesta al Ítem (IRT, modelo
 1PL/Rasch)** para estimar la habilidad del estudiante (θ), detectar los **errores conceptuales
 concretos** que comete, generar un **plan de estudio personalizado** y ubicarlo en un **grupo de
-estudio (cupo) de su misma banda de nivel**, online o presencial en Iquique.
+estudio (cupo) de su misma banda de nivel**, online o presencial en Iquique. Desde el 2026-08-12 el
+perfil tiene un **segundo eje, la fluidez (λ)**, que separa "sabe" de "sabe y automatizó"
+(ver [[adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]]).
 
 Es un **proyecto personal del profesor Jacobo Córdova**, que se originó en 2025 a partir de un
 convenio de desarrollo (a honorarios, de alcance acotado, oct–nov 2025, **ya terminado**) con la
@@ -58,11 +60,13 @@ Navegador (SPA ClojureScript/re-frame)
       │
       ├── views → home → components/{landing,login,diagnostic-test,plan,slots,dashboard,admin,...}
       ├── events/{auth,test,profile,plan,slots,admin,dashboard,landing,contacto}
-      └── lógica pura: profile · slots.logic · irt.progress · components.tetha
+      └── lógica pura: profile · slots.logic · components.tetha · topics
+                       irt.progress · irt.effort · irt.fluency (eje λ, ADR-019)
       │
       ▼  @supabase/supabase-js (JWT del usuario)
 Supabase PostgreSQL  ── RLS es el único límite de seguridad ──
-  profiles · questions · tests · modules · student_profiles · resources
+  profiles · questions · tests · test_configs · modules · misconceptions
+  student_profiles · resources
   class_slots · enrollments · notifications · email_outbox · guestbook · visitor · contacto
       │
       ▼ trigger min_enrollments → notifications → email_outbox
@@ -79,7 +83,8 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
   (guion en el ns = guion bajo en el archivo). shadow-cljs falla si no coinciden.
 - **Lógica pura primero.** Toda regla de negocio nueva (IRT, bandas, filtros de cupos, perfil) va
   a un namespace puro y testeable (`universo.profile`, `universo.slots.logic`,
-  `universo.irt.progress`, `universo.components.tetha`), **no** dentro de un `reg-event-fx`.
+  `universo.irt.progress`, `universo.irt.effort`, `universo.irt.fluency`, `universo.topics`,
+  `universo.components.tetha`), **no** dentro de un `reg-event-fx`.
 - **re-frame ortodoxo:** `reg-event-db` para estado puro, `reg-event-fx` + `reg-fx` para I/O,
   `reg-sub` para lectura. Ningún componente llama a Supabase directamente.
 - **Acceso a datos centralizado** en `universo.db.crud`. `universo.db.supabase` es una API delgada
@@ -133,7 +138,7 @@ clj-kondo --lint src test             # lint + análisis de namespaces/vars CLJS
 - Toda función pura nueva o modificada necesita test en `test/` (`*_test.cljs`, ns terminado en
   `-test`; el build `:test` los descubre con `:ns-regexp "-test$"`).
 - `clj -M:test` debe cerrar en **0 failures / 0 errors** antes de commitear. Estado de referencia
-  al 2026-07-26: **34 tests / 133 assertions / 0 failures**.
+  al 2026-08-12: **74 tests / 410 assertions / 0 failures**.
 - Reglas espejo de la base de datos (ej. confirmación de cupo) se testean en el namespace puro
   (`universo.slots.logic`) **y** se documenta que la fuente de verdad es el trigger SQL.
 - Los warnings `:infer-warning` de `events/auth.cljs` son conocidos y no rompen el build

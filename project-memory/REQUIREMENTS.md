@@ -1,6 +1,7 @@
 # REQUIREMENTS
 
-Última actualización: **2026-07-26**
+Última actualización: **2026-08-12** (RF-3.8–3.11 y RF-4.7–4.8: eje de fluidez; RF-2.2 corregido:
+θ inicial es −1,0 desde D-39)
 
 > Este documento es **reconstruido desde el código, las migraciones y la landing**, no desde un
 > documento de requisitos original (no existe). Cada requisito indica su evidencia. Lo que no está
@@ -30,7 +31,7 @@ Leyenda de estado: ✅ implementado y testeado · 🟡 implementado sin test aut
 | ID | Requisito | Estado | Evidencia |
 |----|-----------|--------|-----------|
 | RF-2.1 | El estudiante elige la evaluación (topic) entre los topics distintos del banco | 🟡 | `:test/open-selection`, `crud/get-distinct-topics` |
-| RF-2.2 | θ inicial = 0,0 (arranque neutro) | ✅ | `:test/start`, `db.cljs` |
+| RF-2.2 | θ inicial = **−1,0**: el test abre por ítems más fáciles que la media del banco, no por el centro de la escala (antes 0,0) | ✅ | `:test/start` en `events/test.cljs` ([[DECISIONS]] D-39, 2026-08-11). ⚠️ `db/default-db` y `test_subs` siguen en `0.0`; hoy no se contradicen porque `:test/start` pisa el valor |
 | RF-2.3 | Cada ítem se elige entre las preguntas no respondidas del topic con dificultad en `[θ−1, θ+1]`, ampliando a `±2` si no hay candidatos, escogiendo la de dificultad más cercana a θ | 🟡 | `irt/progress.cljs` `closest-question`, `selection-half-width(-wide)`; `events/test.cljs` |
 | RF-2.4 | θ se re-estima tras cada respuesta con Newton-Raphson sobre el posterior MAP (prior N(0,1), precisión 1.0) | ✅ | `components/tetha.cljs`, `test/universo/components/tetha_test.cljs` |
 | RF-2.5 | θ se acota a `[-3, 3]` y el salto entre ítems a `|Δθ| ≤ 0,4` | ✅ | `clamp-theta`, `limit-theta-step` + tests |
@@ -55,6 +56,10 @@ Leyenda de estado: ✅ implementado y testeado · 🟡 implementado sin test aut
 | RF-3.5 | Si hay ≥ 3 puntos de θ, se calcula estabilidad (varianza de los últimos 3; `stable?` si `< 0,15`) | ✅ | `profile/build` + test |
 | RF-3.6 | El perfil se materializa en `student_profiles` (θ, `theta_band`, `profile` JSONB) | 🟡 | `events/profile.cljs`, `001_mvp_schema.sql` |
 | RF-3.7 | Un topic sin mapeo conocido produce `unknown/<topic>` en lugar de fallar | ✅ | `profile/module-slug-for` |
+| RF-3.8 | El perfil incluye un **segundo eje, fluidez (λ)**: mediana del tiempo relativo (`segundos observados / segundos de lectura`) sobre las respuestas correctas, medidas y esforzadas | ✅ | `universo.irt.fluency/classify`, `fluency_test.cljs`, ADR-019 |
+| RF-3.9 | Con menos de 4 respuestas usables **no se asigna banda de fluidez**: se informa la medición sin etiquetar | ✅ | `fluency/min-responses`, `classify` (`:enough?`) + test |
+| RF-3.10 | El cruce banda de θ × banda de λ produce uno de cuatro perfiles, cada uno con una **acción distinta** | ✅ | `fluency/profiles`, `profile-for` + test |
+| RF-3.11 | Los cortes de fluidez son **configurables por banco** (`test_configs.fluency_fluida_max` / `fluency_media_max`); sin config se usan los defaults del código | 🟡 | `fluency/thresholds-from-config`, migración `041` ⏳ **sin aplicar** |
 
 ### RF-4 — Mi plan
 
@@ -66,6 +71,8 @@ Leyenda de estado: ✅ implementado y testeado · 🟡 implementado sin test aut
 | RF-4.4 | Si el estudiante no tiene perfil, el plan invita a hacer el diagnóstico | 🟡 | `plan.cljs` estado vacío |
 | RF-4.5 | Los recursos soportan tipos texto, video (URL), audio (URL) y ejercicio | 🟡 | `001_mvp_schema.sql`, `supabase/CONTENT.md` |
 | RF-4.6 | Cada módulo puede aportar contexto histórico (`modules.historical_blurb`) | 🟡 | `002`, `004` |
+| RF-4.7 | El plan muestra la **tarjeta del cuadrante θ × λ** con la acción del perfil; si no hay evidencia suficiente lo dice explícitamente en vez de ocultarse | ✅ | `components/plan.cljs` `fluency-card`/`fluency-grid` |
+| RF-4.8 | Para perfiles guardados antes de ADR-019, la fluidez se **recalcula desde el último test**; θ y el resto del perfil no se reinterpretan | ✅ | `:plan/fetch-last-test!` en `events/plan.cljs` |
 
 ### RF-5 — Cupos e inscripción
 

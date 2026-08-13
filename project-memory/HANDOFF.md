@@ -1,7 +1,7 @@
 # HANDOFF
 
-**Fecha del handoff: 2026-08-10** · Rama `main` @ `8a9db53` · Trabajo en curso sin mergear en
-`t-44-t-51-tiempo-y-topics`
+**Fecha del handoff: 2026-08-12** · Rama `main` @ `52afdae` (merge de PR #36) · Sin trabajo sin
+mergear · ⏳ una migración escrita y **sin aplicar**: `041` (umbrales de fluidez por banco)
 
 > Este documento existe para que **una persona o un agente de IA sin acceso al historial de
 > conversaciones** pueda continuar el proyecto. Si solo puedes leer un archivo, lee este.
@@ -57,9 +57,14 @@ gratis. El diagnóstico/perfil/plan siguen gratis. Detalle: [[BUSINESS_CONTEXT]]
   como función (`sign-in-with-google`) pero **sin botón en la UI** -- no es una opción real hoy.
 - **Diagnóstico adaptativo IRT**: selección de ítem por cercanía a θ, feedback inmediato con
   explicación del error, prefetch de la siguiente pregunta, parada por precisión.
-- **Perfil**: θ, error estándar, banda (`inicial`/`basico`/`intermedio`/`avanzado`), track, déficits
-  por módulo ordenados por tasa de error, misconceptions, estabilidad de θ.
-- **Mi plan**: capa 0 (errores explicados) + capa 1 (recursos publicados por módulo).
+- **Perfil de dos ejes**: θ (error estándar, banda `inicial`/`basico`/`intermedio`/`avanzado`,
+  track, déficits por módulo ordenados por tasa de error, misconceptions, estabilidad de θ) **y
+  fluidez λ** (ADR-019): cuánto le cuesta llegar al resultado, normalizado por el tiempo de lectura
+  del enunciado. El cruce θ × λ da cuatro perfiles con acciones distintas — el caso que lo motiva es
+  distinguir "sabe pero le cuesta" de "sabe y automatizó", que hasta agosto de 2026 recibían la
+  misma recomendación.
+- **Mi plan**: capa 0 (errores explicados) + capa 1 (recursos publicados por módulo) + tarjeta del
+  cuadrante de fluidez.
 - **Cupos**: listado filtrado por banda, inscripción, "faltan N inscritos", confirmación automática,
   notificación in-app.
 - **Panel admin**: usuarios y roles (con salvaguardas), tests, moderación tri-state del guestbook,
@@ -81,7 +86,8 @@ Requisitos con evidencia línea por línea: [[REQUIREMENTS]].
 ```
 Navegador: index.html → public/js/app.js (bundle) → universo.core/init!
   re-frame: events/* → app-db → subs → components (Reagent/React 17)
-  Lógica pura testeada: components.tetha · irt.progress · profile · slots.logic
+  Lógica pura testeada: components.tetha · irt.progress · irt.effort · irt.fluency
+                        profile · topics · slots.logic · catalog · access
   I/O centralizado: universo.db.crud
         │ supabase-js con JWT del usuario
         ▼
@@ -98,12 +104,13 @@ Edge Function (Deno) send-enrollment-emails → Resend
   `email_outbox` (MVP).
 - **Migraciones:** scripts SQL en `supabase/migrations/`, aplicados **a mano** en el SQL Editor, en
   el orden de `supabase/SCHEMA.md` -- esa es la lista que se mantiene al día, no se duplica el número
-  aquí. No hay `db push`. **Al 2026-08-10 no queda ninguna pendiente**: repo y base alineados.
+  aquí. No hay `db push`. **Al 2026-08-12 queda una sola pendiente: `041`** (umbrales de fluidez por
+  banco). Sin ella el cliente usa `fluency/default-thresholds` y nada se rompe.
   ⚠️ Pero el esquema **no se puede reconstruir desde cero** con esas migraciones: `public.questions`
   y `public.is_admin()` preexisten y no están versionados (T-48).
 - **Deploy:** GitHub Pages sobre `main`. **El bundle `public/js/app.js` está versionado en Git**: sin
   `npx shadow-cljs release app` + commit, un cambio de código **no llega a producción**.
-- **Tests:** `clj -M:test` → **58 tests / 332 assertions / 0 failures** (verificado 2026-08-10).
+- **Tests:** `clj -M:test` → **74 tests / 410 assertions / 0 failures** (verificado 2026-08-12).
 - **No hay:** staging, monitoreo, analytics, backups propios verificados, router de URL. CI sí existe
   (`.github/workflows/test.yml`, T-06).
 
@@ -117,6 +124,7 @@ Detalle: [[ARCHITECTURE]] · [[TECH_STACK]] · [[DEPENDENCIES]].
 |------|--------|
 | Funnel completo (login → diagnóstico → perfil → plan → cupo) | ✅ operativo |
 | Motor IRT (1PL + MAP + parada por SE) | ✅ implementado y testeado |
+| Eje de fluidez λ (ADR-019) | ✅ en producción (2026-08-12); 🟡 umbrales **sin calibrar** (T-65) y migración `041` sin aplicar |
 | Panel de administración | ✅ operativo |
 | Contenido pedagógico | 🟡 58/61 recursos publicados (T-01); faltan geometría (T-56) y los 2 módulos creados en `031` |
 | Banco de ítems | 🟡 387 ítems, topics canónicos; **128 sin `module_id`** (bancos mezclados, T-60) |
@@ -125,7 +133,8 @@ Detalle: [[ARCHITECTURE]] · [[TECH_STACK]] · [[DEPENDENCIES]].
 | Landing y SEO | ✅ (sin analytics — T-20) |
 | Memoria del proyecto (PMF) | ✅ operativa; auditada 2026-08-10 |
 | CI | 🟡 existe (T-06); staging / respaldos / monitoreo ⛔ |
-| Árbol de trabajo | ✅ limpio; rama `t-44-t-51-tiempo-y-topics` **sin mergear** |
+| Árbol de trabajo | ✅ limpio; `experimento-cuantica` mergeada a `main` (PR #36) — nada sin publicar |
+| Track experimental de cuántica | ✅ 123 ítems `mq_` cargados y **aislados** (`active = false`); no es producto (ADR-018) |
 | ¿Está el MVP en producción? | ✅ sí, verificado por hash contra `origin/main` |
 
 Detalle por fase: [[CURRENT_STATUS]] · [[ROADMAP]].
@@ -163,11 +172,15 @@ T-08, T-19). Lo que importa ahora, en orden:
 | # | Pendiente | Tipo | Tarea |
 |---|-----------|------|-------|
 | 1 | **Difundir el cupo del 2026-08-15** y revisarlo el día 14 (si no hay 3 inscritos, no se confirma) | Negocio | R-19, R-11 |
-| 2 | Mergear `t-44-t-51-tiempo-y-topics` y publicar el bundle — hasta entonces una frase del FAQ sigue siendo falsa | Técnico | T-44, X-01 |
-| 3 | **Verificar que el cronómetro del diagnóstico registre**: hoy el 91 % de las respuestas guarda `time-ms = 0` | Técnico | T-59 |
+| 2 | **Aplicar la migración `041`** en el SQL Editor (umbrales de fluidez por banco) | Técnico | T-65 |
+| 3 | **Calibrar los umbrales de fluidez con datos** (`fluency/calibration-report`), no con criterio: el 3,0/6,0 es autoral, igual que el `3` de `028` antes de `032` | Producto | T-65 |
 | 4 | Instrumentar el embudo: el sitio recibe tráfico y no se mide nada | Producto | T-20 |
 | 5 | Clasificar los 128 ítems de `diagnostico`/`paes_m1` sin módulo (33 % del banco) | Contenido | T-60 |
 | 6 | Versionar el DDL real del esquema: hoy el repo no puede reconstruirlo | Técnico | T-48 |
+
+*Cerrados desde el handoff anterior:* T-44/T-51 mergeados y en producción (X-01 resuelta, la frase
+del FAQ ya es verdadera) y T-59 verificado — **el cronómetro sí registra**; lo que falta ahí es
+volumen de datos, no instrumentación.
 
 **Importante a corto plazo:** la banda del estudiante no está protegida en la base (T-49), respaldo
 probado (T-07), staging (T-09), router de URL (T-05), duplicación de `index.html` (T-12).
@@ -229,7 +242,7 @@ influye en la estimación — el código de T-44 ya lo hace verdad, pero **no es
 
 ## Critical Decisions
 
-Diecisiete ADRs explican por qué el sistema es como es (detalle en `../adr/`). Los diez fundacionales:
+Diecinueve ADRs explican por qué el sistema es como es (detalle en `../adr/`). Los diez fundacionales:
 
 | ADR | Decisión | Por qué importa saberlo |
 |-----|----------|-------------------------|
@@ -244,7 +257,7 @@ Diecisiete ADRs explican por qué el sistema es como es (detalle en `../adr/`). 
 | ADR-009 | Reglas de negocio en namespaces puros | Toda regla nueva va a un ns puro con test, no dentro de un handler |
 | ADR-010 | Project Memory First | Actualizar la memoria es parte de terminar una tarea, no un extra |
 
-Y los siete posteriores, que tocan lo que se está trabajando hoy:
+Y los nueve posteriores, que tocan lo que se está trabajando hoy:
 
 | ADR | Decisión | Por qué importa saberlo |
 |-----|----------|-------------------------|
@@ -255,18 +268,21 @@ Y los siete posteriores, que tocan lo que se está trabajando hoy:
 | ADR-015 | El cliente **no lee `questions`** | El ítem viaja sin respuesta; corrige el servidor. No reabrir esa policy |
 | ADR-016 | La IA produce contenido solo en el pipeline de autoría, nunca en runtime | No hay dónde poner una API key (ADR-002) y rompería el costo ≈ $0 |
 | ADR-017 | `topic` canónico garantizado por trigger en la base | La regla está duplicada a propósito en `universo.topics/normalize`: si cambia una, cambia la otra |
+| ADR-018 | Track experimental de Mecánica Cuántica sobre el mismo motor | Es 100 % datos y **no es producto**: aislado con `active = false` y prefijo `mq_`. Toda métrica del banco PAES necesita `where topic not like 'mq\_%'` |
+| ADR-019 | El segundo eje del perfil mide **fluidez (λ)**, no estilos de aprendizaje | El Eje 3 de VISION §3.3 no se implementa: la hipótesis de los "canales de aprendizaje" no tiene respaldo empírico y sería el flanco más fácil de atacar del producto (D-41) |
 
 ---
 
 ## Immediate Next Steps
 
 1. **Verificar la realidad antes de tocar nada:** `git status`, `git log main..HEAD --oneline`,
-   `clj -M:test` (esperado: 58/332/0). Comprobar si `t-44-t-51-tiempo-y-topics` sigue sin mergear.
-2. **Mergear esa rama y publicar el bundle.** Es lo único que separa a T-44 de ser verdad en
-   producción, y con ello la frase del FAQ (X-01) deja de ser falsa.
-3. **Comprobar que el cronómetro registre** (T-59, consulta 6 de
-   `supabase/queries/T-59_calibracion_tiempos.sql`). Cada diagnóstico rendido sin tiempo es un dato
-   que no se recupera, y están por llegar los primeros estudiantes externos.
+   `clj -M:test` (esperado: 74/410/0). Comprobar si sigue habiendo migraciones sin aplicar
+   (`supabase/SCHEMA.md` marca `041` como ⏳).
+2. **Aplicar `041`** en el SQL Editor de Supabase. Es idempotente y ya se probó contra un
+   PostgreSQL 14 desechable; hasta aplicarla, los cortes de fluidez son los defaults del código.
+3. **Calibrar los umbrales de fluidez con datos** (T-65): correr `fluency/calibration-report` sobre
+   el histórico y reemplazar el 3,0/6,0 autoral por cortes medidos. Es la misma deuda que `032`
+   saldó para `min_response_seconds` — un número puesto a mano puede estar del lado equivocado.
 4. **Instrumentar el embudo** (T-20): hay tráfico y no se mide nada.
 5. **Clasificar los bancos mezclados** (T-60): 128 ítems, el 33 % del banco, sin módulo.
 6. **Endurecimiento**: `000_baseline` del esquema (T-48), proteger `theta_band` (T-49), respaldo

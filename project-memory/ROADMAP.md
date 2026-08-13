@@ -1,9 +1,11 @@
 # ROADMAP
 
-Última actualización: **2026-08-09** — ⭐ **F8 (Go-live) cerrada con T-04**: primer cupo real
-publicado. F2, F3 y F5 también cerradas el mismo día. El proyecto deja de estar limitado por código
-y pasa a estarlo por difusión; **F10 (Medición) es ahora la fase que más importa**, porque sin ella
-no hay forma de saber dónde se cae el embudo. Ver `sessions/SESSION-016.md`.
+Última actualización: **2026-08-12** — el diagnóstico del 2026-08-09 sigue en pie: **F8 (Go-live)
+cerrada con T-04**, F2/F3/F5 cerradas el mismo día, el proyecto ya no está limitado por código sino
+por difusión, y **F10 (Medición) es la fase que más importa**. Novedad del 12-08: F2 recibió un
+**segundo eje de perfil (fluidez λ, ADR-019)** después de cerrada — no reabre la fase, pero deja una
+deuda de calibración que pertenece a F10/F11 (T-65). Ver `sessions/SESSION-016.md` y
+`sessions/SESSION-021.md`.
 
 > Las fases F0–F6 son **reconstruidas** desde el historial de commits y el estado del código: no
 > existía un roadmap escrito. Las fases F8+ son propuestas y requieren confirmación del owner
@@ -18,6 +20,7 @@ no hay forma de saber dónde se cae el embudo. Ver `sessions/SESSION-016.md`.
 F0 Base técnica          ████████████ 100%  ✅ cerrada
 F1 Motor IRT             ████████████ 100%  ✅ cerrada
 F2 Perfil y plan         ████████████ 100%  ✅ cerrada 2026-08-09 (T-01, R-10)
+                                            + eje de fluidez λ 2026-08-12 (ADR-019)
 F3 Cohortes              ████████████ 100%  ✅ cerrada 2026-08-09 (T-04)
 F4 Panel admin           ████████████ 100%  ✅ cerrada
 F5 Email de cohorte      ████████████ 100%  ✅ cerrada 2026-08-09
@@ -83,6 +86,7 @@ F11 Escala pedagógica    ░░░░░░░░░░░░   0%  (propuesta)
 | Capa 1: `resources` publicados por módulo | ✅ 58/61 publicados ([[BACKLOG]] T-01, 2026-08-09) |
 | Módulos Baldor sembrados con contexto histórico | ✅ `002`, `004` |
 | UI "Mi plan" con déficits priorizados | ✅ |
+| Segundo eje del perfil: fluidez λ + tarjeta del cuadrante θ × λ | ✅ 2026-08-12 (ADR-019), **agregado después de cerrar la fase**; umbrales sin calibrar (T-65) |
 
 **Cerrada 2026-08-09:** los 7 módulos prioritarios tienen ≥1 recurso publicado, auditado
 matemáticamente uno por uno sin errores. **Residual, no bloqueante:** no se verificó "Mi plan" con
@@ -260,6 +264,8 @@ Candidatos, **no comprometidos** — requieren decisión del owner (Q-14):
 
 - Calibrar `difficulty` con las respuestas reales acumuladas (pasar de dificultad asignada a
   dificultad estimada); posible salto a 2PL cuando haya volumen.
+- Calibrar los **umbrales de fluidez** con los mismos datos (`fluency/calibration-report`): hoy el
+  corte 3/6 es autoral, como lo fue `min_response_seconds = 3` antes de `032` (T-65, R-24).
 - Ampliar el banco de ítems por eje PAES y completar el mapeo `topic → module-slug` (hoy parcial:
   lo no mapeado cae en `unknown/*`).
 - Re-diagnóstico con comparación de θ y actualización del plan (Q-07 define la semántica).

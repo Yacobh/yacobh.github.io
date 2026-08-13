@@ -1,6 +1,8 @@
 # TERMINOLOGY
 
-Última actualización: **2026-07-27**
+Última actualización: **2026-08-12** (eje de fluidez λ, `t_rel`, banda de fluidez y cuadrante θ × λ;
+θ inicial corregida a `-1.0`; aviso en "Frecuencia (λ)" porque la implementación no usa la fórmula
+del libro)
 
 Glosario del proyecto. Incluye términos del dominio (psicometría, PAES), del producto y del código.
 **Si un término aparece en el código con un nombre distinto al del negocio, aquí se registran ambos.**
@@ -16,7 +18,9 @@ estandarizadas y el fundamento del diagnóstico de este producto.
 
 **θ (theta) — habilidad estimada**
 Parámetro continuo que representa el nivel del estudiante, en logits. En este proyecto se acota a
-`[-3, 3]` y arranca en `0.0`. En el código: `:theta` en `app-db`, `theta` en `student_profiles`.
+`[-3, 3]` y **arranca en `-1.0`** desde el 2026-08-11 (antes `0.0`; ver [[DECISIONS]] D-39: el test
+abre por ítems más fáciles que la media del banco, no por el centro de la escala). En el código:
+`:theta` en `app-db`, `theta` en `student_profiles`.
 No es una nota ni un puntaje PAES: es una **estimación** en escala logística.
 
 **b — dificultad del ítem**
@@ -110,6 +114,35 @@ Segundo rasgo latente del marco de van der Linden, separado de la habilidad θ:
 `ln T_ij = β_i − τ_j + ε`, que tiene la misma forma aditiva persona−ítem que `logit P = θ_j − b_i`.
 Permite el perfil *"sabe pero lento"* (θ alto, τ bajo), que desaparecería si el tiempo se fundiera
 dentro de θ. **No implementado** (ADR-014 Fase 2, T-45).
+
+**Fluidez (λ) — Eje 2 del perfil**
+Cuánto le **cuesta** al estudiante llegar al resultado correcto, no si llega. Implementado en
+`universo.irt.fluency` el 2026-08-12 ([[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]]).
+Distingue dos personas que θ deja idénticas: la que resuelve bien **y de inmediato** (herramienta
+automatizada) de la que resuelve bien **tras pelearla** (la tiene, pero le cuesta cada vez).
+⚠️ Conserva el nombre del libro pero **no** su fórmula (`n_respuestas / Δt_sesión`); ver "Frecuencia
+(λ)" más abajo.
+
+**Tiempo relativo (`t_rel`)**
+`t_rel = segundos observados / segundos de lectura del enunciado`, siendo el divisor el mismo
+`effort/reading-seconds` que ya usa el filtro de esfuerzo. `t_rel = 3` significa "tardó tres veces
+lo que toma leerlo". Es **el estadístico que se usa de verdad**: adimensional, comparable entre
+ítems de largos distintos, y explicable en una frase. λ se define como su recíproco (`λ = 1/t_rel`)
+solo para conservar la dirección del libro ("λ alta = más fluido").
+
+**Banda de fluidez**
+Discretización de la **mediana** de `t_rel` sobre las respuestas *usables* (correctas, con tiempo
+medido y con peso 1.0): `:fluida` (`t_rel` ≤ 3), `:media` (≤ 6), `:laboriosa` (> 6). Mediana y no
+promedio porque el test es autoadministrado: un ítem de 8 minutos —alguien fue a buscar agua— arruina
+cualquier promedio. **Los cortes 3 y 6 son autorales y están sin calibrar** ([[RISKS]] R-24,
+[[BACKLOG]] T-65); desde la migración `041` son configurables por banco.
+
+**Cuadrante θ × λ (`fluency-profile`)**
+Cruce de la banda de θ (colapsada a alto/bajo) con la de fluidez (colapsada a fluida/no fluida), en
+cuatro perfiles con **acciones distintas**: *Consolidado*, *Sabe pero le cuesta* (→ práctica de
+fluidez, **no** más teoría), *Rápido sin base* y *En construcción*. La acción es la razón de existir
+del eje: sin ella el cuadrante sería una etiqueta bonita. `:media` cae del lado "no fluida" a
+propósito — ante la duda, ofrecer práctica de fluidez no le hace daño a nadie.
 
 **Media geométrica vs. media simple (en tiempos)**
 El tiempo es multiplicativo, no aditivo: una respuesta de 300 s no es "un poco más" que una de 5 s.
@@ -309,10 +342,15 @@ Clasificación estática del estudiante al momento del diagnóstico inicial, en 
 Clasificación dinámica propuesta, que evolucionaría con el ritmo, la frecuencia (λ) y el estilo de
 aprendizaje observado. No tiene tabla, evento ni concepto equivalente en el código.
 
-**Frecuencia (λ) — Eje 2**
-`λ = n_respuestas / Δt_sesión`, en respuestas por minuto. Se propone como segundo eje de
-clasificación, junto al conocimiento (θ). El código guarda `time-ms` por respuesta pero no lo
-convierte en una frecuencia de sesión ni lo usa para clasificar (ver [[OPEN_QUESTIONS]] Q-17).
+**Frecuencia (λ) — Eje 2** *(definición del libro; ver abajo la implementada)*
+`λ = n_respuestas / Δt_sesión`, en respuestas por minuto. Se propuso como segundo eje de
+clasificación, junto al conocimiento (θ).
+
+> ⚠️ **El eje se implementó el 2026-08-12 con otra definición.** Se conserva el nombre y la
+> dirección ("λ alta = más fluido"), pero la medida **no** es una frecuencia de sesión: es por ítem
+> y normalizada por el largo del enunciado. Ver "Fluidez (λ)" en el bloque de psicometría e IRT y
+> [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]]. Una frecuencia de sesión
+> mediría sobre todo cuántas pausas hizo la persona, no cuánto le cuesta cada ítem.
 
 **Control Retroalimentado**
 Marco conceptual del libro: el estudiante es medido continuamente y el sistema ajusta contenido,

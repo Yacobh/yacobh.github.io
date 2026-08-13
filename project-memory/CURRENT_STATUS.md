@@ -1,6 +1,8 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-07-26** · Commit `48bf525` · Rama `cursor/mvp-operable-funnel`
+**Fecha de corte: 2026-08-12** · Commit `52afdae` (merge de PR #36) · Rama `main`
+*(el cuerpo histórico de este archivo arranca en el corte del 2026-07-26, commit `48bf525`, rama
+`cursor/mvp-operable-funnel`; las notas de sesión de más abajo son la capa vigente)*
 
 > ⚠️ **Nota 2026-07-29:** el cuerpo de este archivo (secciones 1–9) sigue describiendo el corte del
 > 26-07. Desde entonces se mergeó a `main` (commit `4998785`, PR #15 "Configuracion") el trabajo de
@@ -758,6 +760,42 @@
 > pasado.** 51 de los 169 commits tocan `project-memory/`; despublicar de verdad exigiría reescribir
 > el historial.
 
+> # ⭐ **Cierre del 2026-08-12: el eje de fluidez está en producción**
+>
+> `experimento-cuantica` se mergeó a `main` (**PR #36**, merge `52afdae`). `git diff main
+> experimento-cuantica` está vacío y el árbol limpio: lo que se ve en <https://jacobocordova.com>
+> incluye el eje λ. (Durante la sesión no era así, y eso hizo fallar cinco intentos de verificación
+> visual: el owner miraba producción mientras el agente controlaba `127.0.0.1`. Ver
+> [[../sessions/SESSION-021]], nota de método.)
+>
+> **Verificado con datos reales, no solo con tests.** El owner rindió `mq_momento_angular` y de ahí
+> salieron dos correcciones que ningún test unitario habría mostrado:
+> 1. el eje **no existía para ningún perfil ya guardado** (`:fluency` solo se escribía al construir
+>    el perfil) → se agregó el recálculo desde `tests.test` en `:plan/fetch-last-test!`, usando
+>    datos que ADR-014 Fase 1 ya guardaba. **No contradice el "no reinterpretar hacia atrás"**: no
+>    toca θ ni ningún resultado previo;
+> 2. con pocas correctas **la tarjeta desaparecía en silencio** (`min-responses` = 4) → tercer
+>    estado explícito que dice cuántas faltan. Una funcionalidad que se esconde sola es peor que no
+>    tenerla.
+>
+> Resultado medido del owner: 8 respuestas usables, `t_rel` mediana **2,19** → banda `:fluida`.
+> Ese número es la primera evidencia de que el corte `:fluida` = 3,0 puede ser **demasiado generoso
+> para ítems conceptuales** ([[BACKLOG]] T-65).
+>
+> **Migración `041` — ⏳ pendiente de aplicar.** Hace configurables por banco los cortes de fluidez
+> (`test_configs.fluency_fluida_max` / `fluency_media_max`, `not null default 3`/`6` con check que
+> impide invertirlos), editables en Admin → Configuración de tests. Verificada contra un PostgreSQL
+> 14 desechable (aplica limpia, defaults correctos, el check rechaza la inversión, idempotente).
+> Hasta que el owner la aplique, el código cae a `fluency/default-thresholds` y todo funciona igual.
+> **Lo que a propósito NO se hizo:** bajar el corte de `mq_momento_angular` a 2,0/4,5. El `update`
+> está escrito y **comentado** dentro de la migración: aplicarlo por un único test rendido por una
+> sola persona sería fijar un número por criterio y presentarlo como medición — exactamente el error
+> que ADR-019 documenta.
+>
+> **Falsa alarma cerrada (T-65):** las 15 respuestas contra `max_items = 12` **no eran un bug** de
+> la regla de parada; el owner había subido `max_items` desde el panel. Recordatorio de no escalar
+> una anomalía a bug antes de preguntar por la configuración.
+
 > Este archivo es el "dónde estamos" canónico. **Se actualiza en toda sesión con cambios.**
 > Si contradice a cualquier otro documento, este gana para "estado"; [[ARCHITECTURE]] gana para
 > "cómo está construido".
@@ -783,15 +821,16 @@ las próximas semanas.
 |-----------|--------|
 | Funcionalidad del funnel | ✅ operativa |
 | Panel admin | ✅ operativo |
-| Tests | ✅ `58 tests / 332 assertions / 0 failures` (`clj -M:test`, 2026-08-10) |
+| Tests | ✅ `74 tests / 410 assertions / 0 failures` (`clj -M:test`, 2026-08-12) |
+| Perfil del estudiante | ✅ dos ejes: θ (IRT) y **fluidez λ** (ADR-019), con la tarjeta 2×2 en «Mi plan», en producción desde el 2026-08-12. Umbrales de λ **sin calibrar** (T-65) |
 | Contenido pedagógico | 🟡 58/61 recursos publicados (T-01); faltan los 2 módulos nuevos de `031` y los 7 de geometría (T-56) |
-| Banco de ítems | 🟡 387 ítems; topics canónicos y 259 con módulo, **128 sin módulo** (bancos mezclados, T-60) |
-| Migraciones | ✅ **ninguna pendiente** — repo y base alineados (2026-08-10, hasta `032`) |
+| Banco de ítems | 🟡 387 ítems PAES; topics canónicos y 259 con módulo, **128 sin módulo** (bancos mezclados, T-60). Además 123 ítems `mq_` del track experimental, **aislados** (`active = false`) — las métricas necesitan `where topic not like 'mq\_%'` |
+| Migraciones | 🟡 `033`–`040` aplicadas (2026-08-11); **`041` pendiente de aplicar** (umbrales de fluidez por banco). Sin ella el código usa los defaults y no se rompe nada |
 | Email de cohorte | ✅ desplegado y verificado en producción (T-02, 2026-08-09) |
-| Documentación / memoria | ✅ PMF operativo desde 2026-07-26; auditada el 2026-08-10 |
+| Documentación / memoria | ✅ PMF operativo desde 2026-07-26; auditada el 2026-08-10, actualizada el 2026-08-12 |
 | CI | 🟡 `.github/workflows/test.yml` existe (T-06); staging y monitoreo ⛔ inexistentes |
 | Analítica del embudo | ⛔ inexistente (T-20) — el sitio ya recibe tráfico sin medición |
-| Estado del árbol de trabajo | ✅ limpio; rama `t-44-t-51-tiempo-y-topics` **sin mergear** (2026-08-10) |
+| Estado del árbol de trabajo | ✅ limpio; `experimento-cuantica` **mergeada a `main`** (PR #36, `52afdae`, 2026-08-12) — sin ramas con trabajo sin publicar |
 
 ---
 

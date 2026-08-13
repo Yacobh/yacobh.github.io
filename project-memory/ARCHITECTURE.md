@@ -1,6 +1,6 @@
 # ARCHITECTURE
 
-Última actualización: **2026-08-10** · Verificado contra `src/`, `supabase/`, `shadow-cljs.edn`,
+Última actualización: **2026-08-12** · Verificado contra `src/`, `supabase/`, `shadow-cljs.edn`,
 `index.html` y `project-memory/graph/GRAPH_REPORT.md`
 
 ---
@@ -31,8 +31,8 @@
 │  └───────────────────────────────────────────────────────────────────┘    │
 │                                                                           │
 │  Lógica pura (sin I/O, testeada):                                         │
-│    components.tetha · irt.progress · irt.effort · profile · topics ·      │
-│    slots.logic                                                            │
+│    components.tetha · irt.progress · irt.effort · irt.fluency ·           │
+│    profile · topics · slots.logic                                         │
 │    access · catalog                                                       │
 └──────────────────────────────┬────────────────────────────────────────────┘
                                │ HTTPS + JWT del usuario (supabase-js)
@@ -102,6 +102,7 @@ Tres namespaces puros + un ns de eventos:
 | `universo.components.tetha` | Modelo 1PL/Rasch: `probability-1pl`, derivadas de la log-verosimilitud, score y Hessiano MAP con prior N(0,1), `newton-raphson-iteration`, `clamp-theta` `[-3,3]`, `limit-theta-step` (Δθ ≤ 0,4) | `tetha_test.cljs` |
 | `universo.irt.progress` | `fisher-information` (`I(θ) = −f''(θ)`), `standard-error` (`1/√I`), `closest-question` (argmin `|b−θ|`), ventanas de selección (±1, ±2), `stop-reason` (min 5, max 12, SE ≤ 0,35), `progress-points` para el gráfico | `progress_test.cljs` |
 | `universo.irt.effort` | Filtro de respuestas no esforzadas (ADR-014 Fase 1): `min-response-seconds` (umbral `max(piso, largo/20)`), `response-weight` (1.0 / 0.0), `weigh-response`, `weight-of`. El peso se calcula al registrar la respuesta y viaja en `tests.test`; sin `:weight` cuenta como 1.0 | `effort_test.cljs` |
+| `universo.irt.fluency` | **Eje 2 — fluidez (λ)**, ADR-019: `usable?` (correcta + con tiempo + esforzada), `relative-time` (`t_rel` = segundos observados / `effort/reading-seconds` del enunciado), `classify` (mediana de `t_rel`, banda `:fluida`/`:media`/`:laboriosa`, `min-responses` = 4), `thresholds-from-config` (cortes por banco, `041`), `profile-for` (cruce 2×2 con la banda de θ), `calibration-report` (deciles para recalibrar). **No mide estilos de aprendizaje** — el Eje 3 de VISION §3.3 se descarta (D-41) | `fluency_test.cljs` |
 | `universo.topics` | Forma canónica de `questions.topic` (**espejo de `public.normalize_topic()`**, ADR-017): `normalize`, `same-topic?`, `duplicate-groups`, `module-slug-for` (equivalencia explícita → sufijo único del slug), `track-for`, `unmapped` | `topics_test.cljs` |
 | `universo.profile` | `theta-band`, `band-label`, `deficits-from-responses`, `misconceptions-from`, `dominant-track`, `build` (perfil completo + estabilidad de θ). El mapeo topic → módulo lo delega en `universo.topics` | `profile_test.cljs` |
 | `universo.catalog` | Catálogo de evaluaciones: `topic-label` (precedencia `test_configs.display_name` → diccionario `topic-labels` → topic con guiones bajos como espacios), `count-by-topic` (preguntas por banco), `counts-truncated?` (detecta respuesta recortada de PostgREST) | `catalog_test.cljs` |
@@ -139,8 +140,9 @@ fácil" a "imposible"; parada por SE en lugar de número fijo de preguntas.
 
 | Componente | Namespaces | Notas |
 |-----------|-----------|-------|
-| Perfil | `events/profile.cljs` + `universo.profile` | Construye el perfil puro y lo materializa en `student_profiles` (θ, `theta_band`, `profile` JSONB) |
-| Plan | `events/plan.cljs` + `components/plan.cljs` | Capa 0 (errores explicados) desde las respuestas; capa 1 = `resources` publicados de los `deficit-slugs` |
+| Perfil | `events/profile.cljs` + `universo.profile` | Construye el perfil puro y lo materializa en `student_profiles` (θ, `theta_band`, `profile` JSONB). Desde ADR-019 `profile/build` recibe `:fluency-thresholds` (los del banco, vía `:stop-config`) y agrega `:fluency` + `:fluency-profile` |
+| Plan | `events/plan.cljs` + `components/plan.cljs` | Capa 0 (errores explicados) desde las respuestas; capa 1 = `resources` publicados de los `deficit-slugs`. Además muestra la **tarjeta del eje de fluidez** (2×2 θ × λ) |
+| Fluidez | `universo.irt.fluency` + `events/plan.cljs` | El eje se **recalcula en el cliente** desde el último test (`:plan/fetch-last-test!`) cuando el perfil guardado no trae `:fluency` — todo diagnóstico anterior a ADR-019 quedó sin él. No reinterpreta θ ni ningún resultado previo: usa `:time-ms`/`:weight`/`:question-text`, que ADR-014 Fase 1 ya guardaba en `tests.test` y nadie leía. Con menos de `min-responses` correctas usables la tarjeta muestra un tercer estado explícito ("todavía no alcanza"), en vez de desaparecer |
 | Cupos | `events/slots.cljs` + `components/slots.cljs` + `universo.slots.logic` | `slots.logic` es el **espejo puro** de reglas que la DB también impone: filtro por banda, conteo activo, faltantes, confirmación |
 | Cuenta | `events/account.cljs` + `components/cuenta.cljs` | Sección propia (`:cuenta`, protegida por sesión): editar `full_name`/`phone` en `profiles` y solicitar eliminación de cuenta (inserta una `notifications` con `kind = 'account_deletion_request'`; el admin la atiende desde `components/admin.cljs`, pestaña Usuarios) |
 | UI compartida | `events/ui.cljs` + `components/ui.cljs` | Piezas transversales (2026-07-29): `ui/spinner`/`ui/loading-block` (spinner único con `role="status"`, usado por dashboard, plan, cupos, cuenta, diagnóstico, guestbook y admin) y `ui/confirm-dialog` (diálogo de confirmación global vía `[:confirm/ask {...}]`, reemplaza `js/confirm` nativo; montado una sola vez en `home.cljs`) |
@@ -193,7 +195,7 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
 | `profiles` | `id` (FK `auth.users`), `email`, `role` (`user`\|`admin`) | Base del control de acceso. Índices en `role` y `email` |
 | `questions` | opciones A–D, `correct_option`, `error_a..error_d`, `difficulty`, `topic`, `order_index`, `module_id` (FK opcional), `misconception_a_id..d_id` (`027`) | **El activo del proyecto**: banco IRT con misconceptions. `correct_option` y `error_*` **nunca viajan al cliente** (ADR-015). `topic` lo mantiene canónico un **trigger** (`029`, ADR-017). Su DDL **no está versionado** — preexiste a `001` (T-48). 387 ítems, 128 sin `module_id` (T-60) |
 | `tests` | `test` (JSON del diagnóstico), `topic`, `theta` (columnas propias desde ADR-013), `email-user`, `user_id` | Histórico de diagnósticos; `topic`/`theta` alimentan `universo.access/unlocked-topics` |
-| `test_configs` | `topic` (PK), `display_name` (nullable), `min_items`, `max_items`, `se_threshold`, `max_minutes`, `prerequisite_topic` (self-FK nullable), `min_theta`, `active`, `min_response_seconds` | Config de parada IRT + cadena de prerequisitos por banco (ADR-013). Sin prerequisito = diagnóstico, siempre accesible. `display_name` es el nombre que ve el estudiante (T-42, migración `022`); null = fallback en `universo.catalog/topic-label`. `min_response_seconds` es el piso del umbral de esfuerzo (T-44, migración `028`), no una regla de parada. **`topic` se mantiene canónico por trigger** (ADR-017, migración `029`) |
+| `test_configs` | `topic` (PK), `display_name` (nullable), `min_items`, `max_items`, `se_threshold`, `max_minutes`, `prerequisite_topic` (self-FK nullable), `min_theta`, `active`, `min_response_seconds`, `fluency_fluida_max`, `fluency_media_max` | Config de parada IRT + cadena de prerequisitos por banco (ADR-013). Sin prerequisito = diagnóstico, siempre accesible. `display_name` es el nombre que ve el estudiante (T-42, migración `022`); null = fallback en `universo.catalog/topic-label`. `min_response_seconds` es el piso del umbral de esfuerzo (T-44, migración `028`), no una regla de parada. Las dos columnas `fluency_*` son los cortes del eje λ por banco (ADR-019, migración **`041` — ⏳ pendiente de aplicar**), `not null default 3`/`6` con check que impide invertirlas; mientras no exista la columna, `fluency/thresholds-from-config` cae a `default-thresholds`. **`topic` se mantiene canónico por trigger** (ADR-017, migración `029`) |
 | `modules` | `slug` (único), `title`, `track` (`aritmetica`\|`algebra`\|`geometria`), `order_index`, `historical_blurb` | Skills atómicas alineadas a Baldor. **20 módulos**: 18 de `002` + `algebra/inecuaciones` y `aritmetica/operaciones_fundamentales` (`031`, D-37) |
 | `misconceptions` | `slug` (único, con check de formato), `name`, `description`, `module_id` | Catálogo curado de errores conceptuales con identidad propia (`027`, T-57). **Vacío todavía**; `null` en `questions.misconception_*_id` = "sin catalogar". RLS solo admin |
 | `student_profiles` | `theta`, `theta_band`, `profile` JSONB | Materialización del perfil (una por estudiante) |
@@ -216,7 +218,9 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
   "track": "aritmetica",
   "topic": "enteros",
   "deficits": [{"module-slug": "aritmetica/enteros", "errors": 3, "total": 4}],
-  "misconceptions": [{"question-id": "...", "selected": "B", "explanation": "..."}]
+  "misconceptions": [{"question-id": "...", "selected": "B", "explanation": "..."}],
+  "fluency": {"n": 8, "t-rel": 2.19, "lambda": 0.456, "band": "fluida", "enough?": true},
+  "fluency-profile": {"id": "consolidado", "titulo": "Consolidado", "descripcion": "…", "accion": "…"}
 }
 ```
 
@@ -224,6 +228,13 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
 ≥ 3 puntos en `theta-history`. **Contrato acoplado**: cualquier cambio en `profile/build` cambia
 la forma del JSONB persistido. Es un contrato implícito, sin validación de esquema
 ([[RISKS]] R-09).
+
+`:fluency` / `:fluency-profile` son **aditivas** (ADR-019, 2026-08-12): los perfiles guardados
+antes simplemente no las traen, y no se recalculan hacia atrás en la base — el cliente las
+recalcula al vuelo desde el último test para poder mostrar la tarjeta. Consecuencia práctica del
+JSONB: al releer, `"fluida"` vuelve como **string**, no como keyword; `fluency/profile-for` acepta
+las dos formas a propósito, porque si no el cuadrante se vería al terminar el test y desaparecería
+al recargar la página.
 
 ### 3.3 Bandas de θ
 
@@ -259,6 +270,8 @@ init! → [:initialize-db] (sync)
                  → [:navigate-to :diagnostic-test]
 [:test/open-selection] → get-distinct-topics → :test/topics-loaded
 [:test/start topic] → resolve-topic (alias) → reset del estado del test → fetch-next-question
+   (la config del banco viaja en :stop-config, incluidos min_response_seconds
+    y los cortes de fluidez de 041 vía fluency/thresholds-from-config)
    fetch-candidates(θ, topic, answered-ids, ±1 → ±2) → closest-question
    → normalize-question → :current-question
 usuario responde
@@ -296,7 +309,15 @@ confirmación de cupo encola dos filas en `email_outbox`, no una.
 [:plan/load] → lee student_profiles.profile → deficit-slugs
              → resources where module.slug in deficit-slugs AND published = true
              → capa 0 (misconceptions del perfil) + capa 1 (resources) ordenadas por prioridad
+             → [:plan/fetch-last-test!] → tests (último del estudiante)
+                  → respuestas con :time-ms/:weight/:question-text  ─┐
+                  → test_configs del topic de ese test              ─┤
+                                                                    ▼
+                       fluency/classify → banda λ → profile-for(θ, λ) → tarjeta 2×2
 ```
+
+El fetch del último test es **best-effort**: si falla, no se muestra la tarjeta de fluidez y el
+resto de "Mi plan" funciona igual.
 
 ---
 
@@ -438,6 +459,15 @@ la ejecute todavía** ([[BACKLOG]] T-34). Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]
 | [[../adr/ADR-008-archivar-mathacademy]] | Archivar MathAcademy y dejar un funnel único |
 | [[../adr/ADR-009-logica-pura-testeable]] | Reglas de negocio en namespaces puros y testeados |
 | [[../adr/ADR-010-adopcion-project-memory-first]] | Adopción de Project Memory First |
+| [[../adr/ADR-011-vision-libro-como-norte-estrategico]] | La visión del libro es norte estratégico, no alcance del MVP |
+| [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] | Tema oscuro por mapeo global de clases en `app.css`, no `dark:` por elemento |
+| [[../adr/ADR-013-config-parada-por-banco-y-prerequisitos]] | Regla de parada configurable por banco (`test_configs`) + prerequisitos |
+| [[../adr/ADR-014-tiempo-de-respuesta-como-eje-separado]] | El tiempo entra como **peso** de la respuesta, no como parámetro del modelo IRT |
+| [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]] | `correct_option` y `error_*` nunca viajan al cliente (RPC `score_answer`) |
+| [[../adr/ADR-016-ia-en-el-pipeline-de-autoria-no-en-runtime]] | La IA genera contenido en el pipeline de autoría, nunca en runtime |
+| [[../adr/ADR-017-topic-canonico-por-trigger]] | `topic` canónico por trigger en la DB, con espejo puro en `universo.topics` |
+| [[../adr/ADR-018-track-experimental-cuantica]] | Track experimental de Mecánica Cuántica sobre el mismo motor, aislado por `active = false` |
+| [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] | El segundo eje del perfil mide **fluidez (λ)**, no estilos de aprendizaje |
 
 ---
 
@@ -447,7 +477,7 @@ la ejecute todavía** ([[BACKLOG]] T-34). Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]
 |---|--------|---------|
 | A-01 | **RLS como único control** | Un error de policy expone datos de estudiantes. No hay defensa en profundidad ni auditoría automática de policies |
 | A-02 | **Un solo entorno** | Se desarrolla y prueba contra la base de producción |
-| A-03 | **Deploy manual del bundle** | Se puede publicar código fuente sin recompilar el `app.js`, o commitear un `app.js` que no corresponde al fuente. Hoy mismo hay un `public/js/app.js` modificado sin commit |
+| A-03 | **Deploy manual del bundle** | Se puede publicar código fuente sin recompilar el `app.js`, o commitear un `app.js` que no corresponde al fuente. Al 2026-08-12 el árbol está limpio y `main` trae el bundle con el eje de fluidez; el riesgo es de proceso, no un pendiente abierto |
 | A-04 | **Reglas duplicadas cliente/DB** | Bandas de θ y confirmación de cupo viven en dos lugares |
 | A-05 | **Contrato JSONB implícito** | `profile` se persiste sin esquema; un cambio en `profile/build` rompe lectores antiguos silenciosamente |
 | A-06 | **Componentes monolíticos** | `admin.cljs` (1060), `crud.cljs` (975), `events/admin.cljs` (738) concentran riesgo de regresión |
@@ -465,16 +495,24 @@ Priorizados con impacto/probabilidad en [[RISKS]].
 `project-memory/graph/GRAPH_REPORT.md` es el **snapshot versionado** del grafo del repositorio
 (`graphify-out/` es el directorio de trabajo vivo, no versionado).
 
-Estado del snapshot al **2026-07-26** (commit `48bf5254`): **105 nodos · 147 aristas ·
-13 comunidades**; 92 % de aristas extraídas, 8 % inferidas; sin ciclos de importación.
+Estado del snapshot al **2026-08-12** (commit `5207882a`): **1 560 nodos · 1 898 aristas ·
+144 comunidades** sobre 141 archivos; **100 % de aristas extraídas**, ninguna inferida.
+
+> **No leer el tamaño como crecimiento del proyecto.** El snapshot del 2026-08-10 marcaba 2 376
+> nodos porque el manifest indexó `public/js/app.js`, el bundle minificado, y sus símbolos ofuscados
+> (`v()`, `K()`, `C()`…) coparon los god nodes. El de hoy es más chico y más útil: el núcleo vuelve a
+> ser la documentación y el esquema.
 
 **God nodes** (mayor conectividad = abstracciones centrales *según la documentación*):
 
-1. `Schema Supabase — Academia Integral MVP` (16 aristas)
-2. `Universo Project Summary` (11)
-3. `index.html — Landing PAES Matemática 1` (9)
-4. `Funnel MVP Operable (Login → Diagnóstico → Perfil → Plan → Cupos → Inscripción)` (6)
-5. `Tabla class_slots` / `Tabla modules` (6)
+1. `Schema Supabase — Academia Integral MVP` (28 aristas)
+2. `SESSION-021` (20) — la sesión del eje de fluidez
+3. `SESSION-018` / `SESSION-019` (19)
+4. Las sesiones fundacionales `SESSION-001`…`004` (18 cada una)
+
+Que las sesiones aparezcan tan conectadas es esperable y sano: son el tejido que enlaza decisiones,
+tareas y riesgos entre sí. El esquema de Supabase en el primer lugar confirma lo que dice §1 — el
+modelo de datos **es** la arquitectura de este sistema.
 
 **Hiperaristas detectadas** — coinciden con los flujos de §4, lo que valida el modelo mental:
 

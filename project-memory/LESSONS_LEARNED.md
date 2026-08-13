@@ -1,6 +1,8 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-08-05**
+Última actualización: **2026-08-12** (cuatro lecciones de la sesión del eje de fluidez: datos
+preexistentes, UI que se esconde sola, predecir sobre la memoria del usuario, verificación visual
+de ramas no publicadas)
 
 Trampas ya pisadas en **este** repositorio, con su causa y la regla que evita repetirlas. Extraídas
 del código, los comentarios de las migraciones, `PROJECT_SUMMARY.md` y el historial de commits.
@@ -413,6 +415,60 @@ y mal en el ítem aparece en **las dos** listas.
 **Generalización:** todo `left join` que resuelve una referencia opcional convierte "no encontré
 esto" en "esto no estaba especificado". Cuando esas dos cosas significan algo distinto —y acá lo
 significan: `null` es "sin catalogar a propósito"— el join no puede ser la única verificación.
+
+## Una funcionalidad nueva no existe para los datos que ya estaban
+
+**Fecha:** 2026-08-12 (SESSION-021, ADR-019)
+
+**Qué pasó:** el eje de fluidez se implementó, se testeó (14 tests nuevos, todos verdes) y se
+publicó. Al abrir «Mi plan» con una cuenta real **no se veía nada**. El motivo no era un bug: el
+eje se escribía al *construir* el perfil, y todos los perfiles guardados eran anteriores. La
+funcionalidad estaba perfecta para estudiantes que todavía no existían.
+
+**Regla:** al agregar un campo derivado al perfil (o a cualquier entidad materializada), decidir
+**explícitamente** qué pasa con las filas ya guardadas — backfill, recálculo al vuelo, o "solo
+desde ahora, y se dice". Ninguna de las tres es incorrecta; no elegir sí lo es. Acá se eligió
+recalcular en el cliente desde `tests`, que ya tenía los datos crudos (D-44).
+
+## Una funcionalidad que se esconde sola es peor que no tenerla
+
+**Fecha:** 2026-08-12 (SESSION-021)
+
+**Qué pasó:** `fluency/min-responses = 4` hace que con menos evidencia no se asigne banda — correcto
+como estadística. Pero la UI traducía "sin banda" a "no renderizar la tarjeta", así que el
+estudiante al que peor le fue (3 correctas de 10) **no veía que el eje existiera**, ni por qué.
+
+**Regla:** un umbral de datos insuficientes es un **estado de la UI**, no una condición de
+renderizado. Mostrar "todavía no alcanza: tenés 3 respuestas, hacen falta 4" cuesta lo mismo que
+ocultar y no deja al usuario creyendo que la funcionalidad no existe. Mismo espíritu que L-18 (un
+topic sin mapeo se degrada, no falla).
+
+## No predecir sobre lo que el usuario recuerda cuando la base tiene el número exacto
+
+**Fecha:** 2026-08-12 (SESSION-021)
+
+**Qué pasó:** dos veces en la misma sesión. (1) El agente predijo "vas a ver el estado insuficiente,
+tenés 3 correctas" a partir de lo que el owner recordaba de su test; los datos daban **8 respuestas
+usables** y la tarjeta mostró banda `:fluida`. (2) Una fila con 15 respuestas contra `max_items = 12`
+se escaló a "posible bug de la regla de parada": el owner había subido `max_items` desde el panel.
+
+**Regla:** antes de anunciar un resultado o declarar un bug, preguntar por la **configuración** y
+mirar el dato, no la memoria de nadie. Una anomalía numérica tiene casi siempre una explicación de
+configuración antes que una de lógica.
+
+## Verificar UI de una rama no publicada exige mirar el servidor local, no producción
+
+**Fecha:** 2026-08-12 (SESSION-021)
+
+**Qué pasó:** cinco intentos de verificación visual fallidos. El owner miraba `jacobocordova.com`
+—producción, servida desde `main`, que en ese momento **no** tenía el eje— mientras el agente
+controlaba una pestaña en `127.0.0.1`. Además el navegador del owner es **Comet**, y la extensión
+de automatización solo controla Chrome. La sesión de Supabase vive **por origen** y no viaja entre
+los dos.
+
+**Regla:** al pedir verificación visual de trabajo no publicado, decir explícitamente la URL
+(`127.0.0.1:3000`, no el dominio) y confirmar en qué navegador está el humano antes de intentar
+automatizar nada.
 
 ---
 

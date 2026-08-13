@@ -1,6 +1,7 @@
 # PROJECT_BRIEF
 
-Última actualización: **2026-07-27** · Fuente: código, migraciones SQL, landing y `PROJECT_SUMMARY.md`
+Última actualización: **2026-08-12** (segundo eje del perfil: fluidez λ) · Fuente: código,
+migraciones SQL, landing y `PROJECT_SUMMARY.md`
 
 > Este archivo describe el **alcance del MVP tal como está implementado**. El fundador tiene además
 > una visión de negocio de largo plazo más amplia (multi-materia, pago por clase, contenido
@@ -23,9 +24,12 @@ Aplicación web de página única (SPA) en ClojureScript que:
 1. Aplica un **diagnóstico adaptativo** de matemática basado en **Teoría de Respuesta al Ítem**
    (modelo 1PL/Rasch con estimación MAP), seleccionando cada ítem según la habilidad estimada (θ)
    del estudiante y deteniéndose cuando la precisión es suficiente.
-2. Construye un **perfil de aprendizaje**: θ, error estándar, banda de nivel, track dominante,
-   **déficits por módulo** y **misconceptions** (la idea errónea detrás de cada alternativa
-   incorrecta elegida).
+2. Construye un **perfil de aprendizaje de dos ejes**: θ (error estándar, banda de nivel, track
+   dominante, **déficits por módulo** y **misconceptions** — la idea errónea detrás de cada
+   alternativa incorrecta elegida) y **fluidez λ** (cuánto le cuesta llegar al resultado,
+   normalizado por el tiempo de lectura del enunciado). El cruce de ambos separa a quien "sabe y
+   automatizó" de quien "sabe pero le cuesta", y les da recomendaciones distintas
+   ([[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]], 2026-08-12).
 3. Genera un **plan de estudio** en dos capas: capa 0 (explicación del error concreto, desde
    `questions.error_a..d`) y capa 1 (recursos por módulo: lectura, video, ejercicio).
 4. Publica **cupos de clases** (online o presencial en Iquique) segmentados por banda de θ, con
@@ -61,8 +65,10 @@ primero y con qué grupo hacerlo.
 - Protección de secciones privadas (`:dashboard :diagnostic-test :admin :plan :cupos`).
 - Diagnóstico adaptativo IRT 1PL con selección de ítem por cercanía a θ, prefetch de la siguiente
   pregunta, feedback inmediato con explicación del error y regla de parada por precisión.
-- Cálculo y materialización del perfil (`student_profiles`: θ, banda, `profile` JSONB).
-- "Mi plan": déficits ordenados + explicación de errores + recursos publicados por módulo.
+- Cálculo y materialización del perfil (`student_profiles`: θ, banda, `profile` JSONB), con el
+  segundo eje de **fluidez (λ)** y el cuadrante θ × λ (ADR-019).
+- "Mi plan": déficits ordenados + explicación de errores + recursos publicados por módulo +
+  tarjeta del cuadrante de fluidez.
 - "Cupos": listado filtrado por la banda del estudiante, inscripción, estado
   `open → confirmed`, faltantes para confirmar, notificación in-app.
 - Cola de email (`email_outbox`) + Edge Function con Resend.
@@ -132,7 +138,7 @@ primero y con qué grupo hacerlo.
 
 | # | Criterio | Estado |
 |---|----------|--------|
-| S-07 | `clj -M:test` en verde | ✅ 58 tests / 332 assertions / 0 failures (2026-08-10) |
+| S-07 | `clj -M:test` en verde | ✅ 74 tests / 410 assertions / 0 failures (2026-08-12) |
 | S-08 | Reglas de negocio críticas en namespaces puros con test | ✅ `profile`, `slots.logic`, `irt.progress`, `tetha` |
 | S-09 | Costo de infraestructura ≈ 0 | ✅ GitHub Pages + Supabase free tier |
 | S-10 | Cualquier sesión nueva puede continuar el proyecto leyendo `project-memory/` | ✅ desde este framework (2026-07-26) |

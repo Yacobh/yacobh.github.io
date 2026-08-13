@@ -1,6 +1,8 @@
 # RISKS
 
-Última actualización: **2026-08-11** (R-23 nuevo, track experimental de cuántica; nota de T-44/T-59 en R-17; R-11 activado y R-19 dominante tras cerrar T-04;
+Última actualización: **2026-08-12** (R-24 nuevo, umbrales de fluidez sin calibrar; R-23 agregado a
+la tabla resumen, donde faltaba; R-23 nuevo el 2026-08-11 por el track experimental de cuántica;
+nota de T-44/T-59 en R-17; R-11 activado y R-19 dominante tras cerrar T-04;
 R-21 cerrado tras limpieza de ramas; R-13 refrescado; ver
 también R-10/R-16 ya cerrados en pasadas previas)
 
@@ -44,6 +46,8 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | R-20 | Grafo de conocimiento ciego a `.cljs` | Bajo | Alta | Media | activo |
 | R-21 | Deuda de ramas: trabajo perdido u olvidado | Medio | Media | Media | ✅ **cerrado 2026-08-09** |
 | R-22 | Bundle sin code splitting: crecimiento monótono | Bajo | Media | Baja | aceptado |
+| R-23 | Contenido experimental de cuántica visible para un estudiante de PAES | Medio | Baja | Baja | aceptado y monitoreado |
+| R-24 | El eje de fluidez etiqueta con umbrales autorales sin calibrar | Medio | Media | Media | activo (2026-08-12) |
 
 ---
 
@@ -338,6 +342,26 @@ consecuencia exacta; prefijo `mq_` reconocible a simple vista en el panel; proce
 reversión completo escrito y probado en el mismo archivo. Consulta de control:
 `select count(*) from public.test_configs where topic like 'mq\_%' and active;` debe dar **0**.
 **Estado:** aceptado y monitoreado. Se cierra si el experimento se revierte después del examen.
+
+### R-24 · El eje de fluidez etiqueta al estudiante con umbrales que nadie midió
+**Descripción:** desde el 2026-08-12 «Mi plan» le dice al estudiante en qué cuadrante θ × λ está y
+qué debería hacer al respecto ("práctica de fluidez, NO más teoría"). Los cortes que producen esa
+etiqueta —`t_rel` ≤ 3 fluida, ≤ 6 media— **los eligió el autor, no los datos**
+([[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]]). Es la misma situación exacta
+de `min_response_seconds = 3` en `028`, que `032` tuvo que bajar a 2 al medir contra el histórico.
+El primer dato real ya apunta en esa dirección: en un banco conceptual, una mediana de **2,19** cayó
+del lado `:fluida` y probablemente no debería ([[BACKLOG]] T-65).
+**Impacto:** Medio — no es un fallo técnico ni una fuga: es una recomendación equivocada presentada
+con la autoridad de una medición. Decirle "ya lo tenés automatizado, subí la dificultad" a alguien
+que en realidad está reconociendo alternativas es peor que no decirle nada.
+**Probabilidad:** Media — depende del banco: los cortes se pensaron con ítems tipo PAES (cortos,
+mecánicos) y se aplican también a bancos conceptuales.
+**Mitigación:** (1) los umbrales son **configurables por banco** desde `041`, así que corregirlos no
+exige tocar código; (2) `fluency/min-responses = 4` evita etiquetar con muestras diminutas —bajo ese
+mínimo la tarjeta dice explícitamente que no alcanza, en vez de inventar una banda; (3)
+`fluency/calibration-report` produce los deciles con los que reemplazar el 3/6 por cortes medidos;
+(4) el eje **no toca θ**: si el número está mal, la etiqueta está mal, no el diagnóstico.
+**Estado:** activo. Se cierra cuando T-65 reemplace los umbrales autorales por medidos.
 
 ---
 

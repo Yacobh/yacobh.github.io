@@ -11,25 +11,32 @@
 
 ## Snapshot actual
 
-- **Commit:** `48bf5254`
-- **Fecha:** 2026-07-26
-- **Tamaño:** 105 nodos · 147 aristas · 13 comunidades
-- **Extracción:** 92 % `EXTRACTED` · 8 % `INFERRED` (12 aristas, confianza media 0.74)
+- **Commit:** `5207882a`
+- **Fecha:** 2026-08-12
+- **Tamaño:** 1 560 nodos · 1 898 aristas · 144 comunidades (141 archivos, ~1,1 M palabras)
+- **Extracción:** 100 % `EXTRACTED` · 0 % `INFERRED`
 - **Ciclos de importación:** ninguno
+
+> **Historial de tamaños** (para no leer el crecimiento como crecimiento del proyecto): 105 nodos al
+> 2026-07-26 (`48bf5254`) · 2 376 nodos al 2026-08-10, inflados por el `app.js` minificado, cuyos
+> símbolos ofuscados (`v()`, `K()`…) coparon los god nodes · 1 560 nodos hoy, con la documentación
+> como núcleo. Los god nodes actuales son los que corresponde: el esquema de Supabase y las sesiones.
 
 ## Por qué existe esta carpeta
 
 `graphify-out/` (en la raíz) es el **directorio de trabajo** de la herramienta: se regenera, no se
 versiona. Esta carpeta es la **copia citable**, atada a un commit concreto: permite decir "al commit
-`48bf5254` el grafo tenía esta forma" y comparar la evolución con `git diff`.
+`5207882a` el grafo tenía esta forma" y comparar la evolución con `git diff`.
 
 Decisión registrada en [`../DECISIONS.md`](../DECISIONS.md) D-14.
 
 ## ⚠️ Limitación crítica
 
 **El grafo no indexa archivos `.cljs`.** Cubre Markdown, SQL, JSON, HTML, TS, PNG y el `app.js`
-compilado — 33 archivos en total. Las ~10 290 líneas de ClojureScript que contienen el motor IRT, el
-perfil, la lógica de cupos, los eventos y los componentes **no están representadas**.
+compilado — 141 archivos al 2026-08-12. Las ~10 290 líneas de ClojureScript que contienen el motor
+IRT, el perfil, la lógica de cupos, los eventos y los componentes **no están representadas**. El
+complemento para preguntas del tipo "¿quién llama a X?" en CLJS es `clj-kondo` con `:analysis true`
+(ver [`../GRAPHIFY_INTEGRATION_GUIDE.md`](../GRAPHIFY_INTEGRATION_GUIDE.md) §6).
 
 Consecuencia: un `graphify query` que devuelve "No matching nodes found" **no** significa que el código
 no exista. Para lógica ClojureScript, el mapa es [`../ARCHITECTURE.md`](../ARCHITECTURE.md) §2 y luego

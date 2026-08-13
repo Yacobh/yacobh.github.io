@@ -3,7 +3,8 @@
 > Mapa de contenidos (MOC) de la memoria del proyecto. Punto de entrada para humanos en Obsidian
 > y para agentes que necesiten navegar. **La fuente de verdad es este directorio, en Git.**
 
-Última revisión: **2026-07-26**
+Última revisión: **2026-08-12** (se agregan los archivos que faltaban en el mapa:
+[[VISION_LIBRO_PROYECTO]], [[AVISO_PRIVACIDAD_BORRADOR]], [[RTK_INTEGRATION_GUIDE]])
 
 ## Empezar aquí
 
@@ -15,7 +16,9 @@
 
 - [[BUSINESS_CONTEXT]] — problema, propuesta de valor, stakeholders, métricas
 - [[REQUIREMENTS]] — RF, RNF, reglas de negocio, casos de uso, criterios de aceptación
-- [[TERMINOLOGY]] — glosario (θ, banda, capa 0, cupo, PAES, misconception…)
+- [[TERMINOLOGY]] — glosario (θ, banda de fluidez, capa 0, cupo, PAES, misconception…)
+- [[VISION_LIBRO_PROYECTO]] — visión de largo plazo del fundador (**no** es alcance del MVP)
+- [[AVISO_PRIVACIDAD_BORRADOR]] — borrador del aviso de privacidad
 
 ## Técnico
 
@@ -24,6 +27,7 @@
 - [[DEPENDENCIES]] — dependencias técnicas, externas y humanas
 - `graph/GRAPH_REPORT.md` — snapshot del grafo del repositorio (Graphify)
 - [[GRAPHIFY_INTEGRATION_GUIDE]] — cómo usar Graphify dentro de PMF
+- [[RTK_INTEGRATION_GUIDE]] — rtk como compresor de salida de comandos
 
 ## Gobernanza y decisiones
 
