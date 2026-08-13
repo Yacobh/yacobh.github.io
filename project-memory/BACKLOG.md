@@ -1990,6 +1990,17 @@ el caso 1 le pasó por al lado — el texto estaba bien mapeado, el roto era el 
 revisa **fondos claros (tono ≤ 200) sin mapear**, que es exactamente esa forma de fallar. Verificado
 con control negativo: quitando la regla de `bg-senal-50`, el script lo reporta.
 
+**Tercera ronda (T-72c):** con el color corregido, el owner seguía sin leer "Pregunta" — "se ve
+apenas el borde". El CSS estaba bien aplicado y el par daba **5.50, o sea AA aprobado**. El
+problema era de diseño: en un aparato hay **dos** tipos de etiqueta y las traté como una sola. La
+**grabada en la carcasa** es de bajo contraste a propósito; la que va **dentro de un visor está
+iluminada**. A 11px, en versalitas espaciadas y con sombra, esta quedó grabada cuando debía estar
+encendida. Se subió a 7.83, un punto más grande, menos espaciada y sin sombra.
+
+> **La lección, que vale más que el arreglo:** el umbral de contraste es **necesario y no
+> suficiente**. Un par puede aprobar AA y seguir sin leerse si el tamaño, el espaciado y la sombra
+> juegan en contra. El audit dice cuándo algo está *mal*; no dice cuándo está *bien*.
+
 **Segunda ronda (T-72b), tras volver a probar el owner:** la etiqueta "Pregunta" del modal seguía
 sin leerse en tema claro. La causa era mía y tonta: **`.grabado` pinta `panel-700` y `.alojamiento`
 tiene `panel-700` de fondo** — el mismo valor exacto, letras invisibles sobre su propio fondo.

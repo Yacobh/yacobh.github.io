@@ -93,7 +93,9 @@ PARES = [
     ("modal · regla de la explicación", SENAL["600"],   PANEL["50"],    3.0),
     # T-72b: `.grabado` pintaba panel-700 sobre un alojamiento panel-700 — el
     # mismo valor, etiqueta invisible. Este par lo deja declarado.
-    ("alojamiento · etiqueta grabada",  PANEL["300"],   PANEL["700"],   4.5),
+    # Sube a panel-100: con panel-300 daba 5.50 —AA aprobado— y el owner igual
+    # no la leía. Una etiqueta dentro de un visor va iluminada, no grabada.
+    ("alojamiento · etiqueta encendida", PANEL["100"],  PANEL["700"],   4.5),
 ]
 
 # Combinaciones prohibidas, documentadas para que nadie las reinvente.

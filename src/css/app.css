@@ -412,14 +412,26 @@
    Los audits comparan clase contra mapeo y contraste contra pares declarados;
    una colisión entre dos piezas propias solo se atrapa declarando el par, que
    es lo que se hizo en `audit_contraste.py`. */
+/* Corrección de fondo (segunda pasada): no alcanzaba con subir el tono. En un
+   aparato hay DOS tipos de etiqueta y acá se estaban tratando como una sola:
+   la **grabada en la carcasa** es de bajo contraste a propósito —tinta sobre
+   gris, se lee de cerca y no compite—, pero la que va **dentro de un visor
+   está iluminada**. A 11px, en versalitas espaciadas y con sombra, esta quedó
+   grabada cuando tenía que estar encendida: técnicamente pasaba AA (5.50) y
+   aun así el owner no la leía. El umbral era necesario y no suficiente.
+
+   Se enciende: más clara (7.83), un punto más grande, menos espaciada y sin
+   sombra, que a ese tamaño solo ensuciaba los bordes de las letras. */
 .alojamiento .grabado,
 .visor .grabado {
-  color: theme('colors.panel.300');
-  text-shadow: 0 1px 0 rgb(0 0 0 / 0.45);
+  color: theme('colors.panel.100');
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-shadow: none;
 }
 .dark .alojamiento .grabado,
 .dark .visor .grabado {
-  color: theme('colors.panel.400');
+  color: theme('colors.panel.100');
 }
 
 /* Cita dentro de una explicación (T-72b). Antes traía un borde azul `#3b82f6` y
