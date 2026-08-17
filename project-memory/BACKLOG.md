@@ -596,16 +596,70 @@ no los que se le piden. No se tocó por estar fuera del alcance de T-40/T-42
 
 ## Épica E4 — Producto y experiencia
 
-### T-05 · Router de URL con history API — **P1** · `abierto`
+### T-05 · Router de URL con history API — **P1** · `hecho` (2026-08-16, rama `t-05-router-url`, sin mergear)
 
 Hoy la navegación es solo estado en `app-db`: no hay deep links, recargar vuelve a la landing y no
 se puede medir por página.
 
 - **Terminado cuando:** `/plan`, `/cupos`, `/diagnostico`, `/admin` son URLs reales que sobreviven
   a un refresh (con el fallback de GitHub Pages resuelto), y las rutas protegidas siguen exigiendo
-  sesión.
-- **Nota:** decisión de diseño → **ADR**.
+  sesión. ✅
+- **Nota:** decisión de diseño → **ADR**. ✅ [[../adr/ADR-026-router-de-url-con-history-api]] (D-54).
 - **Relacionado:** [[ARCHITECTURE]] A-07, habilita T-20.
+
+**Implementado 2026-08-16:**
+
+- `src/universo/router.cljs` — namespace **puro** (ADR-009): tabla `sección ↔ path`,
+  `normalize-path`, `path->section`, `section->path` y `entry`. Once rutas en español
+  (`/plan`, `/cupos`, `/diagnostico`, `/admin`, `/tablero`, `/ingresar`, `/cuenta`, `/profesor`,
+  `/privacidad`, `/libro-de-visitas`, `/`).
+- `src/universo/events/router.cljs` — único lugar que toca `window.history`
+  (`:router/push`, `:router/replace`, `:router/listen`) más `:router/init` y `:router/popstate`.
+  Agregado al `:require` de `core.cljs` (L-03) y despachado con `dispatch-sync` **antes** de
+  `:auth/init`.
+- `subs.cljs` — `:complete-navigation` acepta `opts` y es el **único** punto donde se escribe la
+  URL, después del guard.
+- `events/auth.cljs` — `guard-section`/`:navigate-to` propagan `opts`; dos funciones puras nuevas
+  con test, `post-session-target` y `post-clear-target`, resuelven el destino cuando la sesión se
+  establece o se limpia (un deep link a ruta protegida sobrevive como `:redirect-after-login`).
+- `db.cljs` — clave `:router {:pending nil}`.
+- `404.html` (raíz) — fallback de GitHub Pages, sin redirección y sin tocar la URL.
+  `shadow-cljs.edn` gana `:push-state/index` para el equivalente en desarrollo.
+- `home.cljs` — el logotipo pasa a `href "/"` (era `"#"`) y la rama 404 de `main-content`, ahora
+  alcanzable de verdad, ofrece "Volver al inicio".
+- `test/universo/router_test.cljs` — 14 tests nuevos. `clj -M:test`: **96 tests / 523 assertions /
+  0 failures** (antes 83/454). `clj-kondo` 0/0, `release app` 0 warnings, las tres auditorías en
+  verde.
+
+**Verificado en vivo** (Chrome + servidor local que simula el fallback de GitHub Pages, devolviendo
+`404.html` con status 404 para rutas inexistentes): deep link a `/plan`, `/cupos` y `/diagnostico`
+sin sesión → `/ingresar` con el destino guardado en `:redirect-after-login`; `/privacidad`,
+`/profesor` y `/libro-de-visitas` montan su sección directo; `/Libro-De-Visitas/` y `/index.html`
+se normalizan con `replaceState`; `/no-existe` → 404 del SPA sin tocar la URL; navegación interna
+apila una sola entrada por destino; atrás/adelante funcionan; y **`forward` hacia `/admin` sin
+sesión aterriza en `/ingresar`** — el guard también cubre el botón atrás.
+
+**No verificado (falta credencial):** el camino con sesión iniciada — deep link a `/plan`/`/admin`
+con usuario logueado y el redirect posterior al login. Es el mismo límite de T-24/T-38: el agente
+no tiene cuenta de prueba. La lógica está cubierta por `post-session-target` en los tests, pero
+**no se ejerció contra Supabase real**.
+
+**Consecuencia aceptada, en el ADR:** bajo el fallback de GitHub Pages todas las rutas salvo `/`
+responden **HTTP 404**, así que las rutas públicas no son indexables y el `sitemap.xml` sigue
+declarando solo `/`. Ver T-94.
+
+### T-94 · Entradas estáticas reales para las rutas públicas — **P3** · `abierto`
+
+Consecuencia conocida y aceptada de [[../adr/ADR-026-router-de-url-con-history-api]]: bajo el
+fallback de GitHub Pages, `/profesor`, `/privacidad` y `/libro-de-visitas` responden **HTTP 404**
+aunque se vean bien. Son visitables y compartibles, pero **no indexables**, y por eso no están en
+`sitemap.xml`.
+
+- **Terminado cuando:** o esas rutas responden 200 (archivo estático real por ruta, o un hosting
+  con reescrituras), o se decide y documenta que su SEO no importa y esta tarea se cierra.
+- **Antes de hacerla:** resolver T-12 (duplicación de `index.html`). Hacerla hoy multiplicaría por
+  cuatro el problema que A-09 ya señala.
+- **Relacionado:** [[ARCHITECTURE]] A-09, T-05, T-12.
 
 ### T-24 · Estado vacío honesto en "Mi plan" y "Cupos" — **P1** · `hecho` (2026-08-03, mergeado a `main` 2026-08-05)
 

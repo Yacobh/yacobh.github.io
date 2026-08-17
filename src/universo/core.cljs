@@ -16,6 +16,7 @@
    [universo.events.landing]
    [universo.events.ui]
    [universo.events.theme]
+   [universo.events.router]
    [universo.views :as views]
    [universo.visitor-tracker :as tracker]))
 
@@ -28,6 +29,10 @@
 (defn ^:export init! []
   (re-frame/dispatch-sync [:initialize-db])
   (re-frame/dispatch-sync [:theme/init])
+  ;; Antes de :auth/init a propósito (T-05): si la URL pide una sección
+  ;; protegida, el destino tiene que quedar anotado antes de que la sesión
+  ;; resuelva y lo consuma.
+  (re-frame/dispatch-sync [:router/init])
   (re-frame/dispatch [:auth/init])
   (tracker/start-tracking!)
   (mount-root))

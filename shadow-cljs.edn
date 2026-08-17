@@ -16,4 +16,8 @@
                  :compiler-options {:warnings {:fn-deprecated false}} ; Opcional: suprime warnings específicos si es necesario
                  }}
 
-  :dev-http     {3000 {:root "public"}}}
+  ;; :push-state/index es el equivalente en desarrollo del 404.html que sirve
+  ;; GitHub Pages en producción (T-05, ADR-026): sin esto, recargar en
+  ;; http://localhost:3000/plan devuelve 404 y el router no se puede probar.
+  :dev-http     {3000 {:root "public"
+                       :push-state/index "index.html"}}}

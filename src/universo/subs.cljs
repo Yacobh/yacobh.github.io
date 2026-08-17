@@ -1,7 +1,8 @@
 (ns universo.subs
   (:require
    [re-frame.core :as re-frame]
-   [universo.db :as udb]))
+   [universo.db :as udb]
+   [universo.router :as router]))
 
 ;;;; Subscriptions and events
 
@@ -73,14 +74,25 @@
  (fn [_]
    (.scrollTo js/window #js {:top 0 :left 0 :behavior "auto"})))
 
-;; Completa la navegación tras la transición (el guard está en events.auth)
+;; Completa la navegación tras la transición (el guard está en events.auth).
+;;
+;; Es también el **único** punto donde se escribe la URL (T-05, ADR-026):
+;; ocurre después del guard, así que la barra de direcciones nunca muestra una
+;; sección a la que el usuario no llegó. `opts` viene desde `:navigate-to`:
+;;   :history → :push (default) | :replace | :none
+;; `:replace` lo usan el popstate y la resolución de un deep link, donde la
+;; entrada del historial ya existe y apilar otra rompería el botón atrás.
 (re-frame/reg-event-fx
  :complete-navigation
- (fn [{:keys [db]} [_ section]]
-   {:db (-> db
-            (assoc-in [:ui :current-section] section)
-            (assoc-in [:ui :transitioning] false))
-    :fx/scroll-window-top nil}))
+ (fn [{:keys [db]} [_ section opts]]
+   (let [path (router/section->path section)
+         mode (:history opts :push)]
+     (cond-> {:db (-> db
+                      (assoc-in [:ui :current-section] section)
+                      (assoc-in [:ui :transitioning] false))
+              :fx/scroll-window-top nil}
+       (and path (= mode :push))    (assoc :router/push path)
+       (and path (= mode :replace)) (assoc :router/replace path)))))
 
 ;; dashboard events
 (re-frame/reg-event-db

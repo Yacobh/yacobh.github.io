@@ -126,8 +126,9 @@ Versiones exactas y notas de riesgo: [[project-memory/TECH_STACK]] · [[project-
 Navegador (SPA ClojureScript/re-frame)
   index.html → public/js/app.js → universo.core/init!
       │
+      ├── router (URL ↔ sección, ADR-026) → 404.html como fallback de GitHub Pages
       ├── views → home → components/{landing,login,diagnostic-test,plan,slots,dashboard,admin,...}
-      ├── events/{auth,test,profile,plan,slots,admin,dashboard,landing,contacto}
+      ├── events/{auth,test,profile,plan,slots,admin,dashboard,landing,contacto,router}
       └── lógica pura: profile · slots.logic · components.tetha · topics
                        irt.progress · irt.effort · irt.fluency (eje λ, ADR-019)
       │
@@ -152,7 +153,11 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
 - **Lógica pura primero.** Toda regla de negocio nueva (IRT, bandas, filtros de cupos, perfil) va
   a un namespace puro y testeable (`universo.profile`, `universo.slots.logic`,
   `universo.irt.progress`, `universo.irt.effort`, `universo.irt.fluency`, `universo.topics`,
-  `universo.components.tetha`), **no** dentro de un `reg-event-fx`.
+  `universo.router`, `universo.components.tetha`), **no** dentro de un `reg-event-fx`.
+- **Navegación:** si agregas una sección, agrégala al `case` de `home/main-content` **y** a la tabla
+  de `universo.router` (y a `protected-sections` si es privada). La sección es el estado
+  autoritativo y la URL su reflejo: el router **nunca** escribe `[:ui :current-section]` — despacha
+  `:navigate-to`, para que todo pase por `guard-section` (ADR-026).
 - **re-frame ortodoxo:** `reg-event-db` para estado puro, `reg-event-fx` + `reg-fx` para I/O,
   `reg-sub` para lectura. Ningún componente llama a Supabase directamente.
 - **Acceso a datos centralizado** en `universo.db.crud`. `universo.db.supabase` es una API delgada
@@ -234,6 +239,11 @@ python3 scripts/audit_movil.py        # objetivos táctiles, padding fijo, texto
 - Edge Functions: `supabase functions deploy send-enrollment-emails` + secret `RESEND_API_KEY`.
 - `index.html` (raíz) y `public/index.html` están duplicados. Si tocas uno, sincroniza el otro
   o resuelve la duplicación (ver [[project-memory/BACKLOG]] T-12).
+- **`404.html` (raíz) es el fallback del router** (ADR-026): GitHub Pages lo sirve para toda ruta
+  que no exista como archivo (`/plan`, `/cupos`, …). No lleva SEO a propósito, pero **sí** comparte
+  con `index.html` el script de tema y las rutas del bundle y del CSS: si cambias esas, cámbialas
+  ahí también. Consecuencia conocida: todas las rutas salvo `/` responden **HTTP 404**, y por eso
+  el `sitemap.xml` solo declara `/` ([[project-memory/BACKLOG]] T-94).
 
 ## 10. Referencias a project-memory
 

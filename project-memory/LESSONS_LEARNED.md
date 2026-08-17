@@ -1,6 +1,7 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-08-16** (4ª pasada: **L-39**, un piloto sin encuadre comercial produce datos y no clientes — la lección del piloto UNAP; y **L-22 corregida**: el copy estaba en cinco lugares, no tres. 3ª pasada: **L-38**, mirar la forma del mercado antes de proponer un modelo de ingreso — churn 100% anual, D-52) — **L-36 y L-37**, las dos más caras del proyecto y ambas
+Última actualización: **2026-08-16** (6ª pasada: **L-40**, el DOM que devuelve `javascript_tool`
+puede estar desactualizado — la captura de pantalla y `location` sí son fiables. 4ª pasada: **L-39**, un piloto sin encuadre comercial produce datos y no clientes — la lección del piloto UNAP; y **L-22 corregida**: el copy estaba en cinco lugares, no tres. 3ª pasada: **L-38**, mirar la forma del mercado antes de proponer un modelo de ingreso — churn 100% anual, D-52) — **L-36 y L-37**, las dos más caras del proyecto y ambas
 detectadas por el owner: el funnel estaba construido para el canal que nunca funcionó, y se
 automatizó la formación de cohortes para una demanda que nunca llegó. Antes: 2026-08-12 (cuatro
 lecciones de la sesión del eje de fluidez: datos preexistentes, UI que se esconde sola, predecir
@@ -286,6 +287,33 @@ en marzo"* produce un cliente. **Es la misma hora de trabajo y dos desenlaces di
 piloto debe nombrar, antes de empezar: qué se mide, cuándo se revisa, y qué pasa después si funciona.
 
 **Relacionado:** [[RISKS]] R-32, [[BACKLOG]] T-87/T-90/T-93, [[TESIS_DE_CRECIMIENTO]] G-1.
+
+### L-40 · El DOM que devuelve `javascript_tool` puede estar desactualizado; la captura de pantalla no
+**Fecha:** 2026-08-16 (T-05, SESSION-027). Costó cerca de una hora.
+
+**Síntoma:** verificando el router en Chrome, `document.querySelector('main h1').textContent` y
+`querySelectorAll('button')` describían la **landing** en una URL que ya era `/ingresar`, con la nav
+en su estado "sesión no lista". Sobre esa lectura se construyó una teoría entera de un bug en el
+orden de los eventos de re-frame: que `:complete-navigation` escribía la URL pero no la sección, lo
+cual es **imposible** en re-frame (el efecto `:db` se aplica antes que los demás, por diseño).
+
+**Causa:** la lectura del DOM llegaba de un snapshot viejo de la página. Las lecturas que **sí**
+eran fiables en la misma llamada: `location.pathname`, `history.length`,
+`performance.getEntriesByType('navigation')`, el estado leído de un átomo de la aplicación, y sobre
+todo la **captura de pantalla**, que mostró desde el principio el formulario de login correcto.
+
+**Cómo se resolvió:** exportando temporalmente `universo.core/dbg` (un `^:export` que imprime
+`:ui`, `:router` y `:auth` desde `re-frame.db/app-db`), recompilando, mirando el estado real —que
+era el correcto desde el primer intento— y **quitando el export antes de commitear**.
+
+**Reglas:**
+1. Cuando la lectura del DOM contradiga una invariante conocida del framework, **sospechar de la
+   lectura antes que del framework**. Contrastar con una captura de pantalla, que es barata.
+2. Para depurar estado de re-frame en un bundle de `release`, el camino corto es un `^:export`
+   temporal sobre `re-frame.db/app-db`. Es minutos, no horas — y hay que acordarse de sacarlo y
+   recompilar (`grep` del nombre en `public/js/app.js` lo confirma).
+
+**Relacionado:** [[../adr/ADR-026-router-de-url-con-history-api]], [[BACKLOG]] T-05, L-30.
 
 ### L-20 · Las promesas del copy son requisitos
 **Síntoma:** la FAQ afirma que el tiempo de respuesta influye en la estimación (no lo hace) y que

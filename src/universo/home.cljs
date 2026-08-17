@@ -24,7 +24,9 @@
   ;; letra, peso y espaciado. El ∫ va en naranja porque **es** la marca — es el
   ;; único adorno que sobrevive, y sobrevive por ser el símbolo del producto.
   [:a.flex.items-center.text-xl.font-medium.tracking-tight.text-gray-800
-   {:href "#"
+   ;; href real desde T-05: la ruta existe, así que el logo se puede abrir en
+   ;; otra pestaña o copiar como enlace. El click sigue navegando sin recargar.
+   {:href "/"
     :aria-label "Academia Integral — inicio"
     :on-click (fn [e]
                 (.preventDefault e)
@@ -258,10 +260,17 @@
       :guestbook [guestbook/guestbook-component]
       :jacobocordova [resume/jacobo]
       :privacidad [privacidad/privacidad-page]
+      ;; Desde T-05 esta rama es alcanzable de verdad (una URL escrita a mano
+      ;; que no corresponde a ninguna ruta), no solo un default defensivo: por
+      ;; eso ofrece la salida.
       [:div.flex.min-h-screen.items-center.justify-center
        [:div.text-center
         [:h1.mb-4.text-6xl.font-bold.text-gray-300 "404"]
-        [:p.text-xl.text-gray-600 "Sección no encontrada"]]])))
+        [:p.text-xl.text-gray-600 "Sección no encontrada"]
+        [:button {:type "button"
+                  :class (str cta-class " mt-6")
+                  :on-click #(re-frame/dispatch [:navigate-to :main])}
+         "Volver al inicio"]]])))
 
 ;; 1. Envolver main-content con la opacidad reactiva
 (defn main-content-wrapper []

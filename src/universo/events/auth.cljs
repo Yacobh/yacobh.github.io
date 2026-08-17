@@ -47,6 +47,41 @@
         (= email (get-in db [:auth :user :email])))))
 
 ;; -----------------------------------------------------------------------------
+;; Resolución de destino tras un cambio de sesión (puro, testeable)
+;; -----------------------------------------------------------------------------
+
+(defn post-session-target
+  "A qué sección navegar cuando la sesión queda **establecida**. Devuelve
+   `[section opts]` o nil si no hay que navegar.
+
+   Tres orígenes, en este orden de prioridad:
+   1. login explícito (`navigate?`): al destino guardado, o al tablero;
+   2. deep link a una sección protegida (`pending`, T-05): a esa sección, con
+      `:history :replace` porque la URL **ya** es la correcta — apilar otra
+      entrada dejaría el botón atrás girando en el mismo lugar;
+   3. rehidratación normal de la sesión al cargar: a ninguna parte."
+  [{:keys [navigate? redirect pending]}]
+  (cond
+    navigate? [(or redirect :dashboard) nil]
+    pending   [pending {:history :replace}]
+    :else     nil))
+
+(defn post-clear-target
+  "A qué sección navegar cuando la sesión se **limpia**. Devuelve `[section
+   opts]` o nil.
+
+   El caso nuevo es `pending`: alguien abrió `/plan` sin sesión (T-05). Va al
+   login, y quien llama conserva el destino en `:redirect-after-login` para
+   volver ahí después. Es distinto de cerrar sesión estando adentro, que
+   devuelve al inicio."
+  [{:keys [navigate-to-login? pending current-section]}]
+  (cond
+    pending            [:login {:history :replace}]
+    navigate-to-login? [:login nil]
+    (contains? protected-sections current-section) [:main nil]
+    :else nil))
+
+;; -----------------------------------------------------------------------------
 ;; Suscripciones
 ;; -----------------------------------------------------------------------------
 
@@ -94,7 +129,10 @@
  (fn [{:keys [db]} [_ {:keys [id email]} navigate?]]
    (let [prev-email (get-in db [:visitor :email])
          redirect (get-in db [:auth :redirect-after-login])
-         target (when navigate? (or redirect :dashboard))
+         pending (get-in db [:router :pending])
+         target (post-session-target {:navigate? navigate?
+                                      :redirect redirect
+                                      :pending pending})
          load-dashboard? (not= prev-email email)]
      {:db (-> db
               (assoc-in [:auth :ready?] true)
@@ -103,6 +141,9 @@
               (assoc-in [:auth :admin?] false)
               (assoc-in [:auth :role] nil)
               (assoc-in [:auth :redirect-after-login] nil)
+              ;; El deep link ya se consumió: dejarlo puesto haría que un
+              ;; refresco de token volviera a arrastrar al usuario ahí.
+              (assoc-in [:router :pending] nil)
               (assoc-in [:visitor :email] email)
               (assoc-in [:visitor :logged-in] true)
               (assoc-in [:dashboard :user-id] id))
@@ -110,7 +151,7 @@
                            [:profile/load id]
                            [:notifications/load]]
                     load-dashboard? (conj [:dashboard/cargar email])
-                    target (conj [:navigate-to target]))})))
+                    target (conj (into [:navigate-to] target)))})))
 
 (re-frame/reg-event-fx
  :auth/session-event
@@ -127,13 +168,19 @@
  :auth/session-cleared
  (fn [{:keys [db]} [_ {:keys [navigate-to-login?]}]]
    (let [section (get-in db [:ui :current-section])
-         on-protected? (contains? protected-sections section)]
+         pending (get-in db [:router :pending])
+         target (post-clear-target {:navigate-to-login? navigate-to-login?
+                                    :pending pending
+                                    :current-section section})]
      {:db (-> db
               (assoc-in [:auth :ready?] true)
               (assoc-in [:auth :user] nil)
               (assoc-in [:auth :admin?] false)
               (assoc-in [:auth :role] nil)
-              (assoc-in [:auth :redirect-after-login] nil)
+              ;; Un deep link a sección protegida sin sesión no se pierde: se
+              ;; convierte en el destino de vuelta después del login (T-05).
+              (assoc-in [:auth :redirect-after-login] pending)
+              (assoc-in [:router :pending] nil)
               (assoc-in [:visitor :email] nil)
               (assoc-in [:visitor :logged-in] false)
               (assoc-in [:dashboard :user-id] nil)
@@ -151,11 +198,7 @@
               ;; Invalida la caché por sección: al volver a entrar se recarga.
               (assoc-in [:admin :status] {}))
       :dispatch-n (cond-> []
-                    navigate-to-login?
-                    (conj [:navigate-to :login])
-
-                    (and (not navigate-to-login?) on-protected?)
-                    (conj [:navigate-to :main]))})))
+                    target (conj (into [:navigate-to] target)))})))
 
 ;; -----------------------------------------------------------------------------
 ;; Perfil (role / admin?)
@@ -285,15 +328,20 @@
 ;; -----------------------------------------------------------------------------
 
 (defn- guard-section
-  "Protege secciones que requieren login; :admin también requiere role admin."
-  [db section]
+  "Protege secciones que requieren login; :admin también requiere role admin.
+
+   `opts` se pasa tal cual a `:complete-navigation` (T-05): lleva el modo de
+   historial (`:history`). Se propaga **también cuando el guard desvía**, para
+   que un `atrás` hacia /admin sin permisos reemplace la entrada en vez de
+   apilar una nueva."
+  [db section opts]
   (cond
     (and (contains? protected-sections section)
          (not (logged-in? db)))
     {:db (-> db
              (assoc-in [:auth :redirect-after-login] section)
              (assoc-in [:ui :transitioning] true))
-     :dispatch-later [{:ms 240 :dispatch [:complete-navigation :login]}]}
+     :dispatch-later [{:ms 240 :dispatch [:complete-navigation :login opts]}]}
 
     ;; Solo redirigir si el perfil ya cargó (role known) y no es admin
     (and (= section :admin)
@@ -301,22 +349,25 @@
          (some? (get-in db [:auth :role]))
          (not (admin? db)))
     {:db (assoc-in db [:ui :transitioning] true)
-     :dispatch-later [{:ms 240 :dispatch [:complete-navigation :dashboard]}]}
+     :dispatch-later [{:ms 240 :dispatch [:complete-navigation :dashboard opts]}]}
 
     ;; Currículum: transición de 350ms (más larga que el resto).
     (= section :jacobocordova)
     {:db (assoc-in db [:ui :transitioning] true)
-     :dispatch-later [{:ms 350 :dispatch [:complete-navigation section]}]}
+     :dispatch-later [{:ms 350 :dispatch [:complete-navigation section opts]}]}
 
     :else
     {:db (assoc-in db [:ui :transitioning] true)
-     :dispatch-later [{:ms 240 :dispatch [:complete-navigation section]}]}))
+     :dispatch-later [{:ms 240 :dispatch [:complete-navigation section opts]}]}))
 
 (re-frame/reg-event-fx
  :navigate-to
- (fn [{:keys [db]} [_ section]]
-   (guard-section db section)))
+ (fn [{:keys [db]} [_ section opts]]
+   (guard-section db section opts)))
 
+;; ⚠ Sin llamadores hoy (verificado 2026-08-16). Cambia la sección **sin pasar
+;; por la transición ni por el router**, así que dejaría la URL apuntando a la
+;; sección anterior (T-05). Si alguna vez se necesita, usar `:navigate-to`.
 (re-frame/reg-event-fx
  :set-section
  (fn [{:keys [db]} [_ section]]

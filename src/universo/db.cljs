@@ -6,6 +6,12 @@
         :modal nil
         :transitioning false}
 
+   ;; Router de URL (T-05, ADR-026). :pending guarda la sección de un deep link
+   ;; a una ruta protegida mientras `:auth/init` resuelve si hay sesión; la
+   ;; consumen :auth/session-established y :auth/session-cleared. Fuera de ese
+   ;; instante de arranque siempre es nil.
+   :router {:pending nil}
+
    ;; :light | :dark — el valor real se decide en :theme/init (localStorage o
    ;; prefers-color-scheme); este default solo evita un nil antes de esa carga.
    :theme :light

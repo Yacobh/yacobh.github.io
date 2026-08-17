@@ -86,15 +86,33 @@ contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 |-----------|-----------|-----------------|
 | Bootstrap | `universo.core` | Inicializa `app-db`, sesión, tracking y monta React. Requiere todos los `events/*` (si un ns de eventos no se requiere aquí, sus handlers no existen) |
 | Estado | `universo.db` | `default-db`: forma completa y documentada del `app-db` (auth, admin, landing, visitor, dashboard, student-profile, plan, slots, notifications, test, bookings) |
-| Lectura | `universo.subs` | Suscripciones globales de UI (`:current-page`, `:current-section`, `:transitioning`) |
+| Lectura | `universo.subs` | Suscripciones globales de UI (`:current-page`, `:current-section`, `:transitioning`) y **`:complete-navigation`**, el único punto donde se escribe la URL (ADR-026) |
+| Router | `universo.router` (puro) + `universo.events.router` | Traducción `sección ↔ path` y acceso al History API. Ver la nota de arquitectura debajo de esta tabla y ADR-026 |
 | Ruteo | `universo.views` + `universo.home` | `views/pages` solo resuelve `:home`. El **ruteo real** es por *sección* dentro de `home/main-content` (`case current-section`) |
 | Layout | `universo.home` | Nav fija (links según `:auth/ready?`, `logged-in?`, `admin?`, botón de tema), contenido con transición de opacidad, footer con contacto |
 | Panel de instrumento | `src/css/app.css` (bloque «PANEL DE INSTRUMENTO») | **Cinco clases de componente** —`.control`, `.alojamiento`, `.led`, `.placa`, `.visor`, `.grabado`— definidas una sola vez (ADR-023). No son utilidades sueltas a propósito: repetirlas a mano diverge al tercer componente. El relieve es funcional, no decorativo: sobre el panel gris el LED da 1.04 de contraste y el naranja 1.68, así que el bisel y el alojamiento son lo que los vuelve visibles |
 | Tema | `universo.events.theme` + `src/css/app.css` | Claro/oscuro (`:theme` en `app-db`, `:theme/init`/`:theme/toggle`, persistido en `localStorage`, clase `dark` en `<html>` aplicada antes de `app.js` vía script inline en `index.html`). El tema oscuro de los ~15 componentes se cubre con un mapeo global de clases en `app.css` (`.dark .clase-existente`), no con `dark:` por elemento — ver [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] *(2026-08-05)* |
 
-> **Nota de arquitectura:** no hay router de URL. La navegación es estado en `app-db`
-> (`:ui/current-section`), sin history API ni deep links. Consecuencia: no se puede compartir un
-> enlace a "Mi plan"; recargar vuelve a la landing. Ver [[BACKLOG]] T-05.
+> **Nota de arquitectura (actualizada 2026-08-16, T-05):** ~~no hay router de URL~~. **Sí hay
+> router**, con History API y fallback `404.html` de GitHub Pages
+> ([[../adr/ADR-026-router-de-url-con-history-api]]). La sección sigue siendo el estado autoritativo
+> (`:ui/current-section`, `case` en `home/main-content`); **la URL es su reflejo**, nunca al revés.
+>
+> - `universo.router` (puro) traduce `sección ↔ path` y decide qué hacer con la URL de entrada
+>   (`entry` → `:section` | `:pending` | `:not-found`).
+> - `universo.events.router` es el **único** namespace que toca `window.history`
+>   (`:router/push`, `:router/replace`, `:router/listen`, `:router/init`, `:router/popstate`).
+> - La URL se escribe en **un solo punto**, `:complete-navigation` (`universo.subs`), que corre
+>   *después* de `guard-section`. El router jamás escribe `:ui/current-section`: siempre despacha
+>   `:navigate-to`, así que `/admin` escrito a mano —o alcanzado con el botón atrás— pasa por el
+>   mismo guard que un clic.
+> - Un deep link a ruta protegida queda en `[:router :pending]` hasta que `:auth/init` resuelve
+>   (la sesión de Supabase se rehidrata de forma asíncrona); sin sesión sobrevive como
+>   `:redirect-after-login`.
+>
+> Rutas: `/` `·` `/ingresar` `·` `/diagnostico` `·` `/tablero` `·` `/plan` `·` `/cupos` `·`
+> `/cuenta` `·` `/admin` `·` `/libro-de-visitas` `·` `/profesor` `·` `/privacidad`.
+> Limitación heredada del hosting: **todas salvo `/` responden HTTP 404** (A-07', T-94).
 
 ### 2.2 Motor IRT (el corazón del producto)
 
@@ -491,9 +509,10 @@ la ejecute todavía** ([[BACKLOG]] T-34). Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]
 | A-04 | **Reglas duplicadas cliente/DB** | Bandas de θ y confirmación de cupo viven en dos lugares |
 | A-05 | **Contrato JSONB implícito** | `profile` se persiste sin esquema; un cambio en `profile/build` rompe lectores antiguos silenciosamente |
 | A-06 | **Componentes monolíticos** | `admin.cljs` (1060), `crud.cljs` (975), `events/admin.cljs` (738) concentran riesgo de regresión |
-| A-07 | **Sin router de URL** | Impide deep links, analytics por página y recuperación de estado al recargar |
+| A-07 | ✅ ~~**Sin router de URL**~~ | **Resuelto 2026-08-16** (T-05, [[../adr/ADR-026-router-de-url-con-history-api]]): hay router de History API con fallback `404.html`. Queda el resto de A-07' abajo |
+| A-07' | **Todas las rutas salvo `/` responden HTTP 404** | Es cómo funciona el fallback de GitHub Pages. La aplicación funciona igual, pero las rutas públicas no son indexables y el `sitemap.xml` solo declara `/` (T-94) |
 | A-08 | **Sin code splitting** | El bundle crece de forma monótona; el estudiante en móvil descarga también todo el panel admin |
-| A-09 | **Duplicación de `index.html`** | Raíz y `public/` pueden divergir en SEO y JSON-LD |
+| A-09 | **Duplicación de `index.html`** | Raíz y `public/` pueden divergir en SEO y JSON-LD. Desde 2026-08-16 son **tres** archivos: se suma `404.html` (mínimo, sin SEO — ver ADR-026) |
 | A-10 | **Grafo de conocimiento parcial** | Graphify no indexa `.cljs`: el análisis automático no ve la lógica principal |
 
 Priorizados con impacto/probabilidad en [[RISKS]].

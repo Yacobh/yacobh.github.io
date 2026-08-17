@@ -4,6 +4,62 @@
 *(el cuerpo histórico de este archivo arranca en el corte del 2026-07-26, commit `48bf525`, rama
 `cursor/mvp-operable-funnel`; las notas de sesión de más abajo son la capa vigente)*
 
+> ## 🧭 2026-08-16 (6ª pasada) — T-05 cerrado: el sitio tiene URLs de verdad
+>
+> **Rama `t-05-router-url`, sin mergear a `main`.** Primera sesión de código desde el pivote.
+>
+> Hasta hoy la navegación era **solo** `[:ui :current-section]` en `app-db`: la barra de direcciones
+> decía `jacobocordova.com/` en las nueve pantallas, no había deep links, cualquier F5 devolvía a la
+> landing y ninguna herramienta de analítica podía distinguir una pantalla de otra. Eso último es lo
+> que importa ahora: **T-20 (instrumentar el funnel) es parte de G-5** y no se puede hacer sin URLs.
+>
+> **Decisión: [[../adr/ADR-026-router-de-url-con-history-api]] (D-54).** Router de History API con
+> `404.html` como fallback de GitHub Pages, y una asimetría deliberada que es la salvaguarda:
+>
+> > **La sección escribe la URL; la URL nunca escribe la sección.** `:complete-navigation` es el
+> > único punto que toca la barra de direcciones, y corre *después* de `guard-section`. El router,
+> > al arrancar o en el botón atrás, siempre despacha `:navigate-to` — nunca `assoc` directo. Por
+> > eso escribir `/admin` a mano, o llegar ahí con el botón atrás, pasa por el mismo guard que un
+> > clic (verificado en vivo).
+>
+> Rutas: `/` · `/ingresar` · `/diagnostico` · `/tablero` · `/plan` · `/cupos` · `/cuenta` ·
+> `/admin` · `/libro-de-visitas` · `/profesor` · `/privacidad`. En español porque la URL es copy
+> (L-20). Namespace **puro** `universo.router` + `universo.events.router` para el History API, más
+> dos funciones puras nuevas en `events/auth.cljs` (`post-session-target`, `post-clear-target`) que
+> resuelven el caso difícil: **un deep link a ruta protegida no se puede decidir al arrancar**,
+> porque la sesión de Supabase se rehidrata de forma asíncrona y decidir ahí mandaría al login a
+> quien sí tiene sesión.
+>
+> **Verificación:** `clj -M:test` **96 tests / 523 assertions / 0 failures** (antes 83/454) ·
+> `clj-kondo` 0 errores / 0 warnings · `npx shadow-cljs release app` 0 warnings, `app.js` en 1,2 MB
+> (L-30 comprobada antes de commitear) · las tres auditorías (`contraste`, `dark_theme`, `movil`) en
+> verde · `npm run build:css` corrido, sin clases nuevas.
+>
+> **Verificado en vivo en Chrome**, contra un servidor local que simula el fallback de GitHub Pages
+> (devuelve `404.html` con status 404 para rutas inexistentes): deep links sin sesión a `/plan`,
+> `/cupos` y `/diagnostico` → `/ingresar` conservando el destino; `/privacidad`, `/profesor`,
+> `/libro-de-visitas` montan directo; `/Libro-De-Visitas/` y `/index.html` se normalizan;
+> `/no-existe` → 404 del SPA sin tocar la URL; atrás/adelante correctos, una sola entrada de
+> historial por destino; y **forward hacia `/admin` sin sesión aterriza en `/ingresar`**.
+>
+> **No verificado, y es el mismo límite de siempre:** el camino **con sesión iniciada** (deep link a
+> `/plan` o `/admin` estando logueado, y el redirect post-login). El agente no tiene credenciales de
+> prueba. La lógica está cubierta por tests puros, pero no se ejerció contra Supabase real —
+> **eso lo tiene que probar el owner antes de mergear**.
+>
+> **Consecuencia aceptada y anotada en el ADR:** bajo el fallback de GitHub Pages **todas las rutas
+> salvo `/` responden HTTP 404**. La aplicación funciona igual, pero las rutas públicas no son
+> indexables; por eso el `sitemap.xml` **no** creció (declarar una URL que responde 404 es peor que
+> no declararla). Queda como [[BACKLOG]] **T-94** y como [[ARCHITECTURE]] **A-07'**.
+>
+> **Hallazgo de la sesión, útil para la próxima que use `claude-in-chrome`:** las lecturas del DOM
+> vía `javascript_tool` (`querySelectorAll`, `innerText`) devolvieron durante un buen rato un
+> **snapshot desactualizado** de la página, que hizo perseguir un bug inexistente. Las lecturas de
+> `location.pathname`, de átomos de la app y las **capturas de pantalla** sí eran fiables. Anotado en
+> [[LESSONS_LEARNED]] L-40.
+>
+> **Cierra:** T-05, A-07. **Habilita:** T-20 (analítica por página, vector G-5). **Abre:** T-94.
+
 > ## ⭐ 2026-08-16 — Pivote de modelo de negocio (solo documentación, cero cambios de código)
 >
 > **Diagnóstico que motivó la sesión.** El producto está esencialmente terminado (F8 cerrada, funnel
