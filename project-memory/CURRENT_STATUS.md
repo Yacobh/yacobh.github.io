@@ -2,6 +2,33 @@
 
 **Fecha de corte: 2026-08-17** · Rama `main`
 
+> ## 🔑 2026-08-17 — T-92: login con Google conectado (código), **pendiente de configurar**
+>
+> **Rama `t-56-geometria`.** `sign-in-with-google` existía en `supabase.cljs` desde F0 y **ningún
+> botón la llamaba**. Ahora sí. Las tres piezas que suelen romper esto ya estaban resueltas y no
+> hubo que construirlas: la rehidratación de sesión (`getSession` + `onAuthStateChange`), la fila
+> en `profiles` (trigger `handle_new_user()`, migración `008`) y el aterrizaje del callback.
+>
+> **Lo que sí hubo que decidir fue D-21.** Supabase **da de alta** al usuario que entra por OAuth y
+> no existe, así que el botón de Google crea cuentas — también en `/ingresar`. Puesto sin más, se
+> salta la declaración de edad de la Ley 21.719 en silencio, sobre un público mayoritariamente
+> menor de edad ([[RISKS]] R-06). Solución: la declaración se extrajo a un bloque reutilizable, va
+> **antes** del botón en las dos rutas, y el botón está **inhabilitado hasta que esté marcada**.
+>
+> **Segundo cambio:** el `redirectTo` era `window.location.href` —una URL distinta por cada ruta de
+> origen, y cada una hay que declararla en Supabase o el login falla en silencio—. Ahora es **una
+> sola URL fija**, `origin + /tablero`, tomada de la tabla de `universo.router`. El aterrizaje
+> reutiliza el mecanismo de deep link de T-05 sin código nuevo (`404.html` → `pending` →
+> `:auth/session-established`), verificado en local contra un servidor que imita el fallback de
+> GitHub Pages.
+>
+> ⚠️ **Ojo con el orden de despliegue (BL-06):** el botón ya está en el bundle. Si `app.js` se
+> publica **antes** de configurar Google Cloud y Supabase, los visitantes ven un botón que falla.
+> Configurar primero, publicar después — o publicar y configurar en la misma ventana.
+>
+> Verificación: **97 tests / 530 assertions / 0 failures**, los cuatro `audit_*.py` en verde,
+> `release app` + `build:css` corridos.
+
 > ## 🧹 2026-08-17 — T-12 cerrada: un solo `index.html`, y dev prueba lo que se publica
 >
 > **Rama `t-12-html-unico`.** El ticket pedía resolver la duplicación `index.html` /
@@ -1339,6 +1366,7 @@ Registradas hoy de forma retroactiva (las decisiones son previas; su documentaci
 | BL-03 | ~~Cupos reales~~ -- **resuelto 2026-08-09** (T-04): primer cupo real publicado para el sábado 2026-08-15 10:30 con enlace de Jitsi verdadero, demos borrados. **Era el último bloqueo de go-live** | Negocio | — |
 | BL-04 | ~~Árbol sucio~~ -- **resuelto 2026-07-29** (T-08) y reverificado limpio el 2026-08-09; ver nota de sesión al inicio de este archivo | Técnico | — |
 | BL-05 | **Preguntas abiertas de producto** sin responder (capacidad, repetición de diagnóstico, privacidad) | Decisión | Ver [[OPEN_QUESTIONS]] |
+| BL-06 | **Login con Google: el código está listo y publicado, el proveedor no está configurado** (T-92). Hasta que existan las credenciales de Google Cloud, el secreto en Supabase y `https://jacobocordova.com/tablero` en la allowlist de Redirect URLs, el botón visible falla al pulsarlo | Acceso/operación | Jacobo Córdova |
 
 ---
 

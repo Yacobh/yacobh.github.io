@@ -1,6 +1,8 @@
 # BACKLOG
 
-Última actualización: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
+Última actualización: **2026-08-17** (**T-92** ejecutada en su parte de código: login con Google
+conectado y D-21 respetado en las dos rutas; queda la configuración manual de Google Cloud +
+Supabase). Antes: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
 G-1…G-5, tareas T-76…T-89), abierta por
 [[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]]. Cierra P-11. Antes: 2026-08-10.
 
@@ -2552,7 +2554,7 @@ Pantalla del PROFESOR, proyectada y en vivo:  el mapa de errores del curso
 - **Ojo con L-37:** rediseñar el funnel **no** es rehacer los cupos. Los cupos están construidos,
   funcionan y no molestan; el punto es qué se construye **después**, no qué se borra.
 
-### T-92 · Conectar el login con Google (existe pero nadie lo llama) — **P1** · `abierto`
+### T-92 · Conectar el login con Google (existe pero nadie lo llama) — **P1** · `hecho a medias` (2026-08-17: **código listo y desplegable**; falta la configuración de Google Cloud + Supabase, que es manual y del owner)
 
 `sign-in-with-google` está definida en `src/universo/supabase.cljs:21` desde F0 y **ningún botón la
 invoca**. Conectarla es de horas, no de días, y **cuesta $0** en las tres capas.
@@ -2576,9 +2578,12 @@ y deshace D-21 en silencio**, sobre un público mayoritariamente menor de edad. 
 antes del botón, no dentro del formulario de correo.** Si esto no se respeta, la tarea no está
 terminada.
 
-- **Segundo detalle:** el `redirectTo` actual es `(.-href js/window.location)` — dinámico. Hay que
-  registrar el dominio en la allowlist de Redirect URLs de Supabase Auth o el login falla en
-  silencio. Ayuda que casi todo viva en `/` mientras no exista router (T-05).
+- ~~**Segundo detalle:** el `redirectTo` actual es `(.-href js/window.location)` — dinámico.~~
+  *(Resuelto el 2026-08-17 — ver "Ejecutada" abajo: ahora es una sola URL fija. El párrafo se deja
+  porque explica **por qué** había que cambiarlo.)* Hay que registrar el dominio en la allowlist de
+  Redirect URLs de Supabase Auth o el login falla en silencio. La nota original decía "ayuda que
+  casi todo viva en `/` mientras no exista router (T-05)" — el router **ya existe** (ADR-026), que
+  es justamente lo que volvió peligroso el `href` dinámico: una URL distinta por cada ruta.
 - **Terminado cuando:** un usuario entra con Google, obtiene su fila en `profiles`, la sesión
   rehidrata al recargar, y **la declaración de edad se registró antes del primer login**.
 - **Vector:** G-5 (fricción del funnel B2C) y **G-1** — ver abajo.
@@ -2587,6 +2592,37 @@ terminada.
   pasa a ser **la puerta de entrada institucional** (identidad estable para Δθ + dominio como llave
   de multi-tenant). Es la cuarta opción de [[OPEN_QUESTIONS]] **Q-37** y toca **Q-36**. Una hora de
   clase decide cuál de los dos mundos es el de este proyecto.
+
+**Ejecutada el 2026-08-17 (parte de código).** Lo que quedó en el repo:
+
+- `components/login.cljs` — botón "Continuar con Google" en `/ingresar` y `/registrarse`,
+  **inhabilitado hasta que la declaración de edad esté marcada**, con la razón escrita debajo para
+  que un botón muerto no espante a nadie. La declaración se extrajo a `consent-block`, reutilizada
+  en las dos rutas: en registro va **dentro** del `<form>` (validación nativa del navegador) y en
+  login va **fuera**, pegada al botón de Google, que es el único camino de esa ruta capaz de crear
+  una cuenta. Así **D-21 se cumple en los dos caminos** y no solo en el del correo.
+- `supabase.cljs` — `redirectTo` pasó de `window.location.href` (dinámico, una URL distinta por
+  cada ruta de origen) a **una sola URL fija**, `origin + /tablero`, tomada de la tabla de
+  `universo.router` en vez de escrita a mano. La allowlist de Supabase queda con **una entrada**.
+- **El aterrizaje del callback no necesitó código nuevo:** `/tablero` no es un archivo en GitHub
+  Pages, así que lo sirve `404.html`, que arranca la misma aplicación (ADR-026/ADR-027);
+  `:router/init` lo deja en `[:router :pending]` y `:auth/session-established` lo consume al
+  resolver la sesión. Es el mecanismo de deep link de T-05 reutilizado. **Verificado en un servidor
+  local que imita el fallback de Pages:** `/tablero` sin sesión arranca, queda pendiente y el guard
+  desvía a `/ingresar`.
+- Verificación: `clj -M:test` **97 tests / 530 assertions / 0 failures**; los cuatro
+  `scripts/audit_*.py` en verde; `release app` + `build:css` corridos y `public/js/app.js`
+  actualizado.
+
+**Lo que falta, y es manual del owner** (no se puede hacer desde el repo):
+
+1. Google Cloud: proyecto, pantalla de consentimiento (scopes `email`, `profile`, `openid`) y
+   credenciales OAuth 2.0. **Publicar la app** — en "Testing" el tope son 100 usuarios.
+2. Supabase → Authentication → Providers → Google: pegar Client ID y Client Secret.
+3. Supabase → Authentication → URL Configuration: agregar `https://jacobocordova.com/tablero` a la
+   allowlist de Redirect URLs. **Sin esto el login falla en silencio.**
+4. Recién ahí se puede cerrar el criterio original de terminado: un usuario real entra con Google,
+   obtiene su fila en `profiles` (trigger `handle_new_user()`) y la sesión rehidrata al recargar.
 
 ### T-93 · Revisar el contrato de Cpech antes de cualquier demo formal — **P0** · `hecho a medias` (2026-08-17: Cpech leído; **falta el del liceo**)
 
