@@ -423,7 +423,19 @@ Cloud, Supabase Auth, infra). Tarea: **T-92**.
 o no, y esa observación decide la opción. Es exactamente el tipo de pregunta que no se responde
 analizando.
 
-### 🔴 Q-38 · ¿Qué dicen los contratos laborales del owner sobre propiedad intelectual? — **abierta 2026-08-16**
+### 🟡 Q-38 · ¿Qué dicen los contratos laborales del owner sobre propiedad intelectual? — **respondida a medias 2026-08-17**
+
+> ✅ **Cpech, leído el 2026-08-17:** **no hay cesión de PI ni exclusividad** — la titularidad del
+> proyecto no está en discusión. **Pero** hay prohibición contractual de derivar alumnos a servicios
+> de preuniversitario ajenos, de crear grupos de estudio con sistemas no autorizados y de usar
+> material propio en clases: **el canal Cpech no es usable hasta que venza el contrato, el
+> 2026-11-21**. Ver [[RISKS]] R-32 y [[BACKLOG]] T-93.
+>
+> 🔴 **Sigue abierta la parte del liceo:** ese contrato es otro y no se ha leído.
+>
+> El texto del contrato **no está en el repositorio a propósito** (datos personales, repo público —
+> mismo criterio que R-26). Pedírselo al owner si hace falta.
+
 
 El owner trabaja en **Cpech** (sede) y en un **liceo**, y ambos son además canales de distribución
 disponibles para el producto. Antes de usarlos hay que saber si sus contratos incluyen **cláusulas

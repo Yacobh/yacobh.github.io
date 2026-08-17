@@ -1591,7 +1591,7 @@ preguntas del banco. No hay que fabricarlo, hay que conectarlo.
 - **Relacionado:** [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]], T-54, T-29/T-45
   (contaminación de datos de calibración), [[RISKS]] R-16.
 
-### T-56 · Contenido de geometría: 7 módulos sin ninguna fuente — **P2** · `abierto`
+### T-56 · Contenido de geometría: 7 módulos sin ninguna fuente — **P0** · `en curso` (2026-08-17: migración escrita, auditada y **aplicada**; ⏳ falta publicar)
 
 Los 39 recursos de `018`/`019` cubren `aritmetica` y `algebra` (11 de 18 módulos). Los **7 módulos
 del track `geometria` no tienen ninguna fuente**: el owner subió los volúmenes de Aritmética y
@@ -1601,10 +1601,50 @@ del track `geometria` no tienen ninguna fuente**: el owner subió los volúmenes
 - **Trabajo:** conseguir o redactar fuente para los módulos de `geometria` y generar el lote bajo
   el pipeline de [[../adr/ADR-016-ia-en-el-pipeline-de-autoria-no-en-runtime]] (migración con
   `published = false` → auditoría rehaciendo cada cuenta → publicación).
-- **Prioridad real:** subordinada a T-51 y T-54. Generar más contenido antes de que el plan sepa
-  entregarlo es echar agua en un balde perforado (misma conclusión que motivó T-53).
+- ~~**Prioridad real:** subordinada a T-51 y T-54~~ — **revisado 2026-08-17:** esa nota se escribió
+  cuando T-51 y T-53 estaban abiertas. **Las dos ya están hechas**, así que el plan sí sabe entregar
+  recursos por módulo. T-54 (atar recursos a *misconceptions*) sigue abierta, pero es una mejora
+  para los **18** módulos, no un impedimento para geometría: hoy un estudiante con déficit en
+  geometría no recibe **nada**, y con esto recibe lo mismo que ya reciben los de aritmética y
+  álgebra. El balde ya no está perforado.
+- **Sube a P0:** es el criterio **L-2** de "listo para promocionar" ([[PROJECT_BRIEF]] §6).
 - **Terminado cuando:** cada módulo de `geometria` tiene ≥1 recurso publicado y auditado.
-- **Relacionado:** T-01, ADR-016, `supabase/CONTENT.md`.
+- **Relacionado:** T-01, ADR-016, `supabase/CONTENT.md`, L-2.
+
+**2026-08-17 — migración escrita y auditada, pendiente de aplicar.**
+`supabase/migrations/044_geometria_resources.sql`: **18 recursos** para los 5 módulos realmente
+vacíos (`angulos` 3, `triangulos` 4, `circulo` 3, `areas` 4, `volumenes` 4). `basica` y `pitagoras`
+ya tenían recursos de `002`/`004` y no se tocaron.
+
+- **Sin fuente bibliográfica, a diferencia de `018`/`019`:** no hay volumen de Baldor de geometría,
+  así que el contenido está redactado desde cero contra el temario de PAES M1. Los títulos no citan
+  libro.
+- **Fuera de alcance a propósito:** trigonometría, geometría analítica y transformaciones
+  isométricas — o no son de M1, o exigirían crear módulos nuevos, y esta migración no crea módulos.
+- **Auditoría numérica (ADR-016): 72 comprobaciones, 0 fallas.** Se recalculó cada ejemplo de los 18
+  recursos, más las cotas de π de Arquímedes que aparecen en un contexto histórico. **Eso dice que
+  las cuentas están bien, no que el texto enseñe bien:** la revisión pedagógica sigue siendo del
+  profesor.
+- **Verificado también que el formato renderiza:** `math_render` soporta `$…$`, `$$…$$` y
+  `**negrita**`. Las listas con `-` **no** se convierten en `<ul>` (limitación conocida, D-40), pero
+  se leen igual y es el mismo estilo del contenido ya publicado en `018`/`019`.
+
+✅ **`044` aplicada por el owner el 2026-08-17.**
+
+⏳ **Falta lo que cierra L-2, y no es un trámite:** los 18 recursos entraron con
+`published = false`, y **un recurso sin publicar es invisible para el estudiante** — la policy
+`resources_select_published` filtra por `published = true`. O sea que **aplicar la migración no
+mueve L-2 ni un punto** hasta que se publiquen desde Admin → Recursos, que es una decisión
+pedagógica y humana (ADR-016).
+
+**Verificación versionada:** `supabase/queries/L-2_cobertura_de_recursos.sql` — cinco bloques de
+solo lectura que responden, en orden: si `044` llegó completa (su modo de fallo es **silencioso**:
+si un slug no coincide, el `insert … select` no inserta nada y **no da error**), el estado de L-2
+módulo por módulo, el veredicto en una sola fila, la cola de revisión ordenada y un control de
+duplicados. Los 18 títulos del bloque A se verificaron carácter a carácter contra la migración.
+
+**Y comprobar que `geometria/basica` y `geometria/pitagoras` tengan ≥1 recurso publicado** — el
+criterio L-2 es 18 módulos de 18, no 16. El bloque C lo responde solo.
 
 ### T-57 · Modelar la misconception como entidad, no como texto libre — **P2** · `en curso` (paso 1 hecho 2026-08-10; ⏳ falta aplicar `027`)
 
@@ -2415,7 +2455,7 @@ plataforma.
 - **Terminado cuando:** existe un profesor externo dictando un cupo y la comisión está cobrada.
 - **Vector:** G-3. **Métrica que lo valida:** M-15 > 0.
 
-### T-87 · Material de venta institucional y piloto acotado — **P1** · `abierto`
+### T-87 · Material de venta institucional y piloto acotado — **P1** · `abierto` · ⛔ **no en Cpech antes del 2026-11-21**
 
 El guion, la propuesta y el formato del piloto gratuito: un nivel completo diagnosticado en una
 hora de clase, con entrega del mapa de errores por curso.
@@ -2424,6 +2464,11 @@ hora de clase, con entrega del mapa de errores por curso.
   estudiar"* ([[RAIZ_SISTEMA_LLOVIZNA]] §2.5).
 - **Terminado cuando:** un piloto está ejecutado en un colegio real (S-14), aunque sea gratuito.
 - **Vector:** G-1, G-5. **Dependencias:** T-77 (no se vende sin el reporte), T-79, T-82.
+- ⛔ **Restricción contractual descubierta el 2026-08-17 (T-93):** el piloto **no puede ejecutarse en
+  Cpech** mientras el contrato del owner esté vigente (vence el **2026-11-21**) — hay prohibición
+  expresa de derivar alumnos a servicios de preuniversitario ajenos y de crear grupos de estudio con
+  sistemas no autorizados. El canal del **liceo** no está alcanzado por eso, pero su contrato sigue
+  sin leerse. Ver [[RISKS]] R-32.
 
 ### T-88 · Aviso de privacidad y contrato de datos para el caso institucional — **P0** · `abierto`
 
@@ -2543,7 +2588,7 @@ terminada.
   de multi-tenant). Es la cuarta opción de [[OPEN_QUESTIONS]] **Q-37** y toca **Q-36**. Una hora de
   clase decide cuál de los dos mundos es el de este proyecto.
 
-### T-93 · Revisar el contrato de Cpech antes de cualquier demo formal — **P0** · `abierto`
+### T-93 · Revisar el contrato de Cpech antes de cualquier demo formal — **P0** · `hecho a medias` (2026-08-17: Cpech leído; **falta el del liceo**)
 
 **Bloqueante de todo uso del canal Cpech.** Cuesta media hora y protege dieciséis años de trabajo.
 
@@ -2558,6 +2603,25 @@ terminada.
 - **Después de esto, y no antes:** demo a Cpech con **encuadre comercial y algo por escrito**,
   aunque sea un correo de una página con alcance, propiedad y qué pasa si funciona (L-39).
 - **Vector:** G-1, G-5.
+
+**Ejecutada el 2026-08-17 (parte Cpech).** Resultado, en dos frases:
+
+1. **No hay cláusula de cesión de propiedad intelectual ni de exclusividad.** La titularidad del
+   proyecto **no está en discusión** — [[RISKS]] R-32 baja de "muy alto" a "medio". Refuerzos: la
+   función contratada es *docente*, no desarrollo de software, y el primer commit del repo es diez
+   meses anterior al inicio del contrato, con fechas verificables en un historial público.
+2. **Pero el canal Cpech está cerrado por contrato hasta el 2026-11-21** (es de plazo fijo): hay
+   prohibición explícita de derivar alumnos a servicios de preuniversitario ajenos —redactada como
+   causal justificada de despido y vigente **fuera de jornada**—, de crear grupos de estudio con
+   sistemas no autorizados (que es la función de cupos) y de usar material propio en clases.
+   **T-87 no es viable en Cpech antes de esa fecha, y no se arregla con un deslinde por escrito.**
+
+**Sigue abierto:** el **contrato del liceo**, que es otro documento y no se ha leído. Ese canal
+*parece* abierto —las prohibiciones de Cpech son sobre sus propios alumnos— pero no está verificado.
+
+> **El texto del contrato no está en el repositorio y no debe agregarse:** contiene datos personales
+> del owner y de terceros, y el repo es público (mismo criterio que R-26). Si hace falta, pedírselo
+> al owner.
 
 ---
 

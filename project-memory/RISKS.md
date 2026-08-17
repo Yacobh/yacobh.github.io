@@ -66,7 +66,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | **R-28** | **Datos de menores a escala institucional bajo Ley 21.719** | Alto | Media | **Alta** | abierto 2026-08-16 |
 | **R-29** | **Vender B2B con el banco sin calibrar y perder la credibilidad del método** | Alto | Media | **Alta** | abierto 2026-08-16 |
 | **R-31** | **El funnel está diseñado para el canal que nunca produjo un usuario** | Alto | **Confirmada** | **Alta** | 🔺 **abierto 2026-08-16** |
-| **R-32** | **Propiedad intelectual y conflicto de interés con los empleadores (Cpech, liceo)** | **Muy alto** | Media | **Alta** | 🔺 **abierto 2026-08-16** |
+| **R-32** | ~~Propiedad intelectual~~ **y conflicto de interés con los empleadores (Cpech, liceo)** | Medio | Media | Media | 🔻 **rebajado 2026-08-17** (T-93): **no hay cesión de PI** — la titularidad no está en discusión. Queda solo el conflicto de interés, y con una respuesta concreta: **el canal Cpech no es usable hasta el 2026-11-21** |
 
 ---
 
@@ -686,3 +686,38 @@ startup?"* cuesta el canal y puede complicar el empleo. La Ley 21.719 entra en p
 
 Relacionado: [[CURRENT_STATUS]] · [[BACKLOG]] · [[ARCHITECTURE]] · [[OPEN_QUESTIONS]] ·
 [[ASSUMPTIONS]] · [[LESSONS_LEARNED]]
+
+
+---
+
+### ✅ Actualización 2026-08-17 — T-93 ejecutada: el contrato de Cpech leído
+
+**El escenario que hacía de R-32 el peor riesgo del registro no existe.** El contrato **no tiene
+ninguna cláusula de cesión de propiedad intelectual ni de invenciones**: la única cláusula de PI
+protege el material que la empresa entrega al docente, no lo que el docente crea. Tampoco hay
+cláusula de exclusividad. Se suman dos refuerzos independientes: la función contratada es
+**docente**, no desarrollo de software (relevante para el art. 8 de la Ley 17.336, que solo alcanza
+al software hecho *en el desempeño de las funciones laborales*), y **el primer commit del repo es
+diez meses anterior al inicio del contrato**, con fechas verificables por terceros en un historial
+público. **La titularidad del proyecto no está en discusión.**
+
+**Lo que sí apareció, y no estaba previsto: el canal Cpech está cerrado por contrato.** Hay
+cláusulas explícitas de **no derivación de alumnos a servicios de preuniversitario ajenos**
+—redactadas como causal justificada de despido y vigentes **dentro y fuera de la jornada**—, de
+prohibición de **crear grupos de estudio con sistemas no autorizados** (que es literalmente la
+función de cupos) y de **no usar material propio en clases**. Ninguna se resuelve con un deslinde
+por escrito.
+
+**Consecuencias operativas:**
+
+- **El canal Cpech no se usa hasta que termine el contrato**, que es de plazo fijo y vence el
+  **2026-11-21**. Después no hay restricción. → [[BACKLOG]] T-87 y T-93.
+- **El canal del liceo sigue abierto:** las prohibiciones son sobre los alumnos de Cpech. Pero
+  **el contrato del liceo es otro y no se ha leído** — esa parte de T-93 sigue pendiente.
+- El agravante de asimetría descrito arriba (Cpech como actor grande frente a una persona sin
+  sociedad) **no desaparece**: sigue siendo un argumento para no ir a Cpech antes de G-2, ahora
+  reforzado por una razón contractual.
+
+> **El detalle vive fuera del repositorio, a decisión del owner.** El contrato contiene datos
+> personales suyos y de terceros y este repo es público (D-42, mismo criterio que R-26). Si una
+> sesión futura necesita el texto, se lo pide al owner: **no está acá y no debe agregarse.**

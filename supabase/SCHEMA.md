@@ -264,7 +264,21 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     policies en el mismo archivo: lectura pública a propósito, escritura solo admin (ADR-022).
     **Verificada en producción por su efecto:** la pestaña Apariencia del panel dejó de mostrar el
     error de carga, que era exactamente lo que fallaba mientras la tabla no existía
-46. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+46. `migrations/044_geometria_resources.sql` — ✅ **aplicada 2026-08-17** por el owner · 18 recursos
+    de capa 1 para los **5 módulos de `geometria` que no tenían ninguno** (`angulos`, `triangulos`,
+    `circulo`, `areas`, `volumenes`). Criterio **L-2** de "listo para promocionar"
+    ([[../project-memory/PROJECT_BRIEF]] §6) y cierre de [[../project-memory/BACKLOG]] T-56.
+    Redactados desde cero: a diferencia de `018`/`019` **no hay volumen de Baldor de geometría**, así
+    que no se cita fuente bibliográfica. Todo entra con `published = false` (ADR-016) y **la
+    publicación es humana**. Auditoría numérica al generar: **72 comprobaciones, 0 fallas**.
+    **Aplicarla NO cumple L-2 por sí sola:** los 18 entran con `published = false`, y un recurso sin
+    publicar es **invisible para el estudiante** porque la policy `resources_select_published`
+    filtra por `published = true`. Falta revisar y publicar desde Admin → Recursos, y comprobar que
+    `geometria/basica` y `geometria/pitagoras` (recursos de `002`/`004`) tengan ≥1 publicado: el
+    criterio es 18 módulos de 18. **Verificación versionada:**
+    `queries/L-2_cobertura_de_recursos.sql` — su bloque A ataja el modo de fallo silencioso de esta
+    migración (si un slug no coincide, el `insert … select` no inserta nada y **no da error**)
+47. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
 > final de `029`: **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id`

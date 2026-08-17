@@ -215,6 +215,40 @@ No existen métricas de negocio medidas hoy (no hay analytics conectado). Las m�
 están en [[BUSINESS_CONTEXT]] §6 y §6.1, y su instrumentación es una tarea abierta ([[BACKLOG]]
 T-20 y épica E8).
 
+**Criterios de «listo para promocionar» (decididos 2026-08-17, L-1…L-5).** Los S-11…S-18 de más
+abajo son criterios de **éxito del negocio** e incluyen *"primer contrato pagado"*. Antes que
+ellos hay una barrera más chica y más urgente, que el owner decidió definir explícitamente para que
+*"una semana más de producto"* tuviera condición de término y no fuera una fecha móvil:
+
+> **¿Puedo mandar tráfico a esto sin quemarlo?**
+
+Los cinco son **verificables**, no de opinión — mismo criterio que los audits de
+[[ARCHITECTURE]] §10-bis.
+
+| # | Criterio | Cómo se verifica | Estado |
+|---|----------|------------------|--------|
+| **L-1** | **El sitio no afirma nada falso.** Único pendiente: **X-02**, la FAQ promete ver *"cómo se movió tu nivel"* al repetir el diagnóstico y no hay histórico | Las afirmaciones del FAQ contrastadas contra el código, una por una | ⛔ pendiente — dos vías: implementar el histórico (T-26, que además es G-4/D-50) o ajustar el copy. **Recomendación registrada: implementar** — es la única promesa que genera una segunda visita |
+| **L-2** | **Nadie termina el diagnóstico sin material que estudiar.** Hoy **7 de 18 módulos (todo `geometria`) no tienen recurso**: si el déficit principal cae ahí, el estudiante recibe la capa 0 y nada más | Consulta: ≥1 recurso **publicado** por módulo, 18/18 | 🔧 **en curso 2026-08-17** (T-56) |
+| **L-3** | **El owner confía en el θ que entrega el diagnóstico** | Con los **252 diagnósticos ya rendidos**: % de acierto real por ítem, contrastado contra el orden de `difficulty` fijado a mano (T-50). No es la calibración completa de G-2 (S-11), es saber si el orden actual se sostiene | ⛔ pendiente |
+| **L-4** | **Se puede saber si la promoción funcionó** | Una sesión de tráfico produce eventos por página distinguibles (T-20). Desbloqueado por el router de ADR-026 | ⛔ pendiente |
+| **L-5** | **La fricción del registro es una decisión, no un pendiente** | R-31 y Q-37 cerradas como *"aceptado a propósito, se revisa con datos de T-20"* | ⛔ pendiente |
+
+**Origen y encuadre (2026-08-17).** El owner argumentó —con razón— que la lectura de R-30 era
+injusta en un punto: los tres "intentos" históricos que ese riesgo usa como evidencia fueron
+**financiamiento estatal (2012, nunca se lanzó)** y un **convenio de desarrollo (UNAP, 2025, le
+pagaron por construir)**. **Ninguno fue un intento de promoción de este producto**, así que
+*"murió tres veces en distribución"* sobreestima la evidencia: lo correcto es *"tres veces no se
+llegó a intentar"*. Se suman dos cambios de condiciones reales: el owner es hoy desarrollador
+senior (antes tenía poca experiencia de programación) y trabaja asistido. **La decisión es suya y
+está tomada:** una semana más de producto contra estos criterios, y después promoción.
+**Lo que R-30 sigue cubriendo** no es la semana, es que la semana no tenga condición de término —
+que es precisamente lo que esta tabla resuelve.
+
+**Alcance declarado de la semana:** L-1 y L-2 son los únicos que un desconocido nota, y son la
+prioridad. L-3, L-4 y L-5 pueden quedar fuera de la semana **si se dice explícitamente**.
+
+---
+
 **Criterios de éxito del pivote (decididos 2026-08-16, ninguno alcanzado).** Estos son los que
 importan ahora: los técnicos ya están todos en verde y no es ahí donde el proyecto está detenido.
 
