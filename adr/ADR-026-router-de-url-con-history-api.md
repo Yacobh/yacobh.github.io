@@ -55,10 +55,12 @@ Cuatro reglas concretas:
    |---|---|---|---|---|
    | `:main` | `/` | | `:cupos` | `/cupos` |
    | `:login` | `/ingresar` | | `:cuenta` | `/cuenta` |
-   | `:diagnostic-test` | `/diagnostico` | | `:admin` | `/admin` |
-   | `:dashboard` | `/tablero` | | `:guestbook` | `/libro-de-visitas` |
-   | `:plan` | `/plan` | | `:jacobocordova` | `/profesor` |
-   | | | | `:privacidad` | `/privacidad` |
+   | `:registro` | `/registrarse` | | `:admin` | `/admin` |
+   | `:diagnostic-test` | `/diagnostico` | | `:guestbook` | `/libro-de-visitas` |
+   | `:dashboard` | `/tablero` | | `:jacobocordova` | `/profesor` |
+   | `:plan` | `/plan` | | `:privacidad` | `/privacidad` |
+
+   (`:registro` se agregó el mismo día — ver el **Anexo** al final.)
 
 2. **El flujo de información es asimétrico y esa asimetría es la salvaguarda.** De la sección a la
    URL: siempre, y en un único punto — `:complete-navigation`, que corre **después** del guard. De
@@ -138,6 +140,51 @@ Cuatro reglas concretas:
 - **Se amplía** cuando aparezcan rutas con parámetro (`/plan/:modulo`, `/cupos/:id`). La tabla
   actual es de rutas fijas a propósito; el día que haya parámetros hay que decidir si sigue siendo
   una tabla o pasa a ser una librería.
+
+---
+
+## Anexo — 2026-08-16: el registro deja de ser un modo y pasa a ser una ruta
+
+*No cambia la decisión de arriba: la extiende. Se anexa en vez de reescribir el cuerpo, según la
+regla de ADRs de [[../project-memory/AGENT_INSTRUCTIONS]] §8.*
+
+**Lo que quedó mal en la primera pasada.** Se enrutó `/ingresar` y se dejó **el registro adentro**,
+como un modo del mismo componente: un `r/atom` local en `login-form` sembrado por
+`:auth/login-mode`, un intent de un solo uso que ponían el CTA "Comenzar gratis" y el panel de
+contacto. El owner lo notó al revisar: *"ingresar y registrarse están en el mismo deep link, ¿está
+bien eso?"*. No lo estaba, por tres razones concretas:
+
+1. **El registro no sobrevivía a un refresh** — la única pieza de navegación que quedó fuera de
+   T-05, y justo en el paso más caro del embudo. Recargar mientras se llenaba "Crear cuenta"
+   devolvía "Iniciar Sesión".
+2. **No se podía medir.** "Cuántos llegaron al registro" contra "cuántos volvieron a entrar" es *la*
+   pregunta de CAC para G-5, y las dos eran el mismo evento de página en `/ingresar` (T-20).
+3. **Peor instrucción para el aula.** Para G-1, mandar un curso a `/registrarse` funciona; mandarlo
+   a una página titulada "Iniciar Sesión" y esperar que encuentre el enlace chico pierde gente.
+
+**Decisión anexa.** `:registro` → **`/registrarse`**, sección pública propia. `login-form` sirve las
+dos rutas y **deriva** el modo de `:current-section`; `main-content` lo monta en ambas ramas, así
+que React reconcilia sobre el mismo componente y **el correo ya escrito sobrevive al cambio**. Los
+enlaces "Regístrate" / "Inicia sesión" pasan a ser `<a href>` reales que despachan `:navigate-to`.
+
+**`:auth/login-mode` y `:auth/set-login-mode` se eliminaron** (sub, evento y la clave
+`[:auth :login-mode]` de `default-db`): con la ruta como fuente del modo, el intent sobraba. Es un
+estado menos que sincronizar — el objetivo de fondo era no dejar deuda, no agregarla.
+
+**Detalle de limpieza de estado, con su razón:** al cruzar de una ruta a la otra se limpia el
+**error** (*"este correo ya tiene una cuenta"* no significa nada en el otro formulario) pero **no**
+el mensaje de éxito, porque el caso *"cuenta creada, revisa tu correo"* navega a `/ingresar` y tiene
+que seguir leyéndose ahí. La limpieza vive en el render y no en el `on-click` del enlace, para
+cubrir también el botón atrás.
+
+**Guarda de cumplimiento verificada:** la declaración de edad de `login.cljs` (D-21, Ley 21.719,
+R-06) se muestra en `/registrarse` — se comprobó en el navegador, porque una ruta directa al
+registro es exactamente donde se podría haber perdido.
+
+**Verificado en vivo:** deep link a `/registrarse` monta "Crear cuenta" con la declaración de edad ·
+alternar a "Inicia sesión" cambia la URL a `/ingresar` y **conserva el correo escrito** · el botón
+atrás vuelve a "Crear cuenta" con el correo intacto · el CTA principal de la landing aterriza en
+`/registrarse`.
 
 ---
 

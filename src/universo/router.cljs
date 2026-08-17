@@ -19,6 +19,10 @@
 (def ^:private section->path-table
   {:main            "/"
    :login           "/ingresar"
+   ;; Registro tiene ruta propia y no es un modo de `/ingresar`: es el paso más
+   ;; caro del embudo, así que tiene que sobrevivir a un refresh y poder
+   ;; medirse aparte del regreso de alguien que ya tiene cuenta (T-20).
+   :registro        "/registrarse"
    :diagnostic-test "/diagnostico"
    :dashboard       "/tablero"
    :plan            "/plan"

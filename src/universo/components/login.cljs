@@ -23,10 +23,14 @@
   (re-frame/dispatch [:auth/login-success user]))
 
 (defn login-form []
-  (let [mode (r/atom :login) ; :login | :register
-        ;; Último intent de :auth/login-mode ya aplicado — evita reaplicar el
-        ;; mismo valor en cada render.
-        applied-intent (r/atom nil)
+  ;; Iniciar sesión y registrarse son **dos rutas**, `/ingresar` y
+  ;; `/registrarse`, no dos modos de una misma pantalla: el registro es el paso
+  ;; más caro del embudo y tiene que sobrevivir a un refresh y medirse aparte
+  ;; (ADR-026, T-20). Este componente sirve a las dos y deriva cuál mostrar de
+  ;; la sección activa; el estado del formulario sobrevive al cambio porque
+  ;; `main-content` monta el mismo componente en las dos ramas.
+  (let [;; Última sección vista, para saber cuándo se cruzó de una a la otra.
+        last-section (r/atom nil)
         email (r/atom "")
         password (r/atom "")
         consent (r/atom false)
@@ -35,18 +39,17 @@
         success (r/atom nil)]
 
     (fn []
-      (let [intent @(re-frame/subscribe [:auth/login-mode])]
-        ;; :auth/login-mode es un intent de un solo uso (CTA "Crear cuenta
-        ;; gratis" en contacto.cljs y "Comenzar gratis"/"Iniciar sesión" del
-        ;; nav vía :landing/start). Se aplica apenas aparece y se limpia de
-        ;; inmediato — no se puede depender de que el componente se vuelva a
-        ;; montar, porque puede llegar el intent estando ya en :login (mismo
-        ;; patrón que synced-email-from en guestbook.cljs).
-        (when (and intent (not= intent @applied-intent))
-          (reset! mode intent)
-          (reset! applied-intent intent)
-          (re-frame/dispatch [:auth/set-login-mode nil])))
-      (let [register? (= @mode :register)]
+      (let [section @(re-frame/subscribe [:current-section])
+            register? (= section :registro)]
+        ;; Al cruzar de una ruta a la otra se limpia el **error**: "este correo
+        ;; ya tiene una cuenta" no significa nada en el otro formulario. El
+        ;; mensaje de éxito sí sobrevive a propósito — es justo el caso de
+        ;; "cuenta creada, revisa tu correo", que manda al usuario a
+        ;; `/ingresar` y tiene que seguir leyéndose ahí. Va acá y no en el
+        ;; on-click del enlace para cubrir también el botón atrás.
+        (when (not= section @last-section)
+          (reset! last-section section)
+          (reset! error nil))
         [:div.flex.items-center.justify-center.p-20
          [:div.bg-white.shadow-md.rounded-lg.p-6.w-full.max-w-md
 
@@ -96,8 +99,8 @@
                              (and register? user)
                              (do
                                (reset! success "Cuenta creada. Revisa tu correo para confirmar e inicia sesión.")
-                               (reset! mode :login)
-                               (reset! password ""))
+                               (reset! password "")
+                               (re-frame/dispatch [:navigate-to :login]))
 
                              ;; Login sin sesión (email no confirmado)
                              (and (not register?) user)
@@ -168,19 +171,20 @@
               register? "Registrarse"
               :else "Iniciar Sesión")]]
 
+          ;; Enlaces reales, no botones: cada uno apunta a una ruta que existe,
+          ;; así que se pueden abrir en otra pestaña o copiar. El click navega
+          ;; sin recargar (ADR-026).
           [:p.text-sm.text-gray-600.text-center.mt-6
-           (if register?
-             [:span "¿Ya tienes cuenta? "
-              [:button {:type "button"
-                        :class "text-indigo-600 font-semibold hover:text-indigo-800"
-                        :on-click #(do (reset! mode :login)
-                                       (reset! error nil)
-                                       (reset! success nil))}
-               "Inicia sesión"]]
-             [:span "¿No tienes cuenta? "
-              [:button {:type "button"
-                        :class "text-indigo-600 font-semibold hover:text-indigo-800"
-                        :on-click #(do (reset! mode :register)
-                                       (reset! error nil)
-                                       (reset! success nil))}
-               "Regístrate"]])]]]))))
+           (let [go (fn [destino]
+                      (fn [e]
+                        (.preventDefault e)
+                        (reset! success nil)
+                        (re-frame/dispatch [:navigate-to destino])))
+                 link-class "text-indigo-600 font-semibold hover:text-indigo-800"]
+             (if register?
+               [:span "¿Ya tienes cuenta? "
+                [:a {:href "/ingresar" :class link-class :on-click (go :login)}
+                 "Inicia sesión"]]
+               [:span "¿No tienes cuenta? "
+                [:a {:href "/registrarse" :class link-class :on-click (go :registro)}
+                 "Regístrate"]]))]]]))))

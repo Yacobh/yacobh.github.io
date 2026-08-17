@@ -82,6 +82,5 @@
                    [:navigate-to :diagnostic-test]]}
      {:db (assoc-in db [:auth :redirect-after-login] :diagnostic-test)
       ;; Sin sesión no hay cuenta que iniciar: el CTA "Comenzar gratis" solo
-      ;; tiene sentido como registro.
-      :dispatch-n [[:auth/set-login-mode :register]
-                   [:navigate-to :login]]})))
+      ;; tiene sentido como registro, y desde T-05 eso es una ruta propia.
+      :dispatch [:navigate-to :registro]})))

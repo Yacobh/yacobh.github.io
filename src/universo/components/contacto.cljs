@@ -93,8 +93,7 @@
               :class (str "w-full rounded-lg bg-indigo-600 py-2 text-sm font-semibold "
                           "text-white transition hover:bg-indigo-700")
               :on-click (fn []
-                          (re-frame/dispatch [:auth/set-login-mode :register])
-                          (re-frame/dispatch [:navigate-to :login])
+                          (re-frame/dispatch [:navigate-to :registro])
                           (re-frame/dispatch [:contacto/cerrar-panel]))}
              "Crear cuenta gratis"]
             [:p {:class "mb-1 mt-3 text-xs text-indigo-900"}

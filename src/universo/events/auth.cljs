@@ -105,15 +105,10 @@
  (fn [db _]
    (admin? db)))
 
-(re-frame/reg-sub
- :auth/login-mode
- (fn [db _]
-   (get-in db [:auth :login-mode])))
-
-(re-frame/reg-event-db
- :auth/set-login-mode
- (fn [db [_ mode]]
-   (assoc-in db [:auth :login-mode] mode)))
+;; :auth/login-mode y :auth/set-login-mode se eliminaron el 2026-08-16 (T-05):
+;; eran un intent de un solo uso para abrir `login-form` en modo registro. Con
+;; `/registrarse` como ruta propia (ADR-026), el modo lo dice la sección y el
+;; intent sobraba — un estado menos que sincronizar.
 
 (re-frame/reg-sub
  :auth/role

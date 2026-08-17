@@ -21,11 +21,7 @@
           :user nil
           :admin? false
           :role nil
-          :redirect-after-login nil
-          ;; Modo con el que debe abrir login-form la próxima vez que se monte
-          ;; (nil | :register) — lo consume y limpia el propio componente, ver
-          ;; :auth/set-login-mode / :auth/login-mode.
-          :login-mode nil}
+          :redirect-after-login nil}
 
    :admin {:tab :overview
            ;; Estado por sección: evita que el spinner/error de una pestaña

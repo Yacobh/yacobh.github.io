@@ -51,7 +51,15 @@ de GitHub Pages resuelto y sin debilitar los guards de sesión. El objetivo no c
    (verificado: `universo.core.dbg` es `undefined` en el bundle publicado). → L-40.
 7. Documentación: ADR-026, D-54, y las filas de **ADR-025 y ADR-026** en el índice §1 de
    `DECISIONS` (ADR-025 nunca se había agregado a esa tabla — omisión de la sesión anterior,
-   corregida acá).
+   corregida acá). Commit `14f446a`.
+8. **Segunda pasada, tras la prueba del owner.** Preguntó: *"ingresar y registrarse están en el
+   mismo deep link, ¿está bien eso?"*. No lo estaba — era la única pieza de navegación que había
+   quedado fuera de T-05, y la del paso más caro del embudo. Se agregó `:registro` →
+   **`/registrarse`** como ruta propia: `login-form` deriva el modo de `:current-section` en vez de
+   un `r/atom` local, y como `main-content` monta el mismo componente en las dos ramas, el correo
+   escrito sobrevive al cambio. **Se eliminaron `:auth/login-mode`, `:auth/set-login-mode` y
+   `[:auth :login-mode]`**: con la ruta como fuente del modo, el intent sobraba. Registrado como
+   **Anexo** de ADR-026 (extiende la decisión, no la cambia — AGENT_INSTRUCTIONS §8).
 
 ## Archivos revisados
 
@@ -66,16 +74,19 @@ de GitHub Pages resuelto y sin debilitar los guards de sesión. El objetivo no c
 
 | Archivo | Qué cambió |
 |---------|-----------|
-| `src/universo/router.cljs` | **Nuevo, puro.** Tabla `sección ↔ path`, `normalize-path`, `path->section`, `section->path`, `entry` |
+| `src/universo/router.cljs` | **Nuevo, puro.** Tabla `sección ↔ path` (12 rutas, incl. `/registrarse`), `normalize-path`, `path->section`, `section->path`, `entry` |
 | `src/universo/events/router.cljs` | **Nuevo.** Único ns que toca `window.history`: `:router/push`, `:router/replace`, `:router/listen`, `:router/init`, `:router/popstate` |
 | `src/universo/subs.cljs` | `:complete-navigation` acepta `opts` (`:history` → `:push`/`:replace`/`:none`) y es el único punto que escribe la URL |
 | `src/universo/events/auth.cljs` | `guard-section`/`:navigate-to` propagan `opts`; nuevas `post-session-target` y `post-clear-target` (puras, con test); `session-established`/`session-cleared` consumen `[:router :pending]`; nota sobre `:set-section` (sin llamadores, desincronizaría la URL) |
-| `src/universo/db.cljs` | Clave `:router {:pending nil}` documentada |
+| `src/universo/db.cljs` | Clave `:router {:pending nil}` documentada; **se elimina `[:auth :login-mode]`** |
+| `src/universo/components/login.cljs` | El modo (iniciar sesión / crear cuenta) se **deriva de `:current-section`**, no de un `r/atom` local; los enlaces del pie pasan a ser `<a href>` reales que despachan `:navigate-to`; el error se limpia al cruzar de ruta y el mensaje de éxito no |
+| `src/universo/components/contacto.cljs` | "Crear cuenta gratis" → `:navigate-to :registro` |
+| `src/universo/events/landing.cljs` | `:landing/start` sin sesión → `:navigate-to :registro` |
 | `src/universo/core.cljs` | `:require` de `universo.events.router` (L-03) y `dispatch-sync [:router/init]` **antes** de `:auth/init` |
-| `src/universo/home.cljs` | Logotipo con `href "/"` (era `"#"`); la rama 404 de `main-content`, ahora alcanzable, ofrece "Volver al inicio" |
+| `src/universo/home.cljs` | Logotipo con `href "/"` (era `"#"`); rama `:registro` en `main-content`; la rama 404, ahora alcanzable, ofrece "Volver al inicio" |
 | `404.html` | **Nuevo.** Fallback de GitHub Pages: rutas absolutas, `noindex`, sin SEO duplicado, sin redirección |
 | `shadow-cljs.edn` | `:push-state/index "index.html"` en `:dev-http` |
-| `test/universo/router_test.cljs` | **Nuevo.** 14 tests |
+| `test/universo/router_test.cljs` | **Nuevo.** 15 tests |
 | `adr/ADR-026-router-de-url-con-history-api.md` | **Nuevo** |
 | `project-memory/{DECISIONS,BACKLOG,ARCHITECTURE,CURRENT_STATUS,LESSONS_LEARNED}.md` | Ver abajo |
 | `public/js/app.js`, `public/css/app.css` | Recompilados (`app.css` sin cambios: no hubo clases nuevas) |
@@ -84,7 +95,7 @@ de GitHub Pages resuelto y sin debilitar los guards de sesión. El objetivo no c
 
 ```
 clj -M:test (antes)          → 83 tests / 454 assertions / 0 failures / 0 errors
-clj -M:test (después)        → 96 tests / 523 assertions / 0 failures / 0 errors
+clj -M:test (después)        → 97 tests / 530 assertions / 0 failures / 0 errors
 clj-kondo --lint src test    → 0 errores, 0 warnings
 npx shadow-cljs release app  → Build completed, 0 warnings, app.js = 1,2 MB (L-30 comprobada)
 npm run build:css            → Done in 424ms (app.css sin cambios: ninguna clase nueva)
@@ -107,6 +118,10 @@ Los 5 warnings `:infer-warning` de `events/auth.cljs` siguen ahí y son los cono
 | Navegación interna (clic en "Iniciar sesión") | `pushState`, una sola entrada de historial ✅ |
 | Atrás / adelante | Sección y URL coherentes, sin crecimiento del historial ✅ |
 | **`forward` hacia `/admin` sin sesión** | **Aterriza en `/ingresar` y corrige la URL** ✅ |
+| `/registrarse` | Monta "Crear cuenta" **con la declaración de edad de D-21** ✅ |
+| Alternar registro ↔ ingreso | Cambia la URL y **conserva el correo escrito**, en los dos sentidos ✅ |
+| Botón atrás desde `/ingresar` | Vuelve a "Crear cuenta" con el correo intacto ✅ |
+| CTA principal de la landing | Aterriza en `/registrarse` ✅ |
 | Deep link **con sesión iniciada** | ❌ **No verificado** — sin credenciales |
 
 ## Decisiones tomadas
@@ -115,6 +130,7 @@ Los 5 warnings `:infer-warning` de `events/auth.cljs` siguen ahí y son los cono
 |----------|-------|------------------------|
 | Router de History API + `404.html` como fallback; la sección escribe la URL y nunca al revés | **Sí** | [[../adr/ADR-026-router-de-url-con-history-api]] |
 | Rutas en español, fijas, sin librería; `sitemap.xml` no crece | No (menor) | [[../project-memory/DECISIONS]] D-54 |
+| `/registrarse` es ruta propia y no un modo de `/ingresar`; se elimina `:auth/login-mode` | Anexo | ADR-026 §Anexo, D-54 |
 
 ## Riesgos identificados
 

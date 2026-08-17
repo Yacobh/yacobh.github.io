@@ -17,8 +17,8 @@
 
 (deftest ida-y-vuelta-de-todas-las-secciones
   (testing "toda sección enrutable vuelve a sí misma pasando por su path"
-    (doseq [section [:main :login :diagnostic-test :dashboard :plan :cupos
-                     :cuenta :admin :guestbook :jacobocordova :privacidad]]
+    (doseq [section [:main :login :registro :diagnostic-test :dashboard :plan
+                     :cupos :cuenta :admin :guestbook :jacobocordova :privacidad]]
       (is (= section (router/path->section (router/section->path section)))
           (str "no vuelve: " section)))))
 
@@ -26,9 +26,22 @@
   ;; Espejo del `case` de universo.home/main-content: si allá se agrega una
   ;; sección y acá no, queda una pantalla sin URL y este test lo dice.
   (testing "cada sección que main-content sabe montar tiene path"
-    (doseq [section [:main :login :diagnostic-test :dashboard :cuenta :plan
-                     :cupos :admin :guestbook :jacobocordova :privacidad]]
+    (doseq [section [:main :login :registro :diagnostic-test :dashboard :cuenta
+                     :plan :cupos :admin :guestbook :jacobocordova :privacidad]]
       (is (some? (router/section->path section)) (str "sin ruta: " section)))))
+
+(deftest registro-e-ingreso-son-rutas-distintas
+  ;; El registro dejó de ser un modo de `/ingresar`: es el paso más caro del
+  ;; embudo, tiene que sobrevivir a un refresh y medirse aparte (T-20).
+  (testing "cada una tiene su propia ruta, y ninguna está protegida"
+    (is (= "/ingresar" (router/section->path :login)))
+    (is (= "/registrarse" (router/section->path :registro)))
+    (is (not= (router/section->path :login) (router/section->path :registro)))
+    (is (not (contains? auth/protected-sections :registro))))
+
+  (testing "un deep link a /registrarse monta la sección de una, sin esperar a auth"
+    (is (= {:kind :section :section :registro :path "/registrarse"}
+           (router/entry "/Registrarse/" auth/protected-sections)))))
 
 (deftest not-found-no-tiene-ruta
   (testing ":not-found no se escribe en la URL: se muestra sobre la que el usuario escribió"

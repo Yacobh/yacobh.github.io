@@ -110,8 +110,12 @@ contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 >   (la sesión de Supabase se rehidrata de forma asíncrona); sin sesión sobrevive como
 >   `:redirect-after-login`.
 >
-> Rutas: `/` `·` `/ingresar` `·` `/diagnostico` `·` `/tablero` `·` `/plan` `·` `/cupos` `·`
-> `/cuenta` `·` `/admin` `·` `/libro-de-visitas` `·` `/profesor` `·` `/privacidad`.
+> Rutas: `/` `·` `/ingresar` `·` `/registrarse` `·` `/diagnostico` `·` `/tablero` `·` `/plan` `·`
+> `/cupos` `·` `/cuenta` `·` `/admin` `·` `/libro-de-visitas` `·` `/profesor` `·` `/privacidad`.
+> **`/ingresar` y `/registrarse` son dos rutas, no dos modos**: `login-form` sirve las dos y deriva
+> cuál mostrar de `:current-section` (el estado del formulario sobrevive al cambio porque
+> `main-content` monta el mismo componente en ambas ramas). El intent `:auth/login-mode` que hacía
+> ese trabajo antes **se eliminó**.
 > Limitación heredada del hosting: **todas salvo `/` responden HTTP 404** (A-07', T-94).
 
 ### 2.2 Motor IRT (el corazón del producto)

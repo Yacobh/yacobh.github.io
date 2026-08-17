@@ -132,7 +132,6 @@
                :class (str link-class (when stacked? " text-left w-full"))
                :on-click (fn []
                            (close)
-                           (re-frame/dispatch [:auth/set-login-mode :login])
                            (re-frame/dispatch [:navigate-to :login]))}
       "Iniciar sesión"]
      [:button {:type "button"
@@ -250,7 +249,12 @@
   (let [current-section @(re-frame/subscribe [:current-section])]
     (case current-section
       :main [landing/landing]
+      ;; Mismo componente en las dos secciones a propósito: React reconcilia
+      ;; sobre el mismo tipo de elemento, así que alternar entre iniciar sesión
+      ;; y registrarse conserva el correo ya escrito. Cuál de los dos se
+      ;; muestra lo decide la sección, no un estado local (ADR-026).
       :login [login/login-form]
+      :registro [login/login-form]
       :diagnostic-test [diagnostic-test/diagnostic-test]
       :dashboard [dashboard/dashboard]
       :cuenta [cuenta/cuenta-page]

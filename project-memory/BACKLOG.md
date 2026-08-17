@@ -610,9 +610,9 @@ se puede medir por página.
 **Implementado 2026-08-16:**
 
 - `src/universo/router.cljs` — namespace **puro** (ADR-009): tabla `sección ↔ path`,
-  `normalize-path`, `path->section`, `section->path` y `entry`. Once rutas en español
-  (`/plan`, `/cupos`, `/diagnostico`, `/admin`, `/tablero`, `/ingresar`, `/cuenta`, `/profesor`,
-  `/privacidad`, `/libro-de-visitas`, `/`).
+  `normalize-path`, `path->section`, `section->path` y `entry`. Doce rutas en español
+  (`/plan`, `/cupos`, `/diagnostico`, `/admin`, `/tablero`, `/ingresar`, `/registrarse`, `/cuenta`,
+  `/profesor`, `/privacidad`, `/libro-de-visitas`, `/`).
 - `src/universo/events/router.cljs` — único lugar que toca `window.history`
   (`:router/push`, `:router/replace`, `:router/listen`) más `:router/init` y `:router/popstate`.
   Agregado al `:require` de `core.cljs` (L-03) y despachado con `dispatch-sync` **antes** de
@@ -647,6 +647,18 @@ no tiene cuenta de prueba. La lógica está cubierta por `post-session-target` e
 **Consecuencia aceptada, en el ADR:** bajo el fallback de GitHub Pages todas las rutas salvo `/`
 responden **HTTP 404**, así que las rutas públicas no son indexables y el `sitemap.xml` sigue
 declarando solo `/`. Ver T-94.
+
+**Segunda pasada, el mismo día (pregunta del owner: "¿ingresar y registrarse en el mismo deep link
+está bien?").** No lo estaba: era la única pieza de navegación que había quedado fuera de T-05, y
+justo el paso más caro del embudo. `:registro` → **`/registrarse`** es ahora ruta propia;
+`login-form` sirve las dos y **deriva** el modo de `:current-section` en vez de un `r/atom` local,
+así que el correo ya escrito sobrevive al cambio y el registro sobrevive a un refresh. Los enlaces
+"Regístrate" / "Inicia sesión" pasan a ser `<a href>` reales. **Se eliminaron `:auth/login-mode`,
+`:auth/set-login-mode` y la clave `[:auth :login-mode]`** — con la ruta como fuente del modo, el
+intent sobraba. `:landing/start` y el CTA del panel de contacto apuntan a `/registrarse`.
+`clj -M:test` **97 / 530 / 0**. Verificado en vivo: deep link a `/registrarse` monta "Crear cuenta"
+**con la declaración de edad de D-21**, alternar conserva el correo, el botón atrás también, y el
+CTA principal de la landing aterriza ahí. Detalle en el **Anexo** de ADR-026.
 
 ### T-94 · Entradas estáticas reales para las rutas públicas — **P3** · `abierto`
 

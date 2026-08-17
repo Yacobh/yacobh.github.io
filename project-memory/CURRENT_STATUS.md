@@ -59,6 +59,34 @@
 > [[LESSONS_LEARNED]] L-40.
 >
 > **Cierra:** T-05, A-07. **Habilita:** T-20 (analítica por página, vector G-5). **Abre:** T-94.
+>
+> ### 2ª pasada, el mismo día — el owner probó y preguntó por `/ingresar`
+>
+> *"Ingresar y registrarse están en el mismo deep link, ¿está bien eso?"* — **no lo estaba.** Era la
+> única pieza de navegación que había quedado fuera de T-05, y justo el paso más caro del embudo:
+> el registro no sobrevivía a un refresh, y "cuántos llegaron al registro" contra "cuántos volvieron
+> a entrar" —*la* pregunta de CAC para G-5— eran el mismo evento de página.
+>
+> **`:registro` → `/registrarse` es ahora ruta propia.** `login-form` sirve las dos y **deriva** el
+> modo de `:current-section`; como `main-content` monta el mismo componente en ambas ramas, React
+> reconcilia y **el correo ya escrito sobrevive al cambio**. Los enlaces "Regístrate" / "Inicia
+> sesión" pasan a ser `<a href>` reales.
+>
+> **Deuda retirada de paso:** `:auth/login-mode`, `:auth/set-login-mode` y la clave
+> `[:auth :login-mode]` de `default-db` **se eliminaron**. Eran un intent de un solo uso para abrir
+> el formulario en modo registro; con la ruta como fuente del modo, sobraban. Un estado menos que
+> sincronizar.
+>
+> **Guarda de cumplimiento comprobada en el navegador:** la declaración de edad de `login.cljs`
+> (D-21, Ley 21.719, R-06) se muestra en `/registrarse`. Una ruta directa al registro es
+> exactamente donde se podía haber perdido — es la misma guarda que T-92 anota para el botón de
+> Google.
+>
+> `clj -M:test` **97 tests / 530 assertions / 0 failures** · `clj-kondo` 0/0 · `release app` 0
+> warnings · las tres auditorías en verde. Verificado en vivo: deep link a `/registrarse`, alternar
+> en los dos sentidos conservando el correo, botón atrás, y el CTA principal de la landing
+> aterrizando en `/registrarse`. Detalle en el **Anexo** de
+> [[../adr/ADR-026-router-de-url-con-history-api]].
 
 > ## ⭐ 2026-08-16 — Pivote de modelo de negocio (solo documentación, cero cambios de código)
 >
