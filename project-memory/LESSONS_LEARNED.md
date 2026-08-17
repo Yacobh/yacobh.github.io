@@ -1,6 +1,9 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-08-16** (6ª pasada: **L-40**, el DOM que devuelve `javascript_tool`
+Última actualización: **2026-08-17** (**L-41**, una copia que nadie mira diverge — la pregunta útil
+no es cómo acordarse de sincronizar sino a qué archivo apunta quien la mira; **L-22 reescrita**:
+el número de lugares del copy no se recuerda, se mide — al aplicarle su propia regla resultó que
+no hay un número único, depende de qué copy. Antes, 2026-08-16, 6ª pasada: **L-40**, el DOM que devuelve `javascript_tool`
 puede estar desactualizado — la captura de pantalla y `location` sí son fiables. 4ª pasada: **L-39**, un piloto sin encuadre comercial produce datos y no clientes — la lección del piloto UNAP; y **L-22 corregida**: el copy estaba en cinco lugares, no tres. 3ª pasada: **L-38**, mirar la forma del mercado antes de proponer un modelo de ingreso — churn 100% anual, D-52) — **L-36 y L-37**, las dos más caras del proyecto y ambas
 detectadas por el owner: el funnel estaba construido para el canal que nunca funcionó, y se
 automatizó la formación de cohortes para una demanda que nunca llegó. Antes: 2026-08-12 (cuatro
@@ -315,6 +318,30 @@ era el correcto desde el primer intento— y **quitando el export antes de commi
 
 **Relacionado:** [[../adr/ADR-026-router-de-url-con-history-api]], [[BACKLOG]] T-05, L-30.
 
+### L-41 · Una copia que nadie mira diverge; revisa a qué archivo apunta el que la mira
+**Fecha:** 2026-08-17 (T-12, ADR-027).
+
+**Síntoma:** `index.html` y `public/index.html` eran copias, con la regla de sincronizarlas escrita
+y vigente en `CLAUDE.md` §9. Aun así el `<noscript>` de la copia se quedó atrás —le faltaban dos
+párrafos, uno de ellos el que nombra a la UNEXPO— y **nadie lo notó durante meses**.
+
+**Causa, que no es "se nos olvidó":** el servidor de desarrollo servía `public/index.html` y **nunca**
+el archivo que se publica. El mecanismo que en teoría detecta una divergencia —usar el producto en
+local— estaba apuntando al archivo equivocado. El original solo se miraba en producción, es decir,
+**después** de publicarlo. Con esa asimetría, la copia podía envejecer indefinidamente sin señal.
+
+**Regla:** cuando algo esté duplicado a la fuerza, la pregunta útil no es *"¿cómo me acuerdo de
+sincronizar?"* —esa regla ya existía y falló— sino **"¿cuál de las copias mira alguien, y con qué
+frecuencia?"**. Si la respuesta es "la que no se publica", la divergencia es cuestión de tiempo.
+Dos salidas, en este orden: **eliminar la copia** (ADR-027 apuntó dev a la raíz, así que en local se
+ve el archivo real), y si es irreducible —`index.html` / `404.html` difieren a propósito—
+**versionar la comprobación** en vez de repetir la convención (`scripts/audit_html.py`).
+
+**Corolario, de L-29:** un audit que no encuentra nada es indistinguible de uno que no funciona.
+`audit_html.py` se probó rompiendo el archivo de cuatro formas distintas antes de creerle.
+
+**Relacionado:** [[../adr/ADR-027-un-solo-index-html]], L-22, L-29, [[ARCHITECTURE]] §10-bis.
+
 ### L-20 · Las promesas del copy son requisitos
 **Síntoma:** la FAQ afirma que el tiempo de respuesta influye en la estimación (no lo hace) y que
 repetir el diagnóstico muestra cómo se movió el nivel (no hay histórico).
@@ -328,16 +355,31 @@ comprobar que el código lo cumple; si no lo cumple, es un ítem de backlog o ha
 **Regla:** los datos estructurados son públicos, indexados y difíciles de desdecir. Solo afirmar lo
 que está decidido.
 
-### L-22 · El mismo texto en tres lugares divergirá — **eran cinco** (corregido 2026-08-16)
+### L-22 · El mismo texto en varios lugares divergirá — y el número de lugares **no se recuerda, se mide**
 **Causa:** la FAQ vive en `index.html` (JSON-LD), `public/index.html` y `landing.cljs`.
 **Corrección del 2026-08-16:** al ejecutar D-53 resultó que la afirmación de origen estaba en
 **cinco** lugares, no tres: `index.html` (JSON-LD **y** bloque `noscript`), `public/index.html`
 (JSON-LD), `landing.cljs` (FAQ) y **`home.cljs` (footer)** — este último no figuraba en ninguna
 nota. La memoria repitió "los tres lugares" durante semanas sin que nadie lo verificara.
-**Regla:** mientras no se resuelva la duplicación (T-12), un cambio de copy se aplica en todos los
-lugares **en el mismo commit**, y **la lista se re-verifica con `grep` cada vez** en vez de confiar
-en el número que dice la memoria. Comprobación de cierre: `grep -rn "<frase vieja>" index.html
-public/index.html src/` debe devolver cero.
+**Actualización del 2026-08-17 (T-12 / ADR-027), y el número era la parte equivocada de la
+lección.** Al eliminar `public/index.html` se escribió "ahora son cuatro" y, al aplicar la propia
+regla de esta lección —re-verificar con `grep`—, resultó falso: **no hay un número único, depende de
+qué copy.** Medido:
+
+| Copy | Dónde vive |
+|---|---|
+| FAQ | `index.html` (JSON-LD `FAQPage`) + `landing.cljs` |
+| Origen del proyecto | `index.html` (`<noscript>`) + `home.cljs` (footer) |
+| Descripción / meta / Open Graph | `index.html` (`<head>`) + `landing.cljs` |
+
+El JSON-LD **no** lleva la frase de origen y `landing.cljs` **tampoco** — contra lo que decían las
+dos versiones anteriores de esta nota.
+
+**Regla:** un cambio de copy se aplica en todos sus lugares **en el mismo commit**, y **la lista se
+re-verifica con `grep` cada vez**. No confiar en el número que dice la memoria: ya estuvo mal dos
+veces (dijo tres cuando eran cinco; dijo cuatro cuando la pregunta estaba mal planteada) y cambia
+cada vez que se toca la estructura de archivos. Comprobación de cierre:
+`grep -rn "<frase vieja>" index.html 404.html src/` debe devolver cero.
 **Ojo con los falsos positivos:** `resume.cljs` también menciona a la UNAP, pero ahí es **experiencia
 docente real** y no se toca. No todo lo que hace match es el mismo hecho.
 

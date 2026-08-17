@@ -1,6 +1,52 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-16** · Rama `main`
+**Fecha de corte: 2026-08-17** · Rama `main`
+
+> ## 🧹 2026-08-17 — T-12 cerrada: un solo `index.html`, y dev prueba lo que se publica
+>
+> **Rama `t-12-html-unico`.** El ticket pedía resolver la duplicación `index.html` /
+> `public/index.html`. Al medirlo apareció que **el riesgo ya se había materializado**: normalizando
+> el prefijo de rutas, el `<head>` completo (meta, Open Graph, JSON-LD entero, script de tema) era
+> **idéntico byte a byte**, pero el `<noscript>` de la copia se había quedado sin dos párrafos,
+> incluido el que nombra a la UNEXPO (corrección de origen de D-53).
+>
+> **Y el porqué importa más que el hallazgo:** en desarrollo se servía la copia y **nunca** el
+> archivo que se publica. El mecanismo que debería haber detectado la divergencia —usar el producto
+> en local— apuntaba al archivo equivocado, así que la copia podía envejecer sin señal. → L-41.
+>
+> **Decisión: [[../adr/ADR-027-un-solo-index-html]] (D-55), opción (a) del ticket.**
+> `public/index.html` eliminado; `:dev-http {3000 {:root "." :push-state/index "index.html"}}` y
+> `:asset-path "/public/js"`. Desarrollo y producción sirven **el mismo archivo**.
+>
+> El par que sobrevive —`index.html` / `404.html`— **difiere a propósito** (ADR-026: sin SEO,
+> `noindex`, rutas absolutas), así que no se fusiona: se audita. **`scripts/audit_html.py`** es el
+> cuarto audit versionado y comprueba lo que sí debe coincidir (script de tema, bundle/CSS/manifest
+> resolviendo al mismo archivo, versión de KaTeX, favicons, `noindex`, existencia de lo
+> referenciado). **Probado contra cuatro casos que deben fallar** antes de creerle (§10-bis), con
+> `404.html` restaurado byte a byte después de cada prueba.
+>
+> **Lo que había que verificar de verdad y se verificó:** `:asset-path` con un `watch` real — `/`
+> sirve el `index.html` de producción (JSON-LD y "UNEXPO" presentes), los deep links `/plan`,
+> `/registrarse` y `/no-existe` resuelven por push-state, y los módulos del build de desarrollo
+> cargan desde `/public/js/cljs-runtime/`. Confirmado además en Chrome.
+>
+> `clj -M:test` **97 / 530 / 0** · `clj-kondo` 0/0 · los **cuatro** audits en verde.
+>
+> **No se recompiló el bundle, a propósito:** en esta rama no cambió ninguna fuente ClojureScript y
+> se verificó que `:asset-path` no queda embebido en el build de `release`. Un recompilado solo
+> habría reasignado símbolos del minificador — 1,2 MB de diff sin diferencia funcional.
+>
+> **Efecto colateral, con una corrección de la memoria de regalo:** al anotar que el copy "baja de
+> cinco lugares a cuatro" se aplicó la propia regla de L-22 —re-verificar con `grep`— y resultó que
+> **la pregunta estaba mal planteada: no hay un número único, depende de qué copy**. El JSON-LD no
+> lleva la frase de origen y `landing.cljs` tampoco, contra lo que decían las dos versiones
+> anteriores de la nota. L-22 reescrita con el mapa medido. Además, `CLAUDE.md` §1 tenía dos avisos ya vencidos (el copy "todavía dice se originó en
+> 2025", cerrado por D-53; y "antes de commitear `docs/`", cerrado con R-26) — corregidos, porque
+> uno de ellos apuntaba al archivo que esta rama elimina.
+>
+> **Cierra:** T-12. **Reduce:** A-09 (de tres HTML a dos, y verificables). **Desbloquea:** T-94.
+
+**Corte anterior: 2026-08-16** · Rama `main`
 *(el cuerpo histórico de este archivo arranca en el corte del 2026-07-26, commit `48bf525`, rama
 `cursor/mvp-operable-funnel`; las notas de sesión de más abajo son la capa vigente)*
 

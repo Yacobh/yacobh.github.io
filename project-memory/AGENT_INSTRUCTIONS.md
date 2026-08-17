@@ -130,9 +130,13 @@ De esto se derivan cuatro consecuencias que no son negociables:
 5. **No borres información desactualizada:** márcala (`✅ resuelto 2026-MM-DD`, `⛔ obsoleto`) para que
    se entienda la evolución.
 6. **Actualiza el índice** ([[INDEX]]) si creas un documento nuevo de memoria.
-7. **Si cambias copy de la landing o de la FAQ, cámbialo en los tres lugares** (`index.html`,
-   `public/index.html`, `landing.cljs`) en el mismo commit (L-22). Y recuerda: **el copy es un
-   requisito** (L-20).
+7. **Si cambias copy de cara al público, cámbialo en todos sus lugares en el mismo commit**, y
+   **re-verifica la lista con `grep`**: no hay un número único, depende de qué copy (medido el
+   2026-08-17, tras ADR-027) — FAQ en `index.html` (JSON-LD) + `landing.cljs`; origen del proyecto
+   en `index.html` (`noscript`) + `home.cljs`; meta/Open Graph en `index.html` + `landing.cljs`.
+   No confíes en la lista: la memoria ya dijo "tres" cuando eran cinco, y hoy son otros (L-22).
+   `resume.cljs` es un falso positivo conocido — ahí la UNEXPO/UNAP son experiencia docente.
+   Y recuerda: **el copy es un requisito** (L-20).
 
 ---
 

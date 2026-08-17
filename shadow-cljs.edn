@@ -4,7 +4,12 @@
                  [binaryage/devtools "1.0.7"]]
   :builds       {:app {:target     :browser
                       :output-dir "./public/js"
-                      :asset-path "/js"
+                      ;; Prefijo desde el que el navegador carga los módulos del
+                      ;; build de desarrollo. Va atado a `:dev-http :root`, que
+                      ;; desde ADR-027 es la raíz del repo: los archivos quedan
+                      ;; en /public/js. En `release` da igual — un solo módulo,
+                      ;; referenciado directo desde el HTML.
+                      :asset-path "/public/js"
                       :modules    {:app {:entries [universo.core]}}
                       :devtools   {:after-load universo.core/mount-root}}
                 :test ; Build específico para los tests
@@ -16,8 +21,14 @@
                  :compiler-options {:warnings {:fn-deprecated false}} ; Opcional: suprime warnings específicos si es necesario
                  }}
 
+  ;; `:root "."` es la raíz del repo, igual que GitHub Pages (ADR-027): en
+  ;; desarrollo se sirve **el mismo `index.html` que se publica**, no una copia.
+  ;; Antes el root era "public" y existía `public/index.html` como duplicado;
+  ;; el duplicado divergió sin que nadie lo notara, justamente porque en local
+  ;; nunca se miraba el archivo de producción.
+  ;;
   ;; :push-state/index es el equivalente en desarrollo del 404.html que sirve
   ;; GitHub Pages en producción (T-05, ADR-026): sin esto, recargar en
   ;; http://localhost:3000/plan devuelve 404 y el router no se puede probar.
-  :dev-http     {3000 {:root "public"
+  :dev-http     {3000 {:root "."
                        :push-state/index "index.html"}}}

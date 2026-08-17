@@ -516,7 +516,7 @@ la ejecute todavía** ([[BACKLOG]] T-34). Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]
 | A-07 | ✅ ~~**Sin router de URL**~~ | **Resuelto 2026-08-16** (T-05, [[../adr/ADR-026-router-de-url-con-history-api]]): hay router de History API con fallback `404.html`. Queda el resto de A-07' abajo |
 | A-07' | **Todas las rutas salvo `/` responden HTTP 404** | Es cómo funciona el fallback de GitHub Pages. La aplicación funciona igual, pero las rutas públicas no son indexables y el `sitemap.xml` solo declara `/` (T-94) |
 | A-08 | **Sin code splitting** | El bundle crece de forma monótona; el estudiante en móvil descarga también todo el panel admin |
-| A-09 | **Duplicación de `index.html`** | Raíz y `public/` pueden divergir en SEO y JSON-LD. Desde 2026-08-16 son **tres** archivos: se suma `404.html` (mínimo, sin SEO — ver ADR-026) |
+| A-09 | **Duplicación de HTML — reducida y verificable** | **2026-08-17 ([[../adr/ADR-027-un-solo-index-html]]):** `public/index.html` eliminado (había divergido en su `<noscript>`); desarrollo sirve la raíz, igual que Pages. Quedan **dos** documentos, `index.html` y `404.html`, que difieren **a propósito** (ADR-026) y por eso no se fusionan: su sincronía la verifica `scripts/audit_html.py`. Se cierra del todo solo si el proyecto deja GitHub Pages |
 | A-10 | **Grafo de conocimiento parcial** | Graphify no indexa `.cljs`: el análisis automático no ve la lógica principal |
 
 Priorizados con impacto/probabilidad en [[RISKS]].
@@ -534,8 +534,9 @@ comprobaciones que importan viven como scripts en el repo, en la misma línea qu
 | `audit_dark_theme.py` | Texto oscuro (tono ≥ 600) y **fondo claro (≤ 200) sin mapear** en `app.css` | El riesgo que ADR-012 anticipó: un componente queda sin tema oscuro **sin aviso** |
 | `audit_contraste.py` | 38 pares de la paleta contra su umbral WCAG, más las combinaciones **prohibidas** con su número | "Se ve mejor" no es verificable y no sobrevive a la siguiente opinión |
 | `audit_movil.py` | Objetivos táctiles, padding fijo, texto diminuto, tablas sin scroll, anchos fijos | Se diseña en pantalla grande: nada avisa cuando algo no entra en 360 px |
+| `audit_html.py` | Que `index.html` y `404.html` **arranquen igual**: script de tema, bundle/CSS/manifest resolviendo al mismo archivo, versión de KaTeX, favicons, `noindex` en el fallback | Los dos difieren a propósito en el SEO (ADR-026), así que no se pueden diffear crudos. Si el bundle o el script de tema se desincronizan, **la raíz sigue funcionando** —que es lo que uno prueba— y todas las demás rutas quedan rotas en silencio (ADR-027) |
 
-**Los tres se probaron contra un caso que debería fallar antes de creerles**, y no es ceremonia: el
+**Los cuatro se probaron contra un caso que debería fallar antes de creerles**, y no es ceremonia: el
 audit de móvil tenía un falso negativo silencioso en su primera versión —capturaba `"button"` como
 si fuera la lista de clases— y daba todas las pantallas del panel por buenas. Un chequeo que no
 encuentra nada es indistinguible de uno que funciona.

@@ -66,14 +66,25 @@ hay alianza institucional ni autorización de marca vigente hoy (ver
 diagnóstico, el perfil y el plan **no tienen costo**; las clases sí ($10.000 CLP/hora, D-32), y la
 **publicidad está descartada** como fuente de ingresos (D-46).
 
-> **Cuidado con el copy publicado:** los tres lugares de producción (`index.html`,
-> `public/index.html`, `landing.cljs`) todavía dicen *"se originó en 2025 a partir de un convenio…"*.
-> Es una contradicción conocida (X-09) a la espera de decisión del owner (Q-30) — **no la corrijas
-> por tu cuenta**: es copy de cara al público y toca el JSON-LD.
+> ✅ **El copy publicado ya está corregido** (D-53, 2026-08-16): nombra a la UNEXPO, sin la ponencia
+> de 2013, y la UNAP salió del FAQ de costo. **X-09 y Q-30 cerradas.** Si vuelves a tocar copy de
+> cara al público, **no hay un número único de lugares: depende de qué copy** (verificado con `grep`
+> el 2026-08-17, tras ADR-027):
 >
-> **Y antes de commitear `docs/tesis.md` o `docs/sistema_llovizna.md`:** contienen cédula, teléfono y
-> fecha de nacimiento del owner, sobre un repo público. Ver [[project-memory/RISKS]] **R-26** —
-> redactar primero; después del commit quedan en el historial.
+> | Copy | Dónde vive |
+> |---|---|
+> | FAQ | `index.html` (JSON-LD `FAQPage`) + `landing.cljs` |
+> | Origen del proyecto | `index.html` (`<noscript>`) + `home.cljs` (footer) |
+> | Descripción / meta / Open Graph | `index.html` (`<head>`) + `landing.cljs` |
+>
+> Se cambian **todos en el mismo commit** y **la lista se re-verifica con `grep` cada vez** en vez de
+> confiar en esta tabla (L-22 — la memoria ya dijo "tres" cuando eran cinco). Ojo con el falso
+> positivo de `resume.cljs`: menciona la UNEXPO y la UNAP como **experiencia docente real**, no como
+> origen del producto; ahí no se toca.
+>
+> ✅ **`docs/tesis.md` y `docs/sistema_llovizna.md` ya están commiteados y redactados**
+> (R-26 cerrado 2026-08-13): la cédula, el teléfono y la fecha de nacimiento del owner quedaron como
+> `xxxxx` antes del primer commit. No los rellenes.
 
 - Sitio en producción: <https://jacobocordova.com> (GitHub Pages + `CNAME`)
 - Estado: **MVP operable**, checklist de go-live parcialmente completo
@@ -185,6 +196,7 @@ clj-kondo --lint src test             # lint + análisis de namespaces/vars CLJS
 python3 scripts/audit_dark_theme.py   # texto oscuro / fondo claro sin mapear en el tema oscuro
 python3 scripts/audit_contraste.py    # los 38 pares de la paleta contra su umbral WCAG
 python3 scripts/audit_movil.py        # objetivos táctiles, padding fijo, texto diminuto
+python3 scripts/audit_html.py         # index.html y 404.html arrancan igual (ADR-027)
 ```
 
 ## 6. Convenciones de documentación
@@ -237,13 +249,16 @@ python3 scripts/audit_movil.py        # objetivos táctiles, padding fijo, texto
 - Las migraciones SQL se aplican **a mano** en el SQL Editor de Supabase, en el orden de
   `supabase/SCHEMA.md`. No hay `supabase db push` en el flujo actual.
 - Edge Functions: `supabase functions deploy send-enrollment-emails` + secret `RESEND_API_KEY`.
-- `index.html` (raíz) y `public/index.html` están duplicados. Si tocas uno, sincroniza el otro
-  o resuelve la duplicación (ver [[project-memory/BACKLOG]] T-12).
-- **`404.html` (raíz) es el fallback del router** (ADR-026): GitHub Pages lo sirve para toda ruta
-  que no exista como archivo (`/plan`, `/cupos`, …). No lleva SEO a propósito, pero **sí** comparte
-  con `index.html` el script de tema y las rutas del bundle y del CSS: si cambias esas, cámbialas
-  ahí también. Consecuencia conocida: todas las rutas salvo `/` responden **HTTP 404**, y por eso
-  el `sitemap.xml` solo declara `/` ([[project-memory/BACKLOG]] T-94).
+- **Hay dos HTML en producción y ninguno es copia del otro** (ADR-027 cerró T-12; `public/index.html`
+  ya no existe y el dev server sirve la raíz, así que en local ves el archivo que se publica):
+  - `index.html` (raíz) — la única URL que responde 200. Acá vive **todo** el SEO (meta, Open
+    Graph, JSON-LD).
+  - `404.html` (raíz) — el fallback del router (ADR-026). GitHub Pages lo sirve para toda ruta que
+    no exista como archivo (`/plan`, `/cupos`, …). Va **sin** SEO y con `noindex` a propósito.
+  - Lo que **sí** debe coincidir entre los dos —script de tema, bundle, CSS, KaTeX, favicons— lo
+    verifica `python3 scripts/audit_html.py`. Córrelo si tocas cualquiera de los dos.
+  - Consecuencia conocida: todas las rutas salvo `/` responden **HTTP 404**, y por eso el
+    `sitemap.xml` solo declara `/` ([[project-memory/BACKLOG]] T-94).
 
 ## 10. Referencias a project-memory
 

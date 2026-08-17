@@ -479,7 +479,7 @@ puede degradarse; nunca queda el sistema sin admin.
 
 - **Terminado cuando:** el script corre contra staging y falla si alguna aserción se rompe.
 
-### T-12 · Resolver la duplicación de `index.html` — **P1** · `abierto`
+### T-12 · Resolver la duplicación de `index.html` — **P1** · `hecho` (2026-08-17, rama `t-12-html-unico`)
 
 `index.html` (raíz, servido por Pages) y `public/index.html` son casi idénticos, incluido el
 JSON-LD. Riesgo de divergencia en SEO.
@@ -487,7 +487,47 @@ JSON-LD. Riesgo de divergencia en SEO.
 - **Opciones:** (a) dejar solo la raíz y ajustar `:dev-http {:root "public"}`; (b) generar la raíz
   desde `public/`; (c) documentar la duplicación y sincronizarla siempre.
 - **Terminado cuando:** existe una sola fuente de verdad del HTML **o** una nota explícita en
-  [[LESSONS_LEARNED]] con el procedimiento de sincronización. Si se elige (a) o (b) → **ADR**.
+  [[LESSONS_LEARNED]] con el procedimiento de sincronización. Si se elige (a) o (b) → **ADR**. ✅
+  Se eligió **(a)**, con [[../adr/ADR-027-un-solo-index-html]] (D-55).
+
+**Hallazgo al medirlo: el riesgo ya se había materializado.** Normalizando el prefijo de rutas, el
+`<head>` completo (meta, Open Graph, JSON-LD entero, script de tema) era **idéntico byte a byte**;
+pero el `<noscript>` de `public/index.html` se había quedado sin dos párrafos que sí estaban en el
+de la raíz, incluido el que nombra a la UNEXPO (corrección de origen de D-53). **Y nadie lo notó
+porque en desarrollo se servía la copia y nunca el archivo que se publica** — el mecanismo que
+debería haberlo detectado, usar el producto, apuntaba al archivo equivocado.
+
+**Implementado 2026-08-17:**
+
+- **`public/index.html` eliminado.** Su único consumidor era el servidor de desarrollo; ningún
+  script, build ni doc lo leía como artefacto (verificado con `grep`: las 20 menciones del repo son
+  documentación *sobre* la duplicación).
+- `shadow-cljs.edn`: `:dev-http {3000 {:root "." :push-state/index "index.html"}}` (era `"public"`)
+  y `:asset-path "/public/js"` (era `"/js"`, va atado a la raíz del servidor).
+- **`scripts/audit_html.py`** — cuarto audit versionado, para el par que **sí** debe sobrevivir
+  (`index.html` / `404.html` difieren a propósito, ADR-026). Verifica script de tema, que
+  bundle/CSS/manifest resuelvan al mismo archivo, versión de KaTeX, favicons, `noindex` en el
+  fallback y que lo referenciado exista.
+
+**Verificado:**
+
+- El audit se probó **contra cuatro casos que deben fallar** antes de creerle (§10-bis): versión de
+  KaTeX distinta, bundle renombrado, script de tema ausente, `noindex` quitado. Los cuatro se
+  detectan; `404.html` quedó restaurado byte a byte después de cada prueba.
+- `:asset-path` con un `watch` real, que era lo que no se podía dar por bueno: `/` sirve el
+  `index.html` **de producción** (JSON-LD y "UNEXPO" presentes), los deep links `/plan`,
+  `/registrarse` y `/no-existe` resuelven por push-state, y los módulos del build de desarrollo
+  cargan desde `/public/js/cljs-runtime/`. Comprobado además en Chrome contra `localhost:3000`.
+- `clj -M:test` **97 / 530 / 0** · `clj-kondo` 0/0 · los cuatro audits en verde.
+- **No se recompiló el bundle:** en esta rama no cambió ninguna fuente ClojureScript
+  (`git diff main -- src/ test/` vacío) y se verificó que `:asset-path` no queda embebido en el
+  build de `release`. Un recompilado solo habría cambiado la asignación de símbolos del minificador
+  — 1,2 MB de diff sin diferencia funcional.
+
+**Efecto en L-22:** el copy de cara al público baja de **cinco lugares a cuatro** (`index.html`
+JSON-LD, `index.html` `noscript`, `landing.cljs`, `home.cljs`).
+
+**Desbloquea T-94**, que estaba anotada como "no hacer antes de T-12".
 
 ### T-13 · Alinear versiones de shadow-cljs y KaTeX — **P2** · `hecho` (2026-08-09)
 
@@ -669,8 +709,10 @@ aunque se vean bien. Son visitables y compartibles, pero **no indexables**, y po
 
 - **Terminado cuando:** o esas rutas responden 200 (archivo estático real por ruta, o un hosting
   con reescrituras), o se decide y documenta que su SEO no importa y esta tarea se cierra.
-- **Antes de hacerla:** resolver T-12 (duplicación de `index.html`). Hacerla hoy multiplicaría por
-  cuatro el problema que A-09 ya señala.
+- ~~**Antes de hacerla:** resolver T-12~~ ✅ **desbloqueada 2026-08-17**: T-12 cerrada
+  ([[../adr/ADR-027-un-solo-index-html]]). Quedan dos HTML en producción, no tres, y su sincronía
+  la verifica `scripts/audit_html.py` — cualquier archivo nuevo por ruta pública tendría que entrar
+  también en ese audit.
 - **Relacionado:** [[ARCHITECTURE]] A-09, T-05, T-12.
 
 ### T-24 · Estado vacío honesto en "Mi plan" y "Cupos" — **P1** · `hecho` (2026-08-03, mergeado a `main` 2026-08-05)
