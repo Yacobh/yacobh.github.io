@@ -1366,7 +1366,7 @@ Registradas hoy de forma retroactiva (las decisiones son previas; su documentaci
 | BL-03 | ~~Cupos reales~~ -- **resuelto 2026-08-09** (T-04): primer cupo real publicado para el sábado 2026-08-15 10:30 con enlace de Jitsi verdadero, demos borrados. **Era el último bloqueo de go-live** | Negocio | — |
 | BL-04 | ~~Árbol sucio~~ -- **resuelto 2026-07-29** (T-08) y reverificado limpio el 2026-08-09; ver nota de sesión al inicio de este archivo | Técnico | — |
 | BL-05 | **Preguntas abiertas de producto** sin responder (capacidad, repetición de diagnóstico, privacidad) | Decisión | Ver [[OPEN_QUESTIONS]] |
-| BL-06 | **Login con Google: el código está listo y publicado, el proveedor no está configurado** (T-92). Hasta que existan las credenciales de Google Cloud, el secreto en Supabase y `https://jacobocordova.com/tablero` en la allowlist de Redirect URLs, el botón visible falla al pulsarlo | Acceso/operación | Jacobo Córdova |
+| BL-06 | ~~Login con Google sin proveedor configurado~~ -- **resuelto 2026-08-17** (T-92): credenciales creadas, proveedor habilitado en Supabase y `https://jacobocordova.com/tablero` en la allowlist. Verificado en producción hasta el selector de cuenta de Google | Acceso/operación | — |
 
 ---
 

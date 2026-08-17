@@ -1,6 +1,9 @@
 # RISKS
 
-Última actualización: **2026-08-16** — **cuatro riesgos nuevos por el pivote de negocio**
+Última actualización: **2026-08-17** — **R-33 nuevo** (la pantalla de Google nombra a `supabase.co`
+y no a la marca, visto en vivo al verificar T-92; toca la confianza justo en el registro) y **R-32
+rebajado** tras leer el contrato de Cpech. ·
+Antes: **2026-08-16** — **cuatro riesgos nuevos por el pivote de negocio**
 ([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]]): **R-30** (cuarta repetición del patrón
 histórico — **pasa a ser el riesgo dominante**, subsume a R-19 y R-01), **R-27** (ciclo de venta
 más largo que la caja), **R-28** (datos de menores a escala institucional) y **R-29** (vender sin
@@ -67,6 +70,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | **R-29** | **Vender B2B con el banco sin calibrar y perder la credibilidad del método** | Alto | Media | **Alta** | abierto 2026-08-16 |
 | **R-31** | **El funnel está diseñado para el canal que nunca produjo un usuario** | Alto | **Confirmada** | **Alta** | 🔺 **abierto 2026-08-16** |
 | **R-32** | ~~Propiedad intelectual~~ **y conflicto de interés con los empleadores (Cpech, liceo)** | Medio | Media | Media | 🔻 **rebajado 2026-08-17** (T-93): **no hay cesión de PI** — la titularidad no está en discusión. Queda solo el conflicto de interés, y con una respuesta concreta: **el canal Cpech no es usable hasta el 2026-11-21** |
+| **R-33** | **La pantalla de Google nombra a `supabase.co`, no a la marca** | Bajo | **Confirmada** | Media | abierto 2026-08-17 |
 
 ---
 
@@ -721,3 +725,41 @@ por escrito.
 > **El detalle vive fuera del repositorio, a decisión del owner.** El contrato contiene datos
 > personales suyos y de terceros y este repo es público (D-42, mismo criterio que R-26). Si una
 > sesión futura necesita el texto, se lo pide al owner: **no está acá y no debe agregarse.**
+
+---
+
+### R-33 · La pantalla de Google nombra a `supabase.co`, no a la marca
+
+**Abierto 2026-08-17, al verificar T-92 en producción.** Probabilidad **confirmada**: se vio en
+vivo, no es una hipótesis.
+
+Al pulsar "Continuar con Google", el selector de cuenta de Google dice:
+
+> Selecciona una cuenta · **Ir a jmnqklhxcdccvdhuuiji.supabase.co**
+
+No dice "Academia Integral". Google muestra el dominio del `redirect_uri`, que es el de Supabase
+—`https://jmnqklhxcdccvdhuuiji.supabase.co/auth/v1/callback`— y no el del sitio. Es el
+comportamiento normal de Supabase Auth sin dominio propio, no un error de configuración.
+
+**Por qué no es cosmético.** El público es **estudiantes menores de edad y sus apoderados**, y la
+acción que se les pide es entregar su cuenta de Google. Una cadena de 24 caracteres aleatorios
+seguida de `.supabase.co` es exactamente la forma que tiene el phishing que a esos mismos
+apoderados les enseñan a evitar. El costo no se paga en un error visible sino en **abandonos
+silenciosos** en el peor punto del embudo: el registro (T-20). Toca **G-5**.
+
+**Mitigación conocida, y es de negocio, no técnica:** Supabase ofrece **custom domain** (por
+ejemplo `auth.jacobocordova.com`) como **add-on de pago**, del orden de **USD 10/mes** — cifra a
+verificar antes de citarla, y por lo tanto un supuesto, no un hecho. Eso rompería el "costo de
+infraestructura ≈ 0" que es objetivo de producto n.º 4 en `CLAUDE.md`, así que **no se contrata por
+iniciativa de un agente**: la decide el owner.
+
+**Criterio para decidirlo con datos en vez de con intuición:** no vale la pena pagarlo hasta que
+T-91/G-5 midan el funnel. Si el registro por Google convierte sensiblemente peor que el registro
+por correo, esto deja de ser estética y pasa a ser el cuello de botella medido; si no, se queda
+como está. **No tocar antes de tener ese número.**
+
+**Lo que sí es gratis y conviene revisar:** que el nombre de la app en Google Cloud sea
+`Academia Integral` (no `academia`) y que el logo esté cargado, porque la pantalla de
+**consentimiento** —la siguiente, después de elegir cuenta— sí muestra el nombre de la app. Eso
+recupera parte de la confianza sin costo. **Sin verificar todavía:** el agente se detuvo en el
+selector de cuenta a propósito, sin completar un login real.

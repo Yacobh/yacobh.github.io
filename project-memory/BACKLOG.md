@@ -2614,15 +2614,24 @@ terminada.
   `scripts/audit_*.py` en verde; `release app` + `build:css` corridos y `public/js/app.js`
   actualizado.
 
-**Lo que falta, y es manual del owner** (no se puede hacer desde el repo):
+**Configuración hecha por el owner el mismo 2026-08-17** y desplegado en el commit `a7312ee`:
+proyecto y credenciales OAuth 2.0 en Google Cloud (app `Academia Integral`, público Externo, scopes
+`email`/`profile`), proveedor Google habilitado en Supabase y `https://jacobocordova.com/tablero`
+en la allowlist de Redirect URLs.
 
-1. Google Cloud: proyecto, pantalla de consentimiento (scopes `email`, `profile`, `openid`) y
-   credenciales OAuth 2.0. **Publicar la app** — en "Testing" el tope son 100 usuarios.
-2. Supabase → Authentication → Providers → Google: pegar Client ID y Client Secret.
-3. Supabase → Authentication → URL Configuration: agregar `https://jacobocordova.com/tablero` a la
-   allowlist de Redirect URLs. **Sin esto el login falla en silencio.**
-4. Recién ahí se puede cerrar el criterio original de terminado: un usuario real entra con Google,
-   obtiene su fila en `profiles` (trigger `handle_new_user()`) y la sesión rehidrata al recargar.
+**Verificado en producción:** el endpoint `/auth/v1/authorize` devuelve **302 a
+`accounts.google.com`** con el `redirect_to` **intacto** —prueba de que la URL está en la allowlist,
+porque si no lo estuviera Supabase la habría reemplazado en silencio por la Site URL— y el botón
+lleva de verdad al selector de cuenta de Google desde `jacobocordova.com/ingresar`.
+
+**Lo único sin verificar** (requiere un login real, que el agente no completa): el tramo Google →
+callback → fila en `profiles` → rehidratación al recargar. Es un clic del owner.
+
+**Pendiente cosmético, pero de confianza — ver [[RISKS]] R-33:** la pantalla de Google dice *"Ir a
+jmnqklhxcdccvdhuuiji.supabase.co"*, no "Academia Integral", porque el destino del redirect es el
+dominio de Supabase. Sobre un público de menores y apoderados, ese texto parece phishing. Se
+arregla con el **custom domain de Supabase**, que es un add-on **de pago** (~USD 10/mes) — decisión
+de negocio, no técnica.
 
 ### T-93 · Revisar el contrato de Cpech antes de cualquier demo formal — **P0** · `hecho a medias` (2026-08-17: Cpech leído; **falta el del liceo**)
 
