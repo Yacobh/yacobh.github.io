@@ -102,7 +102,8 @@ npm run build:css            → Done in 424ms (app.css sin cambios: ninguna cla
 scripts/audit_contraste.py   → ✓ los 38 pares cumplen su umbral WCAG
 scripts/audit_dark_theme.py  → ✓ sin texto oscuro ni fondo claro sin mapear
 scripts/audit_movil.py       → ✓ sin problemas en las pantallas del estudiante
-graphify update .            → 2856 nodos / 7219 aristas / 197 comunidades (antes 2644/6795/179)
+graphify update .            → re-extracción AST tras cada pasada
+graphify cluster-only --no-label → 2866 nodos / 7112 aristas / 194 comunidades (antes 2644/6795/179)
 ```
 
 Los 5 warnings `:infer-warning` de `events/auth.cljs` siguen ahí y son los conocidos (L-04).
@@ -122,7 +123,7 @@ Los 5 warnings `:infer-warning` de `events/auth.cljs` siguen ahí y son los cono
 | Alternar registro ↔ ingreso | Cambia la URL y **conserva el correo escrito**, en los dos sentidos ✅ |
 | Botón atrás desde `/ingresar` | Vuelve a "Crear cuenta" con el correo intacto ✅ |
 | CTA principal de la landing | Aterriza en `/registrarse` ✅ |
-| Deep link **con sesión iniciada** | ❌ **No verificado** — sin credenciales |
+| Deep link **con sesión iniciada** | ✅ **Verificado por el owner** (el agente no tiene credenciales) |
 
 ## Decisiones tomadas
 
@@ -142,8 +143,10 @@ Los 5 warnings `:infer-warning` de `events/auth.cljs` siguen ahí y son los cono
 
 ## Bloqueos
 
-**Acceso.** El camino con sesión iniciada no se pudo verificar: el agente no tiene una cuenta de
-prueba. Solo el owner puede desbloquearlo, y **debería hacerlo antes de mergear** (ver Pendientes).
+**Acceso, resuelto el mismo día.** El camino con sesión iniciada no lo podía verificar el agente
+(sin cuenta de prueba). **Lo probó el owner**, en dos rondas —después del router y después de
+`/registrarse`— y confirmó que funciona. El cierre de esa parte se apoya en su reporte, mismo
+patrón que T-03/T-25/T-36/T-50.
 
 Nota de entorno, **no relacionada con este cambio**: en la máquina de desarrollo `getSession()` de
 Supabase tarda o no resuelve, y la nav se queda en `…` (`:auth/ready?` false) durante varios
@@ -162,24 +165,30 @@ Ninguna.
 
 ## Próximos pasos
 
-1. **Owner:** probar con sesión iniciada en local — entrar, ir a `/plan` y `/tablero`, recargar,
-   probar `/admin` con cuenta admin y con cuenta `user`, y el redirect después del login desde un
-   deep link. (T-05)
-2. **Owner:** revisar y mergear `t-05-router-url` a `main`; verificar por hash que producción sirve
-   el bundle nuevo (mismo patrón que T-19/T-35/T-38) y comprobar **en producción** que un deep link
-   a `/plan` funciona — es el único lugar donde el `404.html` real de GitHub Pages entra en juego.
-3. **T-20** (instrumentar el funnel, vector G-5): ya no está bloqueada.
-4. T-90 y T-93 siguen siendo P0 del negocio y no se tocaron en esta sesión.
+1. ✅ **Owner probó con sesión iniciada** y ✅ **`t-05-router-url` mergeada y pusheada a `main`**
+   (a pedido explícito).
+2. **Comprobar en producción** que un deep link a `/plan` funciona: es el único lugar donde entra en
+   juego el `404.html` real de GitHub Pages, y ninguna verificación local lo sustituye. Verificar
+   además por hash que el sitio ya sirve el bundle nuevo (patrón de T-19/T-35/T-38) — el CDN tarda
+   unos minutos (`cache-control: max-age=600`).
+3. **T-20** (instrumentar el funnel, vector G-5): ya no está bloqueada. Ahora hay una URL por
+   pantalla y, en particular, `/registrarse` separada de `/ingresar`, que es la distinción que el
+   cálculo de CAC necesita.
+4. T-90 (aplicar el diagnóstico en un curso real) y T-93 (leer el contrato de Cpech, **bloqueante**)
+   siguen siendo los P0 del negocio y no se tocaron acá. Vale recordar **R-30**: esta sesión fue
+   producto, no distribución.
 
 ## Pendientes
 
-- **Snapshot versionado `project-memory/graph/`:** `graphify update .` sí se corrió, pero **no se
-  copió el snapshot**. Esa carpeta es la copia *citable, atada a un commit concreto* (ver su
-  `README.md`, D-14) y esta rama todavía no tiene commit ni está mergeada: copiarlo ahora ataría
-  5,8 MB a un commit que puede no existir. **Hacerlo al mergear a `main`.**
-- Verificación con sesión (punto 1 de Próximos pasos).
-- **Nada está en `main`:** la rama `t-05-router-url` no se pusheó ni se mergeó (AGENT_INSTRUCTIONS
-  §1.7).
+Ninguno. Los tres que quedaban abiertos se cerraron el mismo día:
+
+- ✅ **Verificación con sesión iniciada** — la hizo el owner, en dos rondas: después del primer
+  commit, y otra vez después de `/registrarse`. Funciona.
+- ✅ **Snapshot versionado `project-memory/graph/`** — refrescado al mergear
+  (`graphify update .` + `cluster-only --no-label` + copia), como corresponde: la carpeta es la
+  copia *citable atada a un commit concreto* (D-14). **2866 nodos / 7112 aristas / 194
+  comunidades**, contra 2644/6795/179 del snapshot del 2026-08-13.
+- ✅ **Mergeado y pusheado a `main`** a pedido explícito del owner.
 
 ## Actualizaciones requeridas en Project Memory
 
@@ -196,7 +205,7 @@ Ninguna.
 - [ ] `project-memory/ASSUMPTIONS.md` — el supuesto de arriba es del ADR, no del proyecto
 - [x] `project-memory/LESSONS_LEARNED.md` (L-40)
 - [ ] `project-memory/TERMINOLOGY.md` — sin términos nuevos del dominio
-- [ ] `project-memory/graph/` (snapshot de Graphify)
+- [x] `project-memory/graph/` (snapshot de Graphify — refrescado al mergear)
 
 ## Notas
 
