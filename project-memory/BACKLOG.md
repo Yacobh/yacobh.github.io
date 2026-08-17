@@ -1,6 +1,8 @@
 # BACKLOG
 
-Última actualización: **2026-08-10**
+Última actualización: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
+G-1…G-5, tareas T-76…T-89), abierta por
+[[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]]. Cierra P-11. Antes: 2026-08-10.
 
 Prioridad: **P0** bloquea go-live · **P1** necesario a corto plazo · **P2** deseable · **P3** idea.
 Estado: `abierto` · `en curso` · `bloqueado` · `hecho` · `descartado`.
@@ -2166,15 +2168,306 @@ peor), [[BUSINESS_CONTEXT]] §3, T-20 (sin analítica, no se sabrá si mejora la
 
 ---
 
+## Épica E8 — Motor de valor: los cinco vectores (F12–F16)
+
+> **Abierta el 2026-08-16** por [[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]] (D-47…D-51).
+> Cierra la decisión pendiente P-11. Contenido y justificación: [[TESIS_DE_CRECIMIENTO]].
+>
+> **Esta épica es distinta de E1–E7 en una cosa importante:** aquellas convertían el MVP en un
+> producto usable, y lo lograron. Esta convierte un producto en un negocio. **Buena parte de su
+> trabajo no es de repositorio** — hablar con colegios, validar precios, postular a fondos. Que una
+> tarea no produzca un commit no la hace menos tarea; ver [[RISKS]] R-30, que es exactamente el
+> riesgo de tratarlas como si lo fueran.
+>
+> **Orden decidido:** T-76/T-77 (G-2) y T-78 (G-5) **primero y en paralelo**. Nada de lo demás
+> arranca antes.
+
+### T-76 · Pipeline de calibración de `difficulty` sobre respuestas reales — **P0** · `abierto`
+
+Pasar de `difficulty` **asignada a criterio** a `difficulty` **estimada** con las respuestas ya
+acumuladas (252 diagnósticos al 2026-08-09 y creciendo), en un namespace puro y testeable.
+
+- **Dependencias:** ninguna nueva — los datos ya están en `tests`. Evaluar si el volumen alcanza
+  para 2PL o si el 1PL calibrado es lo máximo defendible hoy (probablemente lo segundo).
+- **Terminado cuando:** existe un procedimiento reproducible que produce una `difficulty` estimada
+  por ítem con su error, está testeado, y la comparación contra la `difficulty` autoral actual está
+  documentada (cuántos ítems se mueven y cuánto).
+- **Vector:** G-2. **Relacionado:** [[ROADMAP]] F12, [[RISKS]] R-17/R-29, Q-05, T-29, T-50, T-65.
+
+### T-77 · Reporte técnico de calibración publicable — **P0** · `abierto`
+
+La salida de T-76 escrita como documento que un jefe de UTP o un evaluador técnico pueda leer:
+metodología, tamaño de muestra, resultados y **limitaciones declaradas**.
+
+- **Terminado cuando:** el documento existe, dice explícitamente qué **no** se puede afirmar con
+  252 diagnósticos, y el owner lo daría a leer a un tercero sin incomodidad.
+- **Criterio de calidad:** un banco calibrado con esta muestra se llama *calibrado con N=252*, no
+  *validado*. Exagerar acá destruye exactamente lo que la tarea busca construir (B-07).
+- **Vector:** G-2. **Relacionado:** S-11, H13, [[RISKS]] R-29.
+
+### T-78 · Instrumentar CAC, LTV y el pipeline B2B — **P0** · `abierto`
+
+Extiende T-20 (instrumentación del funnel) con las métricas de negocio M-10…M-16 de
+[[BUSINESS_CONTEXT]] §6.1.
+
+- **Dependencias:** T-20, T-21, T-22 y la decisión pendiente **P-04** (solución propia en Postgres
+  vs. herramienta externa — implica privacidad, y con R-28 encima la respuesta propia gana peso).
+- **Terminado cuando:** se puede responder con datos, no con intuición: *"¿cuánto cuesta traer un
+  cliente por cada canal, y cuánto deja?"*, y el pipeline B2B (contactados → piloto → propuesta →
+  contrato) es consultable.
+- **Vector:** G-5. **Relacionado:** [[ROADMAP]] F10/H12, S-12, [[RISKS]] R-30, Q-15.
+
+### T-79 · Rol `profesor` y panel docente por curso — **P0** · `abierto`
+
+Crear el rol `profesor` (hoy inexistente: solo `user` y `admin`) y el panel que ve: distribución de
+θ de **su** curso, déficits ordenados y misconceptions agregadas.
+
+- **Dependencias:** T-81 (multi-tenant) — el rol sin aislamiento es un agujero, no una función.
+- **Terminado cuando:** un profesor de prueba entra, ve solo sus cursos, y el panel muestra el
+  agregado de T-82. Verificado **con policies**, no con la UI ([[../CLAUDE]] §7).
+- **Vector:** G-1. **Relacionado:** [[ROADMAP]] F13/H14, S-13, [[PROJECT_BRIEF]] §6 (deja de ser
+  exclusión), [[RISKS]] R-07 (no agrandar `admin.cljs`: el panel docente es módulo propio).
+
+### T-80 · Validar precio y tamaño de mercado con compradores reales — **P0** · `abierto`
+
+Hablar con **5–10 jefes de UTP o sostenedores** para responder Q-32: unidad de cobro, rango de
+precio, encaje con SEP/PIE, quién decide y cuándo.
+
+- **No es una tarea de análisis.** Ningún número de [[TESIS_DE_CRECIMIENTO]] §3 se valida leyendo
+  más; se valida preguntando. También verifica contra fuentes MINEDUC el universo de
+  establecimientos con enseñanza media (hoy "~3.300", supuesto A-32).
+- **Terminado cuando:** Q-32 está respondida, P-14 decidida, y los supuestos A-31…A-35 de
+  [[ASSUMPTIONS]] están confirmados o corregidos con su fuente.
+- **Vector:** G-1. **Bloquea:** T-84, T-87 y cualquier cifra citada en una postulación a fondos.
+
+### T-81 · Aislamiento multi-tenant por establecimiento (RLS) — **P0** · `abierto`
+
+Modelar establecimiento y curso, y garantizar por **policy** que el colegio A no vea nada del
+colegio B.
+
+- **Restricción dura:** ADR-002 sigue vigente — se resuelve con RLS, **no** creando un backend.
+- **Dependencias:** decisión pendiente **P-16** (Q-36: columna en `profiles`, tablas propias, o
+  claim en el JWT).
+- **Terminado cuando:** existe una verificación automatizada (T-11) que falla si un profesor puede
+  leer datos de otro establecimiento, y la migración es idempotente (D-06).
+- **Vector:** G-1. **Relacionado:** [[RISKS]] R-14/R-28, [[ROADMAP]] F13.
+
+### T-82 · Agregación del mapa de errores por curso — **P0** · `abierto`
+
+Convertir los perfiles individuales en el entregable que se le muestra al colegio: *"22 de 34
+estudiantes de 4º B confunden el signo al despejar en inecuaciones"*.
+
+- **Terminado cuando:** dado un curso, se produce el ranking de misconceptions con su conteo, y
+  cada una enlaza al recurso publicado que la trabaja (capa 1 ya existente).
+- **Criterio de diseño:** lógica pura y testeable ([[../adr/ADR-009-logica-pura-testeable]]), no
+  dentro de un `reg-event-fx`.
+- **Vector:** G-1. **Es el momento de la verdad del piloto:** si esta pantalla no impresiona, no
+  hay venta.
+
+### T-83 · Histórico versionado de perfiles y Δθ con su error — **P1** · `abierto`
+
+Implementar D-50: `student_profiles` deja de ser materialización única y se versiona por intento;
+Δθ por estudiante y agregado por cohorte, **siempre acompañado de su SE**.
+
+- **A favor:** el histórico por intento **ya existe de facto en `tests`** (nota de Q-07/ADR-013), así
+  que lo que falta es versionar el perfil, no capturar datos.
+- **Terminado cuando:** un estudiante con dos diagnósticos ve ambos y su Δθ con banda de confianza;
+  ningún diagnóstico nuevo borra el anterior; hay test de la lógica pura de Δθ.
+- **Vector:** G-4. **Relacionado:** T-26, Q-07 ✅, P-01 ✅, [[ROADMAP]] F14/H16, S-16.
+
+### T-84 · Pasarela de pago y facturación de licencia — **P1** · `abierto`
+
+Sin cobro no hay ingreso, ni B2B ni premium. Cubre el pendiente que Q-02 dejó abierto desde
+2026-07-28.
+
+- **Dependencias:** T-80 (unidad y precio), P-14. Facturación institucional en Chile tiene
+  requisitos propios (documento tributario) que hay que averiguar antes de elegir proveedor.
+- **Terminado cuando:** un colegio puede pagar una licencia anual y un estudiante puede pagar una
+  clase, con comprobante válido.
+- **Vector:** G-1. **Relacionado:** Q-02, D-32, D-47.
+
+### T-85 · Clases grabadas por cuadrante θ × λ × misconception — **P2** · `abierto`
+
+Producir una vez, servir a todos los del cuadrante. El perfil ya calcula el cuadrante (ADR-019) y
+"Mi plan" ya recomienda por módulo, así que la infraestructura de asignación existe.
+
+- **Terminado cuando:** existe al menos una grabada por cada misconception del top de déficits
+  reales, y "Mi plan" la asigna automáticamente.
+- **Vector:** G-3. **Precondición deliberada:** demanda que el fundador ya no dé abasto para
+  atender. Antes de eso es inventar oferta ([[ROADMAP]] F15).
+
+### T-86 · Contrato y flujo de la red de profesores — **P2** · `abierto`
+
+Definir cómo un profesor externo recibe un grupo ya diagnosticado y qué comisión cobra la
+plataforma.
+
+- **Incluye lo no técnico:** contrato, responsabilidad frente al estudiante, calidad y salida.
+  [[VISION_LIBRO_PROYECTO]] §9 ya listaba "contrato para agentes educativos" como pregunta abierta
+  del fundador.
+- **Terminado cuando:** existe un profesor externo dictando un cupo y la comisión está cobrada.
+- **Vector:** G-3. **Métrica que lo valida:** M-15 > 0.
+
+### T-87 · Material de venta institucional y piloto acotado — **P1** · `abierto`
+
+El guion, la propuesta y el formato del piloto gratuito: un nivel completo diagnosticado en una
+hora de clase, con entrega del mapa de errores por curso.
+
+- **Encuadre ya escrito:** *"Kahoot mide a la clase; esto mide a cada estudiante y le dice qué
+  estudiar"* ([[RAIZ_SISTEMA_LLOVIZNA]] §2.5).
+- **Terminado cuando:** un piloto está ejecutado en un colegio real (S-14), aunque sea gratuito.
+- **Vector:** G-1, G-5. **Dependencias:** T-77 (no se vende sin el reporte), T-79, T-82.
+
+### T-88 · Aviso de privacidad y contrato de datos para el caso institucional — **P0** · `abierto`
+
+El aviso actual está escrito para un estudiante individual que llega solo (D-20, revisado sin
+abogado "dado el tamaño del proyecto"). **Ese argumento caduca con el primer contrato
+institucional.**
+
+- **Cubre:** quién es responsable y quién encargado del tratamiento, retención, y el caso de
+  menores cargados por un tercero bajo Ley 21.719 (plena vigencia **2026-12-01**).
+- **Terminado cuando:** existe texto revisado para el caso institucional **antes** de firmar el
+  primer contrato, y T-07/T-09/T-11 están cerradas.
+- **Vector:** G-1. **Relacionado:** [[RISKS]] R-06/R-28, D-20, D-21, T-10, T-34.
+
+### T-89 · Verificar programas de financiamiento vigentes — **P1** · `abierto`
+
+Responder Q-34: qué pide cada programa (CORFO Semilla Inicia/Expande, Start-Up Chile, SSAF,
+innovación educativa), qué montos, qué ventanas, y **si el proyecto califica hoy** — en particular
+si la constitución de sociedad, hoy inexistente, es bloqueante.
+
+- **Terminado cuando:** existe una tabla con programa, monto, ventana, requisitos y veredicto de
+  elegibilidad, con fuente y fecha de consulta.
+- **Vector:** F16. **Contexto:** dos postulaciones previas sin éxito (2012–13, 2025). Antes de una
+  tercera conviene saber por qué no calificaron.
+- **Prohibido:** citar montos de [[TESIS_DE_CRECIMIENTO]] §4 antes de cerrar esta tarea.
+
+### T-90 · Aplicar el diagnóstico en un curso real y observar — **P0** · `abierto`
+
+**La tarea más barata y más informativa de todo el backlog.** Conseguir **un** curso (3º o 4º
+medio, un profesor conocido), aplicarlo presencial en una hora de clase, con proyector, y observar.
+
+- **No es una tarea de código.** Cuesta cero pesos y una hora.
+- **🔺 2026-08-16: el curso ya existe.** Una profesora de matemática del liceo donde el owner es
+  profesor de electrónica **ya ofreció su 4º medio**. Esta tarea dejó de ser una llamada en frío.
+- **⚠️ Dos guardas antes de ejecutarla** ([[RISKS]] R-32): **(a)** que la dirección o UTP del liceo
+  lo sepa, aunque sea informal — convierte "el profe hizo algo por su cuenta" en "el liceo dejó
+  probar una herramienta", y cubre al owner frente a un apoderado; **(b)** hacerla como
+  **observación, no como despliegue de datos**: el objetivo son las tres observaciones de abajo, no
+  acumular diagnósticos de menores del propio establecimiento donde se trabaja.
+- **Encuadre comercial desde el minuto uno** aunque sea gratis (L-39): decir en voz alta qué se
+  mide, cuándo se revisa y qué pasa después si funciona. El piloto UNAP produjo 252 diagnósticos y
+  cero clientes por no hacer esto.
+- **Tres cosas que hay que medir, y son las tres respuestas que faltan:**
+  1. **Cuántos de ~30 terminan los 20 minutos.** Responde si el largo es viable en una hora de clase.
+  2. **Qué cara pone el profesor** cuando aparece el mapa de errores del curso proyectado. **Ese
+     instante es el producto entero.** Si no le cambia la cara, no hay negocio B2B — y lo sabes en
+     una hora en vez de en dos años.
+  3. **Qué preguntan los estudiantes al terminar.**
+- **Terminado cuando:** la sesión ocurrió, las tres observaciones están escritas en un
+  `SESSION-XXX`, y R-31 queda confirmado o refutado con evidencia en vez de con argumento.
+- **Vector:** G-1, G-5. **Bloquea de hecho a T-91** (no rediseñar el funnel antes de mirar uno real)
+  y adelanta la mitad de **T-80**.
+- **Relacionado:** [[RISKS]] R-30/R-31, [[LESSONS_LEARNED]] L-36.
+
+### T-91 · Rediseñar el funnel para el aula (entrada sin cuenta) — **P0** · `abierto`
+
+Construir la puerta de entrada que hoy no existe: la del curso completo, no la del estudiante
+solitario.
+
+```
+Profesor crea un curso  →  código de 6 dígitos
+        ↓
+Estudiante entra a  /c/ABC123  desde su teléfono, en clase
+        ↓          sin cuenta, sin correo, sin contraseña
+Diagnóstico de 8–10 min  (no 20)
+        ↓
+Pantalla del estudiante:  UNA cosa que hace bien  +  UNA cosa concreta para trabajar
+        ↓
+Pantalla del PROFESOR, proyectada y en vivo:  el mapa de errores del curso
+```
+
+- **Cuatro cambios, ninguno es tecnología nueva** — es reordenar lo construido: se elimina la
+  cuenta (la fuga mayor, e innecesaria en una sala); se acorta a la mitad (20 min consumen la hora
+  completa y no dejan espacio para *usar* el resultado); la recompensa se muda al profesor (la
+  pantalla del estudiante deja de ser una lista de fracasos); y el momento decisivo ocurre **en
+  vivo, en la sala**.
+- **Dependencias:** T-90 primero. T-79 (rol `profesor`), T-82 (agregación por curso), T-81
+  (multi-tenant) y la decisión pendiente **P-17** (Q-37: cómo se entra sin cuenta sin romper RLS).
+- **Terminado cuando:** un curso completo puede diagnosticarse en una hora sin que ningún estudiante
+  cree una cuenta, y el profesor ve el agregado en vivo.
+- **Vector:** G-1. **Cierra:** [[RISKS]] R-31.
+- **Ojo con L-37:** rediseñar el funnel **no** es rehacer los cupos. Los cupos están construidos,
+  funcionan y no molestan; el punto es qué se construye **después**, no qué se borra.
+
+### T-92 · Conectar el login con Google (existe pero nadie lo llama) — **P1** · `abierto`
+
+`sign-in-with-google` está definida en `src/universo/supabase.cljs:21` desde F0 y **ningún botón la
+invoca**. Conectarla es de horas, no de días, y **cuesta $0** en las tres capas.
+
+- **Lo que ya está resuelto y no hay que construir** (verificado 2026-08-16): `events/auth.cljs`
+  tiene `getSession` + `onAuthStateChange` para rehidratar la sesión del callback; y el `profiles`
+  lo crea el trigger `handle_new_user()` sobre `auth.users` (migración `008`, `security definer`),
+  así que **un usuario que entre por Google obtiene su fila sin tocar nada**. Ese era el bug más
+  probable y no existe.
+- **Costo:** Google Cloud (proyecto, pantalla de consentimiento, credenciales OAuth 2.0) **$0**;
+  Supabase Auth con proveedor Google **$0** (los proveedores sociales están en el tier gratuito, con
+  tope por MAU muy por encima de lo necesario); infraestructura **$0** — corre en el navegador.
+- **Trámite:** con scopes básicos (`email`, `profile`, `openid`) **no se requiere la evaluación de
+  seguridad de Google**, pero **hay que publicar la app**: en modo "Testing" el tope son 100
+  usuarios. *(Google cambia estos requisitos; verificar el estado vigente antes de darlo por hecho.)*
+
+**⚠️ Guarda obligatoria — no romper D-21.** `components/login.cljs:141-157` tiene el checkbox de
+declaración de edad (*"14 años o más, o autorización de mi representante"*), que es **D-21**, atado
+a la Ley 21.719 y a [[RISKS]] R-06. Un botón de Google puesto junto al formulario **evita ese flujo
+y deshace D-21 en silencio**, sobre un público mayoritariamente menor de edad. **La declaración va
+antes del botón, no dentro del formulario de correo.** Si esto no se respeta, la tarea no está
+terminada.
+
+- **Segundo detalle:** el `redirectTo` actual es `(.-href js/window.location)` — dinámico. Hay que
+  registrar el dominio en la allowlist de Redirect URLs de Supabase Auth o el login falla en
+  silencio. Ayuda que casi todo viva en `/` mientras no exista router (T-05).
+- **Terminado cuando:** un usuario entra con Google, obtiene su fila en `profiles`, la sesión
+  rehidrata al recargar, y **la declaración de edad se registró antes del primer login**.
+- **Vector:** G-5 (fricción del funnel B2C) y **G-1** — ver abajo.
+- **Secuenciar después de T-90.** No es una tarea de UX menor: si en la sala real los estudiantes
+  tienen cuenta de **Google Workspace del colegio**, esto deja de ser una mejora de conversión y
+  pasa a ser **la puerta de entrada institucional** (identidad estable para Δθ + dominio como llave
+  de multi-tenant). Es la cuarta opción de [[OPEN_QUESTIONS]] **Q-37** y toca **Q-36**. Una hora de
+  clase decide cuál de los dos mundos es el de este proyecto.
+
+### T-93 · Revisar el contrato de Cpech antes de cualquier demo formal — **P0** · `abierto`
+
+**Bloqueante de todo uso del canal Cpech.** Cuesta media hora y protege dieciséis años de trabajo.
+
+- **Qué se busca:** cláusulas de **cesión de propiedad intelectual o de invenciones**, de
+  exclusividad, y de conflicto de interés. Aplica también, en menor grado, al contrato del liceo.
+- **Por qué importa tanto:** si existe una cláusula de cesión y el owner demuestra el producto a la
+  dirección **como empleado**, se abre una discusión sobre la titularidad del proyecto. Es el único
+  riesgo del registro capaz de terminar con todo en una sola reunión ([[RISKS]] R-32).
+- **Terminado cuando:** el owner sabe qué dicen sus contratos, la respuesta está en
+  [[OPEN_QUESTIONS]] Q-38, y —si hay cláusula— existe un plan (deslinde por escrito, o no usar ese
+  canal hasta constituir sociedad).
+- **Después de esto, y no antes:** demo a Cpech con **encuadre comercial y algo por escrito**,
+  aunque sea un correo de una página con alcance, propiedad y qué pasa si funciona (L-39).
+- **Vector:** G-1, G-5.
+
+---
+
 ## Resumen por prioridad
 
 | Prioridad | Tareas |
 |-----------|--------|
-| **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50 |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75 |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74 |
+| **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50, **T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-88, T-90, T-91, T-93** |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92** |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86** |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
+
+> **Nota sobre las P0 nuevas (2026-08-16):** las P0 de E1 significaban "bloquea go-live" y están
+> todas cerradas. Las P0 de E8 significan **"bloquea el primer peso de ingreso institucional"**. No
+> son la misma escala y no compiten: E1 ya terminó. **T-07, T-09 y T-11 (P1/P2 de E2) suben de
+> hecho a P0** en el momento en que se firme un contrato institucional — ver [[RISKS]] R-28.
 
 ---
 
-Relacionado: [[CURRENT_STATUS]] · [[ROADMAP]] · [[RISKS]] · [[OPEN_QUESTIONS]] · [[REQUIREMENTS]]
+Relacionado: [[TESIS_DE_CRECIMIENTO]] · [[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]] ·
+[[CURRENT_STATUS]] · [[ROADMAP]] · [[RISKS]] · [[OPEN_QUESTIONS]] · [[REQUIREMENTS]]

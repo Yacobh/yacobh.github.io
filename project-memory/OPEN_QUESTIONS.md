@@ -1,6 +1,14 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-13** (Q-28 evaluada: la publicidad **no** califica como ingreso;
+Última actualización: **2026-08-16** — pivote de negocio
+([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]], [[TESIS_DE_CRECIMIENTO]]): **Q-07
+respondida** (histórico versionado, D-50) y **Q-32…Q-36 nuevas** (precio institucional, suscripción
+B2C, tamaño de mercado, fondos, multi-tenant). **Q-30 sube a bloqueante del canal de contenido**
+(G-5). **Q-37 corregida el mismo día**: se evalúa contra dos criterios, no uno — la entrada anónima
+rompe G-4 — y se agrega una cuarta opción (cuenta Google del colegio). **Cierre del día: ✅ Q-30
+respondida y X-09 cerrada** (D-53, copy corregido y publicado en los 5 lugares); **Q-38 nueva**
+(propiedad intelectual con los empleadores, bloqueante del canal Cpech). ·
+Antes: 2026-08-13 (Q-28 evaluada: la publicidad **no** califica como ingreso;
 Q-29 y Q-30 nuevas y **X-09 nueva**: la raíz del proyecto es la tesis de 2010, no el convenio UNAP —
 ver [[RAIZ_SISTEMA_LLOVIZNA]] y [[../adr/ADR-024-raiz-en-la-tesis-2010]])
 
@@ -181,7 +189,48 @@ un documento sino una línea de trabajo con dos actos documentados (2010 y 2012)
 este repositorio. **Relacionado:** Q-23 (el proyecto ya arrastra cuatro nombres: "Academia Integral",
 "Academia Online de Matemáticas", `universo` y "Sistema Llovizna"), Q-30, [[RISKS]] R-26.
 
-### 🔴 Q-30 · ¿Cómo se cuenta públicamente el origen del proyecto, ahora que se sabe que no es la UNAP?
+### ✅ Q-30 · ¿Cómo se cuenta públicamente el origen del proyecto? — **RESPONDIDA 2026-08-16 (D-53), copy publicado**
+
+> **🔺 2026-08-16 — esta pregunta pasó de incómoda a bloqueante de negocio (D-51 / G-5).** La marca
+> personal del fundador es uno de los cuatro componentes de la máquina de distribución, y funciona
+> precisamente porque la historia de 16 años es **verificable** (tesis UNEXPO 2010 + ponencia en el
+> II Congreso Venezolano de Ciencia, Tecnología e Innovación 2013). **No se puede construir un canal
+> de contenido sobre un copy que la propia memoria declara falso**. Es también lo primero
+> que verifica una due diligence. **Criterio de éxito S-18.**
+>
+> ### ✅ Respuesta del owner, 2026-08-16: *"no dejemos que la página mienta ni un día más"*
+>
+> **Decidido y ya publicado (D-53). Dos definiciones:**
+>
+> 1. **Se nombra a la UNEXPO, sin el congreso de 2013.** Razón del owner al elegir: decir dónde
+>    estudió es **biografía factual y verificable**, no un aval institucional — es justo la
+>    distinción que faltó con la UNAP, que se leía como respaldo vigente (Q-01, D-18). No requiere
+>    autorización de marca. **La ponencia de 2013 queda fuera del copy de la landing**: es una
+>    credencial de hace trece años con encuadre político venezolano impreso, y su lugar natural es
+>    la página del profesor, no un FAQ sobre precios.
+> 2. **La UNAP sale del FAQ de costo.** Una pregunta sobre precio no es el lugar de la historia
+>    institucional. **No es borrarla:** sigue en `resume.cljs` como experiencia docente, con su
+>    código de proyecto, que es donde corresponde.
+>
+> **Texto publicado — origen** (footer de `home.cljs` y noscript de `index.html`):
+> *"Un proyecto del profesor Jacobo Córdova. Nace de su trabajo de grado en Ingeniería Electrónica
+> (UNEXPO, Venezuela, 2010) sobre sistemas de respuesta en el aula, y se desarrolla desde 2025 en
+> Iquique."*
+>
+> **Texto publicado — costo** (JSON-LD ×2 y `landing.cljs`):
+> *"El diagnóstico, tu perfil y el plan de estudio no tienen costo. Es un proyecto personal del
+> profesor Jacobo Córdova. Las clases de los grupos tienen un valor de $10.000 por hora; la primera
+> videollamada después del diagnóstico es gratuita."*
+>
+> **Efecto colateral: responde en parte Q-02.** El precio de D-32 **nunca había estado publicado**;
+> Q-02 dejaba pendiente "dónde mostrarlo". Ahora está en el FAQ de costo. **No se tocó
+> `isAccessibleForFree`** (sigue acotado a diagnóstico/perfil/plan, D-01) **ni se agregó markup de
+> `Offer`** — eso sería una decisión aparte.
+>
+> **Cierra:** X-09, y **S-18** de [[PROJECT_BRIEF]] §8. **Desbloquea:** la marca personal como canal
+> de contenido (G-5), y sentarse de nuevo con la UNAP sin que el sitio cuente una historia falsa
+> sobre ellos.
+
 **Planteada 2026-08-13.** El copy publicado en los tres lugares (`index.html`, `public/index.html`,
 `landing.cljs`) dice: *"Es un proyecto personal del profesor Jacobo Córdova, que se originó en 2025 a
 partir de un convenio de desarrollo con la Universidad Arturo Prat."* Con
@@ -214,7 +263,7 @@ sin reproducir el certificado). Ver [[RAIZ_SISTEMA_LLOVIZNA]] §2.1.
 **Antes de publicar cualquier cosa:** resolver [[RISKS]] **R-26** (cédula, teléfono y fecha de
 nacimiento del owner en los documentos fuente; el certificado la lleva también, por eso no se
 versiona).
-**Mientras siga abierta:** X-09 permanece como contradicción activa entre la memoria y producción.
+**Resuelta:** X-09 dejó de ser contradicción activa el 2026-08-16.
 **Relacionado:** Q-01, Q-29, [[RAIZ_SISTEMA_LLOVIZNA]], [[RISKS]] R-05.
 
 ### ✅ Q-31 · ¿Qué objeciones recibió la propuesta cuando se expuso al público? — Respondida 2026-08-13
@@ -239,6 +288,163 @@ intacta: el proyecto **nunca** ha tenido alcance real ante estudiantes.
 **Consecuencia para Q-30:** no apareció rechazo al encuadre político. Esa evidencia **no** respalda
 el temor de que contar el origen levante ese tipo de objeción.
 **Relacionado:** [[BACKLOG]] T-75, [[RISKS]] R-19, Q-30.
+
+### 🔴 Q-32 · ¿Cuál es el precio y la unidad de la licencia institucional? — **abierta 2026-08-16**
+
+[[TESIS_DE_CRECIMIENTO]] §3 usa **CLP 6.000 por alumno de enseñanza media/año** con un **piso de
+CLP 1.500.000 por establecimiento**. **Ninguno de los dos números fue testeado con un comprador
+real** — son la hipótesis con la que se construyó la aritmética del millón, no un precio validado.
+
+Sub-preguntas que hay que responder juntas:
+
+- ¿La unidad es por alumno, por establecimiento con piso, o por nivel (solo 3º y 4º medio)?
+- ¿Cabe dentro de SEP/PIE, o compite con presupuesto discrecional del sostenedor? (afecta el
+  decisor y el ciclo)
+- ¿Cómo se compara contra lo que un colegio ya paga por herramientas de diagnóstico o por un
+  preuniversitario institucional?
+
+**Bloquea:** F13, la escalera de ingresos y cualquier postulación a fondos que cite ingresos
+proyectados. **Decisión pendiente:** P-14. **Cómo se responde:** hablando con 5–10 jefes de UTP,
+no con más análisis. Tarea T-80.
+
+### 🟠 Q-33 · ¿El B2C cobra suscripción, o queda 100 % gratuito como puro embudo? — **abierta 2026-08-16**
+
+D-47 fijó el mix objetivo en ~30 % B2C, con una suscripción de temporada de CLP 9.900/mes
+(marzo–noviembre) como supuesto. Pero D-01 mantiene gratis el diagnóstico, el perfil y el plan —
+que es casi todo lo que el producto entrega hoy. **Falta definir qué queda del otro lado del muro
+de pago**, si es que hay muro.
+
+Opciones no evaluadas todavía: histórico de Δθ y re-diagnósticos ilimitados como parte paga;
+clases grabadas (G-3) como parte paga; o B2C 100 % gratuito, financiado enteramente por B2B, con la
+suscripción descartada. **La última opción es más limpia y no está descartada.**
+
+**Bloquea:** el mix de [[TESIS_DE_CRECIMIENTO]] §3. **Decisión pendiente:** P-15.
+
+### 🟠 Q-34 · ¿Qué fondos y programas están vigentes, con qué montos y ventanas? — **abierta 2026-08-16**
+
+[[TESIS_DE_CRECIMIENTO]] §4 nombra CORFO Semilla Inicia / Semilla Expande, Start-Up Chile,
+SSAF-Desafío y fondos de innovación educativa. **Los montos y las ventanas de postulación no están
+verificados** y no deben citarse hasta estarlo.
+
+**Contexto que pesa:** el proyecto ya postuló a financiamiento estatal **dos veces sin éxito**
+(2012–13 Venezuela, 2025 UNAP). Antes de postular una tercera, conviene saber qué pide cada
+programa y si el proyecto califica — en particular si el requisito de constitución de sociedad, hoy
+inexistente, es bloqueante.
+
+**Bloquea:** F16.
+
+### 🟡 Q-35 · ¿Un colegio exige asistencia, notas o certificación como requisito de compra? — **abierta 2026-08-16**
+
+[[PROJECT_BRIEF]] §6 excluye asistencia, notas y certificación, y el producto insiste (con razón)
+en que el diagnóstico *"no es una nota ni queda en ningún registro académico"* — es parte de por
+qué el estudiante responde con honestidad.
+
+**La tensión que aparece con G-1:** un colegio podría querer exactamente lo contrario. Si la
+exclusión se levanta, hay que cuidar que no contamine el instrumento: un diagnóstico que "cuenta
+para la nota" deja de medir lo que dice medir.
+
+**Se responde en el primer piloto**, no antes.
+
+### 🟠 Q-36 · ¿Cómo se modela el aislamiento multi-tenant por establecimiento? — **abierta 2026-08-16**
+
+El esquema actual está pensado para estudiantes individuales. G-1 exige que el profesor del colegio
+A vea a sus cursos y **solo** a sus cursos, y que eso lo garantice **RLS**, no la UI
+([[../CLAUDE]] §7). Opciones no evaluadas: columna `establecimiento_id` en `profiles`, tabla
+`establecimientos` + `cursos` con pertenencia, o claim en el JWT.
+
+**Restricción dura:** ADR-002 sigue vigente — se resuelve con policies, **no** creando un backend
+propio. **Decisión pendiente:** P-16. **Bloquea:** F13 y, por R-28, el primer contrato.
+
+### 🔴 Q-37 · ¿Cómo entra un curso completo sin crear cuentas, sin romper RLS? — **abierta 2026-08-16**
+
+El rediseño del funnel de aula (T-91, [[RISKS]] R-31) exige que ~30 estudiantes entren desde su
+teléfono con un código de curso, **sin correo ni contraseña** — la creación de cuenta es la fuga
+mayor del funnel actual y en una sala de clases es innecesaria.
+
+**La tensión:** [[../CLAUDE]] §7 establece que **RLS es el único límite de autorización** y que
+nunca se confía en checks de UI. Un usuario sin cuenta no tiene `auth.uid()`, que es sobre lo que
+están escritas todas las policies actuales.
+
+> ### ⚠️ Segundo criterio, detectado el 2026-08-16: **la entrada anónima rompe G-4**
+>
+> La pregunta se escribió como si el único criterio fuera *"menos fricción sin romper RLS"*. **No lo
+> es.** Hay un segundo criterio que descalifica a una de las opciones:
+>
+> **Δθ exige identificar al mismo estudiante en dos diagnósticos separados por un semestre**
+> (marzo → octubre). Una sesión anónima no sobrevive a eso: el estudiante vuelve y el sistema no
+> sabe quién es. Y Δθ **es el producto que se vende** y el argumento de renovación de la licencia
+> (D-50, G-4, [[TESIS_DE_CRECIMIENTO]] §2).
+>
+> Es decir: **optimizar la fricción de entrada al máximo destruye el vector que sostiene el
+> ingreso.** Las opciones hay que evaluarlas contra **los dos** criterios, no contra uno.
+
+**Las cuatro opciones, evaluadas contra ambos criterios:**
+
+| Opción | Fricción | Identidad estable (G-4) | Notas |
+|---|---|---|---|
+| **Sesión anónima** (`signInAnonymously`) | Mínima | ❌ **Se pierde** | Da un `auth.uid()` real y desechable, así que las policies siguen casi igual. Pero sin vínculo a un correo, en octubre no hay a quién comparar. Solo viable si se ofrece "vincula tu correo para ver tu progreso" — que reintroduce la fricción justo cuando ya no molesta |
+| **Token de curso** en la policy, sin usuario | Mínima | ❌ Se pierde | Obliga a reescribir policies y a resolver qué impide que alguien con el código lea las respuestas de otro |
+| **Roster precargado** por el colegio | Baja | ✅ Sí | Lo más limpio en autorización, **pero mueve datos de menores con el colegio como cargador** — [[RISKS]] R-28, Ley 21.719 |
+| **🆕 Cuenta Google del colegio** (Workspace for Education) | **Casi nula** | ✅ **Sí, y es la misma en marzo y en octubre** | Ver abajo |
+
+### La cuarta opción: Google Workspace del establecimiento (agregada 2026-08-16)
+
+La mayoría de los establecimientos chilenos usa **Google Workspace for Education**: el estudiante
+**ya tiene cuenta y ya está con sesión iniciada en su teléfono**. Un toque, sin escribir nada.
+
+Tres ventajas que ninguna otra opción reúne a la vez:
+
+1. **Fricción casi nula** sin sacrificar identidad.
+2. **Identidad estable** entre diagnósticos → G-4 funciona.
+3. **El dominio del correo identifica al colegio** (`nombre@colegiox.cl` → establecimiento). Es una
+   llave natural de multi-tenant y **responde en parte a Q-36 / P-16**.
+
+**Estado técnico (verificado en código el 2026-08-16):** `sign-in-with-google` ya existe en
+`src/universo/supabase.cljs:21` y **nadie la llama** (código muerto). La plomería sí está:
+`events/auth.cljs` tiene `getSession` + `onAuthStateChange`, y el `profiles` lo crea el trigger
+`handle_new_user()` sobre `auth.users` (migración `008`, `security definer`) — así que **un usuario
+que entre por Google obtiene su fila automáticamente**. Costo: **$0** en las tres capas (Google
+Cloud, Supabase Auth, infra). Tarea: **T-92**.
+
+**Contrapesos honestos, para no elegirla por entusiasmo:**
+
+- **No es fricción cero.** Sigue habiendo redirect, selector de cuenta y consentimiento. Con 30
+  teléfonos y wifi de colegio hay modos de falla reales. **No cierra R-31 por sí sola.**
+- **El admin de Workspace del colegio puede bloquear apps de terceros.** Probablemente haya que
+  pedirle a TI del establecimiento que autorice la app: es **un paso más en la venta**, no un
+  detalle técnico. Anotarlo en el guion de T-87.
+- **No todos los estudiantes tendrán cuenta del colegio.** Hace falta un camino alternativo.
+
+**Restricción dura (sin cambios):** se resuelve con policies, **no** creando un backend
+([[../adr/ADR-002-supabase-como-unico-backend]] sigue vigente).
+
+**Bloquea:** T-91, y por lo tanto la puerta de entrada de G-1. **Decisión pendiente:** P-17.
+**No responder antes de T-90:** una hora de clase dice si los estudiantes tienen cuenta del colegio
+o no, y esa observación decide la opción. Es exactamente el tipo de pregunta que no se responde
+analizando.
+
+### 🔴 Q-38 · ¿Qué dicen los contratos laborales del owner sobre propiedad intelectual? — **abierta 2026-08-16**
+
+El owner trabaja en **Cpech** (sede) y en un **liceo**, y ambos son además canales de distribución
+disponibles para el producto. Antes de usarlos hay que saber si sus contratos incluyen **cláusulas
+de cesión de propiedad intelectual o de invenciones**, de exclusividad, o de conflicto de interés.
+
+**Por qué es bloqueante y no un trámite:** si existe una cláusula de cesión y el producto se
+demuestra a la dirección **como empleado**, se abre una discusión sobre quién es dueño de dieciséis
+años de trabajo. Es el único riesgo del registro capaz de terminar con el proyecto en una reunión
+([[RISKS]] R-32).
+
+**Matiz que ayuda:** el owner **ya les mencionó** que construye software, así que no hay ocultamiento
+—eso reduce el problema de buena fe, pero **no resuelve la titularidad**, que depende del texto del
+contrato y no de la conversación.
+
+**Ambigüedad a aclarar:** el owner describió su vínculo con la dirección de Cpech como *"un trato"*.
+No está claro si es un acuerdo formal o buena relación, y la diferencia cambia el análisis.
+
+**Cómo se responde:** leyendo los contratos (T-93). Media hora. Si hay cláusula, la pregunta
+siguiente es si conviene un deslinde por escrito o constituir sociedad antes de usar ese canal.
+
+**Bloquea:** el canal Cpech completo, y por lo tanto parte de T-87.
 
 ### 🟡 Q-22 · ¿"Grupos de conocimiento" (3, libro) reemplazan a las bandas de θ (4, código)?
 El libro clasifica en Básico/Medio/Avanzado; el código ya implementado usa
@@ -296,6 +502,10 @@ from questions group by topic;`
 —de hecho ni siquiera en una escala compatible entre topics— y el owner las reescaló a mano por
 orden relativo de dificultad, no con datos de respuesta real. **Sigue sin responderse** la
 pregunta de fondo (calibración estadística); solo se cerró el síntoma agudo (topics inalcanzables).
+**🔺 Sube a bloqueante el 2026-08-16 (D-48 / G-2):** deja de ser una pregunta de calidad interna y
+pasa a ser **precondición dura de la venta institucional** — es lo primero que pregunta un jefe de
+UTP con formación en evaluación o una due diligence técnica. Responderla es el contenido de
+[[ROADMAP]] **F12**, y su salida es un **reporte técnico publicable**. Ver [[RISKS]] R-29.
 
 ### 🟠 Q-06 · ¿Los topics del banco cubren los ejes reales de la PAES M1?
 `universo.profile/topic->module-slug` mapea solo un subconjunto (`numbers_V1`, `numeros`, `enteros`,
@@ -376,12 +586,29 @@ estudiantes quedan bajo el mínimo con cada valor de `min-responses`, y con qué
 **Relacionado:** [[BACKLOG]] T-65 · [[RISKS]] R-24 ·
 [[../adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]] · [[../sessions/SESSION-021]].
 
-### 🔴 Q-07 · ¿Qué semántica tiene repetir el diagnóstico?
-`student_profiles` es una materialización única por estudiante. La FAQ promete explícitamente que
-repetir el diagnóstico "te muestra cómo se movió tu nivel", lo que **requiere histórico** — hoy
-probablemente se sobrescribe.
-**Bloquea:** T-26. **Decisión pendiente:** P-01. **Nota:** hay una posible contradicción entre lo
-prometido en la FAQ y lo implementado; registrada aquí por la regla 14 de gobernanza.
+### ✅ Q-07 · ¿Qué semántica tiene repetir el diagnóstico? — **Respondida 2026-08-16 (D-50)**
+
+**Respuesta: histórico versionado. Repetir el diagnóstico NUNCA sobrescribe el perfil anterior.**
+
+**Por qué se decidió así, y por qué dejó de ser una pregunta técnica.** Con el pivote de negocio
+del 2026-08-16 ([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]], vector **G-4**), **el
+histórico de θ es el producto que se vende**: Δθ entre diagnósticos es el bucle de retención en
+B2C, el argumento de renovación de la licencia en B2B y la métrica de *outcome* que pide un fondo
+educativo. Sobrescribir `student_profiles` no sería una simplificación: sería **destruir el
+activo**.
+
+**Consecuencias:**
+
+- `student_profiles` deja de ser materialización única y pasa a versionarse por intento.
+- Δθ se calcula por estudiante y agregado por cohorte, y **se comunica siempre con su error
+  asociado (SE)** — sin banda de confianza no se comunica (regla de [[BUSINESS_CONTEXT]] §7).
+- **Cierra la contradicción con la FAQ**, que ya prometía "te muestra cómo se movió tu nivel".
+- **Cierra P-01.** Implementación: [[ROADMAP]] F14, [[BACKLOG]] T-26 y épica E8.
+
+**Nota (2026-08-08, ADR-013):** T-39 usa el **mejor θ histórico por topic** (agregado sobre las
+filas ya existentes en `tests`, cada intento es su propia fila) para decidir desbloqueos — el
+histórico por intento **ya existe de facto en `tests`**, lo que abarata esta implementación: lo que
+falta es versionar `student_profiles`, no capturar los datos.
 **Nota (2026-08-08, ADR-013):** T-39 usa el **mejor θ histórico por topic** (agregado sobre las
 filas ya existentes en `tests`, cada intento es su propia fila) para decidir desbloqueos — es una
 señal de que "histórico por intento" ya existe de facto en `tests`, pero no resuelve esta pregunta:
@@ -536,7 +763,7 @@ T-18 (cerrada), [[RISKS]] R-21 (cerrado).
 | X-05 | *(Resuelta 2026-08-09)* `shadow-cljs` 3.0.4 en `deps.edn` vs `^2.19.2` en `package.json` | `deps.edn` vs `package.json` | `package.json` → `^3.0.4`, `npm install` corrido, `npx shadow-cljs release app` verificado en verde. Ver [[BACKLOG]] T-13 |
 | X-06 | *(Resuelta 2026-08-09)* KaTeX `^0.16.22` por npm vs CSS 0.16.9 por CDN | `package.json` vs `index.html` | CDN de `index.html`/`public/index.html` → `0.16.22`. Ver [[BACKLOG]] T-13 |
 | X-07 | `PROJECT_SUMMARY.md` describe una estructura de módulos previa al MVP (menciona `views.cljs` con componentes principales, `jardin`, `voz`… como parte del producto) que ya no refleja el sistema | `PROJECT_SUMMARY.md` vs [[ARCHITECTURE]] | T-33: reducir a puntero o archivar |
-| X-09 | El copy publicado dice que el proyecto *"se originó en 2025 a partir de un convenio con la Universidad Arturo Prat"*; la raíz real es la tesis UNEXPO de 2010, y el primer commit (2025-05-03) es **anterior** al convenio (oct–nov 2025) | `index.html`, `public/index.html`, `landing.cljs` vs [[RAIZ_SISTEMA_LLOVIZNA]], `git log` | 🔴 **Abierta.** [[../adr/ADR-024-raiz-en-la-tesis-2010]] corrige la memoria; el copy público espera decisión del owner sobre la redacción (Q-30). Mismo patrón que X-01: primero que sea verdad, después dejarlo publicado |
+| ~~X-09~~ | ~~El copy publicado dice que el proyecto *"se originó en 2025 a partir de un convenio con la Universidad Arturo Prat"*~~ | — | ✅ **RESUELTA 2026-08-16 (D-53).** El copy se corrigió y se publicó. **Nota que corrige la propia entrada:** decía tres lugares y eran **cinco** — `index.html` (JSON-LD **y** noscript), `public/index.html` (JSON-LD), `landing.cljs` y `home.cljs` (footer). `resume.cljs` menciona a la UNAP como experiencia docente real y **no se tocó, porque ahí es correcto**. Ver [[LESSONS_LEARNED]] L-22 |
 | X-08 | *(Parcialmente resuelta 2026-07-30)* El "Libro del Proyecto" proponía pago por clase, multi-materia e internacionalización | [[VISION_LIBRO_PROYECTO]] §4.4 vs [[PROJECT_BRIEF]] §6, [[BUSINESS_CONTEXT]] §5 | **Pago por clase: resuelto** (D-19/D-26/D-32, $10.000 CLP/hora). **Multi-materia e internacionalización: siguen sin decidir** -- Q-21 confirmó la dirección general, pero no estas decisiones puntuales |
 
 ---

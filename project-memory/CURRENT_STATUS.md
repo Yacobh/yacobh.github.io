@@ -1,8 +1,194 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-13** · Rama `main`, tras mergear `ui-identidad-y-linea-del-tiempo` (16 commits)
+**Fecha de corte: 2026-08-16** · Rama `main`
 *(el cuerpo histórico de este archivo arranca en el corte del 2026-07-26, commit `48bf525`, rama
 `cursor/mvp-operable-funnel`; las notas de sesión de más abajo son la capa vigente)*
+
+> ## ⭐ 2026-08-16 — Pivote de modelo de negocio (solo documentación, cero cambios de código)
+>
+> **Diagnóstico que motivó la sesión.** El producto está esencialmente terminado (F8 cerrada, funnel
+> verificado end-to-end, 74→83 tests en verde, infra a $0) y **el negocio no está empezado**. El
+> modelo de ingreso vigente hasta hoy —clases a $10.000 CLP/hora (D-32)— tiene un techo aritmético
+> de **1.500 h/año × $10.000 ≈ CLP 15M ≈ USD 16.000/año**, y solo si el fundador deja de programar,
+> escribir ítems y calibrar. El desbalance de fondo: **se cobra por lo que tiene costo marginal alto
+> (las horas del profesor) y se regala lo que tiene costo marginal cero (diagnóstico, mapa de
+> errores, plan)** — que además ya está construido y verificado.
+>
+> **Decisión ([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]], D-47…D-51).** Cinco vectores de
+> valor, archivo canónico **[[TESIS_DE_CRECIMIENTO]]**:
+>
+> - **G-1** licencia institucional **B2B** como línea principal (el B2C queda como embudo, marca y
+>   fuente de datos; las clases quedan como línea premium).
+> - **G-2** **calibrar** el banco y convertirlo en el activo defendible, con reporte técnico
+>   publicable. **Precondición dura de G-1.**
+> - **G-3** ingreso **desacoplado de las horas** del fundador (grabadas por cuadrante θ×λ + red de
+>   profesores con comisión).
+> - **G-4** se vende **Δθ**, no acceso. **Resuelve Q-07 y cierra P-01: el histórico versionado
+>   nunca se sobrescribe** — es el producto.
+> - **G-5** **distribución medida** (CAC/LTV) y **búsqueda de capital** (CORFO / Start-Up Chile /
+>   semilla). Precondición dura, no fase posterior.
+>
+> **Orden:** G-2 y G-5 en paralelo → G-1 → G-4 → G-3.
+>
+> **Qué cambió en la memoria:** archivo nuevo [[TESIS_DE_CRECIMIENTO]] y ADR-025 · [[BUSINESS_CONTEXT]]
+> (objetivos B-08…B-11, funnel B2B, modelo económico, métricas M-10…M-16, precedencia de documentos)
+> · [[PROJECT_BRIEF]] (rol `profesor` deja de ser exclusión, criterios S-11…S-18) · [[ROADMAP]]
+> (fases **F12–F16**, F9 a requisito contractual, F11 postergada) · [[BACKLOG]] (**épica E8**,
+> T-76…T-89) · [[RISKS]] (**R-27…R-30**; R-30 pasa a ser el riesgo dominante y subsume R-19/R-01) ·
+> [[OPEN_QUESTIONS]] (**Q-32…Q-36**; Q-07 respondida; Q-05 y Q-30 suben a bloqueantes) ·
+> [[ASSUMPTIONS]] (**A-31…A-35**, los más frágiles de la memoria) · [[DECISIONS]] · [[../CLAUDE]] ·
+> [[INDEX]].
+>
+> **Lo más importante que hay que recordar de esta sesión:** el riesgo dominante ya no es R-19
+> (estacionalidad) sino **R-30 — convertir el pivote en más construcción de producto y terminar
+> otra vez con un producto mejor y cero clientes**. Es lo que pasó las tres veces anteriores.
+>
+> **Sin cambios de código, sin recompilar, sin tocar `app.js`.** Lo pendiente de código previo a
+> esta sesión sigue igual (ver más abajo).
+
+> ## 🔺 2026-08-16 (2ª pasada) — El owner detectó que el funnel apunta al canal equivocado
+>
+> Revisando el producto tras el pivote, el owner planteó que no cree que el funnel esté bien
+> planteado. **Tenía razón, y el dato lo confirma:**
+>
+> Los **252 diagnósticos** —los únicos usuarios reales en 16 años— son casi todos
+> `@estudiantesunap.cl`, del piloto UNAP. Llegaron porque **una institución puso el producto frente
+> a una audiencia cautiva**. De la landing no llegó prácticamente nadie. Es decir: **el único canal
+> que funcionó jamás no tiene funnel, y el funnel que existe (landing, SEO, registro, cupos) sirve
+> a un canal que nunca produjo un usuario.** El dato estaba anotado desde el 2026-08-09 como
+> "hallazgo colateral" y nadie había extraído su consecuencia.
+>
+> Se registraron **dos hallazgos**, ambos del owner:
+>
+> - **[[LESSONS_LEARNED]] L-36 / [[RISKS]] R-31** — el funnel pide máximo compromiso antes de
+>   entregar valor (cuenta → 20 min sin calculadora) y la recompensa es un inventario de los propios
+>   déficits. Falta la puerta de entrada del aula, que es justo lo que se le vende a un colegio.
+> - **[[LESSONS_LEARNED]] L-37** — la maquinaria de cohortes (`min_enrollments`, triggers, outbox,
+>   cron, cancelación) se construyó para una demanda que nunca llegó: **cero cupos han confirmado**.
+>   Correcta, elegante y prematura. Caso concreto de R-30.
+>
+> **Tareas nuevas: [[BACKLOG]] T-90 y T-91**, ambas P0. T-90 (aplicar el diagnóstico en **un** curso
+> real y observar) es la tarea más barata y más informativa del backlog entero: cero pesos, una
+> hora, y confirma o refuta R-31 con evidencia. **T-90 va antes que T-91, y antes que rediseñar
+> nada.** Pregunta de diseño abierta: **Q-37 / P-17** (entrar sin cuenta sin romper RLS).
+>
+> **Lectura estratégica: esto refuerza G-1, no lo debilita.** La evidencia empírica del propio
+> proyecto dice que la distribución de este producto es institucional.
+
+> ## 🔺 2026-08-16 (3ª pasada) — La forma del mercado: churn del 100 % anual (D-52)
+>
+> El owner preguntó si sería viable un producto **sin clases en vivo**, con el contenido **grabado o
+> automatizado en texto**, cuyo ingreso se conduzca por **número de visitantes**. La evaluación
+> destapó un hecho estructural que **no estaba escrito en ninguna parte de la memoria**:
+>
+> > El mercado PAES son **~250.000 personas al año** (A-32) y **se renueva íntegramente cada
+> > temporada**. **Churn del 100 % anual, por construcción** — no por mala retención.
+>
+> Los modelos por volumen viven de retención compuesta, y este mercado la prohíbe. La aritmética
+> (en [[TESIS_DE_CRECIMIENTO]] §3.1) es contundente: **publicidad** exigiría alcanzar a cada persona
+> que rinde la PAES entre 2 y 6 veces solo para igualar el techo actual de clases; **freemium
+> masivo** exigiría ~2× el mercado nacional para la meta grande. Se suma un tercer factor de 2026:
+> contenido de texto que *explica* compite con un LLM gratuito y mejor.
+>
+> **Registrado:** hecho estructural en [[BUSINESS_CONTEXT]] §1.1 · aritmética en
+> [[TESIS_DE_CRECIMIENTO]] §3.1 · **D-52** · [[LESSONS_LEARNED]] **L-38** · nota en A-32.
+>
+> **El corolario importa más que la negativa, y reencuadra G-3:** el producto que el owner describió
+> —cero horas en vivo, contenido grabado y automatizado— **es exactamente lo que compra un colegio**.
+> No es una alternativa a G-1: **es G-1 bien entregado**, es decir, G-3 metido dentro de G-1. El
+> mismo trabajo de contenido rinde **tres órdenes de magnitud distinto** según a quién se le cobra:
+> ~CLP 2 por página vista, o CLP 2.400.000 por colegio/año.
+>
+> **Distancia medida a ese producto:** código 2–4 semanas · contenido **4–7×** (de 58 recursos a
+> ~250–400, con la auditoría de ADR-016 como cuello) · tráfico, un muro. Dato útil: la **capa 0**
+> (`questions.error_a..d`) **ya es** enseñanza automatizada en texto; falta profundidad, no
+> mecanismo.
+
+> ## 🔺 2026-08-16 (4ª pasada) — Google Auth es gratis, y Q-37 estaba mal planteada
+>
+> El owner preguntó si el Google Auth mencionado en F0 se puede hacer en capa gratuita. **Sí, $0 en
+> las tres capas** (Google Cloud, Supabase Auth, infra). Con scopes básicos no hace falta la
+> evaluación de seguridad de Google; sí hay que **publicar la app** (en "Testing" el tope son 100
+> usuarios).
+>
+> **Estado verificado en código:** `sign-in-with-google` existe en `supabase.cljs:21` y **nadie la
+> llama** — código muerto confirmado. Pero la plomería está: `events/auth.cljs` tiene `getSession` +
+> `onAuthStateChange`, y **el `profiles` lo crea el trigger `handle_new_user()`** sobre `auth.users`
+> (migración `008`, `security definer`) — así que un usuario que entre por Google obtiene su fila
+> sin tocar nada. Era el bug más probable y no existe. Tarea: **T-92** (P1).
+>
+> **⚠️ Guarda de cumplimiento anotada en T-92:** un botón de Google junto al formulario **evitaría
+> la declaración de edad de `login.cljs:141-157`**, que es **D-21**, atada a la Ley 21.719 y a R-06,
+> sobre público mayoritariamente menor de edad. La declaración va **antes** del botón.
+>
+> **Y el hallazgo que importa más que la pregunta: Q-37 estaba escrita con un solo criterio.**
+>
+> > **La entrada anónima rompe G-4.** Δθ exige reconocer al **mismo estudiante en marzo y en
+> > octubre**; una sesión anónima no sobrevive a eso. Optimizar la fricción al máximo destruye el
+> > vector que sostiene el ingreso.
+>
+> Q-37 se reescribió con **dos** criterios (fricción **e** identidad estable) y una **cuarta
+> opción**: **cuenta Google del colegio** (Workspace for Education), que es la única que reúne
+> fricción casi nula + identidad estable + **el dominio del correo como llave de multi-tenant**
+> (toca Q-36/P-16). Contrapesos anotados: no cierra R-31 por sí sola, y el admin de Workspace del
+> colegio puede bloquear apps de terceros — eso es **un paso más en la venta** (T-87), no un detalle
+> técnico.
+>
+> **Sigue sin decidirse a propósito (P-17): no antes de T-90.** Una hora de clase dice si los
+> estudiantes tienen cuenta del colegio, y esa observación elige la opción.
+
+> ## ⭐ 2026-08-16 (5ª pasada) — Hay distribución, y el sitio dejó de mentir
+>
+> **Dos cosas grandes, y la primera cambia la premisa de toda la memoria anterior.**
+>
+> ### 1. El owner tiene tres canales disponibles hoy
+>
+> Toda la memoria estaba escrita sobre *"ningún colegio contactado"* y *"depende de que alguien
+> externo llegue al sitio"*. Es falso:
+>
+> - **Liceo** donde el owner es profesor de electrónica: una profesora de matemática **ya le ofreció
+>   su 4º medio**. Eso es **T-90 literalmente** — deja de ser una llamada en frío.
+> - **Cpech**, sede donde trabaja: relación con la dirección, y ya les mencionó que construye
+>   software. Es la cuña "academia comercial", más rápida que un colegio subvencionado.
+> - **UNAP**: podría reactivarse. Ya corrió el piloto que produjo los 252 diagnósticos.
+>
+> **Pero acceso ≠ distribución, y el propio historial lo prueba.** El piloto UNAP también fue acceso:
+> produjo 252 diagnósticos reales y **cero clientes**, porque estaba encuadrado como *convenio de
+> desarrollo* (le pagaron por construir) y no como *venta*. 2012 fue igual. **El cuello nunca fue
+> conseguir la puerta: fue que cruzarla no dejaba un cliente que renovara.** → [[LESSONS_LEARNED]]
+> **L-39**: encuadre comercial desde el minuto uno, aunque el piloto sea gratis.
+>
+> **⚠️ Y aparece el riesgo peor calibrado del proyecto: [[RISKS]] R-32.** Dos de los tres canales son
+> sus **empleadores**. Si hay cláusula de cesión de PI en el contrato de Cpech y demuestra el producto
+> como empleado, se discute la titularidad de dieciséis años de trabajo. **T-93 (leer el contrato) es
+> P0 y bloqueante**, cuesta media hora. Y en el liceo: que UTP lo sepa, y hacer T-90 como
+> **observación, no como despliegue de datos de menores** en su propio lugar de trabajo.
+>
+> ### 2. ✅ Q-30 respondida y X-09 cerrada — el copy corregido está publicado (D-53)
+>
+> Decisión del owner: *"no dejemos que la página mienta ni un día más"*. Dos definiciones: **se
+> nombra a la UNEXPO** (biografía factual y verificable, no un aval — la distinción que faltó con la
+> UNAP), **sin** la ponencia de 2013; y **la UNAP sale del FAQ de costo**, quedando solo en
+> `resume.cljs` como experiencia docente, que es donde corresponde.
+>
+> **Estaba en CINCO lugares, no en tres como repetía la memoria** — `index.html` (JSON-LD y
+> `noscript`), `public/index.html` (JSON-LD), `landing.cljs` y **`home.cljs` (footer)**, este último
+> sin figurar en ninguna nota. Corregido en [[LESSONS_LEARNED]] **L-22**.
+>
+> **Efecto colateral: el precio de D-32 quedó publicado por primera vez** en el FAQ de costo — Q-02
+> dejaba pendiente "dónde mostrarlo". **No se tocó `isAccessibleForFree` ni se agregó markup de
+> `Offer`.**
+>
+> **Verificación de esta pasada:** `clj -M:test` **83 tests / 454 assertions / 0 failures, 0 errors**
+> · `npx shadow-cljs release app` **0 warnings** · JSON-LD válido en ambos `index.html` · las tres
+> auditorías (`contraste`, `dark_theme`, `movil`) en verde · `grep` de la frase vieja = **0**.
+>
+> **L-30 pagó dividendos:** `public/js/app.js` estaba en **8,6 MB** (build de desarrollo dejado por
+> un `watch`) contra 1,2 MB en HEAD. Se detectó **antes** de commitear y el `release` lo dejó en
+> 1,2 MB. Sin esa lección se habría publicado un bundle sin minificar.
+>
+> **Cierra:** Q-30, X-09, **S-18**. **Desbloquea:** la marca personal como canal (G-5) y reabrir con
+> la UNAP sin que el sitio cuente una historia falsa sobre ellos.
 
 > ### 🌱 Se corrigió el origen del proyecto (2026-08-13, sin cambios de código salvo T-75)
 >

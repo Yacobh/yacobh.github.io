@@ -1,16 +1,19 @@
 # ROADMAP
 
-Última actualización: **2026-08-12** — el diagnóstico del 2026-08-09 sigue en pie: **F8 (Go-live)
-cerrada con T-04**, F2/F3/F5 cerradas el mismo día, el proyecto ya no está limitado por código sino
-por difusión, y **F10 (Medición) es la fase que más importa**. Novedad del 12-08: F2 recibió un
-**segundo eje de perfil (fluidez λ, ADR-019)** después de cerrada — no reabre la fase, pero deja una
-deuda de calibración que pertenece a F10/F11 (T-65). Ver `sessions/SESSION-016.md` y
-`sessions/SESSION-021.md`.
+Última actualización: **2026-08-16** — **el roadmap cambia de naturaleza**. Las fases F0–F11
+respondían a "MVP actual → en uso"; ese trabajo está esencialmente hecho y **el proyecto no está
+detenido por código**. Con el pivote de negocio del 2026-08-16
+([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]], [[TESIS_DE_CRECIMIENTO]]) se abren las
+fases **F12–F16**, una por vector de valor, y **F10 (Medición) deja de ser "la que más importa"
+para pasar a ser una precondición dura** (es G-5). Antes: 2026-08-12 (eje de fluidez λ).
 
 > Las fases F0–F6 son **reconstruidas** desde el historial de commits y el estado del código: no
-> existía un roadmap escrito. Las fases F8+ son propuestas y requieren confirmación del owner
-> ([[OPEN_QUESTIONS]] Q-14). No hay fechas comprometidas: el proyecto lo lleva una sola persona y
-> la estacionalidad de la PAES (rendición a fin de año en Chile) es el único plazo duro conocido.
+> existía un roadmap escrito. Las fases F8–F11 fueron propuestas y quedan **confirmadas y
+> reordenadas** por el pivote (esto responde parcialmente [[OPEN_QUESTIONS]] Q-14). Las fases
+> F12–F16 son **decididas** el 2026-08-16 y su contenido vive en [[TESIS_DE_CRECIMIENTO]].
+> No hay fechas comprometidas: el proyecto lo lleva una sola persona y la estacionalidad de la PAES
+> (rendición a fin de año) sigue siendo el plazo duro **del canal B2C** — el canal B2B tiene el
+> suyo propio, **marzo**, con el año escolar.
 
 ---
 
@@ -27,11 +30,22 @@ F5 Email de cohorte      ████████████ 100%  ✅ cerrada 
 F6 Captación / SEO       ██████████░░  90%  🟡 sin analytics
 F7 Project Memory (PMF)  ████████████ 100%  ✅ cerrada 2026-07-26
 F8 Go-live real          ████████████ 100%  ✅ cerrada 2026-08-09 ⭐
-────────────────────────────────────── ← estamos aquí
-F9 Endurecimiento        ███░░░░░░░░░  25%  T-13 cerrada 2026-08-09
-F10 Medición             ░░░░░░░░░░░░   0%  ▶ ahora es lo que más importa
-F11 Escala pedagógica    ░░░░░░░░░░░░   0%  (propuesta)
+─────────────────── fin del track "MVP en uso" ───────────────────
+F9  Endurecimiento       ███░░░░░░░░░  25%  🔺 pasa a requisito CONTRACTUAL con el primer colegio
+F10 Medición             ░░░░░░░░░░░░   0%  ▶ = G-5, precondición dura
+F11 Escala pedagógica    ░░░░░░░░░░░░   0%  ⏸ POSTERGADA hasta que el primer mercado funcione
+────────────── track de negocio, decidido 2026-08-16 ──────────────
+F12 Calibración (G-2)    ░░░░░░░░░░░░   0%  ▶ precondición dura de F13
+F13 Producto instituc.   ░░░░░░░░░░░░   0%  (G-1) rol profesor, curso, multi-tenant
+F14 Progreso medido      ░░░░░░░░░░░░   0%  (G-4) histórico de θ, Δθ
+F15 Desacople de horas   ░░░░░░░░░░░░   0%  (G-3) grabadas + red de profesores
+F16 Capital              ░░░░░░░░░░░░   0%  (transversal) CORFO / semilla
+                                        ← estamos aquí
 ```
+
+**Orden decidido** ([[TESIS_DE_CRECIMIENTO]] §5): **F12 y F10 en paralelo primero** (no se vende
+sin calibrar ni se afirma sin medir) → **F13** → **F14** → **F15**. **F9** se intercala como
+bloqueante justo antes del primer contrato institucional.
 
 ---
 
@@ -226,7 +240,15 @@ cerrados.
 
 ---
 
-## F9 — Endurecimiento 🟡 25 %
+## F9 — Endurecimiento 🟡 25 % — 🔺 **reclasificada 2026-08-16: requisito contractual**
+
+> **Cambio de estatus (D-47).** Mientras el producto era B2C con estudiantes voluntarios, F9 era
+> buena práctica postergable. **Con un colegio subiendo su matrícula, deja de serlo:** respaldo
+> probado (T-07), staging (T-09) y verificación automatizada de policies RLS (T-11) pasan a ser
+> **precondición del primer contrato institucional**, no deuda técnica. Un incidente de datos con
+> menores de un establecimiento, bajo Ley 21.719 (plena vigencia 2026-12-01), no es un bug: es el
+> fin del canal B2B. Ver [[RISKS]] R-06 y R-28.
+
 
 | Entregable | Tarea |
 |-----------|-------|
@@ -245,7 +267,13 @@ costo de esta fase.
 
 ---
 
-## F10 — Medición
+## F10 — Medición ▶ = **G-5**, precondición dura
+
+> **Reclasificada 2026-08-16 (D-51).** Deja de ser "la fase que más importa" y pasa a ser una de
+> las **dos precondiciones duras** del track de negocio, junto con F12. No es que importe más: es
+> que sin ella **ninguna afirmación de [[TESIS_DE_CRECIMIENTO]] §3 es verificable**, y por lo tanto
+> no hay conversación posible con un colegio ni con un fondo. Razón de fondo: los tres intentos
+> históricos de escalar murieron en distribución ([[RISKS]] R-19, R-30).
 
 | Entregable | Tarea |
 |-----------|-------|
@@ -253,32 +281,142 @@ costo de esta fase.
 | Vistas SQL de métricas (distribución de θ, top de déficits, cupos, outbox) | T-21 |
 | Router de URL para poder medir por página y permitir deep links | T-05 |
 | Panel interno con las métricas de [[BUSINESS_CONTEXT]] §6 | T-22 |
+| **CAC y LTV por canal** (M-10, M-11) | E8 |
+| **Pipeline B2B medido**: contactados → piloto → propuesta → contrato (M-16) | E8 |
 
 **Hito H10:** se puede responder "¿dónde se caen los estudiantes?" con datos, no con intuición.
+**Hito H12 (nuevo):** se puede responder "¿cuánto cuesta traer un cliente y cuánto deja?" con datos.
 
 ---
 
-## F11 — Escala pedagógica (propuesta, sin confirmar)
+## F11 — Escala pedagógica ⏸ **postergada** (2026-08-16)
 
-Candidatos, **no comprometidos** — requieren decisión del owner (Q-14):
+> **Reclasificada 2026-08-16.** Los candidatos de esta fase se repartieron: la **calibración** se
+> promovió a fase propia (**F12**, porque es un vector de negocio, no una mejora pedagógica) y el
+> **rol profesor** se promovió a **F13** (es el entregable que se vende). Lo que queda aquí —
+> segunda materia, Matemática 2, ampliación del banco por eje PAES — queda **explícitamente
+> postergado** hasta que el primer mercado funcione. Agregar producto sin resolver distribución es
+> el patrón que ya falló tres veces ([[RISKS]] R-19, R-30).
 
-- Calibrar `difficulty` con las respuestas reales acumuladas (pasar de dificultad asignada a
-  dificultad estimada); posible salto a 2PL cuando haya volumen.
-- Calibrar los **umbrales de fluidez** con los mismos datos (`fluency/calibration-report`): hoy el
-  corte 3/6 es autoral, como lo fue `min_response_seconds = 3` antes de `032` (T-65, R-24).
+Queda en esta fase, sin fecha:
+
 - Ampliar el banco de ítems por eje PAES y completar el mapeo `topic → module-slug` (hoy parcial:
   lo no mapeado cae en `unknown/*`).
-- Re-diagnóstico con comparación de θ y actualización del plan (Q-07 define la semántica).
-- Rol "profesor" separado de `admin` (hoy excluido).
-- Asistencia y seguimiento de cohortes.
-- Segunda materia o Matemática 2.
+- Asistencia y seguimiento de cohortes *(reevaluar si un colegio lo pide como requisito de compra,
+  [[OPEN_QUESTIONS]] Q-35)*.
+- Segunda materia o Matemática 2 — **consecuencia natural de F12**: un banco calibrado hace
+  portable el motor. Escalera propuesta: 2029 ([[TESIS_DE_CRECIMIENTO]] §3).
 
-**Precondición dura:** F8, F9 y F10 cerradas. Escalar contenido sin medición ni respaldo amplifica
-el riesgo en lugar del valor.
+**Precondición dura, endurecida:** F9, F10 **y F12–F13 con al menos un contrato institucional
+pagado**. Antes de eso, esta fase no se abre.
+
+---
+
+# Track de negocio (F12–F16) — decidido 2026-08-16
+
+> Fuente única de contenido: [[TESIS_DE_CRECIMIENTO]]. Decisión:
+> [[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]], D-47…D-51. Tareas: épica **E8** de
+> [[BACKLOG]]. Estas fases no son "más features": son las que convierten un producto terminado en
+> un negocio.
+
+## F12 — Calibración del banco (G-2) ▶ precondición dura
+
+**Objetivo:** que la afirmación psicométrica del pitch esté respaldada por datos, no solo por el
+motor.
+
+| Entregable | Nota |
+|-----------|------|
+| Pipeline de calibración sobre respuestas reales: `difficulty` **estimada** en vez de asignada | 252 diagnósticos disponibles y creciendo |
+| Calibración de los umbrales de fluidez (`fluency/calibration-report`) | T-65, cierra R-24 |
+| Evaluación de salto a **2PL** (discriminación por ítem) | Solo cuando el volumen lo permita |
+| **Reporte técnico de calibración publicable**, con metodología y limitaciones declaradas | Es el entregable de venta y de due diligence |
+
+**Hito H13:** existe un documento que un jefe de UTP o un evaluador técnico puede leer y que
+sostiene la afirmación "esto mide de verdad". **Cierra [[RISKS]] R-17** y responde Q-05.
+**Riesgo de la fase:** que la calibración muestre que el banco no discrimina (ADR-025 §Seguimiento).
+
+---
+
+## F13 — Producto institucional (G-1)
+
+**Objetivo:** construir lo que un colegio efectivamente compra.
+
+| Entregable | Nota |
+|-----------|------|
+| Rol **`profesor`** separado de `admin` | Deja de ser exclusión ([[PROJECT_BRIEF]] §6) |
+| **Panel docente**: distribución de θ del curso, déficits ordenados, misconceptions agregadas | El entregable del piloto |
+| Modelo de **curso / establecimiento** y aislamiento **multi-tenant** por policies RLS | Sin backend nuevo (ADR-002 sigue vigente) |
+| Aplicación del diagnóstico a un nivel completo en una hora de clase | Flujo de aula, no individual |
+| Pasarela de pago y facturación de licencia anual | T-04 |
+| Material de venta: piloto acotado gratuito + propuesta | Ciclo de compra: **marzo** |
+
+**Hito H14:** un profesor externo ve el mapa de errores de su curso y dice qué haría con él (S-13).
+**Hito H15:** primer contrato institucional pagado (S-15).
+**Precondición dura:** F12 cerrada y **F9 cerrada** (requisito contractual, no opcional).
+
+---
+
+## F14 — Progreso medido (G-4)
+
+**Objetivo:** convertir θ en evidencia de mejora, que es lo que se renueva.
+
+| Entregable | Nota |
+|-----------|------|
+| **Histórico versionado** de `student_profiles`: re-diagnosticar **nunca** sobrescribe | Resuelve Q-07 (D-50) |
+| Δθ por estudiante, **siempre con su error asociado** (SE) | No se comunica sin banda de confianza |
+| Δθ agregado por cohorte / curso | Argumento de renovación B2B |
+| Vista del estudiante: su número moviéndose en el tiempo | Bucle de retención B2C, hoy inexistente |
+
+**Hito H16:** un estudiante ve su Δθ entre dos diagnósticos (S-16); un colegio ve el de su cohorte.
+**Precondición:** un colegio con dos diagnósticos separados en el tiempo. Antes no hay qué mostrar.
+
+---
+
+## F15 — Desacople de las horas del fundador (G-3)
+
+**Objetivo:** que exista margen que no dependa del calendario de una persona.
+
+| Entregable | Nota |
+|-----------|------|
+| Clases grabadas por **cuadrante θ × λ × misconception** | El perfil ya calcula el cuadrante (ADR-019) |
+| Asignación automática de la grabada correspondiente en "Mi plan" | Reusa la capa 1 existente |
+| **Red de profesores** con comisión: reciben grupos ya clasificados | Requiere contrato y rol nuevo |
+| Métrica M-15: ingreso que no depende de horas del fundador / total | Mide si R-01 se resuelve |
+
+**Hito H17:** existe al menos una línea de ingreso cuyo margen no depende de una hora de Jacobo
+(S-17). **Precondición deliberada:** demanda que el fundador ya no dé abasto para atender.
+Construir capacidad antes de que el mercado responda es inventar oferta.
+
+---
+
+## F16 — Capital (transversal)
+
+**Objetivo:** financiar F12–F15 sin que dependan de las horas libres de una persona.
+
+| Entregable | Nota |
+|-----------|------|
+| Tesis de inversión y uso de fondos | Ya escritos: [[TESIS_DE_CRECIMIENTO]] §4 |
+| Validación de supuestos de mercado (precio, tamaño, fondos SEP/PIE) | T-80, A-14…A-18 |
+| Identificar programas y ventanas vigentes 2026–2027 | Q-34 — montos **sin verificar** |
+| Primera contratación al haber ingreso recurrente | Es la salida real de R-01 |
+
+**Hito H18:** el proyecto deja de tener bus factor = 1.
+**Antecedente que no se oculta en ninguna postulación:** dos intentos previos de financiamiento sin
+éxito (2012–13 Venezuela, 2025 UNAP). La diferencia declarada esta vez es que hay producto en
+producción y datos reales, no una propuesta en papel.
 
 ---
 
 ## Roadmap de negocio del fundador (documento fuente, no verificado en código)
+
+> **Nota del 2026-08-16.** Esta sección se conserva sin editar como transcripción del "Libro del
+> Proyecto". **Ya no es el único roadmap de negocio del proyecto:** F12–F16 arriba son el plan
+> comercial vigente y decidido ([[TESIS_DE_CRECIMIENTO]]). Donde el libro y las fases F12–F16 se
+> contradicen —principalmente en el orden (el libro pone contenido narrativo antes que medición y
+> venta) y en el uso de fondos— **gana el track F12–F16**. Lo que el libro anticipó bien y esta
+> tesis confirma: piloto institucional, equipo mínimo, búsqueda de CORFO/semilla, y expansión
+> multi-materia como horizonte largo.
+
 
 El "Libro del Proyecto" (borrador v0.1, 2026-07-27 — ver [[VISION_LIBRO_PROYECTO]] §6) declara su
 propio roadmap, con fases y horizontes de tiempo **distintos** a las fases F0–F11 de arriba. Se deja
@@ -314,9 +452,20 @@ forzarlas dentro de F8–F11 (que son estrictamente "MVP actual → en uso").
 | H6 | Sitio indexable y claro | ✅ |
 | H7 | Memoria del proyecto autosuficiente | ✅ |
 | H8 | Primer estudiante externo inscrito en cupo confirmado | ▶ **plataforma lista desde 2026-08-09; ahora depende de difusión, no de código** |
-| H9 | Tests en CI + respaldo probado | ⛔ |
-| H10 | Funnel medido | ⛔ |
+| H9 | Tests en CI + respaldo probado | ⛔ **ahora requisito contractual de F13** |
+| H10 | Funnel medido | ⛔ = G-5 |
+| **H12** | **CAC y LTV medidos en al menos un canal** | ⛔ (F10 / G-5) |
+| **H13** | **Reporte de calibración que sostiene la afirmación psicométrica** | ⛔ (F12 / G-2) |
+| **H14** | **Un profesor externo usa el panel de su curso** | ⛔ (F13 / G-1) |
+| **H15** | **Primer contrato institucional pagado** | ⛔ (F13 / G-1) |
+| **H16** | **Un estudiante y un colegio ven su Δθ** | ⛔ (F14 / G-4) |
+| **H17** | **Una línea de ingreso sin horas del fundador** | ⛔ (F15 / G-3) |
+| **H18** | **Bus factor > 1** | ⛔ (F16) |
+
+**El hito que define el año:** H15. Todo lo demás de este track es camino hacia él, o consecuencia
+suya.
 
 ---
 
-Relacionado: [[CURRENT_STATUS]] · [[BACKLOG]] · [[RISKS]] · [[PROJECT_BRIEF]] · [[OPEN_QUESTIONS]]
+Relacionado: [[TESIS_DE_CRECIMIENTO]] · [[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]] ·
+[[CURRENT_STATUS]] · [[BACKLOG]] · [[RISKS]] · [[PROJECT_BRIEF]] · [[OPEN_QUESTIONS]]

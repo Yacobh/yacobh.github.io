@@ -19,6 +19,38 @@ perfil tiene un **segundo eje, la fluidez (λ)**, que separa "sabe" de "sabe y a
 identidad visual es el **lenguaje Braun / Dieter Rams** sobre un panel de instrumento
 ([[adr/ADR-022-lenguaje-braun-rams]], [[adr/ADR-023-panel-de-instrumento]]).
 
+> ### ⭐ 2026-08-16 — el proyecto cambió de modelo de negocio
+>
+> **El producto está esencialmente terminado; el negocio no está empezado.** El modelo anterior
+> (clases a $10.000 CLP/hora) tiene un techo aritmético de **≈ USD 16.000/año** que no depende de la
+> ejecución. Por [[adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]] (D-47…D-51) se adoptaron
+> **cinco vectores de valor**, cuyo archivo canónico es
+> **[[project-memory/TESIS_DE_CRECIMIENTO]]**:
+>
+> | | Vector | En una frase |
+> |---|---|---|
+> | **G-1** | Licencia institucional **B2B** como línea principal | Se le vende al colegio la parte del producto que **no consume horas del profesor** |
+> | **G-2** | **Calibrar** el banco y convertirlo en el activo defendible | Hoy `difficulty` es autoral: el argumento psicométrico del pitch no está respaldado por datos |
+> | **G-3** | Ingreso **desacoplado de las horas** del fundador | Clases grabadas por cuadrante θ×λ + red de profesores con comisión |
+> | **G-4** | Se vende **progreso medido (Δθ)**, no acceso | El histórico de perfiles **nunca se sobrescribe**: es el producto |
+> | **G-5** | **Distribución medida** (CAC/LTV) y búsqueda de capital | Tres intentos históricos murieron acá; sin esto no hay negocio |
+>
+> **Orden decidido:** G-2 y G-5 primero y en paralelo → G-1 → G-4 → G-3. Fases **F12–F16** en
+> [[project-memory/ROADMAP]], tareas **T-76…T-89** en la épica **E8** de [[project-memory/BACKLOG]].
+>
+> **Tres reglas para cualquier agente que trabaje aquí a partir de ahora:**
+>
+> 1. **Los números del plan son supuestos, no hechos.** Precio de licencia, tamaño de mercado y
+>    disposición a pagar están en [[project-memory/ASSUMPTIONS]] **A-31…A-35**, todos sin validar.
+>    No citarlos como ciertos en ningún material; se validan con **T-80**.
+> 2. **No se vende B2B antes de calibrar** (G-2 es precondición dura de G-1) y **no se firma un
+>    contrato institucional antes de cerrar F9** (respaldo T-07, staging T-09, RLS T-11) — con datos
+>    de menores de un colegio eso deja de ser buena práctica y pasa a ser requisito contractual
+>    ([[project-memory/RISKS]] R-28).
+> 3. **El riesgo dominante ahora es R-30:** convertir el pivote en más construcción de producto y
+>    terminar otra vez con un producto mejor y cero clientes. Si un mes de trabajo es solo código, el
+>    riesgo se está materializando.
+
 Es un **proyecto personal del profesor Jacobo Córdova**. Su **raíz es la tesis de grado del owner en
 Ingeniería Electrónica (UNEXPO, Puerto Ordaz, 2010)**: un sistema de respuesta en el aula que ya
 planteaba el aula como planta y la evaluación como muestreo, y cuya recomendación final
@@ -49,12 +81,28 @@ diagnóstico, el perfil y el plan **no tienen costo**; las clases sí ($10.000 C
 
 ## 2. Objetivos del proyecto
 
+**De producto (logrados y operativos):**
+
 1. Que un estudiante pase de "no sé por dónde partir" a un plan concreto en **una sesión (~20 min)**.
 2. Sustituir la nota por un **mapa de errores** (misconception nombrable por cada distractor).
 3. Formar **cohortes por banda de θ** con confirmación automática al alcanzar el mínimo de inscritos.
 4. Mantener costo de infraestructura ≈ 0 (GitHub Pages + Supabase free tier).
 
-Objetivos de negocio completos: [[project-memory/BUSINESS_CONTEXT]].
+**De negocio (decididos el 2026-08-16, ninguno alcanzado):**
+
+5. **Calibrar el banco** con respuestas reales y publicar el reporte técnico que sostiene la
+   afirmación psicométrica (G-2). Es precondición de todo lo demás.
+6. **Medir el funnel** hasta poder responder con datos cuánto cuesta traer un cliente y cuánto deja
+   (G-5). Sin esto, ninguna afirmación de negocio es defendible.
+7. **Vender la primera licencia institucional** a un colegio: diagnóstico de su matrícula, mapa de
+   errores por curso y panel docente (G-1). Es el hito que define el año.
+8. **Entregar Δθ** —evidencia medida de mejora, con su error asociado— al estudiante y a la cohorte
+   (G-4). El histórico de perfiles nunca se sobrescribe.
+9. **Construir una línea de ingreso que no dependa de una hora del fundador** (G-3), y salir de bus
+   factor = 1.
+
+Detalle y aritmética: [[project-memory/TESIS_DE_CRECIMIENTO]].
+Objetivos de negocio completos (B-01…B-11): [[project-memory/BUSINESS_CONTEXT]] §2.
 
 ## 3. Stack tecnológico
 
@@ -194,13 +242,14 @@ python3 scripts/audit_movil.py        # objetivos táctiles, padding fijo, texto
 | [[project-memory/HANDOFF]] | Continuar el proyecto sin contexto previo |
 | [[project-memory/PROJECT_BRIEF]] | Qué es, para quién, alcance y exclusiones |
 | [[project-memory/RAIZ_SISTEMA_LLOVIZNA]] | **De dónde viene**: tesis UNEXPO 2010 + propuesta "Sistema Llovizna" 2012, y qué de ellas sigue vivo en el código |
+| **[[project-memory/TESIS_DE_CRECIMIENTO]]** | **Cómo gana dinero a escala**: los cinco vectores G-1…G-5, la aritmética del plan y la tesis de inversión. **Manda en materia de modelo de negocio** (ADR-025) |
 | [[project-memory/BUSINESS_CONTEXT]] | Negocio, stakeholders, métricas |
 | [[project-memory/REQUIREMENTS]] | RF, RNF, reglas de negocio, casos de uso |
 | [[project-memory/TECH_STACK]] | Versiones y herramientas |
 | [[project-memory/ARCHITECTURE]] | Componentes, flujos, infra, seguridad |
 | [[project-memory/CURRENT_STATUS]] | Estado real hoy, bloqueos, próximos pasos |
 | [[project-memory/ROADMAP]] | Fases, hitos, entregables |
-| [[project-memory/VISION_LIBRO_PROYECTO]] | Visión de negocio de largo plazo del fundador (no implementada; en tensión con el alcance del MVP). Es el **norte**; la raíz es `RAIZ_SISTEMA_LLOVIZNA` |
+| [[project-memory/VISION_LIBRO_PROYECTO]] | Visión **pedagógica** de largo plazo del fundador (no implementada). Es el **norte**; la raíz es `RAIZ_SISTEMA_LLOVIZNA` y el plan comercial es `TESIS_DE_CRECIMIENTO`. **No se edita este archivo**: se anota |
 | [[project-memory/BACKLOG]] | Épicas, features, tareas priorizadas |
 | [[project-memory/RISKS]] | Riesgos con severidad y mitigación |
 | [[project-memory/DECISIONS]] | Índice de decisiones → ADRs |

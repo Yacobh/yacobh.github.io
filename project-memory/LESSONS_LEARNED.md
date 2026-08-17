@@ -1,8 +1,10 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-08-12** (cuatro lecciones de la sesión del eje de fluidez: datos
-preexistentes, UI que se esconde sola, predecir sobre la memoria del usuario, verificación visual
-de ramas no publicadas)
+Última actualización: **2026-08-16** (4ª pasada: **L-39**, un piloto sin encuadre comercial produce datos y no clientes — la lección del piloto UNAP; y **L-22 corregida**: el copy estaba en cinco lugares, no tres. 3ª pasada: **L-38**, mirar la forma del mercado antes de proponer un modelo de ingreso — churn 100% anual, D-52) — **L-36 y L-37**, las dos más caras del proyecto y ambas
+detectadas por el owner: el funnel estaba construido para el canal que nunca funcionó, y se
+automatizó la formación de cohortes para una demanda que nunca llegó. Antes: 2026-08-12 (cuatro
+lecciones de la sesión del eje de fluidez: datos preexistentes, UI que se esconde sola, predecir
+sobre la memoria del usuario, verificación visual de ramas no publicadas)
 
 Trampas ya pisadas en **este** repositorio, con su causa y la regla que evita repetirlas. Extraídas
 del código, los comentarios de las migraciones, `PROJECT_SUMMARY.md` y el historial de commits.
@@ -184,6 +186,107 @@ desarrollo.
 `views/pages` a `:home`.
 **Regla:** un funnel a la vez. Antes de agregar una segunda experiencia, preguntar qué CTA pierde.
 
+### L-36 · El funnel estaba construido para el canal que nunca funcionó
+**Fecha:** 2026-08-16. **Detectada por el owner**, revisando el producto tras el pivote (ADR-025).
+
+**Síntoma:** el proyecto tiene landing, SEO, JSON-LD, sitemap, registro con email+contraseña,
+cupos, `min_enrollments`, triggers de confirmación y cola de correo — toda una máquina para captar
+al **estudiante solitario y automotivado que llega por Google**. De la landing no ha llegado
+prácticamente nadie.
+
+**Causa, y es el dato que lo prueba:** los **252 diagnósticos** rendidos —los únicos usuarios
+reales en 16 años de proyecto— son casi todos `@estudiantesunap.cl`, del piloto UNAP de oct–nov
+2025. Llegaron porque **una institución puso el producto frente a una audiencia cautiva**. Ese dato
+estaba en [[CURRENT_STATUS]] desde el 2026-08-09, anotado como "hallazgo colateral", y nadie
+extrajo su consecuencia: *el único canal que funcionó jamás no tiene funnel, y el funnel que existe
+sirve a un canal que nunca produjo un usuario.*
+
+**Agravante de diseño:** el funnel actual pide **máximo compromiso antes de entregar valor** —
+crear cuenta, luego 20 minutos de matemática sin calculadora— y la recompensa por ese esfuerzo es
+**un inventario de los propios déficits**, seguido a veces de una pantalla de cupos vacía. Cada
+flecha es una fuga y las tres primeras son severas.
+
+**Regla:** antes de optimizar un funnel, verificar **por dónde llegaron de verdad los usuarios que
+existieron**, no por dónde se diseñó que llegaran. Si el canal real es institucional, el funnel
+correcto no tiene registro, no dura 20 minutos, y su pantalla de recompensa **es la del profesor,
+no la del estudiante**.
+
+**Relacionado:** [[RISKS]] R-31, [[BUSINESS_CONTEXT]] §4.2, [[BACKLOG]] T-90/T-91, [[OPEN_QUESTIONS]] Q-37.
+
+### L-37 · Se construyó maquinaria de cohortes para una demanda que nunca llegó
+**Fecha:** 2026-08-16.
+
+**Síntoma:** `class_slots` con `capacity` y `min_enrollments`, trigger de confirmación automática,
+trigger de control de capacidad (`011`), `notifications`, `email_outbox`, Edge Function con Resend,
+cron cada 5 min, trigger de aviso de cancelación (`012`), preferencia de canal de contacto (`013`).
+Todo escrito, aplicado, verificado end-to-end en producción — y **cero cupos han confirmado nunca**,
+porque nunca hubo tres estudiantes inscritos. Ver [[RISKS]] R-11, activado desde 2026-08-09.
+
+**Causa:** el sistema resuelve un problema de **escala** (cómo confirmar grupos automáticamente
+cuando hay muchos) construido en un momento de **cero demanda**. Es correcto, elegante y prematuro.
+El mismo trabajo hecho a mano —el owner mirando una lista y escribiendo un correo— habría bastado
+para los primeros cincuenta estudiantes y habría costado dos órdenes de magnitud menos.
+
+**El patrón mayor del que esto es un caso:** tres intentos históricos, los tres muertos en
+distribución, y en los tres la respuesta fue **construir más producto**. En esta vuelta: los cupos,
+el eje de fluidez, la identidad Braun, el panel de instrumento. Todo bien hecho; nada de eso era el
+cuello de botella. Es exactamente [[RISKS]] R-30.
+
+**Regla:** antes de automatizar un proceso, contar cuántas veces ocurrió. **Si ocurrió cero veces,
+la automatización no es infraestructura: es postergación disfrazada de trabajo.** Hacerlo a mano
+hasta que duela es la señal correcta para automatizar.
+
+**Matiz honesto:** esto **no** es un argumento para borrar los cupos. Están construidos, funcionan y
+no molestan. Es un argumento sobre **qué se construye después**.
+
+### L-38 · Antes de proponer un modelo de ingreso, mirar la forma del mercado
+**Fecha:** 2026-08-16. Registrada **para que no se vuelva a proponer**, que es su único propósito.
+
+**Síntoma:** vuelve periódicamente la idea de un producto que escale sin las horas del profesor y se
+monetice por **volumen** — publicidad, freemium masivo, contenido por tráfico. Es una intuición
+sana (el acoplamiento ingreso ↔ horas **sí** es el problema, G-3) atornillada al mecanismo
+equivocado.
+
+**Causa:** el mercado PAES son ~250.000 personas al año que **se renuevan íntegramente cada
+temporada** — el estudiante rinde y se va. **Churn del 100 % anual, por construcción.** Los modelos
+por volumen viven de retención compuesta; acá no existe. Nunca va a existir, por mucho producto que
+se agregue.
+
+**Regla:** antes de evaluar cualquier modelo de ingreso nuevo, responder dos preguntas en este
+orden: **(1) ¿el cliente vuelve el año que viene?** y **(2) ¿cuánta gente hay en total?** Si el
+churn es 100 % y el mercado es finito, cualquier modelo por volumen se cae por aritmética antes de
+llegar a la discusión de producto. **El estudiante se va; el colegio permanece.**
+
+**Regla derivada, más general:** cuando aparezca una idea de monetización, calcular primero **cuánto
+mercado se necesita**, no cuánto producto. Si el número supera el mercado total, la conversación
+sobre features es irrelevante.
+
+**Dónde está la aritmética completa:** [[TESIS_DE_CRECIMIENTO]] §3.1. **Decisión:** D-52.
+**Hecho estructural:** [[BUSINESS_CONTEXT]] §1.1.
+
+### L-39 · Un piloto sin encuadre comercial produce datos, no clientes
+**Fecha:** 2026-08-16. Extraída del propio historial del proyecto, no de una hipótesis.
+
+**Síntoma:** el piloto UNAP (oct–nov 2025) produjo **252 diagnósticos de estudiantes reales** — los
+únicos usuarios en 16 años de proyecto — y **cero ingresos recurrentes**. Terminó el convenio y
+terminó todo: quedaron los datos y no quedó un cliente.
+
+**Causa:** estaba encuadrado como **convenio de desarrollo** —le pagaron al owner por *construir*—
+y no como **venta de un producto**. Un convenio de desarrollo termina; una licencia se renueva. Y en
+2012, con el Estado venezolano, pasó lo mismo: acceso sin conversión.
+
+**El cuello nunca fue conseguir la puerta.** Fue que cruzarla no dejaba un cliente que renovara.
+Eso importa especialmente ahora que hay **tres canales disponibles** (liceo, Cpech, UNAP) y la
+tentación de repetir el patrón es máxima: son relaciones personales, y con relaciones personales es
+natural decir *"te lo presto para que lo pruebes"*.
+
+**Regla:** **encuadre comercial desde el minuto uno, aunque el piloto sea gratis.** *"Te lo presto
+para probar"* produce datos. *"Te lo presto para probar, y si funciona conversamos de una licencia
+en marzo"* produce un cliente. **Es la misma hora de trabajo y dos desenlaces distintos.** Todo
+piloto debe nombrar, antes de empezar: qué se mide, cuándo se revisa, y qué pasa después si funciona.
+
+**Relacionado:** [[RISKS]] R-32, [[BACKLOG]] T-87/T-90/T-93, [[TESIS_DE_CRECIMIENTO]] G-1.
+
 ### L-20 · Las promesas del copy son requisitos
 **Síntoma:** la FAQ afirma que el tiempo de respuesta influye en la estimación (no lo hace) y que
 repetir el diagnóstico muestra cómo se movió el nivel (no hay histórico).
@@ -197,10 +300,18 @@ comprobar que el código lo cumple; si no lo cumple, es un ítem de backlog o ha
 **Regla:** los datos estructurados son públicos, indexados y difíciles de desdecir. Solo afirmar lo
 que está decidido.
 
-### L-22 · El mismo texto en tres lugares divergirá
+### L-22 · El mismo texto en tres lugares divergirá — **eran cinco** (corregido 2026-08-16)
 **Causa:** la FAQ vive en `index.html` (JSON-LD), `public/index.html` y `landing.cljs`.
-**Regla:** mientras no se resuelva la duplicación (T-12), un cambio de copy se aplica en **los tres
-lugares en el mismo commit**.
+**Corrección del 2026-08-16:** al ejecutar D-53 resultó que la afirmación de origen estaba en
+**cinco** lugares, no tres: `index.html` (JSON-LD **y** bloque `noscript`), `public/index.html`
+(JSON-LD), `landing.cljs` (FAQ) y **`home.cljs` (footer)** — este último no figuraba en ninguna
+nota. La memoria repitió "los tres lugares" durante semanas sin que nadie lo verificara.
+**Regla:** mientras no se resuelva la duplicación (T-12), un cambio de copy se aplica en todos los
+lugares **en el mismo commit**, y **la lista se re-verifica con `grep` cada vez** en vez de confiar
+en el número que dice la memoria. Comprobación de cierre: `grep -rn "<frase vieja>" index.html
+public/index.html src/` debe devolver cero.
+**Ojo con los falsos positivos:** `resume.cljs` también menciona a la UNAP, pero ahí es **experiencia
+docente real** y no se toca. No todo lo que hace match es el mismo hecho.
 
 ---
 

@@ -1,11 +1,15 @@
 # HANDOFF
 
-**Fecha del handoff: 2026-08-13 (cierre)** · Rama `main` @ `b6c9a47`, con la identidad visual nueva
-mergeada y publicada · **Ninguna migración pendiente**: `043` se aplicó y la pestaña Apariencia
-dejó de dar error.
+**Fecha del handoff: 2026-08-16** · Rama `main` · **Ninguna migración pendiente**: `043` se aplicó y
+la pestaña Apariencia dejó de dar error. La sesión del 16-08 fue **solo de documentación**: pivote
+de modelo de negocio, sin cambios de código.
 
 > Este documento existe para que **una persona o un agente de IA sin acceso al historial de
 > conversaciones** pueda continuar el proyecto. Si solo puedes leer un archivo, lee este.
+>
+> **Si vas a tomar decisiones de negocio, lee además [[TESIS_DE_CRECIMIENTO]]** — desde el
+> 2026-08-16 es el documento que manda en modelo de negocio
+> ([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]]).
 
 ---
 
@@ -18,10 +22,15 @@ de **errores conceptuales concretos** que comete, un **plan de estudio** prioriz
 de **inscribirse en un grupo de estudio de su mismo nivel**, online o presencial en Iquique. El
 grupo se confirma automáticamente al alcanzar un mínimo de inscritos.
 
-Es un **proyecto personal** del profesor **Jacobo Córdova**, quien es además el único desarrollador
--- originado en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat, ya
-terminado y sin alianza institucional vigente (ver [[DECISIONS]] D-18). El diagnóstico, el perfil y
-el plan son gratuitos; las clases de los cupos tendrán costo (ver más abajo).
+Es un **proyecto personal** del profesor **Jacobo Córdova**, quien es además el único desarrollador.
+**Su raíz es la tesis de grado del owner en Ingeniería Electrónica (UNEXPO, Venezuela, 2010)**, no
+el convenio con la Universidad Arturo Prat — ese convenio (oct–nov 2025, ya terminado, sin alianza
+vigente) fue un **episodio de financiamiento**, y el primer commit del repo lo antecede en cinco
+meses. Ver [[DECISIONS]] D-45/D-18 y [[RAIZ_SISTEMA_LLOVIZNA]]. *(El copy publicado en el sitio
+todavía dice lo contrario: contradicción X-09, pendiente de decisión del owner en Q-30. **No la
+corrijas por tu cuenta** — es copy de cara al público y toca el JSON-LD.)*
+
+El diagnóstico, el perfil y el plan son gratuitos; las clases de los cupos tienen costo.
 
 **Técnicamente:** SPA en **ClojureScript + re-frame** compilada con shadow-cljs, servida por
 **GitHub Pages** en <https://jacobocordova.com>, con **Supabase** (PostgreSQL + Auth + RLS + Edge
@@ -30,8 +39,32 @@ Functions) como único backend. No hay servidor propio: el navegador habla direc
 
 **Estado (2026-08-10): el go-live está cerrado.** El funnel funciona de punta a punta, hay contenido
 publicado, el email de cohorte está verificado en producción y existe un primer cupo real con sala de
-videollamada. **Lo que sigue no es construir, es difundir** — y hay reloj: la PAES se rinde a fin de
-año ([[RISKS]] R-19).
+videollamada.
+
+> ### ⭐ Lo que más importa saber (2026-08-16)
+>
+> **El producto está esencialmente terminado; el negocio no está empezado.** El 2026-08-16 se
+> decidió un **pivote de modelo de negocio**
+> ([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]], D-47…D-51): el modelo anterior —clases a
+> $10.000 CLP/hora— tiene un techo aritmético de **≈ USD 16.000/año**, porque le pone precio al
+> calendario del fundador. Se adoptaron cinco vectores de valor, en
+> **[[TESIS_DE_CRECIMIENTO]]** (archivo canónico):
+>
+> - **G-1** licencia institucional **B2B** como línea principal · **G-2** **calibrar** el banco
+>   (precondición dura) · **G-3** ingreso sin horas del fundador · **G-4** se vende **Δθ**, el
+>   histórico nunca se sobrescribe · **G-5** **distribución medida** y búsqueda de capital.
+> - **Orden:** G-2 y G-5 primero y en paralelo → G-1 → G-4 → G-3.
+> - Fases **F12–F16** en [[ROADMAP]] · épica **E8** (T-76…T-89) en [[BACKLOG]].
+>
+> **Si vas a hacer una sola cosa:** T-76/T-77 (calibrar y escribir el reporte) o T-78 (instrumentar
+> CAC/LTV). Nada del track de negocio arranca antes que esas dos.
+>
+> **Riesgo dominante: R-30** — convertir el pivote en más construcción de producto y terminar otra
+> vez con un producto mejor y cero clientes. Ya pasó tres veces (2012–13, 2012, 2025). Reemplaza a
+> R-19 como riesgo principal, y lo subsume.
+>
+> **Y no olvides:** los números del plan (precio de licencia, tamaño de mercado) son **supuestos sin
+> validar** (A-31…A-35). No los cites como hechos; se validan con **T-80**, hablando con colegios.
 
 ---
 

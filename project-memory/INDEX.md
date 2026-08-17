@@ -3,9 +3,10 @@
 > Mapa de contenidos (MOC) de la memoria del proyecto. Punto de entrada para humanos en Obsidian
 > y para agentes que necesiten navegar. **La fuente de verdad es este directorio, en Git.**
 
-Última revisión: **2026-08-13** (nuevo: [[RAIZ_SISTEMA_LLOVIZNA]] — la raíz del proyecto es la tesis
-UNEXPO de 2010, no el convenio UNAP. Antes: [[VISION_LIBRO_PROYECTO]],
-[[AVISO_PRIVACIDAD_BORRADOR]], [[RTK_INTEGRATION_GUIDE]])
+Última revisión: **2026-08-16** (nuevo: **[[TESIS_DE_CRECIMIENTO]]** — los cinco vectores de valor
+G-1…G-5 y el pivote a licencia institucional B2B, [[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]].
+Antes: [[RAIZ_SISTEMA_LLOVIZNA]] — la raíz del proyecto es la tesis UNEXPO de 2010, no el convenio
+UNAP; [[VISION_LIBRO_PROYECTO]], [[AVISO_PRIVACIDAD_BORRADOR]], [[RTK_INTEGRATION_GUIDE]])
 
 ## Empezar aquí
 
@@ -16,10 +17,11 @@ UNEXPO de 2010, no el convenio UNAP. Antes: [[VISION_LIBRO_PROYECTO]],
 ## Negocio y alcance
 
 - [[RAIZ_SISTEMA_LLOVIZNA]] — **de dónde viene el proyecto**: tesis UNEXPO 2010 + propuesta de 2012 (ADR-024)
+- **[[TESIS_DE_CRECIMIENTO]]** — **cómo gana dinero a escala**: los cinco vectores G-1…G-5, la aritmética del plan y la tesis de inversión (ADR-025). **Manda en modelo de negocio**
 - [[BUSINESS_CONTEXT]] — problema, propuesta de valor, stakeholders, métricas
 - [[REQUIREMENTS]] — RF, RNF, reglas de negocio, casos de uso, criterios de aceptación
 - [[TERMINOLOGY]] — glosario (θ, banda de fluidez, capa 0, cupo, PAES, misconception…)
-- [[VISION_LIBRO_PROYECTO]] — visión de largo plazo del fundador (**no** es alcance del MVP)
+- [[VISION_LIBRO_PROYECTO]] — visión **pedagógica** de largo plazo del fundador (**no** es alcance del MVP; **no se edita**)
 - [[AVISO_PRIVACIDAD_BORRADOR]] — borrador del aviso de privacidad
 
 ## Técnico
@@ -62,6 +64,11 @@ UNEXPO de 2010, no el convenio UNAP. Antes: [[VISION_LIBRO_PROYECTO]],
 ## Grafo de relaciones (para Graph View de Obsidian)
 
 ```
+             RAIZ_SISTEMA_LLOVIZNA (de dónde viene)
+                        │
+TESIS_DE_CRECIMIENTO ───┼─── VISION_LIBRO_PROYECTO (norte pedagógico)
+ (cómo gana dinero)     │
+      │                 │
 PROJECT_BRIEF ── BUSINESS_CONTEXT ── REQUIREMENTS ── ARCHITECTURE ── DECISIONS ── ADRs
       │                │                   │              │             │
    ROADMAP ────────  BACKLOG  ──────── CURRENT_STATUS ── RISKS ── OPEN_QUESTIONS

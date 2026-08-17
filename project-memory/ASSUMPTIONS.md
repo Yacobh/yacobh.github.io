@@ -1,6 +1,8 @@
 # ASSUMPTIONS
 
-Última actualización: **2026-08-05**
+Última actualización: **2026-08-16** — **A-31…A-35 nuevos**: los supuestos de mercado del pivote a
+B2B ([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]]). Son **los más frágiles de toda la
+memoria** y sostienen la aritmética completa de [[TESIS_DE_CRECIMIENTO]] §3. Antes: 2026-08-05.
 
 > Un supuesto es algo que **damos por cierto sin haberlo verificado**. Se documenta para que nadie
 > —humano o agente— lo confunda con un hecho. Cada supuesto indica cómo validarlo y qué pasa si es
@@ -22,6 +24,21 @@ Estado: 🟡 vigente sin validar · ✅ validado · ❌ refutado
 | A-05 | Habrá suficientes estudiantes por banda para alcanzar `min_enrollments` | Contar `student_profiles` por banda vs `class_slots` | Los cupos no confirman nunca (R-11); habría que bajar mínimos o fusionar bandas | 🟡 |
 | A-06 | La gratuidad del diagnóstico/plan es sostenible con el tiempo del profesor | Registrar horas reales de autoría y de clases | El modelo necesita otra fuente de esfuerzo (ayudantes, contenido reutilizable) | 🟡 |
 | A-07 | Los free tiers de Supabase, Resend y GitHub Pages alcanzan para el volumen esperado | Vigilar cuotas del dashboard al crecer | Aparece un costo no presupuestado (R-15) | 🟡 |
+
+### Supuestos del pivote a B2B (2026-08-16) — **los más frágiles de toda la memoria**
+
+> Estos cinco sostienen **toda la aritmética** de [[TESIS_DE_CRECIMIENTO]] §3, y **ninguno fue
+> testeado con un comprador real**. Se validan hablando con colegios (**T-80**), no analizando más.
+> **Prohibido citarlos como hechos** en una propuesta comercial o una postulación a fondos antes de
+> cerrar T-80 y T-89.
+
+| ID | Supuesto | Cómo validarlo | Si es falso | Estado |
+|----|----------|----------------|-------------|--------|
+| A-31 | El tipo de cambio de referencia es ~950 CLP/USD, así que "USD 1M" ≈ CLP 950M/año | Tipo de cambio observado al momento de usar la cifra | La meta en pesos se mueve; no cambia ninguna conclusión estructural (es el supuesto menos grave de los cinco) | 🟡 |
+| A-32 | Hay ~3.300 establecimientos con enseñanza media en Chile, y ~250.000 personas rinden PAES M1 al año | Fuentes oficiales MINEDUC y DEMRE (T-80) | Cambia la penetración necesaria (~11,5 % de colegios) y la credibilidad del plan ante un fondo. **Desde el 2026-08-16 pesa más:** la cifra de 250.000 es el denominador de toda la aritmética de D-52 (por qué no hay modelo por volumen). Si fuera mucho mayor, habría que rehacer §3.1 de [[TESIS_DE_CRECIMIENTO]] — aunque el margen es tan grande (factor 10) que la conclusión aguanta un error considerable | 🟡 **sin verificar** |
+| A-33 | Un colegio paga del orden de CLP 6.000 por alumno de EM/año, con piso de CLP 1.500.000 | Conversación con 5–10 jefes de UTP / sostenedores (T-80, Q-32) | Se cae la vía B2B tal como está dimensionada: hay que rehacer §3 entera, o cambiar la unidad de cobro | 🟡 **crítico, sin testear** |
+| A-34 | La compra cabe en fondos ya asignados (SEP / PIE) y el decisor es UTP + sostenedor, con ciclo en marzo | Preguntarlo en T-80; revisar normativa de uso de SEP | Si es presupuesto discrecional, el ciclo se alarga y R-27 (caja) se agrava; si el decisor es otro, el guion de venta de T-87 apunta a la persona equivocada | 🟡 **sin verificar** |
+| A-35 | Existe disposición a pagar una suscripción B2C (~CLP 9.900/mes de temporada) sobre un producto cuyo núcleo es gratis (D-01) | Probar el precio con estudiantes ya diagnosticados; medir conversión (T-78) | Se cae el ~30 % B2C del mix; la alternativa limpia es **B2C 100 % gratuito financiado por B2B**, que no está descartada (Q-33, P-15) | 🟡 **sin testear** |
 
 ## Supuestos de dominio (IRT y contenido)
 
@@ -90,6 +107,17 @@ Si solo se puede validar tres, son estos:
    promete; si es falso, todo el motor IRT entrega un resultado equivocado con apariencia de rigor.
 3. **A-01 / A-02** — que exista demanda y disposición a completar el diagnóstico. Determinan si el
    proyecto tiene destinatario.
+
+> **Actualización 2026-08-16.** Los tres siguen siendo los correctos, y el pivote a B2B
+> ([[TESIS_DE_CRECIMIENTO]]) **le sube la apuesta a cada uno**:
+>
+> - **A-16/A-20** dejan de ser higiene y pasan a ser **requisito contractual** en cuanto un colegio
+>   suba su matrícula ([[RISKS]] R-28).
+> - **A-08** deja de ser un problema de calidad interna y pasa a ser **lo primero que pregunta el
+>   comprador** (R-29). Validarlo es el vector G-2 y la fase F12.
+> - **A-01/A-02** se duplican: ahora hay que validar demanda en **dos** mercados, y el nuevo
+>   (institucional) tiene sus propios supuestos sin testear — **A-33 y A-34, que son hoy los más
+>   frágiles de toda la memoria**. Si A-33 es falso, no se ajusta un número: se rehace el plan.
 
 ---
 

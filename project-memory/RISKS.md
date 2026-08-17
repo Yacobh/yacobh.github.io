@@ -1,6 +1,14 @@
 # RISKS
 
-Última actualización: **2026-08-13** (**R-26 nuevo y activo**: datos personales del owner en
+Última actualización: **2026-08-16** — **cuatro riesgos nuevos por el pivote de negocio**
+([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]]): **R-30** (cuarta repetición del patrón
+histórico — **pasa a ser el riesgo dominante**, subsume a R-19 y R-01), **R-27** (ciclo de venta
+más largo que la caja), **R-28** (datos de menores a escala institucional) y **R-29** (vender sin
+calibrar). Más tarde ese día: **R-31** (el funnel sirve a un canal que nunca produjo un usuario,
+probabilidad *confirmada*) y **R-32** (propiedad intelectual y conflicto de interés con los
+empleadores — impacto **muy alto**, precondición de los tres canales de distribución). Además R-01
+y R-19 se **reencuadran**, no cambian de severidad. ·
+Antes: 2026-08-13 (**R-26 nuevo y activo**: datos personales del owner en
 `docs/tesis.md` y `docs/sistema_llovizna.md`, todavía sin commitear — ventana abierta para
 redactarlos barato; R-25 nuevo, cambio visual sin verificar en vivo) ·
 2026-08-12 (R-24 nuevo, umbrales de fluidez sin calibrar; R-23 agregado a
@@ -53,6 +61,12 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | R-24 | El eje de fluidez etiqueta con umbrales autorales sin calibrar | Medio | Media | Media | activo (2026-08-12) |
 | R-26 | Datos personales del owner (cédula, teléfono, fecha de nacimiento) en documentos históricos añadidos a un repo público | Alto | Alta si se commitea | Alta | ✅ **cerrado 2026-08-13** (redactados antes del primer commit) |
 | R-25 | Cambio visual amplio sin verificación en vivo, sobre un sitio con tráfico | Medio | Baja | Baja | ✅ **mitigado 2026-08-13** (verificado por el owner, incl. teléfono) |
+| **R-30** | **Cuarta repetición del patrón histórico: agregar producto sin resolver distribución** | Alto | Alta | **Alta** | 🔺 **abierto 2026-08-16** |
+| **R-27** | **El ciclo de venta institucional es más largo que la caja disponible** | Alto | Alta | **Alta** | abierto 2026-08-16 |
+| **R-28** | **Datos de menores a escala institucional bajo Ley 21.719** | Alto | Media | **Alta** | abierto 2026-08-16 |
+| **R-29** | **Vender B2B con el banco sin calibrar y perder la credibilidad del método** | Alto | Media | **Alta** | abierto 2026-08-16 |
+| **R-31** | **El funnel está diseñado para el canal que nunca produjo un usuario** | Alto | **Confirmada** | **Alta** | 🔺 **abierto 2026-08-16** |
+| **R-32** | **Propiedad intelectual y conflicto de interés con los empleadores (Cpech, liceo)** | **Muy alto** | Media | **Alta** | 🔺 **abierto 2026-08-16** |
 
 ---
 
@@ -66,6 +80,18 @@ pedagógico y operador de la infraestructura. No hay otra persona con acceso ni 
 **Mitigación:** (a) esta memoria de proyecto es precisamente la mitigación principal: cualquier
 persona o agente puede retomar leyendo `project-memory/`; (b) documentar accesos y credenciales en
 un gestor de contraseñas con un contacto de respaldo; (c) mantener [[HANDOFF]] al día.
+
+> **Reencuadre 2026-08-16 (D-49 / G-3).** Las mitigaciones (a)-(c) son de **continuidad**: hacen que
+> el proyecto sobreviva a la ausencia del fundador. Ninguna resuelve el problema real, que es de
+> **capacidad**: el ingreso está atado a sus horas. Por primera vez hay un plan estructural en vez
+> de una mitigación por disciplina:
+>
+> - **G-3** (clases grabadas por cuadrante + red de profesores con comisión) ataca el acoplamiento
+>   ingreso ↔ horas. Métrica que lo mide: **M-15**.
+> - **F16** compromete la primera contratación en cuanto haya ingreso recurrente. Hito **H18**.
+>
+> **Contrapartida honesta: el pivote agrava R-01 antes de aliviarlo** — la venta institucional es
+> trabajo nuevo que hoy solo puede hacer el fundador. Ver [[RISKS]] R-27.
 **Responsable sugerido:** owner. **Estado:** activo (parcialmente mitigado desde 2026-07-26).
 
 ### R-02 · Desarrollo contra la base de producción
@@ -294,6 +320,18 @@ oportunidad en este ciclo: después viene el verano chileno (diciembre–febrero
 **Mitigación (T-01/T-02/T-04 ya cerradas):** lo que resta **no es trabajo de repositorio** — es
 difundir. Aceptar deliberadamente deuda en F9 si el calendario aprieta, **excepto** en privacidad
 (R-06, cuyo plazo legal del 1/12/2026 cae dentro de la ventana) y respaldo (R-03).
+
+> **Reencuadre 2026-08-16 (D-51 / G-5).** La estacionalidad es una ventana estrecha **solo si se
+> vende al estudiante en noviembre**. El canal institucional tiene su propio calendario: la compra
+> de un colegio ocurre en **marzo**, con el año escolar y el presupuesto anual. Vendiendo ahí, R-19
+> deja de ser un riesgo estructural y pasa a ser un **calendario comercial** — dos ventanas al año
+> en vez de una, y la de marzo no compite con la temporada de clases del fundador.
+>
+> **Lo que no cambia:** la ventana B2C de 2026 sigue siendo la que es, y la excepción de F9 en
+> privacidad y respaldo **se endurece** con el pivote (ver R-28: dejan de ser excepción y pasan a
+> ser requisito contractual).
+>
+> **R-19 pasa a ser una manifestación de R-30**, que es el riesgo padre.
 **Riesgo derivado, y es el que más cuesta ver:** con la plataforma lista, la vía de fuga natural es
 seguir mejorando el producto en vez de buscar estudiantes — trabajo que se siente productivo y no
 mueve la aguja. Está desarrollado como causa #1 del pre-mortem conversado el 2026-08-09.
@@ -446,6 +484,189 @@ su teléfono al cierre. La mitigación real no fue el recorrido sino el **uso**:
 reporte encontraron cinco fallas que los tres audits daban por buenas —incluida una que aprobaba
 AA y aun así no se leía—. Queda como riesgo residual bajo, no cerrado del todo, porque `cupos`,
 `cuenta` y la línea del tiempo con historial real siguen sin mirarse (ver T-67).
+
+---
+
+### R-30 · Cuarta repetición del patrón histórico — 🔺 **EL RIESGO DOMINANTE (2026-08-16)**
+
+**Qué puede pasar.** Que el pivote a B2B ([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]])
+se convierta en más construcción de producto —panel docente, multi-tenant, clases grabadas— y que
+al final del ciclo el proyecto tenga otra vez un producto mejor y **cero clientes**.
+
+**Por qué es alto y por qué no es paranoia.** Está documentado en la propia memoria: van **tres
+intentos** de llevar esta idea a escala (2012–13 Estado venezolano, 2012 equipo, 2025 convenio UNAP)
+y los tres murieron en el mismo punto. *"Lo que nunca se logró, en ninguna etapa, es llegar a los
+estudiantes de forma sostenida"* ([[BUSINESS_CONTEXT]] §1, [[RAIZ_SISTEMA_LLOVIZNA]]). El proyecto
+nunca tuvo un problema de idea ni de capacidad técnica. Tuvo siempre el mismo: distribución.
+
+**Es el riesgo padre de R-19 y R-01**, y los subsume: la estacionalidad y el bus factor son las dos
+formas concretas en que se manifiesta.
+
+**Mitigación decidida (D-51 / G-5).**
+
+- **G-5 es precondición dura, no fase posterior.** F10 va en paralelo con F12, antes de F13.
+- **Ninguna meta comercial es afirmable sin CAC y LTV medidos** (M-10, M-11).
+- **Regla de gasto de tiempo:** por cada bloque de trabajo de producto del track F12–F15 debe haber
+  trabajo equivalente de distribución. Si el `git log` de un mes muestra solo código, el riesgo se
+  está materializando.
+- **Señal de alarma explícita:** doce meses desde el primer piloto sin contrato pagado dispara la
+  revisión de ADR-025 (§Seguimiento).
+
+**Lo que NO lo mitiga:** mejorar el producto. Es exactamente lo que se hizo las tres veces
+anteriores.
+
+---
+
+### R-27 · El ciclo de venta institucional es más largo que la caja
+
+**Qué puede pasar.** Un colegio decide en meses, con más de un decisor (profesor → UTP →
+sostenedor) y con presupuesto anual. Si los primeros ingresos llegan más tarde de lo que el
+fundador puede sostener sin ingreso, el pivote se abandona a mitad de camino — con el costo
+adicional de haber apagado el foco en la línea que sí generaba algo (las clases por hora).
+
+**Agravante propio de este proyecto:** el fundador es hoy la única persona que puede vender, y cada
+hora de venta es una hora que no se dedica a calibrar ni a programar. **El pivote agrava R-01 antes
+de aliviarlo.**
+
+**Mitigación.**
+
+- Escalera de ingresos por año con metas modestas al principio ([[TESIS_DE_CRECIMIENTO]] §3): el
+  año 1 no busca facturar, busca **un piloto y un CAC medido**.
+- **Las clases a $10.000/hora no se apagan** (D-32 sigue vigente como línea premium): son el puente
+  de caja mientras el B2B madura.
+- Piloto gratuito acotado como acelerador del ciclo: entrega el mapa de errores del curso en una
+  hora de clase, que es el momento en que el colegio entiende qué compra.
+- Capital externo (F16) explícitamente como puente, no como premio.
+
+---
+
+### R-28 · Datos de menores a escala institucional bajo Ley 21.719
+
+**Qué puede pasar.** Hoy los estudiantes llegan voluntariamente y la recolección es mínima
+(email, IP, ciudad, batería — ver R-06). **Un colegio que sube su matrícula cambia el régimen por
+completo:** datos de menores en volumen, cargados por un tercero, bajo un contrato, con la Ley
+21.719 en **plena vigencia desde el 2026-12-01**. Un incidente ahí no es un bug: es el fin del
+canal B2B y probablemente del proyecto.
+
+**Por qué sube ahora y no antes.** R-06 ya estaba activo, pero con usuarios individuales. El pivote
+lo multiplica y le agrega responsabilidad contractual.
+
+**Mitigación — [[ROADMAP]] F9 deja de ser opcional (decidido 2026-08-16).** Antes del primer
+contrato institucional:
+
+- **T-07** respaldo de base de datos documentado y probado.
+- **T-09** proyecto Supabase de staging (deja de desarrollarse contra producción — R-02).
+- **T-11** verificación automatizada de policies RLS.
+- Aislamiento multi-tenant por establecimiento, verificado, **sobre policies** (no sobre UI).
+- Revisión del aviso de privacidad para el caso institucional (hoy escrito para el estudiante
+  individual, D-20), incluyendo quién es responsable y quién encargado del tratamiento.
+
+**Nota honesta:** D-20 aceptó revisar el aviso de privacidad sin abogado "dado el tamaño del
+proyecto". Ese argumento **caduca con el primer contrato institucional**.
+
+---
+
+### R-29 · Vender B2B con el banco sin calibrar
+
+**Qué puede pasar.** Que la primera reunión con un jefe de UTP con formación en evaluación —o la
+primera due diligence técnica de un fondo— pregunte *"¿cómo estimaron la dificultad de estos
+ítems?"* y la respuesta honesta sea *"a ojo"*. Eso no destruye una venta: destruye **B-07**, la
+credibilidad del método, que es el único activo que quedó después de D-18.
+
+**Relación con R-17.** R-17 describe el problema técnico (θ sesgada por `difficulty` no calibrada).
+R-29 describe su consecuencia comercial, que es mayor: el error de estimación se puede corregir; una
+reputación de rigor perdida en el circuito escolar de una región, no.
+
+**Mitigación.** G-2 (F12) es **precondición dura** de G-1 (F13): no se vende antes de tener el
+reporte de calibración. Y cuando se venda, el reporte se entrega **con sus limitaciones
+declaradas** — un banco calibrado con 252 diagnósticos es honesto llamándolo así, no "validado".
+
+---
+
+### R-31 · El funnel está diseñado para el canal que nunca produjo un usuario
+
+**No es una probabilidad: ya ocurrió.** Por eso entra como *confirmada* y no como *alta*.
+
+**Descripción.** Todo el aparato de captación —landing, SEO, JSON-LD, sitemap, registro con
+email+contraseña, cupos con `min_enrollments`— sirve al **estudiante solitario que llega por
+Google**. Ese estudiante no ha existido. Los únicos 252 diagnósticos reales del proyecto vinieron
+de una **institución poniendo el producto frente a una audiencia cautiva** (piloto UNAP, oct–nov
+2025). El canal que sí funcionó **no tiene funnel**.
+
+**Impacto:** Alto. Significa que (a) la inversión de captación B2C hecha hasta hoy no produce
+retorno esperable, y (b) **G-1 no tiene producto de entrada**: no existe el flujo por el cual un
+curso completo entra al sistema en una hora de clase, que es exactamente lo que se le va a vender
+a un colegio.
+
+**Agravantes de diseño, medibles:**
+
+- Se pide **crear cuenta antes de entregar cualquier valor** (y `sign-in-with-google` existe en el
+  código pero no está conectado a ningún botón — [[PROJECT_BRIEF]] §5).
+- **20 minutos sin calculadora** consumen una hora de clase completa, sin espacio para que el
+  profesor use el resultado en la misma sesión.
+- La **recompensa por el esfuerzo es un inventario de déficits** del propio estudiante, seguido a
+  veces de una pantalla de cupos vacía.
+
+**Mitigación decidida.** Rediseñar el funnel para el aula (**T-91**): entrada por código de curso
+sin cuenta, diagnóstico de 8–10 min, pantalla del estudiante corta y no punitiva, y **la pantalla
+de recompensa proyectada es la del profesor**, en vivo. Ese instante —el mapa de errores del curso
+apareciendo frente al profesor— es el producto que se vende, y hoy no existe.
+
+**Antes de construir nada: T-90.** Aplicarlo en un curso real y observar. Cuesta cero pesos y una
+hora, y valida o refuta este riesgo entero con evidencia en vez de con argumento.
+
+**Restricción técnica conocida:** la entrada sin cuenta choca con "RLS es el único límite de
+autorización" ([[../CLAUDE]] §7). Es resoluble (sesión anónima o token de curso) pero es diseño
+real, no un detalle de implementación. Ver [[OPEN_QUESTIONS]] Q-37.
+
+**Relación con R-30:** R-31 es la forma concreta que toma R-30 en el producto. R-30 dice "construye
+producto en vez de distribución"; R-31 nombra el producto exacto que se construyó de más y el que
+falta.
+
+---
+
+### R-32 · Propiedad intelectual y conflicto de interés con los empleadores
+
+**Contexto nuevo del 2026-08-16.** El owner reveló que tiene **tres canales de distribución
+disponibles**, y dos de ellos son sus empleadores: es **profesor de electrónica en un liceo** (donde
+una profesora de matemática ya le ofreció probar con su 4º medio) y **trabaja en una sede de
+Cpech**, con relación con la dirección y habiéndoles ya mencionado que construye software.
+
+**Es la mejor noticia del proyecto y su riesgo peor calibrado a la vez.**
+
+**Qué puede pasar — Cpech (impacto muy alto):** muchos contratos de trabajo incluyen cláusulas de
+cesión de propiedad intelectual o de invenciones. Si el owner demuestra el producto a la dirección
+**como empleado**, y existe una cláusula así, se abre una discusión sobre quién es dueño de
+**dieciséis años de trabajo**. Es el único riesgo del registro capaz de terminar con el proyecto en
+una sola reunión.
+
+**Agravante de asimetría:** Cpech es el preuniversitario más grande de Chile; el owner es una
+persona sin sociedad constituida, sin contrato tipo y sin asesoría legal. Un "piloto" con un actor
+de ese tamaño puede terminar en *"nos gustó la idea, gracias"* y una versión interna. **La única
+protección real es el activo defendible — el banco calibrado (G-2) — que todavía no está
+calibrado.** Es exactamente por qué G-2 es precondición dura de G-1.
+
+**Qué puede pasar — liceo (impacto alto, reputacional):** aplicar software comercial propio a
+**menores de edad en el lugar de trabajo**, con autorización de una colega y no de la institución.
+Un apoderado que pregunte *"¿por qué el profesor de electrónica puso los datos de mi hijo en su
+startup?"* cuesta el canal y puede complicar el empleo. La Ley 21.719 entra en plena vigencia el
+**2026-12-01**, dentro de la ventana.
+
+**Mitigación — barata, y hay que hacerla antes que nada:**
+
+1. **Leer el contrato de Cpech antes de cualquier demo formal.** Media hora. Es **bloqueante** de
+   T-93. La transparencia previa ayuda (ya les mencionó que construye software), pero mencionar no
+   es exponer el producto en una reunión.
+2. **Que la dirección o UTP del liceo sepa del piloto**, aunque sea informal. Convierte "el profe
+   hizo algo por su cuenta" en "el liceo dejó probar una herramienta". Misma actividad, otro
+   encuadre, y lo cubre.
+3. **T-90 como observación, no como despliegue de datos.** El objetivo son tres observaciones, no
+   acumular diagnósticos de menores de su propio liceo.
+4. **Algo por escrito antes de cualquier piloto con Cpech**, aunque sea un correo de una página con
+   alcance, propiedad y qué pasa después.
+
+**Estado:** abierto, y **es la precondición de los tres canales**. Ver [[OPEN_QUESTIONS]] Q-38,
+[[BACKLOG]] T-93, [[LESSONS_LEARNED]] L-39.
 
 ---
 
