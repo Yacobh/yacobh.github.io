@@ -11,15 +11,15 @@
 
 ## Snapshot actual
 
-- **Commit:** `0e6e312` (rama `t-05-router-url`, mergeada a `main` el 2026-08-16)
-- **Fecha:** 2026-08-16
-- **Tamaño:** 2866 nodos · 7112 aristas · 194 comunidades
+- **Commit:** `60d7272` (rama `t-12-html-unico`, mergeada a `main` el 2026-08-17)
+- **Fecha:** 2026-08-17
+- **Tamaño:** 2927 nodos · 7189 aristas · 199 comunidades
 - **Extracción:** ver el encabezado de `GRAPH_REPORT.md`
 - **Ciclos de importación:** ninguno
 
 > **Historial de tamaños:** 105 nodos al 2026-07-26 (`48bf5254`) · 2 376 al 2026-08-10 · 1 560 al
 > 2026-08-13 por la mañana · 2 583 el mismo día por la tarde · 2 644 al cierre del 2026-08-13 ·
-> 2 866 al 2026-08-16 (T-05, router de URL).
+> 2 866 al 2026-08-16 (T-05, router de URL) · 2 927 al 2026-08-17 (T-12, un solo `index.html`).
 >
 > **El número sube y baja según si el `app.js` minificado entró al índice en esa corrida, no según
 > cuánto crezca el proyecto.** Cuando entra, sus símbolos ofuscados (`v()`, `K()`, `C()`…) copan los

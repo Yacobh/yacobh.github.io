@@ -81,8 +81,8 @@ versionado. El objetivo no cambió.
 | `project-memory/DECISIONS.md` | Fila de ADR-027 en §1, **D-55** en §2, cabecera |
 | `project-memory/BACKLOG.md` | T-12 → `hecho`; T-94 desbloqueada |
 | `project-memory/ARCHITECTURE.md` | A-09 reescrita; `audit_html.py` en la tabla de §10-bis ("los cuatro se probaron…") |
-| `project-memory/LESSONS_LEARNED.md` | **L-41** nueva; L-22 actualizada (cinco → cuatro lugares) |
-| `project-memory/AGENT_INSTRUCTIONS.md` | §4.7: "los tres lugares" → cuatro, con la instrucción de re-verificar con `grep` |
+| `project-memory/LESSONS_LEARNED.md` | **L-41** nueva; **L-22 reescrita**: el número de lugares del copy no se recuerda, se mide (al aplicarle su propia regla resultó que no hay número único, depende de qué copy) |
+| `project-memory/AGENT_INSTRUCTIONS.md` | §4.7: se reemplaza "los tres lugares" por el mapa medido por tipo de copy, con la instrucción de re-verificar con `grep` |
 | `project-memory/CURRENT_STATUS.md` | Corte 2026-08-17 |
 
 **No modificado a propósito:** `public/js/app.js` y `public/css/app.css`. Ninguna fuente cambió.
@@ -140,17 +140,17 @@ Ninguno: las dos cosas que podrían haberse asumido —que `:asset-path` funcion
 
 ## Próximos pasos
 
-1. **Owner:** revisar y mergear `t-12-html-unico`. **No hace falta recompilar ni republicar el
-   bundle**; el cambio no toca producción salvo por la ausencia de un archivo que Pages nunca servía.
-   Aun así conviene comprobar `/` y un deep link después del merge.
+1. ✅ **Mergeada y pusheada a `main`.** No hizo falta recompilar ni republicar el bundle: el cambio
+   no toca producción salvo por la ausencia de un archivo que Pages nunca servía. Se comprobó `/` y
+   un deep link después del push igualmente.
 2. **T-94** (entradas estáticas para rutas públicas) queda desbloqueada, P3.
 3. **T-90** y **T-93** siguen siendo los P0 del negocio y llevan tres sesiones sin tocarse. **R-30**.
 
 ## Pendientes
 
-- Snapshot de `project-memory/graph/`: **no refrescado**. Esta rama no cambia código ClojureScript
-  (solo un `.py` nuevo, un `.edn` y documentación), así que el grafo apenas se movería; conviene
-  refrescarlo al mergear, junto con el commit, como se hizo en SESSION-027.
+Ninguno. ✅ El snapshot de `project-memory/graph/` se refrescó al mergear —**2927 nodos / 7189
+aristas / 199 comunidades**, contra 2866/7112/194 del snapshot del 2026-08-16— y la rama se mergeó
+y pusheó a `main` a pedido explícito del owner.
 
 ## Actualizaciones requeridas en Project Memory
 
@@ -166,7 +166,7 @@ Ninguno: las dos cosas que podrían haberse asumido —que `:asset-path` funcion
 - [ ] `project-memory/ASSUMPTIONS.md` — sin supuestos nuevos
 - [x] `project-memory/LESSONS_LEARNED.md` (L-41 nueva, L-22 actualizada)
 - [ ] `project-memory/TERMINOLOGY.md` — sin términos nuevos
-- [ ] `project-memory/graph/` — ver Pendientes
+- [x] `project-memory/graph/` (refrescado al mergear)
 
 ## Notas
 
