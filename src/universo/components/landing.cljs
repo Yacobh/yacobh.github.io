@@ -50,7 +50,7 @@
 
 (def ^:private faqs
   [{:q "¿Cuánto cuesta?"
-    :a "El diagnóstico, tu perfil y el plan de estudio no tienen costo. Es un proyecto personal del profesor Jacobo Córdova, que se originó en 2025 a partir de un convenio de desarrollo con la Universidad Arturo Prat."}
+    :a "El diagnóstico, tu perfil y el plan de estudio no tienen costo. Es un proyecto personal del profesor Jacobo Córdova. Las clases de los grupos tienen un valor de $10.000 por hora; la primera videollamada después del diagnóstico es gratuita."}
    {:q "¿Qué necesito para empezar?"
     :a "Solo una cuenta con tu correo. El diagnóstico se hace desde el navegador, en computador o teléfono, y toma alrededor de 20 minutos."}
    ;; Responde la objeción de fondo al producto: «¿para qué medir, si puedo preguntar?».
