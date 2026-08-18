@@ -3,6 +3,7 @@
    [re-frame.core :as re-frame]
    [cljs.core.async :refer [go <!]]
    [universo.db.crud :as crud]
+   [universo.resources :as resources]
    [universo.slots.logic :as logic]))
 
 (re-frame/reg-sub
@@ -364,12 +365,17 @@
  (fn [db [_ module-id]]
    (assoc-in db [:admin :resources-module-filter] module-id)))
 
+;; Las dos consultas son independientes: se lanzan juntas y se esperan después.
+;; Antes se hacían en serie (`mods` y recién entonces `res`), pagando dos veces la
+;; latencia por gusto — y esta carga ocurría después de **cada** guardado.
 (re-frame/reg-fx
  :admin/fetch-resources!
  (fn [_]
    (go
-     (let [mods (<! (crud/fetch-modules))
-           res (<! (crud/fetch-admin-resources))]
+     (let [mods-ch (crud/fetch-modules)
+           res-ch (crud/fetch-admin-resources)
+           mods (<! mods-ch)
+           res (<! res-ch)]
        (if-let [err (or (:error res) (:error mods))]
          (re-frame/dispatch [:admin/section-fail :resources err])
          (re-frame/dispatch [:admin/resources-bundle
@@ -395,10 +401,9 @@
  (fn [db [_ resource]]
    (assoc-in db [:admin :editing-resource] resource)))
 
-(re-frame/reg-event-db
- :admin/cancel-edit-resource
- (fn [db _]
-   (assoc-in db [:admin :editing-resource] nil)))
+;; `:admin/cancel-edit-resource` se fusionó con `:admin/discard-resource-draft`,
+;; más abajo: hacían el mismo trabajo y tener dos eventos para una acción es la
+;; forma más fácil de que uno se quede sin limpiar la mitad del estado.
 
 (re-frame/reg-fx
  :admin/save-resource!
@@ -406,34 +411,120 @@
    (go
      (let [result (<! (crud/upsert-resource! row))]
        (if (:success result)
-         (re-frame/dispatch [:admin/resource-saved update?])
+         ;; La fila guardada viaja en el propio resultado (`upsert-resource!`
+         ;; hace `.select("*").single()`), así que no hay que ir a buscarla.
+         (re-frame/dispatch [:admin/resource-saved update? (:data result)])
          (re-frame/dispatch [:admin/resource-save-failed
                              (or (:error result) "No se pudo guardar el recurso")]))))))
 
 (re-frame/reg-event-fx
  :admin/save-resource
- (fn [_ [_ row]]
-   {:admin/save-resource! {:row row :update? (some? (get row "id"))}}))
+ (fn [{:keys [db]} [_ row]]
+   {:db (assoc-in db [:admin :resource-saving?] true)
+    :admin/save-resource! {:row row :update? (some? (get row "id"))}}))
 
+;; Antes esto disparaba `:admin/load-resources`, que recarga módulos y **todos**
+;; los recursos para reflejar el cambio de una fila. Ahora la fila se pone en su
+;; lugar en la lista que ya está en memoria; el `:modules` del join lo re-adjunta
+;; `resources/attach-module` con los módulos que también están en memoria.
+;; El resultado es el mismo y no hay viaje de vuelta al servidor.
 (re-frame/reg-event-fx
  :admin/resource-saved
- (fn [{:keys [db]} [_ update?]]
-   {:db (assoc-in db [:admin :editing-resource] nil)
-    :dispatch-n [[:admin/toast :success (if update? "Recurso actualizado." "Recurso creado.")]
-                 [:admin/load-resources]
-                 [:admin/invalidate :overview]]}))
+ (fn [{:keys [db]} [_ update? row]]
+   (let [modules (get-in db [:admin :modules] [])
+         fila (some-> row (resources/attach-module modules))]
+     {:db (-> db
+              (assoc-in [:admin :editing-resource] nil)
+              (assoc-in [:admin :resource-draft] nil)
+              (assoc-in [:admin :resource-saving?] false)
+              (update-in [:admin :resources] resources/upsert-row fila))
+      :dispatch-n [[:admin/toast :success (if update? "Recurso actualizado." "Recurso creado.")]
+                   ;; El resumen sí queda obsoleto (cuenta publicados): se
+                   ;; invalida para que se recargue al abrir esa pestaña, en vez
+                   ;; de recargarla ahora que nadie la está mirando.
+                   [:admin/invalidate :overview]]})))
 
 (re-frame/reg-event-fx
  :admin/resource-save-failed
- (fn [_ [_ msg]]
-   {:dispatch [:admin/toast :error msg]}))
+ (fn [{:keys [db]} [_ msg]]
+   {:db (assoc-in db [:admin :resource-saving?] false)
+    :dispatch [:admin/toast :error msg]}))
 
+;; Publicar/despublicar es un booleano y costaba una recarga completa de la
+;; sección. Ahora se pinta al instante y se revierte si la policy lo rechaza —
+;; el mismo patrón que ya usan los roles y la moderación del guestbook.
 (re-frame/reg-event-fx
  :admin/toggle-resource-published
- (fn [_ [_ resource]]
-   {:dispatch [:admin/save-resource
-               {"id" (:id resource)
-                "published" (not (boolean (:published resource)))}]}))
+ (fn [{:keys [db]} [_ resource]]
+   (let [id (:id resource)
+         nuevo (not (boolean (:published resource)))]
+     {:db (update-in db [:admin :resources] resources/set-published id nuevo)
+      :admin/toggle-resource-published! {:id id :published nuevo}})))
+
+(re-frame/reg-fx
+ :admin/toggle-resource-published!
+ (fn [{:keys [id published]}]
+   (go
+     (let [result (<! (crud/upsert-resource! {"id" id "published" published}))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/invalidate :overview])
+         (re-frame/dispatch [:admin/resource-publish-failed id (not published)
+                             (or (:error result)
+                                 "No se pudo cambiar la publicación")]))))))
+
+(re-frame/reg-event-fx
+ :admin/resource-publish-failed
+ (fn [{:keys [db]} [_ id anterior msg]]
+   ;; `set-published` es su propia inversa: revertir es volver a llamarla con el
+   ;; valor de antes. Sin recargar la sección entera para deshacer un booleano.
+   {:db (update-in db [:admin :resources] resources/set-published id anterior)
+    :dispatch [:admin/toast :error msg]}))
+
+;; -----------------------------------------------------------------------------
+;; Borrador del formulario de recursos (sobrevive el cambio de pestaña)
+;; -----------------------------------------------------------------------------
+;; Antes el formulario vivía en un `r/atom` dentro del componente: cambiar de
+;; pestaña y volver borraba lo escrito **sin aviso**, y escribir un recurso con
+;; LaTeX son veinte minutos de trabajo. La convención del proyecto ya dice que el
+;; estado de UI por sección va en `app-db`; esto lo cumple.
+
+(re-frame/reg-sub
+ :admin/resource-draft
+ (fn [db _]
+   (get-in db [:admin :resource-draft])))
+
+(re-frame/reg-sub
+ :admin/resource-saving?
+ (fn [db _]
+   (get-in db [:admin :resource-saving?] false)))
+
+(re-frame/reg-event-db
+ :admin/set-resource-draft
+ (fn [db [_ draft]]
+   (assoc-in db [:admin :resource-draft] draft)))
+
+(re-frame/reg-event-db
+ :admin/update-resource-draft
+ (fn [db [_ k v]]
+   (assoc-in db [:admin :resource-draft k] v)))
+
+(re-frame/reg-event-db
+ :admin/discard-resource-draft
+ (fn [db _]
+   (-> db
+       (assoc-in [:admin :resource-draft] nil)
+       (assoc-in [:admin :editing-resource] nil))))
+
+;; Duplicar: el atajo que más rinde escribiendo contenido, porque los recursos de
+;; un módulo suelen ser variaciones del anterior. Deja el borrador cargado y sin
+;; `:id`, así que el siguiente guardado crea una fila nueva.
+(re-frame/reg-event-fx
+ :admin/duplicate-resource
+ (fn [{:keys [db]} [_ resource]]
+   {:db (-> db
+            (assoc-in [:admin :editing-resource] nil)
+            (assoc-in [:admin :resource-draft] (resources/duplicate-draft resource)))
+    :dispatch [:admin/toast :success "Copia lista para editar. No está publicada."]}))
 
 (re-frame/reg-fx
  :admin/delete-resource!
@@ -442,17 +533,26 @@
      (let [result (<! (crud/delete-resource! id))]
        (if (:success result)
          (re-frame/dispatch [:admin/resource-deleted])
-         (re-frame/dispatch [:admin/resource-save-failed
+         ;; Falló el borrado: la fila tiene que volver, y para eso sí hace falta
+         ;; el servidor — no se puede reconstruir una fila que se quitó de la
+         ;; lista optimista sin haberla guardado.
+         (re-frame/dispatch [:admin/resource-delete-failed
                              (or (:error result) "No se pudo eliminar el recurso")]))))))
 
 (re-frame/reg-event-fx
  :admin/delete-resource
- (fn [_ [_ id]]
-   {:admin/delete-resource! id}))
+ (fn [{:keys [db]} [_ id]]
+   {:db (update-in db [:admin :resources] resources/remove-row id)
+    :admin/delete-resource! id}))
 
 (re-frame/reg-event-fx
  :admin/resource-deleted
  (fn [_ _]
    {:dispatch-n [[:admin/toast :success "Recurso eliminado."]
-                 [:admin/load-resources]
                  [:admin/invalidate :overview]]}))
+
+(re-frame/reg-event-fx
+ :admin/resource-delete-failed
+ (fn [_ [_ msg]]
+   {:dispatch-n [[:admin/toast :error msg]
+                 [:admin/load-resources]]}))

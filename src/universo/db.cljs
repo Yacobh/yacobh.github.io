@@ -54,6 +54,11 @@
            :resources []
            :resources-module-filter ""
            :editing-resource nil
+           ;; Borrador del formulario de recursos. Vive acá y no en un `r/atom`
+           ;; del componente para que cambiar de pestaña no borre veinte minutos
+           ;; de LaTeX escrito.
+           :resource-draft nil
+           :resource-saving? false
            :modules []
            :slots []
            :editing-slot nil
