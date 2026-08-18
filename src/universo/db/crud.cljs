@@ -809,6 +809,46 @@
                   (async/put! ch {:success false :error (.-message error)}))))
     ch))
 
+(defn fetch-published-resources-for-module
+  "Recursos publicados de UN módulo, del de entrada hacia abajo.
+
+   Existe aparte de `fetch-published-resources` porque el escape del estudiante
+   (ADR-029) los pide en medio del test, y traer el catálogo completo para
+   mostrar tres tarjetas sería pagar el ancho de banda de todo el contenido en
+   cada «no sé».
+
+   El orden pone primero `entry_level` (migración `045`): a quien declaró no
+   saber le corresponde el material introductorio, no el recurso nº 7. Mientras
+   `045` no esté aplicada la columna no existe y el orden cae a `order_index`
+   solo — por eso el `entry_level` va en su propio `.order` y no dentro del
+   mismo, y por eso el fallo se degrada en vez de romper la consulta."
+  [module-id]
+  (let [ch (async/chan)]
+    (if-not (seq (str (or module-id "")))
+      ;; Ítem sin módulo (el 33 % del banco todavía, ver T-60): no hay nada que
+      ;; pedir. Se responde vacío en vez de consultar sin filtro, que traería
+      ;; recursos de cualquier tema y sería peor que no mostrar nada.
+      (async/put! ch {:success true :data []})
+      (-> (.from supabase-client "resources")
+          (.select "*, modules(slug, title, track)")
+          (.eq "published" true)
+          (.eq "module_id" (str module-id))
+          (.order "order_index" #js {:ascending true})
+          (.then (fn [result]
+                   (if (.-error result)
+                     (async/put! ch {:success false
+                                     :error (.-message (.-error result))})
+                     (let [rows (js->clj (.-data result) :keywordize-keys true)
+                           enriched (mapv (fn [r]
+                                            (assoc r :module_slug
+                                                   (or (get-in r [:modules :slug])
+                                                       (:module_slug r))))
+                                          (or rows []))]
+                       (async/put! ch {:success true :data enriched})))))
+          (.catch (fn [error]
+                    (async/put! ch {:success false :error (.-message error)})))))
+    ch))
+
 (defn fetch-admin-resources
   []
   (let [ch (async/chan)]

@@ -22,6 +22,21 @@
 > **Y no requiere migración ni toca RLS:** `score_answer` (024) rechaza por diseño cualquier cosa
 > que no sea A–D, y un escape no es una alternativa. Es cliente puro.
 >
+> **🔧 Corregido el mismo día, tras revisión del owner.** La primera versión del escape **no bajaba
+> la dificultad ni mostraba ningún recurso**: registraba el problema y no hacía nada al respecto. El
+> error de razonamiento fue dar por bueno que «con `:correct? false` el motor adaptativo ya sirve
+> ítems más fáciles solo» — eso vale para la alternativa de peso 1.0, que se descartó; **con peso
+> 0.0 θ no se mueve y `next_question` seguía sirviendo la misma banda de dificultad**. Ahora:
+> - **El retroceso es explícito** (`escape/selection-theta`): el ítem se busca con un θ **objetivo**
+>   que baja un escalón por cada escape seguido y se reinicia solo al responder de verdad. θ sigue
+>   sin tocarse — es la separación entre *estimar* y *mostrar*. Se resuelve eligiendo qué número
+>   mandarle a `next_question`, así que **tampoco necesitó migración**, y el escalón reusa
+>   `progress/selection-half-width` en vez de declarar una constante nueva.
+> - **El modal entrega material**: los recursos publicados del módulo del ítem, con
+>   `plan/resource-card` — la misma tarjeta de «Mi plan», no una variante.
+> - ⚠️ **Es el módulo del ítem, no el prerrequisito** (Q-38 sigue abierta), y **se dice en la UI**.
+>   El estado vacío también es honesto: con un tercio del banco sin `module_id` (T-60) va a ocurrir.
+>
 > ⚠️ **Dos cosas que NO se decidieron, a propósito.** No se fijó umbral de tasa de escape ([[OPEN_QUESTIONS]]
 > Q-39) ni se sembró el grafo de prerrequisitos (Q-38). Los dos habrían sido números y contenido
 > **inventados**, y este proyecto ya se equivocó dos veces así — `min_response_seconds` en 3 s que
@@ -39,7 +54,7 @@
 > `resources.entry_level`. Aditiva e idempotente, **sin seed a propósito**. No rompe nada mientras no
 > se aplique: nada la lee todavía.
 >
-> Verificación: **117 tests / 602 assertions / 0 failures / 0 errors**, `release app` con 0
+> Verificación: **121 tests / 619 assertions / 0 failures / 0 errors**, `release app` con 0
 > warnings, `build:css`, los cuatro `audit_*.py` en verde (contraste **40/40**, con los dos pares
 > nuevos declarados) y `graphify update .` corrido.
 >

@@ -193,6 +193,67 @@
       (is (= 1 (get-in perfil [:escape :total])))
       (is (= {:enunciado 0 :resolucion 1} (get-in perfil [:escape :by-kind]))))))
 
+;; -----------------------------------------------------------------------------
+;; Retroceso de dificultad: ocurre en la selección, no en la estimación
+;; -----------------------------------------------------------------------------
+
+(deftest consecutive-escapes-cuenta-desde-el-final
+  (testing "cuenta la racha final, no el total"
+    (is (= 0 (escape/consecutive-escapes [])))
+    (is (= 0 (escape/consecutive-escapes [(escapada) (respuesta {})])))
+    (is (= 1 (escape/consecutive-escapes [(respuesta {}) (escapada)])))
+    (is (= 3 (escape/consecutive-escapes [(escapada) (respuesta {})
+                                          (escapada) (escapada) (escapada)]))))
+
+  (testing "responder de verdad reinicia la racha sin contador aparte"
+    (is (= 0 (escape/consecutive-escapes
+              [(escapada) (escapada) (respuesta {:correct? false})])))))
+
+(deftest selection-theta-no-toca-theta-y-retrocede-por-escalones
+  (let [step 1.0]
+    (testing "sin escapes al final, el objetivo es θ tal cual: el comportamiento
+              de siempre para quien no escapa"
+      (is (= 0.5 (escape/selection-theta 0.5 [(respuesta {})] step)))
+      (is (= 0.5 (escape/selection-theta 0.5 [] step))))
+
+    (testing "un escape retrocede un escalón"
+      (is (= -1.0 (escape/selection-theta 0.0 [(escapada)] step))))
+
+    (testing "se acumula: tres escapes seguidos son tres escalones, que es lo
+              que produce el «va bajando» de verdad"
+      (is (= -3.0 (escape/selection-theta 0.0
+                                          [(escapada) (escapada) (escapada)]
+                                          step))))
+
+    (testing "el ancla es el mínimo entre θ y la dificultad del ítem escapado:
+              si next_question sirvió algo más difícil que θ, retroceder desde θ
+              dejaría al estudiante donde se atascó"
+      (let [dificil (assoc (escapada) :difficulty 2.0)]
+        ;; θ = 1.0, ítem 2.0 ⇒ ancla 1.0 (θ), no 2.0
+        (is (= 0.0 (escape/selection-theta 1.0 [dificil] step))))
+      (let [facil (assoc (escapada) :difficulty -1.0)]
+        ;; θ = 1.0, ítem -1.0 ⇒ ancla -1.0 (el ítem), no θ
+        (is (= -2.0 (escape/selection-theta 1.0 [facil] step)))))
+
+    (testing "el piso es -3.0, el clamp del rango IRT: más abajo no hay banco"
+      (is (= -3.0 (escape/selection-theta 0.0 (vec (repeat 10 (escapada))) step))))))
+
+(deftest el-retroceso-es-de-seleccion-y-no-de-estimacion
+  (testing "θ sigue intacto después de escapar: selection-theta es un objetivo de
+            búsqueda, no una estimación"
+    (let [previas [(respuesta {:correct? true}) (respuesta {:correct? true})]
+          con-escape (conj previas (escapada))
+          theta (tetha/calculate-theta {:responses con-escape :theta 0.0})]
+      (is (= theta (tetha/calculate-theta {:responses previas :theta 0.0})))
+      ;; …y sin embargo el próximo ítem se busca más abajo.
+      (is (< (escape/selection-theta theta con-escape 1.0) theta)))))
+
+(deftest needs-resources
+  (testing "todo escape pide material; una respuesta normal no"
+    (is (true? (escape/needs-resources? (escapada :resolucion))))
+    (is (true? (escape/needs-resources? (escapada :enunciado))))
+    (is (false? (escape/needs-resources? (respuesta {:correct? false}))))))
+
 (deftest perfil-sin-escapes-no-trae-la-clave-poblada
   (let [questions [{:id 1 :question "¿Cuánto es 2+2?" :topic "algebra"}]
         perfil (profile/build {:theta 0.0

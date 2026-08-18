@@ -166,6 +166,10 @@
           :theta 0.0             ;; Habilidad estimada (θ). Arranque neutro; MAP + Δθ limitan saltos.
           :theta-history []     ;; Evolución del parámetro theta a lo largo del test.
           :stop-reason nil      ;; nil | :precision | :max-items | :exhausted
+          ;; Material que se le ofrece al estudiante cuando declara «no sé»
+          ;; (ADR-029). nil hasta el primer escape del test.
+          ;; {:loading? bool :items [...] :module-slug str}
+          :escape-resources nil
           :email ""
           :status :not-started
           :start-time nil

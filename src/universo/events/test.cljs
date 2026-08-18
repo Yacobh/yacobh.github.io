@@ -171,6 +171,7 @@
                   (assoc-in [:test :theta-history] [])
                   (assoc-in [:test :stop-reason] nil)
                   (assoc-in [:test :stop-config] stop-config)
+                  (assoc-in [:test :escape-resources] nil)
                   (assoc-in [:test :current-question] nil))
           :dispatch [:test/fetch-next-question]})))))
 
@@ -208,10 +209,18 @@
              topic (resolve-topic (get-in db [:test :topic]))
              answered-questions (get-in db [:test :questions])
              answered-ids (set (map :id answered-questions))
-             _ (js/console.log "Theta actual:" theta)
+             ;; El ítem NO se elige con θ, se elige con el θ objetivo: si el
+             ;; estudiante viene escapando, la selección retrocede un escalón por
+             ;; cada escape seguido. θ no se toca — es la separación entre
+             ;; estimar y mostrar de ADR-029 §3. Con cero escapes seguidos esto
+             ;; devuelve θ tal cual y el comportamiento es el de siempre.
+             target (escape/selection-theta theta
+                                            (get-in db [:test :responses])
+                                            progress/selection-half-width)
+             _ (js/console.log "Theta actual:" theta "· objetivo de selección:" target)
              _ (js/console.log "Topic:" topic)
              _ (js/console.log "Fetch mode:" (name mode))
-             next-q (<! (fetch-next theta topic answered-ids))]
+             next-q (<! (fetch-next target topic answered-ids))]
          (cond
            (= next-q :error)
            (when (= mode :prefetch)
@@ -465,8 +474,48 @@
      ;; registra nada antes que fabricar una respuesta con `:escape nil`, que
      ;; contaría como error normal y movería θ sin que nadie lo pidiera.
      (if new-response
-       (register-response db question new-response)
+       (cond-> (register-response db question new-response)
+         (escape/needs-resources? new-response)
+         (-> (assoc-in [:db :test :escape-resources]
+                       {:loading? true :items [] :module-slug (:module-slug question)})
+             (assoc :test/fetch-escape-resources!
+                    {:module-id (:module-id question)
+                     :module-slug (:module-slug question)})))
        {:db db}))))
+
+;; -----------------------------------------------------------------------------
+;; 🔹 Material para el escape
+;; -----------------------------------------------------------------------------
+;; Decir «no sé» y recibir solo una frase amable es peor que no preguntar: el
+;; estudiante declaró un hueco y hay que darle con qué taparlo.
+;;
+;; **Limitación conocida, y está dicha en la UI:** hoy se ofrece el material del
+;; **mismo** módulo del ítem, no el del módulo *prerrequisito*, porque el grafo
+;; de prerrequisitos todavía no está decidido ([[OPEN_QUESTIONS]] Q-38, T-98).
+;; Para «no sé cómo resolverlo» lo correcto es el módulo anterior; esto es la
+;; aproximación honesta que se puede dar sin inventar el grafo, y mejora sola en
+;; cuanto exista — el punto de cambio es `escape/needs-resources?` y este efecto.
+
+(re-frame/reg-fx
+ :test/fetch-escape-resources!
+ (fn [{:keys [module-id module-slug]}]
+   (go
+     (let [result (<! (crud/fetch-published-resources-for-module module-id))]
+       (if (:success result)
+         (re-frame/dispatch [:test/escape-resources-loaded
+                             {:items (:data result) :module-slug module-slug}])
+         ;; No se propaga como error de la pantalla: el test tiene que poder
+         ;; seguir. Sin material, el modal dice que no hay y ofrece continuar.
+         (re-frame/dispatch [:test/escape-resources-loaded
+                             {:items [] :module-slug module-slug}]))))))
+
+(re-frame/reg-event-db
+ :test/escape-resources-loaded
+ (fn [db [_ {:keys [items module-slug]}]]
+   (assoc-in db [:test :escape-resources]
+             {:loading? false
+              :items (vec (or items []))
+              :module-slug module-slug})))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EVENTO: Agrega la nueva pregunta al test
@@ -630,3 +679,8 @@
  :test/escape-summary
  (fn [db _]
    (escape/summary (get-in db [:test :responses]))))
+
+(re-frame/reg-sub
+ :test/escape-resources
+ (fn [db _]
+   (get-in db [:test :escape-resources])))

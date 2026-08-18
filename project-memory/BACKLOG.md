@@ -762,7 +762,25 @@ Dos botones en el ítem: «No entiendo el enunciado» y «No sé cómo resolverl
   que la prueba no pasa por casualidad).
 - **No requiere migración ni toca RLS:** `score_answer` rechaza por diseño lo que no sea A–D, y un
   escape no es una alternativa. Es cliente puro.
-- `clj -M:test`: **117 tests / 602 assertions / 0 failures / 0 errors**. `shadow-cljs release app`:
+
+**🔧 Corregido el mismo día, tras revisión del owner.** La primera versión **no bajaba la dificultad
+ni mostraba recursos** — registraba el problema y no hacía nada. El error fue dar por bueno que «con
+`:correct? false` el motor ya sirve ítems más fáciles solo»: eso vale para la alternativa de peso
+1.0, que se descartó; **con peso 0.0 θ no se mueve** y `next_question` seguía sirviendo la misma
+banda. Se agregó:
+
+- `escape/selection-theta` + `consecutive-escapes` — el ítem se busca con un θ **objetivo** que baja
+  un escalón por escape seguido y **se reinicia solo** al responder de verdad. θ no se toca. Como
+  `next_question` recibe el θ objetivo por parámetro, **tampoco hizo falta migración**; el escalón
+  reusa `progress/selection-half-width` en vez de declarar una constante nueva. El ancla es
+  `min(θ, dificultad del ítem escapado)`, porque con la ventana estrecha vacía el ítem servido puede
+  ser más difícil que θ y retroceder desde θ dejaría al estudiante donde se atascó.
+- `crud/fetch-published-resources-for-module` + la sección de material en el modal, con
+  `plan/resource-card` (la misma tarjeta de «Mi plan», no una variante).
+- ⚠️ **Es el módulo del ítem, no el prerrequisito** (Q-38 / T-98), y se dice en la UI. El estado
+  vacío es honesto: con un tercio del banco sin `module_id` (T-60) va a ocurrir.
+
+- `clj -M:test`: **121 tests / 619 assertions / 0 failures / 0 errors**. `shadow-cljs release app`:
   0 warnings. Las cuatro auditorías pasan (contraste **40/40**, con los dos pares nuevos declarados).
 - **⚠ No verificado en vivo:** el diagnóstico es sección protegida y el agente no tiene credenciales
   de una cuenta de estudiante. **Antes de T-90 hay que probarlo de punta a punta con una cuenta que

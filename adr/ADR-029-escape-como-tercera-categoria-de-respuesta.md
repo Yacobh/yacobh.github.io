@@ -83,11 +83,46 @@ Cuatro partes:
      una idea errónea a quien declaró no tener ninguna.** Sí cuenta como déficit del módulo, que es
      cierto.
 
-3. **La bajada de dificultad ocurre en la selección, no en la estimación.** Con `:correct? false` el
-   motor adaptativo ya sirve ítems más cercanos al θ estimado, así que el efecto pedido —bajar la
-   dificultad— sale gratis. El retroceso *explícito* al módulo prerrequisito es una decisión de
-   **selección** y va en el servidor (`next_question`), separada de la estimación. Es el mismo
-   movimiento conceptual de ADR-014 con el tiempo: no meter en el 1PL lo que no es habilidad.
+3. **La bajada de dificultad ocurre en la selección, no en la estimación.**
+
+   > **Corrección del 2026-08-18, el mismo día.** La primera redacción de este punto decía que con
+   > el escape marcado `:correct? false` «el motor adaptativo ya sirve ítems más fáciles solo». **Eso
+   > era falso y se detectó al revisarlo con el owner:** ese razonamiento vale para la alternativa de
+   > peso 1.0, que se descartó. Con **peso 0.0** θ no se mueve en absoluto, así que `next_question`
+   > seguía sirviendo el ítem siguiente **en la misma banda de dificultad**. El escape bajaba a cero
+   > su propia utilidad: registraba el problema y no hacía nada al respecto.
+
+   El retroceso es **explícito** y vive en `universo.irt.escape/selection-theta`: θ y el ítem que se
+   muestra son **dos decisiones distintas**. θ es lo que el modelo estima —y de una no-respuesta no
+   se estima nada—; qué mostrar después es una decisión **pedagógica**, y seguir al mismo nivel con
+   quien acaba de declarar que no entiende es exactamente lo que no hay que hacer.
+
+   Como `next_question` recibe el θ objetivo **como parámetro**, esto se resuelve eligiendo qué
+   número mandarle: **sin migración, sin tocar la estimación y sin que el ítem servido contamine
+   nada.** Tres propiedades:
+   - el ancla es `min(θ, dificultad del ítem escapado)` — cuando la ventana estrecha viene vacía,
+     `next_question` sirve algo más difícil que θ, y retroceder desde θ dejaría al estudiante justo
+     donde se atascó;
+   - **se acumula**: N escapes seguidos son N escalones, y la racha **se reinicia sola** en cuanto
+     responde de verdad;
+   - el escalón **no es una constante nueva**: quien llama pasa `progress/selection-half-width`, que
+     es la anchura que el sistema ya usa para definir «cerca».
+
+   Es el mismo movimiento conceptual de ADR-014 con el tiempo: no meter en el 1PL lo que no es
+   habilidad.
+
+5. **El escape entrega material, no solo una frase.** Decir «no sé» y recibir únicamente una nota
+   amable es peor que no preguntar: el estudiante declaró un hueco y hay que darle con qué taparlo.
+   El modal de escape carga los recursos publicados del módulo del ítem
+   (`crud/fetch-published-resources-for-module`) y los muestra con `plan/resource-card` — **la misma
+   tarjeta que ve en «Mi plan»**, no una variante.
+
+   **Limitación declarada, y se dice en la propia UI:** es el material del **mismo** módulo, no el
+   del módulo *prerrequisito*, porque el grafo todavía no está decidido (Q-38 / T-98). Para «no sé
+   cómo resolverlo» lo correcto es el módulo anterior; esto es la aproximación honesta que se puede
+   dar sin inventar el grafo, y mejora sola en cuanto exista. El estado vacío también es honesto:
+   con un tercio del banco sin `module_id` (T-60) va a ocurrir, y es mejor decir que no hay material
+   que fingir que el estudiante no lo necesitaba.
 
 4. **No se fija ningún umbral de tasa de escape.** `escape/escape-rate` se calcula y se guarda en el
    perfil; **qué valor** marca un perfil como poco confiable sale de observar un curso real (T-90),
@@ -125,10 +160,17 @@ Cuatro partes:
 - **θ queda sistemáticamente más incierto** para quien escapa mucho: más ítems administrados y SE
   más alto. Es el comportamiento correcto, pero significa que un test con muchos escapes casi
   siempre va a terminar por `:max-items` y no por precisión.
-- **El escape hoy no lleva a ninguna parte.** El destino —módulo prerrequisito y recurso de
-  entrada— necesita `045` aplicada y el grafo decidido. Mientras eso no exista, el escape es
-  instrumentación y el estudiante recibe una explicación, no un remedio. Está dicho así en el copy
-  del feedback a propósito: no se le promete lo que todavía no hay.
+- **El destino del escape es aproximado, no exacto.** Se le ofrece material del **mismo** módulo,
+  no del prerrequisito, hasta que el grafo esté decidido (Q-38 / T-98). Para «no sé cómo resolverlo»
+  eso puede ser demasiado difícil todavía — es la mejor aproximación disponible sin inventar
+  contenido pedagógico, y la UI no promete más de lo que entrega.
+- **El retroceso de dificultad se apoya en que el banco tenga ítems más fáciles del mismo topic.**
+  Si el banco de ese topic es angosto por abajo, `next_question` va a devolver lo que haya dentro de
+  la ventana ancha, que puede no ser mucho más fácil. El escape no puede fabricar un ítem que no
+  existe, y esto se va a ver en T-90 antes que en ninguna métrica.
+- **Una llamada extra por escape** para traer el material. Es una consulta filtrada por `module_id`
+  y `published`, no el catálogo completo; y ocurre mientras el estudiante lee el modal, en paralelo
+  con el prefetch del siguiente ítem.
 - **El escape estratégico no está mitigado**, solo medido. Un estudiante puede escapar todo y
   quedarse sin diagnóstico útil; hoy no baja su banda (peso 0.0 no mueve θ), así que el daño es
   para él y no para la cohorte. La guarda de confianza queda pendiente del umbral.

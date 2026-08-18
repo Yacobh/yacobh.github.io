@@ -3,6 +3,7 @@
    [re-frame.core :as re-frame]
    [universo.components.math-render :as math]
    [universo.components.irt-chart :as irt-chart]
+   [universo.components.plan :as plan]
    [universo.irt.escape :as escape]))
 
 ;; ============================================================================
@@ -249,12 +250,47 @@
    {:titulo "Anotado"
     :cuerpo (str "Que el enunciado no se entienda es información útil, y no es "
                  "culpa tuya: a veces el problema está en cómo está escrita la "
-                 "pregunta. Queda registrado.")}
+                 "pregunta. Queda registrado, y la siguiente va a ser más simple.")}
    :resolucion
    {:titulo "Vamos un paso atrás"
     :cuerpo (str "Decir «no sé» a tiempo vale más que adivinar: adivinar ensucia "
-                 "la medición y te deja en un nivel que no es el tuyo. Seguimos "
-                 "con otra pregunta.")}})
+                 "la medición y te deja en un nivel que no es el tuyo. La "
+                 "siguiente pregunta va a ser más fácil.")}})
+
+;; ---------------------------------------------------------------------------
+;; Material para el hueco declarado
+;; ---------------------------------------------------------------------------
+;; Decir «no sé» y recibir solo una frase amable es peor que no preguntar.
+;;
+;; **Limitación que se dice en voz alta, no se esconde:** este es el material del
+;; **mismo** módulo del ejercicio, no el del módulo *anterior*, porque el grafo de
+;; prerrequisitos todavía no está decidido (Q-38 / T-98). Es la aproximación
+;; honesta que se puede dar hoy. El estado vacío también es honesto: con un tercio
+;; del banco todavía sin `module_id` (T-60) va a ocurrir, y es mejor decir que no
+;; hay material que fingir que el estudiante no lo necesitaba.
+
+(defn- escape-resources-section []
+  (let [{:keys [loading? items module-slug]} @(re-frame/subscribe [:test/escape-resources])]
+    [:div {:class "mb-6 sm:mb-8"}
+     [:h3 {:class "grabado mb-3 sm:mb-4"} "Para repasar esto"]
+     (cond
+       loading?
+       [:p {:class "text-sm text-gray-600"} "Buscando material…"]
+
+       (seq items)
+       [:div {:class "space-y-3"}
+        (for [r (take 3 items)]
+          ^{:key (:id r)}
+          [plan/resource-card r])]
+
+       :else
+       [:div {:class "border border-panel-500 bg-panel-100 p-4"}
+        [:p {:class "text-sm text-gray-800"}
+         (if module-slug
+           (str "Todavía no hay material publicado para «" module-slug "».")
+           "Este ejercicio aún no está asignado a un módulo, así que no puedo mostrarte material.")]
+        [:p {:class "mt-1 text-sm text-gray-600"}
+         "Va a aparecer en «Mi plan» cuando lo publiquemos."]])]))
 
 (defn- escape-header [kind]
   [:div {:class "flex items-center justify-between mb-6 sm:mb-8 gap-4"}
@@ -278,6 +314,11 @@
    [escape-header kind]
    [question-section question]
    [escape-note kind]
+   ;; El material va ANTES de la gráfica: quien acaba de decir «no sé» necesita
+   ;; con qué seguir, no ver su propia curva. La gráfica se queda porque es la
+   ;; misma pantalla del feedback normal y sacarla haría que el escape se sienta
+   ;; un camino aparte, que es justo lo que no se quiere.
+   [escape-resources-section]
    [irt-chart/irt-progress-chart points stop-reason]
    [action-buttons stop-reason]])
 

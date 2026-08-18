@@ -183,3 +183,76 @@
       {:total n
        :rate (escape-rate responses)
        :by-kind (escape-counts responses)})))
+
+;; -----------------------------------------------------------------------------
+;; Retroceso de dificultad — en la SELECCIÓN, nunca en la estimación
+;; -----------------------------------------------------------------------------
+;;
+;; Acá está la distinción que sostiene todo el diseño (ADR-029 §3): **θ y el ítem
+;; que se muestra son dos decisiones distintas.**
+;;
+;;   · θ es lo que el modelo estima que sabe el estudiante. Un escape entra con
+;;     peso 0.0 y por lo tanto **no lo toca**: no se estima nada a partir de una
+;;     no-respuesta.
+;;   · Qué ítem mostrar después es una decisión **pedagógica**. Insistir al mismo
+;;     nivel con alguien que acaba de declarar que no entiende es exactamente lo
+;;     que no hay que hacer.
+;;
+;; Es el mismo movimiento de ADR-014 con el tiempo: no meter en el 1PL lo que no
+;; es habilidad. Como `next_question` recibe el θ objetivo **como parámetro**,
+;; esto se resuelve eligiendo qué número mandarle — sin migración, sin tocar la
+;; estimación y sin que el ítem servido contamine nada.
+
+(defn consecutive-escapes
+  "Cuántos escapes seguidos hay al FINAL de las respuestas.
+
+   Se cuenta desde el final, no en total, porque es lo que hace que el retroceso
+   **se acumule mientras el estudiante siga sin poder** y **se reinicie solo** en
+   cuanto responda una pregunta de verdad. Sin esto haría falta un contador
+   aparte en `app-db` que alguien tendría que acordarse de limpiar."
+  [responses]
+  (count (take-while escape? (reverse (or responses [])))))
+
+(defn selection-theta
+  "El θ **objetivo para elegir el próximo ítem**. No es θ y no lo reemplaza.
+
+   `theta` es la estimación vigente, `responses` el historial del test y `step`
+   el tamaño del escalón de retroceso.
+
+   Tres decisiones:
+
+   1. **El ancla es el mínimo entre θ y la dificultad del ítem escapado.** El
+      ítem se eligió por cercanía a θ, así que normalmente son casi lo mismo;
+      pero cuando la ventana estrecha viene vacía, `next_question` sirve algo más
+      difícil, y en ese caso retroceder desde θ dejaría al estudiante en el mismo
+      lugar donde acaba de atascarse.
+   2. **Se acumula:** N escapes seguidos son N escalones. Es lo que produce el
+      «va bajando» que se espera de verdad, en vez de un único escalón que se
+      queda corto para quien no entiende nada.
+   3. **`step` se recibe, no se inventa acá.** Quien llama pasa
+      `progress/selection-half-width`, que es la anchura que el sistema ya usa
+      para definir «cerca». Es deliberado no declarar una constante nueva: sería
+      otro número autoral, y ADR-029 existe en parte para no repetir ese error.
+
+   El piso es -3.0, el mismo clamp del rango IRT de `tetha/clamp-theta`: por
+   debajo de eso no hay banco y pedir ítems más fáciles no devolvería ninguno."
+  [theta responses step]
+  (let [n (consecutive-escapes responses)]
+    (if (zero? n)
+      (double (or theta 0.0))
+      (let [ultimo (last responses)
+            base (min (double (or theta 0.0))
+                      (double (or (:difficulty ultimo) (or theta 0.0))))
+            paso (double (or step 1.0))]
+        (max -3.0 (- base (* n paso)))))))
+
+(defn needs-resources?
+  "¿Corresponde ofrecerle material a esta respuesta?
+
+   Hoy es «cualquier escape», pero se nombra como función y no se pregunta
+   `escape?` en el handler porque las dos clases van a divergir: `:resolucion`
+   pide el módulo prerrequisito (cuando exista el grafo, Q-38) y `:enunciado`
+   pide material de notación y lectura. Cuando eso pase, cambia acá y no en
+   cuatro lugares."
+  [response]
+  (escape? response))
