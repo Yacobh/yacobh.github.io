@@ -102,6 +102,53 @@
     "Ver Mis Resultados"]])
 
 ;; -------------------------------
+;; El escape: «no sé»
+;; -------------------------------
+
+;; Dos botones y no uno, porque son dos diagnósticos opuestos en accionabilidad
+;; (ver `universo.irt.escape`): «no entiendo el enunciado» habla del **ítem**
+;; —lectura, notación— y «no sé resolverlo» habla de un hueco de prerrequisito
+;; del estudiante. Tratarlos como una alternativa incorrecta más tira justamente
+;; la distinción que los vuelve útiles.
+;;
+;; Dos decisiones de jerarquía, y las dos son a propósito:
+;;   · **Peso secundario.** Sin relleno de señal: el naranja está reservado a la
+;;     acción principal de la pantalla, que son las alternativas. El escape se
+;;     ve, no se ofrece.
+;;   · **Sin confirmación.** Poner fricción acá castigaría la honestidad, que es
+;;     exactamente la conducta que se quiere premiar. Nunca es el camino más
+;;     rápido; nunca pregunta «¿estás seguro?».
+(def ^:private escape-options
+  [[:enunciado "No entiendo el enunciado"
+    "No entiendo qué me están preguntando"]
+   [:resolucion "No sé cómo resolverlo"
+    "Entiendo la pregunta, pero no sé por dónde partir"]])
+
+(defn- escape-buttons
+  [{:keys [question-id scoring? elapsed-ms]}]
+  [:div {:class "mt-6 border-t border-panel-500 pt-5"}
+   [:p {:class "grabado mb-3"} "Si no sabes, dilo — sirve más que adivinar"]
+   [:div {:class "grid grid-cols-1 gap-2 sm:grid-cols-2"}
+    (for [[kind label hint] escape-options]
+      ^{:key kind}
+      [:button
+       {:type "button"
+        :disabled scoring?
+        :title hint
+        :class (str "min-h-11 w-full border border-panel-500 bg-panel-100 px-4 py-2.5 "
+                    "text-left text-sm font-medium text-gray-800 transition "
+                    "hover:border-panel-600 hover:bg-panel-200 "
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-senal-600 "
+                    "disabled:cursor-not-allowed disabled:opacity-50")
+        :on-click #(re-frame/dispatch
+                    [:test/escape
+                     {:question-id question-id
+                      :escape-kind kind
+                      :time-ms (elapsed-ms)}])}
+       [:span {:class "block"} label]
+       [:span {:class "mt-0.5 block text-xs font-normal text-gray-600"} hint]])]])
+
+;; -------------------------------
 ;; Componente de preguntas
 ;; -------------------------------
 
@@ -159,6 +206,15 @@
            [:div {:role "alert"
                   :class "rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"}
             score-error])
+
+         ;; 🔹 El escape, después de las alternativas y antes de finalizar
+         [escape-buttons
+          {:question-id (:id question)
+           :scoring? scoring?
+           :elapsed-ms (fn []
+                         (if @started-at
+                           (- (.now js/Date) @started-at)
+                           0))}]
 
          ;; 🔹 Botón para finalizar test manualmente (opcional)
          [:div.mt-8.text-center

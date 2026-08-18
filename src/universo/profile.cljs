@@ -1,6 +1,7 @@
 (ns universo.profile
   "Funciones puras: responses + questions → perfil de aprendizaje."
   (:require [clojure.string :as str]
+            [universo.irt.escape :as escape]
             [universo.irt.fluency :as fluency]
             [universo.topics :as topics]))
 
@@ -151,4 +152,10 @@
      ;; El cruce θ × λ. nil mientras falte cualquiera de los dos ejes, que es
      ;; lo habitual en un diagnóstico corto: sin banda de fluidez no hay
      ;; cuadrante, y sin cuadrante la UI no muestra nada. Preferimos callar.
-     :fluency-profile (fluency/profile-for band (:band fluencia))}))
+     :fluency-profile (fluency/profile-for band (:band fluencia))
+     ;; Escape declarado por el estudiante. Aditivo y **nil cuando no hubo
+     ;; ninguno**: eso distingue «no escapó» de «este test es anterior al
+     ;; escape», que es justo la distinción que se pierde si se guarda un mapa de
+     ;; ceros. Hoy es observación —no condiciona banda ni plan— hasta que T-90
+     ;; dé el umbral con el que gobernar la confianza del perfil.
+     :escape (escape/summary responses)}))
