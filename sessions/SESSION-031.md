@@ -68,6 +68,92 @@ los arreglos baratos del editor. La razón está abajo, en Notas.
 - **El publicador de artifacts estuvo caído toda la sesión** (error de sobrecarga, ~6 reintentos):
   el memo de diseño quedó escrito pero **no publicado**. El contenido se entregó en la conversación.
 
+## Segunda mitad: verificación en vivo, y dos fallos que solo aparecieron ahí
+
+El owner levantó `localhost:3000` y abrió sesión de **admin** en un Chrome controlado por el agente.
+Esta parte cambió conclusiones, así que se anota aparte en vez de reescribir lo de arriba.
+
+### El owner reportó dos síntomas y los dos eran reales
+
+**«Parece que se quitó el cuadro de fluidez».** Cierto. `fluency-card` solo muestra el estado
+«todavía no alcanza» si `(pos? n)`, y un escape es `:correct? false`, así que no aporta a `n`. Con
+cero aciertos, `n = 0` y la tarjeta **desaparecía entera y en silencio** — exactamente el agujero que
+D-44 mandaba no tener. Antes del escape ese caso exigía no acertar ni una pregunta y era raro; el
+escape lo volvió trivial de alcanzar. Arreglado: `insuficiente?` también se enciende con escapes, y
+los nombra.
+
+**«La dificultad parece no bajar».** Era peor: **subía.** Y lo dejó grabado el propio histórico.
+
+### El fallo de fondo: el peso 0.0 no alcanzaba, y el error tenía el signo peor posible
+
+La premisa equivocada fue dar por bueno que peso 0.0 ⇒ θ no se mueve. El peso impide aportar a la
+**verosimilitud**, pero `calculate-theta` reestima el **MAP completo** y lo acerca a su valor
+convergido en pasos de `max-theta-step` (0,4). Con poca evidencia real ese valor convergido *es la
+media del prior*, θ = 0 — así que cada escape arrastraba θ **hacia arriba**, justo para quien venía
+por debajo, que es quien escapa.
+
+Evidencia, del test `294` en producción (`mq_armonicos_esfericos`, seis escapes seguidos y **ninguna**
+respuesta real):
+
+```
+θ: -1,0 → 0,0
+dificultades servidas: -0,8 · -0,3 · 0,2 · 0,7 · 1,1 · 1,5
+```
+
+El motor le ponía el test **más difícil** a quien acababa de declarar seis veces que no entendía nada.
+
+**Por qué el test unitario no lo atrapó, que es la lección reusable:** `escape-no-mueve-theta` se
+escribió con **dos respuestas correctas previas**. Ahí el MAP ya había convergido y θ efectivamente
+no se movía, así que el test pasaba. La trampa solo existe **sin evidencia real**, que es el caso que
+no se probó. Ahora hay regresión explícita
+(`reestimar-con-solo-escapes-arrastra-theta-hacia-el-prior`) que simula el bucle real —una
+reestimación por respuesta— en vez de una sola llamada con todas.
+
+Arreglo: `escape/freeze-theta?`. Ante un escape θ **se conserva tal cual**, no se reestima.
+Reverificado en vivo sobre `numbers_v1`:
+
+| escapes seguidos | θ | objetivo | dificultad servida |
+|---|---|---|---|
+| 0 | -1,00 | -1,00 | **-1,1** |
+| 1 | -1,00 | -2,10 | **-2,1** |
+| 2 | -1,00 | -3,00 | **-3,0** (piso) |
+
+### El hallazgo que vale más que los dos arreglos: la escala de dificultad
+
+Con la sesión de admin se midió la distribución real de `questions.difficulty` (387 ítems, excluido
+el track `mq_`):
+
+| topic | n | mín | p25 | mediana | máx |
+|---|---|---|---|---|---|
+| `numbers_v1` | 178 | -3,0 | -2,1 | -1,8 | 2,9 |
+| `diagnostico` | 84 | -3,0 | -2,88 | 1,01 | 3,0 |
+| `paes_m1` | 44 | -1,8 | -1,2 | -0,5 | 0,9 |
+| `polinomios` | 20 | -1,7 | -1,685 | -1,675 | 3,0 |
+
+**`polinomios` tiene 18 de sus 20 ítems dentro de 0,045 logits.** Eso no es una escala de dificultad,
+es una constante con ruido: en ese banco el retroceso del escape es imperceptible **por
+construcción**, y ninguna cantidad de código lo arregla. `paes_m1` toca fondo en -1,8, así que admite
+un solo escalón.
+
+Es [[../project-memory/RISKS]] R-17 y [[../project-memory/OPEN_QUESTIONS]] Q-05 en su forma más
+concreta, y es el argumento más fuerte aparecido hasta ahora de que **G-2 (calibrar) es precondición
+dura y no una tarea más**: mientras `difficulty` sea autoral, «bajar la dificultad» es una operación
+sobre etiquetas que nadie validó.
+
+### Cómo se verificó, para poder repetirlo
+
+Sin credenciales compartidas: el owner inició sesión él mismo en un Chrome que el agente controla, y
+el agente consultó con **su** token. Las consultas de banco e histórico fueron de solo lectura. Se
+corrió un diagnóstico real en `numbers_v1` con cuatro escapes y **se abandonó sin completarlo**, así
+que no dejó fila en `tests`. La evidencia salió de una línea de log añadida a propósito:
+
+```
+[test] topic=… modo=… θ=… objetivo=… escapes-seguidos=… dificultad-servida=…
+```
+
+Sirve para distinguir «la lógica falla» de «el banco no tiene ítems más fáciles», que fue justo la
+duda de esta sesión.
+
 ## Archivos revisados
 
 - `src/universo/events/test.cljs`, `src/universo/components/diagnostic_test.cljs`,
@@ -110,15 +196,20 @@ los arreglos baratos del editor. La razón está abajo, en Notas.
 ## Comandos ejecutados y resultados
 
 ```
-clj -M:test                 → 117 tests / 602 assertions / 0 failures / 0 errors
-npx shadow-cljs release app → Build completed. (233 files, 16 compiled, 0 warnings, 10.54s)
-npm run build:css           → Done in 507ms
+clj -M:test                 → 123 tests / 627 assertions / 0 failures / 0 errors
+npx shadow-cljs release app → Build completed. (233 files, 0 warnings)
+npm run build:css           → Done in 501ms
 python3 scripts/audit_contraste.py   → 40/40 pares cumplen (2 nuevos declarados)
 python3 scripts/audit_movil.py       → sin problemas en pantallas del estudiante
 python3 scripts/audit_dark_theme.py  → sin texto oscuro sin mapear en componentes alcanzables
 python3 scripts/audit_html.py        → index.html y 404.html arrancan igual
-graphify update .           → ver "Pendientes"
+graphify update .           → 3048 nodos, snapshot copiado a project-memory/graph/
 ```
+
+⚠️ **Ojo con el bundle:** `shadow-cljs watch app` escribe en `./public/js`, el **mismo** directorio
+que el `release`. Después de una sesión de verificación en local, `public/js/app.js` queda siendo el
+build de **desarrollo**. Hay que volver a correr `release app` antes de commitear o se publica el
+bundle equivocado. Pasó en esta sesión y se corrigió.
 
 Los cinco `:infer-warning` de `events/auth.cljs` siguen apareciendo: son los conocidos
 ([[../project-memory/LESSONS_LEARNED]]), no rompen el build.
@@ -167,27 +258,34 @@ comprobarlos antes de comprometer nada.
 
 ## Próximos pasos
 
-1. **Probar el escape en vivo con una cuenta de estudiante** y comprobar que el modal muestre la
-   variante de escape y no «Incorrecto» (T-96, pendiente de verificación).
+1. **Pasada con cuenta de estudiante** (no admin) y **merge + publicar**. Lo segundo importa por una
+   razón concreta: si T-90 se hace contra producción, producción tiene que llevar este código —
+   `main` todavía sirve el bundle sin escape.
 2. **T-90** — la hora de clase. Ahora la sesión mide algo: tasa de escape, reparto entre
-   `:enunciado` y `:resolucion`, y qué ítems concentran marcas.
-3. **Responder Q-38** y sembrar el grafo con una migración `046` (T-98).
-4. **T-99** — ítems sembrados. Es lo único de este backlog nuevo que avanza **G-2** directamente.
+   `:enunciado` y `:resolucion`, y qué ítems concentran marcas de enunciado.
+3. **T-99** — ítems sembrados. **Subió de prioridad con lo medido hoy**: la escala de `difficulty`
+   no está validada, y es lo único del backlog nuevo que avanza **G-2** directamente.
+4. **Responder Q-38** y sembrar el grafo con una migración `046` (T-98). Desbloquea el destino real
+   del escape y, con él, T-101.
 5. **T-100** — migrar el diagnóstico y «Mi plan» al lenguaje del panel.
 6. **T-101** — el mapa, ya con datos.
 
 ## Pendientes
 
-- **`git commit` no ejecutado al escribir esto**; la rama `escape-no-se` tiene los cambios en el
-  árbol de trabajo. **No se pusheó nada y no se tocó `main`.**
+- **Rama `escape-no-se` con 7 commits, sin pushear y sin mergear.** `main` no se tocó. El árbol
+  quedó limpio.
+- **Probar con una cuenta que NO sea admin.** Todo lo verificado fue con sesión de admin, que ve
+  **todos** los bancos (incluidos los `mq_` inactivos de ADR-018) y **salta el filtro de
+  prerrequisitos** de `universo.access`. Un estudiante real ve otro catálogo y otro camino de
+  entrada. Es lo único que separa a T-96 de estar cerrada del todo.
 - **`045` sin aplicar.** No rompe nada: nada la lee todavía.
-- **T-96 sin verificación en vivo** (falta cuenta de estudiante).
-- **El memo de diseño no se publicó** como artifact (herramienta caída). El archivo quedó en el
-  scratchpad de la sesión, que **no sobrevive**: si se quiere, hay que regenerarlo.
-- **`graphify update .`** — ver el bloque de comandos.
-- **`ARCHITECTURE.md` no se actualizó.** Correspondería: hay dos namespaces puros nuevos
-  (`universo.irt.escape`, `universo.resources`) y dos tablas en `045`. Queda para la próxima sesión
-  o para el momento en que `045` se aplique, que es cuando la arquitectura cambia de verdad.
+- **Tres filas de prueba en producción** — tests `294`, `295` y `296`, todas de bancos `mq_` y con la
+  conducta **vieja** (θ subiendo). Si se va a calibrar desde `tests`, conviene borrarlas.
+- **`ARCHITECTURE.md` no se actualizó.** Correspondería: tres namespaces puros nuevos o tocados
+  (`universo.irt.escape`, `universo.resources`) y dos tablas en `045`. Queda para cuando `045` se
+  aplique, que es cuando la arquitectura cambia de verdad.
+- **`REQUIREMENTS.md` sin el RF del escape** y **`TERMINOLOGY.md` sin la entrada «escape»**.
+- El memo de diseño **sí se publicó** finalmente como artifact, tras varios reintentos.
 
 ## Actualizaciones requeridas en Project Memory
 
@@ -234,6 +332,18 @@ grises, no morados. La neutralización evitó que se viera mal, y dejó gris sob
 redondeadas y sombra suave.
 
 **Contradicción menor detectada, no corregida:** `CLAUDE.md` §8 dice «74 tests / 410 assertions
-(2026-08-12)» y `HANDOFF.md` dice «83 / 454 (2026-08-13)». Hoy son **117 / 602**. Gana el más
+(2026-08-12)» y `HANDOFF.md` dice «83 / 454 (2026-08-13)». Hoy son **123 / 627**. Gana el más
 reciente por la regla de precedencia, pero conviene que `CLAUDE.md` deje de llevar un número que
 envejece en cada sesión.
+
+**La lección que más vale de esta sesión, y no es de código.** El agente entregó T-96 «verificado»
+con 117 tests en verde, cuatro auditorías OK y un ADR escrito — y el rasgo central de la
+funcionalidad estaba **invertido**. Lo detectó el owner mirando la pantalla, y la causa raíz se
+encontró en el histórico de `tests`, no en el código. Dos consecuencias concretas:
+
+1. **«Los tests pasan» no es «funciona».** El test unitario del escape pasaba porque estaba escrito
+   sobre el caso cómodo (con evidencia real previa); el fallo vivía en el caso vacío, que es
+   justamente el del estudiante que escapa desde la primera pregunta.
+2. **La verificación en vivo no era un extra pendiente, era parte del trabajo.** Costó unos minutos
+   con una sesión ya abierta y cambió dos conclusiones. Para el diagnóstico y el editor —los dos
+   flujos centrales— conviene tratarla como obligatoria antes de dar una tarea por cerrada.
