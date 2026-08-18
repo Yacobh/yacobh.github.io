@@ -217,10 +217,22 @@
              target (escape/selection-theta theta
                                             (get-in db [:test :responses])
                                             progress/selection-half-width)
-             _ (js/console.log "Theta actual:" theta "· objetivo de selección:" target)
-             _ (js/console.log "Topic:" topic)
-             _ (js/console.log "Fetch mode:" (name mode))
-             next-q (<! (fetch-next target topic answered-ids))]
+             next-q (<! (fetch-next target topic answered-ids))
+             ;; Una sola línea con todo lo que hace falta para diagnosticar el
+             ;; retroceso: si `objetivo` baja pero `dificultad-servida` no, el
+             ;; problema no es la lógica sino que el banco de ese topic no tiene
+             ;; ítems más fáciles (R-17: `difficulty` nunca se calibró).
+             _ (js/console.log
+                (str "[test] topic=" topic
+                     " modo=" (name mode)
+                     " θ=" (.toFixed (js/Number theta) 2)
+                     " objetivo=" (.toFixed (js/Number target) 2)
+                     " escapes-seguidos=" (escape/consecutive-escapes
+                                           (get-in db [:test :responses]))
+                     " dificultad-servida="
+                     (if (map? next-q)
+                       (str (:difficulty next-q))
+                       (str next-q))))]
          (cond
            (= next-q :error)
            (when (= mode :prefetch)
@@ -397,7 +409,28 @@
   [db question new-response]
   (let [stop-config (get-in db [:test :stop-config] progress/default-stop-config)
         updated-db (update-in db [:test :responses] conj new-response)
-        new-theta (tetha/calculate-theta-auto (:test updated-db))
+        ;; ── Un escape NO reestima θ. Ni siquiera un poquito. ──────────────────
+        ;; Peso 0.0 hace que la respuesta no aporte a la verosimilitud, pero eso
+        ;; **no basta**: `calculate-theta` reestima el MAP completo y lo acerca a
+        ;; su valor convergido en pasos de `max-theta-step`. Cuando todavía hay
+        ;; poca evidencia real, el MAP *es* la media del prior (θ = 0), así que
+        ;; cada escape empujaba θ 0,4 hacia 0 — **hacia arriba** si el estudiante
+        ;; venía por debajo.
+        ;;
+        ;; Medido en producción el 2026-08-18 (test 296, seis escapes seguidos
+        ;; sin ninguna respuesta real): θ caminó de -1,0 a 0,0 y las dificultades
+        ;; servidas fueron -0,8 · -0,3 · 0,2 · 0,7 · 1,1 · 1,5. El test se le
+        ;; ponía **más difícil** a quien acababa de declarar seis veces que no
+        ;; entendía nada.
+        ;;
+        ;; Por eso θ se conserva tal cual: de una no-respuesta no se estima nada,
+        ;; y «nada» incluye no dejar que el prior arrastre la estimación. Es lo
+        ;; que ADR-029 §2 afirmaba y que el peso 0.0 solo garantizaba una vez que
+        ;; el MAP ya había convergido.
+        escape? (escape/freeze-theta? new-response)
+        new-theta (if escape?
+                    (double (or (get-in db [:test :theta]) 0.0))
+                    (tetha/calculate-theta-auto (:test updated-db)))
         responses (get-in updated-db [:test :responses])
         start-time (get-in db [:test :start-time])
         elapsed-minutes (when start-time (/ (- (.now js/Date) start-time) 60000.0))

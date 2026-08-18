@@ -248,6 +248,59 @@
       ;; …y sin embargo el próximo ítem se busca más abajo.
       (is (< (escape/selection-theta theta con-escape 1.0) theta)))))
 
+;; -----------------------------------------------------------------------------
+;; La trampa del prior: por qué el peso 0.0 NO alcanza
+;; -----------------------------------------------------------------------------
+;; Regresión de un fallo medido en producción el 2026-08-18 (test 294):
+;; `mq_armonicos_esfericos`, seis escapes seguidos y ninguna respuesta real. θ
+;; caminó de -1,0 a 0,0 y las dificultades servidas fueron
+;; -0,8 · -0,3 · 0,2 · 0,7 · 1,1 · 1,5 — o sea que el test se le puso **más
+;; difícil** a quien acababa de declarar seis veces que no entendía nada.
+
+(deftest reestimar-con-solo-escapes-arrastra-theta-hacia-el-prior
+  (testing "el peso 0.0 impide aportar verosimilitud, pero reestimar el MAP sin
+            evidencia real converge a la media del prior (0.0), y el paso máximo
+            de 0.4 hace que θ SUBA para quien venía por debajo"
+    (let [escapes [(escapada)]
+          theta-1 (tetha/calculate-theta {:responses escapes :theta -1.0})]
+      (is (> theta-1 -1.0)
+          "esta es la trampa: reestimar mueve θ hacia arriba")
+      (is (<= theta-1 (+ -1.0 tetha/max-theta-step))))
+
+    ;; La app reestima **una vez por respuesta**, alimentando el θ anterior. Hay
+    ;; que simular ese bucle: `limit-theta-step` topa el movimiento a 0.4 **por
+    ;; llamada**, así que una sola llamada con seis respuestas mueve 0.4, no seis
+    ;; veces 0.4. Es justo lo que produjo el caminar de -1,0 a 0,0 en producción.
+    (testing "reestimando una vez por respuesta, seis escapes llegan al prior"
+      (let [theta-final (reduce (fn [theta i]
+                                  (tetha/calculate-theta
+                                   {:responses (vec (repeat (inc i) (escapada)))
+                                    :theta theta}))
+                                -1.0
+                                (range 6))]
+        (is (< (Math/abs (- 0.0 theta-final)) 0.01)
+            "θ termina en la media del prior, sin una sola respuesta real"))))
+
+  (testing "por eso la regla es congelar θ, no confiar solo en el peso"
+    (is (true? (escape/freeze-theta? (escapada))))
+    (is (false? (escape/freeze-theta? (respuesta {:correct? false}))))))
+
+(deftest congelar-theta-mantiene-el-retroceso-bajando
+  (testing "con θ congelado, el objetivo de selección solo puede bajar — que es
+            justo lo que el fallo de producción hacía al revés"
+    (let [theta -1.0
+          objetivo (fn [n] (escape/selection-theta theta
+                                                   (vec (repeat n (escapada)))
+                                                   0.5))
+          serie (mapv objetivo [1 2 3])]
+      (is (< (first serie) theta))
+      (is (apply > (cons theta serie))
+          "estrictamente decreciente mientras no toque el piso")))
+
+  (testing "y al llegar al piso -3.0 se queda ahí, no sigue bajando al vacío"
+    (let [muchos (escape/selection-theta -1.0 (vec (repeat 20 (escapada))) 1.0)]
+      (is (= -3.0 muchos)))))
+
 (deftest needs-resources
   (testing "todo escape pide material; una respuesta normal no"
     (is (true? (escape/needs-resources? (escapada :resolucion))))

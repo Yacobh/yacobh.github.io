@@ -58,10 +58,38 @@
 > warnings, `build:css`, los cuatro `audit_*.py` en verde (contraste **40/40**, con los dos pares
 > nuevos declarados) y `graphify update .` corrido.
 >
-> ⚠️ **Pendiente de verificación en vivo:** el diagnóstico es sección protegida y el agente no tiene
-> credenciales de estudiante. **Antes de T-90 hay que probar el escape de punta a punta con una
-> cuenta que no sea admin**, comprobando que el modal muestre la variante de escape y no
-> «Incorrecto» en rojo. Detalle completo en [[../sessions/SESSION-031]].
+> ### 🔬 Verificado en vivo el 2026-08-18, y apareció un fallo de signo invertido
+>
+> El owner abrió sesión de admin en un Chrome controlado y se probó contra `localhost:3000`.
+> **Encontrado: el escape hacía el test más DIFÍCIL, no más fácil.**
+>
+> El peso 0.0 impide aportar a la verosimilitud, pero `calculate-theta` **reestima el MAP completo** y
+> lo acerca a su valor convergido en pasos de 0,4. Con poca evidencia real ese valor *es la media del
+> prior* (θ = 0), así que cada escape arrastraba θ **hacia arriba** — precisamente para quien venía
+> por debajo, que es quien escapa. Medido en el test `294` (`mq_armonicos_esfericos`, seis escapes y
+> ninguna respuesta real): θ de **-1,0 → 0,0** y dificultades servidas
+> **-0,8 · -0,3 · 0,2 · 0,7 · 1,1 · 1,5**.
+>
+> **Arreglado** con `escape/freeze-theta?`: ante un escape θ **se conserva tal cual**, no se
+> reestima. Reverificado en vivo sobre `numbers_v1` — θ constante en -1,00 mientras la dificultad
+> bajaba **-1,1 → -2,1 → -3,0 (piso)**.
+>
+> **Segundo hallazgo, y es de contenido, no de código.** Se midió la distribución de `difficulty` del
+> banco: `numbers_v1` (178 ítems, mín -3,0) tiene recorrido real; **`paes_m1` toca fondo en -1,8** y
+> **`polinomios` tiene 18 de sus 20 ítems dentro de 0,045 logits**. En ese último banco el retroceso
+> es imperceptible por construcción — un rango de 0,045 **no es una escala de dificultad, es una
+> constante con ruido**. Es [[RISKS]] R-17 / Q-05 en su forma más concreta y refuerza que **G-2 es
+> precondición**: mientras `difficulty` sea autoral, «bajar la dificultad» opera sobre etiquetas que
+> nadie validó.
+>
+> **Tercer arreglo:** la tarjeta de fluidez **desaparecía entera** tras un test con muchos escapes.
+> `insuficiente?` exigía `(pos? n)` y un escape no aporta a `n`, así que con cero aciertos no se
+> mostraba nada — el agujero que D-44 mandaba no tener. Ahora se enciende también con escapes y los
+> nombra explícitamente.
+>
+> ⚠️ **Sigue pendiente probarlo con una cuenta que NO sea admin.** Todo lo verificado fue con sesión
+> de admin, que ve todos los bancos (incluidos los `mq_` inactivos) y salta el filtro de
+> prerrequisitos de `universo.access`. Detalle completo en [[../sessions/SESSION-031]].
 >
 > **Nuevo en el backlog:** T-98 (sembrar el grafo, bloqueada por Q-38), **T-99 (ítems sembrados — lo
 > único que avanza G-2 directamente)**, T-100 (migrar el diagnóstico y «Mi plan» al lenguaje del

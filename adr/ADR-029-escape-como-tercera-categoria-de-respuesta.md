@@ -71,8 +71,28 @@ Cuatro partes:
    es la precondición dura del plan de negocio.
 
 2. **Entra con `:weight 0.0`**, por la vía que ADR-014 construyó para la evidencia que no es
-   evidencia. Consecuencias, todas buscadas:
+   evidencia, **y además θ no se reestima**. Consecuencias, todas buscadas:
    - No mueve θ.
+
+   > **Corrección del 2026-08-18, medida en producción.** La primera versión decía que el peso 0.0
+   > bastaba para que el escape «no mueva θ». **Es falso, y el error tenía el signo peor posible.**
+   > El peso impide aportar a la verosimilitud, pero `calculate-theta` reestima el **MAP completo** y
+   > lo acerca a su valor convergido en pasos de `tetha/max-theta-step`. Con poca evidencia real ese
+   > valor convergido *es la media del prior*, θ = 0. O sea que cada escape arrastraba θ hacia 0 —
+   > **hacia arriba** para quien venía por debajo, que es exactamente quien escapa.
+   >
+   > Medido en el test `294` (`mq_armonicos_esfericos`, seis escapes seguidos y ninguna respuesta
+   > real): θ caminó de **-1,0 a 0,0** y las dificultades servidas fueron
+   > **-0,8 · -0,3 · 0,2 · 0,7 · 1,1 · 1,5**. El motor le ponía el test **más difícil** a quien
+   > acababa de declarar seis veces que no entendía nada.
+   >
+   > La regla ahora es explícita (`escape/freeze-theta?`): ante un escape, θ **se conserva tal
+   > cual** y no se reestima. De una no-respuesta no se estima nada, y «nada» incluye no dejar que
+   > el prior mueva la estimación. Verificado en vivo el 2026-08-18 sobre `numbers_v1`: θ constante
+   > en -1,00 mientras la dificultad servida bajaba **-1,1 → -2,1 → -3,0**.
+   >
+   > `progress/progress-points` sigue alineado porque `theta-history` recibe igual el valor (el
+   > mismo), manteniendo la correspondencia 1:1 con `responses`.
    - No aporta información de Fisher ⇒ **el SE no baja** ⇒ la regla `SE ≤ umbral` **no se cumple
      escapando** y el test sigue preguntando.
    - Sí cuenta para `max-items`, porque `progress/stop-reason` cuenta respuestas: un test donde se
@@ -164,10 +184,21 @@ Cuatro partes:
   no del prerrequisito, hasta que el grafo esté decidido (Q-38 / T-98). Para «no sé cómo resolverlo»
   eso puede ser demasiado difícil todavía — es la mejor aproximación disponible sin inventar
   contenido pedagógico, y la UI no promete más de lo que entrega.
-- **El retroceso de dificultad se apoya en que el banco tenga ítems más fáciles del mismo topic.**
-  Si el banco de ese topic es angosto por abajo, `next_question` va a devolver lo que haya dentro de
-  la ventana ancha, que puede no ser mucho más fácil. El escape no puede fabricar un ítem que no
-  existe, y esto se va a ver en T-90 antes que en ninguna métrica.
+- **El retroceso de dificultad se apoya en que el banco tenga ítems más fáciles del mismo topic**, y
+  **medido el 2026-08-18 eso varía muchísimo entre bancos**:
+
+  | topic | n | mín | mediana | ¿retrocede? |
+  |---|---|---|---|---|
+  | `numbers_v1` | 178 | -3,0 | -1,8 | **Sí**, con recorrido real (-1,1 → -2,1 → -3,0) |
+  | `paes_m1` | 44 | -1,8 | -0,5 | Solo un escalón; el piso del banco es -1,8 |
+  | `polinomios` | 20 | -1,7 | -1,675 | **No perceptiblemente**: 18 de 20 ítems caben en 0,045 logits |
+
+  El escape no puede fabricar un ítem que no existe. Y `polinomios` es el caso que conviene mirar de
+  frente: un banco cuya `difficulty` vive entera en una franja de 0,045 **no es una escala de
+  dificultad, es una constante con ruido**. Es [[../project-memory/RISKS]] R-17 y
+  [[../project-memory/OPEN_QUESTIONS]] Q-05 en su forma más concreta, y es exactamente lo que **G-2**
+  existe para arreglar: mientras `difficulty` sea autoral, «bajar la dificultad» es una operación
+  sobre etiquetas que nadie validó.
 - **Una llamada extra por escape** para traer el material. Es una consulta filtrada por `module_id`
   y `published`, no el catálogo completo; y ocurre mientras el estudiante lee el modal, en paralelo
   con el prefetch del siguiente ítem.

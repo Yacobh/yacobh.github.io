@@ -246,6 +246,25 @@
             paso (double (or step 1.0))]
         (max -3.0 (- base (* n paso)))))))
 
+(defn freeze-theta?
+  "¿Esta respuesta debe dejar θ **intacto** en vez de reestimarlo?
+
+   El peso 0.0 evita que la respuesta aporte a la verosimilitud, pero **no basta
+   por sí solo**: reestimar el MAP acerca θ a su valor convergido en pasos de
+   `tetha/max-theta-step`, y con poca evidencia real ese valor convergido *es* la
+   media del prior (θ = 0). O sea que cada escape arrastraba θ hacia 0 —**hacia
+   arriba** para quien venía por debajo— y el motor servía ítems más difíciles a
+   quien acababa de declarar que no entendía.
+
+   Se midió en producción el 2026-08-18: seis escapes seguidos sin ninguna
+   respuesta real llevaron θ de -1,0 a 0,0, con dificultades servidas
+   -0,8 · -0,3 · 0,2 · 0,7 · 1,1 · 1,5.
+
+   De una no-respuesta no se estima nada, y «nada» incluye no dejar que el prior
+   mueva la estimación."
+  [response]
+  (escape? response))
+
 (defn needs-resources?
   "¿Corresponde ofrecerle material a esta respuesta?
 

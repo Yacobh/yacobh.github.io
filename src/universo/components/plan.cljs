@@ -89,15 +89,25 @@
      2026-08-12): la primera versión escondía la tarjeta entera y dejaba sin
      enterarse justo a quien más lejos estaba del umbral;
    - **sin ningún dato de tiempo** → no se muestra nada, porque no hay nada que
-     decir y el eje simplemente no aplica."
-  [fluencia perfil]
+     decir y el eje simplemente no aplica.
+
+   ⚠ **Corrección 2026-08-18.** Ese tercer estado tenía un agujero que el escape
+   (ADR-029) volvió fácil de alcanzar: con `n = 0` la tarjeta desaparecía
+   **entera y en silencio**. Antes eso exigía no acertar ni una sola pregunta y
+   era raro; ahora basta con declarar «no sé» varias veces, porque un escape es
+   `:correct? false` y no aporta a `n`. Justo el caso que D-44 dice que hay que
+   contar en vez de esconder — y peor, porque quien escapó **sabe que hizo algo**
+   y ve una tarjeta menos sin explicación. Por eso `insuficiente?` ahora también
+   se enciende cuando hubo escapes."
+  [fluencia perfil escape]
   (let [n (or (:n fluencia) 0)
+        escapes (or (:total escape) 0)
         ;; Sin cuadrante hay dos situaciones muy distintas, y confundirlas fue el
         ;; error de la primera versión: **no hay ningún dato de tiempo** (el eje
         ;; no aplica y no hay nada que decir) o **hay datos pero no alcanzan**
         ;; para una mediana confiable. Lo segundo sí hay que decirlo: esconder la
         ;; tarjeta dejaba sin enterarse justo a quien más lejos está del umbral.
-        insuficiente? (and (nil? perfil) (pos? n))]
+        insuficiente? (and (nil? perfil) (or (pos? n) (pos? escapes)))]
     (when (or perfil insuficiente?)
       [:div.bg-white.rounded-xl.shadow.p-6
        [:div.flex.items-start.justify-between.gap-2.mb-1
@@ -119,6 +129,15 @@
             "dice nada. Por ahora hay "
             [:strong (str n (if (= 1 n) " respuesta correcta" " respuestas correctas"))]
             (str " con tiempo medido, y hacen falta " fluency/min-responses ".")]
+           ;; Se nombra el escape explícitamente. Quien apretó «no sé» sabe que
+           ;; hizo algo, y no decírselo le deja la impresión de que se perdió un
+           ;; dato — cuando en realidad es la consecuencia esperada de no haber
+           ;; respondido: no hay tiempo de resolución que medir.
+           (when (pos? escapes)
+             [:p.text-sm.text-gray-600.mt-2
+              (str "Las " escapes (if (= 1 escapes) " vez que dijiste" " veces que dijiste")
+                   " «no sé» tampoco cuentan acá, y está bien: no hay un tiempo de "
+                   "resolución que medir si no llegaste a resolver.")])
            [:div.mt-3.rounded-lg.bg-amber-50.border.border-amber-100.p-3
             [:p.text-xs.font-semibold.uppercase.tracking-wide.text-amber-800.mb-1
              "Qué conviene hacer"]
@@ -208,7 +227,7 @@
             [:div.space-y-6
              ;; Va primero: responde «cómo estudiar», que condiciona la lectura
              ;; de todo lo que sigue («qué estudiar»).
-             [fluency-card fluencia fluency-profile]
+             [fluency-card fluencia fluency-profile (:escape built)]
 
              (when (seq deficits)
                [:div.bg-white.rounded-xl.shadow.p-6
