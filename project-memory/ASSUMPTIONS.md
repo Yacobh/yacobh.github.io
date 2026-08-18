@@ -1,6 +1,8 @@
 # ASSUMPTIONS
 
-Última actualización: **2026-08-16** — **A-31…A-35 nuevos**: los supuestos de mercado del pivote a
+Última actualización: **2026-08-17** — **A-36 nuevo**: el precio del custom domain de Supabase
+se citó de memoria y no está verificado (R-33).
+Antes: 2026-08-16 — **A-31…A-35 nuevos**: los supuestos de mercado del pivote a
 B2B ([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]]). Son **los más frágiles de toda la
 memoria** y sostienen la aritmética completa de [[TESIS_DE_CRECIMIENTO]] §3. Antes: 2026-08-05.
 
@@ -39,6 +41,7 @@ Estado: 🟡 vigente sin validar · ✅ validado · ❌ refutado
 | A-33 | Un colegio paga del orden de CLP 6.000 por alumno de EM/año, con piso de CLP 1.500.000 | Conversación con 5–10 jefes de UTP / sostenedores (T-80, Q-32) | Se cae la vía B2B tal como está dimensionada: hay que rehacer §3 entera, o cambiar la unidad de cobro | 🟡 **crítico, sin testear** |
 | A-34 | La compra cabe en fondos ya asignados (SEP / PIE) y el decisor es UTP + sostenedor, con ciclo en marzo | Preguntarlo en T-80; revisar normativa de uso de SEP | Si es presupuesto discrecional, el ciclo se alarga y R-27 (caja) se agrava; si el decisor es otro, el guion de venta de T-87 apunta a la persona equivocada | 🟡 **sin verificar** |
 | A-35 | Existe disposición a pagar una suscripción B2C (~CLP 9.900/mes de temporada) sobre un producto cuyo núcleo es gratis (D-01) | Probar el precio con estudiantes ya diagnosticados; medir conversión (T-78) | Se cae el ~30 % B2C del mix; la alternativa limpia es **B2C 100 % gratuito financiado por B2B**, que no está descartada (Q-33, P-15) | 🟡 **sin testear** |
+| A-36 | El **custom domain de Supabase** —lo único que quitaría `jmnqklhxcdccvdhuuiji.supabase.co` de la pantalla de Google (R-33)— cuesta del orden de **USD 10/mes**. La cifra viene de memoria del agente, **no se verificó en el sitio de Supabase** | Abrir la página de precios de Supabase y leer el precio vigente del add-on antes de presupuestarlo o citarlo | Si es materialmente más caro, la decisión de R-33 cambia de "esperar el dato de conversión" a "descartado mientras el ingreso sea ~0"; si es más barato, se adelanta | 🔴 **sin verificar** |
 
 ## Supuestos de dominio (IRT y contenido)
 

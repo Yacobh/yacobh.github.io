@@ -41,7 +41,7 @@ contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 ┌───────────────────────────────────────────────────────────────────────────┐
 │ SUPABASE  (proyecto jmnqklhxcdccvdhuuiji)                                  │
 │                                                                           │
-│  Auth (email/password; Google OAuth definido pero sin UI) ──▶ auth.users  │
+│  Auth (email/password + Google OAuth, activo desde 2026-08-17) ─▶ auth.users │
 │                                                                           │
 │  PostgreSQL + ROW LEVEL SECURITY  ← único límite de autorización          │
 │    profiles · questions · tests · guestbook · visitor · contacto           │
@@ -191,7 +191,7 @@ Es el componente más grande del sistema y el de mayor riesgo de mantenimiento (
 
 | Namespace | Rol |
 |-----------|-----|
-| `universo.supabase` | Cliente `createClient(url, anon-key)` + auth (`sign-in`, `sign-up`, `sign-out`, `get-session`, `current-user-id`, `on-auth-state-change`; también `sign-in-with-google`, definida pero **sin ningún llamador** — `components/login.cljs` no la usa, es código muerto hoy) |
+| `universo.supabase` | Cliente `createClient(url, anon-key)` + auth (`sign-in`, `sign-up`, `sign-out`, `get-session`, `current-user-id`, `on-auth-state-change`, `sign-in-with-google`). **`sign-in-with-google` está conectada desde 2026-08-17** (T-92): la llama `components/login.cljs` y su `redirectTo` es **una sola URL fija**, `origin + (router/section->path :dashboard)`, no `window.location.href` |
 | `universo.db.crud` | **Capa de datos canónica** (975 líneas): todas las queries y mutaciones, con `core.async` (`go`/`<!`) devolviendo `{:success bool :data … :error …}` |
 | `universo.db.supabase` | API delgada legada basada en promises, solo guestbook. Su propio docstring dice *"Preferir universo.db.crud en código nuevo"* |
 
@@ -291,6 +291,29 @@ init! → [:initialize-db] (sync)
       → mount-root
 ```
 
+### 4.1.b Vuelta del login con Google (T-92, desde 2026-08-17)
+
+**No hay ruta de callback propia ni código de arranque especial**: el regreso de Google reutiliza
+el mecanismo de deep link a sección protegida de T-05.
+
+```
+[botón "Continuar con Google"]           (solo habilitado con la declaración D-21 marcada)
+  → signInWithOAuth {:redirectTo origin + "/tablero"}
+  → accounts.google.com → supabase.co/auth/v1/callback
+  → GET https://jacobocordova.com/tablero#access_token=…
+      · /tablero no es un archivo en GitHub Pages ⇒ lo sirve 404.html (ADR-026/ADR-027),
+        que arranca la MISMA aplicación
+      · [:router/init] ve :dashboard (protegida) y aún sin sesión ⇒ [:router :pending] :dashboard
+      · supabase-js parsea el fragmento de forma asíncrona (detectSessionInUrl)
+      · [:auth/get-session] resuelve ⇒ [:auth/session-established user false]
+      · post-session-target ve `pending` ⇒ [:navigate-to :dashboard {:history :replace}]
+```
+
+> **Consecuencia para quien agregue otro proveedor social (Apple, Microsoft):** la fila en
+> `profiles` la crea el trigger `handle_new_user()` sobre `auth.users` (migración `008`), así que no
+> hay que tocar nada de datos; pero **Supabase da de alta al usuario que no existe**, o sea que todo
+> botón social es también un registro. Ver [[../adr/ADR-028-toda-entrada-social-pasa-por-d-21]].
+
 ### 4.2 Diagnóstico
 
 ```
@@ -355,7 +378,7 @@ resto de "Mi plan" funciona igual.
 |-------------|------|---------------|-----------|-------------|
 | **Supabase PostgREST** | REST desde el navegador | JWT del usuario (anon key + sesión) | La app queda inutilizable | Ninguna: dependencia dura |
 | **Supabase Auth** | REST | anon key | No se puede entrar | La landing pública sigue visible |
-| **Google OAuth** *(no activa)* | Redirect vía Supabase | Config en el dashboard de Supabase | N/A — no hay botón en la UI que la dispare (`sign-in-with-google` sin llamador) | Login por email es el único camino real |
+| **Google OAuth** *(activa desde 2026-08-17)* | Redirect vía Supabase | Client ID/Secret en el dashboard de Supabase + credenciales OAuth 2.0 en Google Cloud | El botón falla si el proveedor se deshabilita o si `https://jacobocordova.com/tablero` sale de la allowlist de Redirect URLs — **este segundo caso falla en silencio**: Supabase sustituye el destino por la Site URL en vez de dar error | Login por email sigue disponible como camino completo |
 | **Supabase Edge Function** | HTTP (invoke/cron) | `service_role` (env de la function) | No se envían emails | Notificaciones in-app siguen; outbox queda `pending` |
 | **Resend** | REST | `RESEND_API_KEY` (Supabase secret) | Emails `failed` con `last_error` | Reintento manual re-invocando |
 | **CDN jsDelivr (KaTeX CSS)** | `<link>` | — | Fórmulas sin estilo | Contenido legible pero feo |

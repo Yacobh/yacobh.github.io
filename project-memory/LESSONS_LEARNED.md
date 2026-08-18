@@ -1,6 +1,9 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-08-17** (**L-41**, una copia que nadie mira diverge — la pregunta útil
+Última actualización: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
+ruta de login** — el gate legal no va donde está el formulario sino donde nace la cuenta; y
+**L-43**, si Google Cloud te pide datos tributarios para configurar OAuth, te desviaste de camino.
+Antes ese mismo día: **L-41**, una copia que nadie mira diverge — la pregunta útil
 no es cómo acordarse de sincronizar sino a qué archivo apunta quien la mira; **L-22 reescrita**:
 el número de lugares del copy no se recuerda, se mide — al aplicarle su propia regla resultó que
 no hay un número único, depende de qué copy. Antes, 2026-08-16, 6ª pasada: **L-40**, el DOM que devuelve `javascript_tool`
@@ -149,6 +152,29 @@ Toda tabla nueva se crea con `enable row level security` **y sus policies en la 
 si no, o queda abierta o queda inaccesible, y ambos casos se descubren tarde.
 
 ---
+
+### L-42 · Un proveedor OAuth crea cuentas **también** en la ruta de login
+
+**2026-08-17, al conectar el login con Google (T-92).**
+
+`/ingresar` y `/registrarse` existen como rutas separadas justamente porque hacen cosas distintas:
+una autentica a quien ya existe, la otra crea a alguien nuevo. Por eso la declaración de edad de
+D-21 vivía **solo** en `/registrarse`, dentro del `<form>`.
+
+Un botón de "Continuar con Google" rompe esa separación sin avisar: **Supabase da de alta al usuario
+que entra por OAuth y todavía no existe**, así que el botón crea cuentas desde cualquier ruta donde
+se lo ponga. Un botón social en `/ingresar` es una vía de registro disfrazada de login.
+
+Puesto donde lo pone cualquier tutorial —al lado del formulario, debajo del submit— el resultado es
+que la mitad de las altas nuevas nunca ven la declaración. Sobre un público mayoritariamente menor
+de edad y con la Ley 21.719 encima, eso no es deuda de UX.
+
+> **La regla general, que sirve más allá de OAuth:** un gate legal no se coloca donde está el
+> formulario, se coloca **donde nace la cuenta**. Si un camino nuevo puede crear un usuario, hereda
+> todas las condiciones del alta, aunque entre por la puerta que decía "iniciar sesión".
+
+Aplicado en [[../adr/ADR-028-toda-entrada-social-pasa-por-d-21]] (D-56). Vale igual para Apple,
+Microsoft o Google Workspace cuando se agreguen.
 
 ## IRT y dominio
 
@@ -384,6 +410,35 @@ cada vez que se toca la estructura de archivos. Comprobación de cierre:
 docente real** y no se toca. No todo lo que hace match es el mismo hecho.
 
 ---
+
+### L-43 · Si Google Cloud pide datos tributarios para configurar OAuth, te desviaste de camino
+
+**2026-08-17, durante T-92.** Configurando el proveedor de Google, el owner terminó en un formulario
+de **información fiscal de Chile** (estado tributario, exención de Impuesto Adicional, si está
+inscrito como contribuyente de IVA) con la advertencia *"después de este paso, no podrás realizar
+cambios"*.
+
+**Ese formulario no tiene nada que ver con OAuth.** Es de Google Payments y aparece al crear una
+**cuenta de facturación**. Nada de lo que necesita un login social es facturable:
+
+| Paso | ¿Requiere facturación? |
+|---|---|
+| Crear el proyecto | No |
+| Pantalla de consentimiento | No |
+| Credenciales OAuth 2.0 | No |
+| Publicar la app con scopes básicos (`email`, `profile`, `openid`) | No |
+
+Se llega ahí por un banner de "activar cuenta" o del trial gratuito, no por el flujo correcto
+(*APIs y servicios → Pantalla de consentimiento → Credenciales*).
+
+**Por qué vale la pena tenerlo escrito:** era un paso **irreversible** con consecuencias
+tributarias reales, a punto de completarse por inercia, para obtener algo que es gratis. La señal de
+alarma es barata de recordar: *si te piden datos de facturación para algo que sabes que cuesta $0,
+párate y vuelve atrás en vez de rellenar el formulario.*
+
+**Regla adicional para el agente:** las respuestas de un formulario tributario dependen de la
+situación real de la persona, no del proyecto. Se explica **qué es** el formulario y **por qué
+probablemente no hace falta**; no se sugiere qué marcar.
 
 ## Proceso y agentes de IA
 

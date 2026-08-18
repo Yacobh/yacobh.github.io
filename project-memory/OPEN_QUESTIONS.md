@@ -1,6 +1,9 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-16** — pivote de negocio
+Última actualización: **2026-08-17** — **Q-39 nueva**: si se paga el custom domain de Supabase
+para que la pantalla de Google muestre la marca en vez de `jmnqklhxcdccvdhuuiji.supabase.co`
+(R-33). Depende de un precio sin verificar (A-36) y del dato de conversión de G-5. ·
+Antes: **2026-08-16** — pivote de negocio
 ([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]], [[TESIS_DE_CRECIMIENTO]]): **Q-07
 respondida** (histórico versionado, D-50) y **Q-32…Q-36 nuevas** (precio institucional, suscripción
 B2C, tamaño de mercado, fondos, multi-tenant). **Q-30 sube a bloqueante del canal de contenido**
@@ -422,6 +425,34 @@ Cloud, Supabase Auth, infra). Tarea: **T-92**.
 **No responder antes de T-90:** una hora de clase dice si los estudiantes tienen cuenta del colegio
 o no, y esa observación decide la opción. Es exactamente el tipo de pregunta que no se responde
 analizando.
+
+### 🔴 Q-39 · ¿Se paga el custom domain de Supabase para que la pantalla de Google diga "Academia Integral"? — **abierta 2026-08-17**
+
+**Contexto.** Al verificar T-92 en producción, el selector de cuenta de Google muestra
+*"Ir a jmnqklhxcdccvdhuuiji.supabase.co"*. Es el comportamiento normal de Supabase Auth sin dominio
+propio: Google muestra el dominio del `redirect_uri`. Ver [[RISKS]] R-33.
+
+**Por qué no se resuelve solo.** Chocan dos cosas que el proyecto ya decidió:
+
+- el objetivo de producto n.º 4 de `CLAUDE.md`: **costo de infraestructura ≈ 0**;
+- y el público real: **menores y apoderados**, a quienes se les pide entregar su cuenta de Google
+  en una pantalla que tiene la forma exacta del phishing que se les enseña a evitar.
+
+**Lo que falta para responderla, en orden:**
+
+1. **El precio real** del add-on. Hoy es el supuesto **A-36** (~USD 10/mes, *sin verificar*).
+2. **El dato de conversión** de T-91/G-5: ¿el registro por Google convierte peor que el registro por
+   correo? Sin ese número la respuesta sería intuición.
+
+**Criterio propuesto (no decidido):** no pagarlo hasta tener (2). Si el registro social convierte
+sensiblemente peor, deja de ser estética y pasa a ser el cuello de botella medido del embudo.
+
+**Lo que sí se puede hacer gratis mientras tanto** y está sin verificar: que el nombre de la app en
+Google Cloud sea `Academia Integral` (no `academia`) y que tenga logo — la pantalla de
+**consentimiento**, la siguiente al selector de cuenta, sí muestra el nombre de la app.
+
+**Relacionado:** [[RISKS]] R-33 · [[ASSUMPTIONS]] A-36 · [[BACKLOG]] T-92, T-91 ·
+[[../adr/ADR-028-toda-entrada-social-pasa-por-d-21]]
 
 ### 🟡 Q-38 · ¿Qué dicen los contratos laborales del owner sobre propiedad intelectual? — **respondida a medias 2026-08-17**
 

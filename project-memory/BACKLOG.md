@@ -1,8 +1,8 @@
 # BACKLOG
 
-Última actualización: **2026-08-17** (**T-92** ejecutada en su parte de código: login con Google
-conectado y D-21 respetado en las dos rutas; queda la configuración manual de Google Cloud +
-Supabase). Antes: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
+Última actualización: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
+verificado en producción, con D-21 respetado en las dos rutas — **ADR-028 / D-56**. Abre **T-95**
+(persistir el consentimiento) y **R-33** (la pantalla de Google nombra a `supabase.co`)). Antes: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
 G-1…G-5, tareas T-76…T-89), abierta por
 [[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]]. Cierra P-11. Antes: 2026-08-10.
 
@@ -716,6 +716,28 @@ aunque se vean bien. Son visitables y compartibles, pero **no indexables**, y po
   la verifica `scripts/audit_html.py` — cualquier archivo nuevo por ruta pública tendría que entrar
   también en ese audit.
 - **Relacionado:** [[ARCHITECTURE]] A-09, T-05, T-12.
+
+### T-95 · Persistir el consentimiento de D-21, no solo bloquear el botón — **P2** · `abierto`
+
+Sale de [[../adr/ADR-028-toda-entrada-social-pasa-por-d-21]] como costo aceptado, no como defecto.
+
+Hoy la declaración de edad es un **gate de UI**: el botón social está inhabilitado hasta marcarla y
+el `<form>` de registro la exige con validación nativa. Funciona para impedir el alta, pero **no
+deja rastro**: si alguien pregunta "¿este estudiante declaró tener 14 años?", la única evidencia es
+el código de la UI en el commit vigente ese día. Sobre datos de menores bajo la Ley 21.719 eso es
+débil, y se vuelve claramente insuficiente cuando haya un contrato institucional de por medio
+([[RISKS]] R-28).
+
+- **Qué haría falta:** columna `consent_at timestamptz` (y quizá `consent_version`) en `profiles`,
+  escrita en el momento del alta. Ojo con el camino OAuth: ahí la fila la crea el trigger
+  `handle_new_user()` en `auth.users`, así que el dato **no puede escribirse en el mismo INSERT**
+  desde el cliente — hay que decidir entre pasarlo por metadata del signup o hacer un `update`
+  posterior desde la sesión ya establecida. **Esa decisión es el grueso de la tarea, no la columna.**
+- **Terminado cuando:** un alta por correo y un alta por Google dejan las dos su `consent_at`, y
+  existe una consulta en `supabase/queries/` que responde "quién declaró y cuándo".
+- **No es bloqueante de nada hoy:** el gate ya impide el alta sin declarar. Sube a P1 en cuanto se
+  abra la conversación de un contrato institucional (F9, R-28).
+- **Relacionado:** D-21, D-56, [[RISKS]] R-06/R-28, [[DECISIONS]] D-56, T-92.
 
 ### T-24 · Estado vacío honesto en "Mi plan" y "Cupos" — **P1** · `hecho` (2026-08-03, mergeado a `main` 2026-08-05)
 
@@ -2554,7 +2576,7 @@ Pantalla del PROFESOR, proyectada y en vivo:  el mapa de errores del curso
 - **Ojo con L-37:** rediseñar el funnel **no** es rehacer los cupos. Los cupos están construidos,
   funcionan y no molestan; el punto es qué se construye **después**, no qué se borra.
 
-### T-92 · Conectar el login con Google (existe pero nadie lo llama) — **P1** · `hecho a medias` (2026-08-17: **código listo y desplegable**; falta la configuración de Google Cloud + Supabase, que es manual y del owner)
+### T-92 · Conectar el login con Google (existe pero nadie lo llama) — **P1** · `hecho` (2026-08-17, commits `a7312ee` + `1fd5e4c`; **falta un login real de punta a punta**, ver abajo)
 
 `sign-in-with-google` está definida en `src/universo/supabase.cljs:21` desde F0 y **ningún botón la
 invoca**. Conectarla es de horas, no de días, y **cuesta $0** en las tres capas.
@@ -2676,7 +2698,7 @@ de negocio, no técnica.
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50, **T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-88, T-90, T-91, T-93** |
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92** |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86** |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86, T-95** |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
 > **Nota sobre las P0 nuevas (2026-08-16):** las P0 de E1 significaban "bloquea go-live" y están
