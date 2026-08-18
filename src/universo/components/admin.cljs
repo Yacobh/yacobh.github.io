@@ -7,7 +7,8 @@
    [universo.components.admin-questions :as admin-q]
    [universo.components.admin-test-configs :as admin-tc]
    [universo.components.plan :as plan]
-   [universo.components.ui :as ui]))
+   [universo.components.ui :as ui]
+   [universo.resources :as resources]))
 
 ;; -----------------------------------------------------------------------------
 ;; Utilidades de formato
@@ -599,9 +600,21 @@
    ["pdf_url" "PDF"]
    ["exercise" "Ejercicio"]])
 
-(def ^:private blank-resource
-  {:title "" :type "text" :module_id "" :body "" :media_url ""
-   :historical_context "" :published true :order_index "1"})
+;; El borrador en blanco vive en `universo.resources` porque el **evento** también
+;; lo necesita para sembrarlo (ver `resources/draft-assoc`). Tenerlo solo acá fue
+;; la causa del fallo bloqueante del 2026-08-18.
+(def ^:private blank-resource resources/blank)
+
+(defn- modules-by-track
+  "Módulos agrupados por track, para un `<select>` con `<optgroup>`.
+
+   Con 35 módulos —20 de PAES y 15 del track experimental de cuántica
+   (ADR-018)— una lista plana obliga a leerla entera cada vez. Agrupar por track
+   es la diferencia entre buscar y elegir."
+  [modules]
+  (->> modules
+       (group-by #(or (:track %) "otros"))
+       (sort-by first)))
 
 (defn- resource-preview-pane
   "Panel derecho del editor: lo que el estudiante va a ver, en vivo.
@@ -666,7 +679,8 @@
            "media_url" (when (seq (str (:media_url f))) (:media_url f))
            "historical_context" (:historical_context f)
            "order_index" (or (to-int (:order_index f)) 0)
-           "published" (boolean (:published f))}
+           "published" (boolean (:published f))
+           "entry_level" (boolean (:entry_level f))}
     (:id f) (assoc "id" (:id f))))
 
 (defn- resource-form
@@ -694,7 +708,8 @@
               (merge blank-resource
                      (-> editing
                          (select-keys [:id :title :type :module_id :body
-                                       :media_url :historical_context :published])
+                                       :media_url :historical_context :published
+                                       :entry_level])
                          (assoc :order_index (str (or (:order_index editing) 1)))))])))
         (let [form (or draft blank-resource)
               upd (fn [k v] (re-frame/dispatch [:admin/update-resource-draft k v]))
@@ -761,9 +776,12 @@
                          :value (:module_id form)
                          :on-change #(upd :module_id (.. % -target -value))}
                 [:option {:value ""} "Selecciona un módulo…"]
-                (for [m modules]
-                  ^{:key (:id m)}
-                  [:option {:value (:id m)} (str (:slug m) " — " (:title m))])]]
+                (for [[track ms] (modules-by-track modules)]
+                  ^{:key track}
+                  [:optgroup {:label track}
+                   (for [m (sort-by :order_index ms)]
+                     ^{:key (:id m)}
+                     [:option {:value (:id m)} (str (:slug m) " — " (:title m))])])]]
               [field (str "URL del material" (when-not media-required? " (opcional)"))
                [:input {:class input-class
                         :type "url"
@@ -792,12 +810,29 @@
                            :value (:body form)
                            :on-change #(upd :body (.. % -target -value))}]]]
 
-             [:label {:class "mt-4 flex items-center gap-2 text-sm text-gray-700"}
-              [:input {:type "checkbox"
-                       :class "h-4 w-4 rounded border-gray-300 text-indigo-600"
-                       :checked (boolean (:published form))
-                       :on-change #(upd :published (.. % -target -checked))}]
-              "Publicado (visible para estudiantes)"]]
+             [:div {:class "mt-4 space-y-2"}
+              [:label {:class "flex items-center gap-2 text-sm text-gray-700"}
+               [:input {:type "checkbox"
+                        :class "h-4 w-4 rounded border-gray-300 text-indigo-600"
+                        :checked (boolean (:published form))
+                        :on-change #(upd :published (.. % -target -checked))}]
+               "Publicado (visible para estudiantes)"]
+
+              ;; `entry_level` (migración 045). Sin esta casilla la columna existe
+              ;; y **no hay forma de escribirla desde el panel**, así que el
+              ;; escape del estudiante no puede recibir el material introductorio
+              ;; que ADR-029 §5 le promete: sin nadie marcado, el orden cae a
+              ;; `order_index` y le sirve el recurso que toque.
+              [:label {:class "flex items-start gap-2 text-sm text-gray-700"}
+               [:input {:type "checkbox"
+                        :class "mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600"
+                        :checked (boolean (:entry_level form))
+                        :on-change #(upd :entry_level (.. % -target -checked))}]
+               [:span
+                [:span {:class "font-medium"} "Material de entrada del módulo"]
+                [:span {:class "block text-xs text-gray-500"}
+                 "Es lo primero que recibe quien dice «no sé» en este módulo. "
+                 "Marca uno solo por módulo."]]]]]
 
             [resource-preview-pane {:form form :modules modules}]]
 

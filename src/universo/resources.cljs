@@ -16,6 +16,39 @@
   (:require [clojure.string :as str]))
 
 ;; -----------------------------------------------------------------------------
+;; El borrador en blanco
+;; -----------------------------------------------------------------------------
+
+;; Vive acá y no en el componente porque **el evento también lo necesita**, y esa
+;; fue exactamente la causa de un fallo bloqueante encontrado usando el panel el
+;; 2026-08-18: `:admin/update-resource-draft` hacía `assoc-in` sobre un borrador
+;; `nil`, así que **el primer carácter que se escribía creaba un mapa con esa sola
+;; clave** y se perdían todos los valores por defecto de golpe.
+;;
+;; El síntoma no era un error, que habría sido preferible: el formulario seguía
+;; pareciendo correcto. `Orden` quedaba vacío; el selector de Tipo mostraba
+;; «Texto / apuntes» porque un `<select>` con valor nil pinta su primera opción,
+;; pero el estado era nil — y con `:type` nil, `media-required?` daba **true** y
+;; el formulario exigía una URL para un recurso de texto, dejándolo imposible de
+;; guardar. Un fallo silencioso en el segundo flujo más importante del producto.
+;;
+;; `published false` a propósito: la migración `044` ya había fijado el criterio
+;; —«todo entra con `published = false` (ADR-016) y **la publicación es
+;; humana**»— y es también el default de la columna. Publicar por accidente algo
+;; a medio escribir es el único error de este editor que ve un estudiante.
+(def blank
+  {:title "" :type "text" :module_id "" :body "" :media_url ""
+   :historical_context "" :published false :entry_level false :order_index "1"})
+
+(defn draft-assoc
+  "Escribe `k` = `v` en el borrador, **sembrándolo con los valores por defecto**
+   si venía vacío. Es la corrección del fallo descrito arriba y por eso es una
+   función con nombre y test propio: la forma ingenua (`assoc-in` sobre nil)
+   parece funcionar y rompe el formulario en silencio."
+  [draft k v]
+  (assoc (or draft blank) k v))
+
+;; -----------------------------------------------------------------------------
 ;; El join que el upsert no trae
 ;; -----------------------------------------------------------------------------
 

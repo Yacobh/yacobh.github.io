@@ -506,7 +506,12 @@
 (re-frame/reg-event-db
  :admin/update-resource-draft
  (fn [db [_ k v]]
-   (assoc-in db [:admin :resource-draft k] v)))
+   ;; `resources/draft-assoc` y no `assoc-in`: sobre un borrador nil, `assoc-in`
+   ;; crea un mapa con **solo** esa clave y tira todos los valores por defecto,
+   ;; lo que dejaba el formulario imposible de guardar **sin dar ningún error**
+   ;; (el `<select>` de Tipo seguía mostrando «Texto» con el estado en nil, y con
+   ;; `:type` nil el formulario pasaba a exigir una URL). Ver `resources/blank`.
+   (update-in db [:admin :resource-draft] resources/draft-assoc k v)))
 
 (re-frame/reg-event-db
  :admin/discard-resource-draft

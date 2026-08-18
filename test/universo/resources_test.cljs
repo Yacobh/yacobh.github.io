@@ -16,6 +16,38 @@
    :type "text" :body "cuerpo" :order_index order_index})
 
 ;; -----------------------------------------------------------------------------
+;; El borrador en blanco — regresión de un fallo bloqueante
+;; -----------------------------------------------------------------------------
+;; Encontrado usando el panel el 2026-08-18: escribir el primer carácter en un
+;; formulario vacío creaba un borrador con **solo esa clave**, tirando todos los
+;; valores por defecto. No daba error: el `<select>` de Tipo seguía mostrando
+;; «Texto / apuntes» (un select con valor nil pinta su primera opción) mientras
+;; el estado era nil, y con `:type` nil el formulario pasaba a **exigir una URL**
+;; para un recurso de texto. Imposible de guardar, y sin ninguna señal de por qué.
+
+(deftest draft-assoc-siembra-los-valores-por-defecto
+  (testing "sobre un borrador vacío conserva TODAS las claves, no solo la escrita"
+    (let [d (resources/draft-assoc nil :title "Inecuaciones")]
+      (is (= "Inecuaciones" (:title d)))
+      (is (= "text" (:type d)) "sin esto el formulario exige una URL")
+      (is (= "1" (:order_index d)))
+      (is (= "" (:module_id d)))
+      (is (contains? d :published))
+      (is (contains? d :entry_level))))
+
+  (testing "sobre un borrador existente solo cambia la clave pedida"
+    (let [d (-> (resources/draft-assoc nil :title "A")
+                (resources/draft-assoc :body "cuerpo"))]
+      (is (= "A" (:title d)))
+      (is (= "cuerpo" (:body d)))
+      (is (= "text" (:type d)))))
+
+  (testing "un recurso nuevo NO nace publicado: publicar es humano (ADR-016,
+            migración 044) y es también el default de la columna"
+    (is (false? (:published resources/blank)))
+    (is (false? (:entry_level resources/blank)))))
+
+;; -----------------------------------------------------------------------------
 ;; El join que el upsert no trae
 ;; -----------------------------------------------------------------------------
 
