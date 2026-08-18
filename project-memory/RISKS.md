@@ -71,6 +71,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | **R-31** | **El funnel está diseñado para el canal que nunca produjo un usuario** | Alto | **Confirmada** | **Alta** | 🔺 **abierto 2026-08-16** |
 | **R-32** | ~~Propiedad intelectual~~ **y conflicto de interés con los empleadores (Cpech, liceo)** | Medio | Media | Media | 🔻 **rebajado 2026-08-17** (T-93): **no hay cesión de PI** — la titularidad no está en discusión. Queda solo el conflicto de interés, y con una respuesta concreta: **el canal Cpech no es usable hasta el 2026-11-21** |
 | **R-33** | **La pantalla de Google nombra a `supabase.co`, no a la marca** | Bajo | **Confirmada** | Media | abierto 2026-08-17 |
+| **R-34** | **El escape («no sé») se usa como salida fácil y diluye la evidencia del banco** | Medio | Media | Media | abierto 2026-08-18 (D-57). Mitigado estructuralmente contra el estudiante —peso 0.0 no mueve θ—; **se reactiva con severidad alta si el escape pasa a tener peso positivo** |
 
 ---
 
@@ -757,6 +758,45 @@ iniciativa de un agente**: la decide el owner.
 T-91/G-5 midan el funnel. Si el registro por Google convierte sensiblemente peor que el registro
 por correo, esto deja de ser estética y pasa a ser el cuello de botella medido; si no, se queda
 como está. **No tocar antes de tener ese número.**
+
+---
+
+### R-34 · El escape se usa como salida fácil y degrada la medición del banco
+
+**Abierto 2026-08-18** con [[../adr/ADR-029-escape-como-tercera-categoria-de-respuesta]] (D-57). El
+diagnóstico ahora tiene dos botones de «no sé». Eso resuelve el problema de adivinar y **abre uno
+nuevo**: un botón que evita pensar es, para algunos estudiantes, el camino de menor esfuerzo.
+
+**Dos formas distintas de que salga mal, y no se mitigan igual:**
+
+1. **Contra el estudiante — escape estratégico.** Cinco «no sé» seguidos podrían aterrizarlo en una
+   banda por debajo de su nivel, y θ manda banda → cupo → plan. **Hoy esto está estructuralmente
+   mitigado y no por vigilancia:** el escape entra con `:weight 0.0`, así que **no mueve θ**. El
+   daño posible es quedarse sin diagnóstico útil, no bajar de banda. Si alguna vez se decide darle
+   peso positivo al escape (la alternativa que ADR-029 dejó abierta para cuando haya datos), **este
+   riesgo se reactiva con severidad alta** y necesita la guarda de confianza antes, no después.
+
+2. **Contra el banco — dilución de la evidencia.** Un test con muchos escapes tiene poca información
+   de Fisher, así que administra más ítems y termina por `:max-items` con un SE alto. Eso está
+   correcto —el SE no miente— pero significa que si el escape se vuelve el comportamiento
+   mayoritario, el diagnóstico produce perfiles con mucha incertidumbre y la calibración del banco
+   (G-2, T-76/T-77) recibe menos respuestas útiles por test rendido. Toca directamente la
+   precondición dura del plan de negocio.
+
+**Mitigación en el diseño, ya aplicada:** jerarquía visual secundaria (el escape es texto, no un
+control con relleno de señal) y **sin diálogo de confirmación** — poner fricción ahí castigaría la
+honestidad, que es la conducta que se quiere premiar. `escape/escape-rate` y `escape/escape-counts`
+quedan guardados en el perfil.
+
+**Lo que falta y por qué no se hizo ahora:** la guarda de confianza —«si la tasa de escape pasa X,
+no parar por SE y marcar el perfil como provisional»— necesita el valor de X, y **X sale de observar
+un curso real (T-90), no del criterio del autor**. Fijarlo hoy sería repetir exactamente el error de
+T-59 (`min_response_seconds` en 3 s, que los datos bajaron a 2 s) y el de T-65 (los cortes de
+fluidez, todavía sin calibrar). Ver [[OPEN_QUESTIONS]] Q-39.
+
+**Señal de que se está materializando:** en T-90, una tasa de escape del curso muy por encima de lo
+esperable, o concentrada en `:enunciado` sobre ítems que el profesor considera claros —eso último
+apuntaría a que el botón se está usando como «siguiente» y no como declaración.
 
 **Lo que sí es gratis y conviene revisar:** que el nombre de la app en Google Cloud sea
 `Academia Integral` (no `academia`) y que el logo esté cargado, porque la pantalla de

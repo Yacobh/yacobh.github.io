@@ -1,6 +1,61 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-17** · Rama `main`
+**Fecha de corte: 2026-08-18** · Rama **`escape-no-se`** (sin mergear, sin pushear)
+
+> ## 🆕 2026-08-18 — T-96 y T-97: el estudiante ya puede decir «no sé», y el editor dejó de recargarse entero
+>
+> **Rama `escape-no-se`, partiendo de `cb9b3fb`. No se tocó `main`.**
+>
+> **T-96 — el escape.** El diagnóstico tiene dos botones nuevos: «No entiendo el enunciado» y «No sé
+> cómo resolverlo». Son **dos y no uno** porque son diagnósticos opuestos en accionabilidad: un
+> error tiene una idea errónea nombrable que corregir, un «no sé» tiene un hueco de prerrequisito, y
+> «no entiendo el enunciado» es lo único de los tres que habla **del ítem** — o sea, revisión de
+> banco gratis, que es insumo de G-2. Ver [[../adr/ADR-029-escape-como-tercera-categoria-de-respuesta]]
+> (D-57).
+>
+> **Lo que hizo que esto fuera barato:** el mecanismo ya estaba construido. El peso por respuesta de
+> ADR-014 entra en las dos derivadas de `tetha` y por herencia en la información de Fisher, así que
+> un escape con `:weight 0.0` **no mueve θ, no baja el SE** —no se puede terminar el test
+> escapando— y **sí** cuenta para `max-items`, así que tampoco se vuelve infinito. Queda fuera del
+> eje de fluidez sin decir nada, porque `fluency/usable?` ya exigía correcta **y** peso positivo.
+>
+> **Y no requiere migración ni toca RLS:** `score_answer` (024) rechaza por diseño cualquier cosa
+> que no sea A–D, y un escape no es una alternativa. Es cliente puro.
+>
+> ⚠️ **Dos cosas que NO se decidieron, a propósito.** No se fijó umbral de tasa de escape ([[OPEN_QUESTIONS]]
+> Q-39) ni se sembró el grafo de prerrequisitos (Q-38). Los dos habrían sido números y contenido
+> **inventados**, y este proyecto ya se equivocó dos veces así — `min_response_seconds` en 3 s que
+> los datos bajaron a 2 s (T-59) y los cortes de fluidez, todavía sin calibrar (T-65). Salen de
+> **T-90** y del profesor, respectivamente.
+>
+> **T-97 — el panel de recursos.** Cada guardado recargaba módulos **y** todos los recursos, en
+> serie, para reflejar el cambio de una fila — cuando `upsert-resource!` ya devolvía la fila guardada
+> y se estaba tirando. Ahora el guardado y el publicar/despublicar son optimistas y reversibles, las
+> dos consultas de la sección van en paralelo, el borrador vive en `app-db` (antes, cambiar de
+> pestaña borraba veinte minutos de LaTeX **sin aviso**), hay ⌘/Ctrl+Enter y Esc, y hay Duplicar.
+> Ver D-58.
+>
+> **Migración `045` escrita y ⏳ SIN APLICAR:** `module_prerequisites`, `resource_misconceptions` y
+> `resources.entry_level`. Aditiva e idempotente, **sin seed a propósito**. No rompe nada mientras no
+> se aplique: nada la lee todavía.
+>
+> Verificación: **117 tests / 602 assertions / 0 failures / 0 errors**, `release app` con 0
+> warnings, `build:css`, los cuatro `audit_*.py` en verde (contraste **40/40**, con los dos pares
+> nuevos declarados) y `graphify update .` corrido.
+>
+> ⚠️ **Pendiente de verificación en vivo:** el diagnóstico es sección protegida y el agente no tiene
+> credenciales de estudiante. **Antes de T-90 hay que probar el escape de punta a punta con una
+> cuenta que no sea admin**, comprobando que el modal muestre la variante de escape y no
+> «Incorrecto» en rojo. Detalle completo en [[../sessions/SESSION-031]].
+>
+> **Nuevo en el backlog:** T-98 (sembrar el grafo, bloqueada por Q-38), **T-99 (ítems sembrados — lo
+> único que avanza G-2 directamente)**, T-100 (migrar el diagnóstico y «Mi plan» al lenguaje del
+> panel: hoy usan **cero** primitivas del panel y 25 `rounded-*`), T-101 (el mapa), T-102 (el resto
+> del editor). Riesgo nuevo: [[RISKS]] **R-34**.
+
+---
+
+**Fecha de corte anterior: 2026-08-17** · Rama `main`
 
 > ## 🔑 2026-08-17 — T-92: login con Google conectado (código), **pendiente de configurar**
 >
