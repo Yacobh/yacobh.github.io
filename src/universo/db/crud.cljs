@@ -709,6 +709,25 @@
     (async/put! ch {:success true
                     :data (js->clj (.-data result) :keywordize-keys true)})))
 
+(defn patch-admin-question-fields!
+  "Actualiza **solo** los campos dados de un ítem, sin tocar el resto.
+
+   Es el motor de las acciones en lote del panel (asignar módulo, mover de tema).
+   A diferencia de `update-admin-question!`, que reemplaza la fila entera con el
+   draft del editor, acá se manda un mapa parcial: mover 20 ítems de tema no
+   puede arriesgarse a reescribir sus enunciados."
+  [question-id campos]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "questions")
+        (.update (clj->js campos))
+        (.eq "id" question-id)
+        (.select question-select-cols)
+        (.single)
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
 (defn upsert-student-profile!
   "Upsert por user_id."
   [row]
@@ -760,7 +779,8 @@
                     (when-not (blank-str? v)
                       (if (string? v) (f v) v)))]
     (clj->js
-     {:topic (str/trim (or (:topic row) ""))
+     (merge
+      {:topic (str/trim (or (:topic row) ""))
       ;; Nombre en blanco → null, no string vacío: es la misma invariante que
       ;; exige el check de 022_test_config_display_name.sql, y mantiene un solo
       ;; "sin nombre" para que el fallback del cliente funcione.
@@ -783,7 +803,15 @@
       ;; universo.irt.fluency/default-thresholds.
       :fluency_fluida_max (or (parse-num (:fluency_fluida_max row) js/parseFloat) 3)
       :fluency_media_max (or (parse-num (:fluency_media_max row) js/parseFloat) 6)
-      :active (boolean (:active row))})))
+      :active (boolean (:active row))}
+     ;; `initial_theta` (046) viaja **solo si la fila leída ya traía la clave**,
+     ;; o sea solo si la migración está aplicada. Mandarla antes hace que
+     ;; PostgREST rechace el upsert entero y el admin no pueda guardar **nada**
+     ;; de la configuración — un campo nuevo no puede romper los diez que ya
+     ;; funcionaban. Mismo criterio que los `misconception_*_id` en
+     ;; `question-payload`.
+     (when (contains? row :initial_theta)
+       {:initial_theta (parse-num (:initial_theta row) js/parseFloat)})))))
 
 (defn upsert-test-config!
   "Upsert por topic (admin)."
@@ -820,6 +848,29 @@
         (.then (fn [result] (put-result ch result)))
         (.catch (fn [error]
                   (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn update-module-band!
+  "Guarda la banda de conocimiento de un módulo (`046`).
+
+   **Degrada si `046` no está aplicada:** las columnas `band_min`/`band_max` no
+   existen y PostgREST rechaza la fila entera. Por eso el llamador pasa
+   `columnas-existen?`: con `false` no se intenta escribir y se responde un fallo
+   explicable, en vez de un error de Postgres que no le dice nada al admin."
+  [module-id {:keys [band-min band-max]} columnas-existen?]
+  (let [ch (async/chan)]
+    (if-not columnas-existen?
+      (async/put! ch {:success false
+                      :error (str "La migración 046 no está aplicada: la banda no se puede "
+                                  "guardar todavía, pero sí se puede aplicar a los ítems.")})
+      (-> (.from supabase-client "modules")
+          (.update (clj->js {:band_min band-min :band_max band-max}))
+          (.eq "id" (str module-id))
+          (.select "*")
+          (.single)
+          (.then (fn [result] (put-result ch result)))
+          (.catch (fn [error]
+                    (async/put! ch {:success false :error (.-message error)})))))
     ch))
 
 (defn fetch-published-resources

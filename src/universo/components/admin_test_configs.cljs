@@ -99,7 +99,18 @@
                 :on-change #(re-frame/dispatch
                              [:admin/update-test-config-draft :se_threshold (.. % -target -value)])}]]]
 
+     ;; θ de arranque (046). No es una regla de parada: decide **dónde abre** la
+     ;; evaluación, porque el primer ítem servido es el más cercano a este valor.
+     ;; Vacío = -1.0, que es lo que hacía el código para todos los bancos por
+     ;; igual — un diagnóstico general y un banco avanzado no tienen por qué
+     ;; empezar en el mismo punto.
      [:div {:class "mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2"}
+      [field "θ inicial" "Dónde abre la evaluación (-3 a 3). Vacío = -1,0"
+       [:input {:class input-class :type "number" :step "0.1" :min "-3" :max "3"
+                :value (or (:initial_theta draft) "")
+                :on-change #(re-frame/dispatch
+                             [:admin/update-test-config-draft :initial_theta
+                              (let [v (.. % -target -value)] (when (pos? (count v)) v))])}]]
       [field "Tiempo máximo (min)" "Vacío = sin límite de tiempo"
        [:input {:class input-class :type "number" :step "1"
                 :value (or (:max_minutes draft) "")

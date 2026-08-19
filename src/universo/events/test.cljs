@@ -198,7 +198,13 @@
                   (assoc-in [:test :prefetched-question] nil)
                   (assoc-in [:test :prefetching?] false)
                   (assoc-in [:test :start-time] (.now js/Date))
-                  (assoc-in [:test :theta] -1.0)
+                  ;; θ de arranque: el de la evaluación si `046` está aplicada y
+                  ;; alguien lo configuró; si no, el -1.0 de siempre. **No depende
+                  ;; del estudiante a propósito** — es dónde abre el banco, no una
+                  ;; estimación previa de quien lo rinde: el primer ítem servido es
+                  ;; el más cercano a este valor.
+                  (assoc-in [:test :theta] (let [t (:initial_theta cfg)]
+                                             (if (number? t) (double t) -1.0)))
                   (assoc-in [:test :theta-history] [])
                   (assoc-in [:test :stop-reason] nil)
                   (assoc-in [:test :stop-config] stop-config)

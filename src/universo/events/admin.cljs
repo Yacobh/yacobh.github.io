@@ -12,6 +12,7 @@
    [re-frame.core :as re-frame]
    [cljs.core.async :refer [go <!]]
    [universo.catalog :as catalog]
+   [universo.bands :as bands]
    [universo.db.crud :as crud]
    [universo.editor :as editor]
    [universo.events.dashboard :as dash]
@@ -918,6 +919,10 @@
      {:db (-> db
               (assoc-in [:admin :question-inline-saving?] false)
               (update-in [:admin :question-inline-edits] #(apply dissoc % ok))
+              ;; El panel de bandas lee su propia copia del banco. Sin invalidarla
+              ;; acá, después de guardar sigue mostrando el «Hoy» viejo y parece
+              ;; que la banda no se aplicó — se vio al usarlo.
+              (assoc-in [:admin :band-questions] [])
               (update-in [:admin :status :questions] dissoc :loaded-at))
       :dispatch-n (cond-> []
                     (pos? n-ok)
@@ -1040,9 +1045,14 @@
    (let [draft (merge empty-test-config-draft
                       ;; display_name llega null desde la DB cuando no se
                       ;; configuró; el <input> necesita string.
+                      ;; `initial_theta` y los cortes de fluidez viajan **solo si
+                      ;; la fila los trae**, o sea si su migración está aplicada.
+                      ;; `select-keys` ya se comporta así: una clave ausente en la
+                      ;; fila no aparece en el draft, y `test-config-payload` la
+                      ;; omite del upsert.
                       (update (select-keys row [:topic :display_name :min_items :max_items
                                                 :se_threshold :prerequisite_topic :min_theta
-                                                :max_minutes :active])
+                                                :max_minutes :active :initial_theta])
                               :display_name #(or % "")))]
      (-> db
          (assoc-in [:admin :test-config-editing?] true)
@@ -1389,3 +1399,236 @@
          (re-frame/dispatch [:admin/misconception-saved "Idea errónea eliminada."])
          (re-frame/dispatch [:admin/misconception-failed
                              (or (:error result) "No se pudo eliminar")]))))))
+
+;; -----------------------------------------------------------------------------
+;; Bandas de conocimiento (migración 046)
+;; -----------------------------------------------------------------------------
+;;
+;; La herramienta vive en la pestaña de Preguntas y **no escribe sola**: llena
+;; `[:admin :question-inline-edits]`, que es el mismo borrador que usa la edición
+;; en línea de la tabla. Eso da gratis el «N dificultades editadas sin guardar»,
+;; el botón de descartar y una única ruta de guardado. Aplicar una banda es
+;; proponer, no ejecutar.
+
+(re-frame/reg-fx
+ :admin/fetch-band-questions
+ (fn [_]
+   (go
+     ;; Sin filtro de tema a propósito: las bandas se calculan sobre el banco
+     ;; completo. Con el filtro puesto, un módulo parecería tener tres ítems
+     ;; cuando tiene treinta, y el reparto saldría mal.
+     (let [res (<! (crud/fetch-admin-questions))]
+       (if (:success res)
+         (re-frame/dispatch [:admin/band-questions-loaded (or (:data res) [])])
+         (re-frame/dispatch [:admin/toast :error
+                             (or (:error res) "No se pudo cargar el banco para las bandas")]))))))
+
+(re-frame/reg-event-fx
+ :admin/open-bands
+ (fn [{:keys [db]} _]
+   ;; Se re-pide el banco si la copia está vacía, que es como queda tras guardar
+   ;; dificultades: abrir el panel siempre muestra el estado real.
+   (cond-> {:db (assoc-in db [:admin :bands-open?] true)}
+     (empty? (get-in db [:admin :band-questions]))
+     (assoc :admin/fetch-band-questions nil)
+
+     (empty? (get-in db [:admin :modules]))
+     (assoc :admin/fetch-modules-only true))))
+
+(re-frame/reg-event-db
+ :admin/close-bands
+ (fn [db _]
+   (assoc-in db [:admin :bands-open?] false)))
+
+(re-frame/reg-event-db
+ :admin/band-questions-loaded
+ (fn [db [_ rows]]
+   (assoc-in db [:admin :band-questions] rows)))
+
+(re-frame/reg-sub
+ :admin/bands-open?
+ (fn [db _] (get-in db [:admin :bands-open?] false)))
+
+(re-frame/reg-sub
+ :admin/band-questions
+ (fn [db _] (get-in db [:admin :band-questions] [])))
+
+(re-frame/reg-sub
+ :admin/band-draft
+ (fn [db _] (get-in db [:admin :band-draft] {})))
+
+;; Los módulos en orden curricular, cada uno con su banda efectiva y con lo que
+;; hoy tienen sus ítems. Ese «hoy» es la mitad que importa: sin él, el admin no
+;; puede ver que `polinomios` está aplastado en 0,045 logits.
+(re-frame/reg-sub
+ :admin/bands-view
+ :<- [:admin/modules]
+ :<- [:admin/band-questions]
+ (fn [[modules questions] _]
+   (let [derivadas (bands/default-bands modules)
+         por-modulo (group-by :module_id (or questions []))]
+     (mapv (fn [m]
+             (let [items (get por-modulo (:id m) [])
+                   dificultades (keep :difficulty items)]
+               {:module m
+                :banda (bands/band-for m derivadas)
+                :n-items (count items)
+                :actual-min (when (seq dificultades) (apply min dificultades))
+                :actual-max (when (seq dificultades) (apply max dificultades))}))
+           (bands/curricular-order modules)))))
+
+(re-frame/reg-event-db
+ :admin/update-band-draft
+ (fn [db [_ module-id k v]]
+   (assoc-in db [:admin :band-draft module-id k] v)))
+
+(re-frame/reg-event-fx
+ :admin/save-module-band
+ (fn [{:keys [db]} [_ module-id]]
+   (let [draft (get-in db [:admin :band-draft module-id])
+         lo (js/parseFloat (str (:band-min draft)))
+         hi (js/parseFloat (str (:band-max draft)))
+         ;; `046` aplicada = las columnas llegaron en el select. Se mira una fila
+         ;; real y no una bandera de configuración: la base es la que sabe.
+         existen? (some #(contains? % :band_min) (get-in db [:admin :modules] []))]
+     (if (or (js/isNaN lo) (js/isNaN hi) (> lo hi))
+       {:dispatch [:admin/toast :error "La banda necesita un mínimo y un máximo, y el mínimo no puede ser mayor."]}
+       {:admin/persist-module-band {:id module-id :band-min lo :band-max hi :existen? existen?}}))))
+
+(re-frame/reg-fx
+ :admin/persist-module-band
+ (fn [{:keys [id band-min band-max existen?]}]
+   (go
+     (let [res (<! (crud/update-module-band! id {:band-min band-min :band-max band-max} existen?))]
+       (if (:success res)
+         (re-frame/dispatch [:admin/module-band-saved])
+         (re-frame/dispatch [:admin/toast :error (or (:error res) "No se pudo guardar la banda")]))))))
+
+(re-frame/reg-event-fx
+ :admin/module-band-saved
+ (fn [_ _]
+   ;; `:admin/fetch-modules-only` es un **efecto**, no un evento: va como clave
+   ;; del mapa. Despacharlo como evento no habría hecho nada y la banda recién
+   ;; guardada seguiría mostrándose vieja hasta recargar.
+   {:admin/fetch-modules-only true
+    :dispatch [:admin/toast :success "Banda guardada."]}))
+
+;; Aplicar = llenar el borrador de ediciones en línea. No escribe nada todavía.
+(re-frame/reg-event-fx
+ :admin/apply-band
+ (fn [{:keys [db]} [_ module-id]]
+   (let [modules (get-in db [:admin :modules] [])
+         derivadas (bands/default-bands modules)
+         m (first (filter #(= (:id %) module-id) modules))
+         banda (bands/band-for m derivadas)
+         items (filter #(= (:module_id %) module-id) (get-in db [:admin :band-questions] []))
+         cambios (bands/changed (bands/assign items banda))]
+     (if (empty? cambios)
+       {:dispatch [:admin/toast :success "Ese módulo ya está dentro de su banda: no hay nada que cambiar."]}
+       {:db (update-in db [:admin :question-inline-edits]
+                       merge
+                       (into {} (map (juxt :id #(str (:difficulty-despues %)))) cambios))
+        :dispatch [:admin/toast :success
+                   (str (count cambios)
+                        (if (= 1 (count cambios))
+                          " dificultad propuesta. Revísala y guarda."
+                          " dificultades propuestas. Revísalas y guarda."))]}))))
+
+(re-frame/reg-event-fx
+ :admin/apply-all-bands
+ (fn [{:keys [db]} _]
+   (let [modules (get-in db [:admin :modules] [])
+         derivadas (bands/default-bands modules)
+         questions (get-in db [:admin :band-questions] [])
+         por-modulo (group-by :module_id questions)
+         cambios (mapcat (fn [m]
+                           (bands/changed
+                            (bands/assign (get por-modulo (:id m) [])
+                                          (bands/band-for m derivadas))))
+                         modules)]
+     (if (empty? cambios)
+       {:dispatch [:admin/toast :success "Todo el banco ya está dentro de sus bandas."]}
+       {:db (update-in db [:admin :question-inline-edits]
+                       merge
+                       (into {} (map (juxt :id #(str (:difficulty-despues %)))) cambios))
+        :dispatch [:admin/toast :success
+                   (str (count cambios) " dificultades propuestas en todo el banco. "
+                        "Revísalas antes de guardar.")]}))))
+
+;; -----------------------------------------------------------------------------
+;; Selección múltiple y acciones en lote sobre el banco
+;; -----------------------------------------------------------------------------
+;;
+;; Por qué existe: el 2026-08-18 se midió que **los 84 ítems del diagnóstico y
+;; los 44 de `paes_m1` no tienen `module_id`**. Sin módulo no hay banda que los
+;; alcance, no hay material que el plan pueda recomendar y no hay recurso que el
+;; escape pueda entregar. Arreglarlo de a un ítem son cuatro clics por ítem; en
+;; lote son tres clics por grupo, y es la diferencia entre que se haga y que no.
+;;
+;; A diferencia de las bandas, esto **sí escribe al confirmar**: mover de tema o
+;; asignar módulo no tiene un «antes y después» que revisar — se ve en la tabla.
+
+(re-frame/reg-sub
+ :admin/question-selection
+ (fn [db _] (get-in db [:admin :question-selection] #{})))
+
+(re-frame/reg-sub
+ :admin/question-bulk-saving?
+ (fn [db _] (get-in db [:admin :question-bulk-saving?] false)))
+
+(re-frame/reg-event-db
+ :admin/toggle-question-selection
+ (fn [db [_ id]]
+   (update-in db [:admin :question-selection] (fnil (fn [s] (if (contains? s id) (disj s id) (conj s id))) #{}) )))
+
+(re-frame/reg-event-db
+ :admin/select-questions
+ (fn [db [_ ids]]
+   (assoc-in db [:admin :question-selection] (set ids))))
+
+(re-frame/reg-event-db
+ :admin/clear-question-selection
+ (fn [db _]
+   (assoc-in db [:admin :question-selection] #{})))
+
+(re-frame/reg-event-fx
+ :admin/bulk-update-questions
+ (fn [{:keys [db]} [_ campos]]
+   (let [ids (get-in db [:admin :question-selection] #{})]
+     (if (empty? ids)
+       {:dispatch [:admin/toast :error "No hay ítems seleccionados."]}
+       {:db (assoc-in db [:admin :question-bulk-saving?] true)
+        :admin/persist-bulk-questions {:ids ids :campos campos}}))))
+
+(re-frame/reg-fx
+ :admin/persist-bulk-questions
+ (fn [{:keys [ids campos]}]
+   (go
+     ;; En serie y no en paralelo: son escrituras contra producción y un lote de
+     ;; 80 peticiones simultáneas contra el free tier de Supabase es la forma
+     ;; conocida de que la mitad falle sin saber cuál. Mismo criterio que
+     ;; `:admin/persist-inline-question-edits`.
+     (loop [pendientes (seq ids) ok [] fallidos []]
+       (if (empty? pendientes)
+         (re-frame/dispatch [:admin/bulk-questions-done {:ok ok :fallidos fallidos}])
+         (let [id (first pendientes)
+               r (<! (crud/patch-admin-question-fields! id campos))]
+           (if (:success r)
+             (recur (rest pendientes) (conj ok id) fallidos)
+             (recur (rest pendientes) ok (conj fallidos id)))))))))
+
+(re-frame/reg-event-fx
+ :admin/bulk-questions-done
+ (fn [{:keys [db]} [_ {:keys [ok fallidos]}]]
+   {:db (-> db
+            (assoc-in [:admin :question-bulk-saving?] false)
+            (assoc-in [:admin :question-selection] #{})
+            (assoc-in [:admin :band-questions] [])
+            (update-in [:admin :status :questions] dissoc :loaded-at))
+    :dispatch-n (cond-> [[:admin/load-questions]]
+                  (seq ok)
+                  (conj [:admin/toast :success
+                         (str (count ok) (if (= 1 (count ok)) " ítem actualizado." " ítems actualizados."))])
+                  (seq fallidos)
+                  (conj [:admin/toast :error
+                         (str "No se pudieron actualizar " (count fallidos) ".")]))}))

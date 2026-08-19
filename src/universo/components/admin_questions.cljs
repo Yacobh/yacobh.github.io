@@ -3,6 +3,7 @@
   (:require
    [clojure.string :as str]
    [re-frame.core :as re-frame]
+   [reagent.core :as r]
    [universo.components.math-render :as math]
    [universo.editor :as editor]
    [universo.misconceptions :as mis]))
@@ -286,6 +287,87 @@
            :on-change #(re-frame/dispatch [:admin/update-question-draft k %])}]
          [misconception-select draft mis-k]])]]))
 
+(defn- bulk-bar-inner [seleccion destino-atom]
+  (let [modules @(re-frame/subscribe [:admin/modules])
+        guardando? @(re-frame/subscribe [:admin/question-bulk-saving?])
+        destino @destino-atom
+        n (count seleccion)
+        mover! (fn []
+                 (when-not (str/blank? destino)
+                   (re-frame/dispatch
+                    [:confirm/ask
+                     {:message (str "¿Mover los " n " ítems al tema «" (str/trim destino) "»?")
+                      :confirm-label "Mover"
+                      :on-confirm [:admin/bulk-update-questions {:topic (str/trim destino)}]}])))]
+    (when (pos? n)
+      [:div {:class (str "mb-3 flex flex-wrap items-center gap-3 rounded-lg border "
+                         "border-gray-300 bg-gray-50 px-4 py-2")}
+       [:p {:class "text-sm font-medium text-gray-800"}
+        (str n (if (= 1 n) " ítem seleccionado" " ítems seleccionados"))]
+
+       [:select {:class (str input-class " w-auto min-w-56")
+                 :disabled guardando?
+                 :value ""
+                 :on-change (fn [e]
+                              (let [v (.. e -target -value)]
+                                (when (seq v)
+                                  (re-frame/dispatch
+                                   [:confirm/ask
+                                    {:message (str "¿Asignar ese módulo a los " n " ítems seleccionados?")
+                                     :confirm-label "Asignar"
+                                     :on-confirm [:admin/bulk-update-questions {:module_id v}]}]))))}
+        [:option {:value ""} "Asignar módulo…"]
+        (for [[track ms] (editor/modules-by-track modules)]
+          ^{:key track}
+          [:optgroup {:label track}
+           (for [m ms]
+             ^{:key (:id m)}
+             [:option {:value (:id m)} (editor/module-label m)])])]
+
+       ;; Campo en línea y no un `js/prompt`: un diálogo nativo bloquea el hilo
+       ;; del navegador —y con él cualquier automatización— y no se puede
+       ;; corregir con Esc sin perder lo escrito.
+       [:div {:class "flex items-center gap-2"}
+        [:input {:class (str input-class " w-48")
+                 :type "text"
+                 :placeholder "Mover a otro tema…"
+                 :disabled guardando?
+                 :value destino
+                 :on-change #(reset! destino-atom (.. % -target -value))
+                 :on-key-down (fn [e]
+                                (when (= "Enter" (.-key e))
+                                  (.preventDefault e)
+                                  (mover!)))}]
+        [:button {:type "button"
+                  :disabled (or guardando? (str/blank? destino))
+                  :class (str "rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium "
+                              "text-gray-700 hover:bg-white disabled:opacity-40")
+                  :on-click mover!}
+         "Mover"]]
+
+       [:button {:type "button"
+                 :class "text-sm text-gray-600 underline hover:text-gray-900"
+                 :on-click #(re-frame/dispatch [:admin/clear-question-selection])}
+        "Quitar selección"]
+
+       (when guardando?
+         [:span {:class "text-sm text-gray-500"} "Guardando…"])])))
+
+(defn- bulk-bar
+  "Acciones sobre los ítems seleccionados.
+
+   Existe porque el 2026-08-18 se midió que los 84 ítems del diagnóstico y los 44
+   de `paes_m1` **no tienen módulo**: sin módulo no hay banda que los alcance ni
+   material que el plan o el escape puedan entregar. De a uno son cuatro clics
+   por ítem.
+
+   Componente de dos niveles: el `r/atom` del tema destino tiene que sobrevivir a
+   los re-renders que provoca escribir en él."
+  [_seleccion]
+  (let [destino-atom (r/atom "")]
+    (fn [seleccion]
+      [bulk-bar-inner seleccion destino-atom])))
+
 (defn- inline-edits-bar [dirty-count saving?]
   [:div {:class (str "mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg "
                       "border border-amber-200 bg-amber-50 px-4 py-2")}
@@ -327,6 +409,9 @@
   (let [rows @(re-frame/subscribe [:admin/questions-view])
         inline-edits @(re-frame/subscribe [:admin/question-inline-edits])
         saving? @(re-frame/subscribe [:admin/question-inline-saving?])
+        seleccion @(re-frame/subscribe [:admin/question-selection])
+        ids-visibles (set (map :id rows))
+        todos? (and (seq rows) (every? seleccion ids-visibles))
         dirty-count (count inline-edits)]
     (if-not (seq rows)
       [:div {:class "rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center"}
@@ -334,10 +419,22 @@
       [:div
        (when (pos? dirty-count)
          [inline-edits-bar dirty-count saving?])
+       [bulk-bar seleccion]
        [:div {:class "overflow-x-auto rounded-xl border border-gray-200 bg-white"}
         [:table {:class "w-full text-left text-sm"}
          [:thead {:class "bg-gray-50 text-gray-600"}
           [:tr
+           [:th {:class "px-3 py-2"}
+            [:input {:type "checkbox"
+                     :aria-label "Seleccionar todo lo visible"
+                     :checked todos?
+                     :on-change #(re-frame/dispatch
+                                  (if todos?
+                                    [:admin/clear-question-selection]
+                                    ;; Solo lo **visible**: con el filtro puesto,
+                                    ;; «todo» tiene que significar lo que se está
+                                    ;; mirando, no las 510 filas del banco.
+                                    [:admin/select-questions ids-visibles]))}]]
            [:th {:class "px-3 py-2"} "ID"]
            [:th {:class "px-3 py-2"} "Tema"]
            [:th {:class "px-3 py-2"} "Enunciado"]
@@ -348,7 +445,16 @@
           (for [q rows]
             (let [edited (get inline-edits (:id q))]
               ^{:key (:id q)}
-              [:tr {:class (if edited "bg-amber-50" "hover:bg-gray-50")}
+              [:tr {:class (cond
+                             (contains? seleccion (:id q)) "bg-gray-100"
+                             edited "bg-amber-50"
+                             :else "hover:bg-gray-50")}
+               [:td {:class "px-3 py-2"}
+                [:input {:type "checkbox"
+                         :aria-label (str "Seleccionar ítem " (:id q))
+                         :checked (contains? seleccion (:id q))
+                         :on-change #(re-frame/dispatch
+                                      [:admin/toggle-question-selection (:id q)])}]]
                [:td {:class "px-3 py-2 tabular-nums"} (:id q)]
                [:td {:class "px-3 py-2"} (:topic q)]
                [:td {:class "max-w-xs px-3 py-2"}
@@ -360,6 +466,121 @@
                           :class "text-sm font-medium text-indigo-600 hover:text-indigo-900"
                           :on-click #(re-frame/dispatch [:admin/edit-question q])}
                  "Editar"]]]))]]]])))
+
+(defn- fmt2 [v]
+  (when (number? v) (.toFixed (double v) 2)))
+
+(defn- bands-panel
+  "Bandas de conocimiento: qué rango de dificultad le toca a cada módulo.
+
+   **No escribe nada al pulsar «Aplicar».** Llena el mismo borrador que la
+   edición en línea de la tabla, así que aparece la barra «N dificultades
+   editadas sin guardar» con su botón de descartar. Proponer y guardar son dos
+   pasos distintos a propósito: esto toca el activo del proyecto."
+  []
+  (let [abierto? @(re-frame/subscribe [:admin/bands-open?])
+        filas @(re-frame/subscribe [:admin/bands-view])
+        draft @(re-frame/subscribe [:admin/band-draft])]
+    [:div {:class "mb-4 rounded-xl border border-gray-200 bg-white"}
+     [:button {:type "button"
+               :class "flex w-full items-center justify-between px-4 py-3 text-left"
+               :on-click #(re-frame/dispatch
+                           [(if abierto? :admin/close-bands :admin/open-bands)])}
+      [:span
+       [:span {:class "text-sm font-medium text-gray-900"} "Bandas de conocimiento"]
+       [:span {:class "ml-2 text-xs text-gray-500"}
+        "Qué dificultad le corresponde a cada módulo según su lugar en la progresión"]]
+      [:span {:class "text-gray-400"} (if abierto? "▲" "▼")]]
+
+     (when abierto?
+       [:div {:class "border-t border-gray-100 px-4 py-4"}
+        [:p {:class "mb-3 text-xs text-gray-600"}
+         "La banda sale del orden curricular (eje y " [:code "order_index"] " del módulo). "
+         "Se puede fijar a mano por módulo. "
+         [:strong "Es una hipótesis editorial, no una medición: "]
+         "solo calibrar con respuestas reales la vuelve psicométricamente válida."]
+
+        (if (empty? filas)
+          [:p {:class "py-4 text-center text-sm text-gray-500"} "Cargando módulos…"]
+          [:<>
+           [:div {:class "overflow-x-auto"}
+            [:table {:class "w-full text-sm"}
+             [:thead
+              [:tr {:class "border-b border-gray-200 text-left text-xs text-gray-500"}
+               [:th {:class "py-2 pr-3"} "Módulo"]
+               [:th {:class "py-2 pr-3"} "Ítems"]
+               [:th {:class "py-2 pr-3"} "Hoy"]
+               [:th {:class "py-2 pr-3"} "Banda"]
+               [:th {:class "py-2"}]]]
+             [:tbody
+              (for [{:keys [module banda n-items actual-min actual-max]} filas]
+                ^{:key (:id module)}
+                [:tr {:class "border-b border-gray-100"}
+                 [:td {:class "py-2 pr-3"}
+                  [:p {:class "font-medium text-gray-900"} (:title module)]
+                  [:p {:class "font-mono text-xs text-gray-500"} (:slug module)]]
+                 [:td {:class "py-2 pr-3 tabular-nums text-gray-700"}
+                  n-items
+                  ;; Un módulo con muchos ítems no es un contenido, es un cajón de
+                  ;; sastre: aplicarle una banda aprieta decenas de ítems distintos
+                  ;; en menos de un logit y destruye el rango que tuviera. Se avisa
+                  ;; acá, que es donde se decide.
+                  (when (> n-items 25)
+                    [:p {:class "mt-0.5 text-xs font-normal text-amber-700"}
+                     "cajón de sastre: convendría partirlo (T-60)"])]
+                 [:td {:class "py-2 pr-3 tabular-nums text-xs text-gray-500"}
+                  (if (pos? n-items)
+                    (str (or (fmt2 actual-min) "—") " … " (or (fmt2 actual-max) "—"))
+                    "—")]
+                 [:td {:class "py-2 pr-3"}
+                  [:div {:class "flex items-center gap-1"}
+                   [:input {:class (str input-class " w-20")
+                            :type "number" :step "0.1"
+                            :value (or (get-in draft [(:id module) :band-min])
+                                       (some-> (:min banda) (.toFixed 2))
+                                       "")
+                            :on-change #(re-frame/dispatch
+                                         [:admin/update-band-draft (:id module) :band-min
+                                          (.. % -target -value)])}]
+                   [:span {:class "text-gray-400"} "…"]
+                   [:input {:class (str input-class " w-20")
+                            :type "number" :step "0.1"
+                            :value (or (get-in draft [(:id module) :band-max])
+                                       (some-> (:max banda) (.toFixed 2))
+                                       "")
+                            :on-change #(re-frame/dispatch
+                                         [:admin/update-band-draft (:id module) :band-max
+                                          (.. % -target -value)])}]]
+                  [:p {:class "mt-0.5 text-xs text-gray-400"}
+                   (if (= :explicita (:origen banda)) "fijada a mano" "derivada del orden")]]
+                 [:td {:class "py-2"}
+                  [:div {:class "flex gap-2"}
+                   [:button {:type "button"
+                             :class (str "rounded-lg border border-gray-300 px-2 py-1.5 text-xs "
+                                         "font-medium text-gray-700 hover:bg-gray-50")
+                             :on-click #(re-frame/dispatch [:admin/save-module-band (:id module)])}
+                    "Fijar"]
+                   [:button {:type "button"
+                             :disabled (zero? n-items)
+                             :class (str "rounded-lg bg-gray-900 px-2 py-1.5 text-xs font-medium "
+                                         "text-white hover:bg-gray-800 disabled:opacity-40")
+                             :on-click #(re-frame/dispatch [:admin/apply-band (:id module)])}
+                    "Aplicar"]]]])]]]
+
+           [:div {:class "mt-4 flex flex-wrap items-center justify-between gap-3"}
+            [:p {:class "text-xs text-gray-500"}
+             "«Aplicar» no guarda: propone las dificultades y las deja en la barra de cambios "
+             "pendientes, arriba de la tabla."]
+            [:button {:type "button"
+                      :class (str "rounded-lg border border-gray-300 px-3 py-2 text-sm "
+                                  "font-medium text-gray-700 hover:bg-gray-50")
+                      :on-click #(re-frame/dispatch
+                                  [:confirm/ask
+                                   {:message (str "¿Proponer dificultades para TODOS los módulos? "
+                                                  "No se guarda nada todavía: podrás revisar y descartar.")
+                                    :confirm-label "Proponer"
+                                    :on-confirm [:admin/apply-all-bands]}])}
+             "Aplicar a todos los módulos"]]])])]))
 
 (defn questions-panel []
   (let [topics @(re-frame/subscribe [:admin/question-topics])
@@ -378,6 +599,9 @@
      (when error
        [:div {:class "rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"}
         error])
+
+     (when-not editing?
+       [bands-panel])
 
      (when-not editing?
        [:div {:class "flex flex-wrap items-end justify-between gap-3"}
