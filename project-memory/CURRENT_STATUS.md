@@ -2,7 +2,46 @@
 
 **Fecha de corte: 2026-08-18** · Rama **`escape-no-se`** (sin mergear, sin pushear)
 
-> ## 🆕 2026-08-18 (tarde) — el catálogo de misconceptions ya tiene capa de datos, y un uuid que se parseaba como entero
+> ## 🆕 2026-08-18 (noche) — `escape-no-se` está en `main`, y el panel de edición dejó de ser el cuello de botella
+>
+> **`main` @ `a29396d`.** El merge (`09ae9a0`) trae el escape del estudiante, el editor de recursos y
+> la capa de datos del catálogo; encima va el trabajo de panel de esta sesión.
+>
+> **Se revisó el panel usándolo**, con la cuenta de admin contra el host local y la **base real**. El
+> diagnóstico en una frase: **el editor de recursos ya tenía el tratamiento de D-58 y el del banco
+> no**, siendo el flujo más frecuente. Tres huecos, los tres vistos en pantalla y no deducidos:
+>
+> 1. **El editor de preguntas no tenía campo de módulo.** De `module_id` salen «Mi plan» y el
+>    material del escape, un tercio del banco no lo tiene (T-60) y **no había forma de arreglarlo
+>    desde el panel**. Ahora la hay.
+> 2. **El catálogo de ideas erróneas no tenía interfaz** — `027` seguía sin lector en la práctica.
+>    Ahora es la pestaña **«Ideas erróneas»** (T-103 cerrada) y cada distractor puede apuntar a una
+>    idea errónea desde el editor de preguntas.
+> 3. **Fricción**: quince campos con los botones solo arriba, nueve vistas previas que repetían el
+>    texto, y un «no se puede guardar» que no decía qué faltaba. Los tres, corregidos.
+>
+> ✅ **Verificado en vivo, no deducido:** el arreglo de `module_id` (`3e0ef20`) **funciona contra la
+> base real** — se asignó módulo al ítem #31, se guardó y persistió; con el `parseInt` anterior ese
+> guardado habría reventado. El catálogo soporta alta y baja (se creó una entrada de prueba y se
+> borró; quedó en 77).
+>
+> ⚠️ **Q-40 dejó de ser una nota:** el panel muestra **77 ideas y las 77 son del experimento de
+> cuántica**. El veredicto decía «Catálogo sano» cuando el producto tiene **cero** distractores
+> catalogados. El banner ahora lo declara. Qué hacer con esas 77 **sigue sin decidirse**.
+>
+> **Lo que falta y no se hizo:** no hay panel de Módulos (**T-104**, nueva) — los 35 módulos solo
+> existen por SQL; el catálogo del producto sigue vacío a propósito (el paso 2 de T-57 empieza con
+> una consulta del owner); y `admin_questions.cljs` sigue en indigo y utilidades sueltas en vez de
+> las primitivas del panel (mismo problema que T-100).
+>
+> Verificación: **136 tests / 761 assertions / 0 failures**, `clj-kondo` 0/0, `release app` 0
+> warnings, los cuatro `audit_*.py` en verde —`audit_dark_theme` **falló primero** y por eso el verde
+> nuevo quedó mapeado en `app.css` (ADR-012)— y revisado en tema claro y oscuro. Detalle en
+> [[../sessions/SESSION-033]].
+
+---
+
+> ## 2026-08-18 (tarde) — el catálogo de misconceptions ya tiene capa de datos, y un uuid que se parseaba como entero
 >
 > **Misma rama `escape-no-se`.** Dos commits: `a672fec` (cableado) y `3e0ef20` (arreglo).
 >
@@ -1466,10 +1505,12 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 > cuál es más nuevo, sino **cuál está publicado**: `main` es lo que sirve GitHub Pages en
 > jacobocordova.com; todo lo demás no existe para nadie.
 
-**En `main` — esto SÍ está en producción** (`cb9b3fb`, 2026-08-17):
+**En `main` — esto SÍ está en producción** (`a29396d`, 2026-08-18):
 
 | Commit | Qué hizo |
 |--------|----------|
+| `a29396d` | Editor del banco usable + pestaña «Ideas erróneas» (T-103) |
+| `09ae9a0` | **Merge** de `escape-no-se`: escape del estudiante, editor de recursos y catálogo |
 | `cb9b3fb` | Cerrar la bitácora de la sesión y registrar ADR-028 |
 | `1fd5e4c` | Cerrar T-92 con la configuración verificada y anotar R-33 |
 | `a7312ee` | Conectar el login con Google sin saltarse la declaración de edad (D-56) |
@@ -1477,7 +1518,7 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 | `60d7272` | Dejar un solo `index.html` y auditar el par que sobrevive (T-12, ADR-027) |
 | `0e6e312` | Sacar el registro de `/ingresar` y darle su propia ruta (T-05, ADR-026) |
 
-**En `escape-no-se` — 12 commits sobre `main`, NADA de esto está publicado:**
+**Lo que traía `escape-no-se`, ya mergeado en `09ae9a0` y publicado:**
 
 | Commit | Qué hizo |
 |--------|----------|
@@ -1588,35 +1629,37 @@ hay ningún bloqueo de go-live abierto, así que la lista cambia de naturaleza: 
 
 ## 9. Estado del repositorio
 
-> **Verificado con `git` el 2026-08-18.** Reemplaza el estado del 2026-08-09, que decía que la rama
-> actual era `chore-limpieza-tecnica-y-memoria` y que en local y en `origin` solo quedaba `main`:
-> **ninguna de las dos cosas sigue siendo cierta.**
+> **Verificado con `git` el 2026-08-18 (noche).** Reemplaza el estado del 2026-08-09 —que decía que
+> en local y en `origin` solo quedaba `main`— y el cuadro de esa misma tarde, que daba `escape-no-se`
+> como no mergeada: **ya está en `main` y publicada.**
 
 ```
-Rama actual  : escape-no-se @ 29db48d — 12 commits sobre main, SIN rama remota (nunca se pusheó)
-Rama deploy  : main @ cb9b3fb == origin/main  (GitHub Pages, dominio jacobocordova.com)
+Rama actual  : main @ a29396d == origin/main  (GitHub Pages, dominio jacobocordova.com)
 Árbol        : limpio
-Ramas locales (7): escape-no-se · main · respaldo-pre-squash · t-05-router-url ·
+Último merge : 09ae9a0 — escape-no-se (13 commits), con commit de merge
+Ramas locales (7): main · escape-no-se · respaldo-pre-squash · t-05-router-url ·
                    t-12-html-unico · t-56-geometria · lint/clj-kondo-cero-warnings
 Ramas remotas (4): origin/{main, t-05-router-url, t-56-geometria, lint/clj-kondo-cero-warnings}
-Ya mergeadas a main (borrables): t-05-router-url · t-12-html-unico · t-56-geometria ·
-                   lint/clj-kondo-cero-warnings
-Sin mergear  : escape-no-se (el trabajo vivo) y respaldo-pre-squash (respaldo deliberado del
-                   2026-08-13: el estado previo al squash de la poda de memoria)
+Ya mergeadas a main (borrables): escape-no-se · t-05-router-url · t-12-html-unico ·
+                   t-56-geometria · lint/clj-kondo-cero-warnings
+Sin mergear  : respaldo-pre-squash (respaldo deliberado del 2026-08-13: el estado previo al
+                   squash de la poda de memoria)
 ```
 
-⚠️ **Lo que más pesa de este cuadro:** el trabajo de las tres últimas sesiones —el escape del
-estudiante (ADR-029), el panel de recursos (D-58) y el catálogo de misconceptions (D-59)— está
-**todo** en `escape-no-se`, sin mergear y **sin pushear**. No existe copia en `origin`: si se pierde
-el disco, se pierde. Producción sigue siendo `cb9b3fb`.
+✅ **Resuelto lo que este mismo cuadro marcaba como lo más grave esa tarde:** el trabajo de las tres
+últimas sesiones ya no vive solo en un disco. `main` está publicada y **la migración `045` fue
+aplicada por el owner el 2026-08-18**, así que el esquema y el código vuelven a estar alineados.
+
+⚠️ **La deuda de ramas creció a cinco mergeadas sin borrar.** Ninguna aporta nada ya; el barrido
+sigue pendiente.
 
 ⚠️ **La deuda de ramas volvió, en pequeño.** T-18 la dejó en 1 local / 1 remota el 2026-08-09 y R-21
-se cerró con eso; hoy son **7 locales / 4 remotas**, y **cuatro de ellas ya están mergeadas a
-`main`**. No es la escala de 27/24 que motivó T-18, pero confirma que la limpieza no se mantiene
-sola: conviene un barrido al mergear `escape-no-se`.
+se cerró con eso; hoy son **7 locales / 4 remotas**, y **cinco de ellas ya están mergeadas a `main`**
+(incluida `escape-no-se`). No es la escala de 27/24 que motivó T-18, pero confirma que la limpieza no
+se mantiene sola.
 
-**Bundle:** el `public/js/app.js` de `29db48d` corresponde a un `npx shadow-cljs release app` real,
-corrido en `3e0ef20` (1.318.673 bytes, sin `shadow.cljs.devtools.client` dentro). Sigue vigente la
+**Bundle:** el `public/js/app.js` de `a29396d` corresponde a un `npx shadow-cljs release app` real
+(1.357.487 bytes, sin `shadow.cljs.devtools.client` dentro). Sigue vigente la
 advertencia de [[LESSONS_LEARNED]] **L-30** sobre watchers de `shadow-cljs`/`tailwind` en background
 que ensucian `public/js/app.js`/`app.css` con un build de desarrollo sin cambio de fuente real —
 **volvió a pasar el 2026-08-18** (ver SESSION-032). Verificar `git status` antes de cualquier commit

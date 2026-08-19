@@ -894,7 +894,17 @@ Lo que quedó fuera de T-97 por ser de mayor alcance:
   **menos campos obligatorios**. Hoy pide título, tipo, módulo, URL, orden y cuerpo; quien graba 90
   segundos sobre *un* error debería elegir una cosa y grabar.
 
-### T-103 · Pestaña de catálogo de misconceptions en el panel — **P2** · `abierto`
+### T-103 · Pestaña de catálogo de misconceptions en el panel — **P2** · `hecho` (2026-08-18, `a29396d`)
+
+> **Cerrada el 2026-08-18.** La pestaña «Ideas erróneas» existe: alta, edición, búsqueda y baja, con
+> el slug propuesto desde el nombre y validado contra el check de `027` antes de viajar, el veredicto
+> de `health` arriba y visible, y **la asignación por distractor desde el editor de preguntas**, que
+> era el punto. Verificado en vivo contra la base real (alta y baja de una entrada de prueba).
+>
+> **Lo que la sesión encontró al construirla y no estaba previsto:** el veredicto se calcula sobre un
+> catálogo que hoy es **77 de 77 del experimento de cuántica**, así que decía «sano» sobre un
+> producto con cero distractores catalogados. El banner lo declara explícitamente; la decisión de
+> fondo sigue en **Q-40**.
 
 **Es el consumidor que le falta al cableado del 2026-08-18.** `fetch-misconceptions`,
 `upsert-misconception!` y `delete-misconception!` existen en `db.crud`, `universo.misconceptions`
@@ -923,6 +933,25 @@ que distorsionan `health` — [[OPEN_QUESTIONS]] **Q-40**.
 - **Terminado cuando:** un admin puede crear, editar y borrar una misconception desde el panel, ve
   el uso de cada una y ve el veredicto de `health` del banco.
 - **Relacionado:** T-57 (paso 2), T-54, D-59, `sessions/SESSION-032.md`.
+
+### T-104 · Panel de módulos en administración — **P2** · `abierto`
+
+**Los 35 módulos solo existen por SQL.** No hay forma de crear, renombrar, reordenar ni cambiarle el
+track a un módulo desde el panel: hay que escribir una migración y aplicarla a mano en el SQL Editor.
+
+**Por qué importa más de lo que parece:** de `modules` cuelgan «Mi plan», los 112 recursos, el
+`module_id` de cada ítem del banco, las misconceptions catalogadas y —desde `045`— el grafo de
+prerrequisitos. Es la única entidad estructural del producto que **no** se puede tocar con la
+herramienta con la que se produce todo lo demás.
+
+**Alcance mínimo:** listar, crear, renombrar, cambiar `order_index` y `track`. **Borrar no**, o no
+sin mirar antes qué cuelga: a diferencia de `misconceptions` (FK `on delete set null`), acá un
+borrado arrastra contenido real.
+
+**Precondición:** `crud` no tiene `upsert-module!` ni `delete-module!` — solo `fetch-modules`.
+
+- **Terminado cuando:** un admin puede crear y reordenar módulos desde el panel sin escribir SQL.
+- **Relacionado:** T-57, T-60, T-103, `045`, `sessions/SESSION-033.md`.
 
 ### T-24 · Estado vacío honesto en "Mi plan" y "Cupos" — **P1** · `hecho` (2026-08-03, mergeado a `main` 2026-08-05)
 

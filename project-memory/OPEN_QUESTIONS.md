@@ -1,6 +1,8 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-18** — **Q-40 nueva**: qué hace la pestaña del catálogo con las 77
+Última actualización: **2026-08-18 (noche)** — **Q-40 medida**: el catálogo es 77 de 77 del
+experimento de cuántica y el producto tiene cero; el panel ya lo declara, pero la decisión sigue
+abierta. · Antes: **2026-08-18** — **Q-40 nueva**: qué hace la pestaña del catálogo con las 77
 entradas `mq/` del experimento de cuántica, que hoy `fetch-misconceptions` devuelve junto con las del
 producto y que distorsionarían `health` (T-103). **Aviso de mantenimiento del mismo día:** hay **dos
 preguntas numeradas Q-39** (tasa de escape y custom domain de Supabase); no se renumeró en silencio
@@ -474,7 +476,18 @@ nombres»; (c) no filtrar y calcular `health` solo sobre lo que no es `mq/`. **N
 depende de si el track de cuántica sigue vivo, que es del owner. Bloquea la parte de `health` de
 **T-103**, no el CRUD.
 
-**Relacionado:** [[BACKLOG]] T-103, T-61, T-57 · `sessions/SESSION-032.md`
+> **Medido el 2026-08-18 (noche), con la pestaña ya construida:** el catálogo tiene **77 entradas y
+> las 77 son del experimento** (`mq/…`). El producto tiene **cero** distractores catalogados, y aun
+> así el veredicto de `health` salía **«Catálogo sano · 6,6 ítems por idea»** — porque medía el
+> experimento. Un instrumento que dice «sano» sobre algo que no existe es peor que no tenerlo.
+>
+> **Mitigación aplicada, que no responde la pregunta:** el banner declara explícitamente cuántas de
+> las que cuenta son del experimento (`misconceptions/split-experimento`). La decisión de fondo —si
+> se filtran, si se separan en dos vistas, o si el track de cuántica se archiva— **sigue abierta y es
+> del owner**.
+
+**Relacionado:** [[BACKLOG]] T-103 (cerrada), T-61, T-57 · `sessions/SESSION-032.md`,
+`sessions/SESSION-033.md`
 
 ---
 

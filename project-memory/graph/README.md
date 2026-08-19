@@ -11,25 +11,25 @@
 
 ## Snapshot actual
 
-- **Commit:** `3e0ef20` (rama `escape-no-se`, **sin mergear a `main`**)
+- **Commit:** `a29396d` (rama `main`, **publicada**)
 - **Fecha:** 2026-08-18
-- **Tamaño:** 2093 nodos · 2590 aristas · 183 comunidades
+- **Tamaño:** 3119 nodos · 7635 aristas
 - **Extracción:** ver el encabezado de `GRAPH_REPORT.md`
 - **Ciclos de importación:** ninguno
 
-> ⚠️ **Este snapshot es MÁS CHICO que el anterior y no es porque se haya borrado código:** pasó de
-> 2927 nodos / 7189 aristas a 2093 / 2590. Se generó con `graphify update .` (AST, sin costo de
-> API) y **sin** el paso `cluster-only` de la guía, a propósito: `--no-label` habría renombrado las
-> comunidades a "Community N" y las que hay ahora tienen nombres útiles. La diferencia de tamaño
-> viene del rebuild —el propio historial de abajo ya documenta que el número sube y baja según
-> qué entra al índice—, no de una pérdida de código. El grafo curado anterior quedó respaldado por la
-> propia herramienta en `graphify-out/2026-08-18/`, y la versión de 2026-08-17 sigue recuperable del
-> historial de Git. **Si un lector futuro necesita citar el grafo denso, ahí están los dos.**
+> ℹ️ **Sobre el vaivén del tamaño.** El snapshot de la tarde del 2026-08-18 bajó a 2 093 nodos y el
+> de la noche subió a 3 119: los dos salieron de `graphify update .` (AST, sin costo de API) y **sin**
+> el paso `cluster-only` de la guía, a propósito, porque `--no-label` habría renombrado las
+> comunidades a "Community N" y las actuales tienen nombres útiles. **El número sube y baja según qué
+> entra al índice en esa corrida** —el historial de abajo lo documenta desde julio—, no según cuánto
+> código hay. El grafo curado previo quedó respaldado por la propia herramienta en
+> `graphify-out/2026-08-18/`, y las versiones anteriores siguen recuperables del historial de Git.
 
 > **Historial de tamaños:** 105 nodos al 2026-07-26 (`48bf5254`) · 2 376 al 2026-08-10 · 1 560 al
 > 2026-08-13 por la mañana · 2 583 el mismo día por la tarde · 2 644 al cierre del 2026-08-13 ·
 > 2 866 al 2026-08-16 (T-05, router de URL) · 2 927 al 2026-08-17 (T-12, un solo `index.html`) ·
-> **2 093 al 2026-08-18** (catálogo de misconceptions; rebuild AST-only, ver el aviso de arriba).
+> **2 093 al 2026-08-18** (catálogo de misconceptions; rebuild AST-only, ver el aviso de arriba) ·
+> **3119 al cierre del 2026-08-18** (panel de ideas erróneas y `universo.editor`).
 >
 > **El número sube y baja según si el `app.js` minificado entró al índice en esa corrida, no según
 > cuánto crezca el proyecto.** Cuando entra, sus símbolos ofuscados (`v()`, `K()`, `C()`…) copan los

@@ -34,7 +34,7 @@ contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 │  Lógica pura (sin I/O, testeada):                                         │
 │    components.tetha · irt.progress · irt.effort · irt.fluency ·           │
 │    profile · topics · slots.logic · timeline                              │
-│    access · catalog · misconceptions                                      │
+│    access · catalog · misconceptions · editor                             │
 └──────────────────────────────┬────────────────────────────────────────────┘
                                │ HTTPS + JWT del usuario (supabase-js)
                                ▼
@@ -132,7 +132,8 @@ Tres namespaces puros + un ns de eventos:
 | `universo.profile` | `theta-band`, `band-label`, `deficits-from-responses`, `misconceptions-from`, `dominant-track`, `build` (perfil completo + estabilidad de θ). El mapeo topic → módulo lo delega en `universo.topics` | `profile_test.cljs` |
 | `universo.timeline` | **Línea del tiempo histórica** (ADR-021): `era-of` y `eras` (espejo del check de `042`), `medal-for` (espejo de `profile/theta-band`: oro θ≥2, plata θ≥1, bronce rendido), `best-theta-by-module`, `milestones` (cruza módulos con el historial), `by-era`, `progress`. Reutiliza `access/best-theta-by-topic` y `topics/module-slug-for` | `timeline_test.cljs` |
 | `universo.catalog` | Catálogo de evaluaciones: `topic-label` (precedencia `test_configs.display_name` → diccionario `topic-labels` → topic con guiones bajos como espacios), `count-by-topic` (preguntas por banco), `counts-truncated?` (detecta respuesta recortada de PostgREST) | `catalog_test.cljs` |
-| `universo.misconceptions` | **Catálogo de ideas erróneas** (`027`): `slug-valid?` (**espejo del check `^[a-z0-9]+([-/][a-z0-9]+)*$`**), `suggest-slug`, `matches?`, `usage-index` (id → cuántos distractores la referencian), `with-usage`, `health` (`:vacio`/`:disperso`/`:sano`). `health` es la heurística de `027` hecha función: el catálogo debe crecer **mucho más lento** que el banco. `items-por-misconception-saludable` = 5 es criterio editorial **sin validar con datos** | `misconceptions_test.cljs` |
+| `universo.misconceptions` | **Catálogo de ideas erróneas** (`027`): `health-from-usage` (única definición del veredicto; `health` la envuelve), `split-experimento` / `del-experimento?` (separa el producto de las 77 de cuántica, Q-40), `slug-valid?` (**espejo del check `^[a-z0-9]+([-/][a-z0-9]+)*$`**), `suggest-slug`, `matches?`, `usage-index` (id → cuántos distractores la referencian), `with-usage`, `health` (`:vacio`/`:disperso`/`:sano`). `health` es la heurística de `027` hecha función: el catálogo debe crecer **mucho más lento** que el banco. `items-por-misconception-saludable` = 5 es criterio editorial **sin validar con datos** | `misconceptions_test.cljs` |
+| `universo.editor` | **Reglas de los paneles de edición** (T-103): `modules-by-track`, `module-label`, `renderable?` (¿la vista previa aporta algo?), `question-missing-fields` / `question-draft-valid?`. Existe para que la vista pueda decir *qué* falta con **el mismo criterio** que usa el evento para decidir si guarda | `editor_test.cljs` |
 | `universo.events.test` | Orquestación con I/O: `normalize-question`, `resolve-topic` (alias de topics), fetch de candidatos por ventana de dificultad, prefetch, registro de respuesta, evaluación de la parada, persistencia | — |
 
 **Invariantes que impone la base, no el cliente** (además de RLS):
@@ -183,10 +184,23 @@ fácil" a "imposible"; parada por SE en lugar de número fijo de preguntas.
 
 ### 2.4 Panel de administración
 
-`components/admin.cljs` (1060 líneas) + `components/admin_questions.cljs` + `events/admin.cljs`
-(738 líneas). Pestañas: overview, usuarios/roles, tests, guestbook, preguntas, recursos, cupos +
-rosters. Cada pestaña tiene su propio `:loading?`/`:error` en `[:admin :status <tab>]` para no
-contaminar a las demás y permitir caché entre cambios de pestaña.
+`components/admin.cljs` + `admin_questions.cljs` + `admin_misconceptions.cljs` +
+`admin_test_configs.cljs` + `events/admin.cljs`. **Diez pestañas** (2026-08-18): resumen, usuarios,
+diagnósticos, preguntas, **ideas erróneas**, configuración de tests, recursos, cupos + rosters,
+moderación, contacto y apariencia. Cada pestaña tiene su propio `:loading?`/`:error` en
+`[:admin :status <tab>]` para no contaminar a las demás y permitir caché entre cambios de pestaña.
+
+**Los dos editores no están al mismo nivel y conviene saberlo antes de tocarlos.** El de recursos y
+el del banco recibieron el mismo tratamiento (borrador en `app-db`, ⌘/Ctrl+Enter y Esc, validación
+que dice *qué* falta antes de guardar); el de recursos además tiene vista previa con la **misma**
+función que dibuja el recurso en «Mi plan». Lo que sigue distinto: `admin_questions.cljs` usa
+utilidades sueltas e indigo en vez de las primitivas del panel Braun (ADR-023) — mismo problema que
+[[BACKLOG]] T-100 registra para el diagnóstico.
+
+**De dónde salen los catálogos que usan los selectores:** `modules` y `misconceptions` los carga la
+pestaña que los necesita **si están vacíos** (`:admin/fetch-modules-only`,
+`:admin/fetch-misconceptions-only`). Antes los módulos los cargaba solo la pestaña de recursos, así
+que un selector de módulo en otra pestaña aparecía vacío sin explicación.
 
 Es el componente más grande del sistema y el de mayor riesgo de mantenimiento ([[RISKS]] R-07).
 
