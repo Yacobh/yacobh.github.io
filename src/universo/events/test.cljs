@@ -98,20 +98,40 @@
     :test/fetch-topics {:user-id (get-in db [:auth :user :id])
                         :admin? (get-in db [:auth :admin?])}}))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :test/topics-loaded
- (fn [db [_ {:keys [configs history admin?]}]]
+ (fn [{:keys [db]} [_ {:keys [configs history admin?]}]]
    (let [achieved (access/best-theta-by-topic history)
          unlocked (if admin?
                     (set (map :topic configs))
                     (access/unlocked-topics configs achieved))
          visible (filterv #(contains? unlocked (:topic %)) configs)
-         config-by-topic (into {} (map (juxt :topic identity)) configs)]
-     (-> db
-         (assoc-in [:test :available-topics] (mapv :topic visible))
-         (assoc-in [:test :configs] config-by-topic)
-         (assoc-in [:test :topics-loading?] false)
-         (assoc-in [:test :topics-error] nil)))))
+         config-by-topic (into {} (map (juxt :topic identity)) configs)
+         disponibles (mapv :topic visible)
+         ;; Un «rendir de nuevo» del tablero (`:test/retake`) deja acá el topic
+         ;; que se quiere arrancar. No se puede arrancar antes: `:test/start`
+         ;; exige que el topic esté en `available-topics`, y esa lista solo
+         ;; existe después de esta consulta.
+         pendiente (get-in db [:test :pending-start])
+         db' (-> db
+                 (assoc-in [:test :available-topics] disponibles)
+                 (assoc-in [:test :configs] config-by-topic)
+                 (assoc-in [:test :topics-loading?] false)
+                 (assoc-in [:test :topics-error] nil)
+                 (update :test dissoc :pending-start))]
+     (cond
+       (nil? pendiente)
+       {:db db'}
+
+       (or admin? (contains? (set disponibles) pendiente))
+       {:db db' :dispatch [:test/start pendiente]}
+
+       ;; El topic se desactivó o dejó de cumplir su prerequisito entre que se
+       ;; rindió y hoy. Se deja el selector abierto con el motivo, en vez de
+       ;; arrancar algo distinto de lo que se pidió o quedarse en blanco.
+       :else
+       {:db (assoc-in db' [:test :topics-error]
+                      "Esa evaluación ya no está disponible. Elige otra de la lista.")}))))
 
 (re-frame/reg-event-db
  :test/topics-failed
@@ -120,6 +140,17 @@
        (assoc-in [:test :available-topics] [])
        (assoc-in [:test :topics-loading?] false)
        (assoc-in [:test :topics-error] message))))
+
+(re-frame/reg-event-fx
+ :test/retake
+ (fn [{:keys [db]} [_ topic]]
+   ;; «Rendir de nuevo» desde el tablero. No dispara `:test/start` directo
+   ;; porque ese evento exige `available-topics`, que se llena recién con
+   ;; `:test/load-topics`; se deja el topic pendiente y lo arranca
+   ;; `:test/topics-loaded` cuando sabe si el usuario todavía puede rendirlo.
+   {:db (assoc-in db [:test :pending-start] (resolve-topic topic))
+    :dispatch-n [[:test/open-selection]
+                 [:navigate-to :diagnostic-test]]}))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EVENTO: Inicia el test

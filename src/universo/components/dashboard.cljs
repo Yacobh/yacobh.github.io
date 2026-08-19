@@ -1,8 +1,10 @@
 (ns universo.components.dashboard
   (:require [re-frame.core :as re-frame]
             [reagent.core :as r]
+            [universo.components.irt-chart :as chart]
             [universo.components.timeline :as timeline]
-            [universo.components.ui :as ui]))
+            [universo.components.ui :as ui]
+            [universo.history :as hist]))
 
 (defn formatear-fecha
   "Formatea la fecha de created_at a formato legible"
@@ -129,6 +131,96 @@
                      "text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full text-xs font-medium")}
      (if completado? "Completado" "Incompleto")]]])
 
+(defn- fecha-corta
+  "«12 ago» — para rotular los extremos del sparkline sin robarle ancho."
+  [fecha-str]
+  (when fecha-str
+    (.toLocaleDateString (js/Date. fecha-str) "es-ES"
+                         #js {:day "numeric" :month "short"})))
+
+(defn- formatear-theta
+  "θ con dos decimales. El tablero mostraba `0.06443610732100741` tal cual: un
+   número con diecisiete decimales no comunica precisión, comunica que nadie lo
+   miró."
+  [v]
+  (when (number? v) (.toFixed (double v) 2)))
+
+(defn- delta-theta
+  "Δθ con signo. Es lo único que este proyecto promete medir del progreso (G-4),
+   así que se muestra con su signo explícito y sin adornos: `+0,42` es una
+   afirmación, `0,42` es ambiguo."
+  [delta]
+  (when (number? delta)
+    (let [txt (str (if (pos? delta) "+" "") (.toFixed (double delta) 2))]
+      [:span {:class (str "text-sm font-medium tabular-nums "
+                          (cond
+                            (pos? delta) "text-green-700"
+                            (neg? delta) "text-amber-700"
+                            :else "text-gray-500"))}
+       txt])))
+
+(defn tarjeta-evaluacion
+  "Una evaluación con todos sus intentos: cuántas veces, cómo evolucionó y un
+   botón para volver a rendirla.
+
+   Sustituye a la lista cronológica plana. El historial completo no se pierde:
+   queda dentro del `<details>`, que es donde corresponde algo que se consulta
+   de vez en cuando y no se lee de corrido."
+  [{:keys [tema intentos completados puntos delta theta-ultimo theta-mejor
+           ultima-fecha ultimo-porcentaje historial]}]
+  [:div {:class "placa bg-white rounded p-4 sm:p-5"}
+   [:div {:class "flex flex-wrap items-start justify-between gap-3"}
+    [:div {:class "min-w-0"}
+     [:p {:class "font-medium text-gray-900"} tema]
+     [:p {:class "text-xs text-gray-500 mt-0.5"}
+      (str intentos (if (= 1 intentos) " intento" " intentos")
+           (when (not= intentos completados)
+             (str " · " completados " completados"))
+           " · última: " (formatear-fecha ultima-fecha))]]
+    ;; `min-h-11` (44 px) no es decoración: este botón vive en el embudo del
+    ;; estudiante, que se usa desde el teléfono, y es el mínimo de WCAG 2.5.5.
+    ;; Lo pide `scripts/audit_movil.py`, que lo cazó apenas se escribió.
+    [:button {:type "button"
+              :class (str "control bg-panel-100 text-gray-900 text-sm font-medium "
+                          "min-h-11 py-1.5 px-4 rounded hover:bg-panel-50 shrink-0")
+              :on-click #(re-frame/dispatch [:test/retake tema])}
+     "Rendir de nuevo"]]
+
+   [:div {:class "flex flex-wrap items-end gap-x-8 gap-y-3 mt-4"}
+    [:div
+     [:p {:class "text-xs font-medium text-gray-600 uppercase tracking-widest"} "Nivel actual"]
+     [:p {:class "text-3xl font-light text-gray-900 mt-1"}
+      (or (formatear-theta theta-ultimo) "—")
+      (when delta [:span {:class "ml-2"} [delta-theta delta]])]
+     [:p {:class "text-xs text-gray-500 mt-1"}
+      (if delta
+        "θ y cambio desde el primer intento"
+        "θ del único intento con nivel estimado")]]
+
+    (when (seq puntos)
+      [:div {:class "flex-1 min-w-48 max-w-xs"}
+       [chart/theta-sparkline puntos]
+       ;; El eje x es tiempo real, y sin estas dos fechas no se nota: dos
+       ;; intentos del mismo día dibujan un tramo casi vertical que parece un
+       ;; error del gráfico, cuando en realidad dice «rendiste dos veces
+       ;; seguidas». Rotular los extremos convierte el desconcierto en lectura.
+       (when (> (count puntos) 1)
+         [:div {:class "flex justify-between text-xs text-gray-500 mt-1 px-1"}
+          [:span (fecha-corta (:fecha (first puntos)))]
+          [:span (fecha-corta (:fecha (last puntos)))]])])]
+
+   [:p {:class "text-xs text-gray-500 mt-3"}
+    (str "Mejor θ: " (or (formatear-theta theta-mejor) "—")
+         (when ultimo-porcentaje (str " · último resultado: " ultimo-porcentaje " %")))]
+
+   [:details {:class "mt-3"}
+    [:summary {:class "cursor-pointer text-xs text-gray-600 hover:text-gray-900"}
+     (if (= 1 intentos) "Ver el intento" (str "Ver los " intentos " intentos"))]
+    [:div {:class "mt-2"}
+     (for [row historial]
+       ^{:key (:id row)}
+       [fila-historial row])]]])
+
 (defn- profile-block []
   (let [sp @(re-frame/subscribe [:student-profile])
         built (or (:profile sp) {})
@@ -188,11 +280,12 @@
     (let [correo @(re-frame/subscribe [:visitor-email])
           cargando? @(re-frame/subscribe [:dashboard/cargando?])
           historial @(re-frame/subscribe [:dashboard/historial])
-          total-tests @(re-frame/subscribe [:dashboard/total-tests])
           tests-completados @(re-frame/subscribe [:dashboard/tests-completados])
           promedio @(re-frame/subscribe [:dashboard/promedio-nota])
           theta-promedio @(re-frame/subscribe [:dashboard/theta-promedio])
-          ultimo (first historial)]
+          ultimo (first historial)
+          grupos (hist/group-attempts historial)
+          {:keys [evaluaciones intentos con-progreso]} (hist/totals grupos)]
 
       ;; Reserva el alto de la línea del tiempo, que es `fixed`: sin eso taparía
       ;; el final del historial y el enlace a configuración. Menos en móvil,
@@ -215,10 +308,20 @@
 
           [:div
            ;; Grid de estadísticas principales
+           ;; «Evaluaciones» decía 44 cuando 44 era el número de **intentos**
+           ;; sobre unas pocas evaluaciones. Las dos cosas son interesantes, pero
+           ;; llamarle a una lo que es la otra hace creer que se abarcó mucho más
+           ;; terreno del real.
            [:div.grid.grid-cols-1.sm:grid-cols-3.gap-4.mb-2
-            [tarjeta-estadistica "Evaluaciones" total-tests "Realizadas hasta ahora"]
-            [tarjeta-estadistica "Completadas" tests-completados "Terminadas de principio a fin"]
-            [tarjeta-estadistica "Promedio" (str promedio "%") (str "θ medio: " theta-promedio)]]
+            [tarjeta-estadistica "Evaluaciones" evaluaciones
+             (str intentos (if (= 1 intentos) " intento en total" " intentos en total")
+                  " · " tests-completados " completados")]
+            [tarjeta-estadistica "Con avance" con-progreso
+             (if (pos? evaluaciones)
+               (str "de " evaluaciones " subiste tu θ desde el primer intento")
+               "Todavía sin comparación")]
+            [tarjeta-estadistica "Promedio" (str promedio " %")
+             (str "θ medio: " (.toFixed (/ (double theta-promedio) 100) 2))]]
 
            [profile-block]
 
@@ -255,20 +358,36 @@
                  [:div [:span.font-semibold "Completado: "] (if completado? "Sí" "No")]
                  [:div [:span.font-semibold "Correctas: "] (str correctas "/" total)]
                  [:div [:span.font-semibold "Porcentaje: "] (str porcentaje "%")]
-                 [:div [:span.font-semibold "Nota: "] (str nota)]
-                 [:div [:span.font-semibold "Theta final: "] (str theta)]
+                 [:div [:span.font-semibold "Nota: "]
+                  (if (number? nota) (.toFixed (double nota) 1) (str nota))]
+                 [:div [:span.font-semibold "Nivel final (θ): "]
+                  (or (formatear-theta theta) "—")]
                  [:div [:span.font-semibold "Duración total: "] (if duracion-min (str duracion-min " min") "-")]
                  [:div [:span.font-semibold "Promedio por pregunta: "] (if promedio-seg-pregunta (str promedio-seg-pregunta " seg") "-")]]]))
 
-           ;; Historial completo
-           [:div.placa.bg-white.rounded.p-5.sm:p-8.mt-6.max-w-2xl.mx-auto
-            [:h3.text-xl.font-bold.text-indigo-700.mb-2 "Historial de evaluaciones"]
-            (if (seq historial)
-              [:div
-               (for [row historial]
-                 ^{:key (:id row)}
-                 [fila-historial row])]
-              [:p.text-gray-500.text-sm "Aún no hay evaluaciones registradas."])]
+           ;; Tus evaluaciones, agrupadas
+           ;; Antes acá había una lista cronológica plana de los 44 intentos. Esa
+           ;; lista responde «¿qué hice el martes?»; la pregunta del estudiante es
+           ;; «¿en qué evaluaciones estoy y cómo voy en cada una?». Nada se perdió:
+           ;; los intentos siguen, dentro de su evaluación.
+           [:div.mt-10.max-w-3xl.mx-auto
+            [:div.mb-3
+             [:h3.text-lg.font-medium.text-gray-900 "Tus evaluaciones"]
+             [:p.text-sm.text-gray-600.mt-0.5
+              "Una tarjeta por evaluación, con todos tus intentos y cómo cambió tu nivel."]]
+            (if (seq grupos)
+              [:div.space-y-4
+               (for [g grupos]
+                 ^{:key (:clave g)}
+                 [tarjeta-evaluacion g])]
+              [:p.text-gray-500.text-sm "Aún no hay evaluaciones registradas."])
+            ;; Sin esta línea, dos sparklines lado a lado invitan a comparar θ
+            ;; entre bancos, y eso hoy no es válido: cada banco tiene su propia
+            ;; calibración de `difficulty` y ninguna está validada (R-17, Q-05).
+            (when (> (count grupos) 1)
+              [:p.text-xs.text-gray-500.mt-4
+               "Cada evaluación tiene su propia escala: θ se estima contra las preguntas de ese "
+               "banco, así que los niveles de dos evaluaciones distintas no son comparables entre sí."])]
 
            [enlace-configuracion-cuenta]])]
 

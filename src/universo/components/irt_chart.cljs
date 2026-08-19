@@ -161,3 +161,88 @@
         [:p {:class "text-xs mt-2 font-medium"
              :style {:color color-theta}}
          reason-txt])])))
+
+;; -----------------------------------------------------------------------------
+;; Sparkline de θ en el tiempo (tablero)
+;; -----------------------------------------------------------------------------
+;;
+;; Vive en este ns y no en uno propio para que **haya un solo lenguaje gráfico**:
+;; los mismos literales ya auditados contra el `.visor` (ADR-023), el mismo grosor
+;; de línea y el mismo radio de punto que el gráfico del test. Un segundo juego de
+;; colores «parecidos» es como empiezan los tableros que no se ven de la misma
+;; familia.
+;;
+;; Diferencias deliberadas con `irt-progress-chart`, las tres por la misma razón
+;; —acá el gráfico es un dato más de una tarjeta, no el centro de la pantalla—:
+;; sin grilla, sin ejes rotulados y sin leyenda. El eje x es **tiempo real**, no
+;; el número de intento: si alguien rindió tres veces en un día y la cuarta un mes
+;; después, el hueco es información.
+
+(def ^:private spark-w 240)
+(def ^:private spark-h 48)
+(def ^:private spark-pad 6)
+
+(defn- spark-x [t t-min t-max]
+  (let [inner (- spark-w (* 2 spark-pad))]
+    (if (or (nil? t-min) (= t-min t-max))
+      (+ spark-pad (/ inner 2))
+      (+ spark-pad (* (/ (- t t-min) (double (- t-max t-min))) inner)))))
+
+(defn- spark-y [v v-min v-max]
+  (let [inner (- spark-h (* 2 spark-pad))
+        rango (- v-max v-min)]
+    (if (zero? rango)
+      (+ spark-pad (/ inner 2))
+      (+ spark-pad (* (- 1.0 (/ (- v v-min) rango)) inner)))))
+
+(defn theta-sparkline
+  "θ contra el tiempo para **una** evaluación.
+
+   `puntos` son `{:t <ms> :theta <double>}` ya ordenados (ver
+   `universo.history/attempt-points`).
+
+   La escala vertical es **local a la evaluación**, no el rango fijo −3…3 del
+   gráfico del test: con cuatro intentos entre 0,1 y 0,5, la escala fija los
+   dibuja como una línea plana y el estudiante concluye que no avanzó nada. Se
+   dice en el `aria-label` para que la lectura no dependa de adivinar la escala.
+   El precio —dos sparklines de tarjetas distintas no son comparables entre sí—
+   se acepta porque **comparar θ entre bancos distintos no es válido de todos
+   modos** (R-17), que es la misma razón por la que no hay un gráfico global."
+  [puntos]
+  (let [pts (vec (or puntos []))
+        n (count pts)]
+    (when (pos? n)
+      (let [ts (mapv :t pts)
+            vs (mapv :theta pts)
+            t-min (apply min ts) t-max (apply max ts)
+            v-min (apply min vs) v-max (apply max vs)
+            ;; Un respiro arriba y abajo: con el margen justo, el punto extremo
+            ;; queda cortado por el borde del visor.
+            margen (max 0.15 (* 0.15 (- v-max v-min)))
+            lo (- v-min margen) hi (+ v-max margen)
+            xy (fn [p] [(spark-x (:t p) t-min t-max) (spark-y (:theta p) lo hi)])
+            linea (->> pts (map (fn [p] (let [[x y] (xy p)] (str x "," y)))) (str/join " "))
+            [ux uy] (xy (last pts))]
+        [:div {:class "visor rounded px-2 py-1"}
+         [:svg {:viewBox (str "0 0 " spark-w " " spark-h)
+                :class "w-full h-auto"
+                :role "img"
+                :aria-label (str "Evolución de θ en " n
+                                 (if (= 1 n) " intento" " intentos")
+                                 ", de " (.toFixed (double v-min) 2)
+                                 " a " (.toFixed (double v-max) 2)
+                                 " (escala propia de esta evaluación)")}
+          (when (> n 1)
+            [:polyline {:fill "none"
+                        :stroke color-theta
+                        :stroke-width 2
+                        :stroke-linecap "round"
+                        :stroke-linejoin "round"
+                        :points linea}])
+          ;; Los intentos anteriores en gris y el último en la tinta de la serie:
+          ;; es la regla de «emphasis» —uno es el dato, el resto es contexto— y
+          ;; evita que una línea de doce puntos compita consigo misma.
+          (for [[i p] (map-indexed vector (butlast pts))]
+            (let [[x y] (xy p)]
+              ^{:key i} [:circle {:cx x :cy y :r 2.5 :fill color-grid}]))
+          [:circle {:cx ux :cy uy :r 4 :fill color-theta}]]]))))
