@@ -346,6 +346,20 @@
          "Mover"]]
 
        [:button {:type "button"
+                 :disabled guardando?
+                 :class (str "rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium "
+                             "text-gray-700 hover:bg-white disabled:opacity-50")
+                 :on-click #(re-frame/dispatch
+                             [:confirm/ask
+                              {:message (str "Envolver en $…$ las alternativas de los " n
+                                             " ítems seleccionados que hoy tienen LaTeX sin "
+                                             "delimitadores. No reescribe contenido y se puede "
+                                             "repetir sin daño.")
+                               :confirm-label "Envolver"
+                               :on-confirm [:admin/bulk-wrap-options]}])}
+        "Envolver alternativas en $…$"]
+
+       [:button {:type "button"
                  :class "text-sm text-gray-600 underline hover:text-gray-900"
                  :on-click #(re-frame/dispatch [:admin/clear-question-selection])}
         "Quitar selección"]

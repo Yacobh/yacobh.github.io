@@ -1722,7 +1722,18 @@
  :admin/quick-misconception
  (fn [{:keys [db]} [_ {:keys [nombre question-id campo module-id]}]]
    (let [n (str/trim (str nombre))
-         slug (mis/suggest-slug n)]
+         ;; El slug se namespacia con el sufijo del slug del módulo
+         ;; (`aritmetica/fracciones` → `fracciones/...`), que es la convención
+         ;; que 027 propone y que el quick-create no aplicaba: las primeras 12
+         ;; ideas del producto quedaron planas. Namespaciar acá es gratis porque
+         ;; la vista ya sabe en qué módulo se está catalogando.
+         prefijo (some->> (get-in db [:admin :modules])
+                          (filter #(= (:id %) module-id))
+                          first :slug (re-find #"[^/]+$"))
+         base (mis/suggest-slug n)
+         slug (if (and prefijo base (mis/slug-valid? (str prefijo "/" base)))
+                (str prefijo "/" base)
+                base)]
      (cond
        (str/blank? n)
        {:dispatch [:admin/toast :error "La idea errónea necesita un nombre."]}
@@ -1784,3 +1795,53 @@
      {:dispatch-n [[:admin/set-tab :questions]
                    [:admin/edit-question row]]}
      {:dispatch [:admin/toast :error "No se encontró ese ítem en el banco cargado."]})))
+
+;; Envolver en `$…$` las alternativas de los ítems seleccionados.
+;;
+;; Es una operación mecánica —agrega delimitadores, no reescribe contenido— e
+;; **idempotente**, así que puede correrse dos veces sin daño. Aun así se
+;; confirma diciendo cuántas alternativas van a cambiar: 40 de 48 no es lo mismo
+;; que 3 de 48, y el autor merece saber cuál de los dos está por hacer.
+(re-frame/reg-event-fx
+ :admin/bulk-wrap-options
+ (fn [{:keys [db]} _]
+   (let [ids (get-in db [:admin :question-selection] #{})
+         ;; Las dos listas: la de la tabla (filtrada por tema, que es de donde
+         ;; sale la selección) y la copia completa que llenan las bandas y la
+         ;; catalogación. Antes solo miraba la segunda, que en la pestaña de
+         ;; preguntas suele estar vacía — el resultado era «ninguna alternativa
+         ;; necesita delimitadores» con 16 ítems seleccionados que sí las
+         ;; necesitaban, o sea un no-op silencioso.
+         candidatos (->> (concat (get-in db [:admin :questions] [])
+                                 (get-in db [:admin :all-questions] []))
+                         (reduce (fn [acc q] (assoc acc (:id q) q)) {})
+                         vals)
+         qs (filterv #(contains? ids (:id %)) candidatos)
+         cambios (into {} (keep (fn [q]
+                                  (let [w (editor/option-wraps q)]
+                                    (when (seq w) [(:id q) w])))
+                                qs))]
+     (cond
+       (empty? ids)
+       {:dispatch [:admin/toast :error "No hay ítems seleccionados."]}
+
+       (empty? cambios)
+       {:dispatch [:admin/toast :success
+                   "Ninguna alternativa de la selección necesita delimitadores."]}
+
+       :else
+       {:db (assoc-in db [:admin :question-bulk-saving?] true)
+        :admin/persist-wrapped-options cambios}))))
+
+(re-frame/reg-fx
+ :admin/persist-wrapped-options
+ (fn [cambios]
+   (go
+     (loop [pendientes (seq cambios) ok [] fallidos []]
+       (if (empty? pendientes)
+         (re-frame/dispatch [:admin/bulk-questions-done {:ok ok :fallidos fallidos}])
+         (let [[id campos] (first pendientes)
+               r (<! (crud/patch-admin-question-fields! id campos))]
+           (if (:success r)
+             (recur (rest pendientes) (conj ok id) fallidos)
+             (recur (rest pendientes) ok (conj fallidos id)))))))))

@@ -133,3 +133,43 @@
   (testing "sin filas no divide por cero"
     (is (= {:total 0 :hechos 0 :faltan 0 :fraccion 0.0}
            (editor/catalog-progress [])))))
+
+(deftest wrap-math-solo-toca-lo-que-el-estudiante-ve-roto
+  (testing "LaTeX crudo: se envuelve"
+    (is (= "$\\frac{2}{1}$" (editor/wrap-math "\\frac{2}{1}")))
+    (is (= "$\\sqrt{144}$" (editor/wrap-math "\\sqrt{144}")))
+    (is (= "$x^2$" (editor/wrap-math "x^2")))
+    (is (= "$2^5$" (editor/wrap-math "2^5"))))
+
+  (testing "lo que ya está delimitado no se toca"
+    (is (= "$\\frac{2}{1}$" (editor/wrap-math "$\\frac{2}{1}$")))
+    (is (= "Vale $x$ pesos" (editor/wrap-math "Vale $x$ pesos"))))
+
+  (testing "el peso escapado de L-34 no se toca: envolverlo lo rompería"
+    (is (= "Cuesta \\$8.000" (editor/wrap-math "Cuesta \\$8.000"))))
+
+  (testing "texto plano y números sueltos quedan igual"
+    (is (= "2" (editor/wrap-math "2")))
+    (is (= "Invirtió el divisor" (editor/wrap-math "Invirtió el divisor")))
+    (is (= "20 % de descuento" (editor/wrap-math "20 % de descuento"))))
+
+  (testing "vacío y nil"
+    (is (= "" (editor/wrap-math "")))
+    (is (= "   " (editor/wrap-math "   ")))
+    (is (nil? (editor/wrap-math nil))))
+
+  (testing "idempotente: correrla dos veces no acumula delimitadores"
+    (let [una (editor/wrap-math "\\frac{1}{2}")]
+      (is (= una (editor/wrap-math una))))))
+
+(deftest option-wraps-devuelve-solo-lo-que-cambia
+  (testing "solo las alternativas que hoy se ven rotas"
+    (is (= {:option_a "$\\frac{2}{1}$" :option_c "$\\sqrt{9}$"}
+           (editor/option-wraps {:option_a "\\frac{2}{1}"
+                                 :option_b "2"
+                                 :option_c "\\sqrt{9}"
+                                 :option_d "$x$"}))))
+
+  (testing "un ítem sano no genera ninguna escritura"
+    (is (= {} (editor/option-wraps {:option_a "2" :option_b "3"
+                                    :option_c "$x^2$" :option_d "ninguna"})))))

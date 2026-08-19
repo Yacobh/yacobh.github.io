@@ -165,3 +165,57 @@
      :hechos hechos
      :faltan (- total hechos)
      :fraccion (if (pos? total) (/ (double hechos) total) 0.0)}))
+
+;; -----------------------------------------------------------------------------
+;; Delimitadores de LaTeX en las alternativas
+;; -----------------------------------------------------------------------------
+
+;; Un comando LaTeX (`\frac`, `\sqrt`, `\times`…) o un super/subíndice. Es lo
+;; que distingue «una alternativa que es matemática» de «una alternativa que es
+;; texto».
+(def ^:private latex-crudo #"\\[a-zA-Z]+|[A-Za-z0-9\}\)][\^_][A-Za-z0-9\{]")
+
+(defn necesita-delimitadores?
+  "¿Este texto es LaTeX sin `$…$` alrededor?
+
+   Medido el 2026-08-19: 40 de las 48 alternativas del módulo de fracciones están
+   guardadas como `\\frac{2}{1}` **sin delimitadores**, y `math/latex` solo
+   convierte lo que va entre `$`. O sea que el estudiante ve las barras y las
+   llaves literales y no puede responder aunque sepa fracciones.
+
+   Tres cosas que **no** toca, y cada una por una razón distinta:
+   - lo que ya tiene un `$` en cualquier parte — incluido `\\$8.000`, el peso
+     escapado de [[LESSONS_LEARNED]] L-34: envolverlo lo rompería;
+   - el texto plano y los números sueltos («2», «Invirtió el divisor»);
+   - lo vacío."
+  [texto]
+  (let [t (str (or texto ""))]
+    (boolean
+     (and (seq (str/trim t))
+          (not (str/includes? t "$"))
+          (re-find latex-crudo t)))))
+
+(defn wrap-math
+  "Envuelve en `$…$` si hace falta; si no, devuelve el texto tal cual.
+
+   **Idempotente**: aplicarla dos veces da lo mismo que aplicarla una, porque la
+   segunda vez ya hay un `$`. Eso importa: es una acción en lote sobre contenido
+   y nadie recuerda si ya la corrió."
+  [texto]
+  (if (necesita-delimitadores? texto)
+    (str "$" (str/trim (str texto)) "$")
+    texto))
+
+(defn option-wraps
+  "Qué alternativas de este ítem hay que reescribir, y con qué.
+
+   Devuelve solo las que cambian —`{}` si no cambia ninguna— para no mandar a la
+   base 64 escrituras cuando hacen falta 40, y para poder decirle al autor
+   cuántas van a cambiar **antes** de tocar nada."
+  [question]
+  (into {}
+        (keep (fn [k]
+                (let [antes (get question k)
+                      despues (wrap-math antes)]
+                  (when-not (= antes despues) [k despues]))))
+        [:option_a :option_b :option_c :option_d]))
