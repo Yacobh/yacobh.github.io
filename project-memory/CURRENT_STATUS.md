@@ -21,11 +21,13 @@
 > fracción simplificada y la no simplificada como opciones). Todos corregidos y verificados contra
 > la base. Detalle en [[BACKLOG]] T-105 y `sessions/SESSION-035.md`.
 >
-> 🔜 **Dos cosas quedaron pendientes del owner, a propósito:** aplicar
+> 🔜 **Queda una cosa pendiente del owner:** aplicar
 > `supabase/migrations/047_arreglar_escapes_latex_dobles.sql` (76 ítems escriben `\\frac` y KaTeX no
-> lo interpreta; verificada contra un PostgreSQL desechable, sin aplicar) y correr
-> `npx shadow-cljs release app` — **no se corrió porque el `watch` estaba vivo** y el release encima
-> de un watch sale inconsistente (L-30).
+> lo interpreta). **Su primer intento falló** con `42703: column "explanation" does not exist` —
+> `questions` no tiene esa columna— pese a haber sido probada contra un PostgreSQL desechable: la
+> tabla de prueba se había armado copiando las columnas que la migración tocaba, o sea confirmando
+> el supuesto en vez de verificarlo (**L-46**, segunda vez seguida tras la `046`). Ya está corregida
+> y re-verificada con las columnas reales. El release **sí** se compiló, con el watch detenido.
 >
 > 🆕 **T-106 (P1)**: `paes_m1` tiene 13 de sus 44 ítems duplicados; tres enunciados repetidos 5, 5 y
 > 3 veces. En un test adaptativo eso multiplica su probabilidad de salir y estima θ con información

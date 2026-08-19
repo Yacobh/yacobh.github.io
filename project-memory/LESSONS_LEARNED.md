@@ -759,3 +759,33 @@ nadie había hecho. Cuando un dato es el activo del negocio (acá θ, y por G-2 
 conviene mirarlo agregado y no solo a través de la interfaz que lo consume.
 
 - **Relacionado:** [[RISKS]] R-35, [[../adr/ADR-030-barajar-las-alternativas]], [[BACKLOG]] T-105.
+
+### L-46 · El PostgreSQL de prueba solo sirve si la tabla de prueba tiene las columnas de la real
+
+**Dos migraciones seguidas fallaron en producción por lo mismo**, con dos días de diferencia:
+
+| | Migración | Error | Causa |
+|---|---|---|---|
+| 2026-08-18 | `046` | `42703: column "track" does not exist` | se asumió que `resources` tenía `track` porque `class_slots` sí lo tiene |
+| 2026-08-19 | `047` | `42703: column "explanation" does not exist` | se asumió que `questions` tenía `explanation` |
+
+La segunda duele más porque la 047 **sí se había probado** contra un PostgreSQL desechable, y pasó.
+Pasó porque la tabla de prueba se escribió a mano copiando las columnas que la migración iba a
+tocar: si la migración menciona `explanation`, el `create table` de prueba también, y entonces la
+prueba confirma la suposición en vez de refutarla. **Un banco de pruebas construido desde el mismo
+supuesto que se quiere verificar no verifica nada.**
+
+**Cómo se evita, en concreto:** el `create table` del ensayo se arma desde la definición real —
+`question-select-cols` en `universo.db.crud` para `questions`, la migración que creó la tabla, o un
+`\d` contra la base— **nunca desde la lista de columnas que la migración va a escribir**. Y ojo con
+`questions` en particular: **preexiste al esquema versionado** (SCHEMA.md dice que el esquema no
+arranca en `001`), así que no hay ningún `create table questions` en `supabase/migrations/` del que
+leerla. Ahí la fuente más cercana a la verdad es el `select` que el cliente ya usa en producción.
+
+**Señal barata para detectarlo antes:** si el JS del panel lee un campo y sale `undefined` en vez de
+error, la columna puede no existir — un `select` de Supabase falla ruidosamente, pero leer una clave
+ausente de un mapa no. Fue exactamente el caso: `q.explanation` era `undefined` en el bucle de
+corrección y se saltaba en silencio.
+
+- **Relacionado:** [[BACKLOG]] T-105, `supabase/migrations/047_arreglar_escapes_latex_dobles.sql`,
+  `supabase/SCHEMA.md`, [[L-44]].

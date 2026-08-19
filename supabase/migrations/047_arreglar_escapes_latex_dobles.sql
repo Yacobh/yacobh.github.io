@@ -13,6 +13,11 @@
 -- `\begin{cases}`/`array`, y por eso el ítem 359 —el único con un entorno— se
 -- excluye por id en vez de confiar en la expresión regular.
 --
+-- Ojo con las columnas: `questions` preexiste al esquema versionado (SCHEMA.md §«el esquema no
+-- arranca en 001»), y **no tiene `explanation`**. Las columnas de texto son `question`,
+-- `option_a..d` y `error_a..d`; el primer intento de esta migración incluyó `explanation` y falló
+-- con 42703 en producción.
+--
 -- Se aplica a mano en el SQL Editor de Supabase, como el resto (CLAUDE.md §9).
 
 begin;
@@ -23,7 +28,6 @@ set question    = regexp_replace(question,    '\\\\([a-zA-Z%])', '\\\1', 'g'),
     option_b    = regexp_replace(option_b,    '\\\\([a-zA-Z%])', '\\\1', 'g'),
     option_c    = regexp_replace(option_c,    '\\\\([a-zA-Z%])', '\\\1', 'g'),
     option_d    = regexp_replace(option_d,    '\\\\([a-zA-Z%])', '\\\1', 'g'),
-    explanation = regexp_replace(coalesce(explanation, ''), '\\\\([a-zA-Z%])', '\\\1', 'g'),
     error_a     = regexp_replace(coalesce(error_a, ''),     '\\\\([a-zA-Z%])', '\\\1', 'g'),
     error_b     = regexp_replace(coalesce(error_b, ''),     '\\\\([a-zA-Z%])', '\\\1', 'g'),
     error_c     = regexp_replace(coalesce(error_c, ''),     '\\\\([a-zA-Z%])', '\\\1', 'g'),
@@ -35,7 +39,6 @@ where topic in ('diagnostico', 'numbers_v1', 'paes_m1', 'polinomios')
        option_b    ~ '\\\\[a-zA-Z%]' or
        option_c    ~ '\\\\[a-zA-Z%]' or
        option_d    ~ '\\\\[a-zA-Z%]' or
-       coalesce(explanation, '') ~ '\\\\[a-zA-Z%]' or
        coalesce(error_a, '')     ~ '\\\\[a-zA-Z%]' or
        coalesce(error_b, '')     ~ '\\\\[a-zA-Z%]' or
        coalesce(error_c, '')     ~ '\\\\[a-zA-Z%]' or

@@ -105,13 +105,27 @@ id en vez de confiar en la expresión regular. Verificada contra un PostgreSQL 1
 convierte los cuatro casos, deja intacto el ítem que ya estaba bien, arregla los dos casos especiales
 (#299, #359) y es idempotente.
 
+### 6. La 047 falló en producción al primer intento, por una columna que no existe
+
+El owner la corrió y devolvió `42703: column "explanation" does not exist`. **`questions` no tiene
+`explanation`**: sus columnas de texto son `question`, `option_a..d` y `error_a..d`.
+
+Lo importante no es el error sino que **la migración sí se había probado** contra un PostgreSQL
+desechable y había pasado: la tabla de prueba se escribió copiando las columnas que la migración iba
+a tocar, así que confirmaba el supuesto en vez de refutarlo. Es la segunda migración seguida que
+falla así (la `046` fue por `track` en `resources`). → **L-46**.
+
+Rehecha la prueba con las columnas reales, tomadas de `question-select-cols`: aplica limpio, corrige
+`question`/`option_*`/`error_*`, **no toca el banco de cuántica** (el `where` filtra por topic), deja
+intacto lo que ya estaba bien y sigue siendo idempotente.
+
 ## Estado al cierre
 
 - `clj -M:test` → **161 tests / 2568 assertions / 0 failures** (eran 153/852).
 - Las cuatro auditorías (`dark_theme`, `contraste`, `movil`, `html`) pasan.
-- **`npx shadow-cljs release app` NO se corrió:** el `watch` del owner estaba vivo (pid 19081) y
-  correr el release encima produce un bundle inconsistente que además el watch pisa (L-30). Queda
-  como paso pendiente del owner junto con aplicar la 047.
+- **Release compilado** con el watch ya detenido: `public/js/app.js` sin rastro de
+  `shadow.cljs.devtools.client`, más `npm run build:css`.
+- **047 corregida y re-verificada**, pendiente de que el owner la aplique.
 
 ## Decisiones tomadas
 
@@ -120,6 +134,10 @@ convierte los cuatro casos, deja intacto el ítem que ya estaba bien, arregla lo
 
 ## Aprendizajes
 
+- **L-46** — un PostgreSQL de prueba cuya tabla se arma copiando las columnas que la migración va a
+  tocar confirma el supuesto en vez de verificarlo. La definición sale de la fuente real, y para
+  `questions` —que preexiste al esquema versionado— esa fuente es el `select` que ya corre en
+  producción.
 - **L-45** — una rotación no es un barajado, y el histograma de posiciones no distingue las dos: es
   justamente el estadístico que una rotación pasa sin problema. Para propiedades de aleatoriedad hay
   que preguntar si existe una fórmula que prediga el resultado, no si los conteos salen parejos.
@@ -131,7 +149,7 @@ convierte los cuatro casos, deja intacto el ítem que ya estaba bien, arregla lo
 - **T-106** (P1, nueva) — `paes_m1` tiene **13 de sus 44 ítems duplicados**: tres enunciados
   repetidos 5, 5 y 3 veces. En un test adaptativo eso multiplica por cinco la probabilidad de que
   salga ese enunciado y estima θ con información repetida.
-- Aplicar la **047** y correr el `release`.
+- Aplicar la **047** (corregida; el primer intento falló por `explanation`).
 - **#389 es irrespondible**: pregunta por un gráfico que la plataforma no puede mostrar.
 - **#361, #363 y #365** (logaritmos, ecuación con radical, cubo de binomio) exceden el temario de
   M1, como los 20 que ya se movieron a `fuera_de_temario_m1`.
