@@ -991,7 +991,7 @@ así que ahí se movió la clave a `1/2` y se reescribió la explicación de `2/
 
 **Lo que se encontró y NO era una clave** (abierto en otras tareas):
 
-- La clave está en **A en 242 de los 306 ítems** (`numbers_v1`, `paes_m1` y `polinomios` al 100 %;
+- La clave está en **A en 293 de los 306 ítems** (`numbers_v1`, `paes_m1` y `polinomios` al 100 %;
   `diagnostico` al 80 %, con **cero** ítems en D) — [[RISKS]] **R-35**, mitigado en el cliente por
   [[../adr/ADR-030-barajar-las-alternativas]].
 - **76 ítems escriben los comandos LaTeX con la barra duplicada** (`\\frac`, `20\\%`): KaTeX no los

@@ -2,7 +2,7 @@
   "Orden de presentación de las alternativas de un ítem.
 
    **Por qué existe.** El 2026-08-19, revisando las claves de los cuatro bancos
-   activos, apareció que 242 de 306 ítems tienen la alternativa correcta en la
+   activos, apareció que 293 de 306 ítems tienen la alternativa correcta en la
    letra A (`numbers_v1`, `paes_m1` y `polinomios` al 100 %; `diagnostico` al
    80 %). El banco se generó dejando la correcta primero y nunca se barajó.
 

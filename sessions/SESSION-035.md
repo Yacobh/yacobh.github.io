@@ -40,10 +40,17 @@ banco**.
 
 ## Qué se hizo
 
-### 1. El hallazgo estructural: la clave está en A en 242 de 306 ítems
+### 1. El hallazgo estructural: la clave está en A en 293 de 306 ítems
 
-`numbers_v1`, `paes_m1` y `polinomios` al **100 %**; `diagnostico` al 80 %. **Ningún ítem de ningún
-banco tiene la clave en D.**
+`numbers_v1` (178), `paes_m1` (44) y `polinomios` (20) al **100 %** —242 entre los tres— más 51 de
+los 64 de `diagnostico` (80 %): **293 de 306, el 96 %**. **Ningún ítem de ningún banco tiene la clave
+en D.**
+
+> ⚠️ **Corrección de la cifra, hecha al verificar la 047 aplicada.** El primer registro de este
+> hallazgo (commit `2a6f217`, y con él ADR-030, R-35, L-45 y T-105) decía «242 de 306». **242 es la
+> suma de los tres bancos que están al 100 %**, dejando fuera los 51 de `diagnostico` que también
+> tienen la clave en A. El total correcto es **293**. La tabla por banco siempre estuvo bien; lo
+> que estaba mal era la suma, y el error subestimaba el problema.
 
 La UI ya rotaba las alternativas (`shift = id mod 4`) y la posición visible salía repartida
 (79/78/74/75), que es la razón por la que esto llevaba meses invisible. Pero una rotación cíclica
@@ -56,7 +63,7 @@ Se reemplazó por una permutación Fisher-Yates sembrada por el id, en un namesp
 la correcta cae 72/80/81/73. → **ADR-030 / D-61**, [[../project-memory/RISKS]] **R-35**,
 [[../project-memory/LESSONS_LEARNED]] **L-45**.
 
-**Se decidió NO permutar el dato en la base**: arrastra `error_*` y `misconception_*_id` sobre 242
+**Se decidió NO permutar el dato en la base**: arrastra `error_*` y `misconception_*_id` sobre 293
 filas y es contenido del owner. El riesgo queda abierto y dicho: el cliente es inspeccionable y
 cualquier otro consumidor del banco ve el sesgo intacto.
 

@@ -13,7 +13,7 @@ Aprobada
 ### El hallazgo
 
 Revisando las claves de los cuatro bancos activos (T-105) apareció un dato que no se veía usando la
-aplicación: **la alternativa correcta está en la letra A en 242 de los 306 ítems**. `numbers_v1`
+aplicación: **la alternativa correcta está en la letra A en 293 de los 306 ítems**. `numbers_v1`
 (178), `paes_m1` (44) y `polinomios` (20) están al 100 %; `diagnostico` al 80 %, y **ningún ítem de
 ningún banco tiene la clave en D**. Los bancos se escribieron poniendo la respuesta buena primero y
 nunca se barajaron.
@@ -75,7 +75,7 @@ pasa a `uuid`.
 
 **Permutar las alternativas en la base, de una vez.** Es la corrección de raíz y sigue siendo lo
 correcto a futuro: arregla el dato para *todos* los consumidores, no solo para esta SPA. No se hizo
-acá porque es un cambio sobre 242 filas que debe mover con cada alternativa su `error_*` y su
+acá porque es un cambio sobre 293 filas que debe mover con cada alternativa su `error_*` y su
 `misconception_*_id`, y eso es contenido del owner, no una decisión de implementación. Queda
 anotado en [[../project-memory/RISKS]] R-35.
 

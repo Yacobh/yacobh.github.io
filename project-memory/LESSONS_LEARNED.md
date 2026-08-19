@@ -743,7 +743,7 @@ respuesta correcta salía 79/78/74/75 — prácticamente uniforme. Cualquier rev
 detenido en esa medición habría concluido que el barajado funcionaba.
 
 No funcionaba. Una rotación cíclica preserva el orden relativo, así que con la clave constante en la
-letra A —242 de 306 ítems— la posición mostrada es exactamente `4 − (id mod 4)`. Uniforme y
+letra A —293 de 306 ítems— la posición mostrada es exactamente `4 − (id mod 4)`. Uniforme y
 completamente predecible **son cosas distintas**, y el histograma de posiciones no las separa: es
 justo el estadístico que una rotación pasa sin problema.
 

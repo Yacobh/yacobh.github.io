@@ -278,8 +278,12 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     criterio es 18 módulos de 18. **Verificación versionada:**
     `queries/L-2_cobertura_de_recursos.sql` — su bloque A ataja el modo de fallo silencioso de esta
     migración (si un slug no coincide, el `insert … select` no inserta nada y **no da error**)
-47. `migrations/045_module_prerequisites_y_resource_misconceptions.sql` — ⏳ **pendiente de aplicar**
-48. `migrations/046_bandas_de_conocimiento_y_theta_inicial.sql` — ⏳ **pendiente de aplicar** (la primera corrida falló por un error mío; corregida y verificada, ver abajo)
+47. `migrations/045_module_prerequisites_y_resource_misconceptions.sql` — ✅ **aplicada 2026-08-18**
+    por el owner
+48. `migrations/046_bandas_de_conocimiento_y_theta_inicial.sql` — ✅ **aplicada 2026-08-19** por el
+    owner. La primera corrida falló con `42703: column "track" does not exist`: el `check (track …)`
+    de `001` que se copió pertenece a `class_slots`, no a `resources`. Corregida y verificada contra
+    un PostgreSQL desechable antes de la segunda corrida
     · los dos puentes que le faltan al escape del estudiante (`universo.irt.escape`) para tener
     destino, y que además son el dato del mapa de prerrequisitos. Crea `module_prerequisites`
     (grafo entre los 20 módulos, aristas `duro`/`blando`), `resource_misconceptions` (de la idea
@@ -296,7 +300,20 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     deliberado que `027` (RISKS R-16: «abrir después es fácil, des-filtrar no»). Consecuencia: el
     camino «tu error → este recurso» necesita una función `security definer` como `next_question`
     (ADR-015), que **no** se crea acá para no dejar una RPC sin lector
-48. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+49. `migrations/047_arreglar_escapes_latex_dobles.sql` — ✅ **aplicada 2026-08-19** por el owner ·
+    colapsa `\\` a `\` en los 76 ítems de los bancos activos que guardaban los comandos LaTeX con la
+    barra duplicada (`\\frac`, `20\\%`), que KaTeX no interpreta y el estudiante veía en crudo
+    ([[../project-memory/BACKLOG]] T-105). La regla solo colapsa cuando sigue una letra o `%`,
+    porque un `\\` suelto es un salto de fila legítimo dentro de `\begin{cases}`; el único ítem con
+    un entorno (#359) se excluye por id. **La primera corrida falló** con `42703: column
+    "explanation" does not exist` — `questions` **no tiene** esa columna, y como preexiste al
+    esquema versionado no hay ningún `create table` acá del cual leer sus columnas: la fuente es
+    `question-select-cols` en `universo.db.crud` ([[../project-memory/LESSONS_LEARNED]] L-46).
+    Corregida y re-verificada contra un PostgreSQL desechable con las columnas reales; **no toca los
+    bancos de cuántica**, el `where` filtra por topic.
+
+50. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
 > final de `029`: **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id`

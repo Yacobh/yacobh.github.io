@@ -1,6 +1,6 @@
 # RISKS
 
-Última actualización: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 242
+Última actualización: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
 de los 306 ítems; mitigado en el cliente por ADR-030, el dato sigue sesgado). ·
 Antes: **2026-08-17** — **R-33 nuevo** (la pantalla de Google nombra a `supabase.co`
 y no a la marca, visto en vivo al verificar T-92; toca la confianza justo en el registro) y **R-32
@@ -806,7 +806,7 @@ apuntaría a que el botón se está usando como «siguiente» y no como declarac
 recupera parte de la confianza sin costo. **Sin verificar todavía:** el agente se detuvo en el
 selector de cuenta a propósito, sin completar un login real.
 
-### R-35 · La respuesta correcta está en la letra A en 242 de los 306 ítems
+### R-35 · La respuesta correcta está en la letra A en 293 de los 306 ítems
 
 **Abierto 2026-08-19**, revisando las claves de los cuatro bancos activos (T-105). No es una
 sospecha: es un conteo.
@@ -817,6 +817,7 @@ sospecha: es un conteo.
 | `paes_m1` | 44 | **44 (100 %)** | 0 |
 | `polinomios` | 20 | **20 (100 %)** | 0 |
 | `diagnostico` | 64 | 51 (80 %) | **0** |
+| **total** | **306** | **293 (96 %)** | **0** |
 
 Los bancos se generaron escribiendo la alternativa correcta primero y nunca se barajaron.
 
@@ -838,7 +839,7 @@ sesgado. El cliente es inspeccionable —semilla y algoritmo viajan en el bundle
 costo de explotarlo no es lo mismo que eliminarlo; y cualquier otro consumidor del banco (una
 exportación, el panel docente de la licencia institucional, el propio proceso de calibración) lo ve
 con el sesgo intacto. **La corrección de raíz es permutar las alternativas en la base**, moviendo
-con ellas `error_*` y `misconception_*_id`, que es un cambio de datos sobre 242 filas y necesita
+con ellas `error_*` y `misconception_*_id`, que es un cambio de datos sobre 293 filas y necesita
 decisión del owner — no se hizo por eso.
 
 - **Severidad:** 🔶 media hoy (mitigado en el único consumidor que existe), **alta** en cuanto el

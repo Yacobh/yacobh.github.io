@@ -163,7 +163,7 @@
           score-error @(re-frame/subscribe [:test/score-error])
           ;; 🎲 Barajar las alternativas. Antes se rotaba con `id mod 4`, que
           ;; reparte bien la posición visible pero es cíclica: con la clave
-          ;; siempre en A —242 de 306 ítems del banco lo están— la correcta
+          ;; siempre en A —293 de 306 ítems del banco lo están— la correcta
           ;; queda en la posición `(4 - id mod 4)`, deducible sin leer el
           ;; enunciado. `opciones/barajar` permuta de verdad (universo.opciones).
           rotated-options (when question

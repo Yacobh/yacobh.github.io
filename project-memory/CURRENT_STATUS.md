@@ -9,7 +9,7 @@
 > conceptuales se leyeron a mano.
 >
 > ⚠️ **El hallazgo no fue una clave suelta, fue el banco entero: la respuesta correcta está en la
-> letra A en 242 de los 306 ítems** —los tres bancos que no son `diagnostico` al 100 %— y **ningún
+> letra A en 293 de los 306 ítems** —los tres bancos que no son `diagnostico` al 100 %— y **ningún
 > ítem tiene la clave en D**. La UI rotaba las alternativas y la posición visible salía repartida
 > (79/78/74/75), que es por qué nadie lo vio; pero una rotación cíclica sobre una clave constante
 > deja la posición de la correcta en `4 − (id mod 4)`, o sea que se puede acertar el banco completo
