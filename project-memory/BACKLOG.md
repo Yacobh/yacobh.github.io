@@ -934,6 +934,38 @@ que distorsionan `health` — [[OPEN_QUESTIONS]] **Q-40**.
   el uso de cada una y ve el veredicto de `health` del banco.
 - **Relacionado:** T-57 (paso 2), T-54, D-59, `sessions/SESSION-032.md`.
 
+### T-105 · Ítems del diagnóstico con la clave equivocada y feedback que valida el error — **P0** · `a medias` (3 corregidos 2026-08-19)
+
+**Encontrado catalogando, no revisando.** La vista de catalogación obliga a leer cada distractor al
+lado de su explicación, y ahí saltó lo que ninguna revisión de código iba a ver.
+
+**Tres ítems daban por incorrecta la respuesta correcta** (corregidos el 2026-08-19):
+
+| Ítem | Enunciado | Resultado | Estaba marcada |
+|---|---|---|---|
+| #54 | `(9−6)+(2−1)` | **4** | 3 |
+| #27 | `(−18)+25−10` | **−3** | 3 |
+| #29 | `(−5)(4)−(−6)(3)` | **−2** | 2 |
+
+El patrón no es aleatorio: **en los tres, la clave apuntaba a la versión con el signo equivocado o al
+resultado incompleto.** En un banco de números enteros eso es el peor sesgo posible — castiga
+exactamente a quien domina la regla de signos, que es lo que el ítem dice medir.
+
+**Ocho distractores tenían la palabra «Correcta» como explicación** (#38, #48–#54): quien se
+equivocaba recibía «Correcta» como retroalimentación. Artefacto de quien generó el banco, que usó el
+campo `error_*` para anotar cuál era la buena. Reescritas las ocho.
+
+**Lo que falta y por qué es P0:** esto se encontró en 3 de los 4 módulos mirados. **No hay ninguna
+razón para creer que `numbers_v1` (178 ítems), `paes_m1` (44) y `polinomios` (28) estén limpios** —
+nadie los ha mirado con este método. Un ítem con la clave invertida no se detecta por muestreo
+casual: se detecta comparando el enunciado con la alternativa marcada, uno por uno.
+
+- **Terminado cuando:** los cuatro bancos activos están revisados ítem por ítem y no queda ninguna
+  clave que contradiga el enunciado.
+- **Nota para quien lo haga:** revisar **primero** los ítems cuyo resultado es negativo o exige
+  completar una operación en dos pasos — ahí está concentrado el fallo.
+- **Relacionado:** T-103 (la vista que lo destapó), T-57, `sessions/`.
+
 ### T-104 · Panel de módulos en administración — **P2** · `abierto`
 
 **Los 35 módulos solo existen por SQL.** No hay forma de crear, renombrar, reordenar ni cambiarle el
