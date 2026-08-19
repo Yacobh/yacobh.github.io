@@ -218,3 +218,36 @@
   (testing "nil en cualquiera de los dos no revienta"
     (is (= :vacio (:veredicto (mis/health nil nil))))
     (is (= 0.0 (:cobertura (mis/health nil nil))))))
+
+(deftest health-from-usage-es-la-misma-verdad-con-menos-datos
+  (testing "el panel calcula el veredicto sin guardar las 387 preguntas en memoria"
+    (doseq [[cat preguntas] [[(catalogo 4) (banco 40 ["m0" "m1" "m2" "m3"])]
+                             [(catalogo 20) (banco 20 (mapv #(str "m" %) (range 20)))]
+                             [(catalogo 3) []]
+                             [[] (banco 10 ["m0"])]]]
+      (is (= (mis/health cat preguntas)
+             (mis/health-from-usage cat (mis/usage-index preguntas) (count preguntas)))
+          "health y health-from-usage no pueden divergir: una llama a la otra")))
+
+  (testing "tolera nil en el uso y en el tamaño del banco"
+    (is (= :vacio (:veredicto (mis/health-from-usage [] nil nil))))
+    (is (= 0.0 (:cobertura (mis/health-from-usage (catalogo 2) nil nil))))))
+
+(deftest split-experimento-hace-contable-la-mezcla-de-027-y-t61
+  (let [rows [{:id "a" :slug "fracciones/invierte-divisor"}
+              {:id "b" :slug "mq/conmutadores/asume-conmutatividad"}
+              {:id "c" :slug "mq/formalismo/operador"}
+              {:id "d" :slug "signos/resta-de-negativos"}]
+        {:keys [producto experimento]} (mis/split-experimento rows)]
+    (testing "separa por el prefijo de slug, que es lo único que las distingue"
+      (is (= ["a" "d"] (mapv :id producto)))
+      (is (= ["b" "c"] (mapv :id experimento))))
+
+    (testing "un slug que solo contiene «mq» sin barra NO es del experimento"
+      (is (not (mis/del-experimento? {:slug "mq-suma"})))
+      (is (not (mis/del-experimento? {:slug "algebra/mq/algo"}))))
+
+    (testing "vacío y nil"
+      (is (= {:producto [] :experimento []} (mis/split-experimento [])))
+      (is (= {:producto [] :experimento []} (mis/split-experimento nil)))
+      (is (not (mis/del-experimento? {}))))))

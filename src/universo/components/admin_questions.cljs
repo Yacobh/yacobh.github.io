@@ -3,7 +3,9 @@
   (:require
    [clojure.string :as str]
    [re-frame.core :as re-frame]
-   [universo.components.math-render :as math]))
+   [universo.components.math-render :as math]
+   [universo.editor :as editor]
+   [universo.misconceptions :as mis]))
 
 (def ^:private input-class
   (str "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 "
@@ -25,26 +27,37 @@
    body])
 
 (defn- latex-editor
+  "Campo de texto con vista previa **solo cuando la previa dice algo**.
+
+   Este formulario tiene nueve campos con previa. Cuando el contenido es «2» o
+   «Sumó mal», la caja repetía el texto y duplicaba el largo del formulario sin
+   aportar nada; ahora en ese caso queda una línea que explica por qué no hay
+   previa, en vez de un hueco que parece un error. La regla vive en
+   `universo.editor/renderable?`."
   [{:keys [label hint value on-change rows markdown?]}]
-  [:div {:class "mb-4"}
-   [field label hint
-    [:textarea {:class mono-class
-                :rows (or rows 3)
-                :value (or value "")
-                :on-change #(on-change (.. % -target -value))}]]
-   [:div {:class "mt-2 min-h-10 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 py-2"}
-    [:p {:class "mb-1 text-xs text-gray-400"} "Vista previa"]
-    (if (str/blank? value)
-      [:span {:class "text-sm text-gray-300"} "—"]
-      (if markdown?
-        [math/parse-markdown-latex value]
-        [math/latex value]))]])
+  (let [previa? (editor/renderable? value {:markdown? markdown?})]
+    [:div {:class "mb-4"}
+     [field label hint
+      [:textarea {:class mono-class
+                  :rows (or rows 3)
+                  :value (or value "")
+                  :on-change #(on-change (.. % -target -value))}]]
+     (if previa?
+       [:div {:class "mt-2 min-h-10 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 py-2"}
+        [:p {:class "mb-1 text-xs text-gray-400"} "Vista previa"]
+        (if markdown?
+          [math/parse-markdown-latex value]
+          [math/latex value])]
+       (when-not (str/blank? (str value))
+         [:p {:class "mt-1 text-xs text-gray-400"}
+          "Texto sin fórmulas: se muestra tal cual."]))]))
 
 (defn- parse-optional-number [raw]
   (when (pos? (count raw)) raw))
 
 (defn- meta-row [draft]
   (let [topics @(re-frame/subscribe [:admin/question-topics])
+        modules @(re-frame/subscribe [:admin/modules])
         topic (or (:topic draft) "")
         known? (some #{topic} topics)
         topic-select-value (if (or known? (str/blank? topic)) topic "__custom__")]
@@ -86,6 +99,27 @@
                 :on-change #(re-frame/dispatch
                              [:admin/update-question-draft :order_index
                               (parse-optional-number (.. % -target -value))])}]]]
+     [:div
+      [field "Módulo" "De acá salen «Mi plan» y el material del «no sé»"
+       [:select {:class input-class
+                 :value (or (:module_id draft) "")
+                 :on-change #(re-frame/dispatch
+                              [:admin/update-question-draft :module_id
+                               (.. % -target -value)])}
+        [:option {:value ""} "— sin módulo —"]
+        (for [[track ms] (editor/modules-by-track modules)]
+          ^{:key track}
+          [:optgroup {:label track}
+           (for [m ms]
+             ^{:key (:id m)}
+             [:option {:value (:id m)} (editor/module-label m)])])]]
+      ;; Un tercio del banco no tiene módulo (T-60) y eso no es cosmético: sin
+      ;; él, «Mi plan» no puede recomendar nada para el ítem y el escape del
+      ;; estudiante (ADR-029) se queda sin material que entregar. El aviso está
+      ;; acá, en el único lugar donde se puede arreglar.
+      (when (str/blank? (str (:module_id draft)))
+        [:p {:class "mt-1 text-xs text-amber-700"}
+         "Sin módulo, este ítem no aporta material a «Mi plan» ni al «no sé»."])]
      [:div {:class "sm:col-span-2"}
       [field "Respuesta correcta" nil
        [:div {:class "flex gap-3"}
@@ -99,14 +133,75 @@
                                  [:admin/update-question-draft :correct_option opt])}]
            opt])]]]]))
 
-(defn- question-editor []
+(defn- misconception-select
+  "Desplegable de idea errónea para un distractor.
+
+   El valor es el `uuid` del catálogo; `«— sin catalogar —»` manda `nil` a la
+   base, que es lo que `027` define como «este distractor todavía no se estudió».
+   Las del experimento de cuántica quedan en su propio grupo para que no se
+   mezclen con las del producto sin avisar (Q-40)."
+  [draft k]
+  (let [rows @(re-frame/subscribe [:admin/misconceptions])
+        {:keys [producto experimento]} (mis/split-experimento rows)]
+    [:div {:class "-mt-2 mb-4"}
+     [field "Idea errónea" "La identidad reusable del error, del catálogo"
+      [:select {:class input-class
+                :value (or (get draft k) "")
+                :on-change #(re-frame/dispatch
+                             [:admin/update-question-draft k (.. % -target -value)])}
+       [:option {:value ""} "— sin catalogar —"]
+       (when (seq producto)
+         [:optgroup {:label "Catálogo"}
+          (for [m (sort-by :slug producto)]
+            ^{:key (:id m)}
+            [:option {:value (:id m)} (str (:name m) " · " (:slug m))])])
+       (when (seq experimento)
+         [:optgroup {:label "Experimento de cuántica"}
+          (for [m (sort-by :slug experimento)]
+            ^{:key (:id m)}
+            [:option {:value (:id m)} (str (:name m) " · " (:slug m))])])]]
+     (when (empty? rows)
+       [:p {:class "mt-1 text-xs text-gray-400"}
+        "El catálogo está vacío: créalas en la pestaña «Ideas erróneas»."])]))
+
+(defn- question-editor
+  "Formulario de un ítem del banco.
+
+   Tres cosas que no son adorno y conviene no deshacer:
+
+   1. **La barra de acciones es `sticky`.** El formulario mide quince campos; con
+      los botones solo arriba había que subir hasta el principio para guardar
+      cada corrección, y ese viaje se paga una vez por ítem en un banco de 387.
+   2. **⌘/Ctrl+Enter guarda y Esc cancela**, igual que el editor de recursos
+      (D-58). Van en el contenedor, no en cada campo, para que funcionen también
+      desde el `textarea`, que es donde se pasa el tiempo.
+   3. **Lo que falta se dice antes de pulsar Guardar**, no en un toast después.
+      La lista sale de `editor/question-missing-fields`, la misma función que
+      usa el evento para decidir si guarda — no hay dos criterios."
+  []
   (let [draft @(re-frame/subscribe [:admin/question-draft])
         saving? @(re-frame/subscribe [:admin/question-saving?])
-        new? (nil? (:id draft))]
-    [:div {:class "mb-6 rounded-xl border border-indigo-100 bg-white p-5"}
-     [:div {:class "mb-4 flex flex-wrap items-center justify-between gap-2"}
-      [:h3 {:class "text-lg font-semibold text-gray-900"}
-       (if new? "Nueva pregunta" (str "Editar #" (:id draft)))]
+        new? (nil? (:id draft))
+        faltan (editor/question-missing-fields draft)
+        guardable? (and (empty? faltan) (not saving?))
+        guardar! #(when guardable? (re-frame/dispatch [:admin/save-question]))
+        on-key (fn [e]
+                 (cond
+                   (and (= (.-key e) "Enter") (or (.-metaKey e) (.-ctrlKey e)))
+                   (do (.preventDefault e) (guardar!))
+
+                   (= (.-key e) "Escape")
+                   (do (.preventDefault e)
+                       (re-frame/dispatch [:admin/cancel-question-edit]))))]
+    [:div {:class "mb-6 rounded-xl border border-indigo-100 bg-white p-5"
+           :on-key-down on-key}
+     [:div {:class (str "sticky top-14 z-10 -mx-5 mb-4 flex flex-wrap items-center "
+                        "justify-between gap-2 border-b border-gray-100 bg-white px-5 pb-3 pt-1")}
+      [:div
+       [:h3 {:class "text-lg font-semibold text-gray-900"}
+        (if new? "Nueva pregunta" (str "Editar #" (:id draft)))]
+       [:span {:class "hidden text-xs text-gray-500 sm:inline"}
+        "⌘/Ctrl+Enter guarda · Esc cancela"]]
       [:div {:class "flex flex-wrap gap-2"}
        (when-not new?
          [:button {:type "button"
@@ -129,12 +224,19 @@
                  :on-click #(re-frame/dispatch [:admin/cancel-question-edit])}
         "Cancelar"]
        [:button {:type "button"
-                 :disabled saving?
+                 :disabled (not guardable?)
+                 :title (if (seq faltan)
+                          (str "Falta " (str/join ", " faltan))
+                          "Guardar (⌘/Ctrl+Enter)")
                  :class (str "rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition "
                              "hover:bg-indigo-700 disabled:opacity-50 focus:outline-none "
                              "focus-visible:ring-2 focus-visible:ring-indigo-400")
-                 :on-click #(re-frame/dispatch [:admin/save-question])}
+                 :on-click guardar!}
         (if saving? "Guardando…" "Guardar")]]]
+
+     (when (seq faltan)
+       [:div {:class "mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800"}
+        (str "Para guardar falta: " (str/join ", " faltan) ".")])
 
      [:p {:class "mb-4 text-xs text-gray-500"}
       "LaTeX: usa $x^2$ para inline y $$\\frac{a}{b}$$ para display. "
@@ -163,18 +265,26 @@
      [:details {:class "mt-2"}
       [:summary {:class "mb-2 cursor-pointer text-sm font-medium text-gray-600"}
        "Explicaciones de error (feedback)"]
-      (for [[k lab] [[:error_a "Error A"]
-                     [:error_b "Error B"]
-                     [:error_c "Error C"]
-                     [:error_d "Error D"]]]
+      [:p {:class "mb-3 text-xs text-gray-500"}
+       "Cada distractor tiene dos cosas distintas: la explicación —que habla de "
+       "los números de este ítem— y la idea errónea, que es la misma en todos los "
+       "ítems donde aparece. La explicación se escribe acá; la idea errónea se "
+       "elige del catálogo y es lo que permite contar «cuántos estudiantes cometen "
+       "este error»."]
+      (for [[k lab mis-k] [[:error_a "Error A" :misconception_a_id]
+                           [:error_b "Error B" :misconception_b_id]
+                           [:error_c "Error C" :misconception_c_id]
+                           [:error_d "Error D" :misconception_d_id]]]
         ^{:key k}
-        [latex-editor
-         {:label lab
-          :hint "Markdown + LaTeX"
-          :value (get draft k)
-          :rows 3
-          :markdown? true
-          :on-change #(re-frame/dispatch [:admin/update-question-draft k %])}])]]))
+        [:div
+         [latex-editor
+          {:label lab
+           :hint "Markdown + LaTeX"
+           :value (get draft k)
+           :rows 3
+           :markdown? true
+           :on-change #(re-frame/dispatch [:admin/update-question-draft k %])}]
+         [misconception-select draft mis-k]])]]))
 
 (defn- inline-edits-bar [dirty-count saving?]
   [:div {:class (str "mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg "

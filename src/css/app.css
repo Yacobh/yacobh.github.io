@@ -177,6 +177,13 @@
 .dark .border-amber-200 { border-color: theme('colors.amber.800'); }
 .dark .border-amber-300 { border-color: theme('colors.amber.700'); }
 
+/* Verde del veredicto «catálogo sano» en el panel de ideas erróneas (T-103).
+   Va acá y no como `dark:` suelto en el componente por ADR-012: el mapeo de
+   color es central o se olvida uno y queda texto oscuro sobre fondo oscuro. */
+.dark .bg-emerald-50 { background-color: theme('colors.emerald.950'); }
+.dark .text-emerald-900 { color: theme('colors.emerald.200'); }
+.dark .border-emerald-200 { border-color: theme('colors.emerald.800'); }
+
 /* ---------- Campos de formulario ----------
    Los <input>/<textarea>/<select> de texto de la app (login, cuenta,
    contacto, guestbook, admin…) no llevan una clase bg-* propia: su fondo

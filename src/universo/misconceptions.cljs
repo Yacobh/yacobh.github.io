@@ -117,6 +117,31 @@
        vec))
 
 ;; -----------------------------------------------------------------------------
+;; Producto vs. experimento
+;; -----------------------------------------------------------------------------
+
+;; Prefijo de slug del track experimental de cuántica (T-61, ADR-018). No es
+;; contenido del producto: son 77 entradas de un estudio personal del autor que
+;; conviven en la misma tabla. Se declara acá, con nombre, porque el panel
+;; necesita poder decir «el veredicto de arriba las incluye» — mentir sobre eso
+;; convierte el instrumento en decoración.
+(def experimento-slug-prefix "mq/")
+
+(defn del-experimento?
+  "¿Esta idea errónea es del experimento de cuántica y no del producto?"
+  [m]
+  (str/starts-with? (str (:slug m)) experimento-slug-prefix))
+
+(defn split-experimento
+  "Separa el catálogo en `{:producto [...] :experimento [...]}`.
+
+   No decide cuál mostrar —eso es [[OPEN_QUESTIONS]] Q-40 y depende de si el
+   track de cuántica sigue vivo—; solo hace la separación contable posible."
+  [misconceptions]
+  (let [{ex true prod false} (group-by del-experimento? (or misconceptions []))]
+    {:producto (vec prod) :experimento (vec ex)}))
+
+;; -----------------------------------------------------------------------------
 ;; Salud del catálogo — la heurística de 027, hecha función
 ;; -----------------------------------------------------------------------------
 
@@ -127,6 +152,35 @@
 ;; cambiar un número y no editar lógica, y **está sin validar con datos**: es un
 ;; criterio editorial, no una medición (mismo estatus que los cortes de fluidez).
 (def items-por-misconception-saludable 5)
+
+(defn health-from-usage
+  "Igual que `health`, pero partiendo del índice de uso ya calculado y del tamaño
+   del banco.
+
+   Existe porque el panel guarda en `app-db` el índice de uso y no las 387
+   preguntas: mantener el banco entero en memoria para volver a contar lo mismo
+   sería pagar dos veces. Es **la única** definición del veredicto; `health` es
+   un envoltorio sobre esta."
+  [misconceptions usage n-items]
+  (let [uso (or usage {})
+        total (count (or misconceptions []))
+        distractores (* 4 (or n-items 0))
+        catalogados (reduce + 0 (vals uso))
+        conteos (map #(get uso (:id %) 0) misconceptions)
+        huerfanas (count (filter zero? conteos))
+        singleton (count (filter #(= 1 %) conteos))
+        ratio (when (pos? total) (/ (double (or n-items 0)) total))]
+    {:total total
+     :huerfanas huerfanas
+     :singleton singleton
+     :cobertura (if (pos? distractores)
+                  (/ (double catalogados) distractores)
+                  0.0)
+     :ratio ratio
+     :veredicto (cond
+                  (zero? total) :vacio
+                  (and ratio (< ratio items-por-misconception-saludable)) :disperso
+                  :else :sano)}))
 
 (defn health
   "Diagnóstico del catálogo para un banco dado.
@@ -141,23 +195,6 @@
    `:disperso` es la señal que importa: significa que el catálogo está creciendo
    casi tan rápido como el banco, que es la forma de fracasar que 027 anticipó."
   [misconceptions questions]
-  (let [uso (usage-index questions)
-        total (count (or misconceptions []))
-        n-items (count (or questions []))
-        distractores (* 4 n-items)
-        catalogados (reduce + 0 (vals uso))
-        conteos (map #(get uso (:id %) 0) misconceptions)
-        huerfanas (count (filter zero? conteos))
-        singleton (count (filter #(= 1 %) conteos))
-        ratio (when (pos? total) (/ (double n-items) total))]
-    {:total total
-     :huerfanas huerfanas
-     :singleton singleton
-     :cobertura (if (pos? distractores)
-                  (/ (double catalogados) distractores)
-                  0.0)
-     :ratio ratio
-     :veredicto (cond
-                  (zero? total) :vacio
-                  (and ratio (< ratio items-por-misconception-saludable)) :disperso
-                  :else :sano)}))
+  (health-from-usage misconceptions
+                     (usage-index questions)
+                     (count (or questions []))))

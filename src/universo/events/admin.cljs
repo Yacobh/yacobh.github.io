@@ -13,7 +13,9 @@
    [cljs.core.async :refer [go <!]]
    [universo.catalog :as catalog]
    [universo.db.crud :as crud]
-   [universo.events.dashboard :as dash]))
+   [universo.editor :as editor]
+   [universo.events.dashboard :as dash]
+   [universo.misconceptions :as mis]))
 
 (def page-size 20)
 
@@ -24,6 +26,7 @@
    :questions :admin/load-questions
    :test-configs :admin/load-test-configs
    :resources :admin/load-resources
+   :misconceptions :admin/load-misconceptions
    :slots :admin/load-slots
    :guestbook :admin/load-guestbook
    :contacto :admin/load-contacto})
@@ -683,8 +686,44 @@
 (re-frame/reg-event-fx
  :admin/load-questions
  (fn [{:keys [db]} _]
-   {:dispatch [:admin/section-start :questions]
-    :admin/fetch-questions (get-in db [:admin :question-topic-filter])}))
+   ;; Los módulos los cargaba **solo** la pestaña de recursos, así que el
+   ;; selector de módulo del editor de preguntas aparecía vacío si no se había
+   ;; pasado antes por ahí: un desplegable sin opciones y sin explicación.
+   (cond-> {:dispatch [:admin/section-start :questions]
+            :admin/fetch-questions (get-in db [:admin :question-topic-filter])}
+     (empty? (get-in db [:admin :modules]))
+     (assoc :admin/fetch-modules-only true)
+
+     ;; El editor asigna la idea errónea de cada distractor, así que necesita el
+     ;; catálogo aunque nunca se haya abierto su pestaña.
+     (empty? (get-in db [:admin :misconceptions]))
+     (assoc :admin/fetch-misconceptions-only true))))
+
+(re-frame/reg-fx
+ :admin/fetch-misconceptions-only
+ (fn [_]
+   (go
+     (let [res (<! (crud/fetch-misconceptions))]
+       (when (:success res)
+         (re-frame/dispatch [:admin/misconceptions-only-loaded (or (:data res) [])]))))))
+
+(re-frame/reg-event-db
+ :admin/misconceptions-only-loaded
+ (fn [db [_ rows]]
+   (assoc-in db [:admin :misconceptions] rows)))
+
+(re-frame/reg-fx
+ :admin/fetch-modules-only
+ (fn [_]
+   (go
+     (let [res (<! (crud/fetch-modules))]
+       (when (:success res)
+         (re-frame/dispatch [:admin/modules-loaded (or (:data res) [])]))))))
+
+(re-frame/reg-event-db
+ :admin/modules-loaded
+ (fn [db [_ modules]]
+   (assoc-in db [:admin :modules] modules)))
 
 (re-frame/reg-event-db
  :admin/question-topics-loaded
@@ -711,10 +750,16 @@
  :admin/edit-question
  (fn [db [_ row]]
    (let [draft (-> (merge empty-question-draft
+                          ;; Los cuatro `misconception_*_id` viajan al draft para que el
+                          ;; selector muestre lo ya catalogado. Ojo: `crud/question-payload`
+                          ;; solo manda las claves presentes, así que sacarlas de acá no
+                          ;; «protege» nada — deja el selector ciego.
                           (select-keys row
                                        [:id :question :option_a :option_b :option_c :option_d
                                         :correct_option :error_a :error_b :error_c :error_d
-                                        :topic :order_index :difficulty :module_id]))
+                                        :topic :order_index :difficulty :module_id
+                                        :misconception_a_id :misconception_b_id
+                                        :misconception_c_id :misconception_d_id]))
                    (update :correct_option #(some-> % str str/trim)))]
      (-> db
          (assoc-in [:admin :question-editing?] true)
@@ -733,22 +778,18 @@
  (fn [db [_ k v]]
    (assoc-in db [:admin :question-draft k] v)))
 
-(defn- question-draft-valid? [draft]
-  (and (pos? (count (str/trim (or (:question draft) ""))))
-       (pos? (count (str/trim (or (:option_a draft) ""))))
-       (pos? (count (str/trim (or (:option_b draft) ""))))
-       (pos? (count (str/trim (or (:option_c draft) ""))))
-       (pos? (count (str/trim (or (:option_d draft) ""))))
-       (pos? (count (str/trim (or (:topic draft) ""))))
-       (#{"A" "B" "C" "D"} (str/trim (str (:correct_option draft))))))
 
 (re-frame/reg-event-fx
  :admin/save-question
  (fn [{:keys [db]} _]
    (let [draft (get-in db [:admin :question-draft])]
-     (if-not (question-draft-valid? draft)
+     ;; Mismo criterio que muestra el formulario: `editor/question-missing-fields`
+     ;; es la única definición de «completo». Cuando vivían separados, el editor
+     ;; no podía decir qué faltaba y este evento respondía con una lista fija que
+     ;; había que mantener a mano.
+     (if-let [faltan (seq (editor/question-missing-fields draft))]
        {:dispatch [:admin/toast :error
-                   "Completa enunciado, opciones A–D, tema y respuesta correcta."]}
+                   (str "Para guardar falta: " (str/join ", " faltan) ".")]}
        {:db (assoc-in db [:admin :question-saving?] true)
         :admin/persist-question draft}))))
 
@@ -1153,3 +1194,198 @@
 (re-frame/reg-sub
  :admin/apariencia-error
  (fn [db _] (get-in db [:admin :status :apariencia :error])))
+
+;; -----------------------------------------------------------------------------
+;; Catálogo de misconceptions (T-103, sobre la migración 027)
+;; -----------------------------------------------------------------------------
+;;
+;; La sección carga **dos** cosas: el catálogo y el banco completo de ítems. El
+;; banco no es un lujo: sin él no se puede calcular el uso de cada idea errónea
+;; ni la salud del catálogo, que son justamente las dos preguntas que esta
+;; pestaña existe para responder. Van en paralelo, como en recursos.
+
+(re-frame/reg-fx
+ :admin/fetch-misconceptions!
+ (fn [_]
+   (go
+     (let [mis-ch (crud/fetch-misconceptions)
+           qs-ch (crud/fetch-admin-questions)
+           mis (<! mis-ch)
+           qs (<! qs-ch)]
+       (if-let [err (or (:error mis) (:error qs))]
+         (re-frame/dispatch [:admin/section-fail :misconceptions err])
+         (re-frame/dispatch [:admin/misconceptions-bundle
+                             (or (:data mis) [])
+                             (or (:data qs) [])]))))))
+
+(re-frame/reg-event-fx
+ :admin/load-misconceptions
+ (fn [{:keys [db]} _]
+   (cond-> {:dispatch [:admin/section-start :misconceptions]
+            :admin/fetch-misconceptions! nil}
+     (empty? (get-in db [:admin :modules]))
+     (assoc :admin/fetch-modules-only true))))
+
+(re-frame/reg-event-fx
+ :admin/misconceptions-bundle
+ (fn [{:keys [db]} [_ misconceptions questions]]
+   {:db (-> db
+            (assoc-in [:admin :misconceptions] misconceptions)
+            (assoc-in [:admin :misconception-usage]
+                      (mis/usage-index questions))
+            (assoc-in [:admin :misconception-bank-size] (count questions)))
+    :dispatch [:admin/section-ok :misconceptions]}))
+
+(re-frame/reg-sub
+ :admin/misconceptions
+ (fn [db _]
+   (get-in db [:admin :misconceptions] [])))
+
+(re-frame/reg-sub
+ :admin/misconception-usage
+ (fn [db _]
+   (get-in db [:admin :misconception-usage] {})))
+
+(re-frame/reg-sub
+ :admin/misconception-search
+ (fn [db _]
+   (get-in db [:admin :misconception-search] "")))
+
+(re-frame/reg-sub
+ :admin/misconception-draft
+ (fn [db _]
+   (get-in db [:admin :misconception-draft])))
+
+(re-frame/reg-sub
+ :admin/misconception-saving?
+ (fn [db _]
+   (get-in db [:admin :misconception-saving?] false)))
+
+;; Lista visible: uso adjunto, ordenada por uso y filtrada por la búsqueda. Toda
+;; la regla vive en `universo.misconceptions`; acá solo se cablea.
+(re-frame/reg-sub
+ :admin/misconceptions-view
+ :<- [:admin/misconceptions]
+ :<- [:admin/misconception-usage]
+ :<- [:admin/misconception-search]
+ (fn [[rows usage query] _]
+   (->> (mis/with-usage rows usage)
+        (filterv #(mis/matches? query %)))))
+
+(re-frame/reg-sub
+ :admin/misconception-bank-size
+ (fn [db _]
+   (get-in db [:admin :misconception-bank-size] 0)))
+
+(re-frame/reg-sub
+ :admin/misconceptions-health
+ :<- [:admin/misconceptions]
+ :<- [:admin/misconception-usage]
+ :<- [:admin/misconception-bank-size]
+ (fn [[rows usage bank-size] _]
+   (mis/health-from-usage rows usage bank-size)))
+
+(re-frame/reg-event-db
+ :admin/set-misconception-search
+ (fn [db [_ q]]
+   (assoc-in db [:admin :misconception-search] (or q ""))))
+
+(def blank-misconception
+  {:id nil :slug "" :name "" :description "" :module_id nil})
+
+(re-frame/reg-event-db
+ :admin/new-misconception
+ (fn [db _]
+   (assoc-in db [:admin :misconception-draft] blank-misconception)))
+
+(re-frame/reg-event-db
+ :admin/edit-misconception
+ (fn [db [_ row]]
+   (assoc-in db [:admin :misconception-draft]
+             (merge blank-misconception
+                    (select-keys row [:id :slug :name :description :module_id])))))
+
+(re-frame/reg-event-db
+ :admin/cancel-misconception-edit
+ (fn [db _]
+   (assoc-in db [:admin :misconception-draft] nil)))
+
+(re-frame/reg-event-db
+ :admin/update-misconception-draft
+ (fn [db [_ k v]]
+   (assoc-in db [:admin :misconception-draft k] v)))
+
+;; Escribir el nombre y que el slug se proponga solo es la diferencia entre
+;; llenar dos campos y llenar uno. Deja de proponer en cuanto el autor toca el
+;; slug a mano: sobrescribir lo que alguien acaba de escribir es peor que no
+;; ayudar. Por eso el evento es distinto del genérico de arriba.
+(re-frame/reg-event-db
+ :admin/update-misconception-name
+ (fn [db [_ nombre]]
+   (let [draft (get-in db [:admin :misconception-draft])
+         sugerido (mis/suggest-slug (:name draft))
+         intacto? (or (str/blank? (str (:slug draft)))
+                      (= (:slug draft) sugerido))]
+     (update-in db [:admin :misconception-draft]
+                (fn [d]
+                  (cond-> (assoc d :name nombre)
+                    intacto? (assoc :slug (or (mis/suggest-slug nombre) ""))))))))
+
+(re-frame/reg-event-fx
+ :admin/save-misconception
+ (fn [{:keys [db]} _]
+   (let [draft (get-in db [:admin :misconception-draft])]
+     (cond
+       (str/blank? (str (:name draft)))
+       {:dispatch [:admin/toast :error "La idea errónea necesita un nombre."]}
+
+       ;; El check de `027` es la autoridad; esto solo evita el viaje de ida y
+       ;; vuelta para enterarse.
+       (not (mis/slug-valid? (str/trim (str (:slug draft)))))
+       {:dispatch [:admin/toast :error
+                   "El slug solo admite minúsculas, dígitos y - o / como separadores."]}
+
+       :else
+       {:db (assoc-in db [:admin :misconception-saving?] true)
+        :admin/persist-misconception draft}))))
+
+(re-frame/reg-fx
+ :admin/persist-misconception
+ (fn [draft]
+   (go
+     (let [result (<! (crud/upsert-misconception! draft))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/misconception-saved])
+         (re-frame/dispatch [:admin/misconception-failed
+                             (or (:error result) "No se pudo guardar")]))))))
+
+(re-frame/reg-event-fx
+ :admin/misconception-saved
+ (fn [{:keys [db]} [_ mensaje]]
+   {:db (-> db
+            (assoc-in [:admin :misconception-saving?] false)
+            (assoc-in [:admin :misconception-draft] nil))
+    :dispatch-n [[:admin/toast :success (or mensaje "Idea errónea guardada.")]
+                 [:admin/load-misconceptions]]}))
+
+(re-frame/reg-event-fx
+ :admin/misconception-failed
+ (fn [{:keys [db]} [_ msg]]
+   {:db (assoc-in db [:admin :misconception-saving?] false)
+    :dispatch [:admin/toast :error msg]}))
+
+(re-frame/reg-event-fx
+ :admin/delete-misconception
+ (fn [{:keys [db]} [_ id]]
+   {:db (assoc-in db [:admin :misconception-saving?] true)
+    :admin/remove-misconception id}))
+
+(re-frame/reg-fx
+ :admin/remove-misconception
+ (fn [id]
+   (go
+     (let [result (<! (crud/delete-misconception! id))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/misconception-saved "Idea errónea eliminada."])
+         (re-frame/dispatch [:admin/misconception-failed
+                             (or (:error result) "No se pudo eliminar")]))))))

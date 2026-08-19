@@ -4,10 +4,12 @@
    [clojure.string :as str]
    [re-frame.core :as re-frame]
    [reagent.core :as r]
+   [universo.components.admin-misconceptions :as admin-mis]
    [universo.components.admin-questions :as admin-q]
    [universo.components.admin-test-configs :as admin-tc]
    [universo.components.plan :as plan]
    [universo.components.ui :as ui]
+   [universo.editor :as editor]
    [universo.resources :as resources]))
 
 ;; -----------------------------------------------------------------------------
@@ -605,17 +607,6 @@
 ;; la causa del fallo bloqueante del 2026-08-18.
 (def ^:private blank-resource resources/blank)
 
-(defn- modules-by-track
-  "Módulos agrupados por track, para un `<select>` con `<optgroup>`.
-
-   Con 35 módulos —20 de PAES y 15 del track experimental de cuántica
-   (ADR-018)— una lista plana obliga a leerla entera cada vez. Agrupar por track
-   es la diferencia entre buscar y elegir."
-  [modules]
-  (->> modules
-       (group-by #(or (:track %) "otros"))
-       (sort-by first)))
-
 (defn- resource-preview-pane
   "Panel derecho del editor: lo que el estudiante va a ver, en vivo.
 
@@ -776,7 +767,7 @@
                          :value (:module_id form)
                          :on-change #(upd :module_id (.. % -target -value))}
                 [:option {:value ""} "Selecciona un módulo…"]
-                (for [[track ms] (modules-by-track modules)]
+                (for [[track ms] (editor/modules-by-track modules)]
                   ^{:key track}
                   [:optgroup {:label track}
                    (for [m (sort-by :order_index ms)]
@@ -1297,6 +1288,7 @@
    [:users "Usuarios"]
    [:tests "Diagnósticos"]
    [:questions "Preguntas"]
+   [:misconceptions "Ideas erróneas"]
    [:test-configs "Configuración de tests"]
    [:resources "Recursos"]
    [:slots "Cupos"]
@@ -1363,6 +1355,7 @@
               :users [users-panel]
               :tests [tests-panel]
               :questions [admin-q/questions-panel]
+              :misconceptions [admin-mis/misconceptions-panel]
               :test-configs [admin-tc/test-configs-panel]
               :resources [resources-panel]
               :slots [slots-admin-panel]
