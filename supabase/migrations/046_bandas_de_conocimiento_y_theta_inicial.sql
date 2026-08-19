@@ -117,8 +117,10 @@ alter table public.modules
   add constraint modules_track_check
   check (track in ('aritmetica', 'algebra', 'geometria', 'probabilidad', 'cuantica'));
 
--- El mismo check existe en `resources.track` (001, línea 129). Si no se amplía,
--- un recurso del eje nuevo no se puede crear y el fallo aparece lejos de acá.
+-- El mismo check restrictivo existe en **`class_slots.track`** (`001`, dentro del
+-- bloque de `class_slots`, no de `resources` — `resources` no tiene columna
+-- `track`: hereda el eje de su módulo). Si no se amplía, no se puede publicar un
+-- cupo del eje nuevo y el fallo aparece lejos de acá, al crear el cupo.
 do $$
 declare c record;
 begin
@@ -128,17 +130,17 @@ begin
       join pg_class rel on rel.oid = con.conrelid
       join pg_namespace ns on ns.oid = rel.relnamespace
      where ns.nspname = 'public'
-       and rel.relname = 'resources'
+       and rel.relname = 'class_slots'
        and con.contype = 'c'
        and pg_get_constraintdef(con.oid) ilike '%track%'
   loop
-    execute format('alter table public.resources drop constraint %I', c.conname);
+    execute format('alter table public.class_slots drop constraint %I', c.conname);
   end loop;
 end
 $$;
 
-alter table public.resources
-  add constraint resources_track_check
+alter table public.class_slots
+  add constraint class_slots_track_check
   check (track is null or track in ('aritmetica', 'algebra', 'geometria', 'probabilidad', 'cuantica'));
 
 -- SIN SEED A PROPÓSITO. Los módulos del eje de probabilidad y los valores de

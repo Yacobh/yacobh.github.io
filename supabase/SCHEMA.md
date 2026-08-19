@@ -279,6 +279,7 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     `queries/L-2_cobertura_de_recursos.sql` — su bloque A ataja el modo de fallo silencioso de esta
     migración (si un slug no coincide, el `insert … select` no inserta nada y **no da error**)
 47. `migrations/045_module_prerequisites_y_resource_misconceptions.sql` — ⏳ **pendiente de aplicar**
+48. `migrations/046_bandas_de_conocimiento_y_theta_inicial.sql` — ⏳ **pendiente de aplicar** (la primera corrida falló por un error mío; corregida y verificada, ver abajo)
     · los dos puentes que le faltan al escape del estudiante (`universo.irt.escape`) para tener
     destino, y que además son el dato del mapa de prerrequisitos. Crea `module_prerequisites`
     (grafo entre los 20 módulos, aristas `duro`/`blando`), `resource_misconceptions` (de la idea
@@ -679,3 +680,47 @@ Repetible en cualquier momento con el **bloque H** de
 **Verificada (2026-08-12)** contra un PostgreSQL 14 desechable: aplica limpia, defaults correctos,
 el check rechaza bandas invertidas, e idempotente (segunda corrida solo emite los `NOTICE` de
 `add column if not exists`).
+
+---
+
+## Bandas de conocimiento, θ inicial y el cuarto eje (`046`) — ⏳ pendiente de aplicar
+
+Pedido del owner el 2026-08-18. **Puramente aditiva**: tres columnas nullable y dos checks
+ampliados. El cliente funciona igual si no está aplicada — omite del payload las columnas que no
+existen (mismo patrón que los `misconception_*_id` en `question-payload`).
+
+| Objeto | Qué es |
+|---|---|
+| `modules.band_min` / `band_max` | La **banda de conocimiento**: el rango de dificultad IRT que le toca a ese contenido. `null` = usa la banda derivada del orden curricular (`universo.bands/default-bands`) |
+| `test_configs.initial_theta` | Dónde **abre** la evaluación. Hasta ahora todo test arrancaba en θ = -1.0, un literal en `events/test.cljs`. `null` = ese mismo -1.0 |
+| `modules.track` y `class_slots.track` | Checks ampliados con **`probabilidad`**, el cuarto eje de PAES M1 |
+
+**Por qué la banda va en `modules` y no en `test_configs`:** una banda describe un *contenido*, no una
+evaluación. El banco `diagnostico` cruza varios contenidos; si la banda viviera en el test, sus ítems
+tendrían todos la misma dificultad y el test adaptativo no podría discriminar dentro de él.
+
+⚠️ **Qué es y qué no es.** Una banda es una **hipótesis editorial, no una medición**. Sigue siendo
+`difficulty` autoral: lo que gana el banco es *coherencia* —hoy `polinomios` tiene 18 de 20 ítems
+dentro de 0,045 logits, o sea una constante con ruido—, no validez psicométrica. Eso solo puede venir
+de calibrar con respuestas reales (G-2, [[../project-memory/RISKS]] R-17, Q-05). Cuando se calibre,
+estas bandas son la hipótesis **contra la que se contrasta**.
+
+**El cuarto eje no era un olvido de contenido, era imposible:** el check de `001` solo admitía
+`aritmetica`, `algebra` y `geometria`, así que no se podía crear un módulo de probabilidad ni
+publicar un cupo de ese eje. Por eso el banco no tiene un solo ítem de probabilidad.
+
+**Historial de esta migración.** La primera versión falló en producción con
+`ERROR: 42703: column "track" does not exist`: ampliaba el check de `resources.track`, y **`resources`
+no tiene columna `track`** — hereda el eje de su módulo. El check que sí había que ampliar era el de
+`class_slots.track`. Error de lectura del agente: en `001` ese `check (track ...)` está dentro del
+bloque de `class_slots`, no del de `resources`.
+
+**Verificada (2026-08-18)** contra un PostgreSQL 14 desechable, con una réplica mínima de `modules`,
+`class_slots` y `test_configs` tal como los dejaron `001` y `033`:
+- aplica limpia y agrega las tres columnas;
+- los dos checks de `track` quedan con los cinco ejes;
+- un módulo y un cupo de `probabilidad` se insertan sin error;
+- los checks **rechazan** banda invertida (`min > max`), banda fuera de `[-3, 3]` y `initial_theta`
+  fuera de rango;
+- **idempotente**: la segunda corrida completa solo emite los `NOTICE` de `add column if not exists`
+  y conserva los valores ya escritos.
