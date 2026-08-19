@@ -739,6 +739,191 @@ débil, y se vuelve claramente insuficiente cuando haya un contrato instituciona
   abra la conversación de un contrato institucional (F9, R-28).
 - **Relacionado:** D-21, D-56, [[RISKS]] R-06/R-28, [[DECISIONS]] D-56, T-92.
 
+### T-96 · Escape del estudiante en el diagnóstico («no sé») — **P0** · `hecho` (2026-08-18, rama `escape-no-se`, **sin mergear**)
+
+Dos botones en el ítem: «No entiendo el enunciado» y «No sé cómo resolverlo». Ver
+[[../adr/ADR-029-escape-como-tercera-categoria-de-respuesta]] (D-57).
+
+**Implementado:**
+- `src/universo/irt/escape.cljs` — namespace puro (ADR-009): normalización de la clase (acepta
+  keyword y string, porque vuelve del JSONB como string), construcción de la respuesta con
+  `:weight 0.0`, y los agregados `escape-rate` / `escape-counts` / `summary`.
+- `events/test.cljs` — evento `:test/escape`, y se factorizó `register-response` para que la vía
+  corregida por el servidor y la del escape **no puedan divergir** en la regla de parada.
+- `components/diagnostic_test.cljs` — los dos botones, con peso visual secundario y **sin diálogo
+  de confirmación** (poner fricción ahí castiga la honestidad).
+- `components/feedback_modal.cljs` — variante de escape. Sin esto el modal decía «Incorrecto» en
+  rojo y mostraba una comparación de alternativas **vacía**, porque con `selected` y `correct` los
+  dos nil entraba por la rama del acierto.
+- `profile.cljs` — `:escape` aditivo y **nil cuando no hubo ninguno**, para distinguir «no escapó»
+  de «test anterior al escape».
+- `test/universo/irt/escape_test.cljs` — 13 casos, incluida la propiedad central: agregar un escape
+  deja θ **exactamente igual**, con el contraste de que una respuesta incorrecta sí lo mueve (o sea
+  que la prueba no pasa por casualidad).
+- **No requiere migración ni toca RLS:** `score_answer` rechaza por diseño lo que no sea A–D, y un
+  escape no es una alternativa. Es cliente puro.
+
+**🔧 Corregido el mismo día, tras revisión del owner.** La primera versión **no bajaba la dificultad
+ni mostraba recursos** — registraba el problema y no hacía nada. El error fue dar por bueno que «con
+`:correct? false` el motor ya sirve ítems más fáciles solo»: eso vale para la alternativa de peso
+1.0, que se descartó; **con peso 0.0 θ no se mueve** y `next_question` seguía sirviendo la misma
+banda. Se agregó:
+
+- `escape/selection-theta` + `consecutive-escapes` — el ítem se busca con un θ **objetivo** que baja
+  un escalón por escape seguido y **se reinicia solo** al responder de verdad. θ no se toca. Como
+  `next_question` recibe el θ objetivo por parámetro, **tampoco hizo falta migración**; el escalón
+  reusa `progress/selection-half-width` en vez de declarar una constante nueva. El ancla es
+  `min(θ, dificultad del ítem escapado)`, porque con la ventana estrecha vacía el ítem servido puede
+  ser más difícil que θ y retroceder desde θ dejaría al estudiante donde se atascó.
+- `crud/fetch-published-resources-for-module` + la sección de material en el modal, con
+  `plan/resource-card` (la misma tarjeta de «Mi plan», no una variante).
+- ⚠️ **Es el módulo del ítem, no el prerrequisito** (Q-38 / T-98), y se dice en la UI. El estado
+  vacío es honesto: con un tercio del banco sin `module_id` (T-60) va a ocurrir.
+
+- `clj -M:test`: **121 tests / 619 assertions / 0 failures / 0 errors**. `shadow-cljs release app`:
+  0 warnings. Las cuatro auditorías pasan (contraste **40/40**, con los dos pares nuevos declarados).
+- **⚠ No verificado en vivo:** el diagnóstico es sección protegida y el agente no tiene credenciales
+  de una cuenta de estudiante. **Antes de T-90 hay que probarlo de punta a punta con una cuenta que
+  no sea admin**, comprobando que el modal muestre la variante de escape.
+- **Relacionado:** T-90 (esta tarea existe para que esa sesión mida algo), [[RISKS]] R-34,
+  [[OPEN_QUESTIONS]] Q-39.
+
+### T-97 · Panel de recursos: guardado optimista, borrador que sobrevive y duplicar — **P1** · `hecho` (2026-08-18, rama `escape-no-se`, **sin mergear**)
+
+Los cinco arreglos baratos del editor, que es el segundo flujo central del producto (D-58).
+
+**Implementado:**
+- `src/universo/resources.cljs` — namespace puro con `attach-module`, `upsert-row`, `remove-row`,
+  `set-published` (que es **su propia inversa**, y por eso revertir un cambio optimista no exige
+  recargar nada) y `duplicate-draft`. `test/universo/resources_test.cljs`: 8 casos.
+- **Guardado sin recarga:** `upsert-resource!` ya hacía `.select("*").single()`, así que la fila
+  volvía en la misma llamada y se estaba tirando para ir a buscarla de nuevo. El único dato que
+  faltaba —el join `modules(slug,…)`— se repone desde los módulos que ya están en `app-db`.
+- **Publicar/despublicar optimista y reversible**, en vez de una recarga completa por un booleano.
+- **Las dos consultas de la sección van en paralelo** (antes `modules` y recién después
+  `resources`, pagando dos veces la latencia).
+- **Borrador en `app-db`** en vez de un `r/atom` del componente: cambiar de pestaña borraba veinte
+  minutos de LaTeX escrito **sin aviso**.
+- **⌘/Ctrl+Enter guarda, Esc descarta**, en el contenedor, así que funcionan también desde el
+  textarea, que es donde se pasa el tiempo.
+- **Duplicar**: sin `id`, sin publicar y con el título marcado. Es el atajo que más rinde porque los
+  recursos de un módulo suelen ser variaciones del anterior.
+- Se fusionó `:admin/cancel-edit-resource` con `:admin/discard-resource-draft`: hacían el mismo
+  trabajo y tener dos eventos para una acción es cómo uno se queda sin limpiar la mitad del estado.
+- **Lo que NO se hizo, y sigue abierto:** T-102.
+
+### T-98 · Decidir y sembrar el grafo de prerrequisitos entre módulos — **P1** · `abierto`
+
+La migración `045` crea `module_prerequisites` **vacía a propósito**. Falta el contenido, que es una
+decisión **pedagógica** y por lo tanto del profesor: ver [[OPEN_QUESTIONS]] **Q-38**.
+
+- **Por qué importa:** es lo que le da destino al escape `:resolucion` de T-96. Sin el grafo, un «no
+  sé cómo resolverlo» se registra pero no lleva a ninguna parte.
+- **Cómo NO hacerlo:** derivándolo del `order_index` de `modules` o del orden de Baldor. Se
+  parecería a la respuesta correcta sin serlo, y el error quedaría invisible — el modo de fallo de
+  T-51 con los topics.
+- **No hace falta el grafo completo para empezar:** con las aristas duras de los módulos donde más
+  se escape en T-90 ya se puede probar el camino entero.
+- **Terminado cuando:** existe una migración `046` con las aristas y su `rationale`, aplicada, y un
+  escape en un módulo con prerrequisito resuelve al módulo anterior.
+
+### T-99 · Ítems sembrados: calibrar el banco dentro del test que ya corre — **P0** · `abierto`
+
+Servir 1–2 ítems con `difficulty` no confiable que **no cuenten para θ**, solo para recoger datos.
+Es la técnica estándar de calibración (*ítems sembrados* / *anchor items*).
+
+- **La maquinaria ya existe:** es el peso 0.0 de `universo.irt.effort`, el mismo que usa el escape.
+- **Por qué es P0 y no un lujo:** es **G-2 —calibrar el banco, la precondición dura de todo el plan
+  de negocio ([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]])— ejecutándose gratis dentro
+  de un flujo que ya corre**. De todo lo que salió de la sesión del 2026-08-18, es lo único que
+  avanza directamente el vector que bloquea a los demás.
+- **Lo que hay que decidir antes:** cómo se marca un ítem como piloto (columna en `questions` vs.
+  `difficulty is null`), y cuántos por test sin alargarlo — el largo ya es el riesgo que T-90 mide.
+- **Dependencia:** conviene decidirlo **después** de T-90, con el dato de cuántos terminan.
+- **Relacionado:** T-29, T-45, T-76/T-77, Q-05.
+
+### T-100 · Migrar el diagnóstico y «Mi plan» al lenguaje del panel — **P1** · `abierto`
+
+La identidad visual (ADR-022/023) existe, está pagada y **no llegó a las dos pantallas que más se
+ven**. Medido con `grep` el 2026-08-18:
+
+| Archivo | Primitivas del panel | Radios y sombras (que ADR-022 prohíbe) |
+|---|---|---|
+| `diagnostic_test.cljs` — el flujo n.º 1 | **0** | 15 `rounded-lg`, 2 `rounded-xl`, 2 `rounded-full`, 4 `shadow-*` |
+| `plan.cljs` — el entregable | **0** | 8 `rounded-lg`, 6 `rounded-xl`, 8 `bg-white` |
+| `feedback_modal.cljs` | 16 | — |
+| `dashboard.cljs` | 11 | — |
+
+- **Por qué se ve genérico y no *mal*:** `tailwind.config.js` redefine `indigo` como grafito, así que
+  los cientos de `bg-indigo-600` heredados salen grises en vez de morados. La neutralización evitó
+  que se viera mal y dejó exactamente gris sobre blanco con esquinas redondas y sombra suave.
+- Hay además verdes y rojos crudos de Tailwind en `diagnostic_test.cljs`, fuera de la paleta de un
+  solo color. (En `feedback_modal.cljs` el verde/rojo **se queda**: ahí el color informa
+  acierto/fallo y está justificado en el propio archivo.)
+- **No toca lógica** y se verifica con los tres `scripts/audit_*.py` que ya existen.
+- **Terminado cuando:** las dos pantallas usan `.control`/`.placa`/`.visor`/`.alojamiento`/`.led`,
+  cero `rounded-*`/`shadow-*`, y las cuatro auditorías siguen pasando.
+
+### T-101 · Mapa de prerrequisitos visible y manipulable — **P2** · `abierto`
+
+- **Depende de T-98** (sin aristas no hay nada que dibujar).
+- **Sin librería nueva:** 20 nodos en 3 tracks es un layout por capas (profundidad = camino más
+  largo desde las raíces, columna = track) de unas ochenta líneas de ClojureScript **puro y
+  testeable**, que es lo que ADR-009 exige. d3 o cytoscape añadirían dependencia a registrar
+  (CLAUDE.md §5), peso de bundle y una capa imperativa que reconciliar con re-frame. Pan y zoom son
+  un `viewBox` y eventos de puntero.
+- **Lo que lo hace valer no es el dibujo**, es pintarlo con los datos del propio estudiante:
+  dominado / en curso / bloqueado / **hueco detectado por un escape**. Convierte θ de un número en
+  un lugar donde se está parado, y es la pantalla que un profesor proyecta — casi literalmente el
+  «mapa de errores del curso» de T-90.
+- **Aviso:** va a hacer visible que **128 ítems (33 % del banco) no tienen `module_id`** (T-60).
+  `universo.profile` ya los marca `unknown/…` a propósito. Es correcto que se vea.
+
+### T-102 · Editor de recursos: edición en la fila y Markdown básico — **P2** · `abierto`
+
+Lo que quedó fuera de T-97 por ser de mayor alcance:
+
+- **Editar en la fila** (expansión inline o panel lateral) en vez de un único formulario global
+  arriba con `window.scrollTo`. Hoy cada edición es: subir, editar, guardar, bajar y volver a buscar
+  dónde ibas. **Conservando la vista previa viva**, que renderiza con `plan/resource-card` —la misma
+  función que usa «Mi plan»— y es la mejor decisión de UX del panel entero.
+- **Encabezados `##` y listas `-`**, que hoy **no se renderizan** (lo dice la propia ayuda del
+  editor) y son las dos primeras cosas que cualquier profesor va a escribir. Más una barra mínima de
+  inserción: fracción, potencia, raíz, `$$`.
+- **Para el profesor** (cuando exista el rol, T-79) el arreglo no es un formulario mejor: son
+  **menos campos obligatorios**. Hoy pide título, tipo, módulo, URL, orden y cuerpo; quien graba 90
+  segundos sobre *un* error debería elegir una cosa y grabar.
+
+### T-103 · Pestaña de catálogo de misconceptions en el panel — **P2** · `abierto`
+
+**Es el consumidor que le falta al cableado del 2026-08-18.** `fetch-misconceptions`,
+`upsert-misconception!` y `delete-misconception!` existen en `db.crud`, `universo.misconceptions`
+tiene las funciones puras con test, y **no las llama nadie**: mientras no exista esta pestaña, `027`
+sigue sin lector en la práctica y el paso 2 de T-57 no se puede ejecutar (D-59).
+
+**Qué falta, concretamente:** eventos en `events/admin.cljs` (cargar, guardar, borrar, con el
+`:loading?`/`:error` propio de la sección que exige [[../CLAUDE]] §5), los subs, y la vista con las
+primitivas del panel (`.control`, `.alojamiento`, `.placa`, `.visor` — ADR-023), no con utilidades
+sueltas.
+
+**Lo que ya está resuelto y no hay que rehacer:**
+- **El slug se valida antes de guardar** con `misconceptions/slug-valid?` (espejo del check de
+  `027`) y se propone con `suggest-slug`. Sin eso, el único aviso de un slug mal formado es un error
+  de Postgres después de escribir nombre y descripción.
+- **`health` es la pieza que justifica la pestaña**, no un adorno: es la única forma de ver si el
+  catálogo está creciendo casi tan rápido como el banco, que es la manera de fracasar que `027`
+  anticipó. Debería estar a la vista, no escondida.
+- **`with-usage` deja las huérfanas visibles al final**, no ocultas: una idea errónea que no usa
+  nadie es exactamente la que hay que revisar o borrar.
+
+**Decisión pendiente antes de escribir la vista:** qué hacer con las **77 entradas `mq/`** del
+experimento de cuántica (T-61), que hoy `fetch-misconceptions` devuelve junto con las del producto y
+que distorsionan `health` — [[OPEN_QUESTIONS]] **Q-40**.
+
+- **Terminado cuando:** un admin puede crear, editar y borrar una misconception desde el panel, ve
+  el uso de cada una y ve el veredicto de `health` del banco.
+- **Relacionado:** T-57 (paso 2), T-54, D-59, `sessions/SESSION-032.md`.
+
 ### T-24 · Estado vacío honesto en "Mi plan" y "Cupos" — **P1** · `hecho` (2026-08-03, mergeado a `main` 2026-08-05)
 
 Mientras T-01 y T-04 no estén hechas, un estudiante real puede ver pantallas vacías.
@@ -1509,6 +1694,13 @@ tests— está hecho, aplicado y verificado.
 
 ### T-60 · Clasificar por ítem los dos bancos mezclados (`diagnostico`, `paes_m1`) — **P1** · `abierto`
 
+> **Pista nueva 2026-08-18, sin medir.** `question-payload` le hacía `js/parseInt` a `:module_id`,
+> que es **uuid** desde `001`: guardar cualquier ítem desde el editor del panel o abortaba contra la
+> columna uuid o le dejaba el módulo en `null` sin aviso. Arreglado en `3e0ef20`. Es **candidato** a
+> explicar parte de los 128 ítems sin `module_id`, pero **no está medido** y no se puede saber
+> cuántos vinieron por acá y cuántos nunca lo tuvieron — el estado final es idéntico. Ver
+> [[LESSONS_LEARNED]] L-44.
+
 Hereda la mitad del criterio de cierre de T-51 que ninguna migración puede cumplir: **128 preguntas
 sin `module_id`** repartidas en dos topics que no son temas sino contenedores —`diagnostico` (84) y
 `paes_m1` (44)—, con ítems de varios módulos adentro.
@@ -1670,7 +1862,14 @@ duplicados. Los 18 títulos del bloque A se verificaron carácter a carácter co
 **Y comprobar que `geometria/basica` y `geometria/pitagoras` tengan ≥1 recurso publicado** — el
 criterio L-2 es 18 módulos de 18, no 16. El bloque C lo responde solo.
 
-### T-57 · Modelar la misconception como entidad, no como texto libre — **P2** · `en curso` (paso 1 hecho 2026-08-10; ⏳ falta aplicar `027`)
+### T-57 · Modelar la misconception como entidad, no como texto libre — **P2** · `en curso` (paso 1 hecho y aplicado; capa de datos del cliente hecha 2026-08-18; ⏳ falta catalogar)
+
+> **Estado al 2026-08-18.** `027` está **aplicada** (confirmado el 2026-08-11, ver la nota de abajo)
+> y desde hoy tiene **capa de datos en el cliente**: `universo.misconceptions` (puro, con test) y
+> `fetch-misconceptions` / `upsert-misconception!` / `delete-misconception!` en `db.crud`. Con
+> **D-59**, el paso 3 deja de ser obligatoriamente una migración de backfill: se cataloga desde el
+> panel. Lo que falta ahora es, en orden: **T-103** (la pestaña que consuma esto) y el **paso 2**
+> (elegir y catalogar un módulo), que sigue bloqueado por una consulta del owner al proyecto real.
 
 > **Contradicción RESUELTA 2026-08-11:** el encabezado decía que faltaba aplicar `027` y
 > [[../supabase/SCHEMA]] la daba por aplicada. Gana SCHEMA: el 2026-08-11 se aplicó `034`, que
@@ -1778,8 +1977,10 @@ con 387 ítems y ~40 hay taxonomía. Corolario operativo: **una misconception qu
    Es trabajo de contenido, o sea cae bajo [[../adr/ADR-016-ia-en-el-pipeline-de-autoria-no-en-runtime]].
    **Precondición práctica:** medir cuál es ese módulo requiere consultar `tests` en el proyecto
    real; el agente no tiene ese acceso, así que el paso 2 empieza con una consulta del owner.
-3. Migración que siembra esas misconceptions y hace backfill de las FK **solo de ese módulo**. El
-   resto del banco sigue en `null` y funciona idéntico.
+3. Sembrar esas misconceptions y enlazar las FK **solo de ese módulo**. El resto del banco sigue en
+   `null` y funciona idéntico. **Desde D-59 (2026-08-18) la vía normal es el panel**, no una
+   migración: catalogar es trabajo editorial iterativo y una migración por corrección es la fricción
+   que garantiza que no se haga. La migración queda como opción para un lote grande.
 4. Extender `score_answer` para devolver también el slug (precedente: `026` ya lo extendió para
    devolver `correcta`), guardarlo junto a `:selected-error` en la respuesta, y agrupar por él en
    `universo.profile/build`.
@@ -2700,6 +2901,13 @@ de negocio, no técnica.
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92** |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86, T-95** |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
+
+> ⚠️ **Esta tabla está incompleta y se detectó el 2026-08-18** (comprobado por script, no a ojo):
+> **quince tareas definidas más abajo no aparecen en ninguna fila** — T-53, T-54, T-55, T-56, T-57,
+> T-58, T-94, T-96…T-103. No se completó en esa sesión porque asignarle prioridad a quince tareas de
+> otras sesiones es una decisión de planificación, no un arreglo de formato, y hacerlo de memoria es
+> exactamente cómo se inventa contexto. **Mientras tanto, la ficha de cada tarea manda sobre esta
+> tabla**: la prioridad está en su encabezado.
 
 > **Nota sobre las P0 nuevas (2026-08-16):** las P0 de E1 significaban "bloquea go-live" y están
 > todas cerradas. Las P0 de E8 significan **"bloquea el primer peso de ingreso institucional"**. No

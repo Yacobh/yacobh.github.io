@@ -2,7 +2,9 @@
   (:require
    [re-frame.core :as re-frame]
    [universo.components.math-render :as math]
-   [universo.components.irt-chart :as irt-chart]))
+   [universo.components.irt-chart :as irt-chart]
+   [universo.components.plan :as plan]
+   [universo.irt.escape :as escape]))
 
 ;; ============================================================================
 ;; ICONOS REUTILIZABLES
@@ -34,6 +36,13 @@
   [:svg {:class "w-6 h-6 sm:w-7 sm:h-7" :fill "none" :viewBox "0 0 24 24" :stroke "currentColor"}
    [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "3"
            :d "M6 18L18 6M6 6l12 12"}]])
+
+(defn icon-step-back-stroke
+  "Flecha a la izquierda: el escape no es un fallo, es un paso atrás."
+  []
+  [:svg {:class "w-6 h-6 sm:w-7 sm:h-7" :fill "none" :viewBox "0 0 24 24" :stroke "currentColor"}
+   [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "3"
+           :d "M11 17l-5-5 5-5M18 17l-5-5 5-5"}]])
 
 ;; ============================================================================
 ;; COMPONENTES DE ESTADO
@@ -225,6 +234,95 @@
    [action-buttons stop-reason]])
 
 ;; ============================================================================
+;; VARIANTE DE ESCAPE
+;; ============================================================================
+;; Un escape NO es una respuesta incorrecta y esta pantalla no puede decir que lo
+;; es. Sin esta variante, el modal normal mostraría el badge rojo con
+;; «Incorrecto» y —como `selected` y `correct` son los dos nil— una «Comparación
+;; de respuestas» vacía, porque `(= nil nil)` entra por la rama del acierto.
+;;
+;; Tampoco lleva verde ni rojo: en esta pantalla el color informa acierto/fallo
+;; (ver `option-classes`) y acá no hubo ninguno de los dos. El escape se dice con
+;; neutro y con palabras.
+
+(def ^:private escape-copy
+  {:enunciado
+   {:titulo "Anotado"
+    :cuerpo (str "Que el enunciado no se entienda es información útil, y no es "
+                 "culpa tuya: a veces el problema está en cómo está escrita la "
+                 "pregunta. Queda registrado, y la siguiente va a ser más simple.")}
+   :resolucion
+   {:titulo "Vamos un paso atrás"
+    :cuerpo (str "Decir «no sé» a tiempo vale más que adivinar: adivinar ensucia "
+                 "la medición y te deja en un nivel que no es el tuyo. La "
+                 "siguiente pregunta va a ser más fácil.")}})
+
+;; ---------------------------------------------------------------------------
+;; Material para el hueco declarado
+;; ---------------------------------------------------------------------------
+;; Decir «no sé» y recibir solo una frase amable es peor que no preguntar.
+;;
+;; **Limitación que se dice en voz alta, no se esconde:** este es el material del
+;; **mismo** módulo del ejercicio, no el del módulo *anterior*, porque el grafo de
+;; prerrequisitos todavía no está decidido (Q-38 / T-98). Es la aproximación
+;; honesta que se puede dar hoy. El estado vacío también es honesto: con un tercio
+;; del banco todavía sin `module_id` (T-60) va a ocurrir, y es mejor decir que no
+;; hay material que fingir que el estudiante no lo necesitaba.
+
+(defn- escape-resources-section []
+  (let [{:keys [loading? items module-slug]} @(re-frame/subscribe [:test/escape-resources])]
+    [:div {:class "mb-6 sm:mb-8"}
+     [:h3 {:class "grabado mb-3 sm:mb-4"} "Para repasar esto"]
+     (cond
+       loading?
+       [:p {:class "text-sm text-gray-600"} "Buscando material…"]
+
+       (seq items)
+       [:div {:class "space-y-3"}
+        (for [r (take 3 items)]
+          ^{:key (:id r)}
+          [plan/resource-card r])]
+
+       :else
+       [:div {:class "border border-panel-500 bg-panel-100 p-4"}
+        [:p {:class "text-sm text-gray-800"}
+         (if module-slug
+           (str "Todavía no hay material publicado para «" module-slug "».")
+           "Este ejercicio aún no está asignado a un módulo, así que no puedo mostrarte material.")]
+        [:p {:class "mt-1 text-sm text-gray-600"}
+         "Va a aparecer en «Mi plan» cuando lo publiquemos."]])]))
+
+(defn- escape-header [kind]
+  [:div {:class "flex items-center justify-between mb-6 sm:mb-8 gap-4"}
+   [:div {:class "flex items-center gap-2 sm:gap-4 min-w-0"}
+    [:div {:class (str "flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 "
+                       "rounded-full bg-panel-600 text-panel-50")}
+     [icon-step-back-stroke]]
+    [:h2 {:class "text-xl sm:text-2xl font-bold tracking-tight text-gray-900"}
+     (get-in escape-copy [kind :titulo] "Anotado")]]
+   [close-button]])
+
+(defn- escape-note [kind]
+  [:div {:class (str "mb-6 sm:mb-8 p-4 sm:p-5 bg-panel-100 border border-panel-500 "
+                     "border-l-2 border-l-senal-600 rounded-r")}
+   [:h4 {:class "grabado mb-1"} "Qué pasa ahora"]
+   [:p {:class "text-gray-800 leading-relaxed text-base sm:text-lg"}
+    (get-in escape-copy [kind :cuerpo] "Queda registrado.")]])
+
+(defn escape-content [question kind points stop-reason]
+  [:div {:class "placa bg-white border-panel-600 rounded p-6 sm:p-8 space-y-6"}
+   [escape-header kind]
+   [question-section question]
+   [escape-note kind]
+   ;; El material va ANTES de la gráfica: quien acaba de decir «no sé» necesita
+   ;; con qué seguir, no ver su propia curva. La gráfica se queda porque es la
+   ;; misma pantalla del feedback normal y sacarla haría que el escape se sienta
+   ;; un camino aparte, que es justo lo que no se quiere.
+   [escape-resources-section]
+   [irt-chart/irt-progress-chart points stop-reason]
+   [action-buttons stop-reason]])
+
+;; ============================================================================
 ;; OVERLAY/BACKDROP
 ;; ============================================================================
 
@@ -265,7 +363,10 @@
             ;; La alternativa correcta la trae la respuesta corregida por el
             ;; servidor, no la pregunta: el ítem llega sin ella (ADR-015).
             correct (:correct-option response)
-            is-correct? (:correct? response)]
+            is-correct? (:correct? response)
+            escape-kind (escape/escape-of response)]
         [modal-overlay
-         [modal-content question response selected correct is-correct?
-          points stop-reason]]))))
+         (if escape-kind
+           [escape-content question escape-kind points stop-reason]
+           [modal-content question response selected correct is-correct?
+            points stop-reason])]))))

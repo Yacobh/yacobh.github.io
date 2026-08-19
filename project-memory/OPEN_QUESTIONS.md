@@ -1,6 +1,11 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-17** — **Q-39 nueva**: si se paga el custom domain de Supabase
+Última actualización: **2026-08-18** — **Q-40 nueva**: qué hace la pestaña del catálogo con las 77
+entradas `mq/` del experimento de cuántica, que hoy `fetch-misconceptions` devuelve junto con las del
+producto y que distorsionarían `health` (T-103). **Aviso de mantenimiento del mismo día:** hay **dos
+preguntas numeradas Q-39** (tasa de escape y custom domain de Supabase); no se renumeró en silencio
+porque romper las referencias existentes es peor que el duplicado — hay que resolverlo a propósito. ·
+Antes: **2026-08-17** — **Q-39 nueva**: si se paga el custom domain de Supabase
 para que la pantalla de Google muestre la marca en vez de `jmnqklhxcdccvdhuuiji.supabase.co`
 (R-33). Depende de un precio sin verificar (A-36) y del dato de conversión de G-5. ·
 Antes: **2026-08-16** — pivote de negocio
@@ -420,6 +425,79 @@ Cloud, Supabase Auth, infra). Tarea: **T-92**.
 
 **Restricción dura (sin cambios):** se resuelve con policies, **no** creando un backend
 ([[../adr/ADR-002-supabase-como-unico-backend]] sigue vigente).
+
+---
+
+### 🔴 Q-38 · ¿Cuál es el grafo de prerrequisitos entre los 20 módulos? — **abierta 2026-08-18**
+
+La migración `045` crea `module_prerequisites` **vacía a propósito**. La estructura está; el
+contenido no, y **no puede deducirse del código ni inventarse desde fuera**: es una decisión
+pedagógica del profesor.
+
+**Por qué bloquea de verdad y no es un detalle de contenido:** es lo que le da destino al escape
+`:resolucion` de [[../adr/ADR-029-escape-como-tercera-categoria-de-respuesta]]. Sin el grafo, un
+«no sé cómo resolverlo» se registra pero no lleva a ninguna parte — el estudiante recibe una
+explicación, no un remedio. Y es **el mismo dato** que dibuja el mapa de prerrequisitos.
+
+**Lo que hay que decidir, concretamente:**
+
+1. Para cada uno de los 20 módulos (`universo.topics/module-slugs`), qué módulos lo preceden.
+2. Cuáles de esas aristas son **`duro`** (sin esto no se puede avanzar, y es a donde manda un
+   escape) y cuáles **`blando`** (ayuda pero no bloquea). Sin la distinción, un grafo completo se
+   vuelve una maraña donde todo depende de todo y no sirve para decidir nada.
+3. El `rationale` de cada arista, aunque sea una línea. Es la lección de `027`: sin el criterio
+   escrito, en tres meses nadie recuerda por qué está esa dependencia.
+
+**Cómo NO responderla:** sembrando un orden plausible desde el `order_index` de `modules` o desde el
+orden de Baldor. Se parecería a la respuesta correcta y no lo sería, y el error quedaría invisible —
+exactamente el modo de fallo de T-51 con los topics.
+
+**Sugerencia de alcance:** no hace falta el grafo completo para empezar a servir. Con las aristas
+duras de los módulos donde más se escape en T-90 ya se puede probar el camino entero.
+
+---
+
+### 🟡 Q-40 · ¿La pestaña del catálogo muestra o filtra las 77 entradas `mq/` de cuántica? — **abierta 2026-08-18**
+
+`fetch-misconceptions` (2026-08-18) devuelve el catálogo **completo**, y ahí adentro conviven dos
+cosas que no son la misma: las misconceptions del producto y las **77 del experimento personal de
+cuántica** (T-61, todas con prefijo `mq/`). Hoy las del producto son **cero**, así que la lista que
+vería un admin es 100 % experimento.
+
+**Por qué no es cosmético:** `misconceptions/health` calcula su veredicto sobre la lista que se le
+pasa. Con las 77 dentro, el catálogo del producto se reportaría como `:disperso` por culpa de un
+experimento que no es contenido del producto — el instrumento mentiría justo en la señal para la que
+existe.
+
+Opciones: (a) filtrar `mq/` en la consulta; (b) filtrar en la vista con un selector de «espacio de
+nombres»; (c) no filtrar y calcular `health` solo sobre lo que no es `mq/`. **No se decidió** porque
+depende de si el track de cuántica sigue vivo, que es del owner. Bloquea la parte de `health` de
+**T-103**, no el CRUD.
+
+**Relacionado:** [[BACKLOG]] T-103, T-61, T-57 · `sessions/SESSION-032.md`
+
+---
+
+### 🟡 Q-39 · ¿Qué tasa de escape marca un perfil como poco confiable? — **abierta 2026-08-18**
+
+[[../adr/ADR-029-escape-como-tercera-categoria-de-respuesta]] deja `escape/escape-rate` calculada y
+guardada, y **deliberadamente no fija ningún umbral**. La guarda que falta es: «si la tasa pasa X, no
+parar por SE, parar por `max_items` y marcar el perfil como provisional».
+
+**Por qué no se respondió al escribir el código:** X sale de mirar un curso real (T-90), no del
+criterio del autor. Este proyecto ya se equivocó dos veces poniendo a mano un número razonable que
+después resultó estar del lado equivocado: el piso de `min_response_seconds` en 3 s que los datos
+bajaron a 2 s (T-59, D-36) y los cortes de fluidez 3,0/6,0, que **siguen sin calibrar** (T-65).
+
+**Con qué datos se responde:** de T-90, la distribución de tasa de escape por estudiante en un curso
+de ~30. La pregunta operativa es dónde se separa «escapó en los ítems que de verdad no sabía» de
+«usó el botón como siguiente».
+
+**Segunda pregunta pegada a esta:** ¿el escape debe pasar de `:weight 0.0` a un peso positivo? ADR-029
+eligió 0.0 para no inventar constantes, y dejó dicho que el peso y el `:time-ms` quedan guardados por
+respuesta, así que la alternativa se puede recomputar hacia atrás sobre los mismos datos. **Ojo:** si
+se responde que sí, [[RISKS]] R-34 se reactiva con severidad alta y la guarda de confianza pasa a ser
+precondición, no mejora.
 
 **Bloquea:** T-91, y por lo tanto la puerta de entrada de G-1. **Decisión pendiente:** P-17.
 **No responder antes de T-90:** una hora de clase dice si los estudiantes tienen cuenta del colegio

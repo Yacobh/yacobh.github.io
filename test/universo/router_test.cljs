@@ -134,7 +134,31 @@
 
   (testing "rehidratación normal de sesión no navega"
     (is (nil? (auth/post-session-target {})))
-    (is (nil? (auth/post-session-target {:navigate? false :redirect :plan})))))
+    (is (nil? (auth/post-session-target {:navigate? false}))))
+
+  ;; ── Corregido el 2026-08-18, con el fallo medido en vivo ──────────────────
+  ;; Antes este caso se afirmaba como `nil`, bajo el título «rehidratación normal
+  ;; no navega». La intención era buena y el caso estaba mal elegido: en una
+  ;; rehidratación normal `redirect` es **nil**, porque nadie aparcó un destino.
+  ;; Que venga con valor significa lo contrario — que alguien SÍ quiso ir ahí y
+  ;; no pudo (lo aparca `guard-section` o `post-clear-target`).
+  ;;
+  ;; El fallo real: abrir `/admin` con sesión válida dejaba al usuario en la
+  ;; landing. `getSession` resuelve sin sesión en una carga fría → `session-cleared`
+  ;; desvía a `:main` y guarda el deep link en `:redirect-after-login` → llega
+  ;; `SIGNED_IN`, que no es login explícito y ya no tiene `pending`. Devolver nil
+  ;; acá dejaba el destino huérfano: sesión válida, URL correcta, contenido
+  ;; equivocado.
+  (testing "deep link rescatado: sin login explícito y sin pending, pero con un
+            redirect aparcado, se honra y se reemplaza la entrada"
+    (is (= [:plan {:history :replace}]
+           (auth/post-session-target {:navigate? false :redirect :plan})))
+    (is (= [:admin {:history :replace}]
+           (auth/post-session-target {:redirect :admin}))))
+
+  (testing "el pendiente sigue ganando sobre un redirect aparcado"
+    (is (= [:plan {:history :replace}]
+           (auth/post-session-target {:pending :plan :redirect :cupos})))))
 
 (deftest post-clear-target-prioridades
   (testing "deep link a ruta protegida sin sesión va al login"

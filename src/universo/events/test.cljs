@@ -4,6 +4,7 @@
    [universo.access :as access]
    [universo.components.tetha :as tetha]
    [universo.irt.effort :as effort]
+   [universo.irt.escape :as escape]
    [universo.irt.fluency :as fluency]
    [universo.irt.progress :as progress]
    [cljs.core.async :as async :refer [go <!]]
@@ -170,6 +171,7 @@
                   (assoc-in [:test :theta-history] [])
                   (assoc-in [:test :stop-reason] nil)
                   (assoc-in [:test :stop-config] stop-config)
+                  (assoc-in [:test :escape-resources] nil)
                   (assoc-in [:test :current-question] nil))
           :dispatch [:test/fetch-next-question]})))))
 
@@ -207,10 +209,30 @@
              topic (resolve-topic (get-in db [:test :topic]))
              answered-questions (get-in db [:test :questions])
              answered-ids (set (map :id answered-questions))
-             _ (js/console.log "Theta actual:" theta)
-             _ (js/console.log "Topic:" topic)
-             _ (js/console.log "Fetch mode:" (name mode))
-             next-q (<! (fetch-next theta topic answered-ids))]
+             ;; El ítem NO se elige con θ, se elige con el θ objetivo: si el
+             ;; estudiante viene escapando, la selección retrocede un escalón por
+             ;; cada escape seguido. θ no se toca — es la separación entre
+             ;; estimar y mostrar de ADR-029 §3. Con cero escapes seguidos esto
+             ;; devuelve θ tal cual y el comportamiento es el de siempre.
+             target (escape/selection-theta theta
+                                            (get-in db [:test :responses])
+                                            progress/selection-half-width)
+             next-q (<! (fetch-next target topic answered-ids))
+             ;; Una sola línea con todo lo que hace falta para diagnosticar el
+             ;; retroceso: si `objetivo` baja pero `dificultad-servida` no, el
+             ;; problema no es la lógica sino que el banco de ese topic no tiene
+             ;; ítems más fáciles (R-17: `difficulty` nunca se calibró).
+             _ (js/console.log
+                (str "[test] topic=" topic
+                     " modo=" (name mode)
+                     " θ=" (.toFixed (js/Number theta) 2)
+                     " objetivo=" (.toFixed (js/Number target) 2)
+                     " escapes-seguidos=" (escape/consecutive-escapes
+                                           (get-in db [:test :responses]))
+                     " dificultad-servida="
+                     (if (map? next-q)
+                       (str (:difficulty next-q))
+                       (str next-q))))]
          (cond
            (= next-q :error)
            (when (= mode :prefetch)
@@ -377,12 +399,65 @@
        (assoc-in [:test :score-error]
                  (or message "No se pudo registrar tu respuesta. Inténtalo de nuevo.")))))
 
+;; Registrar una respuesta —corregida por el servidor o un escape— es el mismo
+;; trabajo: entra a `:responses`, se reestima θ, se evalúa la parada, se muestra
+;; feedback y se prefetchea el siguiente ítem si el test sigue. Está factorizado
+;; para que las dos vías no puedan divergir: si mañana cambia la regla de parada,
+;; cambia para las dos a la vez.
+(defn- register-response
+  "fx de registrar `new-response` (ya pesada) sobre `db`."
+  [db question new-response]
+  (let [stop-config (get-in db [:test :stop-config] progress/default-stop-config)
+        updated-db (update-in db [:test :responses] conj new-response)
+        ;; ── Un escape NO reestima θ. Ni siquiera un poquito. ──────────────────
+        ;; Peso 0.0 hace que la respuesta no aporte a la verosimilitud, pero eso
+        ;; **no basta**: `calculate-theta` reestima el MAP completo y lo acerca a
+        ;; su valor convergido en pasos de `max-theta-step`. Cuando todavía hay
+        ;; poca evidencia real, el MAP *es* la media del prior (θ = 0), así que
+        ;; cada escape empujaba θ 0,4 hacia 0 — **hacia arriba** si el estudiante
+        ;; venía por debajo.
+        ;;
+        ;; Medido en producción el 2026-08-18 (test 296, seis escapes seguidos
+        ;; sin ninguna respuesta real): θ caminó de -1,0 a 0,0 y las dificultades
+        ;; servidas fueron -0,8 · -0,3 · 0,2 · 0,7 · 1,1 · 1,5. El test se le
+        ;; ponía **más difícil** a quien acababa de declarar seis veces que no
+        ;; entendía nada.
+        ;;
+        ;; Por eso θ se conserva tal cual: de una no-respuesta no se estima nada,
+        ;; y «nada» incluye no dejar que el prior arrastre la estimación. Es lo
+        ;; que ADR-029 §2 afirmaba y que el peso 0.0 solo garantizaba una vez que
+        ;; el MAP ya había convergido.
+        escape? (escape/freeze-theta? new-response)
+        new-theta (if escape?
+                    (double (or (get-in db [:test :theta]) 0.0))
+                    (tetha/calculate-theta-auto (:test updated-db)))
+        responses (get-in updated-db [:test :responses])
+        start-time (get-in db [:test :start-time])
+        elapsed-minutes (when start-time (/ (- (.now js/Date) start-time) 60000.0))
+        reason (progress/stop-reason responses new-theta elapsed-minutes stop-config)
+        db-with-theta (-> updated-db
+                          (assoc-in [:test :theta] new-theta)
+                          (update-in [:test :theta-history] conj new-theta)
+                          (assoc-in [:test :stop-reason] reason)
+                          (assoc-in [:test :scoring?] false)
+                          (assoc-in [:test :score-error] nil)
+                          (assoc-in [:test :prefetched-question] nil)
+                          (assoc-in [:test :prefetching?] (nil? reason)))]
+    (cond-> {:db db-with-theta
+             :dispatch [:test/show-feedback {:question question
+                                             :response new-response}]}
+      (nil? reason)
+      (assoc :test/fetch-next-question {:db db-with-theta :mode :prefetch}))))
+
+(defn- current-question-by-id
+  [db question-id]
+  (some #(when (= (:id %) question-id) %) (get-in db [:test :questions])))
+
 (re-frame/reg-event-fx
  :test/answer-scored
  (fn [{:keys [db]} [_ {:keys [question-id selected correct? correct-option
                               explanation time-ms]}]]
-   (let [questions (get-in db [:test :questions])
-         question (some #(when (= (:id %) question-id) %) questions)
+   (let [question (current-question-by-id db question-id)
          stop-config (get-in db [:test :stop-config] progress/default-stop-config)
          ;; El peso se fija acá, una sola vez, con el enunciado y el tiempo a la
          ;; vista, y viaja con la respuesta hasta `tests.test` (ADR-014 Fase 1).
@@ -400,27 +475,80 @@
                         :module-slug (:module-slug question)
                         :selected-error explanation
                         :question-text (:question question)}
-                       (:min-response-seconds stop-config))
-         updated-db (update-in db [:test :responses] conj new-response)
-         new-theta (tetha/calculate-theta-auto (:test updated-db))
-         responses (get-in updated-db [:test :responses])
-         start-time (get-in db [:test :start-time])
-         elapsed-minutes (when start-time (/ (- (.now js/Date) start-time) 60000.0))
-         reason (progress/stop-reason responses new-theta elapsed-minutes stop-config)
-         db-with-theta (-> updated-db
-                           (assoc-in [:test :theta] new-theta)
-                           (update-in [:test :theta-history] conj new-theta)
-                           (assoc-in [:test :stop-reason] reason)
-                           (assoc-in [:test :scoring?] false)
-                           (assoc-in [:test :score-error] nil)
-                           (assoc-in [:test :prefetched-question] nil)
-                           (assoc-in [:test :prefetching?] (nil? reason)))
-         _ (js/console.log "new-theta:" new-theta "stop-reason:" (clj->js reason))]
-     (cond-> {:db db-with-theta
-              :dispatch [:test/show-feedback {:question question
-                                              :response new-response}]}
-       (nil? reason)
-       (assoc :test/fetch-next-question {:db db-with-theta :mode :prefetch})))))
+                       (:min-response-seconds stop-config))]
+     (register-response db question new-response))))
+
+;; -----------------------------------------------------------------------------
+;; 🔹 EVENTO: El estudiante declara que no sabe (escape)
+;; -----------------------------------------------------------------------------
+;; **No pasa por `score_answer`.** No hay alternativa elegida que corregir, y la
+;; función del servidor rechaza cualquier cosa que no sea A–D (024): llamarla
+;; sería pedirle que valide algo que no es una respuesta. Por eso el escape es
+;; enteramente del cliente y **no necesita migración**.
+;;
+;; El escape no mueve θ: entra con peso 0.0 por la vía de ADR-014 (ver
+;; `universo.irt.escape`). Que igual pase por `register-response` es a propósito
+;; —cuenta para `max-items` y dispara el prefetch— así que escapar avanza el test
+;; sin ensuciar la estimación.
+(re-frame/reg-event-fx
+ :test/escape
+ (fn [{:keys [db]} [_ {:keys [question-id escape-kind time-ms]}]]
+   (let [question (current-question-by-id db question-id)
+         new-response (escape/escape-response
+                       {:question-id question-id
+                        :escape-kind escape-kind
+                        :time-ms time-ms
+                        :difficulty (or (:difficulty question) 0.0)
+                        :topic (or (:topic question) (get-in db [:test :topic]))
+                        :module-id (:module-id question)
+                        :module-slug (:module-slug question)
+                        :question-text (:question question)})]
+     ;; `escape-response` devuelve nil si la clase no es una de las dos. No se
+     ;; registra nada antes que fabricar una respuesta con `:escape nil`, que
+     ;; contaría como error normal y movería θ sin que nadie lo pidiera.
+     (if new-response
+       (cond-> (register-response db question new-response)
+         (escape/needs-resources? new-response)
+         (-> (assoc-in [:db :test :escape-resources]
+                       {:loading? true :items [] :module-slug (:module-slug question)})
+             (assoc :test/fetch-escape-resources!
+                    {:module-id (:module-id question)
+                     :module-slug (:module-slug question)})))
+       {:db db}))))
+
+;; -----------------------------------------------------------------------------
+;; 🔹 Material para el escape
+;; -----------------------------------------------------------------------------
+;; Decir «no sé» y recibir solo una frase amable es peor que no preguntar: el
+;; estudiante declaró un hueco y hay que darle con qué taparlo.
+;;
+;; **Limitación conocida, y está dicha en la UI:** hoy se ofrece el material del
+;; **mismo** módulo del ítem, no el del módulo *prerrequisito*, porque el grafo
+;; de prerrequisitos todavía no está decidido ([[OPEN_QUESTIONS]] Q-38, T-98).
+;; Para «no sé cómo resolverlo» lo correcto es el módulo anterior; esto es la
+;; aproximación honesta que se puede dar sin inventar el grafo, y mejora sola en
+;; cuanto exista — el punto de cambio es `escape/needs-resources?` y este efecto.
+
+(re-frame/reg-fx
+ :test/fetch-escape-resources!
+ (fn [{:keys [module-id module-slug]}]
+   (go
+     (let [result (<! (crud/fetch-published-resources-for-module module-id))]
+       (if (:success result)
+         (re-frame/dispatch [:test/escape-resources-loaded
+                             {:items (:data result) :module-slug module-slug}])
+         ;; No se propaga como error de la pantalla: el test tiene que poder
+         ;; seguir. Sin material, el modal dice que no hay y ofrece continuar.
+         (re-frame/dispatch [:test/escape-resources-loaded
+                             {:items [] :module-slug module-slug}]))))))
+
+(re-frame/reg-event-db
+ :test/escape-resources-loaded
+ (fn [db [_ {:keys [items module-slug]}]]
+   (assoc-in db [:test :escape-resources]
+             {:loading? false
+              :items (vec (or items []))
+              :module-slug module-slug})))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EVENTO: Agrega la nueva pregunta al test
@@ -577,3 +705,15 @@
    (progress/progress-points
     (get-in db [:test :responses])
     (get-in db [:test :theta-history]))))
+
+;; Escape: nil mientras no haya ninguno, para que la UI no muestre un contador en
+;; cero al estudiante que no lo usó. Es la observación que pide T-90.
+(re-frame/reg-sub
+ :test/escape-summary
+ (fn [db _]
+   (escape/summary (get-in db [:test :responses]))))
+
+(re-frame/reg-sub
+ :test/escape-resources
+ (fn [db _]
+   (get-in db [:test :escape-resources])))

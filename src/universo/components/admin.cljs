@@ -7,7 +7,8 @@
    [universo.components.admin-questions :as admin-q]
    [universo.components.admin-test-configs :as admin-tc]
    [universo.components.plan :as plan]
-   [universo.components.ui :as ui]))
+   [universo.components.ui :as ui]
+   [universo.resources :as resources]))
 
 ;; -----------------------------------------------------------------------------
 ;; Utilidades de formato
@@ -599,9 +600,21 @@
    ["pdf_url" "PDF"]
    ["exercise" "Ejercicio"]])
 
-(def ^:private blank-resource
-  {:title "" :type "text" :module_id "" :body "" :media_url ""
-   :historical_context "" :published true :order_index "1"})
+;; El borrador en blanco vive en `universo.resources` porque el **evento** también
+;; lo necesita para sembrarlo (ver `resources/draft-assoc`). Tenerlo solo acá fue
+;; la causa del fallo bloqueante del 2026-08-18.
+(def ^:private blank-resource resources/blank)
+
+(defn- modules-by-track
+  "Módulos agrupados por track, para un `<select>` con `<optgroup>`.
+
+   Con 35 módulos —20 de PAES y 15 del track experimental de cuántica
+   (ADR-018)— una lista plana obliga a leerla entera cada vez. Agrupar por track
+   es la diferencia entre buscar y elegir."
+  [modules]
+  (->> modules
+       (group-by #(or (:track %) "otros"))
+       (sort-by first)))
 
 (defn- resource-preview-pane
   "Panel derecho del editor: lo que el estudiante va a ver, en vivo.
@@ -656,41 +669,90 @@
         "• Los encabezados " [:code "##"] ", las listas " [:code "-"]
         " y las tablas de Markdown NO se renderizan: salen como texto."]]]]))
 
+(defn- resource-payload
+  "Fila lista para Supabase a partir del borrador. Claves string = columnas."
+  [f]
+  (cond-> {"title" (str/trim (str (:title f)))
+           "type" (:type f)
+           "module_id" (:module_id f)
+           "body" (:body f)
+           "media_url" (when (seq (str (:media_url f))) (:media_url f))
+           "historical_context" (:historical_context f)
+           "order_index" (or (to-int (:order_index f)) 0)
+           "published" (boolean (:published f))
+           "entry_level" (boolean (:entry_level f))}
+    (:id f) (assoc "id" (:id f))))
+
 (defn- resource-form
-  "Crea o edita un recurso. `editing` viene del app-db al pulsar «Editar»."
+  "Crea o edita un recurso. `editing` viene del app-db al pulsar «Editar».
+
+   El borrador vive en `app-db` (`:admin/resource-draft`), no en un `r/atom`
+   local: antes, cambiar de pestaña y volver borraba lo escrito sin aviso, y
+   escribir un recurso con LaTeX son veinte minutos. Es además la convención del
+   proyecto para estado de UI por sección."
   []
-  (let [form (r/atom blank-resource)
-        synced (r/atom ::none)]
+  (let [synced (r/atom ::none)]
     (fn []
       (let [modules @(re-frame/subscribe [:admin/modules])
             editing @(re-frame/subscribe [:admin/editing-resource])
+            draft @(re-frame/subscribe [:admin/resource-draft])
+            saving? @(re-frame/subscribe [:admin/resource-saving?])
             editing-id (:id editing)]
-        ;; Sincroniza el formulario local cuando cambia el recurso en edición.
+        ;; Carga el borrador desde el recurso en edición. Solo al **cambiar** de
+        ;; recurso: si se reconstruyera en cada render, escribir sería imposible.
         (when-not (= @synced editing-id)
           (reset! synced editing-id)
-          (reset! form (if editing
-                         (merge blank-resource
-                                (-> editing
-                                    (select-keys [:id :title :type :module_id :body
-                                                  :media_url :historical_context :published])
-                                    (assoc :order_index (str (or (:order_index editing) 1)))))
-                         blank-resource)))
-        (let [{:keys [title module_id type]} @form
+          (when editing
+            (re-frame/dispatch
+             [:admin/set-resource-draft
+              (merge blank-resource
+                     (-> editing
+                         (select-keys [:id :title :type :module_id :body
+                                       :media_url :historical_context :published
+                                       :entry_level])
+                         (assoc :order_index (str (or (:order_index editing) 1)))))])))
+        (let [form (or draft blank-resource)
+              upd (fn [k v] (re-frame/dispatch [:admin/update-resource-draft k v]))
+              {:keys [title module_id type]} form
               media-required? (not= type "text")
               errors (cond-> []
                        (str/blank? (str title)) (conj "El título es obligatorio.")
                        (str/blank? (str module_id)) (conj "Debes elegir un módulo.")
-                       (and media-required? (str/blank? (str (:media_url @form))))
+                       (and media-required? (str/blank? (str (:media_url form))))
                        (conj "Este tipo de recurso necesita una URL."))
-              valid? (empty? errors)]
-          [:div {:class "rounded-xl border border-gray-200 bg-gray-50 p-5"}
-           [:div {:class "mb-4 flex items-center justify-between"}
+              valid? (empty? errors)
+              guardar! (fn []
+                         (when (and valid? (not saving?))
+                           (re-frame/dispatch
+                            [:admin/save-resource (resource-payload form)])))
+              ;; ⌘/Ctrl+Enter guarda, Esc descarta. Para un flujo que se repite
+              ;; decenas de veces, dos atajos son la diferencia entre minutos y
+              ;; horas. Van en el contenedor y no en cada campo: así funcionan
+              ;; también desde el textarea, que es donde se pasa el tiempo.
+              on-key (fn [e]
+                       (cond
+                         (and (= (.-key e) "Enter")
+                              (or (.-metaKey e) (.-ctrlKey e)))
+                         (do (.preventDefault e) (guardar!))
+
+                         (= (.-key e) "Escape")
+                         (do (.preventDefault e)
+                             (reset! synced ::none)
+                             (re-frame/dispatch [:admin/discard-resource-draft]))))]
+          [:div {:class "rounded-xl border border-gray-200 bg-gray-50 p-5"
+                 :on-key-down on-key}
+           [:div {:class "mb-4 flex items-center justify-between gap-3"}
             [:h3 {:class "font-semibold text-gray-900"}
              (if editing-id "Editar recurso" "Nuevo recurso")]
-            (when editing-id
-              [btn {:variant :ghost
-                    :on-click #(re-frame/dispatch [:admin/cancel-edit-resource])}
-               "Cancelar edición"])]
+            [:div {:class "flex items-center gap-3"}
+             [:span {:class "hidden text-xs text-gray-500 sm:inline"}
+              "⌘/Ctrl+Enter guarda · Esc descarta"]
+             (when (or editing-id draft)
+               [btn {:variant :ghost
+                     :on-click (fn []
+                                 (reset! synced ::none)
+                                 (re-frame/dispatch [:admin/discard-resource-draft]))}
+                (if editing-id "Cancelar edición" "Descartar borrador")])]]
 
            ;; Dos columnas desde `lg`: edición a la izquierda, vista previa viva
            ;; a la derecha. Por debajo de `lg` se apilan (la previa queda abajo),
@@ -701,39 +763,42 @@
               [field "Título"
                [:input {:class input-class
                         :placeholder "Ej: Fracciones equivalentes"
-                        :value (:title @form)
-                        :on-change #(swap! form assoc :title (.. % -target -value))}]]
+                        :value (:title form)
+                        :on-change #(upd :title (.. % -target -value))}]]
               [field "Tipo"
                [:select {:class input-class
-                         :value (:type @form)
-                         :on-change #(swap! form assoc :type (.. % -target -value))}
+                         :value (:type form)
+                         :on-change #(upd :type (.. % -target -value))}
                 (for [[v label] resource-types]
                   ^{:key v} [:option {:value v} label])]]
               [field "Módulo"
                [:select {:class input-class
-                         :value (:module_id @form)
-                         :on-change #(swap! form assoc :module_id (.. % -target -value))}
+                         :value (:module_id form)
+                         :on-change #(upd :module_id (.. % -target -value))}
                 [:option {:value ""} "Selecciona un módulo…"]
-                (for [m modules]
-                  ^{:key (:id m)}
-                  [:option {:value (:id m)} (str (:slug m) " — " (:title m))])]]
+                (for [[track ms] (modules-by-track modules)]
+                  ^{:key track}
+                  [:optgroup {:label track}
+                   (for [m (sort-by :order_index ms)]
+                     ^{:key (:id m)}
+                     [:option {:value (:id m)} (str (:slug m) " — " (:title m))])])]]
               [field (str "URL del material" (when-not media-required? " (opcional)"))
                [:input {:class input-class
                         :type "url"
                         :placeholder "https://…"
-                        :value (:media_url @form)
-                        :on-change #(swap! form assoc :media_url (.. % -target -value))}]]
+                        :value (:media_url form)
+                        :on-change #(upd :media_url (.. % -target -value))}]]
               [field "Orden"
                [:input {:class input-class
                         :type "number"
                         :min "0"
-                        :value (:order_index @form)
-                        :on-change #(swap! form assoc :order_index (.. % -target -value))}]]
+                        :value (:order_index form)
+                        :on-change #(upd :order_index (.. % -target -value))}]]
               [field "Contexto histórico (opcional)"
                [:input {:class input-class
                         :placeholder "Dato o anécdota para enganchar"
-                        :value (:historical_context @form)
-                        :on-change #(swap! form assoc :historical_context (.. % -target -value))}]]]
+                        :value (:historical_context form)
+                        :on-change #(upd :historical_context (.. % -target -value))}]]]
 
              ;; Sin clase de alto: el `rows` manda. Monoespaciada porque acá se
              ;; escribe LaTeX, donde alinear `{}` y `\\` a ojo importa.
@@ -742,17 +807,34 @@
                [:textarea {:class (str input-class " font-mono leading-relaxed")
                            :rows 14
                            :placeholder "Explicación, pasos, ejemplos…"
-                           :value (:body @form)
-                           :on-change #(swap! form assoc :body (.. % -target -value))}]]]
+                           :value (:body form)
+                           :on-change #(upd :body (.. % -target -value))}]]]
 
-             [:label {:class "mt-4 flex items-center gap-2 text-sm text-gray-700"}
-              [:input {:type "checkbox"
-                       :class "h-4 w-4 rounded border-gray-300 text-indigo-600"
-                       :checked (boolean (:published @form))
-                       :on-change #(swap! form assoc :published (.. % -target -checked))}]
-              "Publicado (visible para estudiantes)"]]
+             [:div {:class "mt-4 space-y-2"}
+              [:label {:class "flex items-center gap-2 text-sm text-gray-700"}
+               [:input {:type "checkbox"
+                        :class "h-4 w-4 rounded border-gray-300 text-indigo-600"
+                        :checked (boolean (:published form))
+                        :on-change #(upd :published (.. % -target -checked))}]
+               "Publicado (visible para estudiantes)"]
 
-            [resource-preview-pane {:form @form :modules modules}]]
+              ;; `entry_level` (migración 045). Sin esta casilla la columna existe
+              ;; y **no hay forma de escribirla desde el panel**, así que el
+              ;; escape del estudiante no puede recibir el material introductorio
+              ;; que ADR-029 §5 le promete: sin nadie marcado, el orden cae a
+              ;; `order_index` y le sirve el recurso que toque.
+              [:label {:class "flex items-start gap-2 text-sm text-gray-700"}
+               [:input {:type "checkbox"
+                        :class "mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600"
+                        :checked (boolean (:entry_level form))
+                        :on-change #(upd :entry_level (.. % -target -checked))}]
+               [:span
+                [:span {:class "font-medium"} "Material de entrada del módulo"]
+                [:span {:class "block text-xs text-gray-500"}
+                 "Es lo primero que recibe quien dice «no sé» en este módulo. "
+                 "Marca uno solo por módulo."]]]]]
+
+            [resource-preview-pane {:form form :modules modules}]]
 
            (when (seq errors)
              [:ul {:class "mt-3 space-y-1"}
@@ -761,23 +843,12 @@
 
            [:div {:class "mt-5"}
             [btn {:variant :primary
-                  :disabled? (not valid?)
-                  :on-click
-                  (fn []
-                    (when valid?
-                      (let [f @form]
-                        (re-frame/dispatch
-                         [:admin/save-resource
-                          (cond-> {"title" (str/trim (str (:title f)))
-                                   "type" (:type f)
-                                   "module_id" (:module_id f)
-                                   "body" (:body f)
-                                   "media_url" (when (seq (str (:media_url f))) (:media_url f))
-                                   "historical_context" (:historical_context f)
-                                   "order_index" (or (to-int (:order_index f)) 0)
-                                   "published" (boolean (:published f))}
-                            (:id f) (assoc "id" (:id f)))]))))}
-             (if editing-id "Guardar cambios" "Crear recurso")]]])))))
+                  :disabled? (or (not valid?) saving?)
+                  :on-click guardar!}
+             (cond
+               saving? "Guardando…"
+               editing-id "Guardar cambios"
+               :else "Crear recurso")]]])))))
 
 (defn- resources-panel []
   (let [rows @(re-frame/subscribe [:admin/resources-view])
@@ -833,6 +904,11 @@
                                 (re-frame/dispatch [:admin/edit-resource res])
                                 (.scrollTo js/window #js {:top 0 :behavior "smooth"}))}
                "Editar"]
+              [btn {:title "Crear una copia sin publicar, lista para editar"
+                    :on-click (fn []
+                                (re-frame/dispatch [:admin/duplicate-resource res])
+                                (.scrollTo js/window #js {:top 0 :behavior "smooth"}))}
+               "Duplicar"]
               [btn {:variant :danger
                     :on-click #(re-frame/dispatch
                                 [:confirm/ask

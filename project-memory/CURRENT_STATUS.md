@@ -1,6 +1,147 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-17** · Rama `main`
+**Fecha de corte: 2026-08-18** · Rama **`escape-no-se`** (sin mergear, sin pushear)
+
+> ## 🆕 2026-08-18 (tarde) — el catálogo de misconceptions ya tiene capa de datos, y un uuid que se parseaba como entero
+>
+> **Misma rama `escape-no-se`.** Dos commits: `a672fec` (cableado) y `3e0ef20` (arreglo).
+>
+> **El catálogo de `027` llevaba desde el 2026-08-10 aplicado y sin un solo lector**: la tabla
+> existía, las cuatro columnas del vínculo existían, y el cliente no sabía de ninguna de las dos.
+> Ahora hay capa de datos: `universo.misconceptions` (puro, con test) y
+> `fetch-misconceptions` / `upsert-misconception!` / `delete-misconception!` en `db.crud`.
+>
+> **Lo que hace que esto no sea un CRUD más:** `health` convierte en instrumento la única regla que
+> decide si el catálogo sirve — *tiene que crecer mucho más lento que el banco, o es la misma lista
+> de strings con otra forma*. La escribió la propia migración `027` y hasta hoy vivía solo como
+> comentario.
+>
+> **Una salvaguarda que vale la pena conocer antes de tocar el editor:** `question-payload` manda los
+> cuatro `misconception_*_id` **solo si la clave viene en el draft**. Como `update-admin-question!`
+> reemplaza la fila entera y `:admin/edit-question` arma el draft sin esas claves, incluirlas siempre
+> habría descatalogado los cuatro distractores de cada ítem que se guardara — en silencio.
+>
+> **🐛 Bug preexistente encontrado y arreglado: `module_id` es uuid, no entero.** `question-payload`
+> le hacía `js/parseInt`, que sobre un uuid devuelve los dígitos iniciales o `NaN` → o el guardado
+> falla contra la columna uuid, o el módulo se borra sin aviso. **Bastaba abrir y guardar cualquier
+> ítem con módulo asignado.** Candidato a explicar parte del 33 % del banco sin `module_id` (T-60),
+> aunque eso **no está medido**.
+>
+> ⚠️ **Nadie llama todavía a las tres funciones nuevas**: faltan eventos, subs y la pestaña del panel
+> (**T-103**, nueva). Hasta entonces `027` sigue sin lector en la práctica. Y el paso 2 de T-57
+> (catalogar el módulo más fallado) sigue esperando una consulta del owner al proyecto real.
+>
+> **Otra vez L-30:** un `shadow-cljs watch app` en background sobrescribió `public/js/app.js` con el
+> build de desarrollo (9,18 MB, con `devtools` dentro) al guardar el fuente. Se detuvo el watch, se
+> restauró y se recompiló con `release` **una vez por commit**, para que ninguno quede con el
+> artefacto desfasado de su propio fuente.
+>
+> Verificación: **130 tests / 716 assertions / 0 failures**, `clj-kondo` 0/0, `release app` con 0
+> warnings, `graphify update .` corrido. Sin `build:css` ni `audit_*.py`: no se tocó una sola clase
+> de UI. Detalle en [[../sessions/SESSION-032]].
+>
+> **Nuevo en la memoria:** D-59 (el catálogo se cura desde el panel, no por migración), Q-40 (qué
+> hacer con las 77 entradas `mq/` de cuántica cuando el panel liste el catálogo) y L-44.
+
+---
+
+> ## 2026-08-18 (mañana) — T-96 y T-97: el estudiante ya puede decir «no sé», y el editor dejó de recargarse entero
+>
+> **Rama `escape-no-se`, partiendo de `cb9b3fb`. No se tocó `main`.**
+>
+> **T-96 — el escape.** El diagnóstico tiene dos botones nuevos: «No entiendo el enunciado» y «No sé
+> cómo resolverlo». Son **dos y no uno** porque son diagnósticos opuestos en accionabilidad: un
+> error tiene una idea errónea nombrable que corregir, un «no sé» tiene un hueco de prerrequisito, y
+> «no entiendo el enunciado» es lo único de los tres que habla **del ítem** — o sea, revisión de
+> banco gratis, que es insumo de G-2. Ver [[../adr/ADR-029-escape-como-tercera-categoria-de-respuesta]]
+> (D-57).
+>
+> **Lo que hizo que esto fuera barato:** el mecanismo ya estaba construido. El peso por respuesta de
+> ADR-014 entra en las dos derivadas de `tetha` y por herencia en la información de Fisher, así que
+> un escape con `:weight 0.0` **no mueve θ, no baja el SE** —no se puede terminar el test
+> escapando— y **sí** cuenta para `max-items`, así que tampoco se vuelve infinito. Queda fuera del
+> eje de fluidez sin decir nada, porque `fluency/usable?` ya exigía correcta **y** peso positivo.
+>
+> **Y no requiere migración ni toca RLS:** `score_answer` (024) rechaza por diseño cualquier cosa
+> que no sea A–D, y un escape no es una alternativa. Es cliente puro.
+>
+> **🔧 Corregido el mismo día, tras revisión del owner.** La primera versión del escape **no bajaba
+> la dificultad ni mostraba ningún recurso**: registraba el problema y no hacía nada al respecto. El
+> error de razonamiento fue dar por bueno que «con `:correct? false` el motor adaptativo ya sirve
+> ítems más fáciles solo» — eso vale para la alternativa de peso 1.0, que se descartó; **con peso
+> 0.0 θ no se mueve y `next_question` seguía sirviendo la misma banda de dificultad**. Ahora:
+> - **El retroceso es explícito** (`escape/selection-theta`): el ítem se busca con un θ **objetivo**
+>   que baja un escalón por cada escape seguido y se reinicia solo al responder de verdad. θ sigue
+>   sin tocarse — es la separación entre *estimar* y *mostrar*. Se resuelve eligiendo qué número
+>   mandarle a `next_question`, así que **tampoco necesitó migración**, y el escalón reusa
+>   `progress/selection-half-width` en vez de declarar una constante nueva.
+> - **El modal entrega material**: los recursos publicados del módulo del ítem, con
+>   `plan/resource-card` — la misma tarjeta de «Mi plan», no una variante.
+> - ⚠️ **Es el módulo del ítem, no el prerrequisito** (Q-38 sigue abierta), y **se dice en la UI**.
+>   El estado vacío también es honesto: con un tercio del banco sin `module_id` (T-60) va a ocurrir.
+>
+> ⚠️ **Dos cosas que NO se decidieron, a propósito.** No se fijó umbral de tasa de escape ([[OPEN_QUESTIONS]]
+> Q-39) ni se sembró el grafo de prerrequisitos (Q-38). Los dos habrían sido números y contenido
+> **inventados**, y este proyecto ya se equivocó dos veces así — `min_response_seconds` en 3 s que
+> los datos bajaron a 2 s (T-59) y los cortes de fluidez, todavía sin calibrar (T-65). Salen de
+> **T-90** y del profesor, respectivamente.
+>
+> **T-97 — el panel de recursos.** Cada guardado recargaba módulos **y** todos los recursos, en
+> serie, para reflejar el cambio de una fila — cuando `upsert-resource!` ya devolvía la fila guardada
+> y se estaba tirando. Ahora el guardado y el publicar/despublicar son optimistas y reversibles, las
+> dos consultas de la sección van en paralelo, el borrador vive en `app-db` (antes, cambiar de
+> pestaña borraba veinte minutos de LaTeX **sin aviso**), hay ⌘/Ctrl+Enter y Esc, y hay Duplicar.
+> Ver D-58.
+>
+> **Migración `045` escrita y ⏳ SIN APLICAR:** `module_prerequisites`, `resource_misconceptions` y
+> `resources.entry_level`. Aditiva e idempotente, **sin seed a propósito**. No rompe nada mientras no
+> se aplique: nada la lee todavía.
+>
+> Verificación: **121 tests / 619 assertions / 0 failures / 0 errors**, `release app` con 0
+> warnings, `build:css`, los cuatro `audit_*.py` en verde (contraste **40/40**, con los dos pares
+> nuevos declarados) y `graphify update .` corrido.
+>
+> ### 🔬 Verificado en vivo el 2026-08-18, y apareció un fallo de signo invertido
+>
+> El owner abrió sesión de admin en un Chrome controlado y se probó contra `localhost:3000`.
+> **Encontrado: el escape hacía el test más DIFÍCIL, no más fácil.**
+>
+> El peso 0.0 impide aportar a la verosimilitud, pero `calculate-theta` **reestima el MAP completo** y
+> lo acerca a su valor convergido en pasos de 0,4. Con poca evidencia real ese valor *es la media del
+> prior* (θ = 0), así que cada escape arrastraba θ **hacia arriba** — precisamente para quien venía
+> por debajo, que es quien escapa. Medido en el test `294` (`mq_armonicos_esfericos`, seis escapes y
+> ninguna respuesta real): θ de **-1,0 → 0,0** y dificultades servidas
+> **-0,8 · -0,3 · 0,2 · 0,7 · 1,1 · 1,5**.
+>
+> **Arreglado** con `escape/freeze-theta?`: ante un escape θ **se conserva tal cual**, no se
+> reestima. Reverificado en vivo sobre `numbers_v1` — θ constante en -1,00 mientras la dificultad
+> bajaba **-1,1 → -2,1 → -3,0 (piso)**.
+>
+> **Segundo hallazgo, y es de contenido, no de código.** Se midió la distribución de `difficulty` del
+> banco: `numbers_v1` (178 ítems, mín -3,0) tiene recorrido real; **`paes_m1` toca fondo en -1,8** y
+> **`polinomios` tiene 18 de sus 20 ítems dentro de 0,045 logits**. En ese último banco el retroceso
+> es imperceptible por construcción — un rango de 0,045 **no es una escala de dificultad, es una
+> constante con ruido**. Es [[RISKS]] R-17 / Q-05 en su forma más concreta y refuerza que **G-2 es
+> precondición**: mientras `difficulty` sea autoral, «bajar la dificultad» opera sobre etiquetas que
+> nadie validó.
+>
+> **Tercer arreglo:** la tarjeta de fluidez **desaparecía entera** tras un test con muchos escapes.
+> `insuficiente?` exigía `(pos? n)` y un escape no aporta a `n`, así que con cero aciertos no se
+> mostraba nada — el agujero que D-44 mandaba no tener. Ahora se enciende también con escapes y los
+> nombra explícitamente.
+>
+> ⚠️ **Sigue pendiente probarlo con una cuenta que NO sea admin.** Todo lo verificado fue con sesión
+> de admin, que ve todos los bancos (incluidos los `mq_` inactivos) y salta el filtro de
+> prerrequisitos de `universo.access`. Detalle completo en [[../sessions/SESSION-031]].
+>
+> **Nuevo en el backlog:** T-98 (sembrar el grafo, bloqueada por Q-38), **T-99 (ítems sembrados — lo
+> único que avanza G-2 directamente)**, T-100 (migrar el diagnóstico y «Mi plan» al lenguaje del
+> panel: hoy usan **cero** primitivas del panel y 25 `rounded-*`), T-101 (el mapa), T-102 (el resto
+> del editor). Riesgo nuevo: [[RISKS]] **R-34**.
+
+---
+
+**Fecha de corte anterior: 2026-08-17** · Rama `main`
 
 > ## 🔑 2026-08-17 — T-92: login con Google conectado (código), **pendiente de configurar**
 >
@@ -1320,6 +1461,41 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 
 ## 4. Últimos cambios (historia reciente)
 
+> **Verificado con `git log` el 2026-08-18.** Antes de esa fecha esta sección estaba congelada en el
+> 2026-07-26 y listaba seis commits de julio como "recientes". La distinción que importa acá no es
+> cuál es más nuevo, sino **cuál está publicado**: `main` es lo que sirve GitHub Pages en
+> jacobocordova.com; todo lo demás no existe para nadie.
+
+**En `main` — esto SÍ está en producción** (`cb9b3fb`, 2026-08-17):
+
+| Commit | Qué hizo |
+|--------|----------|
+| `cb9b3fb` | Cerrar la bitácora de la sesión y registrar ADR-028 |
+| `1fd5e4c` | Cerrar T-92 con la configuración verificada y anotar R-33 |
+| `a7312ee` | Conectar el login con Google sin saltarse la declaración de edad (D-56) |
+| `e5f2f57` | Agregar la migración de recursos de geometría (T-56) |
+| `60d7272` | Dejar un solo `index.html` y auditar el par que sobrevive (T-12, ADR-027) |
+| `0e6e312` | Sacar el registro de `/ingresar` y darle su propia ruta (T-05, ADR-026) |
+
+**En `escape-no-se` — 12 commits sobre `main`, NADA de esto está publicado:**
+
+| Commit | Qué hizo |
+|--------|----------|
+| `29db48d` | Cerrar la bitácora de SESSION-032 y registrar D-59, Q-40, T-103 y L-44 |
+| `3e0ef20` | Arreglar `module_id` en el editor de preguntas: es uuid, no entero |
+| `a672fec` | Cablear el catálogo de misconceptions contra Supabase (`027`) |
+| `be13f2c` | Arreglar tres bugs del panel encontrados usándolo de verdad |
+| `af8709b` | Actualizar la bitácora con la verificación en vivo y sus dos hallazgos |
+| `6d8a3c8` | Congelar θ en el escape: el prior lo empujaba hacia arriba |
+| `14e32cd` | Hacer que el escape baje la dificultad y entregue material |
+| `7f723e2` | Cerrar SESSION-031 y registrar ADR-029, R-34 y Q-38/Q-39 |
+| `0c8a9b3` | Recompilar el bundle y el CSS con el escape y el editor |
+| `cb0bd4f` | Agregar la migración `045` (prerrequisitos + recursos por misconception) — **sin aplicar** |
+| `0bfad2e` | Dejar de recargar la sección entera al guardar un recurso (D-58) |
+| `04f8c1b` | Agregar el escape del estudiante al diagnóstico (ADR-029) |
+
+**Historia anterior (conservada), hasta SESSION-001 el 2026-07-26:**
+
 | Commit | Qué hizo |
 |--------|----------|
 | `48bf525` | Restaurar el editor de preguntas en el panel de administración |
@@ -1329,9 +1505,9 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 | `38fbb96` | Rehacer la portada para captación y mejorar el panel de administración |
 | `b40e741` | Funnel MVP operable: perfil de diagnóstico, plan y cupos híbridos |
 
-Trabajo de esta sesión (**2026-07-26**): adopción de **Project Memory First** — creación de
-`project-memory/`, `adr/`, `sessions/`, `prompts/`, reescritura de `CLAUDE.md` y snapshot del grafo
-de Graphify. Ver `sessions/SESSION-001.md`.
+En esa sesión (**2026-07-26**) se adoptó **Project Memory First**: creación de `project-memory/`,
+`adr/`, `sessions/`, `prompts/`, reescritura de `CLAUDE.md` y primer snapshot del grafo de Graphify.
+Ver `sessions/SESSION-001.md`.
 
 ---
 
@@ -1412,7 +1588,45 @@ hay ningún bloqueo de go-live abierto, así que la lista cambia de naturaleza: 
 
 ## 9. Estado del repositorio
 
-> Reemplazado 2026-08-09 con el estado verificado en esta sesión (limpieza de ramas + memoria):
+> **Verificado con `git` el 2026-08-18.** Reemplaza el estado del 2026-08-09, que decía que la rama
+> actual era `chore-limpieza-tecnica-y-memoria` y que en local y en `origin` solo quedaba `main`:
+> **ninguna de las dos cosas sigue siendo cierta.**
+
+```
+Rama actual  : escape-no-se @ 29db48d — 12 commits sobre main, SIN rama remota (nunca se pusheó)
+Rama deploy  : main @ cb9b3fb == origin/main  (GitHub Pages, dominio jacobocordova.com)
+Árbol        : limpio
+Ramas locales (7): escape-no-se · main · respaldo-pre-squash · t-05-router-url ·
+                   t-12-html-unico · t-56-geometria · lint/clj-kondo-cero-warnings
+Ramas remotas (4): origin/{main, t-05-router-url, t-56-geometria, lint/clj-kondo-cero-warnings}
+Ya mergeadas a main (borrables): t-05-router-url · t-12-html-unico · t-56-geometria ·
+                   lint/clj-kondo-cero-warnings
+Sin mergear  : escape-no-se (el trabajo vivo) y respaldo-pre-squash (respaldo deliberado del
+                   2026-08-13: el estado previo al squash de la poda de memoria)
+```
+
+⚠️ **Lo que más pesa de este cuadro:** el trabajo de las tres últimas sesiones —el escape del
+estudiante (ADR-029), el panel de recursos (D-58) y el catálogo de misconceptions (D-59)— está
+**todo** en `escape-no-se`, sin mergear y **sin pushear**. No existe copia en `origin`: si se pierde
+el disco, se pierde. Producción sigue siendo `cb9b3fb`.
+
+⚠️ **La deuda de ramas volvió, en pequeño.** T-18 la dejó en 1 local / 1 remota el 2026-08-09 y R-21
+se cerró con eso; hoy son **7 locales / 4 remotas**, y **cuatro de ellas ya están mergeadas a
+`main`**. No es la escala de 27/24 que motivó T-18, pero confirma que la limpieza no se mantiene
+sola: conviene un barrido al mergear `escape-no-se`.
+
+**Bundle:** el `public/js/app.js` de `29db48d` corresponde a un `npx shadow-cljs release app` real,
+corrido en `3e0ef20` (1.318.673 bytes, sin `shadow.cljs.devtools.client` dentro). Sigue vigente la
+advertencia de [[LESSONS_LEARNED]] **L-30** sobre watchers de `shadow-cljs`/`tailwind` en background
+que ensucian `public/js/app.js`/`app.css` con un build de desarrollo sin cambio de fuente real —
+**volvió a pasar el 2026-08-18** (ver SESSION-032). Verificar `git status` antes de cualquier commit
+que toque esos dos archivos.
+
+---
+
+### Histórico de esta sección (no borrar: explica de dónde vienen las reglas de arriba)
+
+> Estado del 2026-08-09, superado por el cuadro de arriba:
 
 ```
 Rama actual  : chore-limpieza-tecnica-y-memoria (creada desde main @ 68a6d97, sin mergear todavía)
@@ -1423,21 +1637,20 @@ Ramas totales: solo `main` en local y en origin -- las 26 locales / 22 remotas r
                (borrado de user.cljs, versiones alineadas, bundle recompilado, memoria actualizada)
 ```
 
-> No se recompiló `public/js/app.js` de una sesión anterior sin cambio de fuente esta vez: el
-> cambio en el bundle de esta sesión corresponde a un `npx shadow-cljs release app` real, motivado
-> por el bump de versión (X-05). Sigue vigente la advertencia de [[LESSONS_LEARNED]] L-30 sobre
-> watchers de `shadow-cljs`/`tailwind` en background que pueden ensuciar `public/js/app.js`/
-> `app.css` con un build de desarrollo sin que haya cambio de fuente real — verificar `git status`
-> antes de cualquier commit que toque esos dos archivos.
+> Y su nota sobre el bundle, del mismo día: «No se recompiló `public/js/app.js` de una sesión
+> anterior sin cambio de fuente esta vez: el cambio en el bundle de esta sesión corresponde a un
+> `npx shadow-cljs release app` real, motivado por el bump de versión (X-05)».
 
 **Tooling del agente (2026-07-27):** `graphify` (ya estaba) y **`rtk`** (nuevo, instalado hoy) como
 compresores de contexto; **Obsidian** con vault pre-configurado (`.obsidian/`, gitignorado, no
 versionado por diseño). Detalle: [[RTK_INTEGRATION_GUIDE]], [[GRAPHIFY_INTEGRATION_GUIDE]],
 [[OBSIDIAN_WORKSPACE_GUIDE]], [[DECISIONS]] D-17.
 
-**Deuda de ramas — resuelta 2026-08-09:** llegó a crecer a 27 locales / 24 remotas antes de
-limpiarse. Hoy el repositorio tiene únicamente `main` en local y en `origin`. Ver [[BACKLOG]] T-18
-(cerrada), [[RISKS]] R-21 (cerrado).
+**Deuda de ramas — resuelta 2026-08-09, y vuelta a crecer desde entonces:** llegó a 27 locales / 24
+remotas antes de limpiarse, y **al 2026-08-09** el repositorio quedó únicamente con `main` en local y
+en `origin`. **Eso ya no es cierto:** al 2026-08-18 son 7 locales / 4 remotas — el cuadro verificado
+está arriba, y manda sobre esta frase. Ver [[BACKLOG]] T-18 (cerrada), [[RISKS]] R-21 (cerrado
+suponiendo que la limpieza se mantendría sola, cosa que no ocurrió).
 
 **Resuelto (2026-07-29):** `cursor/mvp-operable-funnel` **sí** está mergeada a `main` (verificado
 por `git log` y por hash contra producción, ver T-19 arriba). La duda vigente ahora es la rama

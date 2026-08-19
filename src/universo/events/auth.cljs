@@ -54,16 +54,37 @@
   "A qué sección navegar cuando la sesión queda **establecida**. Devuelve
    `[section opts]` o nil si no hay que navegar.
 
-   Tres orígenes, en este orden de prioridad:
+   Cuatro orígenes, en este orden de prioridad:
    1. login explícito (`navigate?`): al destino guardado, o al tablero;
    2. deep link a una sección protegida (`pending`, T-05): a esa sección, con
       `:history :replace` porque la URL **ya** es la correcta — apilar otra
       entrada dejaría el botón atrás girando en el mismo lugar;
-   3. rehidratación normal de la sesión al cargar: a ninguna parte."
+   3. **deep link rescatado** (`redirect` sin login explícito): ver abajo;
+   4. rehidratación normal de la sesión al cargar: a ninguna parte.
+
+   ── El caso 3, medido el 2026-08-18 ────────────────────────────────────────
+   Abrir `/admin` con sesión válida dejaba al usuario **en la landing**, de forma
+   reproducible. La causa es una carrera del arranque: `:auth/init` consulta
+   `getSession`, que en una carga fría puede resolver **sin sesión** todavía y
+   dispara `:auth/session-cleared`. Ese handler hace lo correcto —como la sección
+   actual es protegida, `post-clear-target` manda a `:main` y **conserva** el
+   deep link en `:redirect-after-login`—, y un instante después
+   `onAuthStateChange` emite `SIGNED_IN` y la sesión sí queda establecida.
+
+   Pero ese `SIGNED_IN` **no es un login explícito** (`navigate?` = false) y el
+   `pending` ya lo consumió `session-cleared`, así que esta función devolvía nil
+   y el destino quedaba huérfano: sesión válida, URL correcta, contenido
+   equivocado. Honrar `redirect` cierra el círculo.
+
+   No hay riesgo de navegación sorpresiva en un refresco de token:
+   `session-refresh?` los filtra **antes** de llegar a `:auth/session-established`,
+   y ese handler limpia `:redirect-after-login`, así que esto dispara una sola
+   vez."
   [{:keys [navigate? redirect pending]}]
   (cond
     navigate? [(or redirect :dashboard) nil]
     pending   [pending {:history :replace}]
+    redirect  [redirect {:history :replace}]
     :else     nil))
 
 (defn post-clear-target

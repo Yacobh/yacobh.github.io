@@ -278,7 +278,24 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     criterio es 18 módulos de 18. **Verificación versionada:**
     `queries/L-2_cobertura_de_recursos.sql` — su bloque A ataja el modo de fallo silencioso de esta
     migración (si un slug no coincide, el `insert … select` no inserta nada y **no da error**)
-47. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+47. `migrations/045_module_prerequisites_y_resource_misconceptions.sql` — ⏳ **pendiente de aplicar**
+    · los dos puentes que le faltan al escape del estudiante (`universo.irt.escape`) para tener
+    destino, y que además son el dato del mapa de prerrequisitos. Crea `module_prerequisites`
+    (grafo entre los 20 módulos, aristas `duro`/`blando`), `resource_misconceptions` (de la idea
+    errónea concreta al material concreto, que hoy solo se puede resolver por módulo y por eso la
+    capa 1 de «Mi plan» es genérica) y `resources.entry_level` (cuál es el material de entrada de
+    un módulo: un escape necesita el introductorio, no el recurso nº 7).
+    **Aditiva e idempotente:** dos tablas vacías y una columna nullable con default; no mueve datos
+    y nada la lee todavía. **Qué se rompe si no se aplica:** nada — el escape sigue registrándose y
+    el resto del producto funciona igual; lo que no existe es el destino del escape.
+    ⚠ **Sin seed a propósito**: el grafo de prerrequisitos es una decisión **pedagógica** del
+    profesor y está registrada como pregunta abierta en [[../project-memory/OPEN_QUESTIONS]] Q-38;
+    se siembra en una migración propia para que la decisión quede fechada aparte de la estructura.
+    ⚠ **`resource_misconceptions` es admin-only en las cuatro operaciones**, mismo criterio
+    deliberado que `027` (RISKS R-16: «abrir después es fácil, des-filtrar no»). Consecuencia: el
+    camino «tu error → este recurso» necesita una función `security definer` como `next_question`
+    (ADR-015), que **no** se crea acá para no dejar una RPC sin lector
+48. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
 > final de `029`: **0 topics fuera de forma canónica** en las tres tablas, e ítems sin `module_id`

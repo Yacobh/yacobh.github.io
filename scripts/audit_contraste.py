@@ -94,6 +94,17 @@ PARES = [
     # texto es claro sobre oscuro aunque el modal esté en tema claro.
     ("modal · enunciado en alojamiento", PANEL["100"],  PANEL["700"],   4.5),
     ("modal · opción neutra",           "#1F2937",      PANEL["100"],   4.5),
+
+    # Escape del estudiante (ADR-029). Dos pares nuevos:
+    # · el botón de «no sé» es peso secundario a propósito —el naranja está
+    #   reservado a la acción principal, que son las alternativas— así que su
+    #   pista va en gris sobre el panel claro y hay que comprobar que se lea.
+    # · el distintivo de la cabecera del feedback de escape es claro sobre
+    #   alojamiento medio: NO usa verde ni rojo, porque en esa pantalla el color
+    #   significa acierto/fallo y un escape no es ninguno de los dos.
+    ("escape · pista del botón",        "#4B5563",      PANEL["100"],   4.5),
+    ("escape · distintivo neutro",      PANEL["50"],    PANEL["600"],   4.5),
+
     ("modal · texto de la explicación", "#1F2937",      PANEL["50"],    4.5),
     # senal-500 daba 2.75 acá y no llegaba ni a objeto gráfico: va en 600.
     ("modal · regla de la explicación", SENAL["600"],   PANEL["50"],    3.0),

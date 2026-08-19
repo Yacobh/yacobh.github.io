@@ -176,6 +176,31 @@ de edad y con la Ley 21.719 encima, eso no es deuda de UX.
 Aplicado en [[../adr/ADR-028-toda-entrada-social-pasa-por-d-21]] (D-56). Vale igual para Apple,
 Microsoft o Google Workspace cuando se agreguen.
 
+### L-44 · Coercionar un id `uuid` con `parseInt` no falla ruidosamente: devuelve un número plausible o `null`
+
+**Síntoma (2026-08-18):** ninguno visible. Ese es el punto. `question-payload` (`db.crud`) convertía
+`:module_id` con `js/parseInt` desde antes de que existiera este registro, y nadie lo notó.
+
+**Causa:** `modules.id` es `uuid` desde `001`, pero el código lo trataba como entero. `parseInt`
+sobre un uuid **no devuelve `NaN` de forma confiable**: devuelve los dígitos iniciales si el uuid
+empieza por dígito (`"8f14e45f-…"` → `8`) y `NaN` si empieza por letra. Y `NaN` no viaja como error:
+`clj->js` + la serialización JSON lo mandan como `null`. O sea que el mismo bug tiene **dos**
+desenlaces según el uuid que toque — el guardado revienta contra la columna uuid, o el módulo se
+borra en silencio.
+
+**Por qué sobrevivió tanto:** no lo tapó la falta de tests, lo tapó **la falta de un consumidor que
+mirara el resultado**. Nadie revisa el `module_id` de un ítem después de guardarlo, y el síntoma —un
+ítem sin módulo— es indistinguible del estado normal de un tercio del banco (T-60). Un fallo cuyo
+resultado se confunde con el estado esperado no se reporta nunca.
+
+**Regla:** un id que en la base es `uuid` viaja como **string, sin parsear**, y lo único que se
+normaliza es el vacío (`""`, `"null"` → `nil`). En este repo eso es `crud/uuid-or-nil`, y se usa en
+las dos rutas que mandan uuid (`question-payload` y `misconception-payload`). Corolario general:
+antes de escribir una coerción numérica sobre un campo que viene de la base, **mirar el tipo en la
+migración**, no la forma del valor en el formulario.
+
+**Dónde:** `src/universo/db/crud.cljs`, commit `3e0ef20`. Ver [[BACKLOG]] T-60, `sessions/SESSION-032.md`.
+
 ## IRT y dominio
 
 ### L-15 · Sin prior, θ divergía con pocas respuestas

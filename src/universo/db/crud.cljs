@@ -524,9 +524,25 @@
                                   :error (.-message error)}))))
     ch))
 
+(defn- uuid-or-nil
+  "Normaliza un id uuid venido de un formulario del panel.
+
+   Un `<select>` sin elegir entrega `\"\"` y a veces el string `\"null\"`; ambos
+   tienen que llegar a Postgres como `null` y no como texto, porque un uuid mal
+   formado no falla suave: la fila entera se rechaza. Se deja el uuid como string
+   —nunca se parsea a número— porque desde `001` los ids de `modules` y de
+   `misconceptions` son uuid."
+  [v]
+  (let [s (str/trim (str (or v "")))]
+    (when-not (or (zero? (count s)) (= s "null")) s)))
+
 (def ^:private question-select-cols
   (str "id,created_at,question,option_a,option_b,option_c,option_d,"
-       "correct_option,error_a,error_b,error_c,error_d,topic,order_index,difficulty,module_id"))
+       "correct_option,error_a,error_b,error_c,error_d,topic,order_index,difficulty,module_id,"
+       ;; Vínculo de cada distractor con el catálogo (027). Viajan en el select
+       ;; porque son la materia prima de `universo.misconceptions/usage-index`:
+       ;; sin ellos el panel no puede decir qué idea errónea quedó huérfana.
+       "misconception_a_id,misconception_b_id,misconception_c_id,misconception_d_id"))
 
 (defn fetch-admin-questions
   "Lista questions para admin. topic nil → todas."
@@ -557,32 +573,51 @@
      ch)))
 
 (defn- question-payload
-  "Mapa CLJS → JS para insert/update (sin id ni created_at)."
+  "Mapa CLJS → JS para insert/update (sin id ni created_at).
+
+   Los cuatro `misconception_*_id` (027) se mandan **solo si la clave viene en el
+   draft**. La distinción no es cosmética: omitir la columna deja el vínculo como
+   está en la base, mientras que mandarla en `nil` lo borra. Como
+   `update-admin-question!` reemplaza la fila entera con el draft, incluirlas
+   siempre haría que guardar un ítem desde un formulario que todavía no conoce el
+   catálogo descatalogara sus distractores en silencio — exactamente el trabajo
+   perdido que 027 existe para acumular."
   [row]
   (let [parse-num (fn [v f]
                     (when-let [x v]
                       (if (string? x)
                         (when (pos? (count x)) (f x))
-                        x)))]
+                        x)))
+        vinculos (reduce (fn [m k]
+                           (if (contains? row k)
+                             (assoc m k (uuid-or-nil (get row k)))
+                             m))
+                         {}
+                         [:misconception_a_id :misconception_b_id
+                          :misconception_c_id :misconception_d_id])]
     (clj->js
-     {:question (or (:question row) "")
-      :option_a (or (:option_a row) "")
-      :option_b (or (:option_b row) "")
-      :option_c (or (:option_c row) "")
-      :option_d (or (:option_d row) "")
-      :correct_option (or (:correct_option row) "A")
-      :error_a (:error_a row)
-      :error_b (:error_b row)
-      :error_c (:error_c row)
-      :error_d (:error_d row)
-      :topic (or (:topic row) "")
-      :order_index (parse-num (:order_index row) #(js/parseInt % 10))
-      :difficulty (parse-num (:difficulty row) js/parseFloat)
-      :module_id (let [m (:module_id row)]
-                   (cond
-                     (or (nil? m) (= m "") (= m "null")) nil
-                     (string? m) (js/parseInt m 10)
-                     :else m))})))
+     (merge
+      vinculos
+      {:question (or (:question row) "")
+       :option_a (or (:option_a row) "")
+       :option_b (or (:option_b row) "")
+       :option_c (or (:option_c row) "")
+       :option_d (or (:option_d row) "")
+       :correct_option (or (:correct_option row) "A")
+       :error_a (:error_a row)
+       :error_b (:error_b row)
+       :error_c (:error_c row)
+       :error_d (:error_d row)
+       :topic (or (:topic row) "")
+       :order_index (parse-num (:order_index row) #(js/parseInt % 10))
+       :difficulty (parse-num (:difficulty row) js/parseFloat)
+       ;; `modules.id` es uuid desde `001`. Parsearlo a entero —como se hacía
+       ;; hasta 2026-08-18— no dejaba nil: `parseInt` sobre un uuid devuelve los
+       ;; dígitos iniciales o NaN, o sea un número inválido o un null silencioso
+       ;; contra una columna uuid. Como `:admin/edit-question` arrastra el
+       ;; `:module_id` de la fila leída, editar cualquier ítem con módulo
+       ;; asignado fallaba o le borraba el módulo.
+       :module_id (uuid-or-nil (:module_id row))}))))
 
 (defn insert-admin-question!
   [row]
@@ -809,6 +844,46 @@
                   (async/put! ch {:success false :error (.-message error)}))))
     ch))
 
+(defn fetch-published-resources-for-module
+  "Recursos publicados de UN módulo, del de entrada hacia abajo.
+
+   Existe aparte de `fetch-published-resources` porque el escape del estudiante
+   (ADR-029) los pide en medio del test, y traer el catálogo completo para
+   mostrar tres tarjetas sería pagar el ancho de banda de todo el contenido en
+   cada «no sé».
+
+   El orden pone primero `entry_level` (migración `045`): a quien declaró no
+   saber le corresponde el material introductorio, no el recurso nº 7. Mientras
+   `045` no esté aplicada la columna no existe y el orden cae a `order_index`
+   solo — por eso el `entry_level` va en su propio `.order` y no dentro del
+   mismo, y por eso el fallo se degrada en vez de romper la consulta."
+  [module-id]
+  (let [ch (async/chan)]
+    (if-not (seq (str (or module-id "")))
+      ;; Ítem sin módulo (el 33 % del banco todavía, ver T-60): no hay nada que
+      ;; pedir. Se responde vacío en vez de consultar sin filtro, que traería
+      ;; recursos de cualquier tema y sería peor que no mostrar nada.
+      (async/put! ch {:success true :data []})
+      (-> (.from supabase-client "resources")
+          (.select "*, modules(slug, title, track)")
+          (.eq "published" true)
+          (.eq "module_id" (str module-id))
+          (.order "order_index" #js {:ascending true})
+          (.then (fn [result]
+                   (if (.-error result)
+                     (async/put! ch {:success false
+                                     :error (.-message (.-error result))})
+                     (let [rows (js->clj (.-data result) :keywordize-keys true)
+                           enriched (mapv (fn [r]
+                                            (assoc r :module_slug
+                                                   (or (get-in r [:modules :slug])
+                                                       (:module_slug r))))
+                                          (or rows []))]
+                       (async/put! ch {:success true :data enriched})))))
+          (.catch (fn [error]
+                    (async/put! ch {:success false :error (.-message error)})))))
+    ch))
+
 (defn fetch-admin-resources
   []
   (let [ch (async/chan)]
@@ -844,6 +919,105 @@
   [id]
   (let [ch (async/chan)]
     (-> (.from supabase-client "resources")
+        (.delete)
+        (.eq "id" (str id))
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true :data nil}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+;; -----------------------------------------------------------------------------
+;; Catálogo de misconceptions (`027_misconceptions.sql`)
+;; -----------------------------------------------------------------------------
+;;
+;; Las cuatro policies de 027 exigen `public.is_admin()`, así que esta tabla es
+;; de panel: a un estudiante autenticado la RLS le devuelve **cero filas, no un
+;; error**, y por eso ninguna de estas funciones trata la lista vacía como fallo.
+;; La lógica pura (validar el slug, contar uso, diagnosticar la salud del
+;; catálogo) vive en `universo.misconceptions`; acá solo se lee y se escribe.
+
+(defn- misconception-payload
+  "Mapa CLJS → JS para insert/update. Lista blanca de columnas a propósito:
+   `fetch-misconceptions` trae el módulo embebido en `:modules`, y reenviar esa
+   clave haría fallar el update entero con «column modules does not exist».
+
+   El slug **no** se valida acá. El check de formato de 027 es la autoridad y
+   `universo.misconceptions/slug-valid?` es su espejo para avisar antes de
+   guardar; duplicar la regla en una tercera capa solo agrega un lugar donde se
+   puede desincronizar."
+  [row]
+  (clj->js
+   {:slug (str/trim (str (or (:slug row) "")))
+    :name (str/trim (str (or (:name row) "")))
+    :description (let [d (str/trim (str (or (:description row) "")))]
+                   (when (pos? (count d)) d))
+    :module_id (uuid-or-nil (:module_id row))}))
+
+(defn fetch-misconceptions
+  "Catálogo completo, ordenado por slug.
+
+   Trae el módulo sugerido embebido (`module_id` es FK desde 027) y lo aplana a
+   `:module_slug`, mismo trato que `fetch-published-resources` le da a recursos,
+   para que la vista no tenga que saber de la forma anidada de PostgREST."
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "misconceptions")
+        (.select "*, modules(slug, title, track)")
+        (.order "slug" #js {:ascending true})
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (let [rows (js->clj (.-data result) :keywordize-keys true)
+                         enriched (mapv (fn [m]
+                                          (assoc m :module_slug
+                                                 (or (get-in m [:modules :slug])
+                                                     (:module_slug m))))
+                                        (or rows []))]
+                     (async/put! ch {:success true :data enriched})))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn upsert-misconception!
+  "Crea o actualiza una idea errónea. Con `:id` actualiza; sin `:id`, inserta.
+
+   Un slug repetido choca contra el `unique` de 027 y vuelve como error de
+   Postgres: se propaga tal cual en vez de traducirse, porque la base es el único
+   lugar que puede decidirlo sin condición de carrera."
+  [row]
+  (let [ch (async/chan)
+        payload (misconception-payload row)
+        id (uuid-or-nil (:id row))]
+    (-> (if id
+          (-> (.from supabase-client "misconceptions")
+              (.update payload)
+              (.eq "id" id)
+              (.select "*")
+              (.single))
+          (-> (.from supabase-client "misconceptions")
+              (.insert payload)
+              (.select "*")
+              (.single)))
+        (.then (fn [result] (put-result ch result)))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn delete-misconception!
+  "Borra una idea errónea del catálogo.
+
+   No hace falta descatalogar los ítems primero: las cuatro FK de 027 son
+   `on delete set null`, así que los distractores que la referenciaban vuelven a
+   «sin catalogar» en vez de bloquear el borrado. Reorganizar la taxonomía tiene
+   que ser barato, o no se reorganiza."
+  [id]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "misconceptions")
         (.delete)
         (.eq "id" (str id))
         (.then (fn [result]
