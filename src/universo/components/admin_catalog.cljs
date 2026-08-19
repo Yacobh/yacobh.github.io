@@ -73,8 +73,8 @@
                     :class "shrink-0 text-xs text-gray-500 underline hover:text-gray-900"
                     :on-click #(reset! abierto? true)}
            "+ nueva"]
-          [:div {:class "flex items-center gap-1"}
-           [:input {:class (str input-class " w-56 py-1 text-xs")
+          [:div {:class "flex w-full flex-wrap items-center gap-1"}
+           [:input {:class (str input-class " min-w-48 flex-1 py-1 text-xs")
                     :type "text"
                     :auto-focus true
                     :placeholder "Ej: Invierte el divisor al dividir"
@@ -165,7 +165,10 @@
             [:span {:class "h-1.5 w-1.5 rounded-full bg-senal-400 sm:hidden"}])]
          [:div {:class "text-sm text-gray-800"} [math/latex (str opcion)]]
          [error-input {:question-id question-id :campo error-key :valor error}]
-         [:div {:class "flex items-center gap-2"}
+         ;; En columna y no en fila: al abrir «+ nueva», el formulario necesita
+         ;; ancho, y al lado del selector quedaba aplastado a nada — se vio al
+         ;; usarlo. Debajo tiene toda la celda.
+         [:div {:class "flex flex-col items-start gap-1"}
           [misconception-select {:question-id question-id :campo mis-key :valor mis-id}]
           [quick-create {:question-id question-id :campo mis-key :module-id module_id}]]])]]))
 
