@@ -2,7 +2,50 @@
 
 **Fecha de corte: 2026-08-18** · Rama **`escape-no-se`** (sin mergear, sin pushear)
 
-> ## 🆕 2026-08-18 — T-96 y T-97: el estudiante ya puede decir «no sé», y el editor dejó de recargarse entero
+> ## 🆕 2026-08-18 (tarde) — el catálogo de misconceptions ya tiene capa de datos, y un uuid que se parseaba como entero
+>
+> **Misma rama `escape-no-se`.** Dos commits: `a672fec` (cableado) y `3e0ef20` (arreglo).
+>
+> **El catálogo de `027` llevaba desde el 2026-08-10 aplicado y sin un solo lector**: la tabla
+> existía, las cuatro columnas del vínculo existían, y el cliente no sabía de ninguna de las dos.
+> Ahora hay capa de datos: `universo.misconceptions` (puro, con test) y
+> `fetch-misconceptions` / `upsert-misconception!` / `delete-misconception!` en `db.crud`.
+>
+> **Lo que hace que esto no sea un CRUD más:** `health` convierte en instrumento la única regla que
+> decide si el catálogo sirve — *tiene que crecer mucho más lento que el banco, o es la misma lista
+> de strings con otra forma*. La escribió la propia migración `027` y hasta hoy vivía solo como
+> comentario.
+>
+> **Una salvaguarda que vale la pena conocer antes de tocar el editor:** `question-payload` manda los
+> cuatro `misconception_*_id` **solo si la clave viene en el draft**. Como `update-admin-question!`
+> reemplaza la fila entera y `:admin/edit-question` arma el draft sin esas claves, incluirlas siempre
+> habría descatalogado los cuatro distractores de cada ítem que se guardara — en silencio.
+>
+> **🐛 Bug preexistente encontrado y arreglado: `module_id` es uuid, no entero.** `question-payload`
+> le hacía `js/parseInt`, que sobre un uuid devuelve los dígitos iniciales o `NaN` → o el guardado
+> falla contra la columna uuid, o el módulo se borra sin aviso. **Bastaba abrir y guardar cualquier
+> ítem con módulo asignado.** Candidato a explicar parte del 33 % del banco sin `module_id` (T-60),
+> aunque eso **no está medido**.
+>
+> ⚠️ **Nadie llama todavía a las tres funciones nuevas**: faltan eventos, subs y la pestaña del panel
+> (**T-103**, nueva). Hasta entonces `027` sigue sin lector en la práctica. Y el paso 2 de T-57
+> (catalogar el módulo más fallado) sigue esperando una consulta del owner al proyecto real.
+>
+> **Otra vez L-30:** un `shadow-cljs watch app` en background sobrescribió `public/js/app.js` con el
+> build de desarrollo (9,18 MB, con `devtools` dentro) al guardar el fuente. Se detuvo el watch, se
+> restauró y se recompiló con `release` **una vez por commit**, para que ninguno quede con el
+> artefacto desfasado de su propio fuente.
+>
+> Verificación: **130 tests / 716 assertions / 0 failures**, `clj-kondo` 0/0, `release app` con 0
+> warnings, `graphify update .` corrido. Sin `build:css` ni `audit_*.py`: no se tocó una sola clase
+> de UI. Detalle en [[../sessions/SESSION-032]].
+>
+> **Nuevo en la memoria:** D-59 (el catálogo se cura desde el panel, no por migración), Q-40 (qué
+> hacer con las 77 entradas `mq/` de cuántica cuando el panel liste el catálogo) y L-44.
+
+---
+
+> ## 2026-08-18 (mañana) — T-96 y T-97: el estudiante ya puede decir «no sé», y el editor dejó de recargarse entero
 >
 > **Rama `escape-no-se`, partiendo de `cb9b3fb`. No se tocó `main`.**
 >

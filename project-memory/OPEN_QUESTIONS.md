@@ -1,6 +1,11 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-17** — **Q-39 nueva**: si se paga el custom domain de Supabase
+Última actualización: **2026-08-18** — **Q-40 nueva**: qué hace la pestaña del catálogo con las 77
+entradas `mq/` del experimento de cuántica, que hoy `fetch-misconceptions` devuelve junto con las del
+producto y que distorsionarían `health` (T-103). **Aviso de mantenimiento del mismo día:** hay **dos
+preguntas numeradas Q-39** (tasa de escape y custom domain de Supabase); no se renumeró en silencio
+porque romper las referencias existentes es peor que el duplicado — hay que resolverlo a propósito. ·
+Antes: **2026-08-17** — **Q-39 nueva**: si se paga el custom domain de Supabase
 para que la pantalla de Google muestre la marca en vez de `jmnqklhxcdccvdhuuiji.supabase.co`
 (R-33). Depende de un precio sin verificar (A-36) y del dato de conversión de G-5. ·
 Antes: **2026-08-16** — pivote de negocio
@@ -449,6 +454,27 @@ exactamente el modo de fallo de T-51 con los topics.
 
 **Sugerencia de alcance:** no hace falta el grafo completo para empezar a servir. Con las aristas
 duras de los módulos donde más se escape en T-90 ya se puede probar el camino entero.
+
+---
+
+### 🟡 Q-40 · ¿La pestaña del catálogo muestra o filtra las 77 entradas `mq/` de cuántica? — **abierta 2026-08-18**
+
+`fetch-misconceptions` (2026-08-18) devuelve el catálogo **completo**, y ahí adentro conviven dos
+cosas que no son la misma: las misconceptions del producto y las **77 del experimento personal de
+cuántica** (T-61, todas con prefijo `mq/`). Hoy las del producto son **cero**, así que la lista que
+vería un admin es 100 % experimento.
+
+**Por qué no es cosmético:** `misconceptions/health` calcula su veredicto sobre la lista que se le
+pasa. Con las 77 dentro, el catálogo del producto se reportaría como `:disperso` por culpa de un
+experimento que no es contenido del producto — el instrumento mentiría justo en la señal para la que
+existe.
+
+Opciones: (a) filtrar `mq/` en la consulta; (b) filtrar en la vista con un selector de «espacio de
+nombres»; (c) no filtrar y calcular `health` solo sobre lo que no es `mq/`. **No se decidió** porque
+depende de si el track de cuántica sigue vivo, que es del owner. Bloquea la parte de `health` de
+**T-103**, no el CRUD.
+
+**Relacionado:** [[BACKLOG]] T-103, T-61, T-57 · `sessions/SESSION-032.md`
 
 ---
 

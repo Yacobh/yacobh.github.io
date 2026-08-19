@@ -142,6 +142,7 @@ Navegador (SPA ClojureScript/re-frame)
       ├── events/{auth,test,profile,plan,slots,admin,dashboard,landing,contacto,router}
       └── lógica pura: profile · slots.logic · components.tetha · topics
                        irt.progress · irt.effort · irt.fluency (eje λ, ADR-019)
+                       misconceptions (catálogo de 027, T-57)
       │
       ▼  @supabase/supabase-js (JWT del usuario)
 Supabase PostgreSQL  ── RLS es el único límite de seguridad ──
@@ -164,7 +165,8 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
 - **Lógica pura primero.** Toda regla de negocio nueva (IRT, bandas, filtros de cupos, perfil) va
   a un namespace puro y testeable (`universo.profile`, `universo.slots.logic`,
   `universo.irt.progress`, `universo.irt.effort`, `universo.irt.fluency`, `universo.topics`,
-  `universo.router`, `universo.components.tetha`), **no** dentro de un `reg-event-fx`.
+  `universo.router`, `universo.components.tetha`, `universo.misconceptions`), **no** dentro de un
+  `reg-event-fx`.
 - **Navegación:** si agregas una sección, agrégala al `case` de `home/main-content` **y** a la tabla
   de `universo.router` (y a `protected-sections` si es privada). La sección es el estado
   autoritativo y la URL su reflejo: el router **nunca** escribe `[:ui :current-section]` — despacha

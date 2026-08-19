@@ -894,6 +894,36 @@ Lo que quedó fuera de T-97 por ser de mayor alcance:
   **menos campos obligatorios**. Hoy pide título, tipo, módulo, URL, orden y cuerpo; quien graba 90
   segundos sobre *un* error debería elegir una cosa y grabar.
 
+### T-103 · Pestaña de catálogo de misconceptions en el panel — **P2** · `abierto`
+
+**Es el consumidor que le falta al cableado del 2026-08-18.** `fetch-misconceptions`,
+`upsert-misconception!` y `delete-misconception!` existen en `db.crud`, `universo.misconceptions`
+tiene las funciones puras con test, y **no las llama nadie**: mientras no exista esta pestaña, `027`
+sigue sin lector en la práctica y el paso 2 de T-57 no se puede ejecutar (D-59).
+
+**Qué falta, concretamente:** eventos en `events/admin.cljs` (cargar, guardar, borrar, con el
+`:loading?`/`:error` propio de la sección que exige [[../CLAUDE]] §5), los subs, y la vista con las
+primitivas del panel (`.control`, `.alojamiento`, `.placa`, `.visor` — ADR-023), no con utilidades
+sueltas.
+
+**Lo que ya está resuelto y no hay que rehacer:**
+- **El slug se valida antes de guardar** con `misconceptions/slug-valid?` (espejo del check de
+  `027`) y se propone con `suggest-slug`. Sin eso, el único aviso de un slug mal formado es un error
+  de Postgres después de escribir nombre y descripción.
+- **`health` es la pieza que justifica la pestaña**, no un adorno: es la única forma de ver si el
+  catálogo está creciendo casi tan rápido como el banco, que es la manera de fracasar que `027`
+  anticipó. Debería estar a la vista, no escondida.
+- **`with-usage` deja las huérfanas visibles al final**, no ocultas: una idea errónea que no usa
+  nadie es exactamente la que hay que revisar o borrar.
+
+**Decisión pendiente antes de escribir la vista:** qué hacer con las **77 entradas `mq/`** del
+experimento de cuántica (T-61), que hoy `fetch-misconceptions` devuelve junto con las del producto y
+que distorsionan `health` — [[OPEN_QUESTIONS]] **Q-40**.
+
+- **Terminado cuando:** un admin puede crear, editar y borrar una misconception desde el panel, ve
+  el uso de cada una y ve el veredicto de `health` del banco.
+- **Relacionado:** T-57 (paso 2), T-54, D-59, `sessions/SESSION-032.md`.
+
 ### T-24 · Estado vacío honesto en "Mi plan" y "Cupos" — **P1** · `hecho` (2026-08-03, mergeado a `main` 2026-08-05)
 
 Mientras T-01 y T-04 no estén hechas, un estudiante real puede ver pantallas vacías.
@@ -1664,6 +1694,13 @@ tests— está hecho, aplicado y verificado.
 
 ### T-60 · Clasificar por ítem los dos bancos mezclados (`diagnostico`, `paes_m1`) — **P1** · `abierto`
 
+> **Pista nueva 2026-08-18, sin medir.** `question-payload` le hacía `js/parseInt` a `:module_id`,
+> que es **uuid** desde `001`: guardar cualquier ítem desde el editor del panel o abortaba contra la
+> columna uuid o le dejaba el módulo en `null` sin aviso. Arreglado en `3e0ef20`. Es **candidato** a
+> explicar parte de los 128 ítems sin `module_id`, pero **no está medido** y no se puede saber
+> cuántos vinieron por acá y cuántos nunca lo tuvieron — el estado final es idéntico. Ver
+> [[LESSONS_LEARNED]] L-44.
+
 Hereda la mitad del criterio de cierre de T-51 que ninguna migración puede cumplir: **128 preguntas
 sin `module_id`** repartidas en dos topics que no son temas sino contenedores —`diagnostico` (84) y
 `paes_m1` (44)—, con ítems de varios módulos adentro.
@@ -1825,7 +1862,14 @@ duplicados. Los 18 títulos del bloque A se verificaron carácter a carácter co
 **Y comprobar que `geometria/basica` y `geometria/pitagoras` tengan ≥1 recurso publicado** — el
 criterio L-2 es 18 módulos de 18, no 16. El bloque C lo responde solo.
 
-### T-57 · Modelar la misconception como entidad, no como texto libre — **P2** · `en curso` (paso 1 hecho 2026-08-10; ⏳ falta aplicar `027`)
+### T-57 · Modelar la misconception como entidad, no como texto libre — **P2** · `en curso` (paso 1 hecho y aplicado; capa de datos del cliente hecha 2026-08-18; ⏳ falta catalogar)
+
+> **Estado al 2026-08-18.** `027` está **aplicada** (confirmado el 2026-08-11, ver la nota de abajo)
+> y desde hoy tiene **capa de datos en el cliente**: `universo.misconceptions` (puro, con test) y
+> `fetch-misconceptions` / `upsert-misconception!` / `delete-misconception!` en `db.crud`. Con
+> **D-59**, el paso 3 deja de ser obligatoriamente una migración de backfill: se cataloga desde el
+> panel. Lo que falta ahora es, en orden: **T-103** (la pestaña que consuma esto) y el **paso 2**
+> (elegir y catalogar un módulo), que sigue bloqueado por una consulta del owner al proyecto real.
 
 > **Contradicción RESUELTA 2026-08-11:** el encabezado decía que faltaba aplicar `027` y
 > [[../supabase/SCHEMA]] la daba por aplicada. Gana SCHEMA: el 2026-08-11 se aplicó `034`, que
@@ -1933,8 +1977,10 @@ con 387 ítems y ~40 hay taxonomía. Corolario operativo: **una misconception qu
    Es trabajo de contenido, o sea cae bajo [[../adr/ADR-016-ia-en-el-pipeline-de-autoria-no-en-runtime]].
    **Precondición práctica:** medir cuál es ese módulo requiere consultar `tests` en el proyecto
    real; el agente no tiene ese acceso, así que el paso 2 empieza con una consulta del owner.
-3. Migración que siembra esas misconceptions y hace backfill de las FK **solo de ese módulo**. El
-   resto del banco sigue en `null` y funciona idéntico.
+3. Sembrar esas misconceptions y enlazar las FK **solo de ese módulo**. El resto del banco sigue en
+   `null` y funciona idéntico. **Desde D-59 (2026-08-18) la vía normal es el panel**, no una
+   migración: catalogar es trabajo editorial iterativo y una migración por corrección es la fricción
+   que garantiza que no se haga. La migración queda como opción para un lote grande.
 4. Extender `score_answer` para devolver también el slug (precedente: `026` ya lo extendió para
    devolver `correcta`), guardarlo junto a `:selected-error` en la respuesta, y agrupar por él en
    `universo.profile/build`.
@@ -2855,6 +2901,13 @@ de negocio, no técnica.
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92** |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86, T-95** |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
+
+> ⚠️ **Esta tabla está incompleta y se detectó el 2026-08-18** (comprobado por script, no a ojo):
+> **quince tareas definidas más abajo no aparecen en ninguna fila** — T-53, T-54, T-55, T-56, T-57,
+> T-58, T-94, T-96…T-103. No se completó en esa sesión porque asignarle prioridad a quince tareas de
+> otras sesiones es una decisión de planificación, no un arreglo de formato, y hacerlo de memoria es
+> exactamente cómo se inventa contexto. **Mientras tanto, la ficha de cada tarea manda sobre esta
+> tabla**: la prioridad está en su encabezado.
 
 > **Nota sobre las P0 nuevas (2026-08-16):** las P0 de E1 significaban "bloquea go-live" y están
 > todas cerradas. Las P0 de E8 significan **"bloquea el primer peso de ingreso institucional"**. No

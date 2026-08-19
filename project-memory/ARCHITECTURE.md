@@ -34,7 +34,7 @@ contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 │  Lógica pura (sin I/O, testeada):                                         │
 │    components.tetha · irt.progress · irt.effort · irt.fluency ·           │
 │    profile · topics · slots.logic · timeline                              │
-│    access · catalog                                                       │
+│    access · catalog · misconceptions                                      │
 └──────────────────────────────┬────────────────────────────────────────────┘
                                │ HTTPS + JWT del usuario (supabase-js)
                                ▼
@@ -132,6 +132,7 @@ Tres namespaces puros + un ns de eventos:
 | `universo.profile` | `theta-band`, `band-label`, `deficits-from-responses`, `misconceptions-from`, `dominant-track`, `build` (perfil completo + estabilidad de θ). El mapeo topic → módulo lo delega en `universo.topics` | `profile_test.cljs` |
 | `universo.timeline` | **Línea del tiempo histórica** (ADR-021): `era-of` y `eras` (espejo del check de `042`), `medal-for` (espejo de `profile/theta-band`: oro θ≥2, plata θ≥1, bronce rendido), `best-theta-by-module`, `milestones` (cruza módulos con el historial), `by-era`, `progress`. Reutiliza `access/best-theta-by-topic` y `topics/module-slug-for` | `timeline_test.cljs` |
 | `universo.catalog` | Catálogo de evaluaciones: `topic-label` (precedencia `test_configs.display_name` → diccionario `topic-labels` → topic con guiones bajos como espacios), `count-by-topic` (preguntas por banco), `counts-truncated?` (detecta respuesta recortada de PostgREST) | `catalog_test.cljs` |
+| `universo.misconceptions` | **Catálogo de ideas erróneas** (`027`): `slug-valid?` (**espejo del check `^[a-z0-9]+([-/][a-z0-9]+)*$`**), `suggest-slug`, `matches?`, `usage-index` (id → cuántos distractores la referencian), `with-usage`, `health` (`:vacio`/`:disperso`/`:sano`). `health` es la heurística de `027` hecha función: el catálogo debe crecer **mucho más lento** que el banco. `items-por-misconception-saludable` = 5 es criterio editorial **sin validar con datos** | `misconceptions_test.cljs` |
 | `universo.events.test` | Orquestación con I/O: `normalize-question`, `resolve-topic` (alias de topics), fetch de candidatos por ventana de dificultad, prefetch, registro de respuesta, evaluación de la parada, persistencia | — |
 
 **Invariantes que impone la base, no el cliente** (además de RLS):
@@ -139,6 +140,8 @@ Tres namespaces puros + un ns de eventos:
 | Objeto | Qué garantiza |
 |--------|---------------|
 | `public.normalize_topic(text)` + triggers en `questions`, `tests`, `test_configs` | `topic` siempre canónico: sin acentos, minúsculas, sin bordes (ADR-017, `029`). **Espejo duplicado a propósito** en `universo.topics/normalize` |
+| `check` de `misconceptions.slug` (`027`) | El slug es minúsculas, dígitos y `-`/`/`: sin acentos ni mayúsculas, la lección de T-51 hecha regla. **Espejo duplicado a propósito** en `misconceptions/slug-valid?`, para avisar antes de guardar en vez de que el único aviso sea un error de Postgres |
+| `on delete set null` en `questions.misconception_*_id` (`027`) | Borrar una misconception no queda bloqueado por los ítems que la referencian: vuelven a "sin catalogar". Reorganizar la taxonomía tiene que ser barato o no se reorganiza (D-59) |
 | `enforce_slot_capacity` (`011`) | No se puede superar `class_slots.capacity` al inscribirse. Espejo puro: `slots.logic/capacity-reached?` |
 | `confirm_slot_if_threshold` (`001`) | El cupo se confirma al llegar a `min_enrollments`. Espejo: `slots.logic/should-confirm-slot?` |
 | `profiles_protect_last_admin` (`006`) | No se puede degradar al último admin |
@@ -192,7 +195,7 @@ Es el componente más grande del sistema y el de mayor riesgo de mantenimiento (
 | Namespace | Rol |
 |-----------|-----|
 | `universo.supabase` | Cliente `createClient(url, anon-key)` + auth (`sign-in`, `sign-up`, `sign-out`, `get-session`, `current-user-id`, `on-auth-state-change`, `sign-in-with-google`). **`sign-in-with-google` está conectada desde 2026-08-17** (T-92): la llama `components/login.cljs` y su `redirectTo` es **una sola URL fija**, `origin + (router/section->path :dashboard)`, no `window.location.href` |
-| `universo.db.crud` | **Capa de datos canónica** (975 líneas): todas las queries y mutaciones, con `core.async` (`go`/`<!`) devolviendo `{:success bool :data … :error …}` |
+| `universo.db.crud` | **Capa de datos canónica** (1.500 líneas al 2026-08-18): todas las queries y mutaciones, con `core.async` (`go`/`<!`) devolviendo `{:success bool :data … :error …}`. Todo id `uuid` pasa por `uuid-or-nil` y viaja como string — parsearlo a número no falla ruidosamente (L-44) |
 | `universo.db.supabase` | API delgada legada basada en promises, solo guestbook. Su propio docstring dice *"Preferir universo.db.crud en código nuevo"* |
 
 ### 2.6 Código no alcanzable desde `core.cljs`
@@ -224,7 +227,7 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
 | `tests` | `test` (JSON del diagnóstico), `topic`, `theta` (columnas propias desde ADR-013), `email-user`, `user_id` | Histórico de diagnósticos; `topic`/`theta` alimentan `universo.access/unlocked-topics` |
 | `test_configs` | `topic` (PK), `display_name` (nullable), `min_items`, `max_items`, `se_threshold`, `max_minutes`, `prerequisite_topic` (self-FK nullable), `min_theta`, `active`, `min_response_seconds`, `fluency_fluida_max`, `fluency_media_max` | Config de parada IRT + cadena de prerequisitos por banco (ADR-013). Sin prerequisito = diagnóstico, siempre accesible. `display_name` es el nombre que ve el estudiante (T-42, migración `022`); null = fallback en `universo.catalog/topic-label`. `min_response_seconds` es el piso del umbral de esfuerzo (T-44, migración `028`), no una regla de parada. Las dos columnas `fluency_*` son los cortes del eje λ por banco (ADR-019, migración **`041`, aplicada 2026-08-13**), `not null default 3`/`6` con check que impide invertirlas; el fallback de `fluency/thresholds-from-config` a `default-thresholds` sigue vigente para configs viejas o nulas. **`topic` se mantiene canónico por trigger** (ADR-017, migración `029`) |
 | `modules` | `slug` (único), `title`, `track` (`aritmetica`\|`algebra`\|`geometria`\|`cuantica`), `order_index`, `historical_blurb`, `historical_year`, `historical_era`, `historical_figure` | Skills atómicas alineadas a Baldor. **20 módulos PAES**: 18 de `002` + `algebra/inecuaciones` y `aritmetica/operaciones_fundamentales` (`031`, D-37), más 15 de cuántica (`033`, ADR-018). Las tres columnas `historical_*` de ubicación temporal son de `042` (ADR-021), con `check` de vocabulario y de coherencia año↔era; `historical_year` es nullable a propósito: un módulo sin año no aparece en la línea en vez de recibir una fecha inventada |
-| `misconceptions` | `slug` (único, con check de formato), `name`, `description`, `module_id` | Catálogo curado de errores conceptuales con identidad propia (`027`, T-57). **Vacío todavía**; `null` en `questions.misconception_*_id` = "sin catalogar". RLS solo admin |
+| `misconceptions` | `slug` (único, con check de formato), `name`, `description`, `module_id` | Catálogo curado de errores conceptuales con identidad propia (`027`, T-57). **Vacío para el producto**: las 77 filas que tiene son del experimento de cuántica, con prefijo `mq/` (T-61, Q-40). `null` en `questions.misconception_*_id` = "sin catalogar". RLS **solo admin en las cuatro operaciones**: a un estudiante le devuelve cero filas, no un error. Se cura desde el panel, no por migración (D-59) |
 | `student_profiles` | `theta`, `theta_band`, `profile` JSONB | Materialización del perfil (una por estudiante) |
 | `resources` | `module_id`, tipo (`text`/`video_url`/`audio_url`/`exercise`), `published` | Capa 1 del plan |
 | `class_slots` | `theta_band`, `track`, `modality`, `starts_at`, `location_or_link`, `capacity`, `min_enrollments`, `status`, `title` | Cupos de cohorte |
