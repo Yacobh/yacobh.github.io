@@ -34,7 +34,7 @@ contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 │  Lógica pura (sin I/O, testeada):                                         │
 │    components.tetha · irt.progress · irt.effort · irt.fluency ·           │
 │    profile · topics · slots.logic · timeline                              │
-│    access · catalog · misconceptions · editor                             │
+│    access · catalog · misconceptions · editor · history                   │
 └──────────────────────────────┬────────────────────────────────────────────┘
                                │ HTTPS + JWT del usuario (supabase-js)
                                ▼
@@ -133,6 +133,7 @@ Tres namespaces puros + un ns de eventos:
 | `universo.timeline` | **Línea del tiempo histórica** (ADR-021): `era-of` y `eras` (espejo del check de `042`), `medal-for` (espejo de `profile/theta-band`: oro θ≥2, plata θ≥1, bronce rendido), `best-theta-by-module`, `milestones` (cruza módulos con el historial), `by-era`, `progress`. Reutiliza `access/best-theta-by-topic` y `topics/module-slug-for` | `timeline_test.cljs` |
 | `universo.catalog` | Catálogo de evaluaciones: `topic-label` (precedencia `test_configs.display_name` → diccionario `topic-labels` → topic con guiones bajos como espacios), `count-by-topic` (preguntas por banco), `counts-truncated?` (detecta respuesta recortada de PostgREST) | `catalog_test.cljs` |
 | `universo.misconceptions` | **Catálogo de ideas erróneas** (`027`): `health-from-usage` (única definición del veredicto; `health` la envuelve), `split-experimento` / `del-experimento?` (separa el producto de las 77 de cuántica, Q-40), `slug-valid?` (**espejo del check `^[a-z0-9]+([-/][a-z0-9]+)*$`**), `suggest-slug`, `matches?`, `usage-index` (id → cuántos distractores la referencian), `with-usage`, `health` (`:vacio`/`:disperso`/`:sano`). `health` es la heurística de `027` hecha función: el catálogo debe crecer **mucho más lento** que el banco. `items-por-misconception-saludable` = 5 es criterio editorial **sin validar con datos** | `misconceptions_test.cljs` |
+| `universo.history` | **Agrupación del historial del tablero** (D-60): `group-attempts` (por forma canónica del topic, así `términos_semejantes` y `terminos_semejantes` no son dos evaluaciones), `attempt-points` (puntos graficables; un intento sin θ no es punto pero **sí cuenta** como intento), `totals`. Calcula **Δθ desde el primer intento**, que es la única medida de progreso que el producto promete (G-4) | `history_test.cljs` |
 | `universo.editor` | **Reglas de los paneles de edición** (T-103): `modules-by-track`, `module-label`, `renderable?` (¿la vista previa aporta algo?), `question-missing-fields` / `question-draft-valid?`. Existe para que la vista pueda decir *qué* falta con **el mismo criterio** que usa el evento para decidir si guarda | `editor_test.cljs` |
 | `universo.events.test` | Orquestación con I/O: `normalize-question`, `resolve-topic` (alias de topics), fetch de candidatos por ventana de dificultad, prefetch, registro de respuesta, evaluación de la parada, persistencia | — |
 

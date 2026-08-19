@@ -11,9 +11,9 @@
 
 ## Snapshot actual
 
-- **Commit:** `a29396d` (rama `main`, **publicada**)
+- **Commit:** `56b00cb` (rama `main`, **publicada**)
 - **Fecha:** 2026-08-18
-- **Tamaño:** 3119 nodos · 7635 aristas
+- **Tamaño:** 3155 nodos · 7761 aristas
 - **Extracción:** ver el encabezado de `GRAPH_REPORT.md`
 - **Ciclos de importación:** ninguno
 
@@ -29,7 +29,8 @@
 > 2026-08-13 por la mañana · 2 583 el mismo día por la tarde · 2 644 al cierre del 2026-08-13 ·
 > 2 866 al 2026-08-16 (T-05, router de URL) · 2 927 al 2026-08-17 (T-12, un solo `index.html`) ·
 > **2 093 al 2026-08-18** (catálogo de misconceptions; rebuild AST-only, ver el aviso de arriba) ·
-> **3119 al cierre del 2026-08-18** (panel de ideas erróneas y `universo.editor`).
+> **3119 al cierre del 2026-08-18** (panel de ideas erróneas y `universo.editor`) ·
+> **3155 con el tablero agrupado** (`universo.history`).
 >
 > **El número sube y baja según si el `app.js` minificado entró al índice en esa corrida, no según
 > cuánto crezca el proyecto.** Cuando entra, sus símbolos ofuscados (`v()`, `K()`, `C()`…) copan los

@@ -2,7 +2,37 @@
 
 **Fecha de corte: 2026-08-18** · Rama **`escape-no-se`** (sin mergear, sin pushear)
 
-> ## 🆕 2026-08-18 (noche) — `escape-no-se` está en `main`, y el panel de edición dejó de ser el cuello de botella
+> ## 🆕 2026-08-18 (cierre) — el tablero dejó de ser una lista cronológica, y X-02 se cerró
+>
+> **`main` @ `56b00cb`.** El tablero listaba los 44 intentos en orden cronológico plano; ahora hay
+> **una tarjeta por evaluación** (19 sobre esos mismos 44 intentos) con θ actual, **Δθ desde el
+> primer intento**, mejor θ, **sparkline de θ contra el tiempo** y **botón «Rendir de nuevo»**. Los
+> intentos individuales no se perdieron: viven dentro del `<details>` de su evaluación.
+>
+> ✅ **X-02 cerrada — ya no hay ninguna afirmación falsa publicada.** La FAQ promete ver «cómo se
+> movió tu nivel» al repetir el diagnóstico y hasta hoy el producto no lo mostraba. Ahora sí, con Δθ
+> calculado desde `tests`, que guarda una fila por intento. **Ojo con lo que NO significa:**
+> `student_profiles` se sigue sobrescribiendo, así que el histórico de *perfiles* (misconceptions,
+> fluidez) todavía no se versiona como manda D-50 — esa es la mitad que le queda a **T-26**, que
+> pasa de `bloqueado` a `a medias`.
+>
+> ⚠️ **Lo que deliberadamente NO se hizo: un gráfico global de θ** (D-60). Habría sido más vistoso y
+> falso: uniría en una línea niveles estimados contra bancos con calibraciones distintas y sin
+> validar (R-17, Q-05). Hay una serie por evaluación, con escala vertical propia, y el tablero **se
+> lo explica al estudiante en pantalla**. Cuando G-2 cierre y las escalas estén calibradas, ese
+> gráfico global pasa a ser correcto y hay que volver.
+>
+> De paso: θ y nota dejaron de mostrarse crudos (`0.06443610732100741`, `33.33333333333333`), y la
+> tarjeta «Evaluaciones» dejó de decir 44 cuando 44 eran los **intentos**.
+>
+> Verificación: **141 tests / 781 assertions / 0 failures**, `clj-kondo` 0/0, `release` 0 warnings,
+> los cuatro `audit_*.py` en verde —`audit_movil` cazó el botón nuevo con objetivo táctil bajo 44 px—
+> claro y oscuro, y «Rendir de nuevo» probado contra la base real (arrancar sin responder **no** deja
+> fila). Detalle en [[../sessions/SESSION-034]].
+
+---
+
+> ## 2026-08-18 (noche) — `escape-no-se` está en `main`, y el panel de edición dejó de ser el cuello de botella
 >
 > **`main` @ `a29396d`.** El merge (`09ae9a0`) trae el escape del estudiante, el editor de recursos y
 > la capa de datos del catálogo; encima va el trabajo de panel de esta sesión.
@@ -1505,10 +1535,11 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 > cuál es más nuevo, sino **cuál está publicado**: `main` es lo que sirve GitHub Pages en
 > jacobocordova.com; todo lo demás no existe para nadie.
 
-**En `main` — esto SÍ está en producción** (`a29396d`, 2026-08-18):
+**En `main` — esto SÍ está en producción** (`56b00cb`, 2026-08-18):
 
 | Commit | Qué hizo |
 |--------|----------|
+| `56b00cb` | Tablero agrupado por evaluación, θ vs tiempo y «Rendir de nuevo» (D-60) |
 | `a29396d` | Editor del banco usable + pestaña «Ideas erróneas» (T-103) |
 | `09ae9a0` | **Merge** de `escape-no-se`: escape del estudiante, editor de recursos y catálogo |
 | `cb9b3fb` | Cerrar la bitácora de la sesión y registrar ADR-028 |
@@ -1634,7 +1665,7 @@ hay ningún bloqueo de go-live abierto, así que la lista cambia de naturaleza: 
 > como no mergeada: **ya está en `main` y publicada.**
 
 ```
-Rama actual  : main @ a29396d == origin/main  (GitHub Pages, dominio jacobocordova.com)
+Rama actual  : main @ 56b00cb == origin/main  (GitHub Pages, dominio jacobocordova.com)
 Árbol        : limpio
 Último merge : 09ae9a0 — escape-no-se (13 commits), con commit de merge
 Ramas locales (7): main · escape-no-se · respaldo-pre-squash · t-05-router-url ·
@@ -1658,8 +1689,8 @@ se cerró con eso; hoy son **7 locales / 4 remotas**, y **cinco de ellas ya est�
 (incluida `escape-no-se`). No es la escala de 27/24 que motivó T-18, pero confirma que la limpieza no
 se mantiene sola.
 
-**Bundle:** el `public/js/app.js` de `a29396d` corresponde a un `npx shadow-cljs release app` real
-(1.357.487 bytes, sin `shadow.cljs.devtools.client` dentro). Sigue vigente la
+**Bundle:** el `public/js/app.js` de `56b00cb` corresponde a un `npx shadow-cljs release app` real
+(1.366.993 bytes, sin `shadow.cljs.devtools.client` dentro). Sigue vigente la
 advertencia de [[LESSONS_LEARNED]] **L-30** sobre watchers de `shadow-cljs`/`tailwind` en background
 que ensucian `public/js/app.js`/`app.css` con un build de desarrollo sin cambio de fuente real —
 **volvió a pasar el 2026-08-18** (ver SESSION-032). Verificar `git status` antes de cualquier commit

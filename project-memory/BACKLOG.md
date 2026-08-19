@@ -1051,12 +1051,23 @@ el owner eligió **toda la app**, no solo landing/nav/footer.
 - **Relacionado:** [[../adr/ADR-012-tema-oscuro-mapeo-css-global]], [[LESSONS_LEARNED]] L-35,
   [[ASSUMPTIONS]] A-30.
 
-### T-26 · Semántica del re-diagnóstico — **P2** · `bloqueado` (decisión Q-07)
+### T-26 · Semántica del re-diagnóstico — **P2** · `a medias` (la mitad visible, hecha 2026-08-18)
 
 Hoy `student_profiles` es una materialización única: repetir el test sobrescribe el perfil.
 
-- **Terminado cuando:** está decidido (sobrescribir / versionar / histórico), implementado y el
-  estudiante puede ver cómo se movió su θ entre diagnósticos.
+> **Estado al 2026-08-18.** Ya no está bloqueada: **Q-07 fue respondida por D-50** el 2026-08-16
+> (el histórico se versiona, nunca se sobrescribe). Y **la mitad visible del criterio ya está
+> entregada**: el tablero agrupa por evaluación y muestra **Δθ desde el primer intento**, calculado
+> desde `tests`, que sí guarda una fila por intento (D-60, SESSION-034). Con eso **X-02 dejó de ser
+> una afirmación falsa publicada**.
+>
+> **Lo que falta es la otra mitad:** versionar `student_profiles`, para que el histórico de
+> *perfiles* —misconceptions, fluidez— también se conserve y no solo el θ. Eso es lo que D-50 manda
+> y sigue sin implementarse.
+
+- **Terminado cuando:** está decidido (✅ D-50: versionar), implementado (⏳ `student_profiles`
+  sigue sobrescribiéndose) y el estudiante puede ver cómo se movió su θ entre diagnósticos
+  (✅ 2026-08-18).
 
 ### T-36 · Preferencia de canal de contacto (email / notificación / WhatsApp) — **P2** · `hecho` (2026-07-30, sin verificar en vivo)
 
