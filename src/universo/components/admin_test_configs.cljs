@@ -19,15 +19,25 @@
      [:span {:class "mb-1 block text-xs text-gray-400"} hint])
    body])
 
-;; El θ interno vive en la escala -3..3; el formulario lo muestra/edita en
-;; 0-100 (misma convención que dashboard.cljs al mostrar "θ = X/100").
+;; El umbral se edita en la **misma escala θ que todo lo demás del formulario**
+;; (-3 a 3). Antes se mostraba multiplicado por 100 y el input tenía
+;; `min="0" max="100"`, con dos consecuencias:
+;;
+;; 1. **No se podía exigir un umbral negativo.** θ = 0 es la media; un umbral
+;;    razonable para un test remedial es θ ≥ -1, y el input lo rechazaba. O sea
+;;    que la mitad de la escala era inalcanzable desde el panel.
+;; 2. Este formulario tenía **dos campos θ contiguos en escalas distintas**
+;;    (`θ inicial` en -3..3 y `θ mínimo` en ×100), que es una trampa para quien
+;;    edita.
 (defn- theta->display [theta]
-  (when (and theta (not= theta ""))
-    (js/Math.round (* (js/parseFloat theta) 100))))
+  (when (and (some? theta) (not= theta ""))
+    (let [n (js/parseFloat theta)]
+      (when-not (js/isNaN n) (.toFixed n 2)))))
 
 (defn- display->theta [display]
   (when (and display (pos? (count (str display))))
-    (/ (js/parseFloat display) 100.0)))
+    (let [n (js/parseFloat display)]
+      (when-not (js/isNaN n) n))))
 
 (defn- test-config-editor []
   (let [draft @(re-frame/subscribe [:admin/test-config-draft])
@@ -167,8 +177,9 @@
         (for [t other-topics]
           ^{:key t} [:option {:value t} t])]]
 
-      [field "θ mínimo (0–100)" "Exige el prerequisito; vacío = sin umbral"
-       [:input {:class input-class :type "number" :step "1" :min "0" :max "100"
+      [field "θ mínimo en el prerequisito"
+       "Misma escala que θ inicial (-3 a 3; 0 = media). Vacío = basta con haberlo rendido"
+       [:input {:class input-class :type "number" :step "0.1" :min "-3" :max "3"
                 :disabled (str/blank? (:prerequisite_topic draft))
                 :value (or (theta->display (:min_theta draft)) "")
                 :on-change #(re-frame/dispatch
