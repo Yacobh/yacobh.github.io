@@ -78,6 +78,15 @@ un bug preexistente** que apareció al leer el código adyacente (`module_id`), 
    commiteado. **Es exactamente L-30, otra vez.** El owner detuvo el watch; el archivo se devolvió
    con `git checkout --` y después se recompiló con `release`.
 
+9. **Puesta al día de `CURRENT_STATUS` §4 y §9**, a pedido del owner después del cierre. Estaban
+   congeladas en el 2026-07-26 y el 2026-08-09: §4 listaba seis commits de julio como «recientes» y
+   §9 afirmaba que en local y en `origin` solo quedaba `main`. Se rehicieron **con datos verificados
+   por `git`** (los 24 hashes citados se comprobaron con `git cat-file -e`), separando lo que está
+   publicado de lo que no, y **conservando el estado viejo como histórico fechado** en vez de
+   borrarlo. Dos hallazgos que salieron de ahí: el trabajo de las tres últimas sesiones **no está
+   pusheado a ningún remoto**, y la deuda de ramas volvió a 7 locales / 4 remotas (cuatro ya
+   mergeadas) después de que T-18 la dejara en 1/1.
+
 **Lo que no se hizo, a propósito:** no se tocó `upsert-resource!` (mismo agujero del embed), no se
 filtraron las 77 entradas `mq/` del experimento de cuántica en `fetch-misconceptions` (ver Q-40) y
 no se construyó la pestaña del panel (T-103). Nada de eso estaba pedido.

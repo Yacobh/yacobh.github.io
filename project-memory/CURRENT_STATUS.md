@@ -1461,6 +1461,41 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 
 ## 4. Últimos cambios (historia reciente)
 
+> **Verificado con `git log` el 2026-08-18.** Antes de esa fecha esta sección estaba congelada en el
+> 2026-07-26 y listaba seis commits de julio como "recientes". La distinción que importa acá no es
+> cuál es más nuevo, sino **cuál está publicado**: `main` es lo que sirve GitHub Pages en
+> jacobocordova.com; todo lo demás no existe para nadie.
+
+**En `main` — esto SÍ está en producción** (`cb9b3fb`, 2026-08-17):
+
+| Commit | Qué hizo |
+|--------|----------|
+| `cb9b3fb` | Cerrar la bitácora de la sesión y registrar ADR-028 |
+| `1fd5e4c` | Cerrar T-92 con la configuración verificada y anotar R-33 |
+| `a7312ee` | Conectar el login con Google sin saltarse la declaración de edad (D-56) |
+| `e5f2f57` | Agregar la migración de recursos de geometría (T-56) |
+| `60d7272` | Dejar un solo `index.html` y auditar el par que sobrevive (T-12, ADR-027) |
+| `0e6e312` | Sacar el registro de `/ingresar` y darle su propia ruta (T-05, ADR-026) |
+
+**En `escape-no-se` — 12 commits sobre `main`, NADA de esto está publicado:**
+
+| Commit | Qué hizo |
+|--------|----------|
+| `29db48d` | Cerrar la bitácora de SESSION-032 y registrar D-59, Q-40, T-103 y L-44 |
+| `3e0ef20` | Arreglar `module_id` en el editor de preguntas: es uuid, no entero |
+| `a672fec` | Cablear el catálogo de misconceptions contra Supabase (`027`) |
+| `be13f2c` | Arreglar tres bugs del panel encontrados usándolo de verdad |
+| `af8709b` | Actualizar la bitácora con la verificación en vivo y sus dos hallazgos |
+| `6d8a3c8` | Congelar θ en el escape: el prior lo empujaba hacia arriba |
+| `14e32cd` | Hacer que el escape baje la dificultad y entregue material |
+| `7f723e2` | Cerrar SESSION-031 y registrar ADR-029, R-34 y Q-38/Q-39 |
+| `0c8a9b3` | Recompilar el bundle y el CSS con el escape y el editor |
+| `cb0bd4f` | Agregar la migración `045` (prerrequisitos + recursos por misconception) — **sin aplicar** |
+| `0bfad2e` | Dejar de recargar la sección entera al guardar un recurso (D-58) |
+| `04f8c1b` | Agregar el escape del estudiante al diagnóstico (ADR-029) |
+
+**Historia anterior (conservada), hasta SESSION-001 el 2026-07-26:**
+
 | Commit | Qué hizo |
 |--------|----------|
 | `48bf525` | Restaurar el editor de preguntas en el panel de administración |
@@ -1470,9 +1505,9 @@ Del `PROJECT_SUMMARY.md` histórico, verificado y actualizado:
 | `38fbb96` | Rehacer la portada para captación y mejorar el panel de administración |
 | `b40e741` | Funnel MVP operable: perfil de diagnóstico, plan y cupos híbridos |
 
-Trabajo de esta sesión (**2026-07-26**): adopción de **Project Memory First** — creación de
-`project-memory/`, `adr/`, `sessions/`, `prompts/`, reescritura de `CLAUDE.md` y snapshot del grafo
-de Graphify. Ver `sessions/SESSION-001.md`.
+En esa sesión (**2026-07-26**) se adoptó **Project Memory First**: creación de `project-memory/`,
+`adr/`, `sessions/`, `prompts/`, reescritura de `CLAUDE.md` y primer snapshot del grafo de Graphify.
+Ver `sessions/SESSION-001.md`.
 
 ---
 
@@ -1553,7 +1588,45 @@ hay ningún bloqueo de go-live abierto, así que la lista cambia de naturaleza: 
 
 ## 9. Estado del repositorio
 
-> Reemplazado 2026-08-09 con el estado verificado en esta sesión (limpieza de ramas + memoria):
+> **Verificado con `git` el 2026-08-18.** Reemplaza el estado del 2026-08-09, que decía que la rama
+> actual era `chore-limpieza-tecnica-y-memoria` y que en local y en `origin` solo quedaba `main`:
+> **ninguna de las dos cosas sigue siendo cierta.**
+
+```
+Rama actual  : escape-no-se @ 29db48d — 12 commits sobre main, SIN rama remota (nunca se pusheó)
+Rama deploy  : main @ cb9b3fb == origin/main  (GitHub Pages, dominio jacobocordova.com)
+Árbol        : limpio
+Ramas locales (7): escape-no-se · main · respaldo-pre-squash · t-05-router-url ·
+                   t-12-html-unico · t-56-geometria · lint/clj-kondo-cero-warnings
+Ramas remotas (4): origin/{main, t-05-router-url, t-56-geometria, lint/clj-kondo-cero-warnings}
+Ya mergeadas a main (borrables): t-05-router-url · t-12-html-unico · t-56-geometria ·
+                   lint/clj-kondo-cero-warnings
+Sin mergear  : escape-no-se (el trabajo vivo) y respaldo-pre-squash (respaldo deliberado del
+                   2026-08-13: el estado previo al squash de la poda de memoria)
+```
+
+⚠️ **Lo que más pesa de este cuadro:** el trabajo de las tres últimas sesiones —el escape del
+estudiante (ADR-029), el panel de recursos (D-58) y el catálogo de misconceptions (D-59)— está
+**todo** en `escape-no-se`, sin mergear y **sin pushear**. No existe copia en `origin`: si se pierde
+el disco, se pierde. Producción sigue siendo `cb9b3fb`.
+
+⚠️ **La deuda de ramas volvió, en pequeño.** T-18 la dejó en 1 local / 1 remota el 2026-08-09 y R-21
+se cerró con eso; hoy son **7 locales / 4 remotas**, y **cuatro de ellas ya están mergeadas a
+`main`**. No es la escala de 27/24 que motivó T-18, pero confirma que la limpieza no se mantiene
+sola: conviene un barrido al mergear `escape-no-se`.
+
+**Bundle:** el `public/js/app.js` de `29db48d` corresponde a un `npx shadow-cljs release app` real,
+corrido en `3e0ef20` (1.318.673 bytes, sin `shadow.cljs.devtools.client` dentro). Sigue vigente la
+advertencia de [[LESSONS_LEARNED]] **L-30** sobre watchers de `shadow-cljs`/`tailwind` en background
+que ensucian `public/js/app.js`/`app.css` con un build de desarrollo sin cambio de fuente real —
+**volvió a pasar el 2026-08-18** (ver SESSION-032). Verificar `git status` antes de cualquier commit
+que toque esos dos archivos.
+
+---
+
+### Histórico de esta sección (no borrar: explica de dónde vienen las reglas de arriba)
+
+> Estado del 2026-08-09, superado por el cuadro de arriba:
 
 ```
 Rama actual  : chore-limpieza-tecnica-y-memoria (creada desde main @ 68a6d97, sin mergear todavía)
@@ -1564,21 +1637,20 @@ Ramas totales: solo `main` en local y en origin -- las 26 locales / 22 remotas r
                (borrado de user.cljs, versiones alineadas, bundle recompilado, memoria actualizada)
 ```
 
-> No se recompiló `public/js/app.js` de una sesión anterior sin cambio de fuente esta vez: el
-> cambio en el bundle de esta sesión corresponde a un `npx shadow-cljs release app` real, motivado
-> por el bump de versión (X-05). Sigue vigente la advertencia de [[LESSONS_LEARNED]] L-30 sobre
-> watchers de `shadow-cljs`/`tailwind` en background que pueden ensuciar `public/js/app.js`/
-> `app.css` con un build de desarrollo sin que haya cambio de fuente real — verificar `git status`
-> antes de cualquier commit que toque esos dos archivos.
+> Y su nota sobre el bundle, del mismo día: «No se recompiló `public/js/app.js` de una sesión
+> anterior sin cambio de fuente esta vez: el cambio en el bundle de esta sesión corresponde a un
+> `npx shadow-cljs release app` real, motivado por el bump de versión (X-05)».
 
 **Tooling del agente (2026-07-27):** `graphify` (ya estaba) y **`rtk`** (nuevo, instalado hoy) como
 compresores de contexto; **Obsidian** con vault pre-configurado (`.obsidian/`, gitignorado, no
 versionado por diseño). Detalle: [[RTK_INTEGRATION_GUIDE]], [[GRAPHIFY_INTEGRATION_GUIDE]],
 [[OBSIDIAN_WORKSPACE_GUIDE]], [[DECISIONS]] D-17.
 
-**Deuda de ramas — resuelta 2026-08-09:** llegó a crecer a 27 locales / 24 remotas antes de
-limpiarse. Hoy el repositorio tiene únicamente `main` en local y en `origin`. Ver [[BACKLOG]] T-18
-(cerrada), [[RISKS]] R-21 (cerrado).
+**Deuda de ramas — resuelta 2026-08-09, y vuelta a crecer desde entonces:** llegó a 27 locales / 24
+remotas antes de limpiarse, y **al 2026-08-09** el repositorio quedó únicamente con `main` en local y
+en `origin`. **Eso ya no es cierto:** al 2026-08-18 son 7 locales / 4 remotas — el cuadro verificado
+está arriba, y manda sobre esta frase. Ver [[BACKLOG]] T-18 (cerrada), [[RISKS]] R-21 (cerrado
+suponiendo que la limpieza se mantendría sola, cosa que no ocurrió).
 
 **Resuelto (2026-07-29):** `cursor/mvp-operable-funnel` **sí** está mergeada a `main` (verificado
 por `git log` y por hash contra producción, ver T-19 arriba). La duda vigente ahora es la rama
