@@ -6,6 +6,7 @@
             [universo.components.irt-chart :as irt-chart]
             [universo.components.math-render :as math]
             [universo.components.ui :as ui]
+            [universo.opciones :as opciones]
             [universo.profile :as profile]))
 
 ;; -------------------------------
@@ -160,11 +161,13 @@
           topic @(re-frame/subscribe [:test/topic])
           scoring? @(re-frame/subscribe [:test/scoring?])
           score-error @(re-frame/subscribe [:test/score-error])
-          ;; 🎲 Rotar opciones basado en el ID (0, 1, 2, o 3 posiciones)
-          shift (when question (mod (:id question) 4))
+          ;; 🎲 Barajar las alternativas. Antes se rotaba con `id mod 4`, que
+          ;; reparte bien la posición visible pero es cíclica: con la clave
+          ;; siempre en A —242 de 306 ítems del banco lo están— la correcta
+          ;; queda en la posición `(4 - id mod 4)`, deducible sin leer el
+          ;; enunciado. `opciones/barajar` permuta de verdad (universo.opciones).
           rotated-options (when question
-                            (let [opts (:options question)]
-                              (concat (drop shift opts) (take shift opts))))]
+                            (opciones/barajar (:options question) (:id question)))]
 
       ;; Reinicia cronómetro al cambiar de pregunta
       (when (and question (not= @last-id (:id question)))

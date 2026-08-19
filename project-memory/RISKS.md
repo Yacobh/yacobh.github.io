@@ -1,6 +1,8 @@
 # RISKS
 
-Última actualización: **2026-08-17** — **R-33 nuevo** (la pantalla de Google nombra a `supabase.co`
+Última actualización: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 242
+de los 306 ítems; mitigado en el cliente por ADR-030, el dato sigue sesgado). ·
+Antes: **2026-08-17** — **R-33 nuevo** (la pantalla de Google nombra a `supabase.co`
 y no a la marca, visto en vivo al verificar T-92; toca la confianza justo en el registro) y **R-32
 rebajado** tras leer el contrato de Cpech. ·
 Antes: **2026-08-16** — **cuatro riesgos nuevos por el pivote de negocio**
@@ -803,3 +805,42 @@ apuntaría a que el botón se está usando como «siguiente» y no como declarac
 **consentimiento** —la siguiente, después de elegir cuenta— sí muestra el nombre de la app. Eso
 recupera parte de la confianza sin costo. **Sin verificar todavía:** el agente se detuvo en el
 selector de cuenta a propósito, sin completar un login real.
+
+### R-35 · La respuesta correcta está en la letra A en 242 de los 306 ítems
+
+**Abierto 2026-08-19**, revisando las claves de los cuatro bancos activos (T-105). No es una
+sospecha: es un conteo.
+
+| Banco | Ítems | Clave en A | En D |
+|---|---|---|---|
+| `numbers_v1` | 178 | **178 (100 %)** | 0 |
+| `paes_m1` | 44 | **44 (100 %)** | 0 |
+| `polinomios` | 20 | **20 (100 %)** | 0 |
+| `diagnostico` | 64 | 51 (80 %) | **0** |
+
+Los bancos se generaron escribiendo la alternativa correcta primero y nunca se barajaron.
+
+**Por qué importa.** La UI ya rotaba las opciones con `shift = id mod 4`, así que la posición
+*visible* estaba bien repartida (79/78/74/75 sobre los cuatro lugares) y a simple vista no se nota
+nada. Pero una rotación cíclica sobre una clave constante no aleatoriza: la posición mostrada de la
+correcta es exactamente `4 − (id mod 4)`, una fórmula pública. Quien la note acierta el 100 % **sin
+leer un solo enunciado**, y θ deja de medir habilidad.
+
+Esto no es un problema de UI: θ es el activo que G-2 quiere calibrar y G-1 quiere vender. Un banco
+que se puede responder por posición produce datos de calibración envenenados.
+
+**Mitigado en el cliente** (2026-08-19, [[../adr/ADR-030-barajar-las-alternativas]]): `universo.opciones`
+reemplazó la rotación por una permutación Fisher-Yates sembrada por el id. Verificado sobre los 306
+ítems reales: aparecen las 24 permutaciones y la correcta cae 72/80/81/73 en las cuatro posiciones.
+
+**Lo que la mitigación NO arregla, y por eso el riesgo sigue abierto:** el dato en `questions` sigue
+sesgado. El cliente es inspeccionable —semilla y algoritmo viajan en el bundle—, así que subir el
+costo de explotarlo no es lo mismo que eliminarlo; y cualquier otro consumidor del banco (una
+exportación, el panel docente de la licencia institucional, el propio proceso de calibración) lo ve
+con el sesgo intacto. **La corrección de raíz es permutar las alternativas en la base**, moviendo
+con ellas `error_*` y `misconception_*_id`, que es un cambio de datos sobre 242 filas y necesita
+decisión del owner — no se hizo por eso.
+
+- **Severidad:** 🔶 media hoy (mitigado en el único consumidor que existe), **alta** en cuanto el
+  banco salga de la SPA hacia un tercero.
+- **Relacionado:** T-105, T-106, ADR-030, G-2 en [[TESIS_DE_CRECIMIENTO]].

@@ -1,6 +1,35 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-18** · Rama **`escape-no-se`** (sin mergear, sin pushear)
+**Fecha de corte: 2026-08-19** · Rama **`escape-no-se`** (sin mergear, sin pushear)
+
+> ## 🆕 2026-08-19 — T-105 cerrada: los cuatro bancos revisados, y el banco resultó estar sesgado
+>
+> **Los 306 ítems activos quedaron revisados uno por uno** (`diagnostico` 64, `numbers_v1` 178,
+> `paes_m1` 44, `polinomios` 20): un evaluador de expresiones resolvió los 81 aritméticos y los 225
+> conceptuales se leyeron a mano.
+>
+> ⚠️ **El hallazgo no fue una clave suelta, fue el banco entero: la respuesta correcta está en la
+> letra A en 242 de los 306 ítems** —los tres bancos que no son `diagnostico` al 100 %— y **ningún
+> ítem tiene la clave en D**. La UI rotaba las alternativas y la posición visible salía repartida
+> (79/78/74/75), que es por qué nadie lo vio; pero una rotación cíclica sobre una clave constante
+> deja la posición de la correcta en `4 − (id mod 4)`, o sea que se puede acertar el banco completo
+> sin leer un enunciado. Mitigado con una permutación sembrada (`universo.opciones`,
+> **ADR-030 / D-61**); **el dato en `questions` sigue sesgado** → [[RISKS]] **R-35** abierto.
+>
+> **Cuatro claves más apuntaban a la alternativa equivocada** (#56, #109, #394, #407), **tres ítems
+> no tenían ninguna alternativa correcta** (#386, #387, #411) y **siete tenían dos a la vez** (la
+> fracción simplificada y la no simplificada como opciones). Todos corregidos y verificados contra
+> la base. Detalle en [[BACKLOG]] T-105 y `sessions/SESSION-035.md`.
+>
+> 🔜 **Dos cosas quedaron pendientes del owner, a propósito:** aplicar
+> `supabase/migrations/047_arreglar_escapes_latex_dobles.sql` (76 ítems escriben `\\frac` y KaTeX no
+> lo interpreta; verificada contra un PostgreSQL desechable, sin aplicar) y correr
+> `npx shadow-cljs release app` — **no se corrió porque el `watch` estaba vivo** y el release encima
+> de un watch sale inconsistente (L-30).
+>
+> 🆕 **T-106 (P1)**: `paes_m1` tiene 13 de sus 44 ítems duplicados; tres enunciados repetidos 5, 5 y
+> 3 veces. En un test adaptativo eso multiplica su probabilidad de salir y estima θ con información
+> repetida.
 
 > ## 🆕 2026-08-18 (cierre) — el tablero dejó de ser una lista cronológica, y X-02 se cerró
 >

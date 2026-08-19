@@ -934,7 +934,7 @@ que distorsionan `health` — [[OPEN_QUESTIONS]] **Q-40**.
   el uso de cada una y ve el veredicto de `health` del banco.
 - **Relacionado:** T-57 (paso 2), T-54, D-59, `sessions/SESSION-032.md`.
 
-### T-105 · Ítems del diagnóstico con la clave equivocada y feedback que valida el error — **P0** · `a medias` (3 corregidos 2026-08-19)
+### T-105 · Ítems con la clave equivocada y feedback que valida el error — **P0** · `cerrada` 2026-08-19
 
 **Encontrado catalogando, no revisando.** La vista de catalogación obliga a leer cada distractor al
 lado de su explicación, y ahí saltó lo que ninguna revisión de código iba a ver.
@@ -955,16 +955,77 @@ exactamente a quien domina la regla de signos, que es lo que el ítem dice medir
 equivocaba recibía «Correcta» como retroalimentación. Artefacto de quien generó el banco, que usó el
 campo `error_*` para anotar cuál era la buena. Reescritas las ocho.
 
-**Lo que falta y por qué es P0:** esto se encontró en 3 de los 4 módulos mirados. **No hay ninguna
-razón para creer que `numbers_v1` (178 ítems), `paes_m1` (44) y `polinomios` (28) estén limpios** —
-nadie los ha mirado con este método. Un ítem con la clave invertida no se detecta por muestreo
-casual: se detecta comparando el enunciado con la alternativa marcada, uno por uno.
+**Cerrada el 2026-08-19: los cuatro bancos activos quedaron revisados ítem por ítem** —
+`diagnostico` (64), `numbers_v1` (178), `paes_m1` (44) y `polinomios` (20), 306 en total. El método
+fue doble: un evaluador de expresiones que resolvió los 81 ítems aritméticos y comparó con la
+alternativa marcada, y lectura humana de los 225 restantes (conceptuales y de contexto), porque
+ningún parser juzga «¿en qué paso está el error?».
 
-- **Terminado cuando:** los cuatro bancos activos están revisados ítem por ítem y no queda ninguna
-  clave que contradiga el enunciado.
-- **Nota para quien lo haga:** revisar **primero** los ítems cuyo resultado es negativo o exige
-  completar una operación en dos pasos — ahí está concentrado el fallo.
-- **Relacionado:** T-103 (la vista que lo destapó), T-57, `sessions/`.
+**Cuatro claves más apuntaban a la alternativa equivocada** (corregidas y verificadas contra la base):
+
+| Ítem | Banco | Enunciado | Resultado | Estaba marcada |
+|---|---|---|---|---|
+| #56 | diagnostico | `(−4) − (−2)` | **−2** (A) | C (2) |
+| #109 | diagnostico | `5 − 2(3 − x) = 7` | **x = 4** (C) | A (3) |
+| #394 | paes_m1 | dobleces de 40×20 cm hasta 2,5×20 | **4** (C) | A (6) |
+| #407 | paes_m1 | ¿en qué paso está el error? | **Paso 4** (D) | A (Paso 3) |
+
+#56 repite el patrón de #54/#27/#29: la clave apunta al resultado con el signo invertido.
+
+**Tres ítems no tenían ninguna alternativa correcta** (arregladas):
+
+| Ítem | Qué pasaba | Cómo quedó |
+|---|---|---|
+| #386 | 3.990/3 + 1.390/2 = **2.025**, la alternativa decía `2.023` | corregida a `2.025` |
+| #387 | 3 × (1/2 + 1/3) = **2,5**, la alternativa decía «3 círculos y medio» | «**2** círculos completos y medio» |
+| #411 | (a+b)² − (a²−b²) = **2ab + 2b²**, la alternativa decía `2ab + b²` | corregida a `2ab + 2b^2` |
+
+**Siete ítems tenían dos alternativas correctas a la vez**, todos por lo mismo: la respuesta
+simplificada y la sin simplificar convivían como opciones (#59, #61, #66, #226, #247, #273, #317).
+Las explicaciones probaron que **no era descuido**: en #66 el distractor está anotado «También
+equivalente pero no simplificada» y en #247 «No se simplificó la fracción». El autor tenía en mente
+«en su mínima expresión» y no lo escribió. Por eso el arreglo fue **precisar el enunciado**, no
+tocar los distractores: así las explicaciones y las misconceptions ya escritas siguen calzando.
+En #61 fue al revés —la clave era `2/4` y la alternativa simplificada `1/2` figuraba como error—
+así que ahí se movió la clave a `1/2` y se reescribió la explicación de `2/4`.
+
+**Lo que se encontró y NO era una clave** (abierto en otras tareas):
+
+- La clave está en **A en 242 de los 306 ítems** (`numbers_v1`, `paes_m1` y `polinomios` al 100 %;
+  `diagnostico` al 80 %, con **cero** ítems en D) — [[RISKS]] **R-35**, mitigado en el cliente por
+  [[../adr/ADR-030-barajar-las-alternativas]].
+- **76 ítems escriben los comandos LaTeX con la barra duplicada** (`\\frac`, `20\\%`): KaTeX no los
+  interpreta y el estudiante ve el comando crudo, el mismo daño que los delimitadores faltantes de
+  T-103. Arreglo listo y verificado en `supabase/migrations/047_arreglar_escapes_latex_dobles.sql`,
+  **pendiente de aplicar a mano** (CLAUDE.md §9).
+- **16 enunciados están duplicados**, y en `paes_m1` es grave: 13 de sus 44 ítems son repeticiones de
+  solo 3 enunciados (uno aparece 5 veces) — **T-106**.
+- **#389 pregunta por un gráfico que la plataforma no puede mostrar**: es irrespondible tal como está.
+- #361, #363 y #365 (logaritmos, ecuación con radical, cubo de binomio) **exceden el temario de
+  M1**, como los 20 que ya se movieron a `fuera_de_temario_m1`.
+
+- **Terminado cuando:** ~~los cuatro bancos activos están revisados ítem por ítem~~ ✅
+- **Relacionado:** T-103 (la vista que lo destapó), T-106, R-35, ADR-030, `sessions/SESSION-035.md`.
+
+### T-106 · `paes_m1` tiene 13 de sus 44 ítems duplicados — **P1** · `abierto`
+
+Tres enunciados aparecen repetidos: «¿Cuál es el valor de $1-(-3)(-2-6)$?» (ids 375, 377, 379, 381,
+383), «¿Cuál es el número cuya tercera parte es $0.09$?» (376, 378, 380, 382, 384) y el de la
+escalera de 20 peldaños (416, 417, 418). Hay otros 13 duplicados en pares entre `numbers_v1` y
+`polinomios` (ej. 119/182, 189/216).
+
+**Por qué importa y no es cosmético:** el test es adaptativo y elige por dificultad, así que un
+enunciado con cinco copias tiene **cinco veces la probabilidad** de salir que uno único. Un
+estudiante puede recibir la misma pregunta varias veces en una misma sesión, y θ se estima con
+información repetida — el ítem repetido no aporta información nueva sobre la habilidad, pero el
+modelo la cuenta como si sí.
+
+- **Terminado cuando:** no quedan enunciados repetidos en los bancos activos; de cada grupo se
+  conserva uno y el resto se archiva a un topic inactivo (**no se borran**: pueden tener respuestas
+  asociadas).
+- **Ojo:** antes de archivar, revisar si las copias tienen `misconception_*_id` distintos — puede que
+  una copia esté catalogada y las otras no.
+- **Relacionado:** T-105, R-35.
 
 ### T-104 · Panel de módulos en administración — **P2** · `abierto`
 

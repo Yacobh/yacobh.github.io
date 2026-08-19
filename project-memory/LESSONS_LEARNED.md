@@ -734,3 +734,28 @@ automatizar nada.
 ---
 
 Relacionado: [[AGENT_INSTRUCTIONS]] · [[RISKS]] · [[DECISIONS]] · [[OPEN_QUESTIONS]] · [[TECH_STACK]]
+
+### L-45 · Una rotación no es un barajado, y la evidencia de que «se ve bien repartido» no distingue las dos
+
+**2026-08-19, revisando las claves del banco (T-105).** `question-component` rotaba las alternativas
+con `shift = (mod (:id question) 4)`. Medida sobre los 306 ítems reales, la posición visible de la
+respuesta correcta salía 79/78/74/75 — prácticamente uniforme. Cualquier revisión que se hubiera
+detenido en esa medición habría concluido que el barajado funcionaba.
+
+No funcionaba. Una rotación cíclica preserva el orden relativo, así que con la clave constante en la
+letra A —242 de 306 ítems— la posición mostrada es exactamente `4 − (id mod 4)`. Uniforme y
+completamente predecible **son cosas distintas**, y el histograma de posiciones no las separa: es
+justo el estadístico que una rotación pasa sin problema.
+
+**La generalización, que es lo que hay que llevarse:** cuando se verifica una propiedad de
+aleatoriedad, medir la distribución marginal no basta. Lo que falla es la *estructura* —la
+correlación entre la semilla y el resultado—, y para verla hay que preguntar si existe una fórmula
+que prediga el resultado, no si los conteos salen parejos. El test que hoy protege esto no cuenta
+posiciones: comprueba que las disposiciones **no** sean rotaciones (`rompe-el-orden-relativo`).
+
+**Y el corolario incómodo:** el sesgo de fondo llevaba meses en la base y no lo destapó la
+aplicación, que se veía bien, sino contar `correct_option` por banco — una consulta de una línea que
+nadie había hecho. Cuando un dato es el activo del negocio (acá θ, y por G-2 la calibración),
+conviene mirarlo agregado y no solo a través de la interfaz que lo consume.
+
+- **Relacionado:** [[RISKS]] R-35, [[../adr/ADR-030-barajar-las-alternativas]], [[BACKLOG]] T-105.
