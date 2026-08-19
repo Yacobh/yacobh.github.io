@@ -611,11 +611,13 @@
        :topic (or (:topic row) "")
        :order_index (parse-num (:order_index row) #(js/parseInt % 10))
        :difficulty (parse-num (:difficulty row) js/parseFloat)
-       :module_id (let [m (:module_id row)]
-                    (cond
-                      (or (nil? m) (= m "") (= m "null")) nil
-                      (string? m) (js/parseInt m 10)
-                      :else m))}))))
+       ;; `modules.id` es uuid desde `001`. Parsearlo a entero —como se hacía
+       ;; hasta 2026-08-18— no dejaba nil: `parseInt` sobre un uuid devuelve los
+       ;; dígitos iniciales o NaN, o sea un número inválido o un null silencioso
+       ;; contra una columna uuid. Como `:admin/edit-question` arrastra el
+       ;; `:module_id` de la fila leída, editar cualquier ítem con módulo
+       ;; asignado fallaba o le borraba el módulo.
+       :module_id (uuid-or-nil (:module_id row))}))))
 
 (defn insert-admin-question!
   [row]
