@@ -90,3 +90,46 @@
   (testing "el módulo NO es obligatorio: un tercio del banco no lo tiene (T-60)"
     (is (editor/question-draft-valid? (dissoc completo :module_id)))
     (is (editor/question-draft-valid? (assoc completo :module_id nil)))))
+
+(def ^:private item-con-correcta-b
+  {:id 7 :question "¿Cuánto es 2+3?" :correct_option "B" :topic "t" :module_id "m"
+   :option_a "4" :option_b "5" :option_c "6" :option_d "23"
+   :error_a "Restó" :error_b nil :error_c "Sumó de más" :error_d "Concatenó"
+   :misconception_a_id "mis-1" :misconception_b_id nil
+   :misconception_c_id nil :misconception_d_id nil})
+
+(deftest distractor-rows-no-ofrece-catalogar-la-respuesta-correcta
+  (let [filas (editor/distractor-rows [item-con-correcta-b])]
+    (testing "tres filas, no cuatro: la correcta no es un distractor"
+      (is (= 3 (count filas)))
+      (is (= ["A" "C" "D"] (mapv :letra filas))))
+
+    (testing "cada fila trae su opción, su explicación y la clave donde escribir"
+      (is (= {:letra "A" :opcion "4" :error "Restó"
+              :error-key :error_a :mis-key :misconception_a_id :mis-id "mis-1"}
+             (select-keys (first filas)
+                          [:letra :opcion :error :error-key :mis-key :mis-id]))))
+
+    (testing "arrastra el contexto del ítem para poder decidir sin abrirlo"
+      (is (= "¿Cuánto es 2+3?" (:question (first filas))))
+      (is (= "m" (:module_id (first filas)))))))
+
+(deftest distractor-rows-no-esconde-un-item-por-tener-mal-la-correcta
+  (testing "sin correct_option válida se muestran las cuatro, marcadas"
+    (let [filas (editor/distractor-rows [(assoc item-con-correcta-b :correct_option nil)])]
+      (is (= 4 (count filas)))
+      (is (every? :correcta-desconocida? filas))))
+
+  (testing "una correcta en minúscula o con espacios sí se reconoce"
+    (is (= 3 (count (editor/distractor-rows
+                     [(assoc item-con-correcta-b :correct_option " b ")]))))))
+
+(deftest catalog-progress-le-pone-fondo-a-la-lista
+  (let [filas (editor/distractor-rows [item-con-correcta-b])]
+    (testing "cuenta lo hecho y lo que falta"
+      (is (= {:total 3 :hechos 1 :faltan 2 :fraccion (/ 1.0 3)}
+             (editor/catalog-progress filas)))))
+
+  (testing "sin filas no divide por cero"
+    (is (= {:total 0 :hechos 0 :faltan 0 :fraccion 0.0}
+           (editor/catalog-progress [])))))

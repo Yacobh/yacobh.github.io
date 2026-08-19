@@ -922,7 +922,7 @@
               ;; El panel de bandas lee su propia copia del banco. Sin invalidarla
               ;; acá, después de guardar sigue mostrando el «Hoy» viejo y parece
               ;; que la banda no se aplicó — se vio al usarlo.
-              (assoc-in [:admin :band-questions] [])
+              (assoc-in [:admin :all-questions] [])
               (update-in [:admin :status :questions] dissoc :loaded-at))
       :dispatch-n (cond-> []
                     (pos? n-ok)
@@ -1411,7 +1411,7 @@
 ;; proponer, no ejecutar.
 
 (re-frame/reg-fx
- :admin/fetch-band-questions
+ :admin/fetch-all-questions
  (fn [_]
    (go
      ;; Sin filtro de tema a propósito: las bandas se calculan sobre el banco
@@ -1419,7 +1419,7 @@
      ;; cuando tiene treinta, y el reparto saldría mal.
      (let [res (<! (crud/fetch-admin-questions))]
        (if (:success res)
-         (re-frame/dispatch [:admin/band-questions-loaded (or (:data res) [])])
+         (re-frame/dispatch [:admin/all-questions-loaded (or (:data res) [])])
          (re-frame/dispatch [:admin/toast :error
                              (or (:error res) "No se pudo cargar el banco para las bandas")]))))))
 
@@ -1429,8 +1429,8 @@
    ;; Se re-pide el banco si la copia está vacía, que es como queda tras guardar
    ;; dificultades: abrir el panel siempre muestra el estado real.
    (cond-> {:db (assoc-in db [:admin :bands-open?] true)}
-     (empty? (get-in db [:admin :band-questions]))
-     (assoc :admin/fetch-band-questions nil)
+     (empty? (get-in db [:admin :all-questions]))
+     (assoc :admin/fetch-all-questions nil)
 
      (empty? (get-in db [:admin :modules]))
      (assoc :admin/fetch-modules-only true))))
@@ -1441,17 +1441,17 @@
    (assoc-in db [:admin :bands-open?] false)))
 
 (re-frame/reg-event-db
- :admin/band-questions-loaded
+ :admin/all-questions-loaded
  (fn [db [_ rows]]
-   (assoc-in db [:admin :band-questions] rows)))
+   (assoc-in db [:admin :all-questions] rows)))
 
 (re-frame/reg-sub
  :admin/bands-open?
  (fn [db _] (get-in db [:admin :bands-open?] false)))
 
 (re-frame/reg-sub
- :admin/band-questions
- (fn [db _] (get-in db [:admin :band-questions] [])))
+ :admin/all-questions
+ (fn [db _] (get-in db [:admin :all-questions] [])))
 
 (re-frame/reg-sub
  :admin/band-draft
@@ -1463,7 +1463,7 @@
 (re-frame/reg-sub
  :admin/bands-view
  :<- [:admin/modules]
- :<- [:admin/band-questions]
+ :<- [:admin/all-questions]
  (fn [[modules questions] _]
    (let [derivadas (bands/default-bands modules)
          por-modulo (group-by :module_id (or questions []))]
@@ -1521,7 +1521,7 @@
          derivadas (bands/default-bands modules)
          m (first (filter #(= (:id %) module-id) modules))
          banda (bands/band-for m derivadas)
-         items (filter #(= (:module_id %) module-id) (get-in db [:admin :band-questions] []))
+         items (filter #(= (:module_id %) module-id) (get-in db [:admin :all-questions] []))
          cambios (bands/changed (bands/assign items banda))]
      (if (empty? cambios)
        {:dispatch [:admin/toast :success "Ese módulo ya está dentro de su banda: no hay nada que cambiar."]}
@@ -1539,7 +1539,7 @@
  (fn [{:keys [db]} _]
    (let [modules (get-in db [:admin :modules] [])
          derivadas (bands/default-bands modules)
-         questions (get-in db [:admin :band-questions] [])
+         questions (get-in db [:admin :all-questions] [])
          por-modulo (group-by :module_id questions)
          cambios (mapcat (fn [m]
                            (bands/changed
@@ -1623,7 +1623,7 @@
    {:db (-> db
             (assoc-in [:admin :question-bulk-saving?] false)
             (assoc-in [:admin :question-selection] #{})
-            (assoc-in [:admin :band-questions] [])
+            (assoc-in [:admin :all-questions] [])
             (update-in [:admin :status :questions] dissoc :loaded-at))
     :dispatch-n (cond-> [[:admin/load-questions]]
                   (seq ok)
@@ -1632,3 +1632,155 @@
                   (seq fallidos)
                   (conj [:admin/toast :error
                          (str "No se pudieron actualizar " (count fallidos) ".")]))}))
+
+;; -----------------------------------------------------------------------------
+;; Vista de catalogación (T-57 paso 2)
+;; -----------------------------------------------------------------------------
+;;
+;; Una fila por distractor en vez de un formulario por ítem. El cambio de unidad
+;; es el punto: catalogar los 64 ítems del diagnóstico abriendo el editor de cada
+;; uno son cuatro clics por ítem antes de leer nada; acá se barre un módulo de
+;; corrido leyendo la opción y su explicación, que es lo único que hace falta
+;; para decidir qué idea errónea hay detrás.
+;;
+;; **Escribe al instante, campo por campo.** No hay borrador ni botón de guardar:
+;; cada cambio es un `update` de una sola columna, y deshacer es volver a elegir.
+;; Un borrador acá pondría un paso entre leer y decidir, que es justo el paso que
+;; esta vista existe para quitar.
+
+(re-frame/reg-sub
+ :admin/catalog-module
+ (fn [db _] (get-in db [:admin :catalog-module] "")))
+
+(re-frame/reg-event-fx
+ :admin/open-catalog
+ (fn [{:keys [db]} _]
+   (cond-> {:db (assoc-in db [:admin :catalog-open?] true)}
+     (empty? (get-in db [:admin :all-questions]))
+     (assoc :admin/fetch-all-questions nil)
+
+     (empty? (get-in db [:admin :modules]))
+     (assoc :admin/fetch-modules-only true)
+
+     (empty? (get-in db [:admin :misconceptions]))
+     (assoc :admin/fetch-misconceptions-only true))))
+
+(re-frame/reg-event-db
+ :admin/close-catalog
+ (fn [db _] (assoc-in db [:admin :catalog-open?] false)))
+
+(re-frame/reg-sub
+ :admin/catalog-open?
+ (fn [db _] (get-in db [:admin :catalog-open?] false)))
+
+(re-frame/reg-event-db
+ :admin/set-catalog-module
+ (fn [db [_ module-id]]
+   (assoc-in db [:admin :catalog-module] (or module-id ""))))
+
+;; Las filas del módulo elegido. Sin módulo elegido no se devuelve nada a
+;; propósito: 510 distractores en una sola lista no es una herramienta de
+;; trabajo, y `027` dice que se cataloga **un módulo a la vez**.
+(re-frame/reg-sub
+ :admin/catalog-rows
+ :<- [:admin/all-questions]
+ :<- [:admin/catalog-module]
+ (fn [[questions module-id] _]
+   (if (str/blank? (str module-id))
+     []
+     (editor/distractor-rows
+      (filterv #(= (:module_id %) module-id) questions)))))
+
+(re-frame/reg-sub
+ :admin/catalog-progress
+ :<- [:admin/catalog-rows]
+ (fn [rows _] (editor/catalog-progress rows)))
+
+;; Escritura de un solo campo de un ítem, con la copia local actualizada en el
+;; acto: sin eso la fila «salta» al valor viejo hasta que llegue la respuesta.
+(re-frame/reg-event-fx
+ :admin/patch-question-field
+ (fn [{:keys [db]} [_ question-id campo valor]]
+   {:db (update-in db [:admin :all-questions]
+                   (fn [qs] (mapv #(if (= (:id %) question-id) (assoc % campo valor) %) qs)))
+    :admin/persist-question-field {:id question-id :campo campo :valor valor}}))
+
+(re-frame/reg-fx
+ :admin/persist-question-field
+ (fn [{:keys [id campo valor]}]
+   (go
+     (let [r (<! (crud/patch-admin-question-fields! id {campo valor}))]
+       (when-not (:success r)
+         (re-frame/dispatch [:admin/toast :error
+                             (str "No se pudo guardar: " (or (:error r) "error desconocido"))]))))))
+
+;; Crear la idea errónea **desde la fila** y asignarla de una vez. Es la
+;; diferencia entre catalogar y abandonar: leyendo un distractor uno sabe qué
+;; idea falta, y mandar al autor a otra pestaña a crearla —y volver a buscar
+;; dónde estaba— es donde se pierde el hilo.
+(re-frame/reg-event-fx
+ :admin/quick-misconception
+ (fn [{:keys [db]} [_ {:keys [nombre question-id campo module-id]}]]
+   (let [n (str/trim (str nombre))
+         slug (mis/suggest-slug n)]
+     (cond
+       (str/blank? n)
+       {:dispatch [:admin/toast :error "La idea errónea necesita un nombre."]}
+
+       (not (mis/slug-valid? slug))
+       {:dispatch [:admin/toast :error
+                   "Con ese nombre no sale un slug válido: usa letras y dígitos."]}
+
+       :else
+       {:db (assoc-in db [:admin :quick-mis-saving?] true)
+        :admin/persist-quick-misconception
+        {:row {:name n :slug slug :module_id module-id}
+         :question-id question-id :campo campo}}))))
+
+(re-frame/reg-fx
+ :admin/persist-quick-misconception
+ (fn [{:keys [row question-id campo]}]
+   (go
+     (let [r (<! (crud/upsert-misconception! row))]
+       (if (:success r)
+         (re-frame/dispatch [:admin/quick-misconception-created
+                             {:mis (:data r) :question-id question-id :campo campo}])
+         (re-frame/dispatch [:admin/quick-misconception-failed
+                             (or (:error r) "No se pudo crear")]))))))
+
+(re-frame/reg-event-fx
+ :admin/quick-misconception-created
+ (fn [{:keys [db]} [_ {:keys [mis question-id campo]}]]
+   {:db (-> db
+            (assoc-in [:admin :quick-mis-saving?] false)
+            ;; Entra al catálogo en memoria para que el selector de las demás
+            ;; filas la ofrezca de inmediato, que es cuando más se necesita: la
+            ;; misma idea suele repetirse en los ítems vecinos.
+            (update-in [:admin :misconceptions] (fnil conj []) mis))
+    :dispatch-n [[:admin/patch-question-field question-id campo (:id mis)]
+                 [:admin/toast :success (str "«" (:name mis) "» creada y asignada.")]]}))
+
+(re-frame/reg-event-fx
+ :admin/quick-misconception-failed
+ (fn [{:keys [db]} [_ msg]]
+   {:db (assoc-in db [:admin :quick-mis-saving?] false)
+    :dispatch [:admin/toast :error msg]}))
+
+(re-frame/reg-sub
+ :admin/quick-mis-saving?
+ (fn [db _] (get-in db [:admin :quick-mis-saving?] false)))
+
+;; «Abrir el ítem» desde la catalogación. **No se puede despachar
+;; `:admin/edit-question` con solo el id**: ese evento arma el draft con
+;; `select-keys` sobre lo que recibe y lo mezcla con el borrador vacío, así que
+;; con un mapa de una sola clave el enunciado y las cuatro opciones quedarían en
+;; "" — y guardar borraría el ítem. Se busca la fila completa y se cambia de
+;; pestaña, que es lo que el autor espera al pulsar.
+(re-frame/reg-event-fx
+ :admin/edit-question-by-id
+ (fn [{:keys [db]} [_ question-id]]
+   (if-let [row (first (filter #(= (:id %) question-id)
+                               (get-in db [:admin :all-questions] [])))]
+     {:dispatch-n [[:admin/set-tab :questions]
+                   [:admin/edit-question row]]}
+     {:dispatch [:admin/toast :error "No se encontró ese ítem en el banco cargado."]})))

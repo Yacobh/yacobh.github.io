@@ -107,3 +107,61 @@
   "¿Se puede guardar este borrador? Espejo exacto de `question-missing-fields`."
   [draft]
   (empty? (question-missing-fields draft)))
+
+;; -----------------------------------------------------------------------------
+;; Catalogación de distractores
+;; -----------------------------------------------------------------------------
+
+(def ^:private distractores
+  [["A" :option_a :error_a :misconception_a_id]
+   ["B" :option_b :error_b :misconception_b_id]
+   ["C" :option_c :error_c :misconception_c_id]
+   ["D" :option_d :error_d :misconception_d_id]])
+
+(defn distractor-rows
+  "Una fila por **distractor**, para catalogar de corrido en vez de ítem por ítem.
+
+   ── La decisión que hay detrás ──────────────────────────────────────────────
+   **La alternativa correcta no aparece.** Un distractor tiene una idea errónea
+   detrás; la respuesta correcta no tiene ninguna, y ofrecer su selector invita a
+   catalogar un acierto como si fuera un error. Es la clase de dato sucio que
+   después nadie encuentra: la misconception quedaría contada entre los errores
+   de estudiantes que en realidad respondieron bien.
+
+   Si `correct_option` no es A–D —hay ítems así en el banco— no se puede saber
+   cuál excluir, así que se muestran las cuatro y la fila queda marcada con
+   `:correcta-desconocida? true`. Esconder las cuatro sería peor: el ítem
+   desaparecería de la vista sin que nadie sepa por qué."
+  [questions]
+  (let [validas #{"A" "B" "C" "D"}]
+    (vec
+     (for [q (or questions [])
+           :let [correcta (str/upper-case (str/trim (str (:correct_option q))))
+                 conocida? (contains? validas correcta)]
+           [letra opcion-k error-k mis-k] distractores
+           :when (or (not conocida?) (not= letra correcta))]
+       {:id (:id q)
+        :question (:question q)
+        :topic (:topic q)
+        :module_id (:module_id q)
+        :letra letra
+        :opcion (get q opcion-k)
+        :error-key error-k
+        :error (get q error-k)
+        :mis-key mis-k
+        :mis-id (get q mis-k)
+        :correcta-desconocida? (not conocida?)}))))
+
+(defn catalog-progress
+  "Cuántos distractores de este conjunto ya tienen idea errónea.
+
+   Es el número que dice si catalogar un módulo está terminado o a medias, y el
+   que hace visible que el avance existe: sin él, catalogar 40 distractores es
+   una lista infinita sin fondo."
+  [rows]
+  (let [total (count rows)
+        hechos (count (filter #(some? (:mis-id %)) rows))]
+    {:total total
+     :hechos hechos
+     :faltan (- total hechos)
+     :fraccion (if (pos? total) (/ (double hechos) total) 0.0)}))
