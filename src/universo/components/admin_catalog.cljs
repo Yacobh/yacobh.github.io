@@ -117,24 +117,42 @@
           ^{:key (:id m)} [:option {:value (:id m)} (:name m)])])]))
 
 (defn- error-input
-  "Explicación del distractor, guardada al salir del campo.
+  "Explicación del distractor, guardada sola mientras se escribe.
 
    Se edita **acá y no solo en el editor completo** porque catalogar es el
    momento en que uno lee la explicación y ve que dice «Sumó mal»: obligar a
-   abrir otra pantalla para arreglarla es garantizar que quede así."
+   abrir otra pantalla para arreglarla es garantizar que quede así.
+
+   **Guarda con retardo, no al salir del campo.** La primera versión guardaba en
+   `on-blur` y se perdían los cambios: si se cierra la pestaña, se recarga o se
+   cambia de módulo con el cursor todavía en el campo, el `blur` no llega nunca y
+   lo escrito se va sin aviso. Con el retardo, el único caso que se pierde es
+   cerrar el navegador dentro del segundo siguiente a la última tecla."
   [_props]
-  (let [local (r/atom nil)]
+  (let [local (r/atom nil)
+        timer (r/atom nil)]
     (fn [{:keys [question-id campo valor]}]
-      [:input {:class (str input-class " py-1 text-xs")
-               :type "text"
-               :placeholder "Por qué alguien elegiría esta alternativa…"
-               :value (or @local valor "")
-               :on-change #(reset! local (.. % -target -value))
-               :on-blur (fn []
-                          (when (and @local (not= @local valor))
-                            (re-frame/dispatch
-                             [:admin/patch-question-field question-id campo @local]))
-                          (reset! local nil))}])))
+      (let [guardar! (fn [v]
+                       (when (and (some? v) (not= v valor))
+                         (re-frame/dispatch [:admin/patch-question-field question-id campo v])))]
+        [:input {:class (str input-class " py-1 text-xs")
+                 :type "text"
+                 :placeholder "Por qué alguien elegiría esta alternativa…"
+                 :value (or @local valor "")
+                 :on-change (fn [e]
+                              (let [v (.. e -target -value)]
+                                (reset! local v)
+                                (some-> @timer js/clearTimeout)
+                                (reset! timer (js/setTimeout #(guardar! v) 800))))
+                 :on-blur (fn []
+                            (some-> @timer js/clearTimeout)
+                            (guardar! @local)
+                            (reset! local nil))
+                 :on-key-down (fn [e]
+                                (when (= "Enter" (.-key e))
+                                  (.preventDefault e)
+                                  (some-> @timer js/clearTimeout)
+                                  (guardar! @local)))}]))))
 
 (defn- item-card [[question-id filas]]
   (let [{:keys [question]} (first filas)]
