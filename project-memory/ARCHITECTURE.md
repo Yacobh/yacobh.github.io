@@ -91,6 +91,7 @@ contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 | Ruteo | `universo.views` + `universo.home` | `views/pages` solo resuelve `:home`. El **ruteo real** es por *sección* dentro de `home/main-content` (`case current-section`) |
 | Layout | `universo.home` | Nav fija (links según `:auth/ready?`, `logged-in?`, `admin?`, botón de tema), contenido con transición de opacidad, footer con contacto |
 | Panel de instrumento | `src/css/app.css` (bloque «PANEL DE INSTRUMENTO») | **Cinco clases de componente** —`.control`, `.alojamiento`, `.led`, `.placa`, `.visor`, `.grabado`— definidas una sola vez (ADR-023). No son utilidades sueltas a propósito: repetirlas a mano diverge al tercer componente. El relieve es funcional, no decorativo: sobre el panel gris el LED da 1.04 de contraste y el naranja 1.68, así que el bisel y el alojamiento son lo que los vuelve visibles |
+| Fondo de página | `src/css/app.css` (`.fondo-graticule`) | El graticule de instrumento de la home: divisiones, dos ejes y ticks, con el origen en `0% 100%`. CSS puro, sin JS. **Las alfas están medidas contra `.grabado`** (techo 0.086 claro / 0.0445 oscuro) — ver [[../adr/ADR-031-fondo-como-plano-de-medida]] *(2026-08-23)*. Regla que trae el mismo ADR: **toda sección declara su propio fondo**; una transparente hereda lo que haya debajo, y así el CV acumuló 52 textos bajo AA |
 | Tema | `universo.events.theme` + `src/css/app.css` | Claro/oscuro (`:theme` en `app-db`, `:theme/init`/`:theme/toggle`, persistido en `localStorage`, clase `dark` en `<html>` aplicada antes de `app.js` vía script inline en `index.html`). El tema oscuro de los ~15 componentes se cubre con un mapeo global de clases en `app.css` (`.dark .clase-existente`), no con `dark:` por elemento — ver [[../adr/ADR-012-tema-oscuro-mapeo-css-global]] *(2026-08-05)* |
 
 > **Nota de arquitectura (actualizada 2026-08-16, T-05):** ~~no hay router de URL~~. **Sí hay
@@ -541,6 +542,7 @@ la ejecute todavía** ([[BACKLOG]] T-34). Ver [[RISKS]] R-06 y [[OPEN_QUESTIONS]
 | [[../adr/ADR-021-linea-del-tiempo-historica]] | Línea del tiempo histórica en el tablero, con medallas derivadas de `tests` en vez de una tabla de logros |
 | [[../adr/ADR-022-lenguaje-braun-rams]] | La identidad es el lenguaje Braun/Rams: una escala neutra y un color de señal; la apariencia por defecto se configura en `site_settings` (`043`) |
 | [[../adr/ADR-023-panel-de-instrumento]] | Panel de instrumento: la física vive en los controles (`.control`, `.alojamiento`, `.led`, `.placa`, `.grabado` en `app.css`), no en la superficie |
+| [[../adr/ADR-031-fondo-como-plano-de-medida]] | El fondo es un plano de medida (graticule, `.fondo-graticule`), y **ninguna sección hereda su fondo** |
 
 ---
 

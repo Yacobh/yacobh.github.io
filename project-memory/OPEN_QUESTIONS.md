@@ -1,6 +1,6 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-18 (noche)** — **Q-40 medida**: el catálogo es 77 de 77 del
+Última actualización: **2026-08-23 (cierre)** — **Q-41 respondida**: la ciudad es Iquique, Chile; aplicada en el CV y A-37 validado. · Antes: **2026-08-23** — **Q-41 nueva**: en qué ciudad son las dos entradas nuevas de docencia del CV (Colegio Luis Cruz Martínez y CPech); se escribió «Chile» sin la ciudad para no inventarla (A-37). · Antes: **2026-08-18 (noche)** — **Q-40 medida**: el catálogo es 77 de 77 del
 experimento de cuántica y el producto tiene cero; el panel ya lo declara, pero la decisión sigue
 abierta. · Antes: **2026-08-18** — **Q-40 nueva**: qué hace la pestaña del catálogo con las 77
 entradas `mq/` del experimento de cuántica, que hoy `fetch-misconceptions` devuelve junto con las del
@@ -458,6 +458,25 @@ exactamente el modo de fallo de T-51 con los topics.
 duras de los módulos donde más se escape en T-90 ya se puede probar el camino entero.
 
 ---
+
+### ✅ Q-41 · ¿En qué ciudad son las dos entradas nuevas de docencia del CV? — **RESPONDIDA 2026-08-23**
+
+En SESSION-036 el owner pidió agregar a `/profesor` su actividad como **profesor de Electrónica en el
+Colegio Luis Cruz Martínez** (2026) y **profesor de Ciencias en CPech** (2018–2026, Matemática y
+Física). Dio los años pero no la ciudad.
+
+Las otras tarjetas de esa grilla sí llevan ciudad («2024 – 2025 · Iquique, Chile», «2004 – 2008 ·
+Venezuela»), así que la asimetría se nota. Se escribió **«Chile»** a secas —el país es verificable,
+las dos son instituciones chilenas y el owner reside en Iquique— y **no se puso la ciudad**, porque
+CLAUDE.md §6 prohíbe inventar datos faltantes.
+
+**Supuesto asociado:** [[ASSUMPTIONS]] A-37.
+
+**Cómo se responde:** preguntándole al owner. Es un dato suyo, no hay dónde verificarlo.
+
+**Respuesta (2026-08-23, del owner): Iquique, Chile**, para las dos. Aplicada en
+`resume.cljs`; las dos tarjetas quedaron consistentes con la de la Universidad Arturo Prat, que ya
+decía «Iquique, Chile». [[ASSUMPTIONS]] A-37 queda **validado y cerrado**.
 
 ### 🟡 Q-40 · ¿La pestaña del catálogo muestra o filtra las 77 entradas `mq/` de cuántica? — **abierta 2026-08-18**
 

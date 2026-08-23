@@ -125,3 +125,18 @@ Si solo se puede validar tres, son estos:
 ---
 
 Relacionado: [[OPEN_QUESTIONS]] · [[RISKS]] · [[DECISIONS]] · [[REQUIREMENTS]] · [[ROADMAP]]
+
+### ✅ A-37 · Las dos entradas nuevas de docencia del CV son en Chile — **VALIDADO 2026-08-23**
+
+**Asumido 2026-08-23** (SESSION-036), al agregar Colegio Luis Cruz Martínez y CPech a `/profesor`.
+
+**Qué se asumió:** que ambas son en Chile, y se escribió «Chile» como ubicación.
+
+**Base:** las dos son instituciones chilenas y el owner reside en Iquique. El país es verificable; la
+**ciudad no**, y por eso no se puso — CLAUDE.md §6 prohíbe inventar datos faltantes.
+
+**Cómo se valida:** preguntándole al owner → [[OPEN_QUESTIONS]] Q-41.
+
+**Resultado (2026-08-23): confirmado, y precisado.** El owner indicó **Iquique, Chile** para las dos.
+El supuesto era correcto en el país y quedó completo con la ciudad. Ya no hay supuesto vigente acá.
+

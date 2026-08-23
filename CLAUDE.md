@@ -17,7 +17,8 @@ estudio (cupo) de su misma banda de nivel**, online o presencial en Iquique. Des
 perfil tiene un **segundo eje, la fluidez (λ)**, que separa "sabe" de "sabe y automatizó"
 (ver [[adr/ADR-019-eje-de-fluidez-en-vez-de-estilos-de-aprendizaje]]), y desde el 2026-08-13 la
 identidad visual es el **lenguaje Braun / Dieter Rams** sobre un panel de instrumento
-([[adr/ADR-022-lenguaje-braun-rams]], [[adr/ADR-023-panel-de-instrumento]]).
+([[adr/ADR-022-lenguaje-braun-rams]], [[adr/ADR-023-panel-de-instrumento]]); desde el 2026-08-23
+el fondo es un **plano de medida** ([[adr/ADR-031-fondo-como-plano-de-medida]]).
 
 > ### ⭐ 2026-08-16 — el proyecto cambió de modelo de negocio
 >
@@ -181,7 +182,11 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
 - **UI:** el color y el tamaño se verifican con los tres `scripts/audit_*.py`, no a ojo. Toda clase
   de color nueva se mapea en `src/css/app.css` (ADR-012) y todo par nuevo se declara en
   `audit_contraste.py`. Las piezas del panel (`.control`, `.alojamiento`, `.led`, `.placa`,
-  `.visor`, `.grabado`) se reutilizan en vez de rehacerse con utilidades sueltas (ADR-023).
+  `.visor`, `.grabado`) se reutilizan en vez de rehacerse con utilidades sueltas (ADR-023), y el
+  fondo de página es `.fondo-graticule` (ADR-031).
+- **Toda sección declara su propio fondo** (ADR-031). Una sección sin `bg-*` hereda lo que haya
+  debajo, y eso cambia sin que nadie la toque: así el CV acumuló **52 textos bajo AA** con los
+  cuatro auditores en verde. `audit_contraste.py` mira pares de paleta, **no capas compuestas**.
 - Commits en español, imperativo, una intención por commit.
 - No introducir dependencias npm/maven nuevas sin registrar la decisión (§9).
 
@@ -196,7 +201,7 @@ clj -M:test                          # suite de tests (node-test)
 clj-kondo --lint src test             # lint + análisis de namespaces/vars CLJS (complemento de graphify, ver §13)
 
 python3 scripts/audit_dark_theme.py   # texto oscuro / fondo claro sin mapear en el tema oscuro
-python3 scripts/audit_contraste.py    # los 38 pares de la paleta contra su umbral WCAG
+python3 scripts/audit_contraste.py    # los 40 pares de la paleta contra su umbral WCAG
 python3 scripts/audit_movil.py        # objetivos táctiles, padding fijo, texto diminuto
 python3 scripts/audit_html.py         # index.html y 404.html arrancan igual (ADR-027)
 ```
@@ -233,7 +238,7 @@ python3 scripts/audit_html.py         # index.html y 404.html arrancan igual (AD
 - Toda función pura nueva o modificada necesita test en `test/` (`*_test.cljs`, ns terminado en
   `-test`; el build `:test` los descubre con `:ns-regexp "-test$"`).
 - `clj -M:test` debe cerrar en **0 failures / 0 errors** antes de commitear. Estado de referencia
-  al 2026-08-12: **74 tests / 410 assertions / 0 failures**.
+  al **2026-08-23**: **161 tests / 2568 assertions / 0 failures**.
 - Reglas espejo de la base de datos (ej. confirmación de cupo) se testean en el namespace puro
   (`universo.slots.logic`) **y** se documenta que la fuente de verdad es el trigger SQL.
 - Los warnings `:infer-warning` de `events/auth.cljs` son conocidos y no rompen el build

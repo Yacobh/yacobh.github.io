@@ -449,3 +449,71 @@
   color: inherit;
   opacity: 0.85;
 }
+
+/* --- Fondo: el graticule del panel (ADR-023) ------------------------------ */
+/* La cara del aparato deja de ser un gris liso y pasa a ser el vidrio de un
+   instrumento de medición: divisiones amplias, dos ejes y ticks finos sobre
+   los ejes. No es decoración, y la distinción importa porque ADR-022 sacó el
+   degradado justamente por serlo: esto declara que la superficie **es un plano
+   de medida**, que es lo que el producto hace.
+
+   POR QUÉ EL ORIGEN VA ABAJO A LA IZQUIERDA, y no al centro
+   ---------------------------------------------------------
+   El fondo vive en el contenedor `min-h-screen flex-col` de home.cljs, que
+   CRECE con el contenido. Con `center` el cruce de ejes no queda en el medio
+   de la pantalla sino en el medio del DOCUMENTO: en una landing de 3000px cae
+   a 1500px de scroll, y la banda de ticks aparece como una franja horizontal
+   suelta a mitad de página. Anclado a `0% 100%` los dos ejes viven en bordes
+   que siempre están donde uno espera, y el plano se lee como primer cuadrante
+   creciendo hacia arriba y a la derecha.
+
+   POR QUÉ ESTAS ALFAS Y NO OTRAS — están medidas, no elegidas a ojo
+   -----------------------------------------------------------------
+   La retícula oscurece el panel bajo el texto que va DIRECTO sobre la carcasa,
+   y `.grabado` (11px, o sea texto normal para WCAG) ya estaba al filo. Con las
+   alfas que se probaron primero (0.10 claro / 0.085 oscuro) el peor caso —un
+   glifo justo encima de una línea gruesa— caía a 4.47 en claro y 4.05 en
+   oscuro: reprobaba AA. El techo real es 0.086 en claro y 0.0445 en oscuro.
+   Con los valores de acá el peor caso queda en 4.80 y 4.65.
+
+   Consecuencia aceptada: en tema oscuro la retícula es NOTORIAMENTE más tenue
+   que en claro. No es un descuido de balance — es el techo que impone
+   `.grabado` en `panel-400` sobre `panel-800`. Subirla exige antes cambiar ese
+   token, que es una decisión de ADR-023 y no se toca desde acá.
+
+   Sin números y sin rótulo a propósito: un graticule real no los lleva en el
+   vidrio, van serigrafiados en la carcasa. Y sin animación: hoy no habría dato
+   que comunicar, y una animación que no comunica solo pide atención (ADR-022).
+
+   El período: la fina divide a la gruesa en 5, como un instrumento de verdad. */
+.fondo-graticule {
+  --gr-fina:   rgb(0 0 0 / 0.038);
+  --gr-gruesa: rgb(0 0 0 / 0.065);
+  --gr-div:    48px;
+  --gr-tick:   9.6px;   /* --gr-div / 5 */
+
+  background-image:
+    /* ticks sobre el eje horizontal (banda de 9px pegada al borde inferior) */
+    repeating-linear-gradient(90deg, var(--gr-gruesa) 0 1px, transparent 1px var(--gr-tick)),
+    /* ticks sobre el eje vertical (banda de 9px pegada al borde izquierdo) */
+    repeating-linear-gradient(0deg,  var(--gr-gruesa) 0 1px, transparent 1px var(--gr-tick)),
+    /* los dos ejes */
+    linear-gradient(0deg,  var(--gr-gruesa) 0 100%),
+    linear-gradient(90deg, var(--gr-gruesa) 0 100%),
+    /* divisiones */
+    repeating-linear-gradient(0deg,  var(--gr-fina) 0 1px, transparent 1px var(--gr-div)),
+    repeating-linear-gradient(90deg, var(--gr-fina) 0 1px, transparent 1px var(--gr-div));
+  background-size:
+    100% 9px, 9px 100%, 100% 1px, 1px 100%, auto, auto;
+  /* Origen inferior-izquierda. Todas las capas comparten fase, así que los
+     ticks caen exactamente sobre las divisiones. */
+  background-position: 0% 100%;
+  background-repeat:
+    no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat;
+}
+
+/* Solo cambian los dos colores: la geometría es la misma en ambos temas. */
+.dark .fondo-graticule {
+  --gr-fina:   rgb(255 255 255 / 0.024);
+  --gr-gruesa: rgb(255 255 255 / 0.042);
+}

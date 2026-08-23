@@ -1,6 +1,6 @@
 # RISKS
 
-Última actualización: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
+Última actualización: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
 de los 306 ítems; mitigado en el cliente por ADR-030, el dato sigue sesgado). ·
 Antes: **2026-08-17** — **R-33 nuevo** (la pantalla de Google nombra a `supabase.co`
 y no a la marca, visto en vivo al verificar T-92; toca la confianza justo en el registro) y **R-32
@@ -805,6 +805,38 @@ apuntaría a que el botón se está usando como «siguiente» y no como declarac
 **consentimiento** —la siguiente, después de elegir cuenta— sí muestra el nombre de la app. Eso
 recupera parte de la confianza sin costo. **Sin verificar todavía:** el agente se detuvo en el
 selector de cuenta a propósito, sin completar un login real.
+
+### R-36 · Una sección sin fondo propio hereda el de la página, y ningún auditor lo ve
+
+**Abierto 2026-08-23**, midiendo el contraste real del CV (`/profesor`) nodo por nodo sobre el DOM
+renderizado. **Severidad: media.**
+
+**El hecho:** `experiencia`, `habilidades` y `reconocimientos` no declaraban `bg-*`. Eran
+transparentes y caían sobre `bg-panel-300`, que no es la hoja blanca para la que se escribió ese
+componente. Resultado medido: **52 textos por debajo de AA en tema claro y 12 en oscuro**, con el
+peor caso en **1.22** (la fecha de cada puesto). Corregido en ADR-031 con superficie `bg-white`
+explícita y cuatro tokens subidos a `-600`; el CV quedó en **0 y 0**.
+
+**Por qué sigue siendo un riesgo abierto aunque el CV esté arreglado:** el defecto **es anterior** a
+la retícula —`bg-panel-300` ya estaba ahí— y estuvo vivo sin que nadie lo notara, con los cuatro
+auditores en verde. `audit_contraste.py` verifica **pares de la paleta declarados a mano**: no
+inspecciona el DOM ni sabe componer capas. Su propia cabecera lo dice («Solo los pares de la paleta
+de marca, escritos a mano abajo»). O sea:
+
+> Hoy la garantía de que no hay otro `/profesor` escondido es **que nadie lo ha medido**, no que esté
+> verificado.
+
+**Mitigación**
+
+| Qué | Estado |
+|---|---|
+| Regla escrita: toda sección declara su propio fondo | ✅ ADR-031 §Decisión 5 |
+| CV corregido y medido en 0/0 | ✅ 2026-08-23 |
+| Auditor automático sobre el DOM renderizado | ⬜ [[BACKLOG]] T-107 |
+| Barrido manual del resto de las secciones | ⬜ incluido en T-107 |
+
+**Relacionado:** [[../adr/ADR-031-fondo-como-plano-de-medida]], [[LESSONS_LEARNED]] L-47,
+[[BACKLOG]] T-107, `scripts/audit_contraste.py`.
 
 ### R-35 · La respuesta correcta está en la letra A en 293 de los 306 ítems
 

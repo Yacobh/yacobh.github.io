@@ -1027,6 +1027,53 @@ modelo la cuenta como si sí.
   una copia esté catalogada y las otras no.
 - **Relacionado:** T-105, R-35.
 
+
+### T-107 · Auditor de contraste sobre el DOM renderizado — **P1** · `abierto`
+
+`scripts/audit_contraste.py` verifica los 40 pares de la paleta escritos a mano. **No inspecciona el
+DOM y no sabe componer capas**, así que es ciego a lo que rompió el CV: un texto cuyo color está bien
+declarado, sobre un fondo que **hereda** de un ancestro. Los 52 fallos de `/profesor` convivieron con
+los cuatro auditores en verde.
+
+**Qué hay que construir:** el auditor ad-hoc que se escribió en JS durante SESSION-036 ya funciona y
+está descrito en ese log — recorre los nodos con texto propio, sube por los ancestros componiendo
+`background-color` semitransparentes, resuelve el umbral por tamaño y peso (4.5 / 3.0) y reporta.
+Falta: sacarlo del navegador a un script del repo (headless o Playwright), enseñarle a tratar los
+degradados (hoy los marca «no medible» y hay que revisarlos a mano) y correrlo sobre las secciones
+que aún no se midieron.
+
+**Terminado cuando:** un comando del repo mide todas las rutas en ambos temas y falla con código 1 si
+algún texto queda bajo su umbral.
+
+**Relacionado:** R-36, ADR-031, L-47, `scripts/audit_contraste.py`, `sessions/SESSION-036.md`.
+
+### T-108 · Animar el fondo solo cuando comunique un Δθ — **P3** · `abierto`
+
+El gancho ya existe: `[:ui :transitioning]` lo prende `router.cljs:72` en cada navegación. **Y por eso
+mismo no sirve tal cual**: navegar entre secciones no cambia ningún dato, así que animar ahí sería
+decoración, que es lo que ADR-022 sacó.
+
+Lo que sí significa algo es el modelo instrumento: **el graticule queda fijo en el vidrio y lo que se
+mueve es un cursor** en la posición de θ, una sola vez, cuando θ cambia. Prototipado y visto por el
+owner en el laboratorio del graticule (SESSION-036); queda diferido hasta que haya Δθ real (G-4).
+
+**Obligatorio si se hace:** `prefers-reduced-motion`, que hoy **no aparece ni una vez en todo el
+repo**. Y el cursor **no puede ser cian**: sobre el panel el LED da 1.04 de contraste y ADR-023 lo
+prohíbe fuera de un alojamiento.
+
+**Relacionado:** ADR-031 §Decisión 4, ADR-022, ADR-023, G-4 en [[TESIS_DE_CRECIMIENTO]].
+
+### T-109 · Borrar `src/universo/animations.cljs` (código muerto) — **P3** · `abierto`
+
+Contiene un `movable-box`, un `"WOW"` animado y un `fade-in-page` de ejemplo. **`grep` confirma que
+ningún namespace lo requiere** (verificado 2026-08-23). Es además el fósil del enfoque canvas +
+`requestAnimationFrame` que ADR-031 descartó para el fondo, así que dejarlo es una invitación a
+repetirlo.
+
+No se borró en SESSION-036 porque el owner no lo pidió y borrar código no solicitado no corresponde.
+
+**Terminado cuando:** el archivo no existe y `clj -M:test` sigue en verde.
+
 ### T-104 · Panel de módulos en administración — **P2** · `abierto`
 
 **Los 35 módulos solo existen por SQL.** No hay forma de crear, renombrar, reordenar ni cambiarle el

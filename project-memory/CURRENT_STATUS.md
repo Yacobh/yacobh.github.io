@@ -1,6 +1,41 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-19** · Rama **`escape-no-se`** (sin mergear, sin pushear)
+**Fecha de corte: 2026-08-23** · Rama **`main`** · **commiteado, sin pushear** — no está en producción hasta el `git push`
+>
+> *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
+
+> ## 🆕 2026-08-23 — el fondo dejó de ser neutro, y eso destapó 52 textos ilegibles en el CV
+>
+> **La home tiene fondo nuevo: un graticule de osciloscopio** —divisiones, dos ejes y ticks, con el
+> origen anclado abajo a la izquierda— en CSS puro, sin JS ni dependencias
+> (**ADR-031 / D-62**, `.fondo-graticule` en `app.css` + una clase en `home.cljs`). El owner pidió
+> símbolos matemáticos flotando; se reencuadró a un fondo que **es un dato** y no un adorno, que es lo
+> único compatible con ADR-022.
+>
+> Dos cosas quedaron **medidas y no elegidas a ojo**: el origen no puede ir al centro (el contenedor
+> crece con el contenido, así que `center` pone el eje a mitad del *documento*), y las alfas tienen
+> techo porque `.grabado` es texto de 11 px sobre la carcasa — las del prototipo lo hundían a 4.47 en
+> claro y 4.05 en oscuro. Consecuencia aceptada: **la retícula oscura es más tenue que la clara**, y
+> eso es el techo de `.grabado`, no un descuido.
+>
+> ⚠️ **El hallazgo grande fue otro.** Al aplicar el mismo criterio al CV (`/profesor`) se midió el
+> contraste real de sus 336 nodos contra su fondo compuesto: **52 fallos en tema claro y 12 en
+> oscuro**, el peor en **1.22**. La causa no era el remapeo de temas sino que **tres secciones no
+> declaraban fondo propio** y caían sobre el panel gris. **Corregido: 0 y 0 en ambos temas.**
+>
+> Lo incómodo es que ese defecto **es anterior** al fondo nuevo y **ningún auditor lo vio**:
+> `audit_contraste.py` mira pares de paleta, no capas compuestas. Hoy la garantía de que no hay otro
+> `/profesor` escondido es que nadie lo ha medido → [[RISKS]] **R-36**, [[BACKLOG]] **T-107**.
+>
+> **También en el CV:** «Docente» → «Profesor de Ciencias»; dos entradas nuevas de docencia (Colegio
+> Luis Cruz Martínez 2026, CPech 2018–2026, ambas en Iquique — Q-41 respondida); y el
+> **logotipo oficial de Clojure** reemplazó a la lambda dibujada a mano, con opacidad medida (0.22).
+> Se probaron y **se retiraron** dos pilares `∫`: encerraban la página.
+>
+> **Commiteado en `main`, sin pushear.** 5 archivos de código verificados
+> (161 tests / 0 failures, 4/4 auditores, build sin warnings), más los de memoria. GitHub Pages sirve
+> `origin/main`, así que **esto no está en producción hasta el `git push`**.
+>
 
 > ## 🆕 2026-08-19 — T-105 cerrada: los cuatro bancos revisados, y el banco resultó estar sesgado
 >

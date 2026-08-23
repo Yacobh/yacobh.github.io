@@ -288,15 +288,16 @@
 
 (defn home []
   [:div.flex.min-h-screen.flex-col
-   ;; El fondo de página. Antes era el degradado azul→índigo→púrpura que trae
-   ;; todo template de Tailwind; ahora es papel cálido en claro y tinta profunda
-   ;; en oscuro (ADR-020). Los stops de gradiente no caben en el mapeo global
-   ;; porque usan variables --tw-gradient-*, así que van con `dark:` directo.
-   ;; La cara del panel (ADR-023). Plana y en gris medio: no es la hoja blanca
-   ;; de un documento, es la carcasa de un instrumento. El degradado diagonal
-   ;; que había antes era decoración; el gris no lo es — es lo que hace que las
-   ;; placas blancas y los controles se lean como piezas montadas encima.
-   {:class "bg-panel-300 dark:bg-panel-800"}
+   ;; La cara del panel (ADR-023). Gris medio: no es la hoja blanca de un
+   ;; documento, es la carcasa de un instrumento — es lo que hace que las placas
+   ;; blancas y los controles se lean como piezas montadas encima.
+   ;;
+   ;; `fondo-graticule` le agrega el vidrio del instrumento: divisiones, ejes y
+   ;; ticks, con el origen anclado abajo a la izquierda. Vive entero en
+   ;; `src/css/app.css` (ADR-012) porque las alfas están MEDIDAS contra el
+   ;; contraste de `.grabado`, no elegidas a ojo; el porqué está en el comentario
+   ;; de ese bloque y no se ajusta desde acá.
+   {:class "bg-panel-300 dark:bg-panel-800 fondo-graticule"}
    [navigation]
    [:main.flex-1.pt-16  ;; pt-16 compensa la altura del nav fijo
     [main-content-wrapper]]

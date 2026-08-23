@@ -1,6 +1,6 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
+Última actualización: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
 ruta de login** — el gate legal no va donde está el formulario sino donde nace la cuenta; y
 **L-43**, si Google Cloud te pide datos tributarios para configurar OAuth, te desviaste de camino.
 Antes ese mismo día: **L-41**, una copia que nadie mira diverge — la pregunta útil
@@ -789,3 +789,61 @@ corrección y se saltaba en silencio.
 
 - **Relacionado:** [[BACKLOG]] T-105, `supabase/migrations/047_arreglar_escapes_latex_dobles.sql`,
   `supabase/SCHEMA.md`, [[L-44]].
+
+### L-47 · Un auditor de paleta no ve el fondo que un elemento **hereda**
+
+**El CV tenía 52 textos por debajo de AA con los cuatro auditores en verde.** No es que el audit
+fallara: es que mide otra cosa. `audit_contraste.py` verifica **pares escritos a mano** —este color de
+texto sobre este color de fondo— y su propia cabecera lo dice: «Solo los pares de la paleta de marca,
+escritos a mano abajo. No inspecciona el DOM ni descubre combinaciones nuevas».
+
+El fallo real era de otra naturaleza: `text-gray-400` estaba **bien declarado** y `bg-panel-300`
+también. El problema es que nadie declaró el fondo de la sección intermedia, así que el texto terminó
+sobre un gris que ningún par contemplaba. Contraste medido: **1.22**.
+
+**La forma de encontrarlo fue medir lo que el navegador realmente compone**, no lo que el código
+declara: recorrer los nodos con texto propio, subir por los ancestros acumulando
+`background-color` semitransparentes hasta el primer opaco, y recién ahí calcular. Ese recorrido es
+el que hay que automatizar (T-107).
+
+**Dos trampas al escribir ese medidor**, ambas pisadas:
+
+1. **Tratar cualquier `background-image` como opaco** llena el reporte de falsos positivos: el hero
+   del CV es un degradado y salía «1.00 sobre gris» cuando en realidad es texto blanco sobre casi
+   negro. Hay que separar «medible» de «bajo gradiente, revisar a mano».
+2. **`color: transparent` no es un fallo**: es `bg-clip-text`, y el glifo lo pinta el degradado. Si
+   no se excluye, el título del CV aparece eternamente como el peor caso del reporte.
+
+**Regla que queda:** toda sección declara su propio fondo. Una sección sin `bg-*` hereda lo que haya
+debajo, y lo que haya debajo puede cambiar sin que nadie toque esa sección.
+
+**Relacionado:** [[../adr/ADR-031-fondo-como-plano-de-medida]], [[RISKS]] R-36, [[BACKLOG]] T-107.
+
+### L-48 · Un glifo que la fuente no tiene se sustituye en silencio, y el resultado cambia por máquina
+
+El watermark del CV llevaba **más de una sesión viéndose «mal»** sin que nadie supiera por qué. La
+causa: la lambda se pintaba como **texto** con `font-family: Georgia, serif`, y **Georgia no trae el
+bloque griego** en la mayoría de los sistemas. El navegador no avisa: cae a la primera fuente
+instalada que sí tenga λ. Otro grosor, otra inclinación, otra métrica — y **distinta en cada
+máquina**, que es por qué «centrarla» nunca funcionaba: no era siempre la misma letra.
+
+**Cómo reconocerlo:** un carácter fuera de Latin-1 (griego, matemático, flechas, CJK) puesto con una
+`font-family` concreta y que se ve «raro» o desalineado sin explicación. No es CSS: es fallback de
+fuente.
+
+**Las dos salidas, y cuándo usar cada una:**
+
+| Salida | Cuándo |
+|---|---|
+| Dibujarlo como trazo/path SVG | Cuando tiene que ser **idéntico** en todas partes y es un elemento gráfico |
+| Dejarlo como glifo | Cuando tiene que **coincidir con otro texto** de la app |
+
+El proyecto tiene un caso de cada uno y conviene no confundirlos: la **λ** se dibuja (es una forma), y
+el **∫** del logotipo **se deja como glifo** — está en las grotescas del sistema y dibujarlo lo haría
+diferir del logotipo de la nav, que es exactamente lo que no se quiere.
+
+**Bonus de la misma sesión:** un SVG bajado de Wikimedia puede traer `width`/`height` **sin
+`viewBox`** (el de Clojure es así). Sin agregarlo no escala: se recorta al tamaño nativo.
+
+**Relacionado:** `src/universo/components/resume.cljs`, `sessions/SESSION-036.md`.
+
