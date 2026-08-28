@@ -98,6 +98,30 @@ const led = {
   500: '#2EE6C5',  // ← el LED
   600: '#16C79A',
   700: '#0E9E7A',
+  // 800 no es un LED: es el mismo verde llevado a un tono que **sí** se puede
+  // usar como regla o texto sobre una superficie clara (5.31 sobre blanco,
+  // 3.64 sobre panel-100). El 700 daba 2.33 sobre panel-100 y no delimitaba.
+  800: '#0A7A5E',
+};
+
+// LED de alarma. El mismo diodo que `led`, con la otra corriente: rojo de
+// instrumento, no el rojo de "error de formulario" de Tailwind.
+//
+// Existe porque el diagnóstico tenía que decir "acertaste" y "fallaste", y lo
+// estaba diciendo con `green-50`/`red-50` de fábrica — superficies pintadas de
+// color, que es justo lo que la carcasa de un aparato nunca hace (ADR-033). El
+// estado se dice con un diodo dentro de su alojamiento; la superficie no cambia.
+//
+// Cortes medidos (scripts/audit_contraste.py):
+//   · 500 sobre el alojamiento claro = 3.43 · sobre el oscuro = 5.50  → el LED
+//   · 700 sobre blanco = 6.97 · sobre panel-100 = 4.78                → la regla
+const alarma = {
+  300: '#FF9F91',
+  400: '#FF7361',
+  500: '#FF4B38',  // ← el diodo encendido
+  600: '#D93724',
+  700: '#A82A1B',  // ← regla lateral y texto sobre fondo claro
+  800: '#7C1F14',
 };
 
 module.exports = {
@@ -117,6 +141,7 @@ module.exports = {
         senal: senal,
         panel: panel,
         led: led,
+        alarma: alarma,
         // Vocabulario heredado: todo `indigo-*` de los componentes se vuelve
         // neutro. Ver la cabecera.
         indigo: grafito,

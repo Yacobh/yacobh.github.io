@@ -4,54 +4,12 @@
    [clojure.string :as str]
    [re-frame.core :as re-frame]
    [reagent.core :as r]
-   [universo.components.math-render :as math]
-   [universo.editor :as editor]
-   [universo.misconceptions :as mis]))
-
-(def ^:private input-class
-  (str "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 "
-       "placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none "
-       "focus:ring-1 focus:ring-indigo-500"))
-
-(def ^:private mono-class
-  (str input-class " font-mono"))
+   [universo.components.campos :as campos]
+   [universo.editor :as editor]))
 
 (defn- truncate [s n]
   (let [t (or s "")]
     (if (> (count t) n) (str (subs t 0 n) "…") t)))
-
-(defn- field [label hint body]
-  [:label {:class "block"}
-   [:span {:class "mb-1 block text-xs font-medium text-gray-600"} label]
-   (when hint
-     [:span {:class "mb-1 block text-xs text-gray-400"} hint])
-   body])
-
-(defn- latex-editor
-  "Campo de texto con vista previa **solo cuando la previa dice algo**.
-
-   Este formulario tiene nueve campos con previa. Cuando el contenido es «2» o
-   «Sumó mal», la caja repetía el texto y duplicaba el largo del formulario sin
-   aportar nada; ahora en ese caso queda una línea que explica por qué no hay
-   previa, en vez de un hueco que parece un error. La regla vive en
-   `universo.editor/renderable?`."
-  [{:keys [label hint value on-change rows markdown?]}]
-  (let [previa? (editor/renderable? value {:markdown? markdown?})]
-    [:div {:class "mb-4"}
-     [field label hint
-      [:textarea {:class mono-class
-                  :rows (or rows 3)
-                  :value (or value "")
-                  :on-change #(on-change (.. % -target -value))}]]
-     (if previa?
-       [:div {:class "mt-2 min-h-10 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 py-2"}
-        [:p {:class "mb-1 text-xs text-gray-400"} "Vista previa"]
-        (if markdown?
-          [math/parse-markdown-latex value]
-          [math/latex value])]
-       (when-not (str/blank? (str value))
-         [:p {:class "mt-1 text-xs text-gray-400"}
-          "Texto sin fórmulas: se muestra tal cual."]))]))
 
 (defn- parse-optional-number [raw]
   (when (pos? (count raw)) raw))
@@ -64,9 +22,9 @@
         topic-select-value (if (or known? (str/blank? topic)) topic "__custom__")]
     [:div {:class "mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2"}
      [:div
-      [field "Tema" "Elige uno existente o escribe uno nuevo"
+      [campos/field "Tema" "Elige uno existente o escribe uno nuevo"
        [:<>
-        [:select {:class (str input-class " mb-2")
+        [:select {:class (str campos/input-class " mb-2")
                   :value topic-select-value
                   :on-change (fn [e]
                                (let [v (.. e -target -value)]
@@ -76,7 +34,7 @@
          (for [t topics]
            ^{:key t} [:option {:value t} t])
          [:option {:value "__custom__"} "Otro (escribir abajo)"]]
-        [:input {:class input-class
+        [:input {:class campos/input-class
                  :type "text"
                  :placeholder "Tema nuevo o edición"
                  :value topic
@@ -84,16 +42,16 @@
                               [:admin/update-question-draft :topic
                                (.. % -target -value)])}]]]]
      [:div {:class "grid grid-cols-2 gap-3"}
-      [field "Dificultad (b)" "IRT, p.ej. -2 … 2"
-       [:input {:class input-class
+      [campos/field "Dificultad (b)" "IRT, p.ej. -2 … 2"
+       [:input {:class campos/input-class
                 :type "number"
                 :step "0.1"
                 :value (or (:difficulty draft) "")
                 :on-change #(re-frame/dispatch
                              [:admin/update-question-draft :difficulty
                               (parse-optional-number (.. % -target -value))])}]]
-      [field "Orden" "order_index opcional"
-       [:input {:class input-class
+      [campos/field "Orden" "order_index opcional"
+       [:input {:class campos/input-class
                 :type "number"
                 :step "1"
                 :value (or (:order_index draft) "")
@@ -101,8 +59,8 @@
                              [:admin/update-question-draft :order_index
                               (parse-optional-number (.. % -target -value))])}]]]
      [:div
-      [field "Módulo" "De acá salen «Mi plan» y el material del «no sé»"
-       [:select {:class input-class
+      [campos/field "Módulo" "De acá salen «Mi plan» y el material del «no sé»"
+       [:select {:class campos/input-class
                  :value (or (:module_id draft) "")
                  :on-change #(re-frame/dispatch
                               [:admin/update-question-draft :module_id
@@ -122,7 +80,7 @@
         [:p {:class "mt-1 text-xs text-amber-700"}
          "Sin módulo, este ítem no aporta material a «Mi plan» ni al «no sé»."])]
      [:div {:class "sm:col-span-2"}
-      [field "Respuesta correcta" nil
+      [campos/field "Respuesta correcta" nil
        [:div {:class "flex gap-3"}
         (for [opt ["A" "B" "C" "D"]]
           ^{:key opt}
@@ -135,35 +93,11 @@
            opt])]]]]))
 
 (defn- misconception-select
-  "Desplegable de idea errónea para un distractor.
-
-   El valor es el `uuid` del catálogo; `«— sin catalogar —»` manda `nil` a la
-   base, que es lo que `027` define como «este distractor todavía no se estudió».
-   Las del experimento de cuántica quedan en su propio grupo para que no se
-   mezclen con las del producto sin avisar (Q-40)."
+  "El desplegable compartido (`components/campos`), cableado al borrador del panel."
   [draft k]
-  (let [rows @(re-frame/subscribe [:admin/misconceptions])
-        {:keys [producto experimento]} (mis/split-experimento rows)]
-    [:div {:class "-mt-2 mb-4"}
-     [field "Idea errónea" "La identidad reusable del error, del catálogo"
-      [:select {:class input-class
-                :value (or (get draft k) "")
-                :on-change #(re-frame/dispatch
-                             [:admin/update-question-draft k (.. % -target -value)])}
-       [:option {:value ""} "— sin catalogar —"]
-       (when (seq producto)
-         [:optgroup {:label "Catálogo"}
-          (for [m (sort-by :slug producto)]
-            ^{:key (:id m)}
-            [:option {:value (:id m)} (str (:name m) " · " (:slug m))])])
-       (when (seq experimento)
-         [:optgroup {:label "Experimento de cuántica"}
-          (for [m (sort-by :slug experimento)]
-            ^{:key (:id m)}
-            [:option {:value (:id m)} (str (:name m) " · " (:slug m))])])]]
-     (when (empty? rows)
-       [:p {:class "mt-1 text-xs text-gray-400"}
-        "El catálogo está vacío: créalas en la pestaña «Ideas erróneas»."])]))
+  [campos/misconception-select
+   {:value (get draft k)
+    :on-change #(re-frame/dispatch [:admin/update-question-draft k %])}])
 
 (defn- question-editor
   "Formulario de un ítem del banco.
@@ -245,7 +179,7 @@
 
      [meta-row draft]
 
-     [latex-editor
+     [campos/latex-editor
       {:label "Enunciado"
        :hint "Texto + LaTeX"
        :value (:question draft)
@@ -257,7 +191,7 @@
                     [:option_c "Opción C"]
                     [:option_d "Opción D"]]]
        ^{:key k}
-       [latex-editor
+       [campos/latex-editor
         {:label lab
          :value (get draft k)
          :rows 2
@@ -278,7 +212,7 @@
                            [:error_d "Error D" :misconception_d_id]]]
         ^{:key k}
         [:div
-         [latex-editor
+         [campos/latex-editor
           {:label lab
            :hint "Markdown + LaTeX"
            :value (get draft k)
@@ -305,7 +239,7 @@
        [:p {:class "text-sm font-medium text-gray-800"}
         (str n (if (= 1 n) " ítem seleccionado" " ítems seleccionados"))]
 
-       [:select {:class (str input-class " w-auto min-w-56")
+       [:select {:class (str campos/input-class " w-auto min-w-56")
                  :disabled guardando?
                  :value ""
                  :on-change (fn [e]
@@ -328,7 +262,7 @@
        ;; del navegador —y con él cualquier automatización— y no se puede
        ;; corregir con Esc sin perder lo escrito.
        [:div {:class "flex items-center gap-2"}
-        [:input {:class (str input-class " w-48")
+        [:input {:class (str campos/input-class " w-48")
                  :type "text"
                  :placeholder "Mover a otro tema…"
                  :disabled guardando?
@@ -548,7 +482,7 @@
                     "—")]
                  [:td {:class "py-2 pr-3"}
                   [:div {:class "flex items-center gap-1"}
-                   [:input {:class (str input-class " w-20")
+                   [:input {:class (str campos/input-class " w-20")
                             :type "number" :step "0.1"
                             :value (or (get-in draft [(:id module) :band-min])
                                        (some-> (:min banda) (.toFixed 2))
@@ -557,7 +491,7 @@
                                          [:admin/update-band-draft (:id module) :band-min
                                           (.. % -target -value)])}]
                    [:span {:class "text-gray-400"} "…"]
-                   [:input {:class (str input-class " w-20")
+                   [:input {:class (str campos/input-class " w-20")
                             :type "number" :step "0.1"
                             :value (or (get-in draft [(:id module) :band-max])
                                        (some-> (:max banda) (.toFixed 2))
@@ -622,7 +556,7 @@
         [:div {:class "flex flex-wrap items-end gap-3"}
          [:div
           [:label {:class "mb-1 block text-xs font-medium text-gray-500"} "Filtrar por tema"]
-          [:select {:class (str input-class " min-w-48")
+          [:select {:class (str campos/input-class " min-w-48")
                     :value (or filter "")
                     :on-change #(re-frame/dispatch
                                  [:admin/set-question-topic-filter
@@ -633,7 +567,7 @@
              ^{:key t} [:option {:value t} t])]]
          [:div
           [:label {:class "mb-1 block text-xs font-medium text-gray-500"} "Ordenar por"]
-          [:select {:class (str input-class " min-w-48")
+          [:select {:class (str campos/input-class " min-w-48")
                     :value (name (or sort-mode :default))
                     :on-change #(re-frame/dispatch
                                  [:admin/set-question-sort

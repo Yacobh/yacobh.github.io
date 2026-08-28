@@ -1,40 +1,35 @@
 (ns universo.components.feedback-modal
+  "La capa cero: lo que aparece cuando el estudiante responde.
+
+   ── Por qué ya no es un modal (ADR-032) ──────────────────────────────────────
+   Era un `fixed inset-0` con `bg-black/60 backdrop-blur-sm` sobre una pantalla
+   donde la pregunta **ni siquiera estaba montada**: `diagnostic-test` cambiaba
+   de `:questions` a `:feedback` y el modal tenía que volver a dibujar el
+   enunciado adentro para que se pudiera leer la explicación. Oscurecía un fondo
+   vacío y repetía lo que acababa de tapar.
+
+   Ahora la pregunta se queda a la izquierda, congelada y con la alternativa
+   elegida marcada, y esto entra al costado: sin backdrop, sin repetir el
+   enunciado y por lo tanto más corto. En pantallas angostas entra como hoja
+   inferior, que es el equivalente móvil de «al lado» y tampoco oscurece nada.
+
+   El nombre del namespace se conserva a propósito: renombrarlo tocaría todos sus
+   usos sin cambiar ni una línea de comportamiento."
   (:require
    [re-frame.core :as re-frame]
+   [reagent.core :as r]
    [universo.components.math-render :as math]
-   [universo.components.irt-chart :as irt-chart]
    [universo.components.plan :as plan]
+   [universo.components.test-editor :as test-editor]
    [universo.irt.escape :as escape]))
 
 ;; ============================================================================
-;; ICONOS REUTILIZABLES
+;; ICONOS
 ;; ============================================================================
-
-(defn icon-check []
-  [:svg {:class "w-4 h-4 text-white" :fill "currentColor" :viewBox "0 0 20 20"}
-   [:path {:d "M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"}]])
-
-(defn icon-cross []
-  [:svg {:class "w-4 h-4 text-white" :fill "currentColor" :viewBox "0 0 20 20"}
-   [:path {:d "M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"}]])
-
-(defn icon-warning []
-  [:svg {:class "w-5 h-5 text-senal-600 mt-0.5 flex-shrink-0" :fill "currentColor" :viewBox "0 0 20 20"}
-   [:path {:d "M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"}]])
 
 (defn icon-close-button []
   [:svg {:class "w-5 h-5 sm:w-6 sm:h-6" :fill "none" :viewBox "0 0 24 24" :stroke "currentColor"}
    [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2"
-           :d "M6 18L18 6M6 6l12 12"}]])
-
-(defn icon-check-stroke []
-  [:svg {:class "w-6 h-6 sm:w-7 sm:h-7" :fill "none" :viewBox "0 0 24 24" :stroke "currentColor"}
-   [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "3"
-           :d "M5 13l4 4L19 7"}]])
-
-(defn icon-cross-stroke []
-  [:svg {:class "w-6 h-6 sm:w-7 sm:h-7" :fill "none" :viewBox "0 0 24 24" :stroke "currentColor"}
-   [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "3"
            :d "M6 18L18 6M6 6l12 12"}]])
 
 (defn icon-step-back-stroke
@@ -45,26 +40,71 @@
            :d "M11 17l-5-5 5-5M18 17l-5-5 5-5"}]])
 
 ;; ============================================================================
+;; EL ESTADO SE DICE CON UN DIODO, NO PINTANDO LA SUPERFICIE
+;; ============================================================================
+;; ADR-033. Antes esto era `bg-green-50 border-green-600 text-green-900` y su
+;; gemelo en rojo: verdes y rojos **de fábrica** de Tailwind, la única familia de
+;; color del producto que no salía de la paleta. Por eso desentonaba — no era una
+;; impresión, era literalmente otro sistema de color dentro de la misma pantalla.
+;;
+;; La carcasa de un aparato no cambia de color para decir algo: se enciende un
+;; piloto. La superficie de la alternativa se queda como está y el estado lo dice
+;; el diodo, que además **ya existía** como vocabulario (`.led` dentro de
+;; `.alojamiento`, ADR-023) y no se estaba usando acá.
+;;
+;; El color nunca es el único portador: junto al diodo van siempre las palabras
+;; —«¡Correcto!», «Correcta», «Tu respuesta»— y eso es lo que hace que la
+;; pantalla se lea igual sin distinguir el rojo del verde.
+
+(defn estado-led
+  "Diodo de estado dentro de su alojamiento.
+
+   `estado` ∈ `:ok` (encendido verde) · `:alarma` (encendido rojo) · `:apagado`
+   (el hueco sigue ahí: un diodo sin corriente también informa)."
+  ([estado] (estado-led estado :chico))
+  ([estado tamano]
+   (let [grande? (= tamano :grande)]
+     [:div {:class (str "alojamiento flex flex-shrink-0 items-center justify-center rounded-full "
+                        (if grande? "w-10 h-10 sm:w-12 sm:h-12" "w-6 h-6"))
+            :aria-hidden "true"}
+      [:span {:class (str "rounded-full led "
+                          (if grande? "w-3.5 h-3.5" "w-2 h-2")
+                          (case estado
+                            :ok " led--on"
+                            :alarma " led--alarma"
+                            ""))}]])))
+
+(defn estado-de
+  "Qué diodo le toca a una alternativa ya juzgada."
+  [value selected correct]
+  (cond
+    (= value correct) :ok
+    (= value selected) :alarma
+    :else :apagado))
+
+;; ============================================================================
 ;; COMPONENTES DE ESTADO
 ;; ============================================================================
 
 (defn status-badge [is-correct?]
   ;; Sin `animate-pulse`: latía para siempre, y una animación que no termina no
   ;; comunica nada — solo pide atención (ADR-022).
-  [:div {:class (str "flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full "
-                     (if is-correct? "bg-green-600" "bg-red-600"))}
-   (if is-correct?
-     [icon-check-stroke]
-     [icon-cross-stroke])])
+  [estado-led (if is-correct? :ok :alarma) :grande])
 
 (defn status-title [is-correct?]
-  [:h2 {:class (str "text-xl sm:text-2xl font-bold tracking-tight "
-                    (if is-correct? "text-green-700" "text-red-700"))}
+  ;; El título ya no se pinta de verde ni de rojo: eso lo dice el diodo de al
+  ;; lado, y la palabra lo dice en palabras (ADR-033). Un titular de color sería
+  ;; el color repitiendo lo que el texto ya afirma — decoración, no señal.
+  [:h2 {:class "text-xl sm:text-2xl font-bold tracking-tight text-gray-900"}
    (if is-correct? "¡Correcto!" "Incorrecto")])
 
 (defn close-button []
+  ;; La X no «cierra»: continúa el test. Es el mismo evento del botón Continuar,
+  ;; y por eso la etiqueta accesible lo dice — cerrar y avanzar son cosas
+  ;; distintas para quien navega con lector de pantalla.
   [:button {:class "text-gray-500 hover:text-gray-900 transition-colors p-2 hover:bg-panel-100 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-senal-600"
-            :aria-label "Cerrar modal"
+            :aria-label "Continuar con la siguiente pregunta"
+            :title "Continuar"
             :on-click #(re-frame/dispatch [:test/continue])}
    [icon-close-button]])
 
@@ -72,87 +112,63 @@
 ;; HEADER
 ;; ============================================================================
 
-(defn modal-header [is-correct?]
-  [:div {:class "flex items-center justify-between mb-6 sm:mb-8 gap-4"}
+(defn panel-header [is-correct?]
+  [:div {:class "flex items-center justify-between gap-4 px-4 pt-4"}
    [:div {:class "flex items-center gap-2 sm:gap-4 min-w-0"}
     [status-badge is-correct?]
     [status-title is-correct?]]
    [close-button]])
 
-;; ============================================================================
-;; PREGUNTA
-;; ============================================================================
-
-(defn question-section [question]
-  ;; ADR-023: el enunciado va en un alojamiento, hundido en la placa. Antes era
-  ;; un degradado azul→índigo con los azules **de fábrica** de Tailwind — este
-  ;; componente es la excepción `dark:` de ADR-012 y por eso se quedó fuera de
-  ;; las tres pasadas de identidad (T-68).
-  [:div {:class "alojamiento mb-6 sm:mb-8 rounded p-4 sm:p-6"}
-   [:h3 {:class "grabado mb-2 sm:mb-3"} "Pregunta"]
-   [:div {:class "text-base sm:text-lg text-panel-100 leading-relaxed overflow-x-auto"}
-    [math/latex (:question question)]]])
+;; El enunciado ya no se dibuja acá: está a la izquierda, montado y visible
+;; (ADR-032). Lo que antes era `question-section` son ~250px menos de panel y una
+;; fuente menos de la que el enunciado podía quedar desincronizado.
 
 ;; ============================================================================
-;; INDICADOR DE OPCIÓN (Check, Cross, Empty)
+;; PIEZAS DE UNA ALTERNATIVA YA JUZGADA
 ;; ============================================================================
+;; Las usa `components/diagnostic-test`, que es donde se dibujan las alternativas
+;; desde ADR-032. Viven acá porque acá está el vocabulario de estado: tenerlas
+;; en los dos sitios sería tener dos definiciones de «correcta».
 
 (defn option-indicator [value selected correct]
-  (let [is-selected? (= value selected)
-        is-correct-answer? (= value correct)]
-    [:div {:class "flex-shrink-0"}
-     (cond
-       (and is-selected? is-correct-answer?)
-       [:div {:class "w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-600 flex items-center justify-center"}
-        [icon-check]]
+  [estado-led (estado-de value selected correct)])
 
-       (and is-selected? (not is-correct-answer?))
-       [:div {:class "w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-red-600 flex items-center justify-center"}
-        [icon-cross]]
+(defn selected-badge
+  "«Tu respuesta» — un hecho, no un veredicto: el veredicto lo da el diodo.
 
-       is-correct-answer?
-       [:div {:class "w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-600 flex items-center justify-center"}
-        [icon-check]]
-
-       :else
-       [:div {:class "w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-panel-500"}])]))
-
-;; ============================================================================
-;; BADGE DE RESPUESTA SELECCIONADA
-;; ============================================================================
-
-(defn selected-badge [value selected correct]
+   Por eso es neutro y no verde/rojo. Antes había un relleno por estado, o sea el
+   color diciendo por tercera vez lo mismo que ya decían el diodo y la palabra."
+  [value selected _correct]
   (when (= value selected)
-    [:span {:class (str "ml-2 relative -translate-y-[2px] inline-block px-2 py-0.5 rounded text-xs font-medium align-middle "
-                        (if (= value correct)
-                          "bg-green-700 text-white"
-                          "bg-red-700 text-white"))}
-     (if (= value correct) "Tu respuesta ✓" "Tu respuesta")]))
+    [:span {:class (str "ml-2 relative -translate-y-[2px] inline-block rounded bg-panel-700 "
+                        "px-2 py-0.5 align-middle text-xs font-medium text-panel-50")}
+     "Tu respuesta"]))
 
-;; ============================================================================
-;; CLASES DINÁMICAS PARA OPCIONES
-;; ============================================================================
+(defn correct-label
+  "Rótulo grabado en la correcta cuando **no** es la que se eligió.
 
-(defn option-classes [value selected correct]
-  (let [is-selected? (= value selected)
-        is-correct-answer? (= value correct)]
-    ;; El verde y el rojo se conservan: acá el color SÍ informa (acertaste /
-    ;; fallaste) y es la única lectura que importa en esta pantalla. Lo que se
-    ;; fue es el adorno — el escalado al pasar el mouse y las sombras difusas,
-    ;; que sugerían que la opción era accionable cuando ya no lo es (ADR-023).
-    (str "relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded text-base sm:text-lg border "
-         (cond
-           (and is-selected? is-correct-answer?)
-           "bg-green-50 border-green-600 text-green-900"
+   Es la redundancia que hace que la pantalla no dependa de distinguir el diodo
+   verde del rojo."
+  [value selected correct]
+  (when (and (= value correct) (not= value selected))
+    [:span {:class "grabado ml-2 align-middle"} "Correcta"]))
 
-           (and is-selected? (not is-correct-answer?))
-           "bg-red-50 border-red-600 text-red-900"
+(defn option-classes
+  "La superficie **no cambia de color** (ADR-033): las cuatro alternativas siguen
+   siendo la misma pieza del panel. Lo único que se mueve es la regla lateral,
+   que es un objeto gráfico y por eso le basta 3:1 — `led-800` da 3.64 sobre la
+   superficie y `alarma-700` da 4.78.
 
-           is-correct-answer?
-           "bg-green-50 border-green-600 text-green-900"
-
-           :else
-           "bg-panel-100 border-panel-500 text-gray-800"))))
+   Lo que se había ido antes (ADR-023) fue el adorno: el escalado al pasar el
+   mouse y las sombras difusas, que sugerían que la opción era accionable cuando
+   ya no lo es."
+  [value selected correct]
+  (str "relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded text-base sm:text-lg "
+       "border border-panel-500 bg-panel-100 text-gray-800 border-l-2 "
+       (case (estado-de value selected correct)
+         :ok "border-l-led-800"
+         :alarma "border-l-alarma-700"
+         "border-l-panel-500")))
 
 ;; ============================================================================
 ;; ITEM DE OPCIÓN
@@ -162,53 +178,54 @@
   [:div {:class (option-classes value selected correct)}
    [option-indicator value selected correct]
    [:div {:class "flex-1 leading-relaxed min-w-0 overflow-x-auto"}
-    [math/latex label] [selected-badge value selected correct]]])
+    [math/latex label]
+    [selected-badge value selected correct]
+    [correct-label value selected correct]]])
 
 ;; ============================================================================
-;; SECCIÓN DE OPCIONES
+;; SECCIÓN DE OPCIONES — se fue a la columna de la pregunta
 ;; ============================================================================
-
-(defn options-section [question selected correct]
-  (let [relevant-options (if (= selected correct)
-                           ;; Si acertó, solo muestra la correcta
-                           (filter #(= (:value %) correct) (:options question))
-                           ;; Si falló, ordena: primero la seleccionada, luego la correcta
-                           (let [selected-opt (first (filter #(= (:value %) selected) (:options question)))
-                                 correct-opt (first (filter #(= (:value %) correct) (:options question)))]
-                             [selected-opt correct-opt]))]
-    [:div {:class "mb-6 sm:mb-8 space-y-2 sm:space-y-3"}
-     [:h3 {:class "grabado mb-3 sm:mb-4"}
-      (if (= selected correct)
-        "Tu respuesta correcta"
-        "Comparación de respuestas")]
-     (for [{:keys [value label]} relevant-options]
-       ^{:key value}
-       [option-item value selected correct label])]))
+;; `options-section` repetía acá las alternativas para poder marcar cuál se
+;; eligió y cuál era la correcta. Desde ADR-032 las marca la propia pregunta, que
+;; sigue montada a la izquierda: `option-classes`, `option-indicator` y
+;; `selected-badge` los usa ahora `components/diagnostic-test`. Mantenerlas
+;; también acá sería decir dos veces lo mismo en la misma pantalla — el mismo
+;; motivo por el que se fue el enunciado.
 
 ;; ============================================================================
-;; SECCIÓN DE EXPLICACIÓN
+;; SECCIÓN DE EXPLICACIÓN — y su variante bonus
 ;; ============================================================================
 
 (defn explanation-section
-  "Muestra la explicación de la opción seleccionada.
-   La explicación viene en la respuesta, no en la pregunta: el ítem llega del
-   servidor sin sus `error_*` y `score_answer` devuelve solo la de la
-   alternativa elegida (ADR-015)."
-  ([response]
-   (explanation-section response false))
-  ([response _is-correct?]
-   (when-let [err-msg (:selected-error response)]
-     ;; Es la parte más valiosa de la pantalla —el diferencial del producto es
-     ;; explicar el error, no puntuarlo— así que lleva la regla naranja al
-     ;; costado: lo único que la señal marca acá.
+  "La nota de la alternativa elegida. **Dice dos cosas distintas según si acertó**,
+   y por eso se llama distinto en cada caso.
+
+   ── Por qué vuelve el «bonus» ───────────────────────────────────────────────
+   `score_answer` devuelve la nota de la alternativa **elegida** (026). Cuando el
+   estudiante falla, esa nota explica el error y es el diferencial del producto.
+   Cuando acierta, la nota que llega es la de la **alternativa correcta**: no
+   explica ningún error suyo — es material extra sobre algo que ya resolvió bien.
+
+   Llamar «Explicación» a las dos, y encima ponerle un triángulo de advertencia,
+   le decía a quien acababa de acertar que había algo que corregir. El rótulo
+   `Bonus` dice lo que la nota es, y el triángulo se va: en esta pantalla no hay
+   nada peligroso, y la señal naranja del costado ya marca que esto es lo que hay
+   que leer.
+
+   **Limitación, dicha en voz alta:** el bonus es la nota de la correcta, no «el
+   error más común de este ítem». Mostrar eso exigiría que el servidor mandara
+   otra explicación además de la elegida, que es justo lo que ADR-015 no hace."
+  ([response] (explanation-section response false))
+  ([response is-correct?]
+   (when-let [nota (:selected-error response)]
      [:div {:class (str "mb-6 sm:mb-8 p-4 sm:p-5 bg-panel-100 border border-panel-500 "
                         "border-l-2 border-l-senal-600 rounded-r")}
-      [:div {:class "flex items-start gap-3"}
-       [icon-warning]
-       [:div {:class "min-w-0"}
-        [:h4 {:class "grabado mb-1"} "Explicación"]
-        [:div {:class "text-gray-800 leading-relaxed text-base sm:text-lg"}
-         (math/parse-markdown-latex err-msg)]]]])))
+      [:h4 {:class "grabado mb-1"} (if is-correct? "Bonus" "Explicación")]
+      (when is-correct?
+        [:p {:class "mb-2 text-sm text-gray-600"}
+         "Acertaste. Esto es lo que hay detrás de esa alternativa."])
+      [:div {:class "text-gray-800 leading-relaxed text-base sm:text-lg"}
+       (math/parse-markdown-latex nota)]])))
 
 ;; ============================================================================
 ;; BOTONES DE ACCIÓN
@@ -219,19 +236,6 @@
                         "text-sm font-medium hover:bg-senal-300")
             :on-click #(re-frame/dispatch [:test/continue])}
    (if stop-reason "Ver resultados →" "Continuar →")])
-
-;; ============================================================================
-;; CONTENEDOR PRINCIPAL DEL MODAL
-;; ============================================================================
-
-(defn modal-content [question response selected correct is-correct? points stop-reason]
-  [:div {:class "placa bg-white border-panel-600 rounded p-6 sm:p-8 space-y-6"}
-   [question-section question]
-   [options-section question selected correct]
-   [explanation-section response is-correct?]
-   ;; El visor lo pone el propio componente (T-72d).
-   [irt-chart/irt-progress-chart points stop-reason]
-   [action-buttons stop-reason]])
 
 ;; ============================================================================
 ;; VARIANTE DE ESCAPE
@@ -292,8 +296,8 @@
         [:p {:class "mt-1 text-sm text-gray-600"}
          "Va a aparecer en «Mi plan» cuando lo publiquemos."]])]))
 
-(defn- escape-header [kind]
-  [:div {:class "flex items-center justify-between mb-6 sm:mb-8 gap-4"}
+(defn escape-header [kind]
+  [:div {:class "flex items-center justify-between gap-4 px-4 pt-4"}
    [:div {:class "flex items-center gap-2 sm:gap-4 min-w-0"}
     [:div {:class (str "flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 "
                        "rounded-full bg-panel-600 text-panel-50")}
@@ -309,45 +313,122 @@
    [:p {:class "text-gray-800 leading-relaxed text-base sm:text-lg"}
     (get-in escape-copy [kind :cuerpo] "Queda registrado.")]])
 
-(defn escape-content [question kind points stop-reason]
-  [:div {:class "placa bg-white border-panel-600 rounded p-6 sm:p-8 space-y-6"}
-   [escape-header kind]
-   [question-section question]
+(defn escape-body
+  "Cuerpo del panel cuando el estudiante declaró que no sabe. Sin encabezado, sin
+   enunciado y sin gráfica: el encabezado lo pone el panel, el enunciado la
+   columna de la izquierda y la gráfica es el visor permanente del riel
+   (ADR-032 · ADR-033)."
+  [kind stop-reason]
+  [:div {:class "px-4 pb-6 pt-2 space-y-4"}
    [escape-note kind]
    ;; El material va ANTES de la gráfica: quien acaba de decir «no sé» necesita
    ;; con qué seguir, no ver su propia curva. La gráfica se queda porque es la
    ;; misma pantalla del feedback normal y sacarla haría que el escape se sienta
    ;; un camino aparte, que es justo lo que no se quiere.
    [escape-resources-section]
-   [irt-chart/irt-progress-chart points stop-reason]
+   [action-buttons stop-reason]])
+
+
+;; ============================================================================
+;; CUERPO: LA RESPUESTA
+;; ============================================================================
+
+(defn respuesta-body
+  "Explicación (o bonus) y el botón de seguir. Nada de enunciado ni de
+   alternativas —están a la izquierda, en la pregunta que no se desmontó
+   (ADR-032)— y nada de gráfica: la gráfica es el visor del riel y está siempre
+   encendida (ADR-033), no aparece y desaparece con cada respuesta."
+  [response is-correct? stop-reason]
+  [:div {:class "px-4 pb-6 pt-2"}
+   [explanation-section response is-correct?]
    [action-buttons stop-reason]])
 
 ;; ============================================================================
-;; OVERLAY/BACKDROP
+;; PESTAÑAS (solo admin)
 ;; ============================================================================
 
-(defn modal-overlay
-  "Backdrop del modal de feedback. El click afuera dispara :test/continue —
-   el mismo evento que ya usan el botón X y 'Continuar', no hay lógica nueva.
+(defn- tab-button [label activa? on-click]
+  [:button {:type "button"
+            :aria-pressed (if activa? "true" "false")
+            :class (str "min-h-11 flex-1 border-b-2 px-3 py-2 text-sm font-medium transition "
+                        (if activa?
+                          "border-senal-600 text-gray-900"
+                          "border-transparent text-gray-600 hover:text-gray-900"))
+            :on-click on-click}
+   label])
 
-   ── El bug que arregla `m-auto` (T-68) ─────────────────────────────────────
-   Antes esto era `flex items-center justify-center` **junto con**
-   `overflow-y-auto` en el mismo elemento. Es un fallo conocido de flexbox: con
-   `align-items: center`, un hijo más alto que el contenedor se desborda por
-   arriba **y** por abajo, y el desbordamiento superior queda **inalcanzable**
-   —el scroll no llega ahí—. O sea que en un ítem largo el estudiante perdía el
-   encabezado y el enunciado, justo en los ítems que más explicación necesitan.
+(defn- editor-tabs
+  "«Respuesta» / «Editar ítem». Solo para quien puede editar el banco.
 
-   La corrección es `items-start` + `m-auto` en el hijo: los márgenes
-   automáticos centran cuando sobra espacio y **no recortan** cuando falta, que
-   es exactamente lo que `align-items: center` no sabe hacer."
-  [content]
-  [:div {:class (str "fixed inset-0 z-50 flex items-start justify-center overflow-y-auto "
-                     "bg-black/60 backdrop-blur-sm p-3 sm:p-4")
-         :on-click #(re-frame/dispatch [:test/continue])}
-   [:div {:class "m-auto w-full max-w-2xl"
-          :on-click #(.stopPropagation %)}
-    content]])
+   No hay estado de pestaña propio: la pestaña **es** si el editor está abierto.
+   Un booleano duplicado acá sería el clásico que se desincroniza el día que el
+   editor se cierre solo — por ejemplo al arrancar otro test, que lo limpia."
+  [question-id]
+  (let [admin? @(re-frame/subscribe [:auth/admin?])
+        editando? @(re-frame/subscribe [:editor-vivo/abierto?])]
+    (when (and admin? question-id)
+      [:div {:class "mt-3 flex border-b border-panel-500"}
+       [tab-button "Respuesta" (not editando?)
+        #(when editando? (re-frame/dispatch [:editor-vivo/cerrar]))]
+       [tab-button "Editar ítem" editando?
+        #(when-not editando? (re-frame/dispatch [:editor-vivo/abrir question-id]))]])))
+
+;; ============================================================================
+;; CÁSCARA DEL PANEL
+;; ============================================================================
+
+(defn- traer-a-la-vista!
+  "En pantallas angostas el riel va **debajo** de la pregunta, así que el panel
+   nace fuera de la vista y nadie lo ve aparecer. Se lo trae — y **solo ahí**: en
+   `lg` está al lado y pegado, mover el scroll sería quitarle la página de debajo
+   a alguien que no pidió nada.
+
+   `block: \"nearest\"` y no `\"start\"`: alcanza con que entre, no hace falta
+   clavarlo arriba. Sin animación si el sistema pidió menos movimiento."
+  [el]
+  (when (and el (.-matchMedia js/window))
+    (let [angosto? (.-matches (.matchMedia js/window "(max-width: 1023px)"))
+          quieto? (.-matches (.matchMedia js/window "(prefers-reduced-motion: reduce)"))]
+      (when angosto?
+        (.scrollIntoView el #js {:behavior (if quieto? "auto" "smooth")
+                                 :block "nearest"})))))
+
+(defn panel-shell
+  "La placa de la capa cero, **dentro del flujo** del riel.
+
+   ── Por qué dejó de ser `fixed` (ADR-033) ──────────────────────────────────
+   La primera versión (ADR-032) era `fixed right-0 top-16 bottom-0`: quedaba
+   anclada a la ventana y por lo tanto **se montaba sobre el footer** al llegar
+   al final de la página. Un elemento `fixed` no sabe que existe el resto del
+   documento; para que respetara el footer habría que escucharle el scroll y
+   corregirle la altura a mano, que es mucha maquinaria para algo que el flujo
+   resuelve solo.
+
+   Ahora el riel es una **columna de verdad** del `grid` y el panel vive dentro,
+   con `sticky` para que acompañe la lectura sin despegarse del documento: se
+   pega bajo la barra mientras hay página, y se despega cuando llega el footer.
+   Ese es exactamente el comportamiento que se quería, y sale gratis.
+
+   `max-h` + scroll propio porque un panel `sticky` más alto que la ventana deja
+   su parte de abajo fuera de alcance — el mismo fallo de flexbox que T-68
+   documentó para el modal, con otro disfraz.
+
+   La entrada se anima con `translate` y `opacity`: las dos propiedades que el
+   compositor puede animar sin recalcular layout. `motion-reduce` la apaga."
+  [contenido]
+  (r/with-let [montado? (r/atom false)
+               nodo (r/atom nil)
+               _ (r/next-tick (fn []
+                                (reset! montado? true)
+                                (traer-a-la-vista! @nodo)))]
+    [:aside
+     {:ref (fn [el] (reset! nodo el))
+      :class (str "placa rounded border border-panel-600 bg-panel-100 "
+                  "transition duration-300 ease-out motion-reduce:transition-none "
+                  (if @montado?
+                    "translate-y-0 opacity-100"
+                    "translate-y-2 opacity-0"))}
+     contenido]))
 
 ;; ============================================================================
 ;; COMPONENTE PRINCIPAL
@@ -355,18 +436,29 @@
 
 (defn feedback []
   (let [modal @(re-frame/subscribe [:test/feedback])
-        points @(re-frame/subscribe [:test/progress-points])
-        stop-reason @(re-frame/subscribe [:test/stop-reason])]
+        stop-reason @(re-frame/subscribe [:test/stop-reason])
+        editando? @(re-frame/subscribe [:editor-vivo/abierto?])]
     (when modal
       (let [{:keys [question response]} modal
+            ;; La letra elegida solo se usa para abrir el editor en la
+            ;; explicación que corresponde; la alternativa correcta la marca la
+            ;; columna de la pregunta, con el `:correct-option` que devolvió el
+            ;; servidor (el ítem llega sin ella, ADR-015).
             selected (:selected-option response)
-            ;; La alternativa correcta la trae la respuesta corregida por el
-            ;; servidor, no la pregunta: el ítem llega sin ella (ADR-015).
-            correct (:correct-option response)
             is-correct? (:correct? response)
             escape-kind (escape/escape-of response)]
-        [modal-overlay
-         (if escape-kind
-           [escape-content question escape-kind points stop-reason]
-           [modal-content question response selected correct is-correct?
-            points stop-reason])]))))
+        [panel-shell
+         [:<>
+          (if escape-kind
+            [escape-header escape-kind]
+            [panel-header is-correct?])
+          [editor-tabs (:id question)]
+          (cond
+            editando?
+            [test-editor/editor-panel selected]
+
+            escape-kind
+            [escape-body escape-kind stop-reason]
+
+            :else
+            [respuesta-body response is-correct? stop-reason])]]))))

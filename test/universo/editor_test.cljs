@@ -173,3 +173,70 @@
   (testing "un ítem sano no genera ninguna escritura"
     (is (= {} (editor/option-wraps {:option_a "2" :option_b "3"
                                     :option_c "$x^2$" :option_d "ninguna"})))))
+
+;; ---------------------------------------------------------------------------
+;; Edición en vivo durante el diagnóstico
+;; ---------------------------------------------------------------------------
+
+(def ^:private fila
+  {:id 42
+   :question "¿Cuánto es $2+2$?"
+   :difficulty -0.8
+   :module_id "mod-1"
+   :error_a "Sumaste mal"
+   :error_b nil
+   :error_c "Restaste"
+   :error_d nil
+   :misconception_a_id "mis-1"
+   :misconception_b_id nil
+   :misconception_c_id nil
+   :misconception_d_id nil})
+
+(defn- borrador
+  "El borrador tal como lo arma el editor en vivo: nunca `nil`, siempre string."
+  [row]
+  (reduce (fn [m k] (assoc m k (let [v (get row k)] (if (nil? v) "" v))))
+          {}
+          editor/campos-en-vivo))
+
+(deftest campos-editados-manda-solo-lo-que-cambio
+  (testing "abrir y cerrar sin tocar nada no escribe una sola columna"
+    (is (= {} (editor/campos-editados fila (borrador fila)))))
+
+  (testing "un campo cambiado viaja solo"
+    (is (= {:error_a "Sumaste los denominadores"}
+           (editor/campos-editados
+            fila
+            (assoc (borrador fila) :error_a "Sumaste los denominadores")))))
+
+  (testing "los `nil` que el formulario volvió \"\" no se guardan como vacíos"
+    (is (= {} (editor/campos-editados fila (assoc (borrador fila) :error_b ""))))
+    (is (= {} (editor/campos-editados fila (assoc (borrador fila) :misconception_b_id "")))))
+
+  (testing "borrar de verdad un valor sí viaja, y como nil"
+    (let [cambios (editor/campos-editados fila (assoc (borrador fila) :error_a ""))]
+      (is (= [:error_a] (keys cambios)))
+      (is (nil? (:error_a cambios)))))
+
+  (testing "una clave que el formulario no conoce nunca se manda"
+    (is (= {} (editor/campos-editados fila (dissoc (borrador fila) :question))))
+    (is (= {} (editor/campos-editados (assoc fila :correct_option "A")
+                                      (assoc (borrador fila) :correct_option "D"))))))
+
+(deftest campos-editados-coerciona-a-lo-que-espera-postgres
+  (testing "la dificultad del <input type=number> llega como número, no como texto"
+    (is (= {:difficulty -0.4}
+           (editor/campos-editados fila (assoc (borrador fila) :difficulty "-0.4")))))
+
+  (testing "el mismo valor escrito como texto no cuenta como cambio"
+    (is (= {} (editor/campos-editados fila (assoc (borrador fila) :difficulty "-0.8")))))
+
+  (testing "dificultad vacía es borrarla, no un 0 que movería el ítem servido"
+    (is (= {:difficulty nil}
+           (editor/campos-editados fila (assoc (borrador fila) :difficulty "")))))
+
+  (testing "«null» de un <select> es nil y no el string, que rechaza la fila entera"
+    (is (= {:module_id nil}
+           (editor/campos-editados fila (assoc (borrador fila) :module_id "null"))))
+    (is (= {:module_id "mod-2"}
+           (editor/campos-editados fila (assoc (borrador fila) :module_id " mod-2 "))))))

@@ -7,6 +7,7 @@
    [universo.irt.escape :as escape]
    [universo.irt.fluency :as fluency]
    [universo.irt.progress :as progress]
+   [universo.reintento :as reintento]
    [cljs.core.async :as async :refer [go <!]]
    [universo.db.crud :as crud]
    [universo.supabase :as sb]))
@@ -205,7 +206,16 @@
                   ;; el más cercano a este valor.
                   (assoc-in [:test :theta] (let [t (:initial_theta cfg)]
                                              (if (number? t) (double t) -1.0)))
+                  ;; El mismo θ, guardado aparte porque `:theta` se sobrescribe
+                  ;; en cada respuesta: deshacer la primera (`universo.reintento`)
+                  ;; necesita saber dónde abría el banco, y 0.0 —la media del
+                  ;; prior— no es ese punto.
+                  (assoc-in [:test :theta-initial] (let [t (:initial_theta cfg)]
+                                                     (if (number? t) (double t) -1.0)))
                   (assoc-in [:test :theta-history] [])
+                  ;; Un editor abierto no sobrevive a un test nuevo: apuntaría a
+                  ;; un ítem que ya no está en pantalla.
+                  (assoc-in [:test :editor] nil)
                   (assoc-in [:test :stop-reason] nil)
                   (assoc-in [:test :stop-config] stop-config)
                   (assoc-in [:test :escape-resources] nil)
@@ -349,6 +359,11 @@
    (-> db
        (assoc-in [:test :feedback] {:question question
                                     :response response})
+       ;; El editor en vivo (ADR-032) arranca cerrado en cada ítem. Es la única
+       ;; garantía de que no queda abierto apuntando al ítem **anterior**: el
+       ;; panel solo existe mientras hay feedback, así que entre una respuesta y
+       ;; la siguiente puede quedar abierto sin que nadie lo vea.
+       (assoc-in [:test :editor] nil)
        (assoc-in [:test :status] :feedback))))
 
 ;; -----------------------------------------------------------------------------
@@ -708,6 +723,30 @@
       ;; Perfil derivado; el usuario abre resultados desde la pantalla de cierre
       :dispatch [:profile/save-from-test]})))
 
+(re-frame/reg-event-db
+ :test/reintentar-ultimo
+ ;; «Volver a servir este ítem»: deshace la última respuesta y vuelve a mostrar
+ ;; la misma pregunta, ya con los cambios que el admin acaba de guardar. Es la
+ ;; mitad del editor en vivo que toca el test (ADR-032); la otra mitad vive en
+ ;; `universo.events.editor-vivo`.
+ ;;
+ ;; **Es seguro porque nada se persiste por ítem.** La fila de `tests` se escribe
+ ;; entera en `:test/complete`, así que deshacer no deja rastro que corregir en la
+ ;; base. Si algún día se guarda respuesta por respuesta, este evento deja de ser
+ ;; solo estado local y necesita su propia migración.
+ ;;
+ ;; El `admin?` es UX y está para que un `dispatch` desde la consola no sea el
+ ;; camino corto a rehacer un ítem: nada de esto atraviesa RLS.
+ (fn [db [_ {:keys [parche]}]]
+   (if (and (get-in db [:auth :admin?])
+            (reintento/puede-reintentar? (:test db)))
+     (-> db
+         (update :test reintento/deshacer-ultima parche)
+         ;; El panel se va con el feedback y el editor se iría con él: se cierra
+         ;; explícitamente para que el ítem vuelva a la pantalla limpio.
+         (assoc-in [:test :editor] nil))
+     db)))
+
 ;; -----------------------------------------------------------------------------
 ;; 🔹 SUSCRIPCIONES
 ;; -----------------------------------------------------------------------------
@@ -726,6 +765,8 @@
 ;; Corrección en curso en el servidor: bloquea las alternativas para no
 ;; registrar dos respuestas a la misma pregunta (ADR-015).
 (re-frame/reg-sub :test/scoring? (fn [db _] (get-in db [:test :scoring?] false)))
+(re-frame/reg-sub :test/puede-reintentar?
+                  (fn [db _] (reintento/puede-reintentar? (:test db))))
 (re-frame/reg-sub :test/score-error (fn [db _] (get-in db [:test :score-error])))
 (re-frame/reg-sub :test/topics-loading? (fn [db _] (get-in db [:test :topics-loading?] false)))
 (re-frame/reg-sub :test/topics-error (fn [db _] (get-in db [:test :topics-error])))

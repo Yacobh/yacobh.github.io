@@ -219,3 +219,87 @@
                       despues (wrap-math antes)]
                   (when-not (= antes despues) [k despues]))))
         [:option_a :option_b :option_c :option_d]))
+
+;; -----------------------------------------------------------------------------
+;; Edición en vivo durante el diagnóstico (capa cero)
+;; -----------------------------------------------------------------------------
+
+(def campos-en-vivo
+  "Lo que el editor del diagnóstico puede tocar sobre el ítem que está a la vista.
+
+   Es un subconjunto deliberado del formulario del panel admin: la **capa cero**
+   —las cuatro explicaciones de error y su idea errónea del catálogo—, el
+   enunciado, y las dos palancas que deciden qué pasa después (`difficulty`
+   elige el ítem siguiente, `module_id` decide qué material recibe el «no sé» y
+   qué entra a «Mi plan»).
+
+   Fuera quedan las cuatro alternativas y `correct_option`: cambiarlas a mitad de
+   un test invalidaría la respuesta que el estudiante acaba de dar contra un ítem
+   que ya no existe. Eso se hace en el panel, con el test cerrado."
+  [:question :difficulty :module_id
+   :error_a :error_b :error_c :error_d
+   :misconception_a_id :misconception_b_id :misconception_c_id :misconception_d_id])
+
+(defn- ->uuid-o-nil
+  "`\"\"` y el string `\"null\"` de un `<select>` sin elegir tienen que llegar a
+   Postgres como `null` y no como texto: un uuid mal formado no falla suave, la
+   fila entera se rechaza. Misma regla que `crud/uuid-or-nil`."
+  [v]
+  (let [s (str/trim (str (or v "")))]
+    (when-not (or (zero? (count s)) (= s "null")) s)))
+
+(defn- ->numero-o-nil
+  "Un `<input type=number>` entrega string; vacío es `nil` (borrar el valor), no 0."
+  [v]
+  (cond
+    (number? v) v
+    (nil? v) nil
+    :else (let [s (str/trim (str v))]
+            (when (pos? (count s))
+              (let [n (js/parseFloat s)]
+                (when-not (js/isNaN n) n))))))
+
+(defn coercionar-campo
+  "Valor de un campo del borrador, en el tipo que espera la columna.
+
+   El caso que no es evidente son los textos: el formulario convierte los `nil`
+   en `\"\"` para que React no suelte el `<textarea>`, así que **abrir el editor y
+   cerrarlo sin tocar nada** proponía escribir `\"\"` en las columnas que estaban
+   en nulo. Un `error_c` vacío y un `error_c` nulo no son lo mismo para nadie que
+   lea la tabla después —«no tiene explicación» contra «tiene una explicación en
+   blanco»— y ese ruido se acumula ítem por ítem. En blanco es nulo, siempre."
+  [k v]
+  (cond
+    (= k :difficulty) (->numero-o-nil v)
+    (contains? #{:module_id :misconception_a_id :misconception_b_id
+                 :misconception_c_id :misconception_d_id} k)
+    (->uuid-o-nil v)
+
+    (nil? v) nil
+    (string? v) (when-not (str/blank? v) v)
+    :else v))
+
+(defn campos-editados
+  "Solo los campos que **de verdad** cambiaron, ya coercionados, listos para un
+   patch parcial.
+
+   Devolver el borrador entero sería reescribir la fila con lo que el formulario
+   cree saber, y este formulario conoce once columnas de las veinte que tiene el
+   ítem. Mandando la diferencia, guardar una explicación no puede descatalogar un
+   distractor ni borrar un módulo por omisión — el mismo riesgo que
+   `crud/question-payload` documenta para los `misconception_*_id`.
+
+   `{}` (nada que guardar) es una respuesta legítima, no un error: es lo que
+   pasa cuando el autor abre el editor, mira y cierra."
+  ([original borrador] (campos-editados original borrador campos-en-vivo))
+  ([original borrador claves]
+   (reduce (fn [acc k]
+             (if-not (contains? borrador k)
+               acc
+               (let [nuevo (coercionar-campo k (get borrador k))
+                     viejo (coercionar-campo k (get original k))]
+                 (if (= nuevo viejo)
+                   acc
+                   (assoc acc k nuevo)))))
+           {}
+           claves)))

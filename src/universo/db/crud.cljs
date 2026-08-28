@@ -572,6 +572,31 @@
                                    :error (.-message error)}))))
      ch)))
 
+(defn fetch-admin-question
+  "Una fila de `questions` por id, con las columnas del editor.
+
+   La usa el editor en vivo del diagnóstico: el ítem que el estudiante ve llega
+   por `next_question` **sin** su respuesta ni sus explicaciones (ADR-015), así
+   que para editarlo hay que pedir la fila completa aparte. No es un agujero:
+   desde `025` la única policy de lectura directa sobre `questions` es
+   `questions_select_admin`, y una cuenta de estudiante obtiene cero filas acá."
+  [question-id]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "questions")
+        (.select question-select-cols)
+        (.eq "id" question-id)
+        (.single)
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false
+                                   :error (.-message (.-error result))})
+                   (async/put! ch {:success true
+                                   :data (js->clj (.-data result)
+                                                  :keywordize-keys true)}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
 (defn- question-payload
   "Mapa CLJS → JS para insert/update (sin id ni created_at).
 

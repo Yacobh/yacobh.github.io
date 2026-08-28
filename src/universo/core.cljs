@@ -7,6 +7,7 @@
    [universo.events.auth]
    [universo.events.admin]
    [universo.events.test]
+   [universo.events.editor-vivo]
    [universo.events.profile]
    [universo.events.account]
    [universo.events.plan]
