@@ -1,0 +1,228 @@
+{
+  "topic": "numeros",
+  "migracion_archivo": "099_ejemplo_banco_numeros.sql",
+  "migracion_titulo": "EJEMPLO de la skill banco-de-items — no aplicar",
+  "migracion_notas": "Tanda de ejemplo con 8 ítems, para mostrar el formato y probar la cadena\nverificar → generar. El número 099 está fuera de la secuencia a propósito:\nno es contenido real y no debe aplicarse.",
+
+  "cobertura_objetivo": { "min": -2.5, "max": 0.5, "ancho_tramo": 1.0, "min_por_tramo": 2 },
+
+  "misconceptions": [
+    {
+      "slug": "numeros/restar-negativo-como-restar-positivo",
+      "name": "Trata $a-(-b)$ como si fuera $a-b$",
+      "description": "Usar cuando el estudiante ignora el doble signo y resta en vez de sumar. NO usar para errores de signo en multiplicación o división, que tienen su propia regla.",
+      "module_slug": "aritmetica/enteros"
+    },
+    {
+      "slug": "numeros/cociente-de-negativos-queda-negativo",
+      "name": "Cree que dividir dos negativos da negativo",
+      "description": "Usar cuando arrastra el signo menos al cociente o al producto de dos negativos. Es la regla de signos aplicada a medias: reconoce que hay negativos y no que se cancelan.",
+      "module_slug": "aritmetica/enteros"
+    },
+    {
+      "slug": "numeros/confunde-operacion-con-la-anterior",
+      "name": "Aplica la operación de al lado en vez de la pedida",
+      "description": "Usar cuando resta donde había que dividir, o multiplica donde había que sumar, y el resultado es coherente con esa otra operación. NO usar si el error es de cálculo dentro de la operación correcta.",
+      "module_slug": "aritmetica/enteros"
+    },
+    {
+      "slug": "fracciones/suma-numeradores-y-denominadores",
+      "name": "Suma fracciones sumando numeradores y denominadores",
+      "description": "El error más frecuente de fracciones: $\\frac{a}{b}+\\frac{c}{d}=\\frac{a+c}{b+d}$. Usar solo para la suma o resta; para la multiplicación esa forma es casi correcta y el error es otro.",
+      "module_slug": "aritmetica/fracciones"
+    },
+    {
+      "slug": "potencias/multiplica-base-por-exponente",
+      "name": "Calcula $a^n$ como $a \\times n$",
+      "description": "Usar cuando el resultado es el producto de base por exponente. Es leer la potencia como una multiplicación, no como un producto repetido.",
+      "module_slug": "aritmetica/potencias"
+    },
+    {
+      "slug": "potencias/signo-negativo-sobrevive-al-exponente-par",
+      "name": "Deja el signo negativo aunque el exponente sea par",
+      "description": "Usar cuando escribe $(-a)^{par}$ con resultado negativo. Suele venir de confundir $(-2)^4$ con $-2^4$.",
+      "module_slug": "aritmetica/potencias"
+    },
+    {
+      "slug": "fracciones/invierte-el-dividendo-al-dividir",
+      "name": "Al dividir fracciones invierte la primera en vez de la segunda",
+      "description": "Usar cuando aplica la regla de invertir y multiplicar sobre el término equivocado. Sabe que hay que invertir algo, que es lo que lo distingue de quien resta o multiplica directo.",
+      "module_slug": "aritmetica/fracciones"
+    },
+    {
+      "slug": "fracciones/simplificacion-incompleta",
+      "name": "Deja la fracción a medio simplificar",
+      "description": "Usar cuando divide por un factor común pero no por el máximo, y entrega una fracción equivalente y correcta pero no irreducible.",
+      "module_slug": "aritmetica/fracciones"
+    },
+    {
+      "slug": "proporciones/divide-en-vez-de-multiplicar-por-la-fraccion",
+      "name": "Divide por la fracción en vez de multiplicar por ella",
+      "description": "Usar cuando calcular «la fracción de una cantidad» produce un número mayor que la cantidad original.",
+      "module_slug": "aritmetica/proporciones"
+    }
+  ],
+
+  "items": [
+    {
+      "module_slug": "aritmetica/enteros",
+      "difficulty": -2.4,
+      "order_index": 10,
+      "question": "¿Cuál es el resultado de $-3 - 7$?",
+      "options": { "A": "$-10$", "B": "$4$", "C": "$-4$", "D": "$10$" },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. Los dos términos restan: partes de $-3$ y retrocedes $7$ más, así que quedas en $-10$.",
+        "B": "Calculaste $7-3$. El signo del $-3$ no se puede soltar: la operación es $-3-7$, no $7-3$.",
+        "C": "Llegaste a $4$ y le pusiste el signo del primer término. El error está antes: $-3-7$ no es una resta entre $3$ y $7$, es una suma de dos cantidades negativas.",
+        "D": "Ese es el resultado de $3+7$, sin ninguno de los dos signos. Los dos términos son negativos."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "numeros/confunde-operacion-con-la-anterior",
+        "C": "numeros/confunde-operacion-con-la-anterior",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "aritmetica/enteros",
+      "difficulty": -2.2,
+      "order_index": 20,
+      "question": "¿Cuál es el resultado de $7 - (-3)$?",
+      "options": { "A": "$4$", "B": "$10$", "C": "$-10$", "D": "$-4$" },
+      "correct": "B",
+      "errors": {
+        "A": "Restaste $3$ en vez de restar $-3$. Restar un número negativo equivale a sumarlo: $7-(-3) = 7+3$.",
+        "B": "Correcto. El opuesto de $-3$ es $3$, así que $7-(-3) = 7+3 = 10$.",
+        "C": "El valor $10$ es el correcto, pero el signo no: partes de $7$ y le sumas, así que el resultado crece, no baja.",
+        "D": "Acá se juntan dos cosas: restaste $3$ en vez de sumarlo, y además cambiaste el signo del resultado."
+      },
+      "misconceptions": {
+        "A": "numeros/restar-negativo-como-restar-positivo",
+        "B": null,
+        "C": null,
+        "D": "numeros/restar-negativo-como-restar-positivo"
+      }
+    },
+    {
+      "module_slug": "aritmetica/enteros",
+      "difficulty": -1.8,
+      "order_index": 30,
+      "question": "¿Cuál es el resultado de $\\dfrac{-6}{-2}$?",
+      "options": { "A": "$-3$", "B": "$-4$", "C": "$3$", "D": "$4$" },
+      "correct": "C",
+      "errors": {
+        "A": "El valor está bien, el signo no. Al dividir, dos signos negativos se cancelan: $\\frac{-6}{-2} = \\frac{6}{2} = 3$.",
+        "B": "Ese es el resultado de $-6-(-2)$, o sea de restar en vez de dividir. La operación pedida es un cociente.",
+        "C": "Correcto. Dos negativos se cancelan al dividir, así que queda $\\frac{6}{2} = 3$.",
+        "D": "Ese es $-6-(-2)$ con el signo cambiado: se juntaron dos errores, la operación y el signo."
+      },
+      "misconceptions": {
+        "A": "numeros/cociente-de-negativos-queda-negativo",
+        "B": "numeros/confunde-operacion-con-la-anterior",
+        "C": null,
+        "D": "numeros/confunde-operacion-con-la-anterior"
+      }
+    },
+    {
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -1.4,
+      "order_index": 40,
+      "question": "¿Cuál es el resultado de $\\dfrac{1}{2} + \\dfrac{1}{3}$?",
+      "options": { "A": "$\\dfrac{2}{5}$", "B": "$\\dfrac{1}{6}$", "C": "$\\dfrac{3}{5}$", "D": "$\\dfrac{5}{6}$" },
+      "correct": "D",
+      "errors": {
+        "A": "Sumaste numeradores por un lado y denominadores por el otro. Eso no funciona: $\\frac{1}{2}$ ya es mayor que $\\frac{2}{5}$, así que la suma no puede dar menos que uno de los sumandos.",
+        "B": "Ese es el producto $\\frac{1}{2}\\times\\frac{1}{3}$. Para sumar hace falta un denominador común primero.",
+        "C": "Se mezclaron dos cosas: un denominador tomado de la suma de los de abajo, y un numerador que no corresponde a esa elección.",
+        "D": "Correcto. Con denominador común $6$: $\\frac{3}{6}+\\frac{2}{6} = \\frac{5}{6}$."
+      },
+      "misconceptions": {
+        "A": "fracciones/suma-numeradores-y-denominadores",
+        "B": "numeros/confunde-operacion-con-la-anterior",
+        "C": "fracciones/suma-numeradores-y-denominadores",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "aritmetica/potencias",
+      "difficulty": -1.0,
+      "order_index": 50,
+      "question": "¿Cuál es el valor de $(-2)^4$?",
+      "options": { "A": "$16$", "B": "$-16$", "C": "$8$", "D": "$-8$" },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. Son cuatro factores $(-2)$, y como son un número par de negativos los signos se cancelan: $16$.",
+        "B": "El valor está bien, el signo no. Con exponente **par** el resultado es positivo. Ojo con la diferencia entre $(-2)^4$ y $-2^4$: en el segundo el signo queda fuera de la potencia.",
+        "C": "Multiplicaste la base por el exponente ($2\\times 4$). Una potencia es un producto repetido: $(-2)\\times(-2)\\times(-2)\\times(-2)$.",
+        "D": "Acá se juntan dos errores: multiplicar base por exponente, y arrastrar el signo negativo."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "potencias/signo-negativo-sobrevive-al-exponente-par",
+        "C": "potencias/multiplica-base-por-exponente",
+        "D": "potencias/multiplica-base-por-exponente"
+      }
+    },
+    {
+      "module_slug": "aritmetica/proporciones",
+      "difficulty": -0.8,
+      "order_index": 60,
+      "question": "En un curso de $30$ estudiantes, $\\dfrac{2}{5}$ practica un deporte. ¿Cuántos son?",
+      "options": { "A": "$75$", "B": "$12$", "C": "$6$", "D": "$60$" },
+      "correct": "B",
+      "errors": {
+        "A": "Dividiste por $\\frac{2}{5}$ en vez de multiplicar. Una parte de un total no puede ser mayor que el total: $75$ estudiantes en un curso de $30$ es imposible.",
+        "B": "Correcto. $\\frac{2}{5}$ de $30$ es $30 \\times \\frac{2}{5} = 12$.",
+        "C": "Calculaste solo $\\frac{1}{5}$ de $30$. Falta multiplicar por $2$, que es el numerador.",
+        "D": "Multiplicaste por el numerador y te saltaste el denominador. Dividir en cinco partes es parte de la operación."
+      },
+      "misconceptions": {
+        "A": "proporciones/divide-en-vez-de-multiplicar-por-la-fraccion",
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -0.2,
+      "order_index": 70,
+      "question": "¿Cuál es el resultado de $\\dfrac{3}{4} \\div \\dfrac{1}{2}$?",
+      "options": { "A": "$\\dfrac{3}{8}$", "B": "$\\dfrac{2}{3}$", "C": "$\\dfrac{3}{2}$", "D": "$\\dfrac{1}{4}$" },
+      "correct": "C",
+      "errors": {
+        "A": "Multiplicaste en vez de dividir. Dividir por $\\frac{1}{2}$ es multiplicar por $\\frac{2}{1}$, así que el resultado tiene que ser **mayor** que $\\frac{3}{4}$.",
+        "B": "Invertiste la fracción equivocada: la que se da vuelta es la segunda, no la primera. Quedaría $\\frac{3}{4}\\times\\frac{2}{1}$.",
+        "C": "Correcto. $\\frac{3}{4}\\times\\frac{2}{1} = \\frac{6}{4} = \\frac{3}{2}$. Dividir por un número menor que $1$ agranda el resultado.",
+        "D": "Restaste las fracciones en vez de dividirlas."
+      },
+      "misconceptions": {
+        "A": "numeros/confunde-operacion-con-la-anterior",
+        "B": "fracciones/invierte-el-dividendo-al-dividir",
+        "C": null,
+        "D": "numeros/confunde-operacion-con-la-anterior"
+      }
+    },
+    {
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": 0.2,
+      "order_index": 80,
+      "question": "De los $24$ estudiantes de un curso, $18$ aprobaron. ¿Qué fracción **irreducible** representa a quienes aprobaron?",
+      "options": { "A": "$\\dfrac{9}{12}$", "B": "$\\dfrac{6}{8}$", "C": "$\\dfrac{4}{3}$", "D": "$\\dfrac{3}{4}$" },
+      "correct": "D",
+      "errors": {
+        "A": "Es equivalente y correcta como fracción, pero no es irreducible: $9$ y $12$ todavía comparten el factor $3$. Dividiste por $2$ cuando el máximo común divisor de $18$ y $24$ es $6$.",
+        "B": "Mismo caso: dividiste por $3$ y quedó a medio camino. $6$ y $8$ comparten todavía el factor $2$.",
+        "C": "La fracción está invertida: el total va abajo. Además una fracción de aprobados no puede ser mayor que $1$.",
+        "D": "Correcto. $\\frac{18}{24}$ dividido por $6$ arriba y abajo da $\\frac{3}{4}$, que ya no se puede reducir."
+      },
+      "misconceptions": {
+        "A": "fracciones/simplificacion-incompleta",
+        "B": "fracciones/simplificacion-incompleta",
+        "C": null,
+        "D": null
+      }
+    }
+  ]
+}

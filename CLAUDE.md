@@ -192,6 +192,11 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
   base por archivo: la deuda vieja no molesta, la nueva no pasa. Las piezas del panel (`.control`, `.alojamiento`, `.led`, `.placa`,
   `.visor`, `.grabado`) se reutilizan en vez de rehacerse con utilidades sueltas (ADR-023), y el
   fondo de página es `.fondo-graticule` (ADR-031).
+- **Los ítems nuevos entran por la skill `banco-de-items`**, no a mano. El JSON de la tanda es la
+  fuente de verdad y el `.sql` es un artefacto generado: se corrige el JSON, se vuelve a verificar
+  y se regenera. `scripts/verificar_items.py` es el sexto auditor y el único que mira contenido —
+  clave repartida entre las cuatro letras (R-35), una sola alternativa correcta, las cuatro
+  `error_*` escritas, LaTeX con escape simple (047) y cobertura de dificultad sin huecos.
 - **Si tocas el estimador de θ, sube `universo.motor/version`** (ADR-034). Modelo, prior y regla de
   parada definen la versión: un θ guardado solo significa algo junto a las reglas que lo produjeron,
   y G-4 promete entregar Δθ. Los parámetros (`c` del azar, σ del prior) **no se hardcodean**: viven
@@ -225,6 +230,9 @@ python3 scripts/audit_contraste.py    # los 45 pares de la paleta contra su umbr
 python3 scripts/audit_movil.py        # objetivos táctiles, padding fijo, texto diminuto
 python3 scripts/audit_html.py         # index.html y 404.html arrancan igual (ADR-027)
 python3 scripts/audit_paleta.py       # color de fábrica fuera de la paleta (ADR-033)
+
+python3 scripts/verificar_items.py contenido/items/<topic>.json   # ítems antes de que entren al banco
+python3 scripts/generar_migracion_items.py contenido/items/<topic>.json
 ```
 
 ## 6. Convenciones de documentación

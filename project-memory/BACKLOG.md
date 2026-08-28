@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
+Última actualización: **2026-08-28** (2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
 verificado en producción, con D-21 respetado en las dos rutas — **ADR-028 / D-56**. Abre **T-95**
 (persistir el consentimiento) y **R-33** (la pantalla de Google nombra a `supabase.co`)). Antes: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
 G-1…G-5, tareas T-76…T-89), abierta por
@@ -1241,6 +1241,44 @@ dan 79 %. Las tres salidas, que hay que elegir con el owner:
    el owner el 2026-08-28), donde cada eje aporta sus propios ítems.
 
 **Relacionado:** T-111 (misma raíz: 12 ítems), y el diseño de la cadena de ejes.
+
+### T-118 · Decidir el reparto de bandas con diagnósticos por eje — **P0** · `abierto`
+
+**Es precondición de escribir un solo ítem nuevo**, y bloquea la primera tanda del eje de números.
+
+`bands/default-bands` reparte los centros de los **18 módulos del producto** a lo largo de
+`[-2.4, 2.4]` en orden curricular. Consecuencia medida: **el eje de números entero cabe en
+[−2,85, −0,54]**. Eso es coherente con un diagnóstico único que recorra los cuatro ejes, y es
+incorrecto con la cadena por eje que se adoptó — un estudiante que llega a θ = 1,3 rindiendo números
+se queda sin ítems.
+
+**No es hipotético: pasó el 2026-08-28.** El diagnóstico de `enteros` (banda derivada [−2,57, −1,67])
+paró en 8 preguntas por `:exhausted` con θ = 1,29, o sea 1,83 logits sobre el techo de su banda.
+
+**Propuesta:** declarar `modules.band_min`/`band_max` **explícitas** por módulo, de modo que **cada
+eje reparta sus módulos a lo largo de todo `[-3, 3]`**. La maquinaria ya existe: `bands/band-for`
+prefiere la explícita sobre la derivada y marca el origen. Reparto propuesto en
+`.claude/skills/banco-de-items/referencias/ejes-y-bandas.md`.
+
+**Lo que hay que aceptar si se aprueba:** el θ de números y el de geometría dejan de ser comparables
+entre sí. No es pérdida real —la escala común entre ejes siempre fue hipótesis editorial, nunca
+medición— y las cohortes se arman con el θ de un solo eje, que es consistente. Lo que deja de poder
+decirse es «este estudiante está en nivel 2 en general».
+
+**Terminado cuando:** las bandas explícitas están en una migración aplicada, o queda decidido por
+escrito que la cadena por eje no se hace.
+
+### T-119 · Crear los módulos de probabilidad y estadística — **P1** · `abierto`
+
+La migración `046` amplió el check de `track` para admitir `probabilidad`, pero **nadie creó los
+módulos**: el cuarto eje del temario DEMRE tiene **cero módulos y cero ítems**. Sin módulos,
+`module_id` queda en null y el plan de estudio no puede recomendar nada para ese eje.
+
+La lista de contenidos es **decisión del owner** —sale del temario DEMRE— y no se inventa
+([[OPEN_QUESTIONS]], regla de §6 de `CLAUDE.md`).
+
+**Terminado cuando:** existen los módulos del eje con su `track`, `order_index` y banda, y
+`bands/product-modules` los toma.
 
 ### T-109 · Borrar `src/universo/animations.cljs` (código muerto) — **P3** · `abierto`
 
@@ -3256,8 +3294,8 @@ de negocio, no técnica.
 
 | Prioridad | Tareas |
 |-----------|--------|
-| **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50, **T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-88, T-90, T-91, T-93, T-110** |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92, T-111, T-117** |
+| **P0** | **T-118**, T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50, **T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-88, T-90, T-91, T-93, T-110** |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92, T-111, T-117, T-119** |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86, T-95, T-113, T-115, T-116** |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
