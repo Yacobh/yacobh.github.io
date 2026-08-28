@@ -1,0 +1,2723 @@
+{
+ "topic": "algebra",
+ "migracion_archivo": "052_banco_del_eje_de_algebra.sql",
+ "migracion_titulo": "Banco del eje de álgebra — primera tanda",
+ "migracion_notas": "100 ítems repartidos en los cinco módulos de álgebra, cubriendo toda la escala\n[-3, 3] con al menos 6 ítems por tramo de 1,0 logit.\n\nREQUIERE la migración 051 aplicada (bandas explícitas del eje de álgebra), por la\nmisma razón por la que 050 requería 049: sin ella las bandas derivadas comprimen el\neje entero en [-1,16, +0,87] y el diagnóstico se agota cuando el estudiante sube.\n\nNO amplía el banco `polinomios` existente: lo reemplaza. Ese banco tiene 18 de sus\n20 ítems dentro de 0,045 logits — no es una escala de dificultad, es una constante\ncon ruido, y ningún test adaptativo puede discriminar dentro de él. Los 20 ítems\nviejos NO se borran acá: siguen respondiendo a su propio topic y a su historial en\n`tests`. Se retiran de circulación desactivándolos, que es una decisión de contenido\ndel owner y no de esta migración.\n\n`difficulty` es una HIPÓTESIS EDITORIAL, no una medición (R-17). La validez solo\npuede venir de calibrar con respuestas reales (G-2).",
+ "cobertura_objetivo": {
+  "min": -3.0,
+  "max": 3.0,
+  "ancho_tramo": 1.0,
+  "min_por_tramo": 6
+ },
+ "misconceptions_preexistentes": [
+  "fracciones/suma-numeradores-y-denominadores"
+ ],
+ "misconceptions": [
+  {
+   "slug": "algebra/coeficiente-incluye-la-letra",
+   "name": "Toma el término completo como coeficiente",
+   "description": "Usar cuando responde «5x» donde se pedía el coeficiente de $5x$. No separa la parte numérica de la literal.",
+   "module_slug": "algebra/expresiones"
+  },
+  {
+   "slug": "algebra/suma-terminos-no-semejantes",
+   "name": "Reduce términos que no son semejantes",
+   "description": "Usar cuando junta $3x$ con $2y$, o $x$ con $x^2$. Es tratar las letras como si todas nombraran lo mismo.",
+   "module_slug": "algebra/expresiones"
+  },
+  {
+   "slug": "algebra/letra-sola-no-tiene-coeficiente",
+   "name": "Trata la letra sola como si tuviera coeficiente cero",
+   "description": "Usar cuando $4x - x$ da $4x$ o $4$. La letra sola lleva un $1$ implícito.",
+   "module_slug": "algebra/expresiones"
+  },
+  {
+   "slug": "algebra/no-distribuye-el-signo-menos",
+   "name": "No aplica el signo menos a todo el paréntesis",
+   "description": "Usar cuando $5-(x-2)$ da $5-x-2$. El menos multiplica a cada término de adentro, no solo al primero.",
+   "module_slug": "algebra/expresiones"
+  },
+  {
+   "slug": "algebra/multiplica-monomios-sin-tocar-el-exponente",
+   "name": "Multiplica los coeficientes y deja la letra sin exponente",
+   "description": "Usar cuando $2x \\cdot 3x$ da $6x$. Al multiplicar potencias de igual base los exponentes se suman.",
+   "module_slug": "algebra/expresiones"
+  },
+  {
+   "slug": "algebra/potencia-antes-o-despues-del-signo",
+   "name": "No distingue $-x^2$ de $(-x)^2$ al evaluar",
+   "description": "Usar cuando reemplaza un valor negativo y aplica el exponente al signo sin que haya paréntesis, o al revés.",
+   "module_slug": "algebra/expresiones"
+  },
+  {
+   "slug": "algebra/traduce-palabra-por-palabra",
+   "name": "Traduce el enunciado en el orden en que está escrito, sin el paréntesis",
+   "description": "Usar cuando «el doble de la suma de un número y 5» queda como $2n+5$. La palabra «de» agrupa lo que viene después.",
+   "module_slug": "algebra/expresiones"
+  },
+  {
+   "slug": "algebra/cuadrado-de-suma-como-suma-de-cuadrados",
+   "name": "Cree que $(a+b)^2 = a^2 + b^2$",
+   "description": "Usar cuando reparte el exponente sobre una suma. Es la propiedad distributiva aplicada donde no vale; falta el doble producto.",
+   "module_slug": "algebra/expresiones"
+  },
+  {
+   "slug": "algebra/no-distribuye-a-todos-los-terminos",
+   "name": "Multiplica el factor solo por el primer término del paréntesis",
+   "description": "Usar cuando $2(3x+4)$ da $6x+4$. La distributiva alcanza a todos los términos de adentro.",
+   "module_slug": "algebra/expresiones"
+  },
+  {
+   "slug": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+   "name": "Cambia un término de lado sin cambiarle el signo",
+   "description": "Usar cuando pasa un sumando al otro miembro y lo deja igual. Lo que se hace es restarlo a los dos lados, y por eso llega con el signo opuesto.",
+   "module_slug": "algebra/ecuaciones"
+  },
+  {
+   "slug": "ecuaciones/divide-solo-un-termino",
+   "name": "Divide solo uno de los términos del miembro",
+   "description": "Usar cuando al dividir por un número lo aplica al término con incógnita y no al independiente, o al revés.",
+   "module_slug": "algebra/ecuaciones"
+  },
+  {
+   "slug": "ecuaciones/invierte-la-operacion-al-despejar",
+   "name": "Aplica la misma operación en vez de la inversa al despejar",
+   "description": "Usar cuando multiplica donde había que dividir, o suma donde había que restar. Reconoce que hay que despejar y elige la operación equivocada.",
+   "module_slug": "algebra/ecuaciones"
+  },
+  {
+   "slug": "ecuaciones/coeficiente-negativo-pierde-el-signo",
+   "name": "Suelta el signo del coeficiente negativo al despejar",
+   "description": "Usar cuando $-2x = 6$ da $x = 3$. Dividir por un número negativo cambia el signo del resultado.",
+   "module_slug": "algebra/ecuaciones"
+  },
+  {
+   "slug": "ecuaciones/no-desarrolla-el-parentesis",
+   "name": "Despeja sin desarrollar el paréntesis primero",
+   "description": "Usar cuando opera con el contenido del paréntesis como si el factor de afuera no existiera.",
+   "module_slug": "algebra/ecuaciones"
+  },
+  {
+   "slug": "ecuaciones/sin-solucion-como-cero",
+   "name": "Confunde «no tiene solución» con «la solución es cero»",
+   "description": "Usar cuando una identidad falsa como $6 = 1$ se responde $x = 0$. Que la incógnita desaparezca no significa que valga cero.",
+   "module_slug": "algebra/ecuaciones"
+  },
+  {
+   "slug": "sistemas/solucion-como-un-solo-numero",
+   "name": "Entrega un solo valor como solución de un sistema de dos incógnitas",
+   "description": "Usar cuando responde solo $x$ o solo $y$. La solución de un sistema 2×2 es un par ordenado: hacen falta los dos valores.",
+   "module_slug": "algebra/sistemas"
+  },
+  {
+   "slug": "sistemas/resuelve-una-sola-ecuacion",
+   "name": "Usa una sola de las dos ecuaciones",
+   "description": "Usar cuando el valor entregado cumple una ecuación y no la otra. Un sistema exige que las dos se cumplan a la vez.",
+   "module_slug": "algebra/sistemas"
+  },
+  {
+   "slug": "sistemas/confunde-sin-solucion-con-infinitas",
+   "name": "Confunde un sistema incompatible con uno de infinitas soluciones",
+   "description": "Usar cuando llama «infinitas soluciones» a rectas paralelas, o «sin solución» a dos ecuaciones que son la misma recta.",
+   "module_slug": "algebra/sistemas"
+  },
+  {
+   "slug": "sistemas/traduce-mal-el-enunciado",
+   "name": "Plantea el sistema con las incógnitas cambiadas o una condición perdida",
+   "description": "Usar cuando el error no está en resolver sino en escribir las ecuaciones: cambia cuál es cuál, o usa una sola condición.",
+   "module_slug": "algebra/sistemas"
+  },
+  {
+   "slug": "polinomios/grado-como-cantidad-de-terminos",
+   "name": "Confunde el grado del polinomio con su número de términos",
+   "description": "Usar cuando responde 3 para un trinomio de grado 2. El grado es el mayor exponente, no cuántos sumandos hay.",
+   "module_slug": "algebra/polinomios"
+  },
+  {
+   "slug": "polinomios/cuadrado-de-binomio-sin-doble-producto",
+   "name": "Desarrolla $(a+b)^2$ como $a^2+b^2$",
+   "description": "Usar cuando falta el término $2ab$. Es el error más frecuente de productos notables, y viene de repartir el exponente sobre la suma.",
+   "module_slug": "algebra/polinomios"
+  },
+  {
+   "slug": "polinomios/factoriza-la-suma-de-cuadrados",
+   "name": "Factoriza $a^2+b^2$ como si fuera una diferencia",
+   "description": "Usar cuando entrega $(a+b)(a-b)$ para una suma de cuadrados. Solo la **diferencia** de cuadrados se factoriza así.",
+   "module_slug": "algebra/polinomios"
+  },
+  {
+   "slug": "polinomios/factor-comun-incompleto",
+   "name": "Extrae un factor común que no es el máximo",
+   "description": "Usar cuando la factorización es correcta pero dentro del paréntesis todavía queda un factor común por sacar.",
+   "module_slug": "algebra/polinomios"
+  },
+  {
+   "slug": "polinomios/signos-cambiados-al-factorizar",
+   "name": "Equivoca los signos de los binomios al factorizar un trinomio",
+   "description": "Usar cuando los dos números elegidos multiplican y suman mal por un tema de signos. Conviene comprobar desarrollando.",
+   "module_slug": "algebra/polinomios"
+  },
+  {
+   "slug": "polinomios/cancela-terminos-sueltos-de-la-fraccion",
+   "name": "Cancela términos sueltos de una fracción algebraica",
+   "description": "Usar cuando tacha una $x$ de arriba con una de abajo sin haber factorizado. Solo se cancelan **factores** completos, no sumandos.",
+   "module_slug": "algebra/polinomios"
+  },
+  {
+   "slug": "polinomios/multiplica-solo-los-primeros-terminos",
+   "name": "Al multiplicar binomios solo multiplica primero con primero y último con último",
+   "description": "Usar cuando faltan los términos cruzados. Cada término del primer paréntesis multiplica a todos los del segundo.",
+   "module_slug": "algebra/polinomios"
+  },
+  {
+   "slug": "funciones/confunde-pendiente-con-intercepto",
+   "name": "Intercambia la pendiente con el coeficiente de posición",
+   "description": "Usar cuando en $y = mx + n$ señala el $n$ como pendiente o el $m$ como corte con el eje $y$.",
+   "module_slug": "algebra/funciones"
+  },
+  {
+   "slug": "funciones/pendiente-invertida",
+   "name": "Calcula la pendiente como $\\Delta x / \\Delta y$",
+   "description": "Usar cuando divide la variación horizontal por la vertical. La pendiente es cuánto sube por cada unidad que avanza.",
+   "module_slug": "algebra/funciones"
+  },
+  {
+   "slug": "funciones/confunde-los-dos-cortes",
+   "name": "Confunde el corte con el eje $x$ con el corte con el eje $y$",
+   "description": "Usar cuando iguala a cero la variable equivocada. El corte con el eje $x$ se obtiene con $y = 0$, y viceversa.",
+   "module_slug": "algebra/funciones"
+  },
+  {
+   "slug": "funciones/raices-con-el-signo-de-la-factorizacion",
+   "name": "Lee las raíces con el signo que aparece en los paréntesis",
+   "description": "Usar cuando de $(x-2)(x-3)$ concluye que las raíces son $-2$ y $-3$. La raíz es el valor que **anula** el factor.",
+   "module_slug": "algebra/funciones"
+  },
+  {
+   "slug": "funciones/vertice-con-el-signo-cambiado",
+   "name": "Equivoca el signo en la fórmula del vértice",
+   "description": "Usar cuando calcula $x = b/2a$ en vez de $-b/2a$, o cuando entrega la coordenada $y$ sin reemplazar.",
+   "module_slug": "algebra/funciones"
+  },
+  {
+   "slug": "funciones/discriminante-negativo-como-sin-sentido",
+   "name": "No interpreta el discriminante negativo",
+   "description": "Usar cuando ante $\\Delta < 0$ responde que hay una raíz, o que la raíz es cero. Un discriminante negativo significa que no hay raíces reales.",
+   "module_slug": "algebra/funciones"
+  },
+  {
+   "slug": "funciones/relacion-con-dos-imagenes-es-funcion",
+   "name": "Acepta como función una relación que asigna dos valores a un mismo elemento",
+   "description": "Usar cuando no aplica la condición de unicidad. Una función asigna a cada valor de entrada exactamente uno de salida.",
+   "module_slug": "algebra/funciones"
+  },
+  {
+   "slug": "funciones/confunde-costo-fijo-con-variable",
+   "name": "Confunde el término constante con el coeficiente en una función de costo",
+   "description": "Usar cuando en $C(x) = mx + n$ señala el $m$ como costo fijo. El costo fijo es el que no depende de la cantidad.",
+   "module_slug": "algebra/funciones"
+  }
+ ],
+ "items": [
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -3.0,
+   "order_index": 10,
+   "question": "¿Cuál es el **coeficiente** del término $5x$?",
+   "options": {
+    "A": "$x$",
+    "B": "$5x$",
+    "C": "$5$",
+    "D": "$1$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Esa es la parte **literal**, la letra. El coeficiente es el número que la multiplica.",
+    "B": "Ese es el término completo. El coeficiente es solo su parte numérica.",
+    "C": "Correcto. En $5x$ el $5$ multiplica a la letra: ese es el coeficiente.",
+    "D": "El $1$ es el coeficiente implícito cuando la letra aparece sola, como en $x$. Acá el número está escrito."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "algebra/coeficiente-incluye-la-letra",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -2.92,
+   "order_index": 20,
+   "question": "En el término $3x^2$, ¿cuál es la **parte literal**?",
+   "options": {
+    "A": "$x^2$",
+    "B": "$3$",
+    "C": "$x$",
+    "D": "$3x$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. La parte literal es todo lo que no es el número, exponente incluido.",
+    "B": "Ese es el coeficiente, la parte numérica.",
+    "C": "Falta el exponente. $x$ y $x^2$ no son la misma parte literal, y por eso $3x$ y $3x^2$ no son términos semejantes.",
+    "D": "Ahí quedó incluido el coeficiente. La parte literal es solo la letra con su exponente."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "algebra/coeficiente-incluye-la-letra"
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -2.84,
+   "order_index": 30,
+   "question": "¿Cuántos **términos** tiene la expresión $2x + 3y - 5$?",
+   "options": {
+    "A": "$1$",
+    "B": "$2$",
+    "C": "$6$",
+    "D": "$3$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Una expresión con signos de suma y resta entre medio tiene varios términos: los separan justamente esos signos.",
+    "B": "Se contaron solo los que llevan letra. El $-5$ también es un término, llamado término independiente.",
+    "C": "Se contaron los símbolos sueltos. Un término puede tener número y letra juntos, como $2x$.",
+    "D": "Correcto. Los términos son $2x$, $3y$ y $-5$: los separan los signos $+$ y $-$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -2.76,
+   "order_index": 40,
+   "question": "¿Cuál de estos términos es **semejante** a $3x$?",
+   "options": {
+    "A": "$3x^2$",
+    "B": "$5x$",
+    "C": "$3y$",
+    "D": "$3$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Comparte la letra pero no el exponente. $x$ y $x^2$ representan cosas distintas: no se pueden reducir juntos.",
+    "B": "Correcto. Dos términos son semejantes si tienen la misma parte literal; el coeficiente puede ser cualquiera.",
+    "C": "Comparte el coeficiente pero no la letra. Lo que tiene que coincidir es la parte literal, no el número.",
+    "D": "Es un término independiente, sin parte literal. No es semejante a uno que sí la tiene."
+   },
+   "misconceptions": {
+    "A": "algebra/suma-terminos-no-semejantes",
+    "B": null,
+    "C": "algebra/suma-terminos-no-semejantes",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -2.68,
+   "order_index": 50,
+   "question": "Reduce la expresión $3x + 2x$.",
+   "options": {
+    "A": "$5x$",
+    "B": "$6x^2$",
+    "C": "$5x^2$",
+    "D": "$5$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Son términos semejantes: se suman los coeficientes y la parte literal se mantiene.",
+    "B": "Se multiplicaron los términos en vez de sumarlos. Sumar $3$ manzanas y $2$ manzanas da $5$ manzanas, no $6$ manzanas al cuadrado.",
+    "C": "Los coeficientes se sumaron bien, pero apareció un exponente que no estaba. Sumar no cambia la parte literal.",
+    "D": "Se perdió la letra. El resultado sigue siendo una cantidad de $x$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "algebra/multiplica-monomios-sin-tocar-el-exponente",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -2.61,
+   "order_index": 60,
+   "question": "Reduce todo lo posible la expresión $3x + 2y$.",
+   "options": {
+    "A": "$5xy$",
+    "B": "$5x$",
+    "C": "No se puede reducir más",
+    "D": "$5$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se juntaron los coeficientes y se pegaron las letras. $x$ e $y$ representan cantidades distintas: no se pueden sumar entre sí.",
+    "B": "Se sumaron los coeficientes y se descartó la $y$. Ninguna de las dos letras desaparece por sumarlas.",
+    "C": "Correcto. $3x$ y $2y$ no son semejantes —tienen parte literal distinta—, así que la expresión ya está reducida.",
+    "D": "Se perdieron las dos letras. El resultado no puede ser un número puro."
+   },
+   "misconceptions": {
+    "A": "algebra/suma-terminos-no-semejantes",
+    "B": "algebra/suma-terminos-no-semejantes",
+    "C": null,
+    "D": "algebra/suma-terminos-no-semejantes"
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -2.53,
+   "order_index": 70,
+   "question": "¿Cuál es el valor de $2x + 1$ cuando $x = 3$?",
+   "options": {
+    "A": "$21$",
+    "B": "$6$",
+    "C": "$5$",
+    "D": "$7$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se pegó el $3$ al lado del $2$ formando $21$. Reemplazar significa **multiplicar** $2$ por $3$, no escribirlos juntos.",
+    "B": "Se calculó $2 \\times 3$ y faltó sumar el $1$.",
+    "C": "Se sumaron $2$ y $3$ en vez de multiplicarlos. En $2x$ el número y la letra están multiplicándose.",
+    "D": "Correcto. $2 \\times 3 + 1 = 6 + 1 = 7$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -2.45,
+   "order_index": 80,
+   "question": "¿Cómo se escribe «el doble de un número, aumentado en $5$»?",
+   "options": {
+    "A": "$2(n+5)$",
+    "B": "$2n + 5$",
+    "C": "$n^2 + 5$",
+    "D": "$2 + n + 5$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ahí el doble se aplica a la suma completa. El enunciado dobla **el número** y recién después suma $5$.",
+    "B": "Correcto. «El doble de un número» es $2n$, y «aumentado en $5$» le suma $5$ a eso.",
+    "C": "«El doble» multiplica por $2$; elevar al cuadrado sería «el número al cuadrado».",
+    "D": "El $2$ quedó sumando en vez de multiplicando. «El doble de» es un producto."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -2.37,
+   "order_index": 90,
+   "question": "¿Cómo se escribe «el doble de la suma entre un número y $5$»?",
+   "options": {
+    "A": "$2(n+5)$",
+    "B": "$2n + 5$",
+    "C": "$2n + 10$",
+    "D": "$n + 10$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Primero se forma la suma $n+5$ y después se dobla toda: por eso el paréntesis.",
+    "B": "Esa es «el doble de un número, aumentado en $5$», que es otra cosa: acá lo que se dobla es la **suma completa**.",
+    "C": "El resultado es correcto si se desarrolla el paréntesis, pero la pregunta pide la expresión que traduce el enunciado; además $2n+10$ ya está distribuido.",
+    "D": "Se dobló solo el $5$ y no el número. El doble alcanza a los dos sumandos."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "algebra/traduce-palabra-por-palabra",
+    "C": null,
+    "D": "algebra/no-distribuye-a-todos-los-terminos"
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -2.29,
+   "order_index": 100,
+   "question": "Reduce la expresión $5a - 3a + a$.",
+   "options": {
+    "A": "$2a$",
+    "B": "$9a$",
+    "C": "$3a$",
+    "D": "$1a^3$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se reducieron los dos primeros y se olvidó el último término. La $a$ sola vale $1a$ y también suma.",
+    "B": "Se sumaron los tres coeficientes ignorando el signo menos del segundo.",
+    "C": "Correcto. $5 - 3 + 1 = 3$, así que queda $3a$. La letra sola cuenta como $1a$.",
+    "D": "Se multiplicaron los términos en vez de sumarlos y restarlos: por eso apareció el exponente."
+   },
+   "misconceptions": {
+    "A": "algebra/letra-sola-no-tiene-coeficiente",
+    "B": null,
+    "C": null,
+    "D": "algebra/multiplica-monomios-sin-tocar-el-exponente"
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -2.21,
+   "order_index": 110,
+   "question": "¿Cuál es el valor de $x^2$ cuando $x = -2$?",
+   "options": {
+    "A": "$-4$",
+    "B": "$-2$",
+    "C": "$2$",
+    "D": "$4$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "El signo negativo también se eleva: $(-2)^2 = (-2)\\times(-2)$, y dos negativos dan positivo.",
+    "B": "Se reemplazó el valor y no se aplicó el exponente.",
+    "C": "Se cambió el signo pero no se elevó al cuadrado.",
+    "D": "Correcto. $(-2)^2 = (-2)\\times(-2) = 4$."
+   },
+   "misconceptions": {
+    "A": "algebra/potencia-antes-o-despues-del-signo",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -2.13,
+   "order_index": 120,
+   "question": "Suprime el paréntesis y reduce: $3 + (2x - 1)$.",
+   "options": {
+    "A": "$2x - 4$",
+    "B": "$2x + 2$",
+    "C": "$6x - 3$",
+    "D": "$2x + 4$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "El signo del $-1$ se mantiene, pero se restó del $3$ en vez de sumarse a él: $3 + (-1) = 2$.",
+    "B": "Correcto. Con un $+$ delante, el paréntesis se abre sin cambiar nada: $3 + 2x - 1 = 2x + 2$.",
+    "C": "Se multiplicó el $3$ por lo de adentro. El signo entre el $3$ y el paréntesis es una suma, no un producto.",
+    "D": "El $-1$ se sumó en vez de restarse. Dentro del paréntesis el $1$ está restando."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -2.05,
+   "order_index": 130,
+   "question": "Suprime el paréntesis y reduce: $5 - (x - 2)$.",
+   "options": {
+    "A": "$7 - x$",
+    "B": "$3 - x$",
+    "C": "$3 + x$",
+    "D": "$7 + x$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. El menos alcanza a los dos términos: $5 - x + 2 = 7 - x$.",
+    "B": "El menos se aplicó solo al primer término del paréntesis. Al $-2$ de adentro también hay que cambiarle el signo, y queda $+2$.",
+    "C": "Los dos signos quedaron cambiados al revés: el de la $x$ debía volverse negativo y el del $2$, positivo.",
+    "D": "Se cambió el signo del $2$ pero no el de la $x$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "algebra/no-distribuye-el-signo-menos",
+    "C": "algebra/no-distribuye-el-signo-menos",
+    "D": "algebra/no-distribuye-el-signo-menos"
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -1.97,
+   "order_index": 140,
+   "question": "¿Cuál es el resultado de $2x \\cdot 3x$?",
+   "options": {
+    "A": "$5x^2$",
+    "B": "$6x$",
+    "C": "$6x^2$",
+    "D": "$5x$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Los coeficientes se sumaron en vez de multiplicarse. La parte literal quedó bien: $x \\cdot x = x^2$.",
+    "B": "Los coeficientes se multiplicaron bien, pero faltó el exponente: $x \\cdot x = x^2$, no $x$.",
+    "C": "Correcto. $2 \\cdot 3 = 6$ y $x \\cdot x = x^2$, así que queda $6x^2$.",
+    "D": "Se sumaron los coeficientes y se dejó la letra sin exponente: es el resultado de tratar el producto como una suma."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "algebra/multiplica-monomios-sin-tocar-el-exponente",
+    "C": null,
+    "D": "algebra/multiplica-monomios-sin-tocar-el-exponente"
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -1.89,
+   "order_index": 150,
+   "question": "Reduce la expresión $4x - x$.",
+   "options": {
+    "A": "$4$",
+    "B": "$4x$",
+    "C": "$-4x$",
+    "D": "$3x$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se eliminó la letra al restarla. Restar una $x$ de cuatro $x$ deja tres $x$, no un número puro.",
+    "B": "Se trató la $x$ sola como si valiera cero. La letra sin número delante lleva un $1$ implícito.",
+    "C": "El signo quedó invertido. De $4x$ se está quitando $1x$, así que sobra una cantidad positiva.",
+    "D": "Correcto. $4x - 1x = 3x$: la letra sola cuenta como $1x$."
+   },
+   "misconceptions": {
+    "A": "algebra/letra-sola-no-tiene-coeficiente",
+    "B": "algebra/letra-sola-no-tiene-coeficiente",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -1.81,
+   "order_index": 160,
+   "question": "¿Cuál es el valor de $-x^2$ cuando $x = 3$?",
+   "options": {
+    "A": "$9$",
+    "B": "$-9$",
+    "C": "$6$",
+    "D": "$-6$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "El signo menos no está dentro de la potencia: sin paréntesis, primero se eleva $3$ al cuadrado y después se aplica el menos.",
+    "B": "Correcto. $-x^2$ significa $-(x^2)$, así que es $-(3^2) = -9$.",
+    "C": "Se multiplicó la base por el exponente. El cuadrado de $3$ es $3\\times 3$, no $3\\times 2$.",
+    "D": "Además de multiplicar base por exponente, el signo quedó bien pero el valor no."
+   },
+   "misconceptions": {
+    "A": "algebra/potencia-antes-o-despues-del-signo",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -1.74,
+   "order_index": 170,
+   "question": "Desarrolla $2(3x + 4)$.",
+   "options": {
+    "A": "$6x + 8$",
+    "B": "$6x + 4$",
+    "C": "$5x + 6$",
+    "D": "$3x + 8$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. El $2$ multiplica a los dos términos: $2 \\cdot 3x = 6x$ y $2 \\cdot 4 = 8$.",
+    "B": "El $2$ se aplicó solo al primer término. La propiedad distributiva alcanza a todo lo que está dentro del paréntesis.",
+    "C": "Se sumó el $2$ en vez de multiplicar, y de forma distinta en cada término.",
+    "D": "El $2$ se aplicó solo al segundo término, dejando el $3x$ intacto."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "algebra/no-distribuye-a-todos-los-terminos",
+    "C": null,
+    "D": "algebra/no-distribuye-a-todos-los-terminos"
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -1.66,
+   "order_index": 180,
+   "question": "Un rectángulo tiene lados de largo $x$ y $x+3$. ¿Cuál expresión representa su **perímetro**?",
+   "options": {
+    "A": "$x(x+3)$",
+    "B": "$2x + 3$",
+    "C": "$4x + 6$",
+    "D": "$x^2 + 3x$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Esa es el **área**: el producto de los dos lados. El perímetro es la suma de los cuatro lados.",
+    "B": "Se sumaron los dos lados una sola vez. Un rectángulo tiene cuatro lados: cada medida aparece dos veces.",
+    "C": "Correcto. $2x + 2(x+3) = 2x + 2x + 6 = 4x + 6$.",
+    "D": "Es el área con el paréntesis ya desarrollado, no el perímetro."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -1.58,
+   "order_index": 190,
+   "question": "Reduce la expresión $2(x+1) - (x-3)$.",
+   "options": {
+    "A": "$x - 1$",
+    "B": "$3x - 2$",
+    "C": "$x - 5$",
+    "D": "$x + 5$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "El signo menos del segundo paréntesis se aplicó solo a la $x$: al $-3$ también hay que cambiarle el signo, y queda $+3$.",
+    "B": "Los dos paréntesis se sumaron en vez de restarse. El segundo va con un menos delante.",
+    "C": "El $-3$ se mantuvo con su signo original. Al suprimir un paréntesis precedido de menos, todos los signos de adentro cambian.",
+    "D": "Correcto. $2x + 2 - x + 3 = x + 5$."
+   },
+   "misconceptions": {
+    "A": "algebra/no-distribuye-el-signo-menos",
+    "B": null,
+    "C": "algebra/no-distribuye-el-signo-menos",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/expresiones",
+   "difficulty": -1.5,
+   "order_index": 200,
+   "question": "Si $a = 1$ y $b = 2$, ¿qué relación hay entre $(a+b)^2$ y $a^2 + b^2$?",
+   "options": {
+    "A": "Son iguales, valen $5$",
+    "B": "$(a+b)^2 = 9$ y $a^2+b^2 = 5$: no son iguales",
+    "C": "Son iguales, valen $9$",
+    "D": "$(a+b)^2 = 5$ y $a^2+b^2 = 9$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "$(a+b)^2$ se calculó repartiendo el exponente sobre la suma, y eso no vale: hay que sumar primero y elevar después.",
+    "B": "Correcto. $(1+2)^2 = 3^2 = 9$, mientras que $1^2+2^2 = 5$. La diferencia de $4$ es el doble producto $2ab$ que falta.",
+    "C": "Los dos valores no coinciden: $a^2+b^2$ da $5$, no $9$. El exponente no se reparte sobre una suma.",
+    "D": "Los valores están intercambiados: el que da $9$ es $(a+b)^2$, porque primero se suma."
+   },
+   "misconceptions": {
+    "A": "algebra/cuadrado-de-suma-como-suma-de-cuadrados",
+    "B": null,
+    "C": "algebra/cuadrado-de-suma-como-suma-de-cuadrados",
+    "D": "algebra/cuadrado-de-suma-como-suma-de-cuadrados"
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -2.2,
+   "order_index": 10,
+   "question": "Resuelve la ecuación $x + 3 = 7$.",
+   "options": {
+    "A": "$x = 10$",
+    "B": "$x = 4$",
+    "C": "$x = 21$",
+    "D": "$x = 3$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "El $3$ pasó al otro lado sumando en vez de restando. Para dejar sola la $x$ hay que **restar** $3$ a los dos miembros.",
+    "B": "Correcto. Restando $3$ a ambos lados: $x = 7 - 3 = 4$.",
+    "C": "Se multiplicó en vez de restar. La operación que deshace una suma es la resta.",
+    "D": "Ese es el número que acompaña a la $x$, no su valor."
+   },
+   "misconceptions": {
+    "A": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "B": null,
+    "C": "ecuaciones/invierte-la-operacion-al-despejar",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -2.12,
+   "order_index": 20,
+   "question": "Resuelve la ecuación $x - 2 = 5$.",
+   "options": {
+    "A": "$x = 3$",
+    "B": "$x = 10$",
+    "C": "$x = -3$",
+    "D": "$x = 7$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "El $2$ pasó restando en vez de sumando. Como está restando a la izquierda, hay que **sumar** $2$ a los dos lados.",
+    "B": "Se multiplicó por $2$. La operación que deshace una resta es la suma.",
+    "C": "Además de restar en vez de sumar, el resultado quedó con el signo cambiado.",
+    "D": "Correcto. Sumando $2$ a ambos lados: $x = 5 + 2 = 7$."
+   },
+   "misconceptions": {
+    "A": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "B": "ecuaciones/invierte-la-operacion-al-despejar",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -2.03,
+   "order_index": 30,
+   "question": "Resuelve la ecuación $3x = 12$.",
+   "options": {
+    "A": "$x = 4$",
+    "B": "$x = 36$",
+    "C": "$x = 9$",
+    "D": "$x = 15$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Dividiendo ambos lados por $3$: $x = 12 \\div 3 = 4$.",
+    "B": "Se multiplicó por $3$ en vez de dividir. Como el $3$ está multiplicando a la $x$, se deshace dividiendo.",
+    "C": "Se restó $3$. El $3$ no está sumando: está multiplicando.",
+    "D": "Se sumó $3$. La operación inversa de multiplicar es dividir."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "ecuaciones/invierte-la-operacion-al-despejar",
+    "C": "ecuaciones/invierte-la-operacion-al-despejar",
+    "D": "ecuaciones/invierte-la-operacion-al-despejar"
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -1.95,
+   "order_index": 40,
+   "question": "Resuelve la ecuación $\\dfrac{x}{2} = 4$.",
+   "options": {
+    "A": "$x = 2$",
+    "B": "$x = 6$",
+    "C": "$x = 8$",
+    "D": "$x = 4$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se dividió otra vez por $2$. La $x$ ya está dividida: para liberarla hay que **multiplicar**.",
+    "B": "Se sumó $2$. El $2$ está dividiendo, no restando.",
+    "C": "Correcto. Multiplicando ambos lados por $2$: $x = 4 \\times 2 = 8$.",
+    "D": "Se dejó el valor del otro miembro sin deshacer la división."
+   },
+   "misconceptions": {
+    "A": "ecuaciones/invierte-la-operacion-al-despejar",
+    "B": "ecuaciones/invierte-la-operacion-al-despejar",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -1.87,
+   "order_index": 50,
+   "question": "Resuelve la ecuación $2x + 1 = 9$.",
+   "options": {
+    "A": "$x = 5$",
+    "B": "$x = 4$",
+    "C": "$x = 10$",
+    "D": "$x = 8$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se dividió $9$ por $2$ antes de restar el $1$, o se restó el $1$ después de dividir. El orden es: primero se quita lo que suma, después se deshace lo que multiplica.",
+    "B": "Correcto. $2x = 9 - 1 = 8$, y dividiendo por $2$ queda $x = 4$.",
+    "C": "El $1$ pasó sumando en vez de restando, y además faltó dividir por $2$.",
+    "D": "Se restó bien el $1$, pero faltó el último paso: dividir por $2$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -1.79,
+   "order_index": 60,
+   "question": "¿Cuál de estos valores **es solución** de $2x = 10$?",
+   "options": {
+    "A": "$x = 20$",
+    "B": "$x = 8$",
+    "C": "$x = 12$",
+    "D": "$x = 5$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Al reemplazar queda $2 \\times 20 = 40$, que no es $10$. Comprobar reemplazando es siempre la forma de verificar.",
+    "B": "Reemplazando: $2 \\times 8 = 16$. Ese valor sale de restar $2$ en vez de dividir.",
+    "C": "Reemplazando: $2 \\times 12 = 24$. Ese valor sale de sumar $2$.",
+    "D": "Correcto. $2 \\times 5 = 10$: al reemplazar, la igualdad se cumple."
+   },
+   "misconceptions": {
+    "A": "ecuaciones/invierte-la-operacion-al-despejar",
+    "B": "ecuaciones/invierte-la-operacion-al-despejar",
+    "C": "ecuaciones/invierte-la-operacion-al-despejar",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -1.7,
+   "order_index": 70,
+   "question": "Resuelve la ecuación $3x - 5 = 10$.",
+   "options": {
+    "A": "$x = 5$",
+    "B": "$x = \\dfrac{5}{3}$",
+    "C": "$x = 15$",
+    "D": "$x = 45$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $3x = 10 + 5 = 15$, y dividiendo por $3$ queda $x = 5$.",
+    "B": "El $5$ se restó en vez de sumarse: $10 - 5 = 5$, y de ahí salió $\\frac{5}{3}$. Como el $5$ está restando, pasa **sumando**.",
+    "C": "Se sumó bien el $5$, pero faltó dividir por $3$.",
+    "D": "Se multiplicó por $3$ en vez de dividir, después de sumar el $5$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "C": null,
+    "D": "ecuaciones/invierte-la-operacion-al-despejar"
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -1.62,
+   "order_index": 80,
+   "question": "Resuelve la ecuación $4 - x = 1$.",
+   "options": {
+    "A": "$x = -3$",
+    "B": "$x = 5$",
+    "C": "$x = 3$",
+    "D": "$x = -5$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se llegó a $-x = -3$ y ahí quedó: falta el último paso, multiplicar por $-1$ para dejar la $x$ positiva.",
+    "B": "El $4$ pasó sumando en vez de restando. Como está sumando a la izquierda, se resta a los dos lados.",
+    "C": "Correcto. $-x = 1 - 4 = -3$, y multiplicando por $-1$ queda $x = 3$. Se comprueba: $4 - 3 = 1$.",
+    "D": "Se juntan los dos errores: el $4$ pasó con el signo equivocado y quedó el $-x$ sin resolver."
+   },
+   "misconceptions": {
+    "A": "ecuaciones/coeficiente-negativo-pierde-el-signo",
+    "B": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "C": null,
+    "D": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo"
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -1.54,
+   "order_index": 90,
+   "question": "Resuelve la ecuación $2(x + 1) = 8$.",
+   "options": {
+    "A": "$x = 7$",
+    "B": "$x = 3$",
+    "C": "$x = 4$",
+    "D": "$x = 6$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "El $2$ de afuera se ignoró y se resolvió $x + 1 = 8$. Ese factor multiplica a todo el paréntesis.",
+    "B": "Correcto. Dividiendo por $2$: $x + 1 = 4$, así que $x = 3$. También sirve desarrollar: $2x + 2 = 8$.",
+    "C": "Se dividió $8$ por $2$ y ahí quedó. Falta restar el $1$ que acompaña a la $x$ dentro del paréntesis.",
+    "D": "Se desarrolló como $2x + 1 = 8$: el $2$ multiplicó solo a la $x$ y no al $1$."
+   },
+   "misconceptions": {
+    "A": "ecuaciones/no-desarrolla-el-parentesis",
+    "B": null,
+    "C": null,
+    "D": "algebra/no-distribuye-a-todos-los-terminos"
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -1.45,
+   "order_index": 100,
+   "question": "Resuelve la ecuación $5x = 2x + 9$.",
+   "options": {
+    "A": "$x = 9$",
+    "B": "$x = \\dfrac{9}{7}$",
+    "C": "$x = 1$",
+    "D": "$x = 3$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se ignoró el $2x$ del lado derecho. Los términos con incógnita hay que juntarlos en un mismo miembro antes de dividir.",
+    "B": "El $2x$ pasó sumando en vez de restando: $5x + 2x = 7x$. Al cambiar de lado, cambia de signo.",
+    "C": "Se restaron mal los coeficientes: $5x - 2x$ da $3x$, no $9x$ ni $x$.",
+    "D": "Correcto. $5x - 2x = 9$, o sea $3x = 9$, así que $x = 3$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -1.37,
+   "order_index": 110,
+   "question": "Resuelve la ecuación $\\dfrac{x}{3} + 1 = 4$.",
+   "options": {
+    "A": "$x = 9$",
+    "B": "$x = 15$",
+    "C": "$x = 3$",
+    "D": "$x = 12$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $\\frac{x}{3} = 4 - 1 = 3$, y multiplicando por $3$ queda $x = 9$.",
+    "B": "El $1$ se sumó en vez de restarse: $4 + 1 = 5$, y de ahí $15$. Como está sumando, pasa restando.",
+    "C": "Se restó bien el $1$, pero faltó multiplicar por $3$ para liberar la $x$.",
+    "D": "Se multiplicó por $3$ antes de restar el $1$, aplicando el $3$ también al término independiente."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "C": null,
+    "D": "ecuaciones/divide-solo-un-termino"
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -1.29,
+   "order_index": 120,
+   "question": "Resuelve la ecuación $2x + 3 = x + 7$.",
+   "options": {
+    "A": "$x = 10$",
+    "B": "$x = \\dfrac{10}{3}$",
+    "C": "$x = 4$",
+    "D": "$x = 2$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se juntaron los términos independientes sumándolos: $3 + 7$. El $3$ pasa al otro lado restando.",
+    "B": "Los términos con incógnita se sumaron en vez de restarse: $2x + x = 3x$. Al pasar de lado, el $x$ cambia de signo.",
+    "C": "Correcto. $2x - x = 7 - 3$, o sea $x = 4$. Se comprueba: $2(4)+3 = 11$ y $4+7 = 11$.",
+    "D": "Se restaron los coeficientes en el orden equivocado o se dividió de más. La resta correcta deja $x$ con coeficiente $1$."
+   },
+   "misconceptions": {
+    "A": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "B": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -1.2,
+   "order_index": 130,
+   "question": "Resuelve la ecuación $-2x = 6$.",
+   "options": {
+    "A": "$x = 3$",
+    "B": "$x = -3$",
+    "C": "$x = -12$",
+    "D": "$x = 4$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se dividió por $2$ y se soltó el signo. Dividir por $-2$ cambia el signo del resultado.",
+    "B": "Correcto. $x = 6 \\div (-2) = -3$. Se comprueba: $-2 \\times (-3) = 6$.",
+    "C": "Se multiplicó por $-2$ en vez de dividir.",
+    "D": "Se sumó $2$ en vez de dividir, y además se perdió el signo."
+   },
+   "misconceptions": {
+    "A": "ecuaciones/coeficiente-negativo-pierde-el-signo",
+    "B": null,
+    "C": "ecuaciones/invierte-la-operacion-al-despejar",
+    "D": "ecuaciones/invierte-la-operacion-al-despejar"
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -1.12,
+   "order_index": 140,
+   "question": "Resuelve la ecuación $\\dfrac{x+1}{2} = 3$.",
+   "options": {
+    "A": "$x = 2$",
+    "B": "$x = 7$",
+    "C": "$x = 6$",
+    "D": "$x = 5$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se dividió $3$ entre $2$ y se restó $1$, aplicando las operaciones al revés. El $2$ está dividiendo, así que pasa multiplicando.",
+    "B": "Se multiplicó por $2$ y se sumó el $1$ en vez de restarlo. Dentro del numerador el $1$ está sumando: pasa restando.",
+    "C": "Se multiplicó por $2$ y ahí quedó: falta restar el $1$ que acompaña a la $x$.",
+    "D": "Correcto. Multiplicando por $2$: $x + 1 = 6$, así que $x = 5$."
+   },
+   "misconceptions": {
+    "A": "ecuaciones/invierte-la-operacion-al-despejar",
+    "B": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -1.04,
+   "order_index": 150,
+   "question": "Resuelve la ecuación $3(x - 2) = 2x + 1$.",
+   "options": {
+    "A": "$x = 7$",
+    "B": "$x = 5$",
+    "C": "$x = 3$",
+    "D": "$x = 1$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $3x - 6 = 2x + 1$, entonces $3x - 2x = 1 + 6$ y $x = 7$.",
+    "B": "El $3$ multiplicó solo a la $x$ y no al $-2$: quedó $3x - 2 = 2x + 1$.",
+    "C": "El paréntesis no se desarrolló: se resolvió $x - 2 = 2x + 1$ ignorando el factor $3$.",
+    "D": "Los términos cambiaron de lado sin cambiar de signo, y el $-6$ quedó restando en el miembro equivocado."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "algebra/no-distribuye-a-todos-los-terminos",
+    "C": "ecuaciones/no-desarrolla-el-parentesis",
+    "D": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo"
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -0.96,
+   "order_index": 160,
+   "question": "El triple de un número, disminuido en $4$, es igual a $11$. ¿Cuál es el número?",
+   "options": {
+    "A": "$\\dfrac{7}{3}$",
+    "B": "$45$",
+    "C": "$5$",
+    "D": "$3$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se planteó bien la ecuación pero el $4$ se restó en vez de sumarse: $3n = 11 - 4$. Como está restando, pasa sumando.",
+    "B": "Se multiplicó por $3$ en vez de dividir, después de sumar el $4$.",
+    "C": "Correcto. La ecuación es $3n - 4 = 11$, así que $3n = 15$ y $n = 5$.",
+    "D": "Ese es el número que multiplica, no el número buscado."
+   },
+   "misconceptions": {
+    "A": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "B": "ecuaciones/invierte-la-operacion-al-despejar",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -0.87,
+   "order_index": 170,
+   "question": "Resuelve la ecuación $\\dfrac{x}{2} + \\dfrac{x}{3} = 5$.",
+   "options": {
+    "A": "$x = 5$",
+    "B": "$x = 6$",
+    "C": "$x = 25$",
+    "D": "$x = 30$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se sumaron las fracciones como si dieran $x$: $\\frac{x}{2}+\\frac{x}{3}$ no es $x$, sino $\\frac{5x}{6}$.",
+    "B": "Correcto. Con denominador común $6$: $\\frac{3x+2x}{6} = 5$, o sea $5x = 30$ y $x = 6$.",
+    "C": "Se multiplicó por $5$ en vez de despejar. El $5$ es el resultado, no un factor de la incógnita.",
+    "D": "Se multiplicó todo por $6$ y ahí quedó: $5x = 30$ es un paso intermedio, falta dividir por $5$."
+   },
+   "misconceptions": {
+    "A": "fracciones/suma-numeradores-y-denominadores",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -0.79,
+   "order_index": 180,
+   "question": "¿Cuál es la solución de $2x + 6 = 2x + 1$?",
+   "options": {
+    "A": "$x = 0$",
+    "B": "$x = -5$",
+    "C": "$x = 5$",
+    "D": "No tiene solución"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Que la incógnita desaparezca no significa que valga cero: reemplazando $x = 0$ queda $6 = 1$, que es falso.",
+    "B": "Se restaron los términos independientes y se tomó eso como la solución. Al cancelar los $2x$ no queda ninguna ecuación para la incógnita.",
+    "C": "Mismo caso con el signo cambiado. Reemplazando $x = 5$: $16 = 11$, que tampoco se cumple.",
+    "D": "Correcto. Al restar $2x$ a los dos lados queda $6 = 1$, que es falso para cualquier $x$: la ecuación no tiene solución."
+   },
+   "misconceptions": {
+    "A": "ecuaciones/sin-solucion-como-cero",
+    "B": "ecuaciones/sin-solucion-como-cero",
+    "C": "ecuaciones/sin-solucion-como-cero",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -0.71,
+   "order_index": 190,
+   "question": "La suma de dos números enteros consecutivos es $27$. ¿Cuáles son?",
+   "options": {
+    "A": "$13$ y $14$",
+    "B": "$13{,}5$ y $13{,}5$",
+    "C": "$12$ y $15$",
+    "D": "$26$ y $1$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Si el primero es $n$, el segundo es $n+1$: $2n + 1 = 27$, así que $n = 13$.",
+    "B": "Se dividió $27$ entre $2$. Eso da dos números iguales y además no enteros; consecutivos significa que se diferencian en $1$.",
+    "C": "Suman $27$, pero no son consecutivos: entre ellos hay tres unidades de diferencia.",
+    "D": "Suman $27$, pero tampoco son consecutivos. La condición de consecutivos es la que fija la respuesta."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/ecuaciones",
+   "difficulty": -0.6,
+   "order_index": 200,
+   "question": "Resuelve la ecuación $0{,}5x + 2 = 4{,}5$.",
+   "options": {
+    "A": "$x = 2{,}5$",
+    "B": "$x = 1{,}25$",
+    "C": "$x = 5$",
+    "D": "$x = 13$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se restó bien el $2$, pero faltó dividir por $0{,}5$. Ese valor es $0{,}5x$, no $x$.",
+    "B": "Se multiplicó por $0{,}5$ en vez de dividir. Como $0{,}5$ está multiplicando a la $x$, se deshace dividiendo — y dividir por $0{,}5$ **duplica**.",
+    "C": "Correcto. $0{,}5x = 4{,}5 - 2 = 2{,}5$, y $2{,}5 \\div 0{,}5 = 5$.",
+    "D": "El $2$ se sumó en vez de restarse: $4{,}5 + 2 = 6{,}5$, y de ahí $13$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "ecuaciones/invierte-la-operacion-al-despejar",
+    "C": null,
+    "D": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo"
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -1.2,
+   "order_index": 10,
+   "question": "¿Qué es la **solución** de un sistema de dos ecuaciones con dos incógnitas?",
+   "options": {
+    "A": "El valor de $x$",
+    "B": "La suma de las dos ecuaciones",
+    "C": "El par $(x, y)$ que cumple las dos ecuaciones a la vez",
+    "D": "Cualquier par que cumpla una de las dos"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Falta la mitad: hay dos incógnitas, así que la solución tiene dos valores.",
+    "B": "Sumar las ecuaciones es una **técnica** para resolver, no la solución.",
+    "C": "Correcto. La solución es el par que satisface las dos ecuaciones simultáneamente.",
+    "D": "Con una sola ecuación hay infinitos pares que la cumplen. Lo que distingue a la solución es que cumple **las dos**."
+   },
+   "misconceptions": {
+    "A": "sistemas/solucion-como-un-solo-numero",
+    "B": null,
+    "C": null,
+    "D": "sistemas/resuelve-una-sola-ecuacion"
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -1.11,
+   "order_index": 20,
+   "question": "¿Es $(x, y) = (2, 1)$ solución del sistema $x + y = 3$ y $x - y = 1$?",
+   "options": {
+    "A": "Sí, porque cumple las dos ecuaciones",
+    "B": "No, porque $2 + 1 \\neq 3$",
+    "C": "Sí, pero solo cumple la primera",
+    "D": "No, porque faltan más ecuaciones"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $2 + 1 = 3$ y $2 - 1 = 1$: las dos se cumplen.",
+    "B": "$2 + 1$ sí es $3$. Conviene reemplazar con cuidado antes de descartar.",
+    "C": "También cumple la segunda: $2 - 1 = 1$. Hay que comprobar las dos antes de concluir.",
+    "D": "Con dos incógnitas bastan dos ecuaciones independientes, y acá las hay."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "sistemas/resuelve-una-sola-ecuacion",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -1.01,
+   "order_index": 30,
+   "question": "Resuelve el sistema $y = x + 1$ y $x + y = 5$.",
+   "options": {
+    "A": "$(3, 2)$",
+    "B": "$(1, 2)$",
+    "C": "$x = 2$",
+    "D": "$(2, 3)$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Los valores están intercambiados: la primera ecuación dice que $y$ es **mayor** que $x$ en una unidad.",
+    "B": "Se reemplazó sin sumar bien: con $x = 1$ queda $y = 2$, y $1 + 2 = 3$, no $5$.",
+    "C": "Ese es el valor de $x$, pero falta $y$: la solución de un sistema es un par.",
+    "D": "Correcto. Sustituyendo: $x + (x+1) = 5$, o sea $2x = 4$ y $x = 2$; entonces $y = 3$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "sistemas/solucion-como-un-solo-numero",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -0.92,
+   "order_index": 40,
+   "question": "Resuelve el sistema $x + y = 10$ y $x - y = 2$.",
+   "options": {
+    "A": "$(4, 6)$",
+    "B": "$(6, 4)$",
+    "C": "$(5, 5)$",
+    "D": "$(8, 2)$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Los valores están intercambiados: la segunda ecuación dice que $x$ es el **mayor**, porque al restarle $y$ queda positivo.",
+    "B": "Correcto. Sumando las dos ecuaciones: $2x = 12$, así que $x = 6$ y $y = 4$.",
+    "C": "Ese par cumple la primera ecuación pero no la segunda: $5 - 5 = 0$, no $2$.",
+    "D": "Ese par cumple la primera, pero $8 - 2 = 6$, no $2$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "sistemas/resuelve-una-sola-ecuacion",
+    "D": "sistemas/resuelve-una-sola-ecuacion"
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -0.82,
+   "order_index": 50,
+   "question": "Si $2x + y = 7$ y $y = 3$, ¿cuánto vale $x$?",
+   "options": {
+    "A": "$4$",
+    "B": "$5$",
+    "C": "$2$",
+    "D": "$10$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se restó el $3$ y ahí quedó: $2x = 4$ es un paso intermedio, falta dividir por $2$.",
+    "B": "Se restó el $3$ del $7$ y después se sumó otra vez, o se despejó sin usar el $2$.",
+    "C": "Correcto. $2x + 3 = 7$, entonces $2x = 4$ y $x = 2$.",
+    "D": "El $3$ se sumó en vez de restarse. Como está sumando en el miembro izquierdo, pasa restando."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo"
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -0.73,
+   "order_index": 60,
+   "question": "Resuelve por eliminación el sistema $x + y = 5$ y $x - y = 1$.",
+   "options": {
+    "A": "$(3, 2)$",
+    "B": "$(2, 3)$",
+    "C": "$(6, 4)$",
+    "D": "$(4, 1)$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Sumando las dos ecuaciones se elimina $y$: $2x = 6$, así que $x = 3$ y $y = 2$.",
+    "B": "Los valores están intercambiados: la segunda ecuación deja positivo a $x - y$, así que $x$ es el mayor.",
+    "C": "Se sumaron las dos ecuaciones y no se dividió por $2$: $2x = 6$ da $x = 3$, no $6$.",
+    "D": "Ese par cumple la segunda ecuación pero no la primera: $4 + 1 = 5$ sí… pero $4 - 1 = 3$, no $1$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "sistemas/resuelve-una-sola-ecuacion"
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -0.63,
+   "order_index": 70,
+   "question": "Si $3x + 2y = 12$ y $x = 2$, ¿cuánto vale $y$?",
+   "options": {
+    "A": "$6$",
+    "B": "$9$",
+    "C": "$4$",
+    "D": "$3$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se ignoró el término $3x$ y se resolvió $2y = 12$.",
+    "B": "Se restó bien el $6$ pero después se sumó en vez de dividir, o se usó mal el coeficiente $2$.",
+    "C": "Se reemplazó $x = 2$ y se restó $2$ en vez de $3 \\times 2 = 6$.",
+    "D": "Correcto. $3(2) + 2y = 12$, o sea $2y = 6$ y $y = 3$."
+   },
+   "misconceptions": {
+    "A": "sistemas/resuelve-una-sola-ecuacion",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -0.54,
+   "order_index": 80,
+   "question": "Resuelve el sistema $x + 2y = 8$ y $x = 2y$.",
+   "options": {
+    "A": "$(2, 4)$",
+    "B": "$(4, 2)$",
+    "C": "$(8, 4)$",
+    "D": "$(6, 1)$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Los valores están intercambiados: la segunda ecuación dice que $x$ es el **doble** de $y$.",
+    "B": "Correcto. Sustituyendo: $2y + 2y = 8$, así que $y = 2$ y $x = 4$.",
+    "C": "Cumple la relación $x = 2y$, pero no la primera ecuación: $8 + 8 = 16$, no $8$.",
+    "D": "No cumple ninguna de las dos: $6 + 2 = 8$ es casualidad de la primera, pero $6 \\neq 2$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "sistemas/resuelve-una-sola-ecuacion",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -0.44,
+   "order_index": 90,
+   "question": "Resuelve el sistema $2x + 3y = 12$ y $2x - 3y = 0$.",
+   "options": {
+    "A": "$(6, 0)$",
+    "B": "$(2, 3)$",
+    "C": "$(3, 2)$",
+    "D": "$(0, 4)$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se sumaron las ecuaciones y no se dividió: $4x = 12$ da $x = 3$. Además con $y = 0$ la segunda ecuación daría $2x = 0$.",
+    "B": "Los valores están intercambiados. Reemplazando: $2(2) + 3(3) = 13$, no $12$.",
+    "C": "Correcto. Sumando: $4x = 12$, así que $x = 3$; y de la segunda, $3y = 6$ y $y = 2$.",
+    "D": "Cumple la primera ecuación pero no la segunda: $0 - 12 = -12$, no $0$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "sistemas/resuelve-una-sola-ecuacion"
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -0.35,
+   "order_index": 100,
+   "question": "Dos cuadernos y un lápiz cuestan $\\$3.500$. Un cuaderno y un lápiz cuestan $\\$2.000$. ¿Cuánto cuesta un cuaderno?",
+   "options": {
+    "A": "$\\$1.500$",
+    "B": "$\\$500$",
+    "C": "$\\$2.000$",
+    "D": "$\\$1.750$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Restando la segunda ecuación de la primera se elimina el lápiz: $c = 3.500 - 2.000 = \\$1.500$.",
+    "B": "Ese es el precio del **lápiz**: $2.000 - 1.500$. La pregunta es por el cuaderno.",
+    "C": "Ese es el total de la segunda compra, que incluye el lápiz.",
+    "D": "Se dividió la primera compra por dos, como si los dos artículos costaran lo mismo."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "sistemas/traduce-mal-el-enunciado"
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -0.25,
+   "order_index": 110,
+   "question": "¿Qué ocurre con el sistema $x + y = 2$ y $x + y = 5$?",
+   "options": {
+    "A": "Tiene infinitas soluciones",
+    "B": "La solución es $(0, 0)$",
+    "C": "La solución es $x = 3{,}5$",
+    "D": "No tiene solución"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Infinitas soluciones ocurre cuando las dos ecuaciones son **la misma recta**. Acá son paralelas: nunca se cruzan.",
+    "B": "Reemplazando $(0,0)$: $0 = 2$ es falso. Que no haya solución no significa que sea el origen.",
+    "C": "Se promediaron los dos valores. Una suma no puede valer $2$ y $5$ a la vez, sin importar qué valores tomen las incógnitas.",
+    "D": "Correcto. Una misma expresión, $x+y$, no puede valer $2$ y $5$ simultáneamente: las rectas son paralelas."
+   },
+   "misconceptions": {
+    "A": "sistemas/confunde-sin-solucion-con-infinitas",
+    "B": "ecuaciones/sin-solucion-como-cero",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -0.16,
+   "order_index": 120,
+   "question": "¿Qué ocurre con el sistema $x + y = 2$ y $2x + 2y = 4$?",
+   "options": {
+    "A": "No tiene solución",
+    "B": "Tiene infinitas soluciones",
+    "C": "La única solución es $(1, 1)$",
+    "D": "La única solución es $(2, 4)$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Sin solución sería si las rectas fueran paralelas y distintas. Acá la segunda ecuación es la primera multiplicada por $2$: son la misma recta.",
+    "B": "Correcto. La segunda es el doble de la primera, así que aportan la misma información: cualquier par que sume $2$ sirve.",
+    "C": "$(1,1)$ es **una** de las soluciones, pero no la única: $(0,2)$ y $(3,-1)$ también cumplen las dos ecuaciones.",
+    "D": "Ese par no cumple ninguna de las dos: $2 + 4 = 6$, no $2$."
+   },
+   "misconceptions": {
+    "A": "sistemas/confunde-sin-solucion-con-infinitas",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": -0.06,
+   "order_index": 130,
+   "question": "Si las dos ecuaciones de un sistema se dibujan como rectas en el plano, ¿qué representa la solución?",
+   "options": {
+    "A": "El punto donde cada recta corta el eje $y$",
+    "B": "La pendiente común de las dos rectas",
+    "C": "El punto donde las dos rectas se cortan",
+    "D": "El área encerrada entre las rectas"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese punto pertenece a una sola recta cada vez. La solución tiene que estar en las **dos**.",
+    "B": "Si las dos rectas tuvieran la misma pendiente serían paralelas, y el sistema no tendría solución única.",
+    "C": "Correcto. El punto de intersección es el único par $(x,y)$ que pertenece a las dos rectas, o sea que cumple las dos ecuaciones.",
+    "D": "Dos rectas no encierran ningún área. La solución es un punto, no una región."
+   },
+   "misconceptions": {
+    "A": "sistemas/resuelve-una-sola-ecuacion",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": 0.03,
+   "order_index": 140,
+   "question": "Resuelve el sistema $3x - y = 5$ y $x + y = 7$.",
+   "options": {
+    "A": "$(3, 4)$",
+    "B": "$(4, 3)$",
+    "C": "$(2, 5)$",
+    "D": "$(1, 6)$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Sumando las dos ecuaciones se elimina $y$: $4x = 12$, así que $x = 3$ y $y = 4$.",
+    "B": "Los valores están intercambiados. Reemplazando: $3(4) - 3 = 9$, no $5$.",
+    "C": "Cumple la segunda ecuación pero no la primera: $3(2) - 5 = 1$, no $5$.",
+    "D": "También cumple solo la segunda: $3(1) - 6 = -3$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "sistemas/resuelve-una-sola-ecuacion",
+    "D": "sistemas/resuelve-una-sola-ecuacion"
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": 0.13,
+   "order_index": 150,
+   "question": "Dos hermanos suman $40$ años y se llevan $10$ años de diferencia. ¿Qué edad tiene cada uno?",
+   "options": {
+    "A": "$30$ y $10$",
+    "B": "$20$ y $20$",
+    "C": "$35$ y $5$",
+    "D": "$25$ y $15$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "La diferencia es de $20$ años, no de $10$. Suman bien, pero falta la segunda condición.",
+    "B": "Suman $40$, pero la diferencia es $0$. Es la solución de repartir en partes iguales, no la del sistema.",
+    "C": "La suma es correcta, pero la diferencia es de $30$ años.",
+    "D": "Correcto. Con $x + y = 40$ y $x - y = 10$: sumando queda $2x = 50$, así que $x = 25$ y $y = 15$."
+   },
+   "misconceptions": {
+    "A": "sistemas/resuelve-una-sola-ecuacion",
+    "B": "sistemas/resuelve-una-sola-ecuacion",
+    "C": "sistemas/resuelve-una-sola-ecuacion",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": 0.22,
+   "order_index": 160,
+   "question": "Resuelve el sistema $2x + y = 5$ y $3x - y = 5$.",
+   "options": {
+    "A": "$(1, 3)$",
+    "B": "$(2, 1)$",
+    "C": "$(5, 0)$",
+    "D": "$(0, 5)$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Cumple la primera ecuación pero no la segunda: $3(1) - 3 = 0$, no $5$.",
+    "B": "Correcto. Sumando se elimina $y$: $5x = 10$, así que $x = 2$ y $y = 1$.",
+    "C": "Cumple la segunda ecuación pero no la primera: $2(5) + 0 = 10$, no $5$.",
+    "D": "Cumple la primera, pero en la segunda da $-5$."
+   },
+   "misconceptions": {
+    "A": "sistemas/resuelve-una-sola-ecuacion",
+    "B": null,
+    "C": "sistemas/resuelve-una-sola-ecuacion",
+    "D": "sistemas/resuelve-una-sola-ecuacion"
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": 0.32,
+   "order_index": 170,
+   "question": "Tres entradas de adulto y dos de niño cuestan $\\$26.000$. Dos de adulto y tres de niño cuestan $\\$24.000$. ¿Cuánto cuesta una entrada de adulto?",
+   "options": {
+    "A": "$\\$5.000$",
+    "B": "$\\$4.000$",
+    "C": "$\\$6.000$",
+    "D": "$\\$10.000$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el promedio de las dos entradas. Los precios no son iguales: el sistema los distingue.",
+    "B": "Ese es el precio de la entrada de **niño**. La pregunta es por la de adulto.",
+    "C": "Correcto. Sumando las dos ecuaciones: $5a + 5n = 50.000$, o sea $a + n = 10.000$; restándolas: $a - n = 2.000$. De ahí $a = \\$6.000$.",
+    "D": "Ese es el valor de $a + n$, o sea de una entrada de cada tipo, no de una sola de adulto."
+   },
+   "misconceptions": {
+    "A": "sistemas/traduce-mal-el-enunciado",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": 0.41,
+   "order_index": 180,
+   "question": "Resuelve el sistema $4x + 3y = 18$ y $2x - y = 4$.",
+   "options": {
+    "A": "$(3, 2)$",
+    "B": "$(2, 3)$",
+    "C": "$(4, 4)$",
+    "D": "$(1, -2)$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. De la segunda, $y = 2x - 4$; sustituyendo: $4x + 6x - 12 = 18$, o sea $x = 3$ e $y = 2$.",
+    "B": "Los valores están intercambiados. Reemplazando en la primera: $8 + 9 = 17$, no $18$.",
+    "C": "Cumple la segunda ecuación pero no la primera: $4(4) + 3(4) = 28$, no $18$.",
+    "D": "Cumple la segunda ecuación pero no la primera: $4 - 6 = -2$, no $18$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "sistemas/resuelve-una-sola-ecuacion",
+    "D": "sistemas/resuelve-una-sola-ecuacion"
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": 0.51,
+   "order_index": 190,
+   "question": "¿Para qué valor de $k$ el sistema $2x + 3y = 5$ y $4x + ky = 7$ **no tiene solución**?",
+   "options": {
+    "A": "$k = 3$",
+    "B": "$k = 2$",
+    "C": "$k = 12$",
+    "D": "$k = 6$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Con $k = 3$ las rectas tienen pendientes distintas y se cortan: el sistema tendría solución única.",
+    "B": "Mismo caso: con $k = 2$ las pendientes difieren y hay un único punto de corte.",
+    "C": "Se multiplicó el $3$ por $4$ en vez de por el factor que relaciona los primeros coeficientes, que es $4 \\div 2 = 2$.",
+    "D": "Correcto. Para que sean paralelas, la segunda ecuación debe ser proporcional a la primera en los coeficientes: $4 = 2 \\times 2$ y $k = 3 \\times 2 = 6$. Como $7 \\neq 5 \\times 2$, son paralelas distintas y no hay solución."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/sistemas",
+   "difficulty": 0.6,
+   "order_index": 200,
+   "question": "Una alcancía tiene $100$ monedas, entre monedas de $\\$100$ y de $\\$500$, y suman $\\$30.000$. ¿Cuántas monedas de $\\$500$ hay?",
+   "options": {
+    "A": "$60$",
+    "B": "$50$",
+    "C": "$100$",
+    "D": "$25$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Con $60$ monedas de $\\$500$ y $40$ de $\\$100$ el total sería $\\$34.000$, no $\\$30.000$.",
+    "B": "Correcto. Con $c + q = 100$ y $100c + 500q = 30.000$: dividiendo la segunda por $100$ queda $c + 5q = 300$, y restando la primera, $4q = 200$, así que $q = 50$.",
+    "C": "Si todas fueran de $\\$500$ el total sería $\\$50.000$. La condición del monto es la que fija la mezcla.",
+    "D": "Con $25$ monedas de $\\$500$ y $75$ de $\\$100$ el total sería $\\$20.000$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "sistemas/resuelve-una-sola-ecuacion",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": -0.4,
+   "order_index": 10,
+   "question": "¿Cuál es el **grado** del polinomio $3x^2 + 2x - 1$?",
+   "options": {
+    "A": "$3$",
+    "B": "$1$",
+    "C": "$2$",
+    "D": "$6$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el número de términos, no el grado. El grado lo fija el mayor exponente que aparece.",
+    "B": "Ese es el exponente del segundo término. Hay que quedarse con el **mayor** de todos.",
+    "C": "Correcto. El mayor exponente es el $2$ de $3x^2$.",
+    "D": "Se sumaron los exponentes. El grado es el máximo, no la suma."
+   },
+   "misconceptions": {
+    "A": "polinomios/grado-como-cantidad-de-terminos",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": -0.29,
+   "order_index": 20,
+   "question": "Suma los polinomios $(2x + 3) + (x - 1)$.",
+   "options": {
+    "A": "$3x + 2$",
+    "B": "$3x + 4$",
+    "C": "$2x^2 + 2$",
+    "D": "$3x - 3$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Se reducen los términos semejantes: $2x + x = 3x$ y $3 - 1 = 2$.",
+    "B": "El $-1$ se sumó en vez de restarse. Dentro del segundo paréntesis el $1$ está restando.",
+    "C": "Los términos con $x$ se multiplicaron en vez de sumarse.",
+    "D": "Se restó el $3$ en vez de sumarlo, y el $1$ también: los dos paréntesis se están **sumando**."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "algebra/multiplica-monomios-sin-tocar-el-exponente",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": -0.19,
+   "order_index": 30,
+   "question": "Resta los polinomios $(3x + 5) - (x + 2)$.",
+   "options": {
+    "A": "$2x + 7$",
+    "B": "$4x + 7$",
+    "C": "$2x - 7$",
+    "D": "$2x + 3$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "El signo menos se aplicó a la $x$ pero no al $2$. Alcanza a todos los términos del paréntesis.",
+    "B": "Los dos paréntesis se sumaron en vez de restarse.",
+    "C": "Los signos quedaron invertidos: $5 - 2$ da $3$ positivo.",
+    "D": "Correcto. $3x - x = 2x$ y $5 - 2 = 3$."
+   },
+   "misconceptions": {
+    "A": "algebra/no-distribuye-el-signo-menos",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": -0.08,
+   "order_index": 40,
+   "question": "Desarrolla $x(x + 3)$.",
+   "options": {
+    "A": "$x + 3x$",
+    "B": "$x^2 + 3x$",
+    "C": "$x^2 + 3$",
+    "D": "$4x$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "El primer producto quedó sin resolver: $x \\cdot x$ es $x^2$, no $x$.",
+    "B": "Correcto. $x \\cdot x = x^2$ y $x \\cdot 3 = 3x$.",
+    "C": "La $x$ multiplicó al primer término pero no al $3$. La distributiva alcanza a los dos.",
+    "D": "Se sumaron $x$ y $3x$ como si el paréntesis ya estuviera desarrollado y fueran semejantes."
+   },
+   "misconceptions": {
+    "A": "algebra/multiplica-monomios-sin-tocar-el-exponente",
+    "B": null,
+    "C": "algebra/no-distribuye-a-todos-los-terminos",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 0.02,
+   "order_index": 50,
+   "question": "Desarrolla $(x + 2)(x + 3)$.",
+   "options": {
+    "A": "$x^2 + 6$",
+    "B": "$x^2 + 6x + 6$",
+    "C": "$x^2 + 5x + 6$",
+    "D": "$2x + 5$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Solo se multiplicó primero con primero y último con último. Faltan los dos productos cruzados: $3x$ y $2x$.",
+    "B": "El término independiente y el cuadrático están bien, pero el término del medio salió del producto $2 \\times 3$ en vez de la **suma** $2+3$.",
+    "C": "Correcto. $x^2 + 3x + 2x + 6 = x^2 + 5x + 6$.",
+    "D": "Se sumaron los términos en vez de multiplicarlos."
+   },
+   "misconceptions": {
+    "A": "polinomios/multiplica-solo-los-primeros-terminos",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 0.13,
+   "order_index": 60,
+   "question": "Desarrolla $(x + 3)^2$.",
+   "options": {
+    "A": "$x^2 + 6x + 9$",
+    "B": "$x^2 + 9$",
+    "C": "$x^2 + 3x + 9$",
+    "D": "$2x + 6$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $(x+3)^2 = x^2 + 2(3)x + 9 = x^2 + 6x + 9$.",
+    "B": "Se repartió el exponente sobre la suma. Falta el doble producto: elevar al cuadrado no es elevar cada término por separado.",
+    "C": "El doble producto quedó a la mitad: es $2 \\cdot x \\cdot 3 = 6x$, no $3x$.",
+    "D": "Se multiplicó por $2$ en vez de elevar al cuadrado. El exponente $2$ no es un factor."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "polinomios/cuadrado-de-binomio-sin-doble-producto",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 0.23,
+   "order_index": 70,
+   "question": "Desarrolla $(x - 2)^2$.",
+   "options": {
+    "A": "$x^2 - 4$",
+    "B": "$x^2 + 4x + 4$",
+    "C": "$x^2 - 2x + 4$",
+    "D": "$x^2 - 4x + 4$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se repartió el exponente sobre la resta. Falta el doble producto, y además el término independiente es $+4$.",
+    "B": "El signo del doble producto quedó positivo. Como el binomio resta, el término del medio es negativo.",
+    "C": "El doble producto quedó a la mitad: es $2 \\cdot x \\cdot 2 = 4x$, con signo menos.",
+    "D": "Correcto. $(x-2)^2 = x^2 - 2(2)x + 4 = x^2 - 4x + 4$. El término independiente es positivo porque $(-2)^2 = 4$."
+   },
+   "misconceptions": {
+    "A": "polinomios/cuadrado-de-binomio-sin-doble-producto",
+    "B": "polinomios/signos-cambiados-al-factorizar",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 0.34,
+   "order_index": 80,
+   "question": "Desarrolla $(x + 3)(x - 3)$.",
+   "options": {
+    "A": "$x^2 + 9$",
+    "B": "$x^2 - 9$",
+    "C": "$x^2 - 6x - 9$",
+    "D": "$x^2 + 6x - 9$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "El signo del término independiente es negativo: $(+3)(-3) = -9$.",
+    "B": "Correcto. Los productos cruzados $-3x$ y $+3x$ se cancelan, y queda $x^2 - 9$.",
+    "C": "Los términos cruzados no se cancelaron: $-3x + 3x = 0$, así que no queda término en $x$.",
+    "D": "Mismo caso con el signo cambiado. Cuando los binomios son suma y resta del mismo par, el término del medio desaparece."
+   },
+   "misconceptions": {
+    "A": "polinomios/signos-cambiados-al-factorizar",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 0.44,
+   "order_index": 90,
+   "question": "Factoriza $6x^2 + 9x$ extrayendo el **máximo** factor común.",
+   "options": {
+    "A": "$3(2x^2 + 3x)$",
+    "B": "$x(6x + 9)$",
+    "C": "$3x(2x + 3)$",
+    "D": "$6x(x + 9)$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El $3$ está bien, pero dentro del paréntesis todavía queda una $x$ común por sacar.",
+    "B": "La $x$ está bien, pero los coeficientes $6$ y $9$ todavía comparten el factor $3$.",
+    "C": "Correcto. El máximo factor común es $3x$: $6x^2 + 9x = 3x(2x + 3)$.",
+    "D": "El factor extraído no divide al segundo término: $9x \\div 6x$ no es $9$. Se comprueba desarrollando: $6x(x+9) = 6x^2 + 54x$."
+   },
+   "misconceptions": {
+    "A": "polinomios/factor-comun-incompleto",
+    "B": "polinomios/factor-comun-incompleto",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 0.55,
+   "order_index": 100,
+   "question": "Factoriza $x^2 - 16$.",
+   "options": {
+    "A": "$(x + 4)(x - 4)$",
+    "B": "$(x - 4)^2$",
+    "C": "$(x + 4)^2$",
+    "D": "$(x + 16)(x - 1)$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Es una diferencia de cuadrados: $x^2 - 4^2 = (x+4)(x-4)$.",
+    "B": "Al desarrollar da $x^2 - 8x + 16$, que tiene término del medio. La diferencia de cuadrados no lo tiene.",
+    "C": "Al desarrollar da $x^2 + 8x + 16$: ni el signo ni el término del medio coinciden.",
+    "D": "Al desarrollar da $x^2 + 15x - 16$. Los números elegidos deben ser la raíz cuadrada de $16$, no $16$ y $1$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "polinomios/cuadrado-de-binomio-sin-doble-producto",
+    "C": "polinomios/cuadrado-de-binomio-sin-doble-producto",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 0.65,
+   "order_index": 110,
+   "question": "Factoriza $x^2 + 5x + 6$.",
+   "options": {
+    "A": "$(x + 1)(x + 6)$",
+    "B": "$(x - 2)(x - 3)$",
+    "C": "$(x + 5)(x + 6)$",
+    "D": "$(x + 2)(x + 3)$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Esos números multiplican $6$, pero suman $7$, no $5$. Hacen falta las dos condiciones a la vez.",
+    "B": "El producto da $6$ y la suma da $-5$: los signos están invertidos. Con el término del medio positivo, los dos números son positivos.",
+    "C": "Se usaron los coeficientes del polinomio como si fueran los números buscados. Hay que encontrar dos que multiplicados den $6$ y sumados den $5$.",
+    "D": "Correcto. $2 \\times 3 = 6$ y $2 + 3 = 5$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "polinomios/signos-cambiados-al-factorizar",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 0.76,
+   "order_index": 120,
+   "question": "Factoriza $x^2 - 5x + 6$.",
+   "options": {
+    "A": "$(x + 2)(x + 3)$",
+    "B": "$(x - 2)(x - 3)$",
+    "C": "$(x + 2)(x - 3)$",
+    "D": "$(x - 1)(x - 6)$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Al desarrollar da $x^2 + 5x + 6$: el término del medio queda positivo y el enunciado lo pide negativo.",
+    "B": "Correcto. $(-2)(-3) = 6$ y $-2 + (-3) = -5$: con producto positivo y suma negativa, los dos números son negativos.",
+    "C": "Al desarrollar da $x^2 - x - 6$: con signos distintos, el término independiente sale negativo.",
+    "D": "Multiplican $6$ y suman $-7$, no $-5$."
+   },
+   "misconceptions": {
+    "A": "polinomios/signos-cambiados-al-factorizar",
+    "B": null,
+    "C": "polinomios/signos-cambiados-al-factorizar",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 0.86,
+   "order_index": 130,
+   "question": "Factoriza $x^2 + 2x - 8$.",
+   "options": {
+    "A": "$(x + 2)(x - 4)$",
+    "B": "$(x + 8)(x - 1)$",
+    "C": "$(x + 4)(x - 2)$",
+    "D": "$(x - 4)(x - 2)$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Los signos están al revés: al desarrollar da $x^2 - 2x - 8$. El número **mayor** tiene que llevar el signo del término del medio.",
+    "B": "Multiplican $-8$, pero suman $7$, no $2$.",
+    "C": "Correcto. $4 \\times (-2) = -8$ y $4 + (-2) = 2$.",
+    "D": "El producto da $+8$ y no $-8$: con los dos negativos, el término independiente queda positivo."
+   },
+   "misconceptions": {
+    "A": "polinomios/signos-cambiados-al-factorizar",
+    "B": null,
+    "C": null,
+    "D": "polinomios/signos-cambiados-al-factorizar"
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 0.97,
+   "order_index": 140,
+   "question": "Desarrolla $(2x + 1)^2$.",
+   "options": {
+    "A": "$4x^2 + 4x + 1$",
+    "B": "$4x^2 + 1$",
+    "C": "$2x^2 + 4x + 1$",
+    "D": "$4x^2 + 2x + 1$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $(2x)^2 = 4x^2$, el doble producto es $2(2x)(1) = 4x$, y $1^2 = 1$.",
+    "B": "Falta el doble producto. Elevar al cuadrado no es elevar cada término por separado.",
+    "C": "El coeficiente no se elevó: $(2x)^2$ es $4x^2$, porque el exponente afecta también al $2$.",
+    "D": "El doble producto quedó a la mitad: es $2 \\cdot 2x \\cdot 1 = 4x$, no $2x$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "polinomios/cuadrado-de-binomio-sin-doble-producto",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 1.07,
+   "order_index": 150,
+   "question": "Factoriza $x^2 + 9$ en los números reales.",
+   "options": {
+    "A": "$(x + 3)(x - 3)$",
+    "B": "$(x + 3)^2$",
+    "C": "$(x + 9)(x + 1)$",
+    "D": "No se puede factorizar en los números reales"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Esa es la factorización de $x^2 - 9$, la **diferencia** de cuadrados. Al desarrollarla queda $x^2 - 9$: el signo del término independiente sale negativo, nunca positivo.",
+    "B": "Al desarrollar da $x^2 + 6x + 9$, que tiene término del medio. El polinomio original no lo tiene.",
+    "C": "Al desarrollar da $x^2 + 10x + 9$. Esos números multiplican $9$, pero también dejan un término en $x$.",
+    "D": "Correcto. Una suma de cuadrados no se factoriza en los reales: $x^2 + 9$ nunca vale cero, porque un cuadrado más un positivo siempre es positivo."
+   },
+   "misconceptions": {
+    "A": "polinomios/factoriza-la-suma-de-cuadrados",
+    "B": "polinomios/cuadrado-de-binomio-sin-doble-producto",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 1.18,
+   "order_index": 160,
+   "question": "Factoriza $4a^2b + 6ab^2$ extrayendo el máximo factor común.",
+   "options": {
+    "A": "$2(2a^2b + 3ab^2)$",
+    "B": "$2ab(2a + 3b)$",
+    "C": "$ab(4a + 6b)$",
+    "D": "$2ab(2a + 3ab)$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "El $2$ está bien, pero dentro del paréntesis todavía quedan una $a$ y una $b$ comunes.",
+    "B": "Correcto. El máximo factor común es $2ab$: queda $2ab(2a + 3b)$.",
+    "C": "El $ab$ está bien, pero los coeficientes $4$ y $6$ todavía comparten el factor $2$.",
+    "D": "El factor extraído es correcto, pero el segundo término de adentro no: $6ab^2 \\div 2ab = 3b$, no $3ab$. Se comprueba desarrollando."
+   },
+   "misconceptions": {
+    "A": "polinomios/factor-comun-incompleto",
+    "B": null,
+    "C": "polinomios/factor-comun-incompleto",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 1.28,
+   "order_index": 170,
+   "question": "Factoriza $x^2 - 6x + 9$.",
+   "options": {
+    "A": "$(x + 3)^2$",
+    "B": "$(x + 3)(x - 3)$",
+    "C": "$(x - 3)^2$",
+    "D": "$(x - 9)(x + 1)$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Al desarrollar da $x^2 + 6x + 9$: el término del medio queda positivo y el enunciado lo pide negativo.",
+    "B": "Esa es la factorización de $x^2 - 9$, que no tiene término del medio.",
+    "C": "Correcto. Es un cuadrado de binomio perfecto: $x^2 - 2(3)x + 3^2 = (x-3)^2$.",
+    "D": "Multiplican $-9$ y suman $-8$: ni el producto ni la suma coinciden con $+9$ y $-6$."
+   },
+   "misconceptions": {
+    "A": "polinomios/signos-cambiados-al-factorizar",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 1.39,
+   "order_index": 180,
+   "question": "Desarrolla $(x + 1)(x^2 - x + 1)$.",
+   "options": {
+    "A": "$x^3 + 1$",
+    "B": "$x^3 - 1$",
+    "C": "$x^3 + 2x^2 + 1$",
+    "D": "$x^3 + x^2 + x + 1$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $x^3 - x^2 + x + x^2 - x + 1$: se cancelan los términos en $x^2$ y en $x$, y queda $x^3 + 1$.",
+    "B": "Ese es el resultado de $(x-1)(x^2+x+1)$, que es la suma de cubos con los signos cambiados.",
+    "C": "Los términos en $x^2$ no se cancelaron: $-x^2 + x^2 = 0$.",
+    "D": "Se multiplicó cada término del segundo paréntesis por $x$ y por $1$, pero sin respetar el signo del $-x$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "polinomios/signos-cambiados-al-factorizar"
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 1.49,
+   "order_index": 190,
+   "question": "Factoriza por agrupación $x^3 + x^2 + x + 1$.",
+   "options": {
+    "A": "$(x + 1)^3$",
+    "B": "$x(x^2 + x + 1)$",
+    "C": "$(x^2 + 1)(x + 1)$ solo si $x > 0$",
+    "D": "$(x + 1)(x^2 + 1)$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Al desarrollar da $x^3 + 3x^2 + 3x + 1$: los coeficientes del medio no coinciden.",
+    "B": "El $+1$ final quedó fuera: la $x$ no es factor común de todos los términos, porque el último no la tiene.",
+    "C": "La factorización es correcta y no depende del signo de $x$: es una identidad, vale para todo valor.",
+    "D": "Correcto. Agrupando: $x^2(x+1) + 1(x+1) = (x+1)(x^2+1)$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "polinomios/factor-comun-incompleto",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/polinomios",
+   "difficulty": 1.6,
+   "order_index": 200,
+   "question": "Simplifica $\\dfrac{x^2 - 9}{x + 3}$, con $x \\neq -3$.",
+   "options": {
+    "A": "$x^2 - 3$",
+    "B": "$x - 3$",
+    "C": "$\\dfrac{x^2}{3}$",
+    "D": "$x - 9$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se canceló el $3$ de abajo con el $9$ de arriba. Solo se pueden cancelar **factores** completos, y acá arriba hay una resta, no un producto.",
+    "B": "Correcto. Factorizando arriba: $\\frac{(x+3)(x-3)}{x+3} = x - 3$, porque el factor $x+3$ se cancela entero.",
+    "C": "Se cancelaron términos sueltos arriba y abajo. Hay que factorizar primero para que aparezca un factor común.",
+    "D": "Se canceló la $x$ del denominador con parte del numerador, dejando el $9$ intacto."
+   },
+   "misconceptions": {
+    "A": "polinomios/cancela-terminos-sueltos-de-la-fraccion",
+    "B": null,
+    "C": "polinomios/cancela-terminos-sueltos-de-la-fraccion",
+    "D": "polinomios/cancela-terminos-sueltos-de-la-fraccion"
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 0.6,
+   "order_index": 10,
+   "question": "Si $f(x) = 2x + 1$, ¿cuánto vale $f(3)$?",
+   "options": {
+    "A": "$2x + 1$",
+    "B": "$6$",
+    "C": "$7$",
+    "D": "$5$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "No se reemplazó nada. $f(3)$ significa poner $3$ en el lugar de la $x$.",
+    "B": "Se calculó $2 \\times 3$ y faltó sumar el $1$.",
+    "C": "Correcto. $f(3) = 2(3) + 1 = 7$.",
+    "D": "Se sumaron $2$ y $3$ en vez de multiplicarlos. En $2x$ el número y la letra están multiplicándose."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 0.73,
+   "order_index": 20,
+   "question": "En la función $y = 3x + 2$, ¿cuál es la **pendiente**?",
+   "options": {
+    "A": "$3$",
+    "B": "$2$",
+    "C": "$3x$",
+    "D": "$5$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. En $y = mx + n$ la pendiente es $m$, el número que multiplica a la $x$.",
+    "B": "Ese es el coeficiente de posición: dice dónde corta el eje $y$, no cuánto sube la recta.",
+    "C": "La pendiente es solo el número, sin la letra.",
+    "D": "Se sumaron los dos coeficientes. Cada uno cumple un papel distinto y no se combinan."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "funciones/confunde-pendiente-con-intercepto",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 0.85,
+   "order_index": 30,
+   "question": "¿En qué punto la recta $y = 3x + 2$ corta al eje $y$?",
+   "options": {
+    "A": "$(3, 0)$",
+    "B": "$(0, 3)$",
+    "C": "$\\left(-\\dfrac{2}{3}, 0\\right)$",
+    "D": "$(0, 2)$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "En el eje $y$ la coordenada $x$ vale $0$, no al revés. Además el $3$ es la pendiente.",
+    "B": "El punto está sobre el eje $y$, pero con el valor de la pendiente en vez del coeficiente de posición.",
+    "C": "Ese es el corte con el eje **$x$**, que se obtiene haciendo $y = 0$.",
+    "D": "Correcto. Reemplazando $x = 0$: $y = 2$."
+   },
+   "misconceptions": {
+    "A": "funciones/confunde-los-dos-cortes",
+    "B": "funciones/confunde-pendiente-con-intercepto",
+    "C": "funciones/confunde-los-dos-cortes",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 0.98,
+   "order_index": 40,
+   "question": "Si $f(x) = x^2 - 1$, ¿cuánto vale $f(-2)$?",
+   "options": {
+    "A": "$-5$",
+    "B": "$3$",
+    "C": "$5$",
+    "D": "$-3$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "El signo negativo no se elevó al cuadrado: $(-2)^2 = 4$, no $-4$.",
+    "B": "Correcto. $f(-2) = (-2)^2 - 1 = 4 - 1 = 3$.",
+    "C": "El cuadrado está bien, pero el $1$ se sumó en vez de restarse.",
+    "D": "Se juntan dos errores: el cuadrado quedó negativo y el $1$ se restó de un valor equivocado."
+   },
+   "misconceptions": {
+    "A": "algebra/potencia-antes-o-despues-del-signo",
+    "B": null,
+    "C": null,
+    "D": "algebra/potencia-antes-o-despues-del-signo"
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 1.1,
+   "order_index": 50,
+   "question": "¿Cuál es la pendiente de la recta que pasa por los puntos $(1, 2)$ y $(3, 6)$?",
+   "options": {
+    "A": "$\\dfrac{1}{2}$",
+    "B": "$4$",
+    "C": "$2$",
+    "D": "$8$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "La división quedó invertida: se calculó $\\frac{\\Delta x}{\\Delta y}$. La pendiente es cuánto sube por cada unidad que avanza, o sea $\\frac{\\Delta y}{\\Delta x}$.",
+    "B": "Ese es solo el numerador: $6 - 2 = 4$. Falta dividir por la variación horizontal, que es $2$.",
+    "C": "Correcto. $m = \\frac{6-2}{3-1} = \\frac{4}{2} = 2$.",
+    "D": "Se sumaron las coordenadas en vez de restarlas y dividirlas."
+   },
+   "misconceptions": {
+    "A": "funciones/pendiente-invertida",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 1.23,
+   "order_index": 60,
+   "question": "¿Qué se puede afirmar de la función $y = -2x + 5$?",
+   "options": {
+    "A": "Es decreciente: al aumentar $x$, disminuye $y$",
+    "B": "Es creciente, porque el $5$ es positivo",
+    "C": "Es constante",
+    "D": "Corta el eje $y$ en $-2$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. La pendiente es $-2$, negativa: por cada unidad que avanza $x$, la recta baja $2$.",
+    "B": "Lo que decide si crece o decrece es la **pendiente**, no el coeficiente de posición. Acá la pendiente es negativa.",
+    "C": "Sería constante si la pendiente fuera $0$, o sea si no hubiera término en $x$.",
+    "D": "Corta el eje $y$ en $5$. El $-2$ es la pendiente."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "funciones/confunde-pendiente-con-intercepto",
+    "C": null,
+    "D": "funciones/confunde-pendiente-con-intercepto"
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 1.35,
+   "order_index": 70,
+   "question": "¿En qué valor de $x$ la recta $y = 2x - 6$ corta al eje $x$?",
+   "options": {
+    "A": "$x = -6$",
+    "B": "$x = 6$",
+    "C": "$x = -3$",
+    "D": "$x = 3$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es el coeficiente de posición: el corte con el eje **$y$**. Para el eje $x$ hay que hacer $y = 0$.",
+    "B": "Se despejó sin usar la pendiente: de $2x = 6$ falta dividir por $2$.",
+    "C": "El signo quedó cambiado al despejar: de $2x - 6 = 0$ se pasa a $2x = 6$, no $2x = -6$.",
+    "D": "Correcto. Haciendo $y = 0$: $2x - 6 = 0$, así que $x = 3$."
+   },
+   "misconceptions": {
+    "A": "funciones/confunde-los-dos-cortes",
+    "B": null,
+    "C": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 1.48,
+   "order_index": 80,
+   "question": "Si $f(x) = 2x + 1$, ¿para qué valor de $x$ se cumple $f(x) = 9$?",
+   "options": {
+    "A": "$19$",
+    "B": "$4$",
+    "C": "$5$",
+    "D": "$4{,}5$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se reemplazó $x = 9$ en la función en vez de despejar. La pregunta pide la entrada, no la salida.",
+    "B": "Correcto. $2x + 1 = 9$, entonces $2x = 8$ y $x = 4$.",
+    "C": "Se restó el $1$ después de dividir, o se dividió antes de restar. Primero se quita lo que suma.",
+    "D": "Se dividió $9$ por $2$ y se olvidó el $1$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 1.6,
+   "order_index": 90,
+   "question": "¿Cuál es la ecuación de la recta de pendiente $2$ que corta al eje $y$ en $-3$?",
+   "options": {
+    "A": "$y = -3x + 2$",
+    "B": "$y = 2x + 3$",
+    "C": "$y = 2x - 3$",
+    "D": "$y = 2(x - 3)$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "La pendiente y el coeficiente de posición están intercambiados.",
+    "B": "El signo del corte quedó positivo. La recta corta el eje $y$ **bajo** el origen.",
+    "C": "Correcto. En $y = mx + n$, con $m = 2$ y $n = -3$ queda $y = 2x - 3$.",
+    "D": "Al desarrollar da $y = 2x - 6$, que corta el eje $y$ en $-6$, no en $-3$."
+   },
+   "misconceptions": {
+    "A": "funciones/confunde-pendiente-con-intercepto",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 1.73,
+   "order_index": 100,
+   "question": "¿Cuál es la ecuación de la recta que pasa por $(1, 3)$ y $(2, 5)$?",
+   "options": {
+    "A": "$y = 2x + 1$",
+    "B": "$y = 2x + 3$",
+    "C": "$y = x + 2$",
+    "D": "$y = \\dfrac{1}{2}x + 3$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. La pendiente es $\\frac{5-3}{2-1} = 2$, y reemplazando $(1,3)$: $3 = 2(1) + n$, así que $n = 1$.",
+    "B": "La pendiente está bien, pero el coeficiente de posición se tomó de la coordenada $y$ del primer punto sin despejar. Hay que reemplazar el punto en la ecuación.",
+    "C": "La pendiente quedó en $1$: la variación de $y$ es $2$ y la de $x$ es $1$, así que $m = 2$.",
+    "D": "La pendiente quedó invertida ($\\frac{\\Delta x}{\\Delta y}$) y el corte se tomó directo del punto."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "funciones/pendiente-invertida"
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 1.85,
+   "order_index": 110,
+   "question": "Una relación asigna al número $2$ tanto el valor $5$ como el valor $7$. ¿Es una función?",
+   "options": {
+    "A": "Sí, porque a cada salida le corresponde una entrada",
+    "B": "Sí, porque los tres números son distintos",
+    "C": "Sí, siempre que $5$ y $7$ estén en el recorrido",
+    "D": "No, porque a una misma entrada le corresponden dos salidas"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "La condición va en el otro sentido: lo que no puede repetirse es la **entrada**. Dos entradas distintas sí pueden compartir salida.",
+    "B": "Que los valores sean distintos no basta: lo que define a una función es que cada entrada tenga una sola salida.",
+    "C": "El recorrido no tiene nada que ver: aunque los dos valores existan, la entrada $2$ queda con dos imágenes.",
+    "D": "Correcto. Una función asigna a cada elemento del dominio **exactamente una** imagen."
+   },
+   "misconceptions": {
+    "A": "funciones/relacion-con-dos-imagenes-es-funcion",
+    "B": "funciones/relacion-con-dos-imagenes-es-funcion",
+    "C": "funciones/relacion-con-dos-imagenes-es-funcion",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 1.98,
+   "order_index": 120,
+   "question": "¿Cuáles son las raíces de $f(x) = x^2 - 5x + 6$?",
+   "options": {
+    "A": "$-2$ y $-3$",
+    "B": "$2$ y $3$",
+    "C": "$5$ y $6$",
+    "D": "$-5$ y $6$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se leyeron los signos que aparecen en $(x-2)(x-3)$. La raíz es el valor que **anula** el factor: $x - 2 = 0$ da $x = 2$.",
+    "B": "Correcto. $x^2 - 5x + 6 = (x-2)(x-3)$, así que se anula en $x = 2$ y $x = 3$.",
+    "C": "Esos son los coeficientes del polinomio, no sus raíces. Reemplazando $x = 5$ da $6$, no $0$.",
+    "D": "Se tomaron los coeficientes cambiándole el signo a uno. Conviene comprobar reemplazando."
+   },
+   "misconceptions": {
+    "A": "funciones/raices-con-el-signo-de-la-factorizacion",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 2.1,
+   "order_index": 130,
+   "question": "¿Cuál es el **vértice** de la parábola $y = x^2 - 4x + 3$?",
+   "options": {
+    "A": "$(-2, 15)$",
+    "B": "$(2, 3)$",
+    "C": "$(2, -1)$",
+    "D": "$(4, 3)$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El signo de la fórmula quedó cambiado: es $x = -\\frac{b}{2a} = -\\frac{-4}{2} = 2$, no $-2$.",
+    "B": "La coordenada $x$ está bien, pero la $y$ se tomó del término independiente sin reemplazar. Hay que evaluar la función en $x = 2$.",
+    "C": "Correcto. $x = -\\frac{-4}{2(1)} = 2$, y $y = 2^2 - 4(2) + 3 = -1$.",
+    "D": "Se usó $b$ directamente sin dividir por $2a$, y la $y$ salió del término independiente."
+   },
+   "misconceptions": {
+    "A": "funciones/vertice-con-el-signo-cambiado",
+    "B": "funciones/vertice-con-el-signo-cambiado",
+    "C": null,
+    "D": "funciones/vertice-con-el-signo-cambiado"
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 2.23,
+   "order_index": 140,
+   "question": "¿Hacia dónde abre la parábola $y = -x^2 + 2$?",
+   "options": {
+    "A": "Hacia abajo, porque el coeficiente de $x^2$ es negativo",
+    "B": "Hacia arriba, porque el $+2$ es positivo",
+    "C": "Hacia arriba, porque toda parábola abre hacia arriba",
+    "D": "Hacia la derecha"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. El signo del coeficiente de $x^2$ decide la orientación: negativo abre hacia abajo.",
+    "B": "El término independiente solo desplaza la parábola verticalmente; no cambia hacia dónde abre.",
+    "C": "Abren hacia arriba solo cuando el coeficiente de $x^2$ es positivo.",
+    "D": "Las parábolas de la forma $y = ax^2 + bx + c$ abren hacia arriba o hacia abajo. Las que abren hacia los lados tienen la $x$ despejada en función de $y$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "funciones/confunde-pendiente-con-intercepto",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 2.35,
+   "order_index": 150,
+   "question": "¿Cuántas raíces **reales** tiene $f(x) = x^2 + x + 1$?",
+   "options": {
+    "A": "Una, en $x = 0$",
+    "B": "Dos, en $x = 1$ y $x = -1$",
+    "C": "Una, en $x = -1$",
+    "D": "Ninguna"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Reemplazando $x = 0$ queda $f(0) = 1$, no $0$. El discriminante negativo indica que la parábola no toca el eje $x$.",
+    "B": "Reemplazando $x = 1$ da $3$ y $x = -1$ da $1$: ninguno anula la función.",
+    "C": "Una sola raíz ocurre cuando el discriminante es **cero**, no negativo. Acá $\\Delta = 1 - 4 = -3$.",
+    "D": "Correcto. $\\Delta = b^2 - 4ac = 1 - 4 = -3 < 0$: la parábola queda entera sobre el eje $x$ y no lo corta."
+   },
+   "misconceptions": {
+    "A": "funciones/discriminante-negativo-como-sin-sentido",
+    "B": null,
+    "C": "funciones/discriminante-negativo-como-sin-sentido",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 2.48,
+   "order_index": 160,
+   "question": "¿En qué punto la parábola $y = x^2 - 4x + 3$ corta al eje $y$?",
+   "options": {
+    "A": "$(3, 0)$",
+    "B": "$(0, 3)$",
+    "C": "$(1, 0)$ y $(3, 0)$",
+    "D": "$(0, -4)$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Las coordenadas están intercambiadas. En el eje $y$ la primera coordenada vale $0$.",
+    "B": "Correcto. Reemplazando $x = 0$: $y = 3$, el término independiente.",
+    "C": "Esos son los cortes con el eje **$x$**, o sea las raíces. Se obtienen haciendo $y = 0$.",
+    "D": "Se tomó el coeficiente de $x$ en vez del término independiente."
+   },
+   "misconceptions": {
+    "A": "funciones/confunde-los-dos-cortes",
+    "B": null,
+    "C": "funciones/confunde-los-dos-cortes",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 2.6,
+   "order_index": 170,
+   "question": "El costo de producir $x$ unidades es $C(x) = 500x + 2.000$ pesos. ¿Cuál es el **costo fijo**?",
+   "options": {
+    "A": "$\\$500$",
+    "B": "$\\$2.500$",
+    "C": "$\\$2.000$",
+    "D": "Depende de $x$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el costo **variable** por unidad: lo que se agrega por cada unidad producida.",
+    "B": "Se sumaron los dos coeficientes. Ese sería el costo de producir exactamente una unidad.",
+    "C": "Correcto. El costo fijo es el término que no depende de $x$: se paga aunque no se produzca nada, o sea $C(0) = \\$2.000$.",
+    "D": "El costo **total** depende de $x$; el costo fijo, por definición, no."
+   },
+   "misconceptions": {
+    "A": "funciones/confunde-costo-fijo-con-variable",
+    "B": null,
+    "C": null,
+    "D": "funciones/confunde-costo-fijo-con-variable"
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 2.73,
+   "order_index": 180,
+   "question": "Con $C(x) = 500x + 2.000$, ¿cuántas unidades se producen con un costo de $\\$7.000$?",
+   "options": {
+    "A": "$10$",
+    "B": "$14$",
+    "C": "$18$",
+    "D": "$5.000$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $500x + 2.000 = 7.000$, entonces $500x = 5.000$ y $x = 10$.",
+    "B": "Se dividió $7.000$ por $500$ sin restar antes el costo fijo.",
+    "C": "Se sumó el costo fijo en vez de restarlo antes de dividir.",
+    "D": "Ese es el costo variable total, no la cantidad de unidades. Falta dividir por el costo unitario."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "ecuaciones/pasa-el-termino-sin-cambiar-el-signo",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 2.85,
+   "order_index": 190,
+   "question": "¿Cuáles son las raíces de $f(x) = x^2 - 4$?",
+   "options": {
+    "A": "$4$ y $-4$",
+    "B": "Solo $2$",
+    "C": "$0$ y $4$",
+    "D": "$2$ y $-2$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se despejó sin sacar la raíz cuadrada: de $x^2 = 4$ se llega a $x = \\pm 2$, no $\\pm 4$.",
+    "B": "Falta la raíz negativa. Al despejar un cuadrado hay **dos** soluciones, porque $(-2)^2$ también da $4$.",
+    "C": "Reemplazando $x = 0$ da $-4$, no $0$. El $4$ tampoco anula la función.",
+    "D": "Correcto. $x^2 - 4 = (x+2)(x-2)$, así que se anula en $x = 2$ y $x = -2$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "algebra/funciones",
+   "difficulty": 3.0,
+   "order_index": 200,
+   "question": "Una parábola corta el eje $x$ en $-1$ y en $3$, y tiene coeficiente principal $1$. ¿Cuál es su ecuación?",
+   "options": {
+    "A": "$y = x^2 + 2x - 3$",
+    "B": "$y = x^2 - 2x - 3$",
+    "C": "$y = (x-1)(x+3)$",
+    "D": "$y = x^2 - 4x + 3$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Los signos de las raíces se usaron tal cual en los factores: quedó $(x+1)(x+3)$, cuyas raíces son $-1$ y $-3$.",
+    "B": "Correcto. Las raíces $-1$ y $3$ dan los factores $(x+1)$ y $(x-3)$, y al desarrollar queda $x^2 - 2x - 3$.",
+    "C": "Los factores están cambiados: esa parábola tiene raíces $1$ y $-3$, no $-1$ y $3$.",
+    "D": "Sus raíces son $1$ y $3$: el signo de la primera no corresponde."
+   },
+   "misconceptions": {
+    "A": "funciones/raices-con-el-signo-de-la-factorizacion",
+    "B": null,
+    "C": "funciones/raices-con-el-signo-de-la-factorizacion",
+    "D": null
+   }
+  }
+ ]
+}

@@ -1,8 +1,38 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-28** · Rama **`main`** · **`049` y `050` escritas y SIN APLICAR** (bandas explícitas del eje de números + 100 ítems). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
+**Fecha de corte: 2026-08-28** · Rama **`main`** · **`049` y `050` aplicadas** por el owner (números: bandas + 100 ítems); **`051` y `052` escritas y SIN APLICAR** (álgebra: bandas + 100 ítems). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
+
+> ## 🆕 2026-08-28 (4ª pasada) — álgebra tiene banco, y `polinomios` tiene reemplazo
+>
+> **`051` y `052`, con la misma cadena que produjo números.** El owner aplicó `049` y `050` y pidió
+> seguir con álgebra. Cinco módulos repartidos en toda la escala (`051`) y **100 ítems** con **34
+> ideas erróneas nuevas** (`052`), claves 25/25/25/25 y al menos 6 ítems por tramo de 1,0 logit.
+>
+> **Verificado en cuatro capas**, no en una: el auditor de contenido; las **15 identidades
+> algebraicas comprobadas numéricamente** una por una (productos notables, factorizaciones, la
+> simplificación de la fracción algebraica); la aplicación real contra un **PostgreSQL 14
+> desechable encadenando `049`→`050`→`051`→`052`**; y el conteo final — **200 ítems, 0 sin módulo,
+> 0 ideas huérfanas, los 200 dentro de la banda de su módulo**, y reaplicar no duplica.
+>
+> ⭐ **La regla de huérfanas que se agregó ayer atrapó cuatro entradas hoy.** Tres describían
+> errores que ningún ítem exponía y se retiraron del catálogo; la cuarta —factorizar una **suma**
+> de cuadrados como si fuera una diferencia— era demasiado común para dejarla fuera, así que se le
+> escribió su ítem. Es exactamente lo que `027` pide: el catálogo describe lo que el banco expone,
+> no una lista de buenas intenciones.
+>
+> **Sobre `polinomios`:** `052` no lo amplía, lo **reemplaza**. Ese banco tiene 18 de sus 20 ítems
+> dentro de 0,045 logits, o sea una constante con ruido donde ningún test adaptativo puede
+> discriminar. Pero **no se borró nada**: retirar esos 20 ítems y los once fragmentos del eje
+> (`terminos_semejantes`, `factorizacion`, `ecuaciones_simples`…) es decisión de contenido del
+> owner, y el camino reversible es `active = false`, no `delete` — el histórico de `tests` los
+> referencia (**T-122**).
+>
+> 🔜 **Falta lo mismo que en números y solo lo puede hacer el profesor (T-121):** que el distractor
+> sea el error que los estudiantes de verdad cometen. Los módulos con más riesgo son `polinomios` y
+> `funciones`, donde todo depende de signos y productos notables. **`051` y `052` sin aplicar.**
+>
 
 > ## 🆕 2026-08-28 (3ª pasada) — el eje de números tiene banco, y las bandas dejaron de mentir
 >
@@ -44,7 +74,8 @@
 >
 > 🔜 **Lo que falta y solo puede hacer el profesor (T-120):** que el distractor sea el error que los
 > estudiantes de verdad cometen, que la explicación no rete a quien acaba de equivocarse, y que la
-> `difficulty` tenga sentido pedagógico. Ningún script verifica eso. **`049` y `050` sin aplicar.**
+> `difficulty` tenga sentido pedagógico. Ningún script verifica eso. **`049` y `050` quedaron
+> aplicadas por el owner el mismo día.**
 >
 
 > ## 🆕 2026-08-28 — el motor le regalaba un logit al estudiante que peor está

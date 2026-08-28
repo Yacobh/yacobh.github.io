@@ -322,8 +322,8 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     estudiante se pierde. El reintento del cliente sigue en pie como red para un entorno nuevo
     que se levante sin esta migración.
 
-51. `migrations/049_bandas_explicitas_del_eje_de_numeros.sql` — ⏳ **escrita, SIN APLICAR**
-    (2026-08-28) · escribe `band_min`/`band_max` explícitas en los seis módulos de aritmética,
+51. `migrations/049_bandas_explicitas_del_eje_de_numeros.sql` — ✅ **aplicada 2026-08-28**
+    por el owner · escribe `band_min`/`band_max` explícitas en los seis módulos de aritmética,
     repartiéndolos a lo largo de todo `[-3, 3]`. **Precondición de `050`.** Sin ella, las bandas
     derivadas del orden curricular meten el eje entero en `[-2,85, -0,54]` y el diagnóstico se
     agota cuando el estudiante sube — que es lo que pasó el 2026-08-28 con `enteros`, parando en
@@ -331,7 +331,8 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     [[../adr/ADR-034-azar-fijo-prior-suelto-y-version-del-motor]]). Reversible: basta poner las
     dos columnas en `null` y vuelve la banda derivada.
 
-52. `migrations/050_banco_del_eje_de_numeros.sql` — ⏳ **escrita, SIN APLICAR** (2026-08-28) ·
+52. `migrations/050_banco_del_eje_de_numeros.sql` — ✅ **aplicada 2026-08-28** por el owner,
+    después de `049` ·
     **100 ítems** del eje de números repartidos en los seis módulos, más **47 ideas erróneas
     nuevas** al catálogo. **Aplicar después de `049`.** Generada por
     `scripts/generar_migracion_items.py` desde `contenido/items/numeros.json`, que es la fuente
@@ -342,7 +343,23 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     0 ítems sin módulo, 0 ideas huérfanas, y los 100 dentro de la banda de su módulo.
     ⚠️ `difficulty` es **hipótesis autoral**, no medición (R-17).
 
-53. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+53. `migrations/051_bandas_explicitas_del_eje_de_algebra.sql` — ⏳ **escrita, SIN APLICAR**
+    (2026-08-28) · lo mismo que `049` hizo con números, para los cinco módulos de álgebra.
+    **Precondición de `052`**: sin ella las bandas derivadas comprimen el eje entero en
+    `[-1,16, +0,87]`. Reversible poniendo las dos columnas en `null`.
+
+54. `migrations/052_banco_del_eje_de_algebra.sql` — ⏳ **escrita, SIN APLICAR** (2026-08-28) ·
+    **100 ítems** del eje de álgebra en los cinco módulos, más **34 ideas erróneas nuevas**.
+    **Aplicar después de `051`.** Generada desde `contenido/items/algebra.json`, verificada con
+    `scripts/verificar_items.py` (claves 25/25/25/25, cobertura ≥6 por tramo) y **aplicada de
+    prueba contra un PostgreSQL 14 desechable encadenando `049`→`050`→`051`→`052`**: 200 ítems,
+    0 sin módulo, 0 ideas huérfanas, los 200 dentro de la banda de su módulo, y reaplicar no
+    duplica. Las 15 identidades algebraicas se comprobaron numéricamente una por una.
+    ⚠️ **No amplía el banco `polinomios` viejo: lo reemplaza** — pero **no lo borra**. Retirar
+    esos 20 ítems de circulación es decisión de contenido del owner ([[../project-memory/BACKLOG]]
+    T-122).
+
+55. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
