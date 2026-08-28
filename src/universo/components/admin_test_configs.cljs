@@ -128,6 +128,23 @@
                              [:admin/update-test-config-draft :max_minutes
                               (let [v (.. % -target -value)] (when (pos? (count v)) v))])}]]
 
+      ;; Los dos parámetros del modelo (048, ADR-034). Van juntos y con esa
+      ;; advertencia porque **moverlos por separado empeora el motor**: medido,
+      ;; modelar el azar dejando σ = 1 baja la banda correcta de un estudiante
+      ;; fuerte de 20 % a 4 %. Los dos sesgos eran opuestos y se tapaban.
+      [field "σ del prior" "Cuánto encoge hacia 0 con poca evidencia. Vacío = 2,0. Subirlo deja subir a los fuertes"
+       [:input {:class input-class :type "number" :step "0.1" :min "0.1" :max "5"
+                :value (or (:prior_sd draft) "")
+                :on-change #(re-frame/dispatch
+                             [:admin/update-test-config-draft :prior_sd
+                              (let [v (.. % -target -value)] (when (pos? (count v)) v))])}]]
+      [field "Azar (c)" "Piso de acierto por adivinanza. Vacío = 0,25 (cuatro alternativas). No moverlo sin revisar σ"
+       [:input {:class input-class :type "number" :step "0.05" :min "0" :max "0.9"
+                :value (or (:guessing_c draft) "")
+                :on-change #(re-frame/dispatch
+                             [:admin/update-test-config-draft :guessing_c
+                              (let [v (.. % -target -value)] (when (pos? (count v)) v))])}]]
+
       ;; No es una regla de parada sino de validez: por debajo de este piso la
       ;; respuesta no cuenta para θ (ADR-014 Fase 1). El umbral real de cada
       ;; ítem sube solo con enunciados largos, y eso no se configura acá.

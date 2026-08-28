@@ -836,7 +836,14 @@
      ;; funcionaban. Mismo criterio que los `misconception_*_id` en
      ;; `question-payload`.
      (when (contains? row :initial_theta)
-       {:initial_theta (parse-num (:initial_theta row) js/parseFloat)})))))
+       {:initial_theta (parse-num (:initial_theta row) js/parseFloat)})
+     ;; Mismo criterio para los dos parámetros del modelo (048, ADR-034): si la
+     ;; migración no está aplicada, la clave no llega en la fila leída y no se
+     ;; manda. Nulos son válidos y significan "los de `universo.motor`".
+     (when (contains? row :prior_sd)
+       {:prior_sd (parse-num (:prior_sd row) js/parseFloat)})
+     (when (contains? row :guessing_c)
+       {:guessing_c (parse-num (:guessing_c row) js/parseFloat)})))))
 
 (defn upsert-test-config!
   "Upsert por topic (admin)."

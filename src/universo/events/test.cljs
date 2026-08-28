@@ -7,6 +7,7 @@
    [universo.irt.escape :as escape]
    [universo.irt.fluency :as fluency]
    [universo.irt.progress :as progress]
+   [universo.motor :as motor]
    [universo.reintento :as reintento]
    [cljs.core.async :as async :refer [go <!]]
    [universo.db.crud :as crud]
@@ -188,7 +189,12 @@
                            ;; con el test: así el perfil se construye con los
                            ;; cortes del banco que se rindió y no con los del
                            ;; banco que esté configurado el día que se lea.
-                           :fluency-thresholds (fluency/thresholds-from-config cfg)}
+                           :fluency-thresholds (fluency/thresholds-from-config cfg)
+                           ;; Parámetros del modelo (048, ADR-034). Nulos —o la
+                           ;; columna sin aplicar todavía— caen a los valores de
+                           ;; `universo.motor`, igual que el resto de la config.
+                           :guessing-c (:guessing_c cfg)
+                           :prior-sd (:prior_sd cfg)}
                           progress/default-stop-config)]
          {:db (-> db
                   (assoc-in [:test :status] :questions)
@@ -684,11 +690,33 @@
                   row {"test" test-payload
                        "topic" topic
                        "theta" theta
+                       ;; Con qué reglas se calculó ese θ (048, ADR-034). Sin
+                       ;; esto, un cambio de motor vuelve incomparables dos
+                       ;; filas idénticas y el Δθ de G-4 mediría el motor en vez
+                       ;; del estudiante.
+                       "engine_version" motor/version
                        "email-user" email*
                        "user_id" uid}]
               (if-not uid
                 (js/console.error "Sin sesión Supabase; vuelve a iniciar sesión")
-                (let [result (<! (crud/insert-data-table! row "tests" {:returning? false}))]
+                (let [primero (<! (crud/insert-data-table! row "tests" {:returning? false}))
+                      ;; Las migraciones de este proyecto se aplican **a mano**,
+                      ;; así que el bundle puede llegar a producción antes que
+                      ;; `048`. Si eso pasa, PostgREST rechaza el insert entero
+                      ;; por una columna que no conoce y el diagnóstico recién
+                      ;; rendido **se pierde**. Reintentar sin la columna: un θ
+                      ;; sin versión se puede reconstruir mirando la fecha; una
+                      ;; fila que nunca se guardó, no. Mismo criterio que
+                      ;; `test-config-payload` con `initial_theta`, pero acá el
+                      ;; costo de equivocarse lo paga el estudiante.
+                      result (if (and (not (:success primero))
+                                      (motor/falta-la-columna-de-version? (:error primero)))
+                               (do
+                                 (js/console.warn
+                                  "La migración 048 no está aplicada: se guarda el test sin engine_version.")
+                                 (<! (crud/insert-data-table!
+                                      (dissoc row "engine_version") "tests" {:returning? false})))
+                               primero)]
                   (if (:success result)
                     (when email*
                       (re-frame/dispatch [:dashboard/consultar email*]))

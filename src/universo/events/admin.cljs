@@ -1052,7 +1052,8 @@
                       ;; omite del upsert.
                       (update (select-keys row [:topic :display_name :min_items :max_items
                                                 :se_threshold :prerequisite_topic :min_theta
-                                                :max_minutes :active :initial_theta])
+                                                :max_minutes :active :initial_theta
+                                                :prior_sd :guessing_c])
                               :display_name #(or % "")))]
      (-> db
          (assoc-in [:admin :test-config-editing?] true)
