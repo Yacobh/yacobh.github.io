@@ -143,7 +143,7 @@ Navegador (SPA ClojureScript/re-frame)
       ├── events/{auth,test,profile,plan,slots,admin,dashboard,landing,contacto,router}
       └── lógica pura: profile · slots.logic · components.tetha · topics
                        irt.progress · irt.effort · irt.fluency (eje λ, ADR-019)
-                       misconceptions (catálogo de 027, T-57)
+                       misconceptions (catálogo de 027, T-57) · reintento (ADR-032)
       │
       ▼  @supabase/supabase-js (JWT del usuario)
 Supabase PostgreSQL  ── RLS es el único límite de seguridad ──
@@ -166,8 +166,8 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
 - **Lógica pura primero.** Toda regla de negocio nueva (IRT, bandas, filtros de cupos, perfil) va
   a un namespace puro y testeable (`universo.profile`, `universo.slots.logic`,
   `universo.irt.progress`, `universo.irt.effort`, `universo.irt.fluency`, `universo.topics`,
-  `universo.router`, `universo.components.tetha`, `universo.misconceptions`), **no** dentro de un
-  `reg-event-fx`.
+  `universo.router`, `universo.components.tetha`, `universo.misconceptions`, `universo.reintento`),
+  **no** dentro de un `reg-event-fx`.
 - **Navegación:** si agregas una sección, agrégala al `case` de `home/main-content` **y** a la tabla
   de `universo.router` (y a `protected-sections` si es privada). La sección es el estado
   autoritativo y la URL su reflejo: el router **nunca** escribe `[:ui :current-section]` — despacha
@@ -179,11 +179,24 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
 - **Estado de UI por sección** en `app-db` (ver `universo.db/default-db`): cada pestaña de admin
   tiene su propio `:loading?`/`:error` para no contaminar a las demás.
 - **Comentarios en español**, explicando el *por qué* (invariantes, salvaguardas), no el *qué*.
-- **UI:** el color y el tamaño se verifican con los tres `scripts/audit_*.py`, no a ojo. Toda clase
+- **UI:** el color y el tamaño se verifican con los cinco `scripts/audit_*.py`, no a ojo. Toda clase
   de color nueva se mapea en `src/css/app.css` (ADR-012) y todo par nuevo se declara en
-  `audit_contraste.py`. Las piezas del panel (`.control`, `.alojamiento`, `.led`, `.placa`,
+  `audit_contraste.py`.
+- **El color sale de la paleta o no entra** (ADR-033). Son cinco familias —`grafito`, `senal`,
+  `panel`, `led`, `alarma`— y `indigo`, que está remapeado a gris. Un `green-*` o un `amber-*` de
+  fábrica es **otro sistema de color** dentro de la misma pantalla, y así entró el defecto que
+  ADR-033 arregla. Para estado usa el diodo (`.led` / `.led--alarma` dentro de un `.alojamiento`);
+  para «algo está mal», `alarma-700`. Lo verifica `python3 scripts/audit_paleta.py`, que tiene línea
+  base por archivo: la deuda vieja no molesta, la nueva no pasa. Las piezas del panel (`.control`, `.alojamiento`, `.led`, `.placa`,
   `.visor`, `.grabado`) se reutilizan en vez de rehacerse con utilidades sueltas (ADR-023), y el
   fondo de página es `.fondo-graticule` (ADR-031).
+- **El diagnóstico son dos columnas, no un modal** (ADR-032 · ADR-033): `:questions` y `:feedback`
+  renderizan el mismo `diagnostic-test/test-stage`; la pregunta **no se desmonta**, se congela, y el
+  riel de la derecha **existe siempre**, en el flujo y con `sticky` — nada `fixed`, que es lo que
+  hacía que el panel se montara sobre el footer. Si agregas algo al panel de la capa cero, no
+  repitas lo que ya está en la columna de la izquierda — el enunciado, las alternativas y la gráfica
+  salieron de ahí justo por eso. Los campos de edición del banco viven en
+  `components/campos.cljs` y los usan **los dos** editores (panel admin y editor en vivo).
 - **Toda sección declara su propio fondo** (ADR-031). Una sección sin `bg-*` hereda lo que haya
   debajo, y eso cambia sin que nadie la toque: así el CV acumuló **52 textos bajo AA** con los
   cuatro auditores en verde. `audit_contraste.py` mira pares de paleta, **no capas compuestas**.
@@ -201,9 +214,10 @@ clj -M:test                          # suite de tests (node-test)
 clj-kondo --lint src test             # lint + análisis de namespaces/vars CLJS (complemento de graphify, ver §13)
 
 python3 scripts/audit_dark_theme.py   # texto oscuro / fondo claro sin mapear en el tema oscuro
-python3 scripts/audit_contraste.py    # los 40 pares de la paleta contra su umbral WCAG
+python3 scripts/audit_contraste.py    # los 45 pares de la paleta contra su umbral WCAG
 python3 scripts/audit_movil.py        # objetivos táctiles, padding fijo, texto diminuto
 python3 scripts/audit_html.py         # index.html y 404.html arrancan igual (ADR-027)
+python3 scripts/audit_paleta.py       # color de fábrica fuera de la paleta (ADR-033)
 ```
 
 ## 6. Convenciones de documentación
@@ -238,7 +252,7 @@ python3 scripts/audit_html.py         # index.html y 404.html arrancan igual (AD
 - Toda función pura nueva o modificada necesita test en `test/` (`*_test.cljs`, ns terminado en
   `-test`; el build `:test` los descubre con `:ns-regexp "-test$"`).
 - `clj -M:test` debe cerrar en **0 failures / 0 errors** antes de commitear. Estado de referencia
-  al **2026-08-23**: **161 tests / 2568 assertions / 0 failures**.
+  al **2026-08-23**: **169 tests / 2607 assertions / 0 failures**.
 - Reglas espejo de la base de datos (ej. confirmación de cupo) se testean en el namespace puro
   (`universo.slots.logic`) **y** se documenta que la fuente de verdad es el trigger SQL.
 - Los warnings `:infer-warning` de `events/auth.cljs` son conocidos y no rompen el build

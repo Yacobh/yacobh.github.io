@@ -1,6 +1,6 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-23 (cierre)** — **Q-41 respondida**: la ciudad es Iquique, Chile; aplicada en el CV y A-37 validado. · Antes: **2026-08-23** — **Q-41 nueva**: en qué ciudad son las dos entradas nuevas de docencia del CV (Colegio Luis Cruz Martínez y CPech); se escribió «Chile» sin la ciudad para no inventarla (A-37). · Antes: **2026-08-18 (noche)** — **Q-40 medida**: el catálogo es 77 de 77 del
+Última actualización: **2026-08-23 (segunda pasada)** — **Q-42 nueva** (qué se hace con la parada por precisión, que es inalcanzable con `max_items = 12`) y **X-10 nueva** (ADR-004 describe un estimador y un θ inicial que el código ya no usa). · Antes: **2026-08-23 (cierre)** — **Q-41 respondida**: la ciudad es Iquique, Chile; aplicada en el CV y A-37 validado. · Antes: **2026-08-23** — **Q-41 nueva**: en qué ciudad son las dos entradas nuevas de docencia del CV (Colegio Luis Cruz Martínez y CPech); se escribió «Chile» sin la ciudad para no inventarla (A-37). · Antes: **2026-08-18 (noche)** — **Q-40 medida**: el catálogo es 77 de 77 del
 experimento de cuántica y el producto tiene cero; el panel ya lo declara, pero la decisión sigue
 abierta. · Antes: **2026-08-18** — **Q-40 nueva**: qué hace la pestaña del catálogo con las 77
 entradas `mq/` del experimento de cuántica, que hoy `fetch-misconceptions` devuelve junto con las del
@@ -794,6 +794,31 @@ test rendido.
 El ADR deja el plan de respaldo explícito (ajustar el copy en el intertanto si T-44 se demora):
 primero que sea verdad, después dejarla publicada.
 
+### Q-42 · ¿Qué se hace con la parada por precisión, que hoy es inalcanzable?
+
+**Abierta 2026-08-23**, evaluando el motor IRT.
+
+`progress/stop-reason` para por `:precision` cuando `n ≥ min_items` y `SE(θ) ≤ se_threshold`. Con
+`se_threshold = 0.35` y `max_items = 12` eso **no puede ocurrir nunca**: la información de un ítem
+1PL vale como máximo `0.25` (cuando `b = θ`), así que `SE ≥ 1/√(12×0.25) = 0.577`. Alcanzar `0.35`
+pediría ~33 ítems. El detalle y sus consecuencias están en [[RISKS]] R-38.
+
+**Lo que hay que decidir, y es de producto, no de código:**
+
+1. **Subir el umbral** a un valor alcanzable (~0.55–0.60). El test se acorta para patrones
+   consistentes, que es lo que la regla prometía. Hay que verificar contra qué banda queda ese SE:
+   con `SE = 0.55` el intervalo cruza un borde de banda con facilidad (A-11).
+2. **Subir `max_items`.** Diagnóstico más largo; choca con los ~20 minutos de la promesa y con el
+   tamaño del banco por topic (`040` pide holgura de al menos 2 ítems).
+3. **Dejar la regla como está y corregir lo que se promete.** El test pasa a describirse como lo que
+   es: 12 preguntas con selección adaptativa.
+
+**No se decide sin datos de las tres cosas a la vez:** cuántos tests paran hoy por `:max-items` vs
+`:exhausted`, qué SE final tienen, y a qué distancia del borde de banda cae θ. Es el punto 4 de la
+lista de seguimiento de ADR-004, y es medible con lo que ya está en `tests`.
+
+**Relacionado:** T-111, R-38, [[../adr/ADR-004-irt-1pl-map-y-regla-de-parada]], A-11.
+
 ---
 
 ## Técnicas
@@ -917,6 +942,7 @@ T-18 (cerrada), [[RISKS]] R-21 (cerrado).
 | X-06 | *(Resuelta 2026-08-09)* KaTeX `^0.16.22` por npm vs CSS 0.16.9 por CDN | `package.json` vs `index.html` | CDN de `index.html`/`public/index.html` → `0.16.22`. Ver [[BACKLOG]] T-13 |
 | X-07 | `PROJECT_SUMMARY.md` describe una estructura de módulos previa al MVP (menciona `views.cljs` con componentes principales, `jardin`, `voz`… como parte del producto) que ya no refleja el sistema | `PROJECT_SUMMARY.md` vs [[ARCHITECTURE]] | T-33: reducir a puntero o archivar |
 | ~~X-09~~ | ~~El copy publicado dice que el proyecto *"se originó en 2025 a partir de un convenio con la Universidad Arturo Prat"*~~ | — | ✅ **RESUELTA 2026-08-16 (D-53).** El copy se corrigió y se publicó. **Nota que corrige la propia entrada:** decía tres lugares y eran **cinco** — `index.html` (JSON-LD **y** noscript), `public/index.html` (JSON-LD), `landing.cljs` y `home.cljs` (footer). `resume.cljs` menciona a la UNAP como experiencia docente real y **no se tocó, porque ahí es correcto**. Ver [[LESSONS_LEARNED]] L-22 |
+| X-10 | ADR-004 describe **una iteración de Newton-Raphson por respuesta** y **θ inicial = 0.0**; el código itera hasta convergencia (máx. 20, tol. 0.001) y arranca en `test_configs.initial_theta`, con **−1.0** por defecto | `../adr/ADR-004-irt-1pl-map-y-regla-de-parada.md` vs `src/universo/components/tetha.cljs` y `src/universo/events/test.cljs` | **Abierta 2026-08-23.** Ninguna de las dos divergencias es un error: iterar a convergencia y luego capar el paso es un estimador razonable —persecución con velocidad limitada del MAP— y abrir el banco en −1.0 es una decisión deliberada y documentada en el código (migración `046`). Lo que no es razonable es que el ADR describa un algoritmo que no corre: es el documento al que se acude para explicarle el método a un colegio (G-1). **Además hay una consecuencia no escrita:** con `limit-theta-step = 0.4` y arranque en −1.0, un estudiante fuerte necesita **≥7 ítems solo para viajar** de −1.0 a +1.5, de un máximo de 12; y el θ que se reporta y determina la banda es el **valor capado**, no el MAP convergido, así que está sesgado hacia el θ de arranque. Resolución propuesta: **T-112** — un ADR que reemplace a ADR-004 describiendo el estimador real, o corregir el código para que coincida con el ADR. No se resuelve en silencio ni editando ADR-004, que es un registro histórico |
 | X-08 | *(Parcialmente resuelta 2026-07-30)* El "Libro del Proyecto" proponía pago por clase, multi-materia e internacionalización | [[VISION_LIBRO_PROYECTO]] §4.4 vs [[PROJECT_BRIEF]] §6, [[BUSINESS_CONTEXT]] §5 | **Pago por clase: resuelto** (D-19/D-26/D-32, $10.000 CLP/hora). **Multi-materia e internacionalización: siguen sin decidir** -- Q-21 confirmó la dirección general, pero no estas decisiones puntuales |
 
 ---

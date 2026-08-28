@@ -1,6 +1,6 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
+Última actualización: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
 ruta de login** — el gate legal no va donde está el formulario sino donde nace la cuenta; y
 **L-43**, si Google Cloud te pide datos tributarios para configurar OAuth, te desviaste de camino.
 Antes ese mismo día: **L-41**, una copia que nadie mira diverge — la pregunta útil
@@ -818,6 +818,71 @@ el que hay que automatizar (T-107).
 debajo, y lo que haya debajo puede cambiar sin que nadie toque esa sección.
 
 **Relacionado:** [[../adr/ADR-031-fondo-como-plano-de-medida]], [[RISKS]] R-36, [[BACKLOG]] T-107.
+
+### L-50 · Tres auditores en verde no significan que la pieza pertenezca al sistema
+
+La capa cero del diagnóstico pintaba `bg-green-50 border-green-600 text-green-900` — verde **de
+fábrica** de Tailwind dentro de una pantalla construida con la paleta Braun. Los tres auditores
+habían pasado por ese código y los tres dijeron que sí:
+
+| Auditor | Qué pregunta | Por qué no lo vio |
+|---|---|---|
+| `audit_contraste.py` | ¿los pares **declarados** cumplen WCAG? | Nadie declaró ese par: no existía para el script |
+| `audit_dark_theme.py` | ¿cada clase tiene mapeo oscuro? | `bg-green-50` **sí** tenía mapeo. Estaba bien atendida; era la equivocada |
+| `audit_movil.py` | ¿los tamaños sirven en un teléfono? | No mira color |
+
+Ninguno preguntaba **si el color pertenece al sistema**, que es una pregunta distinta de si contrasta
+y de si tiene modo oscuro. El defecto lo encontró el owner mirando la pantalla, que es exactamente lo
+que los auditores existen para evitar.
+
+**La regla:** cuando aparezca un defecto que los auditores no vieron, la corrección no termina en el
+defecto. Hay que preguntarse **qué clase de pregunta** ninguno estaba haciendo, y si esa pregunta se
+puede automatizar. Acá se podía: `audit_paleta.py`, con línea base por archivo para que la deuda
+heredada no lo vuelva ruido que nadie corre.
+
+**El corolario incómodo:** un auditor con línea base **congela** la deuda, no la paga. Que el script
+esté en verde con 92 usos de color de fábrica en el embudo significa «no empeoró», no «está bien».
+
+### L-51 · Una utilidad de Tailwind que no se genera falla en silencio
+
+`lg:max-h-[calc(100vh-6rem)]` no apareció nunca en el CSS compilado: `calc` sin espacios alrededor
+del signo **no es CSS válido**, y en una clase arbitraria de Tailwind el espacio se escribe `_` —
+`calc(100vh_-_6rem)`. Y `lg:grid-cols-[minmax(0,1fr)_26rem]` sí se generaba, pero con la coma
+escapada como `\2c`, así que buscarla en el CSS con el nombre que uno escribió tampoco la encuentra.
+
+Las dos veces el síntoma es el mismo y es el peor posible: **nada avisa**. No hay error de build ni
+warning; la clase simplemente no existe y el navegador la ignora. El riel se cae debajo del enunciado
+y uno culpa al flex.
+
+**La regla:** una utilidad arbitraria (`[...]`) no está lista hasta haberla visto **en
+`public/css/app.css`**, no en la documentación. Y ante la duda, prefiere dos utilidades triviales
+—un ancho fijo y un `flex-1`— a una arbitraria ingeniosa: la que se verifica de un vistazo gana.
+
+**Bonus de la misma pasada:** el extractor de Tailwind lee **los comentarios**. Un `;;` explicando
+«esto ya no usamos `grid-cols-[...]`» le hace generar esa regla igual.
+
+### L-49 · El formulario devuelve `""` donde la base tenía `null`, y un diff ingenuo lo escribe
+
+Al escribir el editor en vivo (ADR-032) el diff de campos comparaba el borrador contra la fila
+original **tal cual**. El borrador convierte los `nil` en `""` a propósito —un `<textarea :value nil>`
+en React se vuelve no controlado y deja de responder al estado—, así que **abrir el editor y cerrarlo
+sin tocar nada** proponía escribir `""` en las tres o cuatro columnas que estaban en nulo.
+
+No lo encontró la revisión: lo encontró el **primer test** que escribí para esa función, el que
+afirmaba «abrir y cerrar sin tocar nada no escribe una sola columna». Falló con
+`{:error_b "", :error_d ""}` — y el docstring que yo mismo acababa de escribir ya prometía que eso no
+pasaba.
+
+**La regla:** un diff entre un formulario y una fila se hace **sobre los valores coercionados**, no
+sobre los que trae cada lado. La coerción es del campo, no del origen: `""` y `"null"` de un
+`<select>` son `nil`; un `<input type=number>` vacío es `nil` y no `0`; un texto en blanco es `nil`.
+
+**Por qué importa más que el ruido:** un `error_c` vacío y un `error_c` nulo no son lo mismo para
+quien lea la tabla después —«no tiene explicación» contra «tiene una explicación en blanco»— y esa
+diferencia es justo la que `027` usa para saber qué distractores faltan por catalogar. El daño no se
+ve el día que ocurre: se ve el día que se cuenta.
+
+**Dónde vive la regla:** `universo.editor/coercionar-campo` + `campos-editados`, con sus tests.
 
 ### L-48 · Un glifo que la fuente no tiene se sustituye en silencio, y el resultado cambia por máquina
 

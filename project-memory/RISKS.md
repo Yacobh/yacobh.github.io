@@ -1,6 +1,6 @@
 # RISKS
 
-Última actualización: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
+Última actualización: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
 de los 306 ítems; mitigado en el cliente por ADR-030, el dato sigue sesgado). ·
 Antes: **2026-08-17** — **R-33 nuevo** (la pantalla de Google nombra a `supabase.co`
 y no a la marca, visto en vivo al verificar T-92; toca la confianza justo en el registro) y **R-32
@@ -805,6 +805,65 @@ apuntaría a que el botón se está usando como «siguiente» y no como declarac
 **consentimiento** —la siguiente, después de elegir cuenta— sí muestra el nombre de la app. Eso
 recupera parte de la confianza sin costo. **Sin verificar todavía:** el agente se detuvo en el
 selector de cuenta a propósito, sin completar un login real.
+
+### R-37 · Las corridas de depuración del admin ensucian la calibración del banco
+
+**Abierto 2026-08-23**, al implementar el editor en vivo del diagnóstico
+([[../adr/ADR-032-capa-cero-al-lado-y-editor-en-vivo]]). **Severidad: alta** — no por lo que rompe
+hoy, sino por lo que rompe justo cuando importe.
+
+**El hecho:** depurar un ítem ahora significa rendir el diagnóstico, corregir y **volver a servir el
+mismo ítem** las veces que haga falta. Cada una de esas corridas termina en una fila de `tests`
+idéntica en forma a la de un estudiante real: mismo `user_id` (el del owner), mismo `topic`, mismo
+JSON de respuestas. No hay columna que diga «esto era el autor probando».
+
+**Por qué importa:** G-2 —calibrar `difficulty` con respuestas reales y publicar el reporte técnico—
+es la precondición de todo el plan de negocio ([[TESIS_DE_CRECIMIENTO]]). Un banco calibrado con
+respuestas del propio autor, que **conoce la clave**, no está calibrado: está sesgado hacia la
+facilidad, y peor, sesgado exactamente en los ítems que más se depuraron, que son los que más
+atención necesitaban. Es contaminación correlacionada con la variable de interés, que es la peor
+clase.
+
+**Lo que hace falta antes de calibrar (T-110):** una columna `tests.origin`
+(`'student' | 'admin_preview'`) escrita en `:test/complete`, o como mínimo una exclusión explícita
+por `user_id` en el proceso de calibración, escrita y versionada — no recordada.
+
+- **Severidad:** 🔴 alta a partir del día que G-2 arranque; ⚪ nula hasta entonces.
+- **Relacionado:** T-110, ADR-032, G-2 en [[TESIS_DE_CRECIMIENTO]], R-17 (`difficulty` sin calibrar).
+
+### R-38 · La parada por precisión del diagnóstico nunca se dispara
+
+**Abierto 2026-08-23**, evaluando el motor IRT contra
+[[../adr/ADR-004-irt-1pl-map-y-regla-de-parada]]. **Severidad: media.** No hay que medirlo con
+datos: es aritmética.
+
+**El hecho:** en 1PL la información de un ítem es máxima cuando `b = θ`, y ahí vale `0.25`. Con
+`max_items = 12` (el valor de todos los bancos, migración `020` y `040`):
+
+```
+I(θ) ≤ 12 × 0.25 = 3.0   →   SE(θ) = 1/√I ≥ 0.577
+```
+
+El umbral configurado es `se_threshold = 0.35`, que exige `I ≈ 8.16`, es decir **~33 ítems**. Con
+escapes (peso 0.0, ADR-029) y respuestas descartadas por esfuerzo (ADR-014), peor todavía. La rama
+`:precision` de `progress/stop-reason` es, hoy, **código inalcanzable**: todo diagnóstico termina por
+`:max-items` o por `:exhausted`.
+
+**Las dos consecuencias, y la segunda es la cara:**
+
+1. El test no es adaptativo *en longitud*. Es un test de 12 preguntas fijas con selección adaptativa
+   —que es una cosa buena, pero no es lo que dice el ADR ni lo que se puede prometer.
+2. **Hay copy y un argumento de venta apoyados en esto** («estimación precisa con menos preguntas»,
+   ADR-004 §Consecuencias). Afirmar precisión con `SE ≥ 0.577` no es defendible ante un colegio que
+   pregunte, y G-1 se vende a colegios.
+
+**Salidas posibles, ninguna elegida todavía (T-111):** subir `se_threshold` a un valor alcanzable
+(~0.55–0.60, donde sí distingue un patrón consistente de uno ambiguo); subir `max_items`, que
+alarga el test; o dejar la regla como está y corregir lo que se promete. Son decisiones de producto,
+no de código.
+
+- **Severidad:** 🔶 media hoy, **alta** cuando la afirmación psicométrica entre a un pitch (G-1).
+- **Relacionado:** T-111, X-10, ADR-004, R-17, G-2 en [[TESIS_DE_CRECIMIENTO]].
 
 ### R-36 · Una sección sin fondo propio hereda el de la página, y ningún auditor lo ve
 

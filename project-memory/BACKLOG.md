@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
+Última actualización: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
 verificado en producción, con D-21 respetado en las dos rutas — **ADR-028 / D-56**. Abre **T-95**
 (persistir el consentimiento) y **R-33** (la pantalla de Google nombra a `supabase.co`)). Antes: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
 G-1…G-5, tareas T-76…T-89), abierta por
@@ -844,6 +844,21 @@ Es la técnica estándar de calibración (*ítems sembrados* / *anchor items*).
 
 ### T-100 · Migrar el diagnóstico y «Mi plan» al lenguaje del panel — **P1** · `abierto`
 
+> **Actualización 2026-08-24 (ADR-033).** Esta tarea dejó de ser difusa: `python3
+> scripts/audit_paleta.py` la cuenta. Al cerrar esa sesión la deuda de color de fábrica era **92 usos
+> en el embudo**, 87 en el panel de admin y 50 fuera del bundle, con línea base **por archivo** y
+> trinquete — o sea que no puede crecer mientras esto siga abierto, y cada vez que baje el script pide
+> actualizar el número.
+>
+> Lo que ya salió del embudo en esa pasada: el veredicto del diagnóstico (verde/rojo de fábrica →
+> diodo de la paleta) y los avisos de error de `diagnostic_test` y `test_editor` (→ `alarma-700`). Lo
+> que queda en `diagnostic_test.cljs` son 9 usos, **todos fuera del flujo del ítem**: la pantalla de
+> selección, la de completado y la de resultados.
+>
+> **Ojo con el trinquete:** que el auditor esté en verde significa «no empeoró», no «está bien»
+> ([[LESSONS_LEARNED]] L-50).
+
+
 La identidad visual (ADR-022/023) existe, está pagada y **no llegó a las dos pantallas que más se
 ven**. Medido con `grep` el 2026-08-18:
 
@@ -1062,6 +1077,105 @@ repo**. Y el cursor **no puede ser cian**: sobre el panel el LED da 1.04 de cont
 prohíbe fuera de un alojamiento.
 
 **Relacionado:** ADR-031 §Decisión 4, ADR-022, ADR-023, G-4 en [[TESIS_DE_CRECIMIENTO]].
+
+### T-115 · Revisar el ancho del enunciado con los ítems más largos — **P2** · `abierto`
+
+Desde ADR-033 el riel ocupa 26rem fijos en `lg`, así que la columna del enunciado queda en 712px con
+`max-w-6xl` — más que el `max-w-2xl` (672) que la caja ya tenía, pero en una ventana de 1024px caen a
+**552px** y ahí sí se nota.
+
+**Cómo se comprueba, y no es a ojo:** tomar los enunciados más largos del banco (los que llevan
+`$$…$$` en display, que es lo que no se puede envolver) y mirarlos a 1024px con el panel abierto. Si
+la caja scrollea en horizontal, las salidas son bajar el riel a 24rem, subir el escenario a
+`max-w-7xl`, o dejar que el riel se apile también en `lg` y reservar las dos columnas solo desde
+`xl`.
+
+**Terminado cuando:** hay una medición sobre los ítems reales, no una impresión.
+
+### T-110 · Distinguir las corridas de admin en `tests` — **P0** · `abierto`
+
+**Precondición dura de G-2.** Desde ADR-032, depurar un ítem significa rendir el diagnóstico y volver
+a servir el mismo ítem varias veces. Cada corrida deja una fila en `tests` indistinguible de la de un
+estudiante real, con el `user_id` del owner —que conoce la clave— y concentrada justo en los ítems
+que más se depuraron. Calibrar `difficulty` con eso adentro no produce un banco calibrado: produce
+uno sesgado hacia la facilidad **en correlación con la variable de interés**. Ver [[RISKS]] R-37.
+
+**Alcance mínimo:** columna `tests.origin text not null default 'student'`, escrita como
+`'admin_preview'` en `:test/complete` cuando `:auth/admin?`, y su índice si hace falta. La
+alternativa barata —excluir por `user_id` al calibrar— sirve, pero solo si queda **escrita y
+versionada**, no recordada.
+
+**Terminado cuando:** una corrida de admin y una de estudiante se pueden separar con un `where`, y el
+criterio está en `supabase/SCHEMA.md`.
+
+### T-111 · Decidir qué se hace con la parada por precisión — **P1** · `abierto`
+
+`:precision` no se dispara nunca: con `max_items = 12`, `SE(θ) ≥ 0.577`, y el umbral configurado es
+`0.35` ([[RISKS]] R-38, [[OPEN_QUESTIONS]] Q-42). Hay copy y un argumento de venta apoyados en una
+regla que no corre.
+
+**Se decide con datos que ya existen** —`tests` guarda respuestas y θ desde el primer test—: cuántos
+paran por `:max-items` vs `:exhausted`, qué SE final tienen, y a qué distancia del borde de banda cae
+θ (A-11). Con eso, elegir entre subir el umbral, subir `max_items` o corregir lo que se promete.
+
+**Terminado cuando:** el umbral es alcanzable **o** el copy dice lo que el test hace, y la decisión
+está en un ADR.
+
+### T-112 · Poner al día el ADR del estimador de θ — **P2** · `abierto`
+
+ADR-004 describe una iteración de Newton-Raphson por respuesta y θ inicial 0.0. El código itera hasta
+convergencia y arranca en `test_configs.initial_theta` (−1.0 por defecto). Ver [[OPEN_QUESTIONS]]
+X-10.
+
+Un ADR nuevo que reemplace a ADR-004 —sin editarlo: es un registro histórico— describiendo el
+estimador real, y **escribiendo las dos consecuencias que hoy no están en ningún lado**: que con paso
+0.4 y arranque en −1.0 hacen falta ≥7 ítems para llegar a θ = 1.5, y que el θ que se reporta es el
+valor capado y no el MAP convergido, o sea sesgado hacia el θ de arranque.
+
+**Vale la pena evaluar de paso:** reportar al cerrar el test el MAP sin capar (el capado se sigue
+usando para elegir el ítem siguiente, que es para lo que existe el tope). Es barato y le pega directo
+a la banda y a Δθ (G-4).
+
+**Terminado cuando:** el ADR describe lo que corre, y el documento con el que se le explica el método
+a un colegio es cierto.
+
+### T-113 · Rol `editor` / `profesor` para el banco — **P2** · `abierto`
+
+Hoy `profiles.role ∈ {user, admin}` y **todas** las policies dicen `is_admin()`. ADR-032 dejó la
+edición en vivo detrás de `:auth/admin?` a propósito: partir el rol obliga a revisar el esquema
+entero para habilitar a nadie —bus factor = 1—.
+
+**Cuando exista una segunda persona**, el camino barato es `public.can_edit_bank()`
+(`role in ('admin','editor')`) usada **solo** en las policies de `questions`, `misconceptions` y
+`resources`; el resto sigue en `is_admin()`. En el cliente, sustituir el `:auth/admin?` del editor en
+vivo por una sub de capacidad.
+
+**Relacionado:** T-79 (rol `profesor` para el panel docente de G-1), que es un rol distinto y con
+otro alcance: mirar, no editar.
+
+### T-114 · Evaluar 1PL con azar fijo (`c = 0.25`) — **P2** · `abierto`
+
+Con cuatro alternativas, un estudiante muy por debajo del ítem acierta ~25 % de las veces, y bajo 1PL
+puro ese acierto **empuja θ hacia arriba como si fuera evidencia plena**. El escape (ADR-029) reduce
+el problema pero no lo elimina: sigue habiendo quien adivina.
+
+**No es 3PL.** 3PL exige estimar `a`, `b` y `c` por ítem (~1.000 respuestas por ítem, y `c` casi no
+identificable sin priors fuertes); con `difficulty` todavía autoral (R-17) sería ruido con apariencia
+de rigor, que es lo que ADR-004 ya descartó. Acá `c` es **una constante**, no un parámetro estimado:
+
+```
+P = c + (1−c)·σ(θ−b)          c = 0.25 fijo
+dP/dθ = (1−c)·σ(1−σ)
+I(θ)  = [(1−c)·σ(1−σ)]² / [P(1−P)]
+```
+
+Son ~20 líneas en `components/tetha.cljs` + `irt/progress.cljs`, sin migración y con test.
+
+**Ojo con el acoplamiento:** la información baja, así que el SE sube y empeora T-111. Las dos se
+miran juntas o se rompe la experiencia sin que nadie lo note (ADR-004 §Seguimiento).
+
+**Terminado cuando:** hay una medición sobre los tests ya rendidos que dice cuánto se mueve θ con y
+sin `c`, y una decisión en un ADR.
 
 ### T-109 · Borrar `src/universo/animations.cljs` (código muerto) — **P3** · `abierto`
 
@@ -3077,9 +3191,9 @@ de negocio, no técnica.
 
 | Prioridad | Tareas |
 |-----------|--------|
-| **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50, **T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-88, T-90, T-91, T-93** |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92** |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86, T-95** |
+| **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50, **T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-88, T-90, T-91, T-93, T-110** |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92, T-111** |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86, T-95, T-112, T-113, T-114, T-115** |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
 > ⚠️ **Esta tabla está incompleta y se detectó el 2026-08-18** (comprobado por script, no a ojo):

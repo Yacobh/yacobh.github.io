@@ -1,8 +1,120 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-23** · Rama **`main`** · **commiteado, sin pushear** — no está en producción hasta el `git push`
+**Fecha de corte: 2026-08-24** · Rama **`main`** · **commiteado, sin pushear** — no está en producción hasta el `git push`
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
+
+> ## 🆕 2026-08-24 — el diagnóstico dejó de tener dos sistemas de color, y el panel dejó de pisar el footer
+>
+> **ADR-033 / D-64.** El owner probó lo de ayer y levantó cuatro cosas. Ninguna era preferencia: las
+> cuatro tenían causa.
+>
+> **1. El panel se montaba sobre el footer.** Era `fixed`, o sea anclado a la ventana, y un elemento
+> `fixed` no sabe que el documento termina. Ahora el riel es una **columna de verdad del flujo** con
+> `sticky`: se pega bajo la barra mientras hay página y se despega al llegar al pie. Sale gratis, sin
+> escuchar scroll. Verificado midiendo el DOM: con la página abajo del todo, el footer arranca en 798
+> y el panel termina en 420.
+>
+> **2. «El verde no compagina con el tema.»** Estaba tomando los suyos: la capa cero pintaba
+> `green-*` y `red-*` **de fábrica de Tailwind**, la única familia de color del producto que no salía
+> de `tailwind.config.js`. No era una impresión — eran dos sistemas de color en la misma pantalla.
+>
+> Ahora el estado se dice como lo dice el resto del panel desde ADR-023: **un diodo dentro de su
+> alojamiento**. La superficie de la alternativa no cambia de color acierte o falle; lo dicen el LED
+> (`.led--on` verde · `.led--alarma` rojo), la regla lateral y las palabras. Entra a la paleta la
+> familia **`alarma`** —el LED rojo del instrumento, y desde ahora el color de «algo está mal»— y un
+> `led-800` usable como regla. Cinco pares nuevos medidos en `audit_contraste.py`.
+>
+> ⭐ **3. Y la pregunta que valía más que las cuatro:** *«¿cómo escribimos algo que nos permita
+> recordar que lo que introducimos tiene que mantener el estilo del sitio?»*
+>
+> Los tres auditores habían pasado por ese código **en verde**, porque ninguno preguntaba si el color
+> **pertenece** al sistema: `audit_contraste.py` mide los pares que alguien declaró,
+> `audit_dark_theme.py` exige mapeo oscuro (`bg-green-50` **sí** lo tenía: estaba bien atendida, era
+> la equivocada), `audit_movil.py` mide tamaños. Nace **`scripts/audit_paleta.py`**, el quinto: falla
+> si entra color de fábrica donde no había. Los 229 usos heredados quedan como **línea base por
+> archivo** —92 en el embudo, 87 en admin, 50 fuera del bundle—, visibles y sin molestar; la deuda
+> nueva no entra, y cuando un archivo mejora el script pide bajar el número. Con eso **T-100 deja de
+> ser difusa y pasa a tener cifra**. Lección en [[LESSONS_LEARNED]] L-50, con su corolario incómodo:
+> un trinquete **congela** la deuda, no la paga.
+>
+> **4. Vuelve el «Bonus».** `score_answer` devuelve la nota de la alternativa **elegida**: al fallar
+> explica el error, al acertar es la nota de la correcta y no habla de ningún error. Llamarla
+> «Explicación» y ponerle un triángulo de peligro le decía a quien acababa de acertar que había algo
+> que corregir. Ahora se rotula `Bonus` y el triángulo se fue en los dos casos.
+>
+> **5. El editor ya no edita a ciegas.** Con las alternativas barajadas (ADR-030), «Alternativa B» no
+> identificaba nada: ahora cada bloque muestra **el texto de su alternativa**, cuál es la correcta y
+> cuál eligió el estudiante, y la columna de la pregunta muestra la letra original — solo a quien
+> edita el banco, porque al estudiante sería devolverle el orden que barajar existe para ocultar.
+>
+> **De regalo, un defecto que no se veía:** la gráfica de θ vivía dentro del modal, o sea que
+> **parpadeaba doce veces por diagnóstico**. Ahora es el visor permanente del riel, y de paso es lo
+> que hace que la columna derecha no se vea vacía antes de la primera respuesta.
+>
+> ⚠️ **Una trampa nueva documentada (L-51):** `lg:max-h-[calc(100vh-6rem)]` **nunca se generó** —en
+> una clase arbitraria de Tailwind el espacio se escribe `_`, y `calc` sin espacios no es CSS
+> válido—. No hay error de build: la clase simplemente no existe. Se detectó mirando
+> `public/css/app.css`, que es donde hay que mirar.
+>
+> **En el árbol de trabajo, sin commitear.** 169 tests / 0 failures, **5/5 auditores**, build sin
+> warnings. Layout verificado midiendo el DOM sobre una maqueta estática con el CSS real; **el flujo
+> con cuenta de admin sigue sin probarse en vivo**.
+>
+
+> ## 🆕 2026-08-23 (2ª pasada) — la capa cero se mudó al costado, y el banco se edita sin salir del test
+>
+> **El modal del feedback ya no existe** (**ADR-032 / D-63**). La capa cero es ahora un panel al
+> lado: columna derecha en `lg`, hoja inferior debajo, **sin backdrop**, con la pregunta congelada
+> pero **montada** a la izquierda y la alternativa elegida marcada ahí.
+>
+> Al abrirlo apareció el motivo real de que el modal se sintiera invasivo, y no era el color:
+> `diagnostic-test` **desmontaba la pregunta** al pasar a `:feedback`, así que el backdrop oscurecía
+> una pantalla vacía y el modal tenía que volver a dibujar el enunciado y las alternativas para poder
+> marcar cuál se eligió. Repetía justo lo que acababa de tapar. El panel nuevo no lleva ninguno de
+> los dos: es veredicto + explicación + curva + Continuar.
+>
+> **Y el banco se edita donde se ve.** Con el panel abierto, un admin tiene una segunda pestaña
+> —«Editar ítem»— que corrige **las cuatro explicaciones de error con su idea errónea, el enunciado,
+> `difficulty` y `module_id`**, con patch parcial de solo lo que cambió; y un **«guardar y volver a
+> servir»** que deshace la última respuesta y vuelve a mostrar el mismo ítem ya corregido, con θ y el
+> historial podados juntos (`universo.reintento`, puro y con tests). El test se depura como un
+> programa. Es trabajo directo sobre G-2: la única vista donde el autor detecta una explicación mala
+> es rindiendo el diagnóstico, y hasta hoy ahí no había nada que tocar.
+>
+> **Fuera del alcance a propósito:** las alternativas y `correct_option` (cambiarlas a mitad de un
+> test invalida la respuesta recién dada) y el rol `editor`/`profesor`, que obligaría a revisar todas
+> las policies del esquema para habilitar a nadie — bus factor = 1 ([[BACKLOG]] T-113).
+>
+> ⚠️ **Riesgo abierto en el mismo acto: [[RISKS]] R-37.** Cada corrida de depuración deja una fila en
+> `tests` indistinguible de la de un estudiante, con el `user_id` del owner —que conoce la clave— y
+> concentrada en los ítems que más se depuraron. **T-110 es precondición de G-2**: si se calibra sin
+> separar esas corridas, el activo se calibra con el autor adentro.
+>
+> ### Evaluación del motor IRT (pedida en la misma sesión, sin cambiar código)
+>
+> Tres hallazgos, todos registrados y ninguno resuelto en silencio:
+>
+> 1. **La parada por precisión no se dispara nunca** ([[RISKS]] R-38, Q-42, T-111). Es aritmética, no
+>    hace falta medirlo: la información de un ítem 1PL vale como máximo `0.25`, así que con
+>    `max_items = 12` el `SE(θ)` no baja de **0.577** y el umbral configurado es **0.35** (pediría
+>    ~33 ítems). Todo diagnóstico termina por `:max-items` o `:exhausted`. El test es de 12 preguntas
+>    fijas con selección adaptativa — que está bien, pero **no es lo que promete el copy**.
+> 2. **ADR-004 describe un estimador que ya no corre** ([[OPEN_QUESTIONS]] X-10, T-112): dice una
+>    iteración de Newton-Raphson y θ inicial 0.0; el código itera hasta convergencia y arranca en
+>    `initial_theta` (**−1.0** por defecto). Consecuencia no escrita en ningún lado: con paso 0.4 y
+>    arranque en −1.0 hacen falta **≥7 ítems solo para viajar** a θ = 1.5, de un máximo de 12, y el θ
+>    que se reporta —el que manda banda y cupo— es el **valor capado**, no el MAP convergido.
+> 3. **3PL no**, y no por dogma: exige ~1.000 respuestas por ítem y `c` casi no es identificable sin
+>    priors fuertes. Con `difficulty` todavía autoral (R-17) sería ruido con apariencia de rigor. Lo
+>    que sí vale evaluar es **1PL con azar fijo `c = 0.25`** —una constante, no un parámetro— para
+>    que un acierto por adivinanza deje de contar como evidencia plena: T-114, acoplada a T-111.
+>
+> **En el árbol de trabajo, sin commitear y sin pushear.** 169 tests / 2607 assertions / 0 failures,
+> 4/4 auditores en verde, build sin warnings, `app.js` y `app.css` recompilados. **No verificado en
+> vivo con una cuenta de admin real** — el flujo de edición y el «volver a servir» necesitan una
+> sesión que esta sesión no podía crear.
+>
 
 > ## 🆕 2026-08-23 — el fondo dejó de ser neutro, y eso destapó 52 textos ilegibles en el CV
 >

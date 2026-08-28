@@ -135,7 +135,8 @@ Tres namespaces puros + un ns de eventos:
 | `universo.catalog` | Catálogo de evaluaciones: `topic-label` (precedencia `test_configs.display_name` → diccionario `topic-labels` → topic con guiones bajos como espacios), `count-by-topic` (preguntas por banco), `counts-truncated?` (detecta respuesta recortada de PostgREST) | `catalog_test.cljs` |
 | `universo.misconceptions` | **Catálogo de ideas erróneas** (`027`): `health-from-usage` (única definición del veredicto; `health` la envuelve), `split-experimento` / `del-experimento?` (separa el producto de las 77 de cuántica, Q-40), `slug-valid?` (**espejo del check `^[a-z0-9]+([-/][a-z0-9]+)*$`**), `suggest-slug`, `matches?`, `usage-index` (id → cuántos distractores la referencian), `with-usage`, `health` (`:vacio`/`:disperso`/`:sano`). `health` es la heurística de `027` hecha función: el catálogo debe crecer **mucho más lento** que el banco. `items-por-misconception-saludable` = 5 es criterio editorial **sin validar con datos** | `misconceptions_test.cljs` |
 | `universo.history` | **Agrupación del historial del tablero** (D-60): `group-attempts` (por forma canónica del topic, así `términos_semejantes` y `terminos_semejantes` no son dos evaluaciones), `attempt-points` (puntos graficables; un intento sin θ no es punto pero **sí cuenta** como intento), `totals`. Calcula **Δθ desde el primer intento**, que es la única medida de progreso que el producto promete (G-4) | `history_test.cljs` |
-| `universo.editor` | **Reglas de los paneles de edición** (T-103): `modules-by-track`, `module-label`, `renderable?` (¿la vista previa aporta algo?), `question-missing-fields` / `question-draft-valid?`. Existe para que la vista pueda decir *qué* falta con **el mismo criterio** que usa el evento para decidir si guarda | `editor_test.cljs` |
+| `universo.editor` | **Reglas de los paneles de edición** (T-103): `modules-by-track`, `module-label`, `renderable?` (¿la vista previa aporta algo?), `question-missing-fields` / `question-draft-valid?`. Existe para que la vista pueda decir *qué* falta con **el mismo criterio** que usa el evento para decidir si guarda. Desde ADR-032 además: `campos-en-vivo` (qué se puede editar durante el diagnóstico), `coercionar-campo` y `campos-editados` (diff coercionado para el patch parcial — **en blanco es nulo**, no `""`) | `editor_test.cljs` |
+| `universo.reintento` | **Deshacer la última respuesta** (ADR-032): `puede-reintentar?`, `deshacer-ultima`. Poda `:responses` y `:theta-history` **juntos**, devuelve θ al valor previo —o a `:theta-initial`, el θ de arranque del banco, si se deshace la primera—, recalcula la parada y reinstala el mismo ítem parcheado. La pregunta **no** sale de `:questions`: sacarla la devolvería al pozo de candidatas de `next_question`, que podría entregar otra. Es seguro porque nada se persiste por ítem — `tests` se escribe entera en `:test/complete` | `reintento_test.cljs` |
 | `universo.events.test` | Orquestación con I/O: `normalize-question`, `resolve-topic` (alias de topics), fetch de candidatos por ventana de dificultad, prefetch, registro de respuesta, evaluación de la parada, persistencia | — |
 
 **Invariantes que impone la base, no el cliente** (además de RLS):
@@ -198,6 +199,14 @@ que dice *qué* falta antes de guardar); el de recursos además tiene vista prev
 función que dibuja el recurso en «Mi plan». Lo que sigue distinto: `admin_questions.cljs` usa
 utilidades sueltas e indigo en vez de las primitivas del panel Braun (ADR-023) — mismo problema que
 [[BACKLOG]] T-100 registra para el diagnóstico.
+
+**Hay un tercer editor, y no vive en el panel** (ADR-032): `components/test_editor.cljs` +
+`events/editor_vivo.cljs` editan el ítem **durante** el diagnóstico, desde la pestaña «Editar ítem»
+del panel de la capa cero. Alcance acotado a propósito (las cuatro explicaciones con su idea
+errónea, el enunciado, `difficulty` y `module_id`) y **patch parcial** de solo lo que cambió
+(`editor/campos-editados` → `crud/patch-admin-question-fields!`), nunca la fila entera. Los campos
+de formulario son los mismos del panel: salieron a `components/campos.cljs` para que no existan dos
+vistas previas de LaTeX que se desincronizan.
 
 **De dónde salen los catálogos que usan los selectores:** `modules` y `misconceptions` los carga la
 pestaña que los necesita **si están vacíos** (`:admin/fetch-modules-only`,
@@ -349,6 +358,25 @@ usuario responde
    → prefetch de la siguiente mientras se muestra el feedback
    → stop-reason ⇒ fin
        → profile/build → insert tests → upsert student_profiles
+```
+
+**La pantalla mientras tanto** (ADR-032): `:questions` y `:feedback` renderizan el **mismo**
+escenario (`diagnostic-test/test-stage`). En `:feedback` la pregunta no se desmonta —se congela, con
+la alternativa elegida marcada— y el panel de la capa cero entra al costado (columna derecha en `lg`,
+hoja inferior debajo, sin backdrop). Para un admin ese panel tiene una segunda pestaña que edita el
+ítem en el acto, y un «volver a servir» que deshace la última respuesta (`universo.reintento`) y lo
+muestra otra vez ya corregido:
+
+```
+[:test/answer] → score_answer → [:test/answer-scored] → [:test/show-feedback]
+                                                          (cierra el editor: arranca en «Respuesta»)
+admin → [:editor-vivo/abrir qid] → fetch fila completa (RLS: solo admin, 025)
+      → [:editor-vivo/campo k v] …
+      → [:editor-vivo/guardar {:reintentar? true}]
+           → campos-editados (solo lo que cambió) → patch_admin_question_fields
+           → [:test/reintentar-ultimo {:parche …}]
+                → responses.pop · theta-history.pop · θ ← previo (o :theta-initial)
+                → stop-reason recalculada · mismo ítem, parcheado, otra vez en pantalla
 ```
 
 ### 4.3 Confirmación de cohorte (el flujo más acoplado a la DB)
