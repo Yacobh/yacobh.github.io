@@ -1,0 +1,2762 @@
+{
+ "topic": "probabilidad",
+ "migracion_archivo": "056_banco_del_eje_de_probabilidad.sql",
+ "migracion_titulo": "Banco del eje de probabilidad y estadística — primera tanda",
+ "migracion_notas": "100 ítems repartidos en los seis módulos del eje, cubriendo toda la escala\n[-3, 3] con al menos 6 ítems por tramo de 1,0 logit.\n\nREQUIERE la migración 055 aplicada (los módulos del eje). Antes de 055 el eje\nno existía: cero módulos y cero ítems, y sin módulo el `left join` de esta\nmigración dejaría los 100 ítems con `module_id` en null y en silencio (T-119).\n\nCuarto y último eje del temario construido con la skill `banco-de-items`. Como\ngeometría, se escribe sin banco previo: no hay ningún `topic` de probabilidad\nni de estadística en `questions`.\n\n`difficulty` es una HIPÓTESIS EDITORIAL, no una medición (R-17).",
+ "cobertura_objetivo": {
+  "min": -3.0,
+  "max": 3.0,
+  "ancho_tramo": 1.0,
+  "min_por_tramo": 6
+ },
+ "misconceptions": [
+  {
+   "slug": "datos/confunde-frecuencia-con-dato",
+   "name": "Confunde el valor de la variable con su frecuencia",
+   "description": "Usar cuando entrega el dato donde se pedía cuántas veces aparece, o al revés. NO usar si el error es de suma.",
+   "module_slug": "probabilidad/datos"
+  },
+  {
+   "slug": "datos/frecuencia-relativa-como-absoluta",
+   "name": "Entrega el conteo donde se pedía la proporción",
+   "description": "Usar cuando responde con la frecuencia absoluta una pregunta por la relativa o por el porcentaje.",
+   "module_slug": "probabilidad/datos"
+  },
+  {
+   "slug": "datos/frecuencia-relativa-invertida",
+   "name": "Divide el total por la frecuencia en vez de la frecuencia por el total",
+   "description": "Usar cuando el resultado es mayor que 1 o el recíproco del correcto. La frecuencia relativa nunca pasa de 1.",
+   "module_slug": "probabilidad/datos"
+  },
+  {
+   "slug": "datos/acumulada-como-simple",
+   "name": "Usa la frecuencia simple donde se pedía la acumulada",
+   "description": "Usar cuando la pregunta dice «hasta», «como máximo» o «al menos» y responde solo con la frecuencia de ese valor.",
+   "module_slug": "probabilidad/datos"
+  },
+  {
+   "slug": "datos/lee-el-grafico-por-la-posicion",
+   "name": "Decide con la posición de la barra en vez de su altura",
+   "description": "Usar cuando elige la primera o la última barra, o la más angosta, para responder cuál es la más frecuente.",
+   "module_slug": "probabilidad/datos"
+  },
+  {
+   "slug": "datos/lee-mal-la-escala-del-eje",
+   "name": "Compara alturas sin mirar la escala del eje",
+   "description": "Usar cuando concluye a partir del tamaño visual de las barras ignorando dónde empieza el eje o cuánto vale cada división.",
+   "module_slug": "probabilidad/datos"
+  },
+  {
+   "slug": "datos/confunde-el-angulo-con-el-porcentaje",
+   "name": "Lee el ángulo de un sector circular como si fuera su porcentaje",
+   "description": "Usar cuando dice que un sector de 90° es el 90 %. La vuelta completa son 360°, no 100.",
+   "module_slug": "probabilidad/datos"
+  },
+  {
+   "slug": "datos/confunde-el-porcentaje-con-la-cantidad",
+   "name": "Entrega el porcentaje donde se pedía la cantidad de casos",
+   "description": "Usar cuando responde «25» a cuántas personas son el 25 % de un total distinto de 100.",
+   "module_slug": "probabilidad/datos"
+  },
+  {
+   "slug": "datos/lee-mal-el-intervalo",
+   "name": "Ubica mal un dato que cae en el borde de un intervalo",
+   "description": "Usar cuando pone un valor en el intervalo equivocado por no leer el corchete cerrado y el paréntesis abierto.",
+   "module_slug": "probabilidad/datos"
+  },
+  {
+   "slug": "estadistica/confunde-poblacion-con-muestra",
+   "name": "Intercambia población y muestra",
+   "description": "Usar cuando llama población al grupo encuestado o muestra al total del que se quiere concluir.",
+   "module_slug": "probabilidad/datos"
+  },
+  {
+   "slug": "estadistica/confunde-cualitativa-con-cuantitativa",
+   "name": "Clasifica como cuantitativa una variable que no se mide con números",
+   "description": "Usar con color, marca, comuna o preferencia. Que se pueda codificar con un número no la hace cuantitativa.",
+   "module_slug": "probabilidad/datos"
+  },
+  {
+   "slug": "estadistica/confunde-discreta-con-continua",
+   "name": "Mezcla variable discreta con variable continua",
+   "description": "Usar cuando llama continua a un conteo (hermanos, goles) o discreta a una medición (estatura, tiempo).",
+   "module_slug": "probabilidad/datos"
+  },
+  {
+   "slug": "estadistica/media-sin-dividir-por-n",
+   "name": "Suma los datos y no divide por cuántos son",
+   "description": "Usar cuando entrega la suma total como si fuera el promedio.",
+   "module_slug": "probabilidad/tendencia-central"
+  },
+  {
+   "slug": "estadistica/mediana-sin-ordenar",
+   "name": "Toma el dato del medio sin ordenar la lista",
+   "description": "Usar cuando entrega el valor que está físicamente al centro de la lista tal como venía escrita.",
+   "module_slug": "probabilidad/tendencia-central"
+  },
+  {
+   "slug": "estadistica/mediana-par-toma-uno-solo",
+   "name": "Con cantidad par de datos elige uno de los dos centrales",
+   "description": "Usar cuando no promedia los dos valores del centro. NO usar si el error fue no ordenar.",
+   "module_slug": "probabilidad/tendencia-central"
+  },
+  {
+   "slug": "estadistica/confunde-moda-con-frecuencia",
+   "name": "Entrega cuántas veces se repite en vez del dato que se repite",
+   "description": "Usar cuando responde la frecuencia máxima donde se pedía la moda.",
+   "module_slug": "probabilidad/tendencia-central"
+  },
+  {
+   "slug": "estadistica/confunde-las-tres-medidas",
+   "name": "Intercambia media, mediana y moda",
+   "description": "Usar cuando entrega una medida de tendencia central por otra sin que haya error de cálculo.",
+   "module_slug": "probabilidad/tendencia-central"
+  },
+  {
+   "slug": "estadistica/media-ignora-la-frecuencia",
+   "name": "Promedia los valores de una tabla sin ponderar por su frecuencia",
+   "description": "Usar cuando promedia las categorías como si cada una apareciera una sola vez.",
+   "module_slug": "probabilidad/tendencia-central"
+  },
+  {
+   "slug": "estadistica/promedia-los-promedios",
+   "name": "Promedia promedios de grupos de distinto tamaño",
+   "description": "Usar cuando saca el promedio de dos promedios sin pesar cuántos datos hay en cada grupo.",
+   "module_slug": "probabilidad/tendencia-central"
+  },
+  {
+   "slug": "estadistica/la-mediana-se-mueve-con-los-extremos",
+   "name": "Cree que un dato extremo arrastra a la mediana igual que a la media",
+   "description": "Usar cuando afirma que cambiar el dato más grande cambia la mediana. La mediana depende de la posición, no del valor.",
+   "module_slug": "probabilidad/tendencia-central"
+  },
+  {
+   "slug": "posicion/cuartil-como-cuarta-parte-del-valor",
+   "name": "Divide el valor por cuatro en vez de buscar la posición",
+   "description": "Usar cuando calcula un cuartil operando con el dato y no con el lugar que ocupa en la lista ordenada.",
+   "module_slug": "probabilidad/posicion"
+  },
+  {
+   "slug": "posicion/percentil-como-porcentaje-de-logro",
+   "name": "Lee el percentil como el porcentaje de respuestas correctas",
+   "description": "Usar cuando dice que estar en el percentil 90 es haber contestado bien el 90 % de la prueba.",
+   "module_slug": "probabilidad/posicion"
+  },
+  {
+   "slug": "posicion/mediana-no-es-q2",
+   "name": "No reconoce que el segundo cuartil es la mediana",
+   "description": "Usar cuando trata Q2 y la mediana como dos medidas distintas, o cuando confunde Q1 o Q3 con el centro.",
+   "module_slug": "probabilidad/posicion"
+  },
+  {
+   "slug": "posicion/rango-intercuartil-mal-restado",
+   "name": "Suma los cuartiles o los resta al revés",
+   "description": "Usar cuando entrega Q3 + Q1, Q1 − Q3 o el promedio de los dos donde iba Q3 − Q1.",
+   "module_slug": "probabilidad/posicion"
+  },
+  {
+   "slug": "posicion/lee-mal-el-cajon",
+   "name": "Lee los extremos de la caja como el mínimo y el máximo",
+   "description": "Usar cuando confunde las partes del diagrama de cajón: la caja va de Q1 a Q3 y los bigotes llegan a los extremos.",
+   "module_slug": "probabilidad/posicion"
+  },
+  {
+   "slug": "dispersion/rango-mal-calculado",
+   "name": "Suma o promedia los extremos en vez de restarlos",
+   "description": "Usar cuando el rango sale como suma, promedio o total de los datos.",
+   "module_slug": "probabilidad/dispersion"
+  },
+  {
+   "slug": "dispersion/desviacion-sin-raiz",
+   "name": "Entrega la varianza donde se pedía la desviación estándar",
+   "description": "Usar cuando falta (o sobra) el paso de la raíz cuadrada entre varianza y desviación.",
+   "module_slug": "probabilidad/dispersion"
+  },
+  {
+   "slug": "dispersion/dispersion-cambia-al-sumar-constante",
+   "name": "Cree que sumar una constante a todos los datos cambia la dispersión",
+   "description": "Usar cuando dice que el rango o la desviación se corren junto con el promedio. Sumar traslada, no estira.",
+   "module_slug": "probabilidad/dispersion"
+  },
+  {
+   "slug": "dispersion/confunde-nivel-con-dispersion",
+   "name": "Deduce del promedio cuánto se dispersan los datos, o al revés",
+   "description": "Usar cuando afirma que más desviación significa notas más altas, o que igual promedio significa igual dispersión.",
+   "module_slug": "probabilidad/dispersion"
+  },
+  {
+   "slug": "dispersion/desviacion-negativa",
+   "name": "Acepta una desviación estándar negativa o mayor que el rango",
+   "description": "Usar cuando no reconoce que la desviación sale de cuadrados y por eso nunca es negativa.",
+   "module_slug": "probabilidad/dispersion"
+  },
+  {
+   "slug": "azar/favorables-sobre-desfavorables",
+   "name": "Pone los casos desfavorables en el denominador",
+   "description": "Usar cuando escribe 3/5 donde iban 3 de 8: la regla de Laplace divide por el TOTAL, no por el resto.",
+   "module_slug": "probabilidad/azar"
+  },
+  {
+   "slug": "azar/probabilidad-fuera-de-cero-uno",
+   "name": "Entrega una probabilidad negativa, mayor que 1 o en escala equivocada",
+   "description": "Usar cuando el resultado no puede ser una probabilidad: 100, 1,5, −0,3 o el número de casos a secas.",
+   "module_slug": "probabilidad/azar"
+  },
+  {
+   "slug": "azar/cuenta-mal-el-espacio-muestral",
+   "name": "Cuenta mal los casos totales",
+   "description": "Usar cuando el denominador no corresponde al total de resultados posibles: suma donde había que multiplicar, o cuenta de menos.",
+   "module_slug": "probabilidad/azar"
+  },
+  {
+   "slug": "azar/resultados-compuestos-como-equiprobables",
+   "name": "Trata como equiprobables resultados que no lo son",
+   "description": "Usar con las sumas de dos dados o con «una cara y un sello»: hay más maneras de obtener unos que otros.",
+   "module_slug": "probabilidad/azar"
+  },
+  {
+   "slug": "azar/olvida-que-no-hay-reposicion",
+   "name": "Mantiene el total del espacio muestral tras una extracción sin reposición",
+   "description": "Usar cuando repite la misma fracción en la segunda extracción sin descontar la bolita que ya salió.",
+   "module_slug": "probabilidad/azar"
+  },
+  {
+   "slug": "reglas/complemento-mal-calculado",
+   "name": "Calcula la probabilidad de que no ocurra restando de algo que no es 1",
+   "description": "Usar cuando resta de 100, de 0,5 o simplemente cambia el signo.",
+   "module_slug": "probabilidad/reglas"
+  },
+  {
+   "slug": "reglas/suma-sin-restar-la-interseccion",
+   "name": "Suma las probabilidades de dos eventos que pueden ocurrir juntos",
+   "description": "Usar cuando aplica P(A)+P(B) sin descontar P(A∩B). NO usar si los eventos sí son excluyentes.",
+   "module_slug": "probabilidad/reglas"
+  },
+  {
+   "slug": "reglas/confunde-excluyentes-con-independientes",
+   "name": "Trata «no pueden ocurrir juntos» como «no se influyen»",
+   "description": "Usar cuando multiplica probabilidades de eventos excluyentes, o cuando llama independientes a los que se excluyen.",
+   "module_slug": "probabilidad/reglas"
+  },
+  {
+   "slug": "reglas/suma-donde-va-producto",
+   "name": "Suma probabilidades de eventos que deben ocurrir los dos",
+   "description": "Usar cuando responde P(A)+P(B) donde iba P(A)·P(B), típico en «y» y en «al menos uno».",
+   "module_slug": "probabilidad/reglas"
+  },
+  {
+   "slug": "reglas/condicional-usa-el-total-equivocado",
+   "name": "En una probabilidad condicional divide por el total general",
+   "description": "Usar cuando no reduce el espacio muestral al grupo que la condición ya fijó.",
+   "module_slug": "probabilidad/reglas"
+  },
+  {
+   "slug": "reglas/falacia-del-jugador",
+   "name": "Cree que los resultados pasados cambian la probabilidad del próximo",
+   "description": "Usar cuando dice que después de varias caras «toca» sello. La moneda no tiene memoria.",
+   "module_slug": "probabilidad/reglas"
+  }
+ ],
+ "items": [
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -3.0,
+   "order_index": 10,
+   "question": "En una tabla de frecuencias, la **frecuencia absoluta** de un dato es:",
+   "options": {
+    "A": "el valor del dato",
+    "B": "la cantidad de veces que ese dato aparece",
+    "C": "el total de datos de la tabla",
+    "D": "el porcentaje que representa el dato"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es el dato mismo. La frecuencia responde otra pregunta: cuántas veces aparece.",
+    "B": "Correcto. La frecuencia absoluta cuenta cuántas veces aparece ese dato en los datos recogidos.",
+    "C": "Ese es el total, que se obtiene sumando **todas** las frecuencias.",
+    "D": "Ese es el porcentaje, que sale de dividir la frecuencia por el total. La absoluta es el conteo a secas."
+   },
+   "misconceptions": {
+    "A": "datos/confunde-frecuencia-con-dato",
+    "B": null,
+    "C": null,
+    "D": "datos/frecuencia-relativa-como-absoluta"
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -2.91,
+   "order_index": 20,
+   "question": "Una tabla registra cuántos hermanos tienen los estudiantes de un curso: $0$ hermanos, $4$ estudiantes; $1$ hermano, $9$; $2$ hermanos, $5$; $3$ hermanos, $2$. ¿Cuántos estudiantes tienen $2$ hermanos?",
+   "options": {
+    "A": "$2$",
+    "B": "$20$",
+    "C": "$9$",
+    "D": "$5$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es el valor de la variable —la cantidad de hermanos—, no cuántos estudiantes lo tienen.",
+    "B": "Ese es el total de estudiantes del curso: $4+9+5+2$.",
+    "C": "Esa es la frecuencia mayor de la tabla, pero corresponde a los que tienen $1$ hermano.",
+    "D": "Correcto. La fila del $2$ tiene frecuencia $5$: son cinco estudiantes."
+   },
+   "misconceptions": {
+    "A": "datos/confunde-frecuencia-con-dato",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -2.83,
+   "order_index": 30,
+   "question": "Con la misma tabla ($0$: $4$; $1$: $9$; $2$: $5$; $3$: $2$), ¿cuántos estudiantes tiene el curso?",
+   "options": {
+    "A": "$20$",
+    "B": "$6$",
+    "C": "$4$",
+    "D": "$9$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $4+9+5+2 = 20$ estudiantes.",
+    "B": "Se sumaron los valores de la variable ($0+1+2+3$) en vez de las frecuencias.",
+    "C": "Esa es solo la primera frecuencia. El total suma las cuatro filas.",
+    "D": "Esa es la frecuencia más alta, no el total."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "datos/confunde-frecuencia-con-dato",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -2.74,
+   "order_index": 40,
+   "question": "En un gráfico de barras, ¿cómo se reconoce la categoría más frecuente?",
+   "options": {
+    "A": "Es la primera barra de la izquierda",
+    "B": "Es la barra más angosta",
+    "C": "Es la barra más alta",
+    "D": "Es la última barra de la derecha"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El orden de las barras es una convención de quien dibuja el gráfico y no dice nada sobre la frecuencia.",
+    "B": "Todas las barras tienen el mismo ancho: lo que cambia de una a otra es la altura.",
+    "C": "Correcto. La altura de cada barra representa su frecuencia, así que la más alta es la más frecuente.",
+    "D": "La posición de una barra la decide quien arma el gráfico: no indica frecuencia."
+   },
+   "misconceptions": {
+    "A": "datos/lee-el-grafico-por-la-posicion",
+    "B": "datos/lee-mal-la-escala-del-eje",
+    "C": null,
+    "D": "datos/lee-el-grafico-por-la-posicion"
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -2.65,
+   "order_index": 50,
+   "question": "La **frecuencia relativa** de un dato es:",
+   "options": {
+    "A": "la cantidad de veces que aparece",
+    "B": "la suma de todas las frecuencias",
+    "C": "su frecuencia dividida por el total",
+    "D": "el dato que más se repite"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Esa es la frecuencia **absoluta**. La relativa la compara con el total.",
+    "B": "Esa suma es el total de datos.",
+    "C": "Correcto. Se divide la frecuencia del dato por el total, y por eso siempre queda entre $0$ y $1$.",
+    "D": "Ese es la **moda**, que es otra cosa."
+   },
+   "misconceptions": {
+    "A": "datos/frecuencia-relativa-como-absoluta",
+    "B": null,
+    "C": null,
+    "D": "estadistica/confunde-las-tres-medidas"
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -2.56,
+   "order_index": 60,
+   "question": "De $20$ estudiantes, $5$ llegaron atrasados. ¿Cuál es la frecuencia relativa de los atrasados?",
+   "options": {
+    "A": "$0{,}25$",
+    "B": "$5$",
+    "C": "$4$",
+    "D": "$20$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $5 \\div 20 = 0{,}25$, o sea una cuarta parte del curso.",
+    "B": "Esa es la frecuencia absoluta. La relativa se obtiene dividiéndola por el total.",
+    "C": "Se dividió al revés ($20 \\div 5$). Una frecuencia relativa nunca puede ser mayor que $1$.",
+    "D": "Ese es el total de estudiantes."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "datos/frecuencia-relativa-como-absoluta",
+    "C": "datos/frecuencia-relativa-invertida",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -2.48,
+   "order_index": 70,
+   "question": "En un curso de $25$ estudiantes, $10$ practican fútbol. ¿Qué porcentaje del curso es?",
+   "options": {
+    "A": "$10\\%$",
+    "B": "$25\\%$",
+    "C": "$2{,}5\\%$",
+    "D": "$40\\%$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es el conteo leído como si fuera un porcentaje. Diez de $25$ no es el $10\\%$.",
+    "B": "Ese es el total del curso, no la parte que juega fútbol.",
+    "C": "Se dividió al revés ($25 \\div 10$). El porcentaje compara la parte con el total, en ese orden.",
+    "D": "Correcto. $10 \\div 25 = 0{,}4$, y $0{,}4$ es el $40\\%$."
+   },
+   "misconceptions": {
+    "A": "datos/frecuencia-relativa-como-absoluta",
+    "B": null,
+    "C": "datos/frecuencia-relativa-invertida",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -2.39,
+   "order_index": 80,
+   "question": "La **frecuencia acumulada** de un valor es:",
+   "options": {
+    "A": "su frecuencia multiplicada por el total",
+    "B": "su frecuencia más las de los valores anteriores",
+    "C": "el total de datos menos su frecuencia",
+    "D": "la frecuencia del valor que más se repite en la tabla"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Multiplicar por el total no acumula nada: da un número sin significado en la tabla.",
+    "B": "Correcto. Acumular es ir sumando: responde «cuántos hay hasta acá».",
+    "C": "Esos son los datos que **no** toman ese valor, que es otra cuenta.",
+    "D": "Esa es la frecuencia de la moda."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "estadistica/confunde-moda-con-frecuencia"
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -2.3,
+   "order_index": 90,
+   "question": "Con la tabla de hermanos ($0$: $4$; $1$: $9$; $2$: $5$; $3$: $2$), ¿cuántos estudiantes tienen **como máximo** $1$ hermano?",
+   "options": {
+    "A": "$13$",
+    "B": "$9$",
+    "C": "$4$",
+    "D": "$5$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $4 + 9 = 13$: es la frecuencia acumulada hasta el $1$.",
+    "B": "Esos son solo los que tienen exactamente $1$ hermano. «Como máximo $1$» incluye también a los que tienen $0$.",
+    "C": "Esos son solo los que no tienen hermanos.",
+    "D": "Esa es la frecuencia del $2$, que ya queda fuera de «como máximo $1$»."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "datos/acumulada-como-simple",
+    "C": "datos/acumulada-como-simple",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -2.21,
+   "order_index": 100,
+   "question": "En un gráfico circular, un sector ocupa el $25\\%$ de un total de $80$ personas. ¿A cuántas personas corresponde?",
+   "options": {
+    "A": "$25$",
+    "B": "$80$",
+    "C": "$20$",
+    "D": "$60$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el porcentaje escrito como si fuera la cantidad. El $25\\%$ solo son $25$ personas cuando el total es $100$.",
+    "B": "Ese es el total, o sea el círculo completo.",
+    "C": "Correcto. El $25\\%$ de $80$ es $80 \\div 4 = 20$ personas.",
+    "D": "Esas son las personas que quedan **fuera** del sector: el $75\\%$ restante."
+   },
+   "misconceptions": {
+    "A": "datos/confunde-el-porcentaje-con-la-cantidad",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -2.13,
+   "order_index": 110,
+   "question": "En un gráfico circular, ¿qué porcentaje del total representa un sector de $90^\\circ$?",
+   "options": {
+    "A": "$90\\%$",
+    "B": "$25\\%$",
+    "C": "$50\\%$",
+    "D": "$9\\%$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se leyó el ángulo como si fuera el porcentaje. La vuelta completa son $360^\\circ$, no $100$.",
+    "B": "Correcto. $90^\\circ$ de $360^\\circ$ es la cuarta parte: el $25\\%$.",
+    "C": "Ese sería un sector de $180^\\circ$, o sea medio círculo.",
+    "D": "Se corrió la coma. Para pasar de ángulo a porcentaje hay que dividir por $360$, no por $10$."
+   },
+   "misconceptions": {
+    "A": "datos/confunde-el-angulo-con-el-porcentaje",
+    "B": null,
+    "C": null,
+    "D": "datos/confunde-el-angulo-con-el-porcentaje"
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -2.04,
+   "order_index": 120,
+   "question": "Para saber qué opinan los $1.200$ estudiantes de un colegio se encuesta a $100$. Esos $100$ son:",
+   "options": {
+    "A": "la población",
+    "B": "el censo",
+    "C": "la variable",
+    "D": "la muestra"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "La población son los $1.200$: el grupo completo sobre el que se quiere concluir.",
+    "B": "Un censo es preguntarle a los $1.200$, o sea a la población entera.",
+    "C": "La variable es lo que se mide —la opinión—, no quiénes responden.",
+    "D": "Correcto. La muestra es la parte de la población que efectivamente se observa."
+   },
+   "misconceptions": {
+    "A": "estadistica/confunde-poblacion-con-muestra",
+    "B": "estadistica/confunde-poblacion-con-muestra",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -1.95,
+   "order_index": 130,
+   "question": "El color de ojos de un grupo de personas es una variable:",
+   "options": {
+    "A": "cuantitativa discreta",
+    "B": "cuantitativa continua",
+    "C": "acumulada",
+    "D": "cualitativa"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Cuantitativa es la que se mide con números. El color no lo es, aunque se le pueda asignar un código.",
+    "B": "Continua es la que admite cualquier valor intermedio, como la estatura.",
+    "C": "«Acumulada» no es un tipo de variable, sino un tipo de frecuencia.",
+    "D": "Correcto. Es una cualidad, no una cantidad: sus valores son categorías."
+   },
+   "misconceptions": {
+    "A": "estadistica/confunde-cualitativa-con-cuantitativa",
+    "B": "estadistica/confunde-cualitativa-con-cuantitativa",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -1.86,
+   "order_index": 140,
+   "question": "La cantidad de hermanos de una persona es una variable cuantitativa:",
+   "options": {
+    "A": "continua",
+    "B": "discreta",
+    "C": "cualitativa",
+    "D": "sin frecuencia"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Continua es la que admite valores intermedios, como la estatura o el tiempo. Nadie tiene $2{,}4$ hermanos.",
+    "B": "Correcto. Es un conteo: solo toma valores enteros y separados.",
+    "C": "Sí se mide con números, así que es cuantitativa.",
+    "D": "Toda variable de un conjunto de datos tiene frecuencias; eso no la clasifica."
+   },
+   "misconceptions": {
+    "A": "estadistica/confunde-discreta-con-continua",
+    "B": null,
+    "C": "estadistica/confunde-cualitativa-con-cuantitativa",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -1.78,
+   "order_index": 150,
+   "question": "Una tabla reparte $30$ datos en cuatro categorías, con frecuencias $8$, $7$, $6$ y $x$. ¿Cuánto vale $x$?",
+   "options": {
+    "A": "$30$",
+    "B": "$21$",
+    "C": "$9$",
+    "D": "$7$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el total de datos, no la frecuencia que falta.",
+    "B": "Esa es la suma de las tres frecuencias conocidas, que todavía hay que restar del total.",
+    "C": "Correcto. $8+7+6 = 21$, y $30 - 21 = 9$.",
+    "D": "Se repitió una frecuencia ya usada. La que falta se despeja del total."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -1.69,
+   "order_index": 160,
+   "question": "En un histograma con intervalos $[0, 10)$, $[10, 20)$ y $[20, 30)$, ¿en cuál se cuenta un dato igual a $20$?",
+   "options": {
+    "A": "En $[20, 30)$",
+    "B": "En $[10, 20)$",
+    "C": "En los dos",
+    "D": "En ninguno"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. El corchete cerrado incluye el extremo inicial, así que el $20$ abre el intervalo $[20, 30)$.",
+    "B": "El paréntesis del final deja el $20$ **fuera** de ese intervalo: $[10, 20)$ llega hasta valores menores que $20$.",
+    "C": "Los intervalos de un histograma no se superponen: cada dato cae en uno solo, y por eso se escriben así.",
+    "D": "Sí cae en uno: el $20$ está dentro del recorrido de la tabla."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "datos/lee-mal-el-intervalo",
+    "C": "datos/lee-mal-el-intervalo",
+    "D": "datos/lee-mal-el-intervalo"
+   }
+  },
+  {
+   "module_slug": "probabilidad/datos",
+   "difficulty": -1.6,
+   "order_index": 170,
+   "question": "Un gráfico de barras dibuja su eje vertical partiendo en $90$ en vez de en $0$. ¿Qué efecto tiene?",
+   "options": {
+    "A": "Ninguno, porque los valores están escritos",
+    "B": "Exagera visualmente las diferencias entre las barras",
+    "C": "Hace que las frecuencias sean menores",
+    "D": "Convierte las frecuencias en porcentajes"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Los valores están, pero lo primero que se lee de un gráfico es la altura relativa, y esa queda distorsionada.",
+    "B": "Correcto. Al cortar el eje, una diferencia pequeña se ve enorme: el gráfico dice más de lo que muestran los datos.",
+    "C": "Las frecuencias son exactamente las mismas; lo que cambia es cómo se ven.",
+    "D": "Para eso habría que dividir cada frecuencia por el total; mover el eje no lo hace."
+   },
+   "misconceptions": {
+    "A": "datos/lee-mal-la-escala-del-eje",
+    "B": null,
+    "C": "datos/lee-mal-la-escala-del-eje",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -2.4,
+   "order_index": 10,
+   "question": "La **media aritmética** (promedio) de un conjunto de datos es:",
+   "options": {
+    "A": "el dato que más se repite",
+    "B": "la diferencia entre el mayor y el menor",
+    "C": "el dato que queda al centro",
+    "D": "la suma de los datos dividida por cuántos son"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es la **moda**.",
+    "B": "Ese es el **rango**, que mide dispersión y no tendencia central.",
+    "C": "Ese es la **mediana**, y solo después de ordenarlos.",
+    "D": "Correcto. Se suman todos los datos y se divide por la cantidad de datos."
+   },
+   "misconceptions": {
+    "A": "estadistica/confunde-las-tres-medidas",
+    "B": null,
+    "C": "estadistica/confunde-las-tres-medidas",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -2.31,
+   "order_index": 20,
+   "question": "¿Cuál es el promedio de $4$, $6$ y $8$?",
+   "options": {
+    "A": "$6$",
+    "B": "$4$",
+    "C": "$18$",
+    "D": "$8$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $(4+6+8) \\div 3 = 18 \\div 3 = 6$.",
+    "B": "Ese es el menor de los datos.",
+    "C": "Esa es la suma de los tres datos. Falta dividir por $3$.",
+    "D": "Ese es el mayor de los datos."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "estadistica/media-sin-dividir-por-n",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -2.23,
+   "order_index": 30,
+   "question": "La **mediana** de un conjunto de datos es:",
+   "options": {
+    "A": "el promedio de todos los datos del conjunto",
+    "B": "el dato que más se repite",
+    "C": "el valor central de los datos ordenados",
+    "D": "el mayor de los datos"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es la media. La mediana no se calcula sumando.",
+    "B": "Ese es la moda.",
+    "C": "Correcto. Se ordenan los datos de menor a mayor y se toma el del centro; con cantidad par, el promedio de los dos centrales.",
+    "D": "Ese es el máximo, que sirve para el rango."
+   },
+   "misconceptions": {
+    "A": "estadistica/confunde-las-tres-medidas",
+    "B": "estadistica/confunde-las-tres-medidas",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -2.14,
+   "order_index": 40,
+   "question": "¿Cuál es la mediana de los datos $2$, $9$, $5$?",
+   "options": {
+    "A": "$9$",
+    "B": "$2$",
+    "C": "$5$",
+    "D": "$16$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el dato que está al centro de la lista **tal como venía escrita**. Antes hay que ordenarla.",
+    "B": "Ese es el menor de los tres.",
+    "C": "Correcto. Ordenados quedan $2$, $5$, $9$: el del centro es el $5$.",
+    "D": "Esa es la suma de los datos, que sirve para la media, no para la mediana."
+   },
+   "misconceptions": {
+    "A": "estadistica/mediana-sin-ordenar",
+    "B": null,
+    "C": null,
+    "D": "estadistica/confunde-las-tres-medidas"
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -2.05,
+   "order_index": 50,
+   "question": "La **moda** de un conjunto de datos es:",
+   "options": {
+    "A": "el dato que más veces se repite",
+    "B": "el dato del centro",
+    "C": "el promedio de los datos",
+    "D": "la cantidad de datos distintos"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. La moda es el valor más frecuente, y puede haber más de uno.",
+    "B": "Ese es la mediana.",
+    "C": "Ese es la media.",
+    "D": "Esa es otra cuenta y no es una medida de tendencia central."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "estadistica/confunde-las-tres-medidas",
+    "C": "estadistica/confunde-las-tres-medidas",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -1.96,
+   "order_index": 60,
+   "question": "¿Cuál es la moda de los datos $3$, $3$, $8$, $10$, $11$?",
+   "options": {
+    "A": "$8$",
+    "B": "$2$",
+    "C": "$7$",
+    "D": "$3$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Esa es la mediana: el dato del centro una vez ordenados.",
+    "B": "Esa es la cantidad de veces que se repite la moda, no la moda.",
+    "C": "Ese es el promedio de los cinco datos.",
+    "D": "Correcto. El $3$ es el único dato que aparece dos veces."
+   },
+   "misconceptions": {
+    "A": "estadistica/confunde-las-tres-medidas",
+    "B": "estadistica/confunde-moda-con-frecuencia",
+    "C": "estadistica/confunde-las-tres-medidas",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -1.88,
+   "order_index": 70,
+   "question": "¿Cuál es la mediana de $2$, $4$, $6$ y $10$?",
+   "options": {
+    "A": "$4$",
+    "B": "$5$",
+    "C": "$6$",
+    "D": "$22$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es uno de los dos datos centrales. Con cantidad par hay que promediarlos.",
+    "B": "Correcto. Los dos centrales son $4$ y $6$: $(4+6) \\div 2 = 5$.",
+    "C": "Ese es el otro dato central, y por lo mismo tampoco es la mediana.",
+    "D": "Esa es la suma de los cuatro datos."
+   },
+   "misconceptions": {
+    "A": "estadistica/mediana-par-toma-uno-solo",
+    "B": null,
+    "C": "estadistica/mediana-par-toma-uno-solo",
+    "D": "estadistica/confunde-las-tres-medidas"
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -1.79,
+   "order_index": 80,
+   "question": "En un grupo, $3$ estudiantes sacaron un $5$ y $2$ estudiantes sacaron un $7$. ¿Cuál es el promedio del grupo?",
+   "options": {
+    "A": "$5{,}8$",
+    "B": "$6$",
+    "C": "$29$",
+    "D": "$12$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $(5 \\cdot 3 + 7 \\cdot 2) \\div 5 = 29 \\div 5 = 5{,}8$.",
+    "B": "Se promediaron las dos notas sin considerar que no las sacó la misma cantidad de gente: el $5$ pesa más porque son tres.",
+    "C": "Esa es la suma de todas las notas. Falta dividir por los $5$ estudiantes.",
+    "D": "Esa es la suma de las dos notas distintas, sin frecuencias ni división."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "estadistica/media-ignora-la-frecuencia",
+    "C": "estadistica/media-sin-dividir-por-n",
+    "D": "estadistica/media-ignora-la-frecuencia"
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -1.7,
+   "order_index": 90,
+   "question": "El promedio de las notas de $10$ estudiantes es $5{,}0$. ¿Cuánto suman todas las notas?",
+   "options": {
+    "A": "$15$",
+    "B": "$5$",
+    "C": "$50$",
+    "D": "$0{,}5$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se sumaron el promedio y la cantidad de estudiantes. Para recuperar la suma hay que multiplicarlos.",
+    "B": "Ese es el promedio, no la suma.",
+    "C": "Correcto. El promedio es la suma dividida por $10$, así que la suma es $5{,}0 \\cdot 10 = 50$.",
+    "D": "Se dividió el promedio por $10$. Para volver a la suma hay que multiplicar."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "estadistica/media-sin-dividir-por-n"
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -1.61,
+   "order_index": 100,
+   "question": "Un estudiante tiene $6$, $5$ y $7$ en sus tres primeras pruebas. ¿Qué nota necesita en la cuarta para quedar con promedio $6$?",
+   "options": {
+    "A": "$7$",
+    "B": "$6$",
+    "C": "$24$",
+    "D": "$4$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Con un $7$ el promedio quedaría en $6{,}25$: es más de lo necesario.",
+    "B": "Correcto. Para promediar $6$ con cuatro notas necesita sumar $24$, y lleva $18$: le falta un $6$.",
+    "C": "Esa es la suma que debe alcanzar entre las cuatro notas, no la nota que falta.",
+    "D": "Con un $4$ la suma llega a $22$ y el promedio queda en $5{,}5$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -1.53,
+   "order_index": 110,
+   "question": "En una lista de sueldos, el más alto se reemplaza por uno mucho mayor. ¿Qué medida cambia más?",
+   "options": {
+    "A": "Ninguna de las dos cambia",
+    "B": "La mediana",
+    "C": "Las dos cambian igual",
+    "D": "La media"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "La media sí cambia, y bastante.",
+    "B": "La mediana depende de la **posición** del dato central, no de cuánto vale el más alto: sigue siendo el mismo dato del centro.",
+    "C": "No cambian igual: justamente por eso se informan las dos.",
+    "D": "Correcto. La media suma todos los valores, así que un dato muy grande la arrastra hacia arriba."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "estadistica/la-mediana-se-mueve-con-los-extremos",
+    "C": "estadistica/la-mediana-se-mueve-con-los-extremos",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -1.44,
+   "order_index": 120,
+   "question": "En los datos $2$, $3$, $4$, $4$, $100$, ¿qué medida representa mejor al grupo?",
+   "options": {
+    "A": "La media, porque usa todos los datos del conjunto",
+    "B": "Da lo mismo: las tres dan el mismo valor",
+    "C": "El rango, porque muestra la diferencia",
+    "D": "La mediana, porque el $100$ no la arrastra"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Usa todos los datos, y ese es el problema: la media da $22{,}6$, un valor que no se parece a ninguno de los cinco.",
+    "B": "No dan lo mismo: la media es $22{,}6$ y la mediana, $4$.",
+    "C": "El rango mide dispersión, no representa al grupo con un valor típico.",
+    "D": "Correcto. La mediana es $4$, que sí describe al grupo. Un dato extremo mueve la media, no la posición central."
+   },
+   "misconceptions": {
+    "A": "estadistica/la-mediana-se-mueve-con-los-extremos",
+    "B": null,
+    "C": "estadistica/confunde-las-tres-medidas",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -1.35,
+   "order_index": 130,
+   "question": "Un grupo de $10$ estudiantes promedió $4{,}0$ y otro de $30$ promedió $6{,}0$. ¿Cuál es el promedio de los $40$ juntos?",
+   "options": {
+    "A": "$5{,}0$",
+    "B": "$5{,}5$",
+    "C": "$10{,}0$",
+    "D": "$4{,}5$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se promediaron los dos promedios como si los grupos fueran del mismo tamaño. El segundo tiene el triple de estudiantes.",
+    "B": "Correcto. $(10 \\cdot 4 + 30 \\cdot 6) \\div 40 = 220 \\div 40 = 5{,}5$.",
+    "C": "Esa es la suma de los dos promedios, que no es un promedio de nada.",
+    "D": "Ese valor está por debajo incluso del promedio simple: el grupo grande empuja hacia arriba, no hacia abajo."
+   },
+   "misconceptions": {
+    "A": "estadistica/promedia-los-promedios",
+    "B": null,
+    "C": "estadistica/media-sin-dividir-por-n",
+    "D": "estadistica/promedia-los-promedios"
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -1.26,
+   "order_index": 140,
+   "question": "Si a todos los datos de un conjunto se les suma $2$, el promedio:",
+   "options": {
+    "A": "queda igual",
+    "B": "se duplica",
+    "C": "aumenta en $2$",
+    "D": "no se puede saber"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El promedio sí se mueve: todos los datos se corrieron hacia arriba.",
+    "B": "Duplicar sería multiplicar por $2$, que es otra operación.",
+    "C": "Correcto. Si cada dato sube $2$, la suma sube $2n$ y el promedio sube exactamente $2$.",
+    "D": "Sí se puede saber, y sin conocer los datos: sumar una constante corre el promedio esa misma cantidad."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -1.18,
+   "order_index": 150,
+   "question": "En los datos $8$, $8$, $9$ y $12$, ¿cuál es la mediana?",
+   "options": {
+    "A": "$8{,}5$",
+    "B": "$8$",
+    "C": "$9$",
+    "D": "$9{,}25$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Los centrales son $8$ y $9$: $(8+9) \\div 2 = 8{,}5$.",
+    "B": "Ese es uno de los dos datos centrales; con cantidad par hay que promediar los dos.",
+    "C": "Ese es el otro dato central, y tampoco es la mediana por sí solo.",
+    "D": "Ese es el promedio de los cuatro datos, no la mediana."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "estadistica/mediana-par-toma-uno-solo",
+    "C": "estadistica/mediana-par-toma-uno-solo",
+    "D": "estadistica/confunde-las-tres-medidas"
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -1.09,
+   "order_index": 160,
+   "question": "En un conjunto, dos datos distintos se repiten la misma cantidad máxima de veces. Entonces el conjunto:",
+   "options": {
+    "A": "no tiene moda",
+    "B": "tiene dos modas",
+    "C": "tiene como moda el promedio de los dos",
+    "D": "tiene como moda el mayor de los dos"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Sí tiene: hay dos valores que alcanzan la frecuencia máxima.",
+    "B": "Correcto. Un conjunto puede ser bimodal, y las dos modas se informan.",
+    "C": "Promediarlos daría un valor que quizá no aparece ni una vez en los datos.",
+    "D": "Que un valor sea mayor no lo hace más frecuente: los dos se repiten lo mismo."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "estadistica/confunde-las-tres-medidas",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/tendencia-central",
+   "difficulty": -1.0,
+   "order_index": 170,
+   "question": "El promedio de $5$ datos es $12$. Se agrega un sexto dato igual a $18$. ¿Cuál es el nuevo promedio?",
+   "options": {
+    "A": "$15$",
+    "B": "$12$",
+    "C": "$30$",
+    "D": "$13$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se promedió el promedio viejo con el dato nuevo, como si los seis datos pesaran lo mismo que uno solo.",
+    "B": "El promedio sí sube: el dato agregado está por sobre los anteriores.",
+    "C": "Esa es la suma del promedio anterior y el dato nuevo, sin dividir.",
+    "D": "Correcto. Los cinco datos suman $60$; con el sexto, $78$, y $78 \\div 6 = 13$."
+   },
+   "misconceptions": {
+    "A": "estadistica/promedia-los-promedios",
+    "B": null,
+    "C": "estadistica/media-sin-dividir-por-n",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -1.6,
+   "order_index": 10,
+   "question": "Los **cuartiles** dividen un conjunto de datos ordenados en:",
+   "options": {
+    "A": "cuatro grupos con la misma cantidad de datos",
+    "B": "cuatro grupos del mismo ancho",
+    "C": "cuatro grupos elegidos por el investigador",
+    "D": "dos mitades iguales"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Cada cuarto contiene aproximadamente el $25\\%$ de los datos, aunque los tramos midan distinto.",
+    "B": "No: los tramos entre cuartiles pueden ser muy distintos de ancho. Lo que se reparte parejo es la **cantidad de datos**.",
+    "C": "Los cuartiles salen de los datos ordenados, no de una decisión.",
+    "D": "Eso lo hace la mediana, que es un solo corte."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "posicion/mediana-no-es-q2"
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -1.51,
+   "order_index": 20,
+   "question": "El segundo cuartil, $Q_2$, coincide siempre con:",
+   "options": {
+    "A": "la media",
+    "B": "la moda",
+    "C": "la mediana",
+    "D": "el máximo"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "La media puede estar en cualquier parte; $Q_2$ es un corte por posición.",
+    "B": "La moda es el dato más frecuente y no tiene por qué estar al centro.",
+    "C": "Correcto. $Q_2$ deja el $50\\%$ de los datos bajo sí: es la mediana.",
+    "D": "El máximo es el último dato, no el central."
+   },
+   "misconceptions": {
+    "A": "estadistica/confunde-las-tres-medidas",
+    "B": "estadistica/confunde-las-tres-medidas",
+    "C": null,
+    "D": "posicion/mediana-no-es-q2"
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -1.43,
+   "order_index": 30,
+   "question": "Si en un conjunto de datos $Q_1 = 12$, eso significa que:",
+   "options": {
+    "A": "hay $12$ datos bajo el primer cuartil",
+    "B": "el $12\\%$ de los datos está bajo el promedio",
+    "C": "el $25\\%$ de los datos es menor o igual que $12$",
+    "D": "el primer cuartil es la cuarta parte de $12$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El $12$ es el **valor** del cuartil, no una cantidad de datos.",
+    "B": "El $12$ no es un porcentaje: es el valor donde cae el corte.",
+    "C": "Correcto. El primer cuartil deja bajo sí una cuarta parte de los datos.",
+    "D": "Un cuartil no se calcula dividiendo el valor por $4$: se busca la posición en la lista ordenada."
+   },
+   "misconceptions": {
+    "A": "datos/confunde-frecuencia-con-dato",
+    "B": null,
+    "C": null,
+    "D": "posicion/cuartil-como-cuarta-parte-del-valor"
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -1.34,
+   "order_index": 40,
+   "question": "En los datos ordenados $2$, $4$, $6$, $8$, $10$, $12$, $14$, $16$, ¿cuál es $Q_1$?",
+   "options": {
+    "A": "$5$",
+    "B": "$4$",
+    "C": "$9$",
+    "D": "$8$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. La mitad inferior es $2$, $4$, $6$, $8$, y su mediana es $(4+6) \\div 2 = 5$.",
+    "B": "Ese es el segundo dato. El primer cuartil es la mediana de la mitad inferior, que tiene cuatro datos.",
+    "C": "Esa es la mediana de los ocho datos, o sea $Q_2$.",
+    "D": "Ese es el cuarto dato: contar hasta la cuarta posición no da el primer cuartil."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "posicion/mediana-no-es-q2",
+    "D": "posicion/cuartil-como-cuarta-parte-del-valor"
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -1.25,
+   "order_index": 50,
+   "question": "Con los mismos datos $2$, $4$, $6$, $8$, $10$, $12$, $14$, $16$, ¿cuál es $Q_3$?",
+   "options": {
+    "A": "$12$",
+    "B": "$14$",
+    "C": "$16$",
+    "D": "$13$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es el primer dato de la mitad superior, no su centro.",
+    "B": "Ese es el penúltimo dato de la lista.",
+    "C": "Ese es el máximo, que es donde termina el bigote del diagrama, no la caja.",
+    "D": "Correcto. La mitad superior es $10$, $12$, $14$, $16$, y su mediana es $(12+14) \\div 2 = 13$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "posicion/lee-mal-el-cajon",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -1.16,
+   "order_index": 60,
+   "question": "Si $Q_1 = 5$ y $Q_3 = 13$, ¿cuánto vale el **rango intercuartílico**?",
+   "options": {
+    "A": "$18$",
+    "B": "$8$",
+    "C": "$9$",
+    "D": "$-8$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se sumaron los dos cuartiles. El rango intercuartílico es una diferencia.",
+    "B": "Correcto. $Q_3 - Q_1 = 13 - 5 = 8$: es el ancho de la caja, donde vive el $50\\%$ central.",
+    "C": "Ese es el promedio de los dos cuartiles, que no mide dispersión.",
+    "D": "Se restó al revés. Como $Q_3 \\geq Q_1$, el resultado nunca es negativo."
+   },
+   "misconceptions": {
+    "A": "posicion/rango-intercuartil-mal-restado",
+    "B": null,
+    "C": "posicion/rango-intercuartil-mal-restado",
+    "D": "posicion/rango-intercuartil-mal-restado"
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -1.08,
+   "order_index": 70,
+   "question": "El **percentil 40** de un conjunto de datos es el valor que:",
+   "options": {
+    "A": "deja bajo sí el $40\\%$ de los datos",
+    "B": "corresponde al $40\\%$ del valor del dato mayor",
+    "C": "aparece $40$ veces",
+    "D": "es el $40\\%$ del promedio"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Los percentiles reparten los datos ordenados en cien partes.",
+    "B": "El percentil no se calcula sacándole un porcentaje al máximo: es una posición en la lista.",
+    "C": "Eso sería una frecuencia, no un percentil.",
+    "D": "El promedio no interviene: los percentiles son medidas de posición."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "posicion/cuartil-como-cuarta-parte-del-valor",
+    "C": "datos/confunde-frecuencia-con-dato",
+    "D": "posicion/cuartil-como-cuarta-parte-del-valor"
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -0.99,
+   "order_index": 80,
+   "question": "Un estudiante quedó en el **percentil 90** de una prueba. Eso significa que:",
+   "options": {
+    "A": "contestó bien el $90\\%$ de las preguntas",
+    "B": "obtuvo $90$ puntos",
+    "C": "superó al $90\\%$ de quienes rindieron",
+    "D": "el $90\\%$ de quienes rindieron le ganó"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El percentil no habla de cuántas respuestas acertó, sino de cómo le fue **comparado con los demás**.",
+    "B": "El percentil no es un puntaje: es una posición relativa dentro del grupo.",
+    "C": "Correcto. El percentil 90 deja bajo sí al $90\\%$ del grupo.",
+    "D": "Está al revés: en el percentil 90 son pocos los que quedan por encima."
+   },
+   "misconceptions": {
+    "A": "posicion/percentil-como-porcentaje-de-logro",
+    "B": "posicion/percentil-como-porcentaje-de-logro",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -0.9,
+   "order_index": 90,
+   "question": "En un diagrama de cajón, los dos extremos de la **caja** representan:",
+   "options": {
+    "A": "el mínimo y el máximo",
+    "B": "$Q_1$ y $Q_3$",
+    "C": "la media y la mediana",
+    "D": "los percentiles $10$ y $90$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Esos son los extremos de los **bigotes**, no de la caja.",
+    "B": "Correcto. La caja va del primer al tercer cuartil, así que encierra el $50\\%$ central de los datos.",
+    "C": "La media no aparece en el diagrama de cajón; la mediana es la línea de adentro.",
+    "D": "El diagrama estándar se construye con cuartiles, no con esos percentiles."
+   },
+   "misconceptions": {
+    "A": "posicion/lee-mal-el-cajon",
+    "B": null,
+    "C": "posicion/lee-mal-el-cajon",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -0.81,
+   "order_index": 100,
+   "question": "En un diagrama de cajón, la línea dibujada **dentro** de la caja es:",
+   "options": {
+    "A": "el rango",
+    "B": "la media",
+    "C": "la moda",
+    "D": "la mediana"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "El rango es una distancia, no una línea del gráfico.",
+    "B": "La media no se dibuja en el diagrama de cajón estándar.",
+    "C": "La moda tampoco: el diagrama se arma con posiciones, no con frecuencias.",
+    "D": "Correcto. Es $Q_2$, o sea la mediana, y por eso no siempre queda al centro de la caja."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "estadistica/confunde-las-tres-medidas",
+    "C": "estadistica/confunde-las-tres-medidas",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -0.73,
+   "order_index": 110,
+   "question": "En un diagrama de cajón, la mediana quedó dibujada mucho más cerca de $Q_1$ que de $Q_3$. Eso indica que:",
+   "options": {
+    "A": "hay un error en el gráfico, porque la mediana va al centro",
+    "B": "la media es igual a la mediana",
+    "C": "hay más datos en la mitad superior",
+    "D": "el $25\\%$ superior de los datos está más estirado"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "No es un error: la mediana parte la caja en dos mitades con **igual cantidad de datos**, no de igual ancho.",
+    "B": "El diagrama no muestra la media, y nada obliga a que coincidan.",
+    "C": "Cada cuarto tiene la misma cantidad de datos por construcción; lo que cambia es el ancho.",
+    "D": "Correcto. Entre la mediana y $Q_3$ hay la misma cantidad de datos que entre $Q_1$ y la mediana, pero repartidos en un tramo más largo."
+   },
+   "misconceptions": {
+    "A": "posicion/lee-mal-el-cajon",
+    "B": null,
+    "C": "posicion/lee-mal-el-cajon",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -0.64,
+   "order_index": 120,
+   "question": "En un curso de $40$ estudiantes, ¿cuántos quedan bajo el primer cuartil de las notas?",
+   "options": {
+    "A": "$25$",
+    "B": "$10$",
+    "C": "$4$",
+    "D": "$1$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es el porcentaje ($25\\%$) escrito como si fuera la cantidad de estudiantes.",
+    "B": "Correcto. El $25\\%$ de $40$ es $10$ estudiantes.",
+    "C": "Se dividió por $10$ o se contó un cuarto de cada diez: el cuarto de $40$ es $10$.",
+    "D": "Los cuartiles son tres cortes, pero el primero deja bajo sí una cuarta parte del curso, no a una persona."
+   },
+   "misconceptions": {
+    "A": "datos/confunde-el-porcentaje-con-la-cantidad",
+    "B": null,
+    "C": "posicion/cuartil-como-cuarta-parte-del-valor",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -0.55,
+   "order_index": 130,
+   "question": "Dos cursos tienen la misma mediana, pero el cajón de uno es mucho más ancho que el del otro. ¿Qué se puede afirmar?",
+   "options": {
+    "A": "Que el de caja ancha tiene mejores notas",
+    "B": "Que el de caja ancha tiene más estudiantes",
+    "C": "Que en el de caja ancha las notas están más repartidas",
+    "D": "Que hay un error, porque con igual mediana las cajas deben ser iguales"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El nivel lo marca la mediana, y es la misma en los dos. El ancho habla de otra cosa.",
+    "B": "El ancho de la caja no depende de cuántos estudiantes hay: los cuartiles reparten porcentajes.",
+    "C": "Correcto. La caja es el rango intercuartílico: más ancha significa un $50\\%$ central más disperso.",
+    "D": "No hay error: dos grupos con la misma mediana pueden tener dispersiones muy distintas."
+   },
+   "misconceptions": {
+    "A": "dispersion/confunde-nivel-con-dispersion",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -0.46,
+   "order_index": 140,
+   "question": "Si todos los datos de un conjunto son iguales, ¿cuánto vale su rango intercuartílico?",
+   "options": {
+    "A": "$0$",
+    "B": "El valor del dato",
+    "C": "$1$",
+    "D": "No se puede calcular"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $Q_1$ y $Q_3$ valen lo mismo que todos los datos, así que su diferencia es $0$.",
+    "B": "Se entregó el dato en vez de la distancia entre cuartiles.",
+    "C": "El rango intercuartílico es una diferencia entre dos valores iguales, no una constante fija.",
+    "D": "Sí se puede: los cuartiles existen igual, solo que coinciden."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "datos/confunde-frecuencia-con-dato",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -0.38,
+   "order_index": 150,
+   "question": "El percentil $50$ coincide con:",
+   "options": {
+    "A": "la media",
+    "B": "la mediana y $Q_2$",
+    "C": "$Q_1$",
+    "D": "el rango intercuartílico"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "La media es un promedio, no un corte de posición, y puede caer en cualquier parte.",
+    "B": "Correcto. Los tres nombres describen el mismo corte: el que deja la mitad de los datos bajo sí.",
+    "C": "$Q_1$ deja bajo sí el $25\\%$, no el $50\\%$.",
+    "D": "Ese es una distancia entre dos cortes, no un corte."
+   },
+   "misconceptions": {
+    "A": "estadistica/confunde-las-tres-medidas",
+    "B": null,
+    "C": "posicion/mediana-no-es-q2",
+    "D": "posicion/rango-intercuartil-mal-restado"
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -0.29,
+   "order_index": 160,
+   "question": "En una lista ordenada de $100$ notas, ¿qué lugar ocupa aproximadamente el percentil $25$?",
+   "options": {
+    "A": "El lugar $4$",
+    "B": "El lugar $75$",
+    "C": "El lugar $50$",
+    "D": "El lugar $25$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se dividió por $4$ el número de percentil en vez de ubicar la posición dentro de los $100$ datos.",
+    "B": "Ese es el percentil $75$, o sea $Q_3$.",
+    "C": "Ese es el percentil $50$, o sea la mediana.",
+    "D": "Correcto. Con $100$ datos, el percentil $25$ cae cerca del vigésimo quinto."
+   },
+   "misconceptions": {
+    "A": "posicion/cuartil-como-cuarta-parte-del-valor",
+    "B": null,
+    "C": "posicion/mediana-no-es-q2",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/posicion",
+   "difficulty": -0.2,
+   "order_index": 170,
+   "question": "Las notas de un curso tienen mínimo $2{,}0$, $Q_1 = 4{,}0$, mediana $5{,}0$, $Q_3 = 6{,}0$ y máximo $7{,}0$. ¿Qué porcentaje del curso tiene nota entre $4{,}0$ y $6{,}0$?",
+   "options": {
+    "A": "Un $50\\%$",
+    "B": "Un $100\\%$",
+    "C": "Un $25\\%$",
+    "D": "No se puede saber sin las notas"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. De $Q_1$ a $Q_3$ está siempre el $50\\%$ central de los datos.",
+    "B": "Entre el mínimo y el máximo está el $100\\%$; entre $Q_1$ y $Q_3$, la mitad.",
+    "C": "Ese es el porcentaje que hay entre dos cuartiles **consecutivos**, y acá hay dos tramos.",
+    "D": "Sí se puede: para eso sirven los cuartiles, aunque no se conozca cada nota."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "posicion/lee-mal-el-cajon",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": -0.8,
+   "order_index": 10,
+   "question": "El **rango** de un conjunto de datos es:",
+   "options": {
+    "A": "la suma del mayor y el menor",
+    "B": "el promedio del mayor y el menor",
+    "C": "la diferencia entre el mayor y el menor",
+    "D": "la cantidad de datos distintos"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Sumar los extremos no mide cuánto se separan: dos grupos muy distintos pueden dar la misma suma.",
+    "B": "Ese promedio es un valor central, no una medida de cuánto se dispersan los datos.",
+    "C": "Correcto. El rango es máximo menos mínimo, y por eso se mide en las mismas unidades que los datos.",
+    "D": "Eso es un conteo de categorías."
+   },
+   "misconceptions": {
+    "A": "dispersion/rango-mal-calculado",
+    "B": "dispersion/rango-mal-calculado",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": -0.7,
+   "order_index": 20,
+   "question": "¿Cuál es el rango de los datos $4$, $9$, $2$ y $15$?",
+   "options": {
+    "A": "$30$",
+    "B": "$17$",
+    "C": "$13$",
+    "D": "$8{,}5$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Esa es la suma de los cuatro datos.",
+    "B": "Se sumaron los extremos en vez de restarlos.",
+    "C": "Correcto. El mayor es $15$ y el menor es $2$: $15 - 2 = 13$.",
+    "D": "Ese es el promedio de los dos extremos."
+   },
+   "misconceptions": {
+    "A": "dispersion/rango-mal-calculado",
+    "B": "dispersion/rango-mal-calculado",
+    "C": null,
+    "D": "dispersion/rango-mal-calculado"
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": -0.6,
+   "order_index": 30,
+   "question": "¿Qué mide la **desviación estándar**?",
+   "options": {
+    "A": "cuánto se alejan los datos del promedio",
+    "B": "cuál es el dato más frecuente",
+    "C": "cuál es el valor central de todos los datos",
+    "D": "cuántos datos hay"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Es una medida de dispersión: dice qué tan repartidos están los datos alrededor de su media.",
+    "B": "Esa es la moda.",
+    "C": "Eso lo miden la media o la mediana.",
+    "D": "Ese es el tamaño del conjunto."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "estadistica/confunde-las-tres-medidas",
+    "C": "dispersion/confunde-nivel-con-dispersion",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": -0.5,
+   "order_index": 40,
+   "question": "Si todos los datos de un conjunto son iguales, su desviación estándar es:",
+   "options": {
+    "A": "igual al valor de los datos",
+    "B": "$1$",
+    "C": "imposible de calcular",
+    "D": "$0$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "La desviación no se parece al valor de los datos: mide distancias, y acá no hay ninguna.",
+    "B": "Se tomó $1$ como si fuera la desviación mínima. El mínimo es $0$, y se alcanza justo cuando no hay ninguna diferencia entre los datos.",
+    "C": "Sí se puede calcular, y da cero.",
+    "D": "Correcto. Ningún dato se aleja del promedio, así que todas las distancias son cero."
+   },
+   "misconceptions": {
+    "A": "dispersion/confunde-nivel-con-dispersion",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": -0.4,
+   "order_index": 50,
+   "question": "¿Puede la desviación estándar de un conjunto de datos ser $-2$?",
+   "options": {
+    "A": "Sí, si los datos son negativos",
+    "B": "No: se calcula con una raíz de cuadrados",
+    "C": "Sí, si el promedio es mayor que los datos",
+    "D": "Solo si hay más datos bajo el promedio que sobre él"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Los datos pueden ser negativos, pero la distancia al promedio no: se eleva al cuadrado antes de sumar.",
+    "B": "Correcto. Es una raíz cuadrada de una suma de cuadrados: vale $0$ o más.",
+    "C": "Las diferencias negativas y positivas se cuadran justamente para que no se cancelen ni den negativo.",
+    "D": "La cantidad de datos a cada lado del promedio no cambia el signo."
+   },
+   "misconceptions": {
+    "A": "dispersion/desviacion-negativa",
+    "B": null,
+    "C": "dispersion/desviacion-negativa",
+    "D": "dispersion/desviacion-negativa"
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": -0.3,
+   "order_index": 60,
+   "question": "La **varianza** de un conjunto de datos es:",
+   "options": {
+    "A": "el cuadrado de la desviación estándar",
+    "B": "la raíz cuadrada de la desviación estándar",
+    "C": "lo mismo que el rango",
+    "D": "la diferencia entre la media y la mediana"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Se promedian los cuadrados de las distancias a la media; sacarle la raíz devuelve la desviación estándar.",
+    "B": "Está al revés: la desviación estándar es la raíz de la varianza.",
+    "C": "El rango solo usa dos datos; la varianza usa todos.",
+    "D": "Esa diferencia habla de la forma de la distribución, no de su dispersión."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "dispersion/desviacion-sin-raiz",
+    "C": "dispersion/rango-mal-calculado",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": -0.2,
+   "order_index": 70,
+   "question": "Si la varianza de un conjunto es $9$, ¿cuánto vale su desviación estándar?",
+   "options": {
+    "A": "$81$",
+    "B": "$4{,}5$",
+    "C": "$3$",
+    "D": "$9$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se elevó al cuadrado otra vez. La varianza ya es el cuadrado.",
+    "B": "Se dividió por $2$ en vez de sacar la raíz cuadrada.",
+    "C": "Correcto. $\\sqrt{9} = 3$.",
+    "D": "Esa es la varianza misma: falta el paso de la raíz."
+   },
+   "misconceptions": {
+    "A": "dispersion/desviacion-sin-raiz",
+    "B": null,
+    "C": null,
+    "D": "dispersion/desviacion-sin-raiz"
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": -0.1,
+   "order_index": 80,
+   "question": "Si la desviación estándar de un conjunto es $5$, ¿cuánto vale su varianza?",
+   "options": {
+    "A": "$5$",
+    "B": "$25$",
+    "C": "$2{,}5$",
+    "D": "$\\sqrt{5}$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Esa es la desviación estándar; la varianza es su cuadrado.",
+    "B": "Correcto. La varianza es el cuadrado de la desviación: $5^2 = 25$.",
+    "C": "Se dividió por $2$ en vez de elevar al cuadrado.",
+    "D": "Se sacó la raíz cuando había que hacer lo contrario."
+   },
+   "misconceptions": {
+    "A": "dispersion/desviacion-sin-raiz",
+    "B": null,
+    "C": null,
+    "D": "dispersion/desviacion-sin-raiz"
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": 0.0,
+   "order_index": 90,
+   "question": "Los datos $2$, $2$, $6$, $6$ tienen promedio $4$. ¿Cuál es su desviación estándar?",
+   "options": {
+    "A": "$4$",
+    "B": "$0$",
+    "C": "$16$",
+    "D": "$2$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Esa es la **varianza**: el promedio de los cuadrados de las distancias. Falta sacarle la raíz.",
+    "B": "Sería $0$ solo si todos los datos fueran iguales, y acá hay dos valores distintos.",
+    "C": "Esa es la suma de los cuadrados de las distancias, antes de dividir por $4$ y de sacar la raíz.",
+    "D": "Correcto. Cada dato está a distancia $2$ del promedio, así que la desviación estándar es $2$."
+   },
+   "misconceptions": {
+    "A": "dispersion/desviacion-sin-raiz",
+    "B": null,
+    "C": "dispersion/desviacion-sin-raiz",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": 0.1,
+   "order_index": 100,
+   "question": "Dos cursos tienen el mismo promedio, pero uno tiene desviación estándar $0{,}4$ y el otro $1{,}8$. ¿Qué se puede afirmar?",
+   "options": {
+    "A": "Que el de $1{,}8$ tiene mejores notas",
+    "B": "Que hay un error, porque con igual promedio la desviación debe ser igual",
+    "C": "Que el de $1{,}8$ tiene más estudiantes",
+    "D": "Que el de $1{,}8$ tiene notas más disparejas"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "El nivel lo marca el promedio, y es el mismo en los dos cursos.",
+    "B": "No hay error: es justamente para eso que se informa la desviación junto al promedio.",
+    "C": "La desviación no depende de cuántos datos hay, sino de cuánto se separan.",
+    "D": "Correcto. Más desviación estándar significa notas más repartidas alrededor del mismo promedio."
+   },
+   "misconceptions": {
+    "A": "dispersion/confunde-nivel-con-dispersion",
+    "B": "dispersion/confunde-nivel-con-dispersion",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": 0.2,
+   "order_index": 110,
+   "question": "Si a todos los datos de un conjunto se les suma $3$, la desviación estándar:",
+   "options": {
+    "A": "aumenta en $3$",
+    "B": "queda igual",
+    "C": "se triplica",
+    "D": "se reduce a la tercera parte"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Eso le pasa al **promedio**. La desviación mide distancias entre los datos, y esas no cambian.",
+    "B": "Correcto. Sumar una constante corre todos los datos lo mismo: la nube se traslada, no se estira.",
+    "C": "Triplicar sería multiplicar los datos, que sí cambia las distancias.",
+    "D": "Sumar no achica nada."
+   },
+   "misconceptions": {
+    "A": "dispersion/dispersion-cambia-al-sumar-constante",
+    "B": null,
+    "C": "dispersion/dispersion-cambia-al-sumar-constante",
+    "D": "dispersion/dispersion-cambia-al-sumar-constante"
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": 0.3,
+   "order_index": 120,
+   "question": "Si todos los datos de un conjunto se multiplican por $2$, la desviación estándar:",
+   "options": {
+    "A": "queda igual",
+    "B": "aumenta en $2$",
+    "C": "se duplica",
+    "D": "se cuadruplica"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Multiplicar sí cambia las distancias entre los datos: la nube se estira.",
+    "B": "Sumar $2$ no haría nada; multiplicar por $2$ no suma $2$.",
+    "C": "Correcto. Todas las distancias al promedio se duplican, así que la desviación también.",
+    "D": "Se cuadruplica la **varianza**, porque ahí las distancias van al cuadrado."
+   },
+   "misconceptions": {
+    "A": "dispersion/dispersion-cambia-al-sumar-constante",
+    "B": null,
+    "C": null,
+    "D": "dispersion/desviacion-sin-raiz"
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": 0.4,
+   "order_index": 130,
+   "question": "¿Cuál de estos dos conjuntos tiene mayor dispersión: $A = \\{5, 5, 5, 5\\}$ o $B = \\{1, 4, 6, 9\\}$?",
+   "options": {
+    "A": "$B$, porque sus datos se separan entre sí",
+    "B": "$A$, porque sus datos son mayores",
+    "C": "Los dos igual, porque tienen la misma cantidad de datos",
+    "D": "$A$, porque todos sus datos son iguales"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. En $A$ la dispersión es $0$; en $B$ los datos van de $1$ a $9$.",
+    "B": "El tamaño de los datos no es dispersión: en $A$ todos valen lo mismo y no hay ninguna separación.",
+    "C": "La cantidad de datos no dice nada sobre cuánto se separan.",
+    "D": "Que todos sean iguales es exactamente lo contrario de tener dispersión."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "dispersion/confunde-nivel-con-dispersion",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": 0.5,
+   "order_index": 140,
+   "question": "El **rango** es especialmente sensible a:",
+   "options": {
+    "A": "la cantidad de datos",
+    "B": "un solo dato extremo",
+    "C": "el orden en que se anotan los datos",
+    "D": "la unidad de medida elegida"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se puede calcular igual con $5$ o con $500$ datos.",
+    "B": "Correcto. Como solo usa el máximo y el mínimo, un único dato lejano lo dispara.",
+    "C": "El rango no cambia si se reordenan los datos.",
+    "D": "Cambiar de unidad cambia el número, pero no lo vuelve más ni menos sensible."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": 0.6,
+   "order_index": 150,
+   "question": "Un conjunto de datos tiene rango $0$. ¿Qué se puede afirmar?",
+   "options": {
+    "A": "Que no hay datos",
+    "B": "Que hay la misma cantidad de datos altos y bajos",
+    "C": "Que el promedio es $0$",
+    "D": "Que todos los datos son iguales"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Si no hubiera datos no habría rango que calcular.",
+    "B": "El rango no cuenta datos: mide la distancia entre los extremos.",
+    "C": "El promedio es el valor repetido, que puede ser cualquiera.",
+    "D": "Correcto. El máximo y el mínimo coinciden, así que no queda ningún valor distinto en medio."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "dispersion/confunde-nivel-con-dispersion",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": 0.7,
+   "order_index": 160,
+   "question": "Dos grupos tienen desviación estándar $1{,}2$ y $3{,}5$. ¿Cuál es más **homogéneo**?",
+   "options": {
+    "A": "El de $1{,}2$",
+    "B": "El de $3{,}5$",
+    "C": "Los dos igual",
+    "D": "Falta saber el promedio"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Homogéneo es parecerse entre sí, y eso es tener poca dispersión.",
+    "B": "Más desviación es justamente lo contrario: los datos están más repartidos.",
+    "C": "Las desviaciones son distintas, así que la dispersión también.",
+    "D": "Para comparar dispersión basta la desviación; el promedio dice dónde está el grupo, no qué tan parejo es."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "dispersion/confunde-nivel-con-dispersion",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/dispersion",
+   "difficulty": 0.8,
+   "order_index": 170,
+   "question": "Una prueba tiene promedio $500$ puntos y desviación estándar $100$. Un estudiante obtuvo $600$. ¿Qué se puede decir de su puntaje?",
+   "options": {
+    "A": "Que obtuvo un $20\\%$ más de respuestas correctas",
+    "B": "Que superó al $100\\%$ de quienes rindieron",
+    "C": "Que está una desviación estándar sobre el promedio",
+    "D": "Que está en el máximo posible"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El puntaje no es un porcentaje de logro, y $600$ no es un $20\\%$ más de respuestas correctas.",
+    "B": "La desviación no dice a cuánta gente superó; para eso sirven los percentiles.",
+    "C": "Correcto. $600 = 500 + 100$: está exactamente a una desviación estándar del promedio.",
+    "D": "Nada indica que $600$ sea el máximo: puede haber puntajes más altos."
+   },
+   "misconceptions": {
+    "A": "posicion/percentil-como-porcentaje-de-logro",
+    "B": "posicion/percentil-como-porcentaje-de-logro",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 0.0,
+   "order_index": 10,
+   "question": "Según la regla de Laplace, la probabilidad de un evento se calcula como:",
+   "options": {
+    "A": "casos favorables dividido por casos desfavorables",
+    "B": "casos totales dividido por casos favorables",
+    "C": "casos favorables dividido por casos totales",
+    "D": "casos favorables multiplicado por casos totales"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El denominador es el **total**, no lo que queda fuera.",
+    "B": "Al revés daría un número mayor que $1$, que no puede ser una probabilidad.",
+    "C": "Correcto. Se divide lo que sirve por todo lo que puede pasar, y por eso el resultado queda entre $0$ y $1$.",
+    "D": "Multiplicar no compara la parte con el todo."
+   },
+   "misconceptions": {
+    "A": "azar/favorables-sobre-desfavorables",
+    "B": "azar/probabilidad-fuera-de-cero-uno",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 0.12,
+   "order_index": 20,
+   "question": "Al lanzar un dado corriente de $6$ caras, ¿cuál es la probabilidad de obtener un $4$?",
+   "options": {
+    "A": "$\\dfrac{1}{6}$",
+    "B": "$\\dfrac{1}{4}$",
+    "C": "$\\dfrac{4}{6}$",
+    "D": "$4$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Hay una cara favorable de seis posibles.",
+    "B": "El $4$ terminó en el denominador. El total de casos es $6$, que son las caras del dado.",
+    "C": "El $4$ es el resultado buscado, no la cantidad de casos favorables: hay una sola cara con un $4$.",
+    "D": "Una probabilidad nunca puede ser $4$: como máximo vale $1$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "azar/cuenta-mal-el-espacio-muestral",
+    "C": "azar/cuenta-mal-el-espacio-muestral",
+    "D": "azar/probabilidad-fuera-de-cero-uno"
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 0.24,
+   "order_index": 30,
+   "question": "¿Cuál es la probabilidad de obtener un número **par** al lanzar un dado de $6$ caras?",
+   "options": {
+    "A": "$\\dfrac{1}{6}$",
+    "B": "$\\dfrac{2}{6}$",
+    "C": "$\\dfrac{1}{3}$",
+    "D": "$\\dfrac{1}{2}$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se contó «par» como un solo caso favorable, pero hay tres caras pares: $2$, $4$ y $6$.",
+    "B": "Son tres las caras pares —$2$, $4$ y $6$—, así que faltó contar una.",
+    "C": "Eso equivale a $2$ casos favorables de $6$: faltó contar una de las tres caras pares.",
+    "D": "Correcto. Son $3$ casos favorables de $6$: $\\dfrac{3}{6} = \\dfrac{1}{2}$."
+   },
+   "misconceptions": {
+    "A": "azar/cuenta-mal-el-espacio-muestral",
+    "B": "azar/cuenta-mal-el-espacio-muestral",
+    "C": "azar/cuenta-mal-el-espacio-muestral",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 0.36,
+   "order_index": 40,
+   "question": "Una bolsa tiene $3$ bolitas rojas y $5$ azules. ¿Cuál es la probabilidad de sacar una roja?",
+   "options": {
+    "A": "$\\dfrac{3}{5}$",
+    "B": "$\\dfrac{3}{8}$",
+    "C": "$\\dfrac{1}{3}$",
+    "D": "$\\dfrac{5}{8}$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "En el denominador quedaron las azules, o sea los casos **desfavorables**. Van todas las bolitas.",
+    "B": "Correcto. Hay $3$ rojas entre $3+5 = 8$ bolitas.",
+    "C": "Se contó una de cada tres, como si hubiera tres colores igual de probables.",
+    "D": "Esa es la probabilidad de sacar una **azul**."
+   },
+   "misconceptions": {
+    "A": "azar/favorables-sobre-desfavorables",
+    "B": null,
+    "C": "azar/cuenta-mal-el-espacio-muestral",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 0.48,
+   "order_index": 50,
+   "question": "¿Cuánto vale la probabilidad de un evento **seguro**?",
+   "options": {
+    "A": "$1$",
+    "B": "$100$",
+    "C": "$0$",
+    "D": "$0{,}5$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Si el evento ocurre siempre, los casos favorables son todos los posibles.",
+    "B": "El $100$ es el porcentaje. En la escala de probabilidades, el máximo es $1$.",
+    "C": "Ese es el valor de un evento **imposible**.",
+    "D": "Ese es el valor de un evento que ocurre la mitad de las veces."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "azar/probabilidad-fuera-de-cero-uno",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 0.6,
+   "order_index": 60,
+   "question": "¿Puede la probabilidad de un evento valer $1{,}5$?",
+   "options": {
+    "A": "Sí, si hay muchos casos favorables en juego",
+    "B": "Sí, si el evento es muy probable",
+    "C": "No: toda probabilidad está entre $0$ y $1$",
+    "D": "Solo si se expresa en porcentaje"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Por muchos que sean, los casos favorables nunca superan al total: la fracción no pasa de $1$.",
+    "B": "«Muy probable» se acerca a $1$, nunca lo supera.",
+    "C": "Correcto. Los casos favorables son parte de los totales, así que el cociente vive en $[0, 1]$.",
+    "D": "En porcentaje el techo es $100\\%$, que es el mismo $1$ escrito de otra forma."
+   },
+   "misconceptions": {
+    "A": "azar/probabilidad-fuera-de-cero-uno",
+    "B": "azar/probabilidad-fuera-de-cero-uno",
+    "C": null,
+    "D": "azar/probabilidad-fuera-de-cero-uno"
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 0.72,
+   "order_index": 70,
+   "question": "Se lanza una moneda dos veces. ¿Cuántos resultados distintos puede haber?",
+   "options": {
+    "A": "$2$",
+    "B": "$4$",
+    "C": "$3$",
+    "D": "$8$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Esos son los resultados de **un** lanzamiento. Con dos lanzamientos hay más combinaciones.",
+    "B": "Correcto. Dos opciones en el primer lanzamiento por dos en el segundo: $2 \\cdot 2 = 4$.",
+    "C": "Se contaron «dos caras», «dos sellos» y «una de cada», pero la mixta ocurre de dos maneras: cara-sello y sello-cara.",
+    "D": "Ese sería el total con **tres** lanzamientos: $2^3$."
+   },
+   "misconceptions": {
+    "A": "azar/cuenta-mal-el-espacio-muestral",
+    "B": null,
+    "C": "azar/resultados-compuestos-como-equiprobables",
+    "D": "azar/cuenta-mal-el-espacio-muestral"
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 0.84,
+   "order_index": 80,
+   "question": "Se lanza una moneda dos veces. ¿Cuál es la probabilidad de obtener **dos caras**?",
+   "options": {
+    "A": "$\\dfrac{1}{2}$",
+    "B": "$\\dfrac{1}{3}$",
+    "C": "$\\dfrac{2}{4}$",
+    "D": "$\\dfrac{1}{4}$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Esa es la probabilidad de cara en **un** lanzamiento.",
+    "B": "Se trataron como equiprobables «dos caras», «dos sellos» y «una de cada», pero la mixta pasa el doble de veces.",
+    "C": "Eso es $\\dfrac{1}{2}$ escrito de otra forma: hay un solo resultado favorable de cuatro, no dos.",
+    "D": "Correcto. De los cuatro resultados posibles, solo cara-cara sirve."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "azar/resultados-compuestos-como-equiprobables",
+    "C": "azar/cuenta-mal-el-espacio-muestral",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 0.96,
+   "order_index": 90,
+   "question": "Se lanzan dos dados corrientes. ¿Cuántos resultados posibles hay?",
+   "options": {
+    "A": "$12$",
+    "B": "$6$",
+    "C": "$11$",
+    "D": "$36$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se sumaron las caras de los dos dados. Para contar pares de resultados hay que multiplicar.",
+    "B": "Esas son las caras de un solo dado.",
+    "C": "Esas son las **sumas** posibles ($2$ a $12$), que no son igual de probables entre sí.",
+    "D": "Correcto. Seis resultados del primer dado por seis del segundo: $6 \\cdot 6 = 36$."
+   },
+   "misconceptions": {
+    "A": "azar/cuenta-mal-el-espacio-muestral",
+    "B": "azar/cuenta-mal-el-espacio-muestral",
+    "C": "azar/resultados-compuestos-como-equiprobables",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 1.08,
+   "order_index": 100,
+   "question": "Se lanzan dos dados. ¿Cuál es la probabilidad de que la **suma** sea $7$?",
+   "options": {
+    "A": "$\\dfrac{1}{11}$",
+    "B": "$\\dfrac{1}{6}$",
+    "C": "$\\dfrac{7}{36}$",
+    "D": "$\\dfrac{1}{12}$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se tomaron las $11$ sumas posibles como si fueran igual de probables, y no lo son: el $7$ sale de seis maneras y el $2$, de una sola.",
+    "B": "Correcto. Hay $6$ pares que suman $7$ de $36$ posibles: $\\dfrac{6}{36} = \\dfrac{1}{6}$.",
+    "C": "Se usó el $7$ como si fuera la cantidad de casos favorables. Los pares que suman $7$ son seis.",
+    "D": "Ese sería el resultado con un solo caso favorable entre $12$, y ni el numerador ni el denominador corresponden."
+   },
+   "misconceptions": {
+    "A": "azar/resultados-compuestos-como-equiprobables",
+    "B": null,
+    "C": "azar/cuenta-mal-el-espacio-muestral",
+    "D": "azar/cuenta-mal-el-espacio-muestral"
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 1.2,
+   "order_index": 110,
+   "question": "De una baraja inglesa de $52$ cartas se saca una al azar. ¿Cuál es la probabilidad de que sea de corazones?",
+   "options": {
+    "A": "$\\dfrac{1}{52}$",
+    "B": "$\\dfrac{1}{13}$",
+    "C": "$\\dfrac{1}{4}$",
+    "D": "$\\dfrac{4}{52}$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Esa es la probabilidad de sacar **una carta determinada**, no una pinta completa.",
+    "B": "Ese sería el caso de trece cartas iguales; las de corazones son $13$ de $52$, no $1$ de $13$.",
+    "C": "Correcto. Hay $13$ corazones entre $52$ cartas: $\\dfrac{13}{52} = \\dfrac{1}{4}$.",
+    "D": "Ese es el $4$ de las pintas puesto como casos favorables: las pintas son cuatro, pero las cartas favorables son trece."
+   },
+   "misconceptions": {
+    "A": "azar/cuenta-mal-el-espacio-muestral",
+    "B": "azar/favorables-sobre-desfavorables",
+    "C": null,
+    "D": "azar/cuenta-mal-el-espacio-muestral"
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 1.32,
+   "order_index": 120,
+   "question": "Una bolsa tiene $4$ bolitas rojas y $6$ verdes. Se saca una y **no se devuelve**. ¿Cuántas bolitas quedan para la segunda extracción?",
+   "options": {
+    "A": "$9$",
+    "B": "$10$",
+    "C": "$4$",
+    "D": "$6$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Salió una bolita y no volvió: quedan $9$.",
+    "B": "Ese era el total **antes** de la primera extracción. Sin reposición, el total baja.",
+    "C": "Esas son las rojas del comienzo, no el total que queda.",
+    "D": "Esas son las verdes del comienzo."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "azar/olvida-que-no-hay-reposicion",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 1.44,
+   "order_index": 130,
+   "question": "En un curso hay $12$ mujeres y $18$ hombres. Se elige a una persona al azar. ¿Cuál es la probabilidad de que sea mujer?",
+   "options": {
+    "A": "$\\dfrac{12}{18}$",
+    "B": "$\\dfrac{2}{5}$",
+    "C": "$\\dfrac{3}{5}$",
+    "D": "$\\dfrac{1}{12}$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "En el denominador quedaron los hombres, que son los casos desfavorables. Va el curso completo: $30$.",
+    "B": "Correcto. $\\dfrac{12}{30} = \\dfrac{2}{5}$.",
+    "C": "Esa es la probabilidad de que sea **hombre**: $\\dfrac{18}{30}$.",
+    "D": "Ese sería el caso de elegir a una mujer determinada entre las doce."
+   },
+   "misconceptions": {
+    "A": "azar/favorables-sobre-desfavorables",
+    "B": null,
+    "C": null,
+    "D": "azar/cuenta-mal-el-espacio-muestral"
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 1.56,
+   "order_index": 140,
+   "question": "Con $3$ poleras y $4$ pantalones distintos, ¿cuántas tenidas diferentes se pueden armar?",
+   "options": {
+    "A": "$7$",
+    "B": "$1$",
+    "C": "$34$",
+    "D": "$12$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se sumaron las prendas. Sumar cuenta cuántas prendas hay, no cuántas combinaciones.",
+    "B": "Hay muchas combinaciones posibles, no una sola.",
+    "C": "Se escribieron los dos números seguidos. Contar combinaciones es multiplicarlos: $3 \\cdot 4$.",
+    "D": "Correcto. Por el principio multiplicativo, cada una de las $3$ poleras se puede usar con cualquiera de los $4$ pantalones: $3 \\cdot 4 = 12$."
+   },
+   "misconceptions": {
+    "A": "azar/cuenta-mal-el-espacio-muestral",
+    "B": null,
+    "C": "azar/cuenta-mal-el-espacio-muestral",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 1.68,
+   "order_index": 150,
+   "question": "Una bolsa tiene $4$ bolitas rojas y $6$ verdes. Se sacan dos **sin reposición**. ¿Cuál es la probabilidad de que las dos sean rojas?",
+   "options": {
+    "A": "$\\dfrac{2}{15}$",
+    "B": "$\\dfrac{4}{25}$",
+    "C": "$\\dfrac{2}{5}$",
+    "D": "$\\dfrac{8}{19}$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $\\dfrac{4}{10} \\cdot \\dfrac{3}{9} = \\dfrac{12}{90} = \\dfrac{2}{15}$: en la segunda extracción quedan $3$ rojas de $9$ bolitas.",
+    "B": "Ese es el resultado **con** reposición: $\\dfrac{4}{10} \\cdot \\dfrac{4}{10}$. Acá la primera bolita no vuelve.",
+    "C": "Esa es la probabilidad de que la **primera** sea roja; falta la segunda extracción.",
+    "D": "Los totales se sumaron entre sí. Dos extracciones seguidas se multiplican, no se suman."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "azar/olvida-que-no-hay-reposicion",
+    "C": null,
+    "D": "reglas/suma-donde-va-producto"
+   }
+  },
+  {
+   "module_slug": "probabilidad/azar",
+   "difficulty": 1.8,
+   "order_index": 160,
+   "question": "Se lanza un dado dos veces. ¿Cuál es la probabilidad de obtener **al menos un** $6$?",
+   "options": {
+    "A": "$\\dfrac{1}{3}$",
+    "B": "$\\dfrac{1}{36}$",
+    "C": "$\\dfrac{11}{36}$",
+    "D": "$\\dfrac{2}{6}$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se sumaron $\\dfrac{1}{6} + \\dfrac{1}{6}$, y eso cuenta dos veces el caso en que salen dos seises.",
+    "B": "Esa es la probabilidad de sacar **dos** seises, que es un solo resultado de los $36$.",
+    "C": "Correcto. Es más corto por el complemento: no sacar ningún $6$ tiene probabilidad $\\dfrac{5}{6} \\cdot \\dfrac{5}{6} = \\dfrac{25}{36}$, y $1 - \\dfrac{25}{36} = \\dfrac{11}{36}$.",
+    "D": "Es $\\dfrac{1}{3}$ sin simplificar: sumar los dos lanzamientos cuenta dos veces el caso en que salen dos seises."
+   },
+   "misconceptions": {
+    "A": "reglas/suma-donde-va-producto",
+    "B": null,
+    "C": null,
+    "D": "reglas/suma-donde-va-producto"
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 1.2,
+   "order_index": 10,
+   "question": "Si $P(A) = 0{,}3$, ¿cuánto vale la probabilidad de que $A$ **no** ocurra?",
+   "options": {
+    "A": "$99{,}7$",
+    "B": "$-0{,}3$",
+    "C": "$0{,}7$",
+    "D": "$0{,}3$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se restó de $100$ pero dejando el $0{,}3$ en escala de probabilidad. O se trabaja en porcentajes ($100 - 30 = 70$) o en probabilidades ($1 - 0{,}3$).",
+    "B": "Se le cambió el signo. Ninguna probabilidad es negativa.",
+    "C": "Correcto. El complemento se calcula como $1 - P(A) = 1 - 0{,}3 = 0{,}7$.",
+    "D": "Esa es la probabilidad de que **sí** ocurra."
+   },
+   "misconceptions": {
+    "A": "reglas/complemento-mal-calculado",
+    "B": "reglas/complemento-mal-calculado",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 1.32,
+   "order_index": 20,
+   "question": "Dos eventos son **excluyentes** cuando:",
+   "options": {
+    "A": "no pueden ocurrir los dos a la vez",
+    "B": "uno no influye en la probabilidad del otro",
+    "C": "tienen la misma probabilidad",
+    "D": "juntos suman probabilidad $1$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Su intersección es vacía: si ocurre uno, el otro queda descartado.",
+    "B": "Esa es la definición de eventos **independientes**, que es otra cosa.",
+    "C": "Dos eventos pueden ser igual de probables y ocurrir juntos sin problema.",
+    "D": "Eso ocurre con un evento y su complemento, que es un caso particular."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "reglas/confunde-excluyentes-con-independientes",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 1.44,
+   "order_index": 30,
+   "question": "Dos eventos son **independientes** cuando:",
+   "options": {
+    "A": "no pueden ocurrir juntos",
+    "B": "siempre ocurren juntos",
+    "C": "tienen la misma cantidad de casos favorables",
+    "D": "que ocurra uno no cambia la probabilidad del otro"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Eso es ser **excluyentes**. Dos eventos excluyentes se influyen al máximo: si pasa uno, el otro ya no puede pasar.",
+    "B": "Eso sería depender por completo el uno del otro.",
+    "C": "La cantidad de casos favorables no tiene relación con la independencia.",
+    "D": "Correcto. Saber que ocurrió $B$ no aporta información sobre $A$, y por eso $P(A \\cap B) = P(A) \\cdot P(B)$."
+   },
+   "misconceptions": {
+    "A": "reglas/confunde-excluyentes-con-independientes",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 1.56,
+   "order_index": 40,
+   "question": "Si $A$ y $B$ son **excluyentes**, entonces $P(A \\cup B)$ es igual a:",
+   "options": {
+    "A": "$P(A) \\cdot P(B)$",
+    "B": "$P(A) + P(B)$",
+    "C": "$P(A) + P(B) - P(A) \\cdot P(B)$",
+    "D": "$P(A) - P(B)$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Multiplicar corresponde a que ocurran **los dos**, y dos eventos excluyentes nunca ocurren juntos.",
+    "B": "Correcto. Como no se superponen, no hay nada que descontar: las probabilidades se suman directo.",
+    "C": "Ese descuento corresponde a eventos independientes que sí pueden ocurrir juntos. Acá la intersección es $0$.",
+    "D": "Restar dejaría fuera parte de los casos de $B$, y la unión los incluye a todos."
+   },
+   "misconceptions": {
+    "A": "reglas/confunde-excluyentes-con-independientes",
+    "B": null,
+    "C": "reglas/confunde-excluyentes-con-independientes",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 1.68,
+   "order_index": 50,
+   "question": "Para dos eventos cualesquiera, $P(A \\cup B)$ es igual a:",
+   "options": {
+    "A": "$P(A) + P(B) - P(A \\cap B)$",
+    "B": "$P(A) \\cdot P(B)$",
+    "C": "$P(A) + P(B)$",
+    "D": "$1 - P(A) - P(B)$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Se suman las dos probabilidades y se descuenta una vez la parte que comparten.",
+    "B": "Ese es el cálculo de la intersección para eventos independientes, no el de la unión.",
+    "C": "Esa fórmula sirve solo si los eventos son excluyentes: si no, los casos comunes quedan contados dos veces.",
+    "D": "Esa expresión puede dar negativa, así que no puede ser una probabilidad."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "reglas/suma-donde-va-producto",
+    "C": "reglas/suma-sin-restar-la-interseccion",
+    "D": "reglas/complemento-mal-calculado"
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 1.8,
+   "order_index": 60,
+   "question": "En un curso, la probabilidad de que un estudiante practique fútbol es $0{,}5$; básquetbol, $0{,}4$; y los dos deportes, $0{,}2$. ¿Cuál es la probabilidad de que practique **al menos uno** de los dos?",
+   "options": {
+    "A": "$0{,}9$",
+    "B": "$0{,}2$",
+    "C": "$0{,}7$",
+    "D": "$0{,}1$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se sumaron las dos probabilidades sin descontar a quienes practican los dos: esos quedaron contados dos veces.",
+    "B": "Esa es la probabilidad de practicar **ambos**, que es solo una parte de la respuesta.",
+    "C": "Correcto. $0{,}5 + 0{,}4 - 0{,}2 = 0{,}7$.",
+    "D": "Se restaron las dos probabilidades ($0{,}5 - 0{,}4$). La unión suma y descuenta la intersección; no resta."
+   },
+   "misconceptions": {
+    "A": "reglas/suma-sin-restar-la-interseccion",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 1.92,
+   "order_index": 70,
+   "question": "Si $A$ y $B$ son **independientes**, entonces $P(A \\cap B)$ es igual a:",
+   "options": {
+    "A": "$P(A) + P(B)$",
+    "B": "$P(A) \\cdot P(B)$",
+    "C": "$0$",
+    "D": "$P(A) - P(B)$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Sumar corresponde a la unión, o sea a que ocurra **alguno** de los dos.",
+    "B": "Correcto. Que ocurran los dos, sin que uno influya en el otro, es el producto de sus probabilidades.",
+    "C": "La intersección vale $0$ cuando los eventos son **excluyentes**, que es lo contrario de independientes.",
+    "D": "La resta se parece a «$A$ pero no $B$», que se calcula con $P(A) - P(A \\cap B)$, y no es la intersección."
+   },
+   "misconceptions": {
+    "A": "reglas/suma-donde-va-producto",
+    "B": null,
+    "C": "reglas/confunde-excluyentes-con-independientes",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 2.04,
+   "order_index": 80,
+   "question": "Se lanza una moneda y un dado. ¿Cuál es la probabilidad de obtener cara **y** un $5$?",
+   "options": {
+    "A": "$\\dfrac{2}{3}$",
+    "B": "$\\dfrac{1}{8}$",
+    "C": "$\\dfrac{1}{6}$",
+    "D": "$\\dfrac{1}{12}$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se sumaron $\\dfrac{1}{2}$ y $\\dfrac{1}{6}$. La palabra «y» pide que ocurran los dos, y eso se multiplica.",
+    "B": "El denominador no corresponde: los resultados posibles son $2 \\cdot 6 = 12$, no $8$.",
+    "C": "Esa es solo la probabilidad del $5$ en el dado; falta la moneda.",
+    "D": "Correcto. $\\dfrac{1}{2} \\cdot \\dfrac{1}{6} = \\dfrac{1}{12}$, que es uno de los doce resultados posibles."
+   },
+   "misconceptions": {
+    "A": "reglas/suma-donde-va-producto",
+    "B": "azar/cuenta-mal-el-espacio-muestral",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 2.16,
+   "order_index": 90,
+   "question": "Una bolsa tiene $5$ bolitas rojas y $5$ azules. Se sacan dos **sin reposición**. ¿Cuál es la probabilidad de que las dos sean rojas?",
+   "options": {
+    "A": "$\\dfrac{1}{4}$",
+    "B": "$\\dfrac{5}{9}$",
+    "C": "$\\dfrac{1}{2}$",
+    "D": "$\\dfrac{2}{9}$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es el resultado **con** reposición: $\\dfrac{5}{10} \\cdot \\dfrac{5}{10}$.",
+    "B": "Esa es solo la segunda fracción del cálculo, sin multiplicarla por la primera.",
+    "C": "Esa es la probabilidad de que la primera sea roja; falta la segunda extracción.",
+    "D": "Correcto. $\\dfrac{5}{10} \\cdot \\dfrac{4}{9} = \\dfrac{20}{90} = \\dfrac{2}{9}$: para la segunda quedan $4$ rojas de $9$ bolitas."
+   },
+   "misconceptions": {
+    "A": "azar/olvida-que-no-hay-reposicion",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 2.28,
+   "order_index": 100,
+   "question": "La probabilidad condicional $P(A \\mid B)$ se lee como:",
+   "options": {
+    "A": "la probabilidad de que ocurra $B$ sabiendo que ocurrió $A$",
+    "B": "la probabilidad de que ocurra $A$ sabiendo que ocurrió $B$",
+    "C": "la probabilidad de que ocurran los dos",
+    "D": "la probabilidad de que ocurra alguno de los dos"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Está al revés, y no dan lo mismo: entre quienes tienen fiebre, la proporción de resfriados no es la misma que entre los resfriados, la de fiebre.",
+    "B": "Correcto. La condición va después de la barra: $B$ ya ocurrió y reduce el espacio muestral.",
+    "C": "Esa es la intersección, $P(A \\cap B)$.",
+    "D": "Esa es la unión, $P(A \\cup B)$."
+   },
+   "misconceptions": {
+    "A": "reglas/condicional-usa-el-total-equivocado",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 2.4,
+   "order_index": 110,
+   "question": "De $40$ estudiantes, $24$ practican algún deporte y $9$ de esos $24$ son mujeres. Si se elige al azar a alguien **que practica deporte**, ¿cuál es la probabilidad de que sea mujer?",
+   "options": {
+    "A": "$\\dfrac{9}{40}$",
+    "B": "$\\dfrac{24}{40}$",
+    "C": "$\\dfrac{3}{8}$",
+    "D": "$\\dfrac{9}{16}$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se dividió por el curso completo, pero la condición ya restringe el grupo a los $24$ deportistas.",
+    "B": "Esa es la probabilidad de practicar deporte, que es otra pregunta.",
+    "C": "Correcto. $\\dfrac{9}{24} = \\dfrac{3}{8}$: dentro del grupo condicionado el total es $24$.",
+    "D": "En el denominador quedaron los $16$ que no practican deporte, que son justamente los que la condición excluye."
+   },
+   "misconceptions": {
+    "A": "reglas/condicional-usa-el-total-equivocado",
+    "B": "reglas/condicional-usa-el-total-equivocado",
+    "C": null,
+    "D": "azar/favorables-sobre-desfavorables"
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 2.52,
+   "order_index": 120,
+   "question": "Se lanza una moneda cuatro veces y salen cuatro caras seguidas. ¿Cuál es la probabilidad de que en el quinto lanzamiento salga cara?",
+   "options": {
+    "A": "$\\dfrac{1}{2}$",
+    "B": "Menor que $\\dfrac{1}{2}$, porque ya salieron muchas caras",
+    "C": "$\\dfrac{1}{32}$",
+    "D": "Mayor que $\\dfrac{1}{2}$, porque la moneda viene cargada a cara"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Cada lanzamiento es independiente, así que la probabilidad sigue siendo $\\dfrac{1}{2}$.",
+    "B": "La moneda no recuerda los lanzamientos anteriores: no hay ninguna fuerza que «equilibre» los resultados.",
+    "C": "Esa es la probabilidad de sacar **cinco** caras seguidas **antes** de empezar a lanzar. Acá cuatro ya ocurrieron.",
+    "D": "Los resultados pasados no son evidencia de que la moneda esté cargada, y el enunciado no lo dice."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "reglas/falacia-del-jugador",
+    "C": null,
+    "D": "reglas/falacia-del-jugador"
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 2.64,
+   "order_index": 130,
+   "question": "Si $A$ y $B$ son excluyentes con $P(A) = 0{,}4$ y $P(B) = 0{,}3$, ¿cuánto vale $P(A \\cap B)$?",
+   "options": {
+    "A": "$0{,}12$",
+    "B": "$0$",
+    "C": "$0{,}7$",
+    "D": "$0{,}1$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se multiplicaron las probabilidades, que es la regla de eventos **independientes**. Excluyentes es lo contrario: no pueden ocurrir juntos.",
+    "B": "Correcto. Si no pueden ocurrir a la vez, la intersección es imposible: vale $0$.",
+    "C": "Esa es la probabilidad de la **unión**, no de la intersección.",
+    "D": "Se restaron las dos probabilidades ($0{,}4 - 0{,}3$). La resta no entrega la parte común, y con eventos excluyentes esa parte no existe."
+   },
+   "misconceptions": {
+    "A": "reglas/confunde-excluyentes-con-independientes",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 2.76,
+   "order_index": 140,
+   "question": "Se lanza un dado tres veces. ¿Cuál es la probabilidad de obtener **al menos un** $6$?",
+   "options": {
+    "A": "$\\dfrac{1}{2}$",
+    "B": "$\\dfrac{3}{6}$",
+    "C": "$\\dfrac{1}{216}$",
+    "D": "$\\dfrac{91}{216}$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se sumaron los tres lanzamientos ($\\dfrac{1}{6}$ tres veces), y eso cuenta varias veces los casos con dos o tres seises.",
+    "B": "Es $\\dfrac{1}{2}$ sin simplificar: sumar los tres lanzamientos no sirve para «al menos uno».",
+    "C": "Esa es la probabilidad de sacar **tres** seises.",
+    "D": "Correcto. Por el complemento: $1 - \\left(\\dfrac{5}{6}\\right)^3 = 1 - \\dfrac{125}{216} = \\dfrac{91}{216}$."
+   },
+   "misconceptions": {
+    "A": "reglas/suma-donde-va-producto",
+    "B": "reglas/suma-donde-va-producto",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 2.88,
+   "order_index": 150,
+   "question": "La urna $A$ tiene $2$ bolitas rojas y $3$ azules; la urna $B$ tiene $4$ rojas y $1$ azul. Se elige una urna al azar y se saca una bolita. ¿Cuál es la probabilidad de que sea roja?",
+   "options": {
+    "A": "$\\dfrac{3}{5}$",
+    "B": "$\\dfrac{6}{25}$",
+    "C": "$\\dfrac{6}{5}$",
+    "D": "$\\dfrac{1}{2}$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $\\dfrac{1}{2} \\cdot \\dfrac{2}{5} + \\dfrac{1}{2} \\cdot \\dfrac{4}{5} = \\dfrac{1}{5} + \\dfrac{2}{5} = \\dfrac{3}{5}$.",
+    "B": "Se multiplicaron las dos probabilidades, como si hubiera que sacar roja de las dos urnas.",
+    "C": "Se sumaron las dos probabilidades sin considerar que cada urna se elige la mitad de las veces. Además, una probabilidad no puede pasar de $1$.",
+    "D": "Ese es el peso de cada urna, no la probabilidad de sacar una bolita roja."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "reglas/suma-donde-va-producto",
+    "C": "azar/probabilidad-fuera-de-cero-uno",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "probabilidad/reglas",
+   "difficulty": 3.0,
+   "order_index": 160,
+   "question": "Se lanzan dos dados. ¿Cuál es la probabilidad de que la suma sea $8$ **sabiendo** que el primer dado mostró un $5$?",
+   "options": {
+    "A": "$\\dfrac{5}{36}$",
+    "B": "$\\dfrac{1}{11}$",
+    "C": "$\\dfrac{1}{6}$",
+    "D": "$\\dfrac{1}{36}$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se siguió usando los $36$ resultados, pero la condición ya fijó el primer dado: quedan solo $6$ casos posibles.",
+    "B": "Se tomaron las once sumas posibles como equiprobables, y además se ignoró la condición.",
+    "C": "Correcto. Con el primer dado en $5$, la suma da $8$ solo si el segundo es $3$: un caso de seis.",
+    "D": "Ese es uno de los $36$ pares, sin usar que el primer dado ya está determinado."
+   },
+   "misconceptions": {
+    "A": "reglas/condicional-usa-el-total-equivocado",
+    "B": "azar/resultados-compuestos-como-equiprobables",
+    "C": null,
+    "D": "reglas/condicional-usa-el-total-equivocado"
+   }
+  }
+ ]
+}

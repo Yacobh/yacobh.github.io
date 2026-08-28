@@ -85,12 +85,24 @@ Siete módulos (`basica`, `angulos`, `triangulos`, `circulo`, `areas`,
 
 ### Eje 4 — Probabilidad y estadística  ·  `topic: probabilidad`
 
-⚠️ **No existe.** La migración `046` abrió el check de `track` para admitirlo,
-pero **nadie creó los módulos**: cero módulos y cero ítems.
+Seis módulos, creados por `055` con su banda explícita desde el nacimiento
+(aprobados por el owner el 2026-08-28 sobre el temario PAES M1):
 
-**Hay que crear los módulos antes que los ítems, y su lista es una decisión de
-contenido del owner** — sale del temario DEMRE, no se inventa. Sin los módulos,
-`module_id` queda en null y el plan de estudio no puede recomendar nada.
+| módulo | banda explícita | ítems |
+|---|---|---|
+| `probabilidad/datos` | [−3,0, −1,6] | 17 |
+| `probabilidad/tendencia-central` | [−2,4, −1,0] | 17 |
+| `probabilidad/posicion` | [−1,6, −0,2] | 17 |
+| `probabilidad/dispersion` | [−0,8, +0,8] | 17 |
+| `probabilidad/azar` | [ 0,0, +1,8] | 16 |
+| `probabilidad/reglas` | [+1,2, +3,0] | 16 |
+
+⚠️ **Crear módulos nuevos cambia las bandas derivadas de todos los demás.**
+`default-bands` reparte los centros entre **todos** los módulos del producto: al
+pasar de 18 a 24, el paso baja de 0,28 a 0,21 logits y los 18 anteriores se
+corren hacia abajo (`geometria/pitagoras`, de `[1,95, 2,85]` a `[0,70, 1,60]`).
+Por eso `051` y `053` se aplican **antes** que `055`: con banda explícita, un
+módulo deja de depender del reparto.
 
 ## Orden de trabajo
 
@@ -98,7 +110,8 @@ contenido del owner** — sale del temario DEMRE, no se inventa. Sin los módulo
    banco previo aprovechable (`numbers_v1`, 178 ítems ya revisados en T-105).
 2. **Álgebra** — segundo eslabón de la cadena; `polinomios` hay que rehacerlo.
 3. **Geometría**.
-4. **Probabilidad** — bloqueada hasta que existan sus módulos.
+4. **Probabilidad** — desbloqueada: `055` crea sus seis módulos y `056` trae sus
+   primeros 100 ítems.
 
 ## Consolidación del banco de números
 

@@ -379,7 +379,32 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     `null` en silencio. Reaplicar no duplica y la reversión deja la base como estaba.
     ⚠️ `difficulty` es **hipótesis autoral**, no medición (R-17).
 
-57. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+57. `migrations/055_modulos_del_eje_de_probabilidad.sql` — ⏳ **escrita, SIN APLICAR**
+    (2026-08-28) · **crea los seis módulos del cuarto eje** con su `track`, su
+    `order_index` (310…360) y su banda explícita. Cierra [[../project-memory/BACKLOG]] T-119:
+    `046` había ampliado el check de `track` para admitir `probabilidad`, pero nadie había
+    creado los módulos y el eje tenía **cero módulos y cero ítems**. La lista de contenidos
+    la decidió el owner sobre el temario PAES M1, no se infirió del código.
+    ⚠️ **`051` y `053` van antes que esta:** pasar de 18 a 24 módulos del producto cambia las
+    bandas **derivadas** de todos los que no tengan explícita — medido, `geometria/pitagoras`
+    caería de `[1,95, 2,85]` a `[0,70, 1,60]`. Con `051` y `053` aplicadas, los 18 anteriores
+    tienen banda explícita y esta migración no mueve a nadie.
+
+58. `migrations/056_banco_del_eje_de_probabilidad.sql` — ⏳ **escrita, SIN APLICAR** (2026-08-28) ·
+    **100 ítems** del eje de probabilidad y estadística en los seis módulos, más **41 ideas
+    erróneas nuevas** — el catálogo más grande de las cuatro tandas, porque es el eje donde
+    más se confunden pares de conceptos (media/mediana/moda, excluyentes/independientes,
+    percentil/porcentaje de logro). **Aplicar después de `055`**: sin los módulos, el
+    `left join` dejaría los 100 ítems con `module_id` en null y en silencio.
+    Generada desde `contenido/items/probabilidad.json`, verificada con
+    `scripts/verificar_items.py` (claves 25/25/25/25, cobertura ≥6 por tramo) y **aplicada de
+    prueba contra un PostgreSQL 14 desechable** encadenando `055`→`056`: 100 ítems, 0 sin
+    módulo, 0 ideas huérfanas, los 100 dentro de la banda de su módulo, **los 100 con su texto
+    idéntico al del JSON** y **las 192 referencias a ideas erróneas resueltas una por una**.
+    Reaplicar no duplica y la reversión deja la base como estaba.
+    ⚠️ `difficulty` es **hipótesis autoral**, no medición (R-17).
+
+59. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del

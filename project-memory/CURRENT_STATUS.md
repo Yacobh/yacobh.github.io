@@ -1,8 +1,42 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-28** · Rama **`main`** · **`049` y `050` aplicadas** por el owner (números: bandas + 100 ítems); **`051`…`054` escritas y SIN APLICAR** (álgebra y geometría: bandas + 100 ítems cada eje). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
+**Fecha de corte: 2026-08-28** · Rama **`main`** · **`049` y `050` aplicadas** por el owner (números: bandas + 100 ítems); **`051`…`056` escritas y SIN APLICAR** (álgebra, geometría y probabilidad: bandas + 100 ítems cada eje). **Los cuatro ejes del temario tienen banco.** Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
+
+> ## 🆕 2026-08-28 (6ª pasada) — el cuarto eje existe, y crearlo movió a los otros
+>
+> **`055` y `056`, y con eso los cuatro ejes del temario tienen banco.** El eje de probabilidad
+> y estadística no tenía **nada**: `046` había abierto el check de `track` para admitirlo, pero
+> nadie creó los módulos (**T-119**). `055` crea los seis —lista aprobada por el owner sobre el
+> temario PAES M1, no inferida del código— con su banda explícita desde el nacimiento, y `056`
+> trae **100 ítems** con **41 ideas erróneas nuevas**, el catálogo más grande de las cuatro
+> tandas: es el eje donde más se confunden pares de conceptos (media/mediana/moda,
+> excluyentes/independientes, percentil/porcentaje de logro).
+>
+> ⭐ **Hallazgo con consecuencia de orden: crear módulos cambia las bandas de los demás.**
+> `bands/default-bands` reparte los centros entre **todos** los módulos del producto, así que
+> pasar de 18 a 24 achica el paso de 0,28 a 0,21 logits y corre hacia abajo a los 18 anteriores.
+> Medido: `geometria/pitagoras` pasaría de `[1,95, 2,85]` a `[0,70, 1,60]`, y el eje de geometría
+> entero quedaría bajo θ = 1,6. **Por eso `051` y `053` se aplican antes que `055`**: un módulo
+> con banda explícita deja de depender del reparto, y números ya está a salvo por `049`.
+>
+> **Verificado en las mismas cuatro capas** que geometría: el auditor de contenido (claves
+> 25/25/25/25, cobertura ≥6 por tramo); la revisión ítem a ítem; `055`→`056` contra un
+> **PostgreSQL 14 desechable**; y el control cruzado JSON ↔ base — **texto completo de los 100
+> ítems y las 192 referencias a ideas erróneas**, cero discrepancias, sin duplicar al reaplicar
+> y con reversión limpia.
+>
+> **Quince correcciones editoriales durante la revisión**, de dos familias: siete explicaciones
+> que decían «ese valor no corresponde a nada» en vez de nombrar el error del estudiante, y ocho
+> ítems donde la alternativa correcta era la más larga —un atajo para acertar sin leer, que es la
+> familia de R-35—. La correcta quedó siendo la más larga en 21 de 100, bajo el 25 % del azar.
+>
+> 🔜 **Falta la revisión pedagógica (T-124)** y una decisión de contenido que el agente no puede
+> tomar: **cuánta varianza y desviación estándar pide de verdad la M1**. El módulo `dispersion`
+> las trata a nivel de definición y de cálculo simple; si la M1 pide menos, sobran ítems, y si
+> pide más, faltan. **`055` y `056` sin aplicar.**
+>
 
 > ## 🆕 2026-08-28 (5ª pasada) — geometría, el primer eje que nace sin banco previo
 >
