@@ -63,8 +63,28 @@ def revisar_latex(texto, donde, campo, inf):
         inf.error(donde, f"{campo}: `\\\\` duplicado antes de letra "
                          f"(…{texto[max(0, m.start()-25):m.start()+12]}…). KaTeX no lo interpreta")
     # `$` de KaTeX sin cerrar: el resto del enunciado se renderiza como fórmula.
-    if texto.count("$") % 2 != 0:
-        inf.error(donde, f"{campo}: número impar de `$` — hay una fórmula sin cerrar")
+    #
+    # No cuenta los `$` **escapados**: dentro de una fórmula, `\$` es un signo
+    # peso literal, y en un banco de matemática financiera chilena aparece en
+    # casi todos los enunciados de precios ($\$20.000$). Contarlos como
+    # delimitadores marcaba como rotos 38 ítems correctos.
+    #
+    # Un `$` es delimitador si viene precedido por un número **par** de
+    # backslashes (cero incluido): `\$` es literal, `\\$` es un delimitador
+    # después de una barra escapada.
+    delimitadores = 0
+    for i, ch in enumerate(texto):
+        if ch != "$":
+            continue
+        barras = 0
+        j = i - 1
+        while j >= 0 and texto[j] == "\\":
+            barras += 1
+            j -= 1
+        if barras % 2 == 0:
+            delimitadores += 1
+    if delimitadores % 2 != 0:
+        inf.error(donde, f"{campo}: número impar de `$` sin escapar — hay una fórmula sin cerrar")
     if "$qm$" in texto:
         inf.error(donde, f"{campo}: contiene `$qm$`, que cerraría la cadena de la migración")
 
@@ -169,6 +189,18 @@ def revisar_tanda(datos, inf):
 
     for i, item in enumerate(items, start=1):
         revisar_item(item, i, slugs, inf)
+
+    # ── Ideas erróneas declaradas que ningún ítem usa ───────────────────────
+    # 027 dice que el catálogo no debe llenarse de entradas que nadie ocupa: es
+    # así como termina con duplicados de nombres distintos. Una entrada huérfana
+    # casi siempre significa que el ítem que iba a usarla cambió y quedó el
+    # residuo, que es exactamente lo que pasó al escribir la primera tanda.
+    usadas = {s for it in items for L in LETRAS
+              if (s := (it.get("misconceptions") or {}).get(L))}
+    for m in declaradas:
+        if m.get("slug") and m["slug"] not in usadas:
+            inf.error("misconceptions", f"{m['slug']!r} se declara y ningún ítem la usa. "
+                                        f"O falta el distractor que la expone, o sobra la entrada")
 
     # ── R-35: la clave no puede vivir en una sola letra ──────────────────────
     claves = Counter(it.get("correct") for it in items if it.get("correct") in LETRAS)

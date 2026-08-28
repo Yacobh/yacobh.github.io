@@ -1,8 +1,51 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-28** · Rama **`main`** · **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
+**Fecha de corte: 2026-08-28** · Rama **`main`** · **`049` y `050` escritas y SIN APLICAR** (bandas explícitas del eje de números + 100 ítems). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
+
+> ## 🆕 2026-08-28 (3ª pasada) — el eje de números tiene banco, y las bandas dejaron de mentir
+>
+> **Skill `banco-de-items` + migraciones `049` y `050`.** El owner pidió una skill para redactar
+> ítems y entregarlos como migración, para los cuatro ejes, empezando por números.
+>
+> **El flujo es JSON → verificador → generador → owner aplica.** El JSON es la fuente de verdad y
+> el `.sql` un artefacto: para corregir un ítem se edita el JSON y se regenera. El generador existe
+> porque el dollar-quoting, el orden de columnas y la idempotencia son mecánicos y fallan en
+> silencio; lo que sí es trabajo humano —el enunciado y los distractores— queda donde se revisa.
+>
+> **`verificar_items.py` es el sexto auditor y el primero que mira contenido.** Cada regla salió de
+> un defecto ya pagado: clave repartida (R-35), una sola correcta (T-105), las cuatro `error_*`,
+> LaTeX con escape simple (`047`), slug con formato (T-51), enunciados sin repetir y cobertura sin
+> huecos. **Verificado que falla**: se le inyectaron los siete defectos históricos y los detectó los
+> siete.
+>
+> ⭐ **El hallazgo que ordenó la tanda: las bandas derivadas eran incompatibles con la cadena por
+> eje.** `bands/default-bands` reparte los 18 módulos juntos, y eso mete **el eje de números entero
+> en [−2,85, −0,54]**. No es teórico: es exactamente por qué el diagnóstico de `enteros` del owner
+> paró en 8 preguntas por `:exhausted` con θ = 1,29. Escribir 100 ítems sobre esas bandas habría
+> reproducido el defecto a escala. `049` declara bandas **explícitas** que reparten los seis módulos
+> a lo largo de todo `[-3, 3]` (T-118, aprobado por el owner).
+>
+> **Consecuencia aceptada:** con cada eje cubriendo la escala completa, el θ de números y el de
+> geometría dejan de ser comparables. No es pérdida real —esa escala común siempre fue hipótesis
+> editorial— y las cohortes se arman con el θ de un solo eje.
+>
+> **`050`: 100 ítems** en los seis módulos, **47 ideas erróneas nuevas**, claves 26/25/25/24, y al
+> menos 6 ítems por tramo de 1,0 logit en toda la escala. Verificado en tres capas: el auditor, la
+> comprobación **numérica** de los 25 ítems con aritmética encima, y la aplicación real contra un
+> **PostgreSQL 14 desechable** con las columnas de `question-select-cols` (L-46) — 0 ítems sin
+> módulo, 0 ideas huérfanas, los 100 dentro de la banda de su módulo, y reaplicar no duplica.
+>
+> **Dos defectos del propio auditor, encontrados usándolo:** contaba como delimitador el `$`
+> escapado de `\$20.000`, marcando 38 ítems correctos como rotos (corregido y reverificado contra
+> una fórmula rota de verdad); y no detectaba ideas erróneas **huérfanas** —declaradas y sin usar—,
+> que es justo lo que `027` advierte. La regla se agregó a partir del hallazgo.
+>
+> 🔜 **Lo que falta y solo puede hacer el profesor (T-120):** que el distractor sea el error que los
+> estudiantes de verdad cometen, que la explicación no rete a quien acaba de equivocarse, y que la
+> `difficulty` tenga sentido pedagógico. Ningún script verifica eso. **`049` y `050` sin aplicar.**
+>
 
 > ## 🆕 2026-08-28 — el motor le regalaba un logit al estudiante que peor está
 >
