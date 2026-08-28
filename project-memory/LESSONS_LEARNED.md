@@ -1,6 +1,6 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
+Última actualización: **2026-08-28** — **L-52 y L-53 nuevas** (la explicación obvia de un sesgo puede ser falsa tres veces seguidas y solo la medición lo dice; un test que compara dos configuraciones puede estar midiendo la salvaguarda en vez de la configuración). · Antes: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
 ruta de login** — el gate legal no va donde está el formulario sino donde nace la cuenta; y
 **L-43**, si Google Cloud te pide datos tributarios para configurar OAuth, te desviaste de camino.
 Antes ese mismo día: **L-41**, una copia que nadie mira diverge — la pregunta útil
@@ -842,6 +842,48 @@ heredada no lo vuelva ruido que nadie corre.
 
 **El corolario incómodo:** un auditor con línea base **congela** la deuda, no la paga. Que el script
 esté en verde con 92 usos de color de fábrica en el embudo significa «no empeoró», no «está bien».
+
+### L-52 · La explicación obvia de un sesgo puede ser falsa, y serlo tres veces seguidas
+
+**2026-08-28, ADR-034.** Buscando por qué θ salía sesgado se probaron tres explicaciones, cada una
+razonable y cada una defendida por un documento o por la literatura. **Las tres eran falsas:**
+
+| Hipótesis | De dónde salía | Qué dijo la medición |
+|---|---|---|
+| El tope de paso de 0,4 frena a los fuertes | T-112 / X-10, con aritmética correcta | Quitarlo mueve θ **0,00–0,06 logits**: el tope no llega a apretar |
+| Hay que apuntar los ítems al corte de banda | Teoría de tests de clasificación | 78 % contra 79 %: **no ayudó** |
+| El agujero del banco entre −1 y 0 rompe el test | El histograma medido, que es alarmante | Rinde igual que un banco uniforme y denso |
+
+Lo que resultó ser la causa —el prior encogiendo contra un azar no modelado— no era la hipótesis
+más vistosa y **no se le ocurrió a nadie primero**: apareció al comparar configuraciones.
+
+**La aritmética de T-112 no estaba mal, estaba incompleta.** «Con paso 0,4 hacen falta ≥7 ítems para
+viajar de −1,0 a +1,5» es cierto sobre la *capacidad* del tope. Lo que faltaba era preguntar si el
+tope **llega a usarse**, y no llegaba. Una cota superior correcta no dice nada sobre lo que pasa.
+
+**La regla:** antes de arreglar un defecto numérico, medir la explicación. Cuesta una simulación —
+media hora— y acá evitó tres cambios inútiles, uno de los cuales (quitar el tope) habría sacado una
+salvaguarda **justo** cuando el arreglo real la volvía necesaria.
+
+**Y el corolario que da confianza:** la causa verdadera sobrevivió a cuatro simulaciones distintas,
+con banco uniforme y con banco real, con y sin tope. Esa insistencia es la única razón para creerle
+— no la elegancia de la explicación.
+
+### L-53 · Un test que compara dos configuraciones puede estar midiendo la salvaguarda
+
+**2026-08-28.** El primer test del prior configurable comparaba σ = 1 contra σ = 3 corriendo seis
+aciertos seguidos por la cadena real del estimador. Devolvía `1.4 == 1.4` y fallaba.
+
+No era un bug del código: **el tope de paso saturaba en las dos configuraciones**. Seis ítems × 0,4
+desde −1,0 dan 1,4 tanto si el MAP quedó en 1,5 como si quedó en 3,0. El test decía comparar priors
+y en realidad comparaba el tope contra sí mismo.
+
+Se partió en dos —el MAP sin tope por un lado, el tope por otro— porque son cosas distintas: el
+modelo y la salvaguarda que se le aplica encima al resultado.
+
+**La regla:** cuando un test que compara dos configuraciones da igualdad exacta, sospechar que hay
+un límite aguas abajo aplanando las dos ramas, antes de concluir que la configuración no tiene
+efecto. La igualdad *exacta* entre dos caminos numéricos distintos casi nunca es una coincidencia.
 
 ### L-51 · Una utilidad de Tailwind que no se genera falla en silencio
 

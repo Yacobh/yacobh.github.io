@@ -1,8 +1,61 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-24** · Rama **`main`** · **commiteado, sin pushear** — no está en producción hasta el `git push`
+**Fecha de corte: 2026-08-28** · Rama **`main`** · SESSION-037/038 **pusheadas** (`0a70d09`); lo de SESSION-039 está commiteado y **la migración `048` sigue sin aplicar**
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
+
+> ## 🆕 2026-08-28 — el motor le regalaba un logit al estudiante que peor está
+>
+> **ADR-034 / D-65.** El owner eligió atacar el sesgo de θ con una frase que ordenó la sesión: *«yo
+> quiero poder encontrar la falla del estudiante, sin eso todo lo demás es solo un producto
+> cosmético muy bonito»*. Antes de tocar nada se midió el motor simulando su cadena real sobre la
+> **distribución medida de `numbers_v1`** (178 ítems: 150 de ellos bajo θ = −1).
+>
+> **El defecto era grande y asimétrico.** Un estudiante en θ = −1,5 se reportaba en −0,5: **un logit
+> completo de regalo**, justo a quien el producto existe para ayudar. Y uno en θ = 2,0 perdía 0,40.
+> La causa eran **dos sesgos opuestos que se cancelaban por accidente**: el prior N(0,1) encoge hacia
+> 0, y el azar de una prueba de cuatro alternativas infla los aciertos sin que el modelo lo supiera.
+>
+> **Por eso el arreglo es uno solo y no dos.** Se midió que modelar el azar dejando σ = 1 **empeora
+> el motor**: en θ = 2,0 el sesgo pasa de −0,40 a −0,82 y la banda correcta de 20 % a 4 %. El azar
+> destapa el encogimiento que estaba tapando. Van juntos o no van.
+>
+> | θ real | sesgo v1 | sesgo v2 | banda v1 | banda v2 |
+> |---|---|---|---|---|
+> | −1,5 | +1,00 | **+0,31** | 80 % | **95 %** |
+> | −0,5 | +0,61 | **+0,16** | 42 % | **71 %** |
+> | 2,0 | −0,40 | **−0,24** | 18 % | **37 %** |
+>
+> ⭐ **Tres hipótesis se cayeron midiendo, y las tres eran la explicación obvia:** el tope de paso de
+> 0,4 **no llega a apretar** (quitarlo mueve entre 0,00 y 0,06 logits, así que la consecuencia
+> «grave» que T-112 le atribuía era falsa); **apuntar los ítems al corte de banda no ayudó** (78 %
+> contra 79 %), pese a ser lo que recomienda la teoría; y **el agujero del banco entre −1 y 0 no
+> explica nada** — con 12 preguntas bastan ~12 ítems bien ubicados y hay 11 sobre θ = 2. Lo que
+> quedó en pie sobrevivió a cuatro simulaciones distintas, y esa es la única razón para creerle.
+>
+> **Además, cada θ ahora dice con qué reglas se calculó** (`tests.engine_version`, backfill a 1).
+> Sin eso, el Δθ que promete G-4 mediría el cambio del motor y no el del estudiante. Y los dos
+> parámetros del modelo son **configurables por evaluación**, como pidió el owner: nada de números
+> del estimador hardcodeados.
+>
+> ⚠️ **Un riesgo que casi se despacha sin ver: R-39.** El cliente empezó a escribir una columna que
+> crea `048`, y acá las migraciones se aplican **a mano**. Si el bundle llega primero, PostgREST
+> rechaza el `insert` entero y **el diagnóstico completo del estudiante se pierde**. Mitigado con
+> reintento sin la columna, con test para el caso que no debe reintentarse. **La red no es permiso
+> para no aplicar la migración.**
+>
+> **Estado:** 181 tests / 2677 assertions / 0 failures, 5/5 auditores, build sin warnings.
+> **`048` sin aplicar** y **el motor nuevo no se ha probado en vivo contra Supabase.**
+>
+> 🔜 **Lo que queda dicho y no hecho:** el estudiante fuerte sigue con **37 %** de banda correcta
+> (T-117) — el techo ahí son 12 ítems, no el estimador —, y la parada por precisión sigue sin
+> dispararse y **con la aritmética peor** (T-111: la información por ítem cayó de 0,25 a ≈0,155).
+> El owner además planteó encadenar diagnósticos por eje —números primero, y con él como
+> prerequisito álgebra, geometría y estadística—, para lo que `test_configs` ya tiene la maquinaria
+> (`prerequisite_topic`); el freno no es código sino que **solo `numbers_v1` es un banco de verdad**:
+> `polinomios` tiene 18 de 20 ítems dentro de 0,045 logits y geometría y estadística no existen como
+> banco.
+>
 
 > ## 🆕 2026-08-24 — el diagnóstico dejó de tener dos sistemas de color, y el panel dejó de pisar el footer
 >

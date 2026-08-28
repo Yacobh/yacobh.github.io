@@ -1,6 +1,6 @@
 # RISKS
 
-Última actualización: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
+Última actualización: **2026-08-28** — **R-39 nuevo** (el bundle puede llegar a producción antes que la migración `048` y perder el diagnóstico completo de un estudiante; mitigado con reintento en el cliente) y **R-40 nuevo** (los θ de motor v1 y v2 no son comparables y nada impide compararlos). **R-38 empeoró a propósito**: con azar, el piso del SE sube de 0,577 a ≈0,73. · Antes: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
 de los 306 ítems; mitigado en el cliente por ADR-030, el dato sigue sesgado). ·
 Antes: **2026-08-17** — **R-33 nuevo** (la pantalla de Google nombra a `supabase.co`
 y no a la marca, visto en vivo al verificar T-92; toca la confianza justo en el registro) y **R-32
@@ -862,8 +862,70 @@ escapes (peso 0.0, ADR-029) y respuestas descartadas por esfuerzo (ADR-014), peo
 alarga el test; o dejar la regla como está y corregir lo que se promete. Son decisiones de producto,
 no de código.
 
+**⚠️ Actualización 2026-08-28 (ADR-034): empeoró, y a propósito.** Al meter el azar al modelo
+(`c = 0.25`), la información máxima por ítem cae de `0.25` a **≈0.155**, porque parte de los
+aciertos ya no distinguen a quien sabe de quien adivinó:
+
+```
+I(θ) ≤ 12 × 0.155 = 1.86   →   SE(θ) ≥ 0.73
+```
+
+O sea que el piso subió de 0.577 a **0.73** contra el mismo umbral de 0.35, y los «~33 ítems» pasan
+a ser **~40**. Fue una consecuencia aceptada: corregir el sesgo de θ vale más que acercarse a un
+umbral que igual no se alcanzaba. Queda fijado por
+`progress_test/r38-la-parada-por-precision-sigue-sin-dispararse`, que además comprueba que **ni 30
+ítems** bastan.
+
+Se midió también la salida de fondo: **parar por certeza de banda** da 83 % de banda correcta contra
+79 %, a cambio de 1,5 ítems. Y **apuntar los ítems al corte de banda no ayudó** (78 % contra 79 %),
+pese a ser lo que recomienda la teoría de tests de clasificación.
+
 - **Severidad:** 🔶 media hoy, **alta** cuando la afirmación psicométrica entre a un pitch (G-1).
-- **Relacionado:** T-111, X-10, ADR-004, R-17, G-2 en [[TESIS_DE_CRECIMIENTO]].
+- **Relacionado:** T-111, X-10, ADR-004, ADR-034, R-17, G-2 en [[TESIS_DE_CRECIMIENTO]].
+
+### R-39 · El bundle puede llegar a producción antes que su migración, y el test del estudiante se pierde
+
+**Abierto 2026-08-28** con ADR-034. **Severidad: alta si ocurre, mitigado.**
+
+Las migraciones de este proyecto **se aplican a mano** en el SQL Editor (§9 de `CLAUDE.md`), y el
+historial dice que la ventana entre desplegar y aplicar es real: `045` estuvo commiteada y sin
+aplicar varios días, y el primer intento de `047` **falló**. Ahora el cliente escribe
+`tests.engine_version`, una columna que crea `048`.
+
+**El daño no sería cosmético.** PostgREST rechaza el `insert` **entero** si no conoce una columna, así
+que un estudiante que termina su diagnóstico de 12 preguntas lo perdería completo, sin que nadie se
+entere salvo por la consola.
+
+**Mitigación implementada, no prometida:** el guardado detecta ese error concreto
+(`universo.motor/falta-la-columna-de-version?`) y **reintenta sin la columna**, avisando por consola.
+Un θ sin versión se puede reconstruir por fecha; una fila que nunca se guardó, no. Tiene test para
+que la red no se apague sola, incluido el caso que **no** debe reintentarse (un fallo de RLS).
+
+**La red no es un permiso para no aplicar la migración:** mientras `048` no esté, todos los tests
+nuevos entran sin versión y R-40 se agrava.
+
+- **Severidad:** 🔴 alta si ocurre · probabilidad media · **mitigado en el cliente**
+- **Relacionado:** ADR-034, ADR-003, R-40, `supabase/migrations/048_*.sql`, [[LESSONS_LEARNED]]
+
+### R-40 · Los θ de v1 y v2 no son comparables, y nada impide compararlos
+
+**Abierto 2026-08-28** con ADR-034. **Severidad: media hoy, alta cuando G-4 entregue Δθ.**
+
+El motor cambió: el mismo estudiante con las mismas respuestas obtiene hoy un θ distinto al de ayer
+—en θ = −1,5, unos 0,7 logits menos—. `tests.engine_version` hace **posible** distinguirlos, pero no
+lo hace **automático**: cualquier consulta, gráfico o cálculo de Δθ que agrupe por estudiante y
+ordene por fecha va a mezclar las dos escalas sin avisar.
+
+**Dónde muerde primero:** el tablero ya dibuja Δθ desde el primer intento (D-60). Un estudiante con
+un intento de julio y otro de septiembre va a ver un «retroceso» que es el cambio de motor. Con la
+base actual —tests del owner depurando, R-37— no hay nadie a quien engañar todavía; el día que haya
+estudiantes reales con historial, sí.
+
+**Lo que NO se hizo, a propósito:** recalcular los θ históricos. Sería sobrescribir evidencia, y G-4
+dice que el histórico de perfiles no se toca.
+
+- **Severidad:** 🔶 media hoy, **alta** con G-4 en producción
+- **Relacionado:** ADR-034, D-60, G-4 en [[TESIS_DE_CRECIMIENTO]], R-37, T-116
 
 ### R-36 · Una sección sin fondo propio hereda el de la página, y ningún auditor lo ve
 

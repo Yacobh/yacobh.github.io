@@ -144,6 +144,7 @@ Navegador (SPA ClojureScript/re-frame)
       └── lógica pura: profile · slots.logic · components.tetha · topics
                        irt.progress · irt.effort · irt.fluency (eje λ, ADR-019)
                        misconceptions (catálogo de 027, T-57) · reintento (ADR-032)
+                       motor (versión y parámetros del estimador, ADR-034)
       │
       ▼  @supabase/supabase-js (JWT del usuario)
 Supabase PostgreSQL  ── RLS es el único límite de seguridad ──
@@ -166,7 +167,8 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
 - **Lógica pura primero.** Toda regla de negocio nueva (IRT, bandas, filtros de cupos, perfil) va
   a un namespace puro y testeable (`universo.profile`, `universo.slots.logic`,
   `universo.irt.progress`, `universo.irt.effort`, `universo.irt.fluency`, `universo.topics`,
-  `universo.router`, `universo.components.tetha`, `universo.misconceptions`, `universo.reintento`),
+  `universo.router`, `universo.components.tetha`, `universo.misconceptions`, `universo.reintento`,
+  `universo.motor`),
   **no** dentro de un `reg-event-fx`.
 - **Navegación:** si agregas una sección, agrégala al `case` de `home/main-content` **y** a la tabla
   de `universo.router` (y a `protected-sections` si es privada). La sección es el estado
@@ -190,6 +192,11 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
   base por archivo: la deuda vieja no molesta, la nueva no pasa. Las piezas del panel (`.control`, `.alojamiento`, `.led`, `.placa`,
   `.visor`, `.grabado`) se reutilizan en vez de rehacerse con utilidades sueltas (ADR-023), y el
   fondo de página es `.fondo-graticule` (ADR-031).
+- **Si tocas el estimador de θ, sube `universo.motor/version`** (ADR-034). Modelo, prior y regla de
+  parada definen la versión: un θ guardado solo significa algo junto a las reglas que lo produjeron,
+  y G-4 promete entregar Δθ. Los parámetros (`c` del azar, σ del prior) **no se hardcodean**: viven
+  en `test_configs` y viajan en `:stop-config`, como `max_items`. Y ojo con el orden — modelar el
+  azar sin soltar el prior **es una regresión medida**, no una mejora parcial.
 - **El diagnóstico son dos columnas, no un modal** (ADR-032 · ADR-033): `:questions` y `:feedback`
   renderizan el mismo `diagnostic-test/test-stage`; la pregunta **no se desmonta**, se congela, y el
   riel de la derecha **existe siempre**, en el flujo y con `sticky` — nada `fixed`, que es lo que
@@ -252,7 +259,7 @@ python3 scripts/audit_paleta.py       # color de fábrica fuera de la paleta (AD
 - Toda función pura nueva o modificada necesita test en `test/` (`*_test.cljs`, ns terminado en
   `-test`; el build `:test` los descubre con `:ns-regexp "-test$"`).
 - `clj -M:test` debe cerrar en **0 failures / 0 errors** antes de commitear. Estado de referencia
-  al **2026-08-23**: **169 tests / 2607 assertions / 0 failures**.
+  al **2026-08-28**: **181 tests / 2677 assertions / 0 failures**.
 - Reglas espejo de la base de datos (ej. confirmación de cupo) se testean en el namespace puro
   (`universo.slots.logic`) **y** se documenta que la fuente de verdad es el trigger SQL.
 - Los warnings `:infer-warning` de `events/auth.cljs` son conocidos y no rompen el build

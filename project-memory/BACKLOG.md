@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
+Última actualización: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
 verificado en producción, con D-21 respetado en las dos rutas — **ADR-028 / D-56**. Abre **T-95**
 (persistir el consentimiento) y **R-33** (la pantalla de Google nombra a `supabase.co`)). Antes: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
 G-1…G-5, tareas T-76…T-89), abierta por
@@ -1121,7 +1121,19 @@ paran por `:max-items` vs `:exhausted`, qué SE final tienen, y a qué distancia
 **Terminado cuando:** el umbral es alcanzable **o** el copy dice lo que el test hace, y la decisión
 está en un ADR.
 
-### T-112 · Poner al día el ADR del estimador de θ — **P2** · `abierto`
+**2026-08-28 — sigue abierta y la aritmética empeoró.** ADR-034 metió el azar al modelo, así que la
+información máxima por ítem bajó de 0,25 a **≈0,155**: el piso del SE con 12 ítems pasó de 0,577 a
+**≈0,73**, contra el mismo umbral de 0,35. Hay un test que lo deja clavado
+(`progress_test/r38-la-parada-por-precision-sigue-sin-dispararse`), incluido que **ni 30 ítems**
+alcanzan.
+
+Se midió además la alternativa de fondo: **parar por certeza de banda** en vez de por SE da 83 % de
+banda correcta contra 79 %, a cambio de 1,5 ítems más. Real pero modesto — y **apuntar los ítems al
+corte de banda no ayudó** (78 % contra 79 %), que era la recomendación teórica obvia. El copy sigue
+siendo el arreglo más barato y más honesto: `landing.cljs:40` dice «la estimación de tu nivel es
+precisa con muchas menos preguntas».
+
+### T-112 · Poner al día el ADR del estimador de θ — **P2** · `hecho` (2026-08-28)
 
 ADR-004 describe una iteración de Newton-Raphson por respuesta y θ inicial 0.0. El código itera hasta
 convergencia y arranca en `test_configs.initial_theta` (−1.0 por defecto). Ver [[OPEN_QUESTIONS]]
@@ -1139,6 +1151,16 @@ a la banda y a Δθ (G-4).
 **Terminado cuando:** el ADR describe lo que corre, y el documento con el que se le explica el método
 a un colegio es cierto.
 
+**Cerrada 2026-08-28 por [[../adr/ADR-034-azar-fijo-prior-suelto-y-version-del-motor]]**, que
+documenta el estimador real (converge, arranca en `initial_theta`, reporta el valor capado).
+
+⚠️ **Una de las dos consecuencias que esta tarea daba por ciertas resultó falsa al medirla.** «Con
+paso 0.4 y arranque en −1.0 hacen falta ≥7 ítems para llegar a θ = 1.5» es correcto sobre la
+*capacidad* del tope, pero el tope **no llega a apretar**: quitarlo mueve θ entre 0,00 y 0,06
+logits, porque el MAP se movía despacio por el prior, no por el tope. Por eso **no** se adoptó la
+idea de reportar el MAP sin capar: el capado y el convergido casi no se distinguen, y el tope pasó a
+ser una salvaguarda **más** necesaria al soltar el prior. El sesgo real venía de otro lado (D-65).
+
 ### T-113 · Rol `editor` / `profesor` para el banco — **P2** · `abierto`
 
 Hoy `profiles.role ∈ {user, admin}` y **todas** las policies dicen `is_admin()`. ADR-032 dejó la
@@ -1153,7 +1175,7 @@ vivo por una sub de capacidad.
 **Relacionado:** T-79 (rol `profesor` para el panel docente de G-1), que es un rol distinto y con
 otro alcance: mirar, no editar.
 
-### T-114 · Evaluar 1PL con azar fijo (`c = 0.25`) — **P2** · `abierto`
+### T-114 · Evaluar 1PL con azar fijo (`c = 0.25`) — **P2** · `hecho` (2026-08-28)
 
 Con cuatro alternativas, un estudiante muy por debajo del ítem acierta ~25 % de las veces, y bajo 1PL
 puro ese acierto **empuja θ hacia arriba como si fuera evidencia plena**. El escape (ADR-029) reduce
@@ -1176,6 +1198,49 @@ miran juntas o se rompe la experiencia sin que nadie lo note (ADR-004 §Seguimie
 
 **Terminado cuando:** hay una medición sobre los tests ya rendidos que dice cuánto se mueve θ con y
 sin `c`, y una decisión en un ADR.
+
+**Cerrada 2026-08-28, implementada en D-65 / ADR-034.** La medición no se hizo sobre los tests ya
+rendidos —son corridas del owner depurando, no estudiantes (R-37)— sino **simulando el motor real
+sobre la distribución medida de `numbers_v1`**, que es más informativo y no espera a G-2.
+
+**El hallazgo que cambió el alcance:** `c` solo **no se puede despachar**. Quita el sesgo hacia
+arriba y destapa el del prior, que lo estaba tapando por accidente — en θ = 2,0 el sesgo empeora de
+−0,40 a −0,82 y la banda correcta cae de 20 % a 4 %. Por eso ADR-034 mueve `c` **y** el prior en el
+mismo commit. Resultado: en θ = −1,5 el sesgo baja de +1,00 a +0,31.
+
+**El acoplamiento con T-111 se confirmó y es peor de lo anotado:** con `c = 0,25` la información
+máxima por ítem cae de 0,25 a **≈0,155**, así que 12 ítems no bajan el SE de ≈0,73.
+
+### T-116 · Recalibrar los cortes de fluidez contra el motor v2 — **P2** · `abierto`
+
+Los umbrales de λ (`fluency_fluida_max`, `fluency_media_max`, migración `041`) se fijaron mirando
+perfiles construidos con **θ del motor v1**, que sobreestimaba a los débiles en ~1 logit (D-65). El
+cuadrante θ×λ de «Mi plan» cruza los dos ejes, así que un θ corregido mueve a gente de cuadrante sin
+que λ haya cambiado.
+
+No es urgente —los umbrales de λ ya estaban sin calibrar ([[RISKS]] R-24)— pero deja de ser cierto
+que el único eje sin calibrar sea λ: ahora además el eje con el que se cruzó cambió de escala.
+
+**Terminado cuando:** o se recalculan los cortes con θ de v2, o queda escrito en ADR-019 que el
+cuadrante mezcla dos escalas y cuál es el error que eso introduce.
+
+### T-117 · La banda del estudiante fuerte sigue en 37 % — **P1** · `abierto`
+
+ADR-034 subió la banda correcta en θ = 2,0 de 18 % a 37 %. Es el doble y sigue siendo malo: **dos de
+cada tres estudiantes avanzados quedan en la banda equivocada**, y la banda decide el cupo, o sea
+con quién estudian.
+
+El techo ahí no es el estimador sino **12 ítems**: medido, 20 ítems dan 70 % de banda correcta y 30
+dan 79 %. Las tres salidas, que hay que elegir con el owner:
+
+1. **Alargar el diagnóstico** (choca con el objetivo de los 20 minutos).
+2. **Mover los cortes** de banda a donde la población sea delgada — ojo, medido: con 3 bandas mal
+   puestas `intermedio` sube a 85 % pero `basico` cae a 41 %. **El lugar del corte pesa más que la
+   cantidad.**
+3. **Encadenar diagnósticos por eje** (la cadena números → álgebra/geometría/estadística que pidió
+   el owner el 2026-08-28), donde cada eje aporta sus propios ítems.
+
+**Relacionado:** T-111 (misma raíz: 12 ítems), y el diseño de la cadena de ejes.
 
 ### T-109 · Borrar `src/universo/animations.cljs` (código muerto) — **P3** · `abierto`
 
@@ -3192,8 +3257,8 @@ de negocio, no técnica.
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50, **T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-88, T-90, T-91, T-93, T-110** |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92, T-111** |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86, T-95, T-112, T-113, T-114, T-115** |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92, T-111, T-117** |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86, T-95, T-113, T-115, T-116** |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
 > ⚠️ **Esta tabla está incompleta y se detectó el 2026-08-18** (comprobado por script, no a ojo):

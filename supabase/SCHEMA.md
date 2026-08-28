@@ -312,7 +312,17 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     Corregida y re-verificada contra un PostgreSQL desechable con las columnas reales; **no toca los
     bancos de cuántica**, el `where` filtra por topic.
 
-50. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+50. `migrations/048_version_del_motor_y_parametros_del_modelo.sql` — ⏳ **escrita, SIN APLICAR**
+    (2026-08-28) · agrega `tests.engine_version` (con backfill a 1: las filas viejas se rindieron
+    con el motor v1, así que es escribir un dato que siempre fue verdad, no sobrescribir histórico)
+    y `test_configs.prior_sd` / `guessing_c`, los dos parámetros del estimador que hasta ahora
+    estaban fijos en el código ([[../adr/ADR-034-azar-fijo-prior-suelto-y-version-del-motor]]).
+    Puramente aditiva. ⚠️ **Aplicarla antes de que el bundle llegue a producción**: sin la columna,
+    PostgREST rechaza el `insert` entero y **el diagnóstico completo del estudiante se pierde**
+    ([[../project-memory/RISKS]] R-39). El cliente reintenta sin la columna como red, pero entonces
+    los tests entran sin versión y R-40 se agrava. Verificación al pie de la migración.
+
+51. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
