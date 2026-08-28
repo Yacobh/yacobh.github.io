@@ -1,8 +1,44 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-28** · Rama **`main`** · **`049` y `050` aplicadas** por el owner (números: bandas + 100 ítems); **`051` y `052` escritas y SIN APLICAR** (álgebra: bandas + 100 ítems). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
+**Fecha de corte: 2026-08-28** · Rama **`main`** · **`049` y `050` aplicadas** por el owner (números: bandas + 100 ítems); **`051`…`054` escritas y SIN APLICAR** (álgebra y geometría: bandas + 100 ítems cada eje). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
+
+> ## 🆕 2026-08-28 (5ª pasada) — geometría, el primer eje que nace sin banco previo
+>
+> **`053` y `054`, tercera vuelta de la misma cadena.** Siete módulos repartidos por toda la escala
+> (`053`) y **100 ítems** con **33 ideas erróneas nuevas** (`054`), claves 25/26/24/25 y al menos 6
+> ítems por tramo de 1,0 logit.
+>
+> ⭐ **Es el primer eje que se escribe sin banco previo.** En números y en álgebra había ítems que
+> el nuevo banco ampliaba o reemplazaba; geometría **no tenía ningún `topic` identificable** en
+> `questions`, así que acá no hay nada que retirar ni que convivir. El defecto de bandas también
+> aparece invertido: sin `053`, las bandas derivadas dejan el eje entero **por encima de θ = 0,26**
+> y el estudiante que todavía no llega ahí no encuentra ningún ítem lo bastante fácil — números
+> fallaba por el techo, geometría falla por el piso.
+>
+> **Verificado en cuatro capas:**
+>
+> - el auditor de contenido (claves repartidas, cobertura ≥6 por tramo, LaTeX con escape simple);
+> - **los 100 enunciados revisados uno por uno** contra su clave: conversiones de unidad, ángulos,
+>   desigualdad triangular, áreas y volúmenes, y los ternos pitagóricos;
+> - la aplicación real contra un **PostgreSQL 14 desechable** con las columnas reales de
+>   `questions`/`modules`/`misconceptions`;
+> - el control cruzado que SESSION-019 dejó como lección: **las 175 referencias a ideas erróneas
+>   comparadas una por una** contra el JSON, porque el `left join` por slug pone `null` en silencio.
+>   También se comparó **el texto completo de los 100 ítems** JSON ↔ base, que es el control del
+>   dollar-quoting con LaTeX. Cero discrepancias, reaplicar no duplica, y la reversión deja la base
+>   como estaba.
+>
+> **Seis correcciones editoriales durante la revisión**, todas por la regla de que un distractor
+> tiene que nombrar un error y no decir «esto no corresponde a nada»: el distractor de un ítem
+> contradecía su propio enunciado (dos rectángulos de igual perímetro), cuatro explicaciones
+> nombraban el error a medias o quedaban truncadas, y en un ítem la alternativa correcta era la más
+> larga con holgura, que es la familia de atajos de R-35.
+>
+> 🔜 **Falta lo mismo que en los otros dos ejes y solo lo puede hacer el profesor (T-123):** que el
+> distractor sea el error que los estudiantes de verdad cometen. **`053` y `054` sin aplicar.**
+>
 
 > ## 🆕 2026-08-28 (4ª pasada) — álgebra tiene banco, y `polinomios` tiene reemplazo
 >

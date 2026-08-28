@@ -359,7 +359,27 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     esos 20 ítems de circulación es decisión de contenido del owner ([[../project-memory/BACKLOG]]
     T-122).
 
-55. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+55. `migrations/053_bandas_explicitas_del_eje_de_geometria.sql` — ⏳ **escrita, SIN APLICAR**
+    (2026-08-28) · lo mismo que `049` y `051`, para los siete módulos de geometría.
+    **Precondición de `054`**: sin ella las bandas derivadas dejan el eje entero **por encima de
+    θ = 0,26**, o sea el defecto de números pero por el otro extremo — un estudiante que todavía no
+    llega ahí no encuentra ningún ítem lo bastante fácil. Reversible poniendo las dos columnas en
+    `null`.
+
+56. `migrations/054_banco_del_eje_de_geometria.sql` — ⏳ **escrita, SIN APLICAR** (2026-08-28) ·
+    **100 ítems** del eje de geometría en los siete módulos, más **33 ideas erróneas nuevas**.
+    **Aplicar después de `053`.** Es el primer eje que se escribe **sin banco previo**: geometría
+    no tenía ningún `topic` identificable en `questions`, así que no reemplaza ni compite con nada.
+    Generada desde `contenido/items/geometria.json`, verificada con `scripts/verificar_items.py`
+    (claves 25/26/24/25, cobertura ≥6 por tramo de 1,0 logit) y **aplicada de prueba contra un
+    PostgreSQL 14 desechable** con las columnas reales: 100 ítems, 0 sin módulo, 0 ideas huérfanas,
+    los 100 dentro de la banda de su módulo, **los 100 con su texto idéntico al del JSON** (control
+    del dollar-quoting con LaTeX) y **las 175 referencias a ideas erróneas resueltas una por una**
+    contra el JSON — que es el modo de fallo de SESSION-019, donde el `left join` por slug puso
+    `null` en silencio. Reaplicar no duplica y la reversión deja la base como estaba.
+    ⚠️ `difficulty` es **hipótesis autoral**, no medición (R-17).
+
+57. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del

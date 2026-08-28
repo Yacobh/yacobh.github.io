@@ -1,0 +1,2714 @@
+{
+ "topic": "geometria",
+ "migracion_archivo": "054_banco_del_eje_de_geometria.sql",
+ "migracion_titulo": "Banco del eje de geometría — primera tanda",
+ "migracion_notas": "100 ítems repartidos en los siete módulos de geometría, cubriendo toda la escala\n[-3, 3] con al menos 6 ítems por tramo de 1,0 logit.\n\nREQUIERE la migración 053 aplicada (bandas explícitas del eje de geometría). Sin\nella, las bandas derivadas dejan el eje entero POR ENCIMA de θ = 0,26 y un\nestudiante que todavía no llega ahí no encuentra ningún ítem lo bastante fácil.\nEs el mismo defecto que 049 corrigió para números, por el otro extremo.\n\nTercer eje construido con la skill `banco-de-items`. Es el primero que se escribe\nsin banco previo: geometría no tenía ningún topic identificable en `questions`.\n\n`difficulty` es una HIPÓTESIS EDITORIAL, no una medición (R-17).",
+ "cobertura_objetivo": {
+  "min": -3.0,
+  "max": 3.0,
+  "ancho_tramo": 1.0,
+  "min_por_tramo": 6
+ },
+ "misconceptions": [
+  {
+   "slug": "geometria/confunde-el-factor-entre-unidades",
+   "name": "Usa el factor de conversión equivocado entre unidades de longitud",
+   "description": "Usar cuando multiplica o divide por 10 donde correspondía 100 o 1.000. NO usar si la operación va en el sentido contrario: para eso está geometria/convierte-en-el-sentido-contrario.",
+   "module_slug": "geometria/basica"
+  },
+  {
+   "slug": "geometria/convierte-en-el-sentido-contrario",
+   "name": "Multiplica donde había que dividir al cambiar de unidad",
+   "description": "Usar cuando el resultado es absurdamente grande o chico: pasar a una unidad mayor da un número menor, y al revés.",
+   "module_slug": "geometria/basica"
+  },
+  {
+   "slug": "geometria/clasifica-el-angulo-por-apariencia",
+   "name": "Clasifica un ángulo sin compararlo con 90° y 180°",
+   "description": "Usar cuando llama obtuso a uno de 45° o agudo a uno de 120°. Los cortes son 90° (recto) y 180° (extendido).",
+   "module_slug": "geometria/basica"
+  },
+  {
+   "slug": "geometria/confunde-paralelas-con-perpendiculares",
+   "name": "Intercambia rectas paralelas con perpendiculares",
+   "description": "Usar cuando llama paralelas a las que se cortan en ángulo recto, o perpendiculares a las que no se cortan nunca.",
+   "module_slug": "geometria/basica"
+  },
+  {
+   "slug": "geometria/coordenadas-invertidas",
+   "name": "Lee el par ordenado al revés",
+   "description": "Usar cuando toma la primera coordenada como vertical. En $(x, y)$ la primera es horizontal.",
+   "module_slug": "geometria/basica"
+  },
+  {
+   "slug": "geometria/perimetro-cuenta-mal-los-lados",
+   "name": "Suma mal la cantidad de lados al calcular el perímetro",
+   "description": "Usar cuando suma solo dos lados de un rectángulo, o multiplica por el número de lados equivocado. El perímetro recorre el contorno completo.",
+   "module_slug": "geometria/basica"
+  },
+  {
+   "slug": "angulos/confunde-complemento-con-suplemento",
+   "name": "Intercambia complementario (90°) con suplementario (180°)",
+   "description": "Usar cuando resta de 180 donde correspondía 90, o al revés. Es el error más frecuente del módulo.",
+   "module_slug": "geometria/angulos"
+  },
+  {
+   "slug": "angulos/opuestos-por-el-vertice-como-suplementarios",
+   "name": "Cree que los ángulos opuestos por el vértice suman 180°",
+   "description": "Usar cuando los trata como adyacentes. Los opuestos por el vértice son **iguales**; los adyacentes son los que suman 180°.",
+   "module_slug": "geometria/angulos"
+  },
+  {
+   "slug": "angulos/en-paralelas-todos-los-angulos-son-iguales",
+   "name": "Cree que en dos paralelas cortadas por una transversal todos los ángulos son iguales",
+   "description": "Usar cuando aplica igualdad donde correspondía suplementariedad. Se forman solo dos medidas distintas, y entre ellas suman 180°.",
+   "module_slug": "geometria/angulos"
+  },
+  {
+   "slug": "triangulos/suma-de-angulos-distinta-de-180",
+   "name": "Usa un total distinto de 180° para los ángulos interiores",
+   "description": "Usar cuando reparte 90°, 360° o cualquier otro total entre los tres ángulos de un triángulo.",
+   "module_slug": "geometria/triangulos"
+  },
+  {
+   "slug": "triangulos/confunde-clasificacion-por-lados-y-angulos",
+   "name": "Mezcla la clasificación por lados con la clasificación por ángulos",
+   "description": "Usar cuando llama «equilátero» a un triángulo rectángulo, o «isósceles» a uno por tener un ángulo obtuso. Son dos criterios independientes.",
+   "module_slug": "geometria/triangulos"
+  },
+  {
+   "slug": "triangulos/ignora-la-desigualdad-triangular",
+   "name": "Acepta como triángulo tres longitudes que no cierran",
+   "description": "Usar cuando no comprueba que la suma de dos lados supere al tercero. Con 2, 3 y 6 los dos lados cortos no alcanzan a juntarse.",
+   "module_slug": "geometria/triangulos"
+  },
+  {
+   "slug": "triangulos/angulo-exterior-mal-relacionado",
+   "name": "Relaciona el ángulo exterior con el interior equivocado",
+   "description": "Usar cuando lo iguala a un solo interior lejano, o al adyacente. El exterior es igual a la **suma** de los dos interiores no adyacentes.",
+   "module_slug": "geometria/triangulos"
+  },
+  {
+   "slug": "triangulos/semejanza-como-congruencia",
+   "name": "Exige lados iguales para que dos triángulos sean semejantes",
+   "description": "Usar cuando confunde semejanza con congruencia. Semejantes tienen los ángulos iguales y los lados **proporcionales**, no iguales.",
+   "module_slug": "geometria/triangulos"
+  },
+  {
+   "slug": "circulo/confunde-radio-con-diametro",
+   "name": "Usa el diámetro donde correspondía el radio, o al revés",
+   "description": "Usar cuando el resultado sale multiplicado o dividido por 2 (o por 4 en áreas) respecto del correcto.",
+   "module_slug": "geometria/circulo"
+  },
+  {
+   "slug": "circulo/confunde-area-con-perimetro",
+   "name": "Aplica la fórmula del perímetro donde se pedía el área",
+   "description": "Usar cuando entrega $2\\pi r$ para un área o $\\pi r^2$ para un contorno. Una se mide en unidades y la otra en unidades cuadradas.",
+   "module_slug": "geometria/circulo"
+  },
+  {
+   "slug": "circulo/olvida-elevar-el-radio",
+   "name": "Calcula el área sin elevar el radio al cuadrado",
+   "description": "Usar cuando entrega $\\pi r$ en vez de $\\pi r^2$.",
+   "module_slug": "geometria/circulo"
+  },
+  {
+   "slug": "circulo/escala-lineal-en-el-area",
+   "name": "Escala el área con el mismo factor que el radio",
+   "description": "Usar cuando al duplicar el radio dice que el área se duplica. El área crece con el **cuadrado** del factor.",
+   "module_slug": "geometria/circulo"
+  },
+  {
+   "slug": "areas/confunde-area-con-perimetro",
+   "name": "Suma los lados donde había que multiplicarlos, o al revés",
+   "description": "Usar cuando entrega un perímetro para un área o viceversa. El área cubre la superficie y se mide en unidades cuadradas; el perímetro recorre el contorno.",
+   "module_slug": "geometria/areas"
+  },
+  {
+   "slug": "areas/olvida-dividir-por-dos-en-el-triangulo",
+   "name": "Calcula el área del triángulo sin dividir por 2",
+   "description": "Usar cuando entrega $b \\cdot h$ en vez de $\\frac{b \\cdot h}{2}$. El triángulo es la mitad del paralelogramo de igual base y altura.",
+   "module_slug": "geometria/areas"
+  },
+  {
+   "slug": "areas/opera-con-unidades-distintas",
+   "name": "Multiplica o suma medidas sin llevarlas a la misma unidad",
+   "description": "Usar cuando mezcla metros con centímetros en un mismo cálculo. Antes de operar hay que igualar las unidades.",
+   "module_slug": "geometria/areas"
+  },
+  {
+   "slug": "areas/escala-lineal-en-el-area",
+   "name": "Escala el área con el mismo factor que el lado",
+   "description": "Usar cuando al duplicar los lados dice que el área se duplica. El área crece con el cuadrado del factor.",
+   "module_slug": "geometria/areas"
+  },
+  {
+   "slug": "areas/mismo-perimetro-misma-area",
+   "name": "Cree que dos figuras con igual perímetro tienen igual área",
+   "description": "Usar cuando concluye una cosa de la otra. Un rectángulo de 1×9 y uno de 3×7 tienen el mismo perímetro y áreas muy distintas.",
+   "module_slug": "geometria/areas"
+  },
+  {
+   "slug": "volumenes/confunde-volumen-con-area",
+   "name": "Usa una fórmula de área donde se pedía volumen",
+   "description": "Usar cuando el resultado corresponde a una superficie. El volumen tiene tres dimensiones y se mide en unidades cúbicas.",
+   "module_slug": "geometria/volumenes"
+  },
+  {
+   "slug": "volumenes/escala-lineal-en-el-volumen",
+   "name": "Escala el volumen con el mismo factor que la arista",
+   "description": "Usar cuando al duplicar la arista dice que el volumen se duplica o se cuadruplica. Crece con el **cubo** del factor.",
+   "module_slug": "geometria/volumenes"
+  },
+  {
+   "slug": "volumenes/confunde-litros-con-metros-cubicos",
+   "name": "Equivoca el factor entre unidades de capacidad y de volumen",
+   "description": "Usar cuando falla la conversión entre cm³, litros y m³. Los factores son 1 L = 1.000 cm³ y 1 m³ = 1.000 L.",
+   "module_slug": "geometria/volumenes"
+  },
+  {
+   "slug": "volumenes/olvida-el-area-de-la-base",
+   "name": "Multiplica dimensiones sueltas en vez del área de la base por la altura",
+   "description": "Usar cuando en un prisma o cilindro no calcula primero el área de la base, o se salta el factor que le corresponde.",
+   "module_slug": "geometria/volumenes"
+  },
+  {
+   "slug": "pitagoras/aplica-el-teorema-en-triangulo-no-rectangulo",
+   "name": "Usa el teorema sin comprobar que el triángulo sea rectángulo",
+   "description": "Usar cuando aplica $a^2+b^2=c^2$ a un triángulo cualquiera. El teorema vale solo si hay un ángulo recto.",
+   "module_slug": "geometria/pitagoras"
+  },
+  {
+   "slug": "pitagoras/confunde-cateto-con-hipotenusa",
+   "name": "Pone la hipotenusa donde va un cateto, o al revés",
+   "description": "Usar cuando suma los cuadrados de la hipotenusa y un cateto, o cuando entrega una hipotenusa menor que un cateto — lo que es imposible.",
+   "module_slug": "geometria/pitagoras"
+  },
+  {
+   "slug": "pitagoras/suma-los-lados-sin-elevar",
+   "name": "Suma los lados sin elevarlos al cuadrado",
+   "description": "Usar cuando responde $a+b$ para la hipotenusa. El teorema relaciona los **cuadrados** de los lados, no los lados.",
+   "module_slug": "geometria/pitagoras"
+  },
+  {
+   "slug": "pitagoras/olvida-la-raiz-final",
+   "name": "Deja el resultado en el cuadrado, sin sacar la raíz",
+   "description": "Usar cuando entrega $c^2$ en vez de $c$. El último paso siempre es la raíz cuadrada.",
+   "module_slug": "geometria/pitagoras"
+  },
+  {
+   "slug": "pitagoras/resta-donde-corresponde-sumar",
+   "name": "Resta los cuadrados cuando había que sumarlos, o al revés",
+   "description": "Usar cuando busca la hipotenusa restando, o un cateto sumando. Se suma para hallar la hipotenusa y se resta para hallar un cateto.",
+   "module_slug": "geometria/pitagoras"
+  },
+  {
+   "slug": "pitagoras/distancia-sin-restar-coordenadas",
+   "name": "Usa las coordenadas directamente en vez de sus diferencias",
+   "description": "Usar cuando calcula la distancia entre dos puntos sin restar primero las coordenadas correspondientes.",
+   "module_slug": "geometria/pitagoras"
+  }
+ ],
+ "items": [
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -3.0,
+   "order_index": 10,
+   "question": "¿Cuántos centímetros hay en $1$ metro?",
+   "options": {
+    "A": "$10$",
+    "B": "$100$",
+    "C": "$1.000$",
+    "D": "$0{,}01$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es el factor entre centímetros y decímetros, o entre milímetros y centímetros. Del metro al centímetro hay dos saltos de diez.",
+    "B": "Correcto. $1$ m $= 100$ cm.",
+    "C": "Ese es el factor entre metros y milímetros, o entre kilómetros y metros.",
+    "D": "Ese es el camino inverso: $1$ cm $= 0{,}01$ m. La pregunta va del metro al centímetro, así que el número crece."
+   },
+   "misconceptions": {
+    "A": "geometria/confunde-el-factor-entre-unidades",
+    "B": null,
+    "C": "geometria/confunde-el-factor-entre-unidades",
+    "D": "geometria/convierte-en-el-sentido-contrario"
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -2.91,
+   "order_index": 20,
+   "question": "¿Cuánto mide un ángulo **recto**?",
+   "options": {
+    "A": "$180^\\circ$",
+    "B": "$360^\\circ$",
+    "C": "$45^\\circ$",
+    "D": "$90^\\circ$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es el ángulo **extendido**, el que forma una línea recta. El recto es su mitad.",
+    "B": "Esa es la vuelta completa.",
+    "C": "Ese es la mitad de un ángulo recto, y es agudo.",
+    "D": "Correcto. Un ángulo recto mide $90^\\circ$: es el que forman dos rectas perpendiculares."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -2.83,
+   "order_index": 30,
+   "question": "Dos rectas en un mismo plano que **nunca** se cortan se llaman:",
+   "options": {
+    "A": "paralelas",
+    "B": "perpendiculares",
+    "C": "secantes",
+    "D": "coincidentes"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Dos rectas del mismo plano que no se cortan en ningún punto son paralelas.",
+    "B": "Las perpendiculares **sí** se cortan, y lo hacen formando un ángulo recto.",
+    "C": "Secantes son justamente las que se cortan en un punto.",
+    "D": "Coincidentes son las que comparten **todos** sus puntos: son la misma recta."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "geometria/confunde-paralelas-con-perpendiculares",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -2.74,
+   "order_index": 40,
+   "question": "Un ángulo de $45^\\circ$ se clasifica como:",
+   "options": {
+    "A": "obtuso",
+    "B": "recto",
+    "C": "agudo",
+    "D": "extendido"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Obtuso es el que mide **más** de $90^\\circ$ y menos de $180^\\circ$.",
+    "B": "Recto es exactamente $90^\\circ$. Este mide la mitad.",
+    "C": "Correcto. Un ángulo agudo mide menos de $90^\\circ$.",
+    "D": "Extendido es el de $180^\\circ$, el que forma una línea recta."
+   },
+   "misconceptions": {
+    "A": "geometria/clasifica-el-angulo-por-apariencia",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -2.66,
+   "order_index": 50,
+   "question": "¿Cuál es el perímetro de un cuadrado de lado $5$ cm?",
+   "options": {
+    "A": "$25$ cm",
+    "B": "$20$ cm",
+    "C": "$10$ cm",
+    "D": "$5$ cm"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es el **área**: $5 \\times 5$. El perímetro recorre el contorno, no cubre la superficie.",
+    "B": "Correcto. Un cuadrado tiene cuatro lados iguales: $4 \\times 5 = 20$ cm.",
+    "C": "Se sumaron solo dos lados. El contorno completo son cuatro.",
+    "D": "Ese es un solo lado. El perímetro es la suma de todos."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "geometria/perimetro-cuenta-mal-los-lados",
+    "D": "geometria/perimetro-cuenta-mal-los-lados"
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -2.57,
+   "order_index": 60,
+   "question": "¿Cuántos milímetros hay en $3$ centímetros?",
+   "options": {
+    "A": "$300$",
+    "B": "$0{,}3$",
+    "C": "$3.000$",
+    "D": "$30$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se usó el factor $100$, que es el que va de metros a centímetros. Entre centímetro y milímetro el factor es $10$.",
+    "B": "Se dividió en vez de multiplicar. Al pasar a una unidad **más chica** el número crece.",
+    "C": "Se usó el factor $1.000$, que es el de metros a milímetros.",
+    "D": "Correcto. $1$ cm $= 10$ mm, así que $3$ cm $= 30$ mm."
+   },
+   "misconceptions": {
+    "A": "geometria/confunde-el-factor-entre-unidades",
+    "B": "geometria/convierte-en-el-sentido-contrario",
+    "C": "geometria/confunde-el-factor-entre-unidades",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -2.49,
+   "order_index": 70,
+   "question": "Un ángulo de $120^\\circ$ se clasifica como:",
+   "options": {
+    "A": "obtuso",
+    "B": "agudo",
+    "C": "recto",
+    "D": "completo"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Está entre $90^\\circ$ y $180^\\circ$, así que es obtuso.",
+    "B": "Agudo es el que mide **menos** de $90^\\circ$. Este pasa de $90^\\circ$.",
+    "C": "Recto es exactamente $90^\\circ$.",
+    "D": "Completo es la vuelta entera, $360^\\circ$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "geometria/clasifica-el-angulo-por-apariencia",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -2.4,
+   "order_index": 80,
+   "question": "Dos rectas **perpendiculares** se cortan formando un ángulo de:",
+   "options": {
+    "A": "$180^\\circ$",
+    "B": "$45^\\circ$",
+    "C": "$90^\\circ$",
+    "D": "No se cortan"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el ángulo extendido: dos rectas que forman $180^\\circ$ entre sí son en realidad la misma recta.",
+    "B": "Ese es la mitad del ángulo que forman dos perpendiculares.",
+    "C": "Correcto. Perpendiculares significa que se cortan en ángulo recto.",
+    "D": "Las que no se cortan nunca son las **paralelas**. Las perpendiculares sí se cortan."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "geometria/confunde-paralelas-con-perpendiculares"
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -2.31,
+   "order_index": 90,
+   "question": "El punto medio de un segmento de $12$ cm está a:",
+   "options": {
+    "A": "$12$ cm de un extremo",
+    "B": "$6$ cm de cada extremo",
+    "C": "$3$ cm de cada extremo",
+    "D": "$24$ cm de un extremo"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Esa es la longitud completa del segmento: sería el otro extremo, no el punto medio.",
+    "B": "Correcto. El punto medio divide el segmento en dos partes iguales: $12 \\div 2 = 6$ cm cada una.",
+    "C": "Se dividió por $4$. El punto medio parte el segmento en **dos**.",
+    "D": "Se duplicó el segmento en vez de dividirlo."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "geometria/convierte-en-el-sentido-contrario"
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -2.23,
+   "order_index": 100,
+   "question": "¿Cuál es el perímetro de un rectángulo de $3$ cm por $5$ cm?",
+   "options": {
+    "A": "$15$ cm",
+    "B": "$8$ cm",
+    "C": "$11$ cm",
+    "D": "$16$ cm"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es el **área**: $3 \\times 5$. El perímetro suma los lados, no los multiplica.",
+    "B": "Se sumaron solo dos lados. Un rectángulo tiene cuatro: cada medida aparece dos veces.",
+    "C": "Se contó dos veces un lado y una vez el otro. Los dos se repiten.",
+    "D": "Correcto. $2(3) + 2(5) = 6 + 10 = 16$ cm."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "geometria/perimetro-cuenta-mal-los-lados",
+    "C": "geometria/perimetro-cuenta-mal-los-lados",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -2.14,
+   "order_index": 110,
+   "question": "¿Cuántos metros hay en $2{,}5$ kilómetros?",
+   "options": {
+    "A": "$2.500$",
+    "B": "$250$",
+    "C": "$25$",
+    "D": "$0{,}0025$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $1$ km $= 1.000$ m, así que $2{,}5$ km $= 2.500$ m.",
+    "B": "Se usó el factor $100$, que es el de metros a centímetros.",
+    "C": "Se usó el factor $10$.",
+    "D": "Se dividió en vez de multiplicar. Al pasar del kilómetro al metro el número crece."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "geometria/confunde-el-factor-entre-unidades",
+    "C": "geometria/confunde-el-factor-entre-unidades",
+    "D": "geometria/convierte-en-el-sentido-contrario"
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -2.06,
+   "order_index": 120,
+   "question": "¿Cuánto mide un ángulo **extendido**?",
+   "options": {
+    "A": "$90^\\circ$",
+    "B": "$360^\\circ$",
+    "C": "$180^\\circ$",
+    "D": "$270^\\circ$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el ángulo recto, que es la mitad del extendido.",
+    "B": "Esa es la vuelta completa, que son dos ángulos extendidos.",
+    "C": "Correcto. El ángulo extendido mide $180^\\circ$: sus lados forman una línea recta.",
+    "D": "Ese equivale a tres ángulos rectos, tres cuartos de vuelta."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -1.97,
+   "order_index": 130,
+   "question": "En el plano cartesiano, ¿dónde se ubica el punto $(3, 2)$ respecto del origen?",
+   "options": {
+    "A": "$3$ hacia arriba y $2$ hacia la derecha",
+    "B": "$3$ hacia la derecha y $2$ hacia arriba",
+    "C": "$3$ hacia la izquierda y $2$ hacia abajo",
+    "D": "En el punto $5$ del eje $x$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Las coordenadas están al revés: en $(x, y)$ la **primera** es la horizontal.",
+    "B": "Correcto. La primera coordenada se mide sobre el eje $x$ y la segunda sobre el eje $y$.",
+    "C": "Los dos valores son positivos, así que el punto va hacia la derecha y hacia arriba.",
+    "D": "Las coordenadas no se suman: cada una indica un desplazamiento en un eje distinto."
+   },
+   "misconceptions": {
+    "A": "geometria/coordenadas-invertidas",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -1.89,
+   "order_index": 140,
+   "question": "¿A cuántos metros equivalen $1.500$ centímetros?",
+   "options": {
+    "A": "$150$",
+    "B": "$1{,}5$",
+    "C": "$150.000$",
+    "D": "$15$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se dividió por $10$. Entre centímetro y metro el factor es $100$.",
+    "B": "Se dividió por $1.000$, que es el factor entre milímetros y metros.",
+    "C": "Se multiplicó en vez de dividir. Al pasar a una unidad **más grande** el número baja.",
+    "D": "Correcto. $1.500 \\div 100 = 15$ m."
+   },
+   "misconceptions": {
+    "A": "geometria/confunde-el-factor-entre-unidades",
+    "B": "geometria/confunde-el-factor-entre-unidades",
+    "C": "geometria/convierte-en-el-sentido-contrario",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/basica",
+   "difficulty": -1.8,
+   "order_index": 150,
+   "question": "¿Cuál es el perímetro de un triángulo equilátero de lado $7$ cm?",
+   "options": {
+    "A": "$21$ cm",
+    "B": "$14$ cm",
+    "C": "$28$ cm",
+    "D": "$49$ cm"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Equilátero significa tres lados iguales: $3 \\times 7 = 21$ cm.",
+    "B": "Se sumaron solo dos lados. El triángulo tiene tres.",
+    "C": "Se multiplicó por $4$, como si fuera un cuadrilátero.",
+    "D": "Se elevó al cuadrado. El perímetro es una suma de longitudes, no un producto de dos lados."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "geometria/perimetro-cuenta-mal-los-lados",
+    "C": "geometria/perimetro-cuenta-mal-los-lados",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -2.6,
+   "order_index": 10,
+   "question": "¿Cuál es el **complemento** de un ángulo de $30^\\circ$?",
+   "options": {
+    "A": "$150^\\circ$",
+    "B": "$330^\\circ$",
+    "C": "$60^\\circ$",
+    "D": "$30^\\circ$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el **suplemento**: lo que falta para $180^\\circ$. El complemento completa $90^\\circ$.",
+    "B": "Eso es lo que falta para la vuelta completa, $360^\\circ$.",
+    "C": "Correcto. $90^\\circ - 30^\\circ = 60^\\circ$.",
+    "D": "Ese es el mismo ángulo. Dos ángulos iguales solo son complementarios si ambos miden $45^\\circ$."
+   },
+   "misconceptions": {
+    "A": "angulos/confunde-complemento-con-suplemento",
+    "B": "angulos/confunde-complemento-con-suplemento",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -2.5,
+   "order_index": 20,
+   "question": "¿Cuál es el **suplemento** de un ángulo de $120^\\circ$?",
+   "options": {
+    "A": "$60^\\circ$",
+    "B": "$240^\\circ$",
+    "C": "$-30^\\circ$",
+    "D": "$30^\\circ$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $180^\\circ - 120^\\circ = 60^\\circ$.",
+    "B": "Eso es lo que falta para $360^\\circ$. El suplemento completa $180^\\circ$.",
+    "C": "Se restó de $90^\\circ$, que es la regla del complemento, y dio negativo — señal de que un ángulo obtuso no tiene complemento.",
+    "D": "Se restó de $150^\\circ$. La referencia del suplemento es $180^\\circ$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "angulos/confunde-complemento-con-suplemento",
+    "C": "angulos/confunde-complemento-con-suplemento",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -2.4,
+   "order_index": 30,
+   "question": "Dos ángulos **opuestos por el vértice** cumplen que:",
+   "options": {
+    "A": "suman $90^\\circ$",
+    "B": "suman $180^\\circ$",
+    "C": "suman $360^\\circ$",
+    "D": "son iguales"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Esa es la condición de los ángulos complementarios, que es otra cosa.",
+    "B": "Esa es la condición de los ángulos **adyacentes**, los que están uno al lado del otro sobre una recta. Los opuestos por el vértice están enfrentados.",
+    "C": "Los cuatro ángulos que se forman al cortarse dos rectas suman $360^\\circ$, pero de a pares opuestos no.",
+    "D": "Correcto. Al cortarse dos rectas, los ángulos enfrentados por el vértice tienen la misma medida."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "angulos/opuestos-por-el-vertice-como-suplementarios",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -2.3,
+   "order_index": 40,
+   "question": "Dos ángulos **complementarios** suman:",
+   "options": {
+    "A": "$45^\\circ$",
+    "B": "$90^\\circ$",
+    "C": "$180^\\circ$",
+    "D": "$360^\\circ$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es el valor de cada uno cuando los dos complementarios son iguales, no la suma.",
+    "B": "Correcto. Complementarios son los que juntos completan un ángulo recto.",
+    "C": "Esa es la suma de dos ángulos **suplementarios**.",
+    "D": "Esa es la vuelta completa."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "angulos/confunde-complemento-con-suplemento",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -2.2,
+   "order_index": 50,
+   "question": "¿Cuál es el complemento de un ángulo de $45^\\circ$?",
+   "options": {
+    "A": "$135^\\circ$",
+    "B": "$90^\\circ$",
+    "C": "$45^\\circ$",
+    "D": "$0^\\circ$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el suplemento: $180^\\circ - 45^\\circ$. El complemento se calcula sobre $90^\\circ$.",
+    "B": "Ese es el total que deben sumar los dos, no el segundo ángulo.",
+    "C": "Correcto. $90^\\circ - 45^\\circ = 45^\\circ$: es el único ángulo que es su propio complemento.",
+    "D": "Se restó el ángulo de sí mismo. La referencia del complemento es $90^\\circ$."
+   },
+   "misconceptions": {
+    "A": "angulos/confunde-complemento-con-suplemento",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -2.1,
+   "order_index": 60,
+   "question": "¿Cuál es el suplemento de un ángulo **recto**?",
+   "options": {
+    "A": "$90^\\circ$",
+    "B": "$0^\\circ$",
+    "C": "$180^\\circ$",
+    "D": "$270^\\circ$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $180^\\circ - 90^\\circ = 90^\\circ$: el ángulo recto también es su propio suplemento.",
+    "B": "Se restó de $90^\\circ$, que es la regla del complemento.",
+    "C": "Ese es el total que deben sumar los dos, no el segundo ángulo.",
+    "D": "Se restó de $360^\\circ$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "angulos/confunde-complemento-con-suplemento",
+    "C": null,
+    "D": "angulos/confunde-complemento-con-suplemento"
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -2.0,
+   "order_index": 70,
+   "question": "Los ángulos que se forman alrededor de un punto, sin superponerse, suman:",
+   "options": {
+    "A": "$90^\\circ$",
+    "B": "$180^\\circ$",
+    "C": "$270^\\circ$",
+    "D": "$360^\\circ$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es un cuarto de vuelta.",
+    "B": "Ese es media vuelta: es lo que suman los ángulos de un mismo lado de una recta.",
+    "C": "Ese es tres cuartos de vuelta: falta un ángulo recto para cerrar.",
+    "D": "Correcto. Dar la vuelta completa alrededor de un punto son $360^\\circ$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -1.9,
+   "order_index": 80,
+   "question": "Si un ángulo mide $70^\\circ$, ¿cuánto mide su suplemento?",
+   "options": {
+    "A": "$20^\\circ$",
+    "B": "$110^\\circ$",
+    "C": "$290^\\circ$",
+    "D": "$140^\\circ$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es el **complemento**: $90^\\circ - 70^\\circ$.",
+    "B": "Correcto. $180^\\circ - 70^\\circ = 110^\\circ$.",
+    "C": "Se restó de $360^\\circ$, que corresponde a los ángulos que completan una vuelta.",
+    "D": "Se duplicó el ángulo en vez de restarlo de $180^\\circ$."
+   },
+   "misconceptions": {
+    "A": "angulos/confunde-complemento-con-suplemento",
+    "B": null,
+    "C": "angulos/confunde-complemento-con-suplemento",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -1.8,
+   "order_index": 90,
+   "question": "Dos rectas paralelas son cortadas por una transversal. ¿Qué se cumple con los ángulos **correspondientes**?",
+   "options": {
+    "A": "Suman $90^\\circ$",
+    "B": "Suman $180^\\circ$",
+    "C": "Son iguales",
+    "D": "Suman $360^\\circ$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Los ángulos que se forman acá miden lo mismo o suman $180^\\circ$; nunca $90^\\circ$, salvo que la transversal sea perpendicular.",
+    "B": "Eso lo cumplen los **conjugados** (los del mismo lado de la transversal, entre las paralelas), no los correspondientes.",
+    "C": "Correcto. Al ser paralelas, los ángulos que ocupan la misma posición respecto de la transversal son iguales.",
+    "D": "Esa es la suma de todos los ángulos alrededor de un punto de corte, no la relación entre dos."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -1.7,
+   "order_index": 100,
+   "question": "En dos paralelas cortadas por una transversal, los ángulos **alternos internos**:",
+   "options": {
+    "A": "son iguales",
+    "B": "suman $90^\\circ$",
+    "C": "suman $180^\\circ$",
+    "D": "siempre miden $90^\\circ$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Los alternos internos —a distinto lado de la transversal y entre las paralelas— tienen la misma medida.",
+    "B": "No hay ninguna pareja de estas que sume $90^\\circ$ en general.",
+    "C": "Eso lo cumplen los conjugados internos, que están al **mismo** lado de la transversal.",
+    "D": "Solo si la transversal es perpendicular a las paralelas. En general no."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "angulos/en-paralelas-todos-los-angulos-son-iguales",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -1.6,
+   "order_index": 110,
+   "question": "Dos ángulos son complementarios y uno mide el doble del otro. ¿Cuánto mide el **menor**?",
+   "options": {
+    "A": "$60^\\circ$",
+    "B": "$45^\\circ$",
+    "C": "$120^\\circ$",
+    "D": "$30^\\circ$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es el **mayor** de los dos. La pregunta pide el menor.",
+    "B": "Ese sería el valor si los dos fueran iguales, y entonces ninguno sería el doble del otro.",
+    "C": "Ese valor sale de repartir $180^\\circ$, o sea de tratarlos como suplementarios.",
+    "D": "Correcto. Con $x + 2x = 90^\\circ$ queda $3x = 90^\\circ$, así que $x = 30^\\circ$ y el otro $60^\\circ$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "angulos/confunde-complemento-con-suplemento",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -1.5,
+   "order_index": 120,
+   "question": "Dos ángulos adyacentes sobre una misma recta suman:",
+   "options": {
+    "A": "$90^\\circ$",
+    "B": "$180^\\circ$",
+    "C": "$360^\\circ$",
+    "D": "Son iguales entre sí"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Eso lo cumplen los complementarios, que forman un ángulo recto.",
+    "B": "Correcto. Juntos forman el ángulo extendido de la recta: $180^\\circ$.",
+    "C": "Esa es la vuelta completa alrededor del punto, que incluye también los dos ángulos del otro lado de la recta.",
+    "D": "Son iguales solo si cada uno mide $90^\\circ$. En general uno es agudo y el otro obtuso."
+   },
+   "misconceptions": {
+    "A": "angulos/confunde-complemento-con-suplemento",
+    "B": null,
+    "C": null,
+    "D": "angulos/opuestos-por-el-vertice-como-suplementarios"
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -1.4,
+   "order_index": 130,
+   "question": "Dos ángulos son suplementarios y uno mide el triple del otro. ¿Cuánto miden?",
+   "options": {
+    "A": "$30^\\circ$ y $90^\\circ$",
+    "B": "$22{,}5^\\circ$ y $67{,}5^\\circ$",
+    "C": "$45^\\circ$ y $135^\\circ$",
+    "D": "$60^\\circ$ y $120^\\circ$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Uno es el triple del otro, pero suman $120^\\circ$, no $180^\\circ$.",
+    "B": "Esa es la solución si el total fuera $90^\\circ$, o sea si fueran complementarios.",
+    "C": "Correcto. Con $x + 3x = 180^\\circ$ queda $4x = 180^\\circ$, así que $x = 45^\\circ$ y el otro $135^\\circ$.",
+    "D": "Suman $180^\\circ$, pero uno es el **doble** del otro, no el triple."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "angulos/confunde-complemento-con-suplemento",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/angulos",
+   "difficulty": -1.3,
+   "order_index": 140,
+   "question": "Dos paralelas son cortadas por una transversal y uno de los ángulos mide $70^\\circ$. ¿Cuánto mide el ángulo **conjugado interno** (el que está entre las paralelas y al mismo lado de la transversal)?",
+   "options": {
+    "A": "$110^\\circ$",
+    "B": "$70^\\circ$",
+    "C": "$20^\\circ$",
+    "D": "$140^\\circ$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Los conjugados internos son suplementarios: $180^\\circ - 70^\\circ = 110^\\circ$.",
+    "B": "No todos los ángulos de esta figura son iguales: se forman **dos** medidas distintas, y los conjugados internos son de la otra.",
+    "C": "Se calculó el complemento. Acá la relación es de suplementariedad.",
+    "D": "Se duplicó el ángulo. La relación correcta es restar de $180^\\circ$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "angulos/en-paralelas-todos-los-angulos-son-iguales",
+    "C": "angulos/confunde-complemento-con-suplemento",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -2.1,
+   "order_index": 10,
+   "question": "¿Cuánto suman los ángulos interiores de cualquier triángulo?",
+   "options": {
+    "A": "$90^\\circ$",
+    "B": "$180^\\circ$",
+    "C": "$360^\\circ$",
+    "D": "Depende del triángulo"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es el valor de un solo ángulo recto. En un triángulo rectángulo, los otros dos ángulos suman $90^\\circ$, pero el total sigue siendo $180^\\circ$.",
+    "B": "Correcto. En todo triángulo los tres ángulos interiores suman $180^\\circ$.",
+    "C": "Esa es la suma de los ángulos interiores de un **cuadrilátero**, o la vuelta completa.",
+    "D": "No depende: es el mismo total para cualquier triángulo, grande o chico."
+   },
+   "misconceptions": {
+    "A": "triangulos/suma-de-angulos-distinta-de-180",
+    "B": null,
+    "C": "triangulos/suma-de-angulos-distinta-de-180",
+    "D": "triangulos/suma-de-angulos-distinta-de-180"
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -2.0,
+   "order_index": 20,
+   "question": "Un triángulo con sus tres lados iguales se llama:",
+   "options": {
+    "A": "isósceles",
+    "B": "escaleno",
+    "C": "rectángulo",
+    "D": "equilátero"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Isósceles tiene **dos** lados iguales. Un equilátero también cumple eso, pero el nombre preciso para tres lados iguales es otro.",
+    "B": "Escaleno es el que tiene los tres lados **distintos**.",
+    "C": "Rectángulo se refiere a los ángulos, no a los lados: es el que tiene un ángulo recto.",
+    "D": "Correcto. Equilátero significa lados iguales: los tres miden lo mismo."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "triangulos/confunde-clasificacion-por-lados-y-angulos",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -1.9,
+   "order_index": 30,
+   "question": "Un triángulo que tiene un ángulo de $90^\\circ$ se llama:",
+   "options": {
+    "A": "rectángulo",
+    "B": "equilátero",
+    "C": "acutángulo",
+    "D": "obtusángulo"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. El triángulo rectángulo es el que tiene un ángulo recto.",
+    "B": "Equilátero clasifica por **lados**, y además sus tres ángulos miden $60^\\circ$: nunca puede tener uno recto.",
+    "C": "Acutángulo es el que tiene los **tres** ángulos agudos, o sea todos menores que $90^\\circ$.",
+    "D": "Obtusángulo es el que tiene un ángulo mayor que $90^\\circ$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "triangulos/confunde-clasificacion-por-lados-y-angulos",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -1.8,
+   "order_index": 40,
+   "question": "Dos ángulos de un triángulo miden $50^\\circ$ y $60^\\circ$. ¿Cuánto mide el tercero?",
+   "options": {
+    "A": "$110^\\circ$",
+    "B": "$250^\\circ$",
+    "C": "$70^\\circ$",
+    "D": "$-20^\\circ$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Esa es la suma de los dos ángulos dados, no lo que falta para completar $180^\\circ$.",
+    "B": "Se restó de $360^\\circ$. El total de un triángulo es $180^\\circ$.",
+    "C": "Correcto. $180^\\circ - 50^\\circ - 60^\\circ = 70^\\circ$.",
+    "D": "Se restó de $90^\\circ$. Un ángulo negativo no existe, y eso mismo delata que el total usado era el equivocado."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "triangulos/suma-de-angulos-distinta-de-180",
+    "C": null,
+    "D": "triangulos/suma-de-angulos-distinta-de-180"
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -1.7,
+   "order_index": 50,
+   "question": "Un triángulo **isósceles** se caracteriza por tener:",
+   "options": {
+    "A": "los tres lados distintos",
+    "B": "dos lados iguales",
+    "C": "un ángulo recto",
+    "D": "los tres ángulos iguales"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es el escaleno.",
+    "B": "Correcto. Isósceles tiene dos lados de igual longitud, y los ángulos opuestos a ellos también son iguales.",
+    "C": "Eso clasifica por ángulos: es el triángulo rectángulo. Un isósceles puede ser rectángulo o no.",
+    "D": "Ese es el equilátero, con sus tres ángulos de $60^\\circ$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "triangulos/confunde-clasificacion-por-lados-y-angulos",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -1.6,
+   "order_index": 60,
+   "question": "En un triángulo rectángulo, ¿cuánto suman los dos ángulos **agudos**?",
+   "options": {
+    "A": "$180^\\circ$",
+    "B": "$45^\\circ$",
+    "C": "$270^\\circ$",
+    "D": "$90^\\circ$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es el total de los **tres** ángulos. Falta descontar el ángulo recto.",
+    "B": "Ese es el valor de cada uno cuando los dos agudos son iguales, no su suma.",
+    "C": "Se sumó el ángulo recto en vez de restarlo.",
+    "D": "Correcto. $180^\\circ - 90^\\circ = 90^\\circ$: los dos agudos son complementarios entre sí."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "triangulos/suma-de-angulos-distinta-de-180",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -1.5,
+   "order_index": 70,
+   "question": "Un triángulo tiene ángulos de $30^\\circ$, $60^\\circ$ y $90^\\circ$. ¿Cómo se clasifica?",
+   "options": {
+    "A": "Rectángulo y escaleno",
+    "B": "Rectángulo y equilátero",
+    "C": "Acutángulo e isósceles",
+    "D": "Obtusángulo y escaleno"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Tiene un ángulo recto, y como los tres ángulos son distintos, los tres lados también lo son.",
+    "B": "Un equilátero tiene sus tres ángulos de $60^\\circ$: no puede tener uno recto.",
+    "C": "Acutángulo exige que los tres ángulos sean menores que $90^\\circ$, y acá hay uno que mide exactamente $90^\\circ$.",
+    "D": "Obtusángulo exige un ángulo **mayor** que $90^\\circ$. El mayor de estos es exactamente $90^\\circ$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "triangulos/confunde-clasificacion-por-lados-y-angulos",
+    "C": "triangulos/confunde-clasificacion-por-lados-y-angulos",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -1.4,
+   "order_index": 80,
+   "question": "¿Se puede construir un triángulo con lados de $2$, $3$ y $6$ cm?",
+   "options": {
+    "A": "Sí, porque son tres longitudes distintas",
+    "B": "Sí, porque $2 + 3 + 6 = 11$",
+    "C": "No, porque $2 + 3$ es menor que $6$",
+    "D": "No, porque ningún lado mide lo mismo"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Que sean distintas no basta. Hay que comprobar que la suma de los dos menores supere al mayor.",
+    "B": "El perímetro no dice nada sobre si el triángulo existe. Lo que decide es la desigualdad triangular.",
+    "C": "Correcto. $2 + 3 = 5$, que es menor que $6$: los dos lados cortos no alcanzan a unirse en los extremos del largo.",
+    "D": "Un triángulo escaleno tiene los tres lados distintos y existe perfectamente. El problema acá es otro."
+   },
+   "misconceptions": {
+    "A": "triangulos/ignora-la-desigualdad-triangular",
+    "B": "triangulos/ignora-la-desigualdad-triangular",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -1.3,
+   "order_index": 90,
+   "question": "¿Cuánto mide cada ángulo interior de un triángulo equilátero?",
+   "options": {
+    "A": "$90^\\circ$",
+    "B": "$60^\\circ$",
+    "C": "$45^\\circ$",
+    "D": "$120^\\circ$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Un triángulo con tres ángulos rectos sumaría $270^\\circ$, muy por encima de $180^\\circ$.",
+    "B": "Correcto. Los tres son iguales y suman $180^\\circ$: $180 \\div 3 = 60^\\circ$.",
+    "C": "Se repartió $180^\\circ$ entre cuatro, o se dividió $90^\\circ$ entre dos.",
+    "D": "Se repartió $360^\\circ$ entre tres. El total de un triángulo es $180^\\circ$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "triangulos/suma-de-angulos-distinta-de-180",
+    "D": "triangulos/suma-de-angulos-distinta-de-180"
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -1.2,
+   "order_index": 100,
+   "question": "Un ángulo **exterior** de un triángulo es igual a:",
+   "options": {
+    "A": "el ángulo interior adyacente",
+    "B": "$180^\\circ$ menos la suma de los tres interiores",
+    "C": "el mayor de los ángulos interiores",
+    "D": "la suma de los dos interiores no adyacentes"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "El exterior y su interior adyacente son **suplementarios**: juntos suman $180^\\circ$, así que solo son iguales si ambos miden $90^\\circ$.",
+    "B": "La suma de los tres interiores ya es $180^\\circ$, así que eso daría siempre cero.",
+    "C": "No hay ninguna relación general con el mayor de los interiores.",
+    "D": "Correcto. Como el exterior suplementa al adyacente, y los tres interiores suman $180^\\circ$, queda igual a la suma de los otros dos."
+   },
+   "misconceptions": {
+    "A": "triangulos/angulo-exterior-mal-relacionado",
+    "B": null,
+    "C": "triangulos/angulo-exterior-mal-relacionado",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -1.1,
+   "order_index": 110,
+   "question": "En un triángulo isósceles, el ángulo distinto mide $40^\\circ$. ¿Cuánto mide cada uno de los otros dos?",
+   "options": {
+    "A": "$70^\\circ$",
+    "B": "$140^\\circ$",
+    "C": "$50^\\circ$",
+    "D": "$40^\\circ$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Los otros dos son iguales y suman $180^\\circ - 40^\\circ = 140^\\circ$, así que cada uno mide $70^\\circ$.",
+    "B": "Ese es el total que suman **entre los dos**. Falta repartirlo.",
+    "C": "Se usó $90^\\circ$ como total de los dos ángulos restantes, que solo valdría si el triángulo fuera rectángulo.",
+    "D": "Ese es el ángulo dado. Los otros dos son iguales entre sí, pero distintos de este."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "triangulos/suma-de-angulos-distinta-de-180",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -1.0,
+   "order_index": 120,
+   "question": "¿Por qué un triángulo no puede tener dos ángulos rectos?",
+   "options": {
+    "A": "Porque tendría cuatro lados",
+    "B": "Porque los ángulos rectos solo existen en los cuadriláteros",
+    "C": "Porque los dos sumarían $180^\\circ$ y no quedaría nada para el tercero",
+    "D": "Sí puede, si es muy grande"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "La cantidad de lados no cambia por la medida de los ángulos: seguirían siendo tres.",
+    "B": "Un triángulo rectángulo tiene un ángulo recto perfectamente. El problema es tener **dos**.",
+    "C": "Correcto. $90^\\circ + 90^\\circ = 180^\\circ$, que es el total disponible: el tercer ángulo tendría que medir $0^\\circ$ y el triángulo no cerraría.",
+    "D": "El tamaño no influye: la suma de los ángulos interiores es $180^\\circ$ en todo triángulo."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "triangulos/suma-de-angulos-distinta-de-180"
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -0.9,
+   "order_index": 130,
+   "question": "Dos lados de un triángulo miden $5$ y $7$. ¿Entre qué valores puede estar el tercero?",
+   "options": {
+    "A": "Entre $5$ y $7$",
+    "B": "Entre $2$ y $12$",
+    "C": "Cualquier valor positivo",
+    "D": "Entre $0$ y $35$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "El tercer lado no tiene por qué quedar entre los otros dos: puede ser el más corto o el más largo.",
+    "B": "Correcto. Debe ser mayor que $7 - 5 = 2$ y menor que $7 + 5 = 12$, para que los tres lados alcancen a cerrarse.",
+    "C": "Con un lado de $100$ los otros dos nunca se juntarían. La desigualdad triangular pone un techo y un piso.",
+    "D": "El $35$ sale de multiplicar los dos lados, que no tiene relación con la condición de cierre."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "triangulos/ignora-la-desigualdad-triangular",
+    "D": "triangulos/ignora-la-desigualdad-triangular"
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -0.8,
+   "order_index": 140,
+   "question": "Dos triángulos son **semejantes** cuando:",
+   "options": {
+    "A": "tienen la misma área",
+    "B": "tienen todos sus lados exactamente iguales",
+    "C": "tienen el mismo perímetro",
+    "D": "tienen ángulos iguales y lados proporcionales"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Dos triángulos pueden tener la misma área y formas completamente distintas.",
+    "B": "Eso es ser **congruentes**, o sea idénticos. La semejanza admite tamaños distintos.",
+    "C": "El perímetro igual tampoco garantiza la misma forma.",
+    "D": "Correcto. Semejantes es tener la misma forma: ángulos iguales y lados en la misma razón."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "triangulos/semejanza-como-congruencia",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/triangulos",
+   "difficulty": -0.7,
+   "order_index": 150,
+   "question": "Un triángulo de lados $3$, $4$ y $5$ es semejante a otro cuyos dos primeros lados miden $6$ y $8$. ¿Cuánto mide su tercer lado?",
+   "options": {
+    "A": "$10$",
+    "B": "$7$",
+    "C": "$5$",
+    "D": "$9$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. La razón de semejanza es $2$ ($6 = 3\\times 2$ y $8 = 4\\times 2$), así que el tercero es $5 \\times 2 = 10$.",
+    "B": "Se sumó $2$ a cada lado en vez de multiplicar por $2$. La semejanza escala por un factor, no suma una constante.",
+    "C": "Ese es el lado del triángulo original. Si el segundo es más grande, su tercer lado también lo es.",
+    "D": "Se aplicó un factor de $1{,}8$, que no coincide con la razón que fijan los dos primeros lados."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "triangulos/semejanza-como-congruencia",
+    "C": "triangulos/semejanza-como-congruencia",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -1.5,
+   "order_index": 10,
+   "question": "¿Qué relación hay entre el diámetro y el radio de una circunferencia?",
+   "options": {
+    "A": "El diámetro es la mitad del radio",
+    "B": "Son iguales",
+    "C": "El diámetro es el doble del radio",
+    "D": "El diámetro es el radio al cuadrado"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Es al revés: el radio es la mitad del diámetro.",
+    "B": "El radio va del centro al borde; el diámetro cruza la circunferencia entera pasando por el centro.",
+    "C": "Correcto. $d = 2r$: el diámetro son dos radios alineados.",
+    "D": "La relación es de doble, no de cuadrado, y además elevar mezclaría unidades distintas."
+   },
+   "misconceptions": {
+    "A": "circulo/confunde-radio-con-diametro",
+    "B": "circulo/confunde-radio-con-diametro",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -1.38,
+   "order_index": 20,
+   "question": "Si el radio de una circunferencia mide $5$ cm, ¿cuánto mide su diámetro?",
+   "options": {
+    "A": "$10$ cm",
+    "B": "$2{,}5$ cm",
+    "C": "$25$ cm",
+    "D": "$5$ cm"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $d = 2r = 2 \\times 5 = 10$ cm.",
+    "B": "Se dividió por $2$. El diámetro es mayor que el radio, no menor.",
+    "C": "Se elevó al cuadrado. La relación entre radio y diámetro es un factor $2$.",
+    "D": "Ese es el radio. El diámetro lo duplica."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "circulo/confunde-radio-con-diametro",
+    "C": null,
+    "D": "circulo/confunde-radio-con-diametro"
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -1.27,
+   "order_index": 30,
+   "question": "¿Cuál es la fórmula del **perímetro** de una circunferencia de radio $r$?",
+   "options": {
+    "A": "$\\pi r^2$",
+    "B": "$\\pi r$",
+    "C": "$4r$",
+    "D": "$2\\pi r$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Esa es la fórmula del **área**, que se mide en unidades cuadradas.",
+    "B": "Ese es la mitad del perímetro: corresponde al arco de media circunferencia.",
+    "C": "Esa sería la fórmula del perímetro de un cuadrado de lado $r$.",
+    "D": "Correcto. $P = 2\\pi r$, o equivalentemente $\\pi d$."
+   },
+   "misconceptions": {
+    "A": "circulo/confunde-area-con-perimetro",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -1.15,
+   "order_index": 40,
+   "question": "¿Cuál es la fórmula del **área** de un círculo de radio $r$?",
+   "options": {
+    "A": "$2\\pi r$",
+    "B": "$\\pi r^2$",
+    "C": "$\\pi r$",
+    "D": "$2\\pi r^2$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Esa es la fórmula del **perímetro**. El área se mide en unidades cuadradas, así que el radio tiene que aparecer elevado.",
+    "B": "Correcto. $A = \\pi r^2$.",
+    "C": "Falta elevar el radio al cuadrado.",
+    "D": "Sobra el factor $2$: se mezclaron las dos fórmulas."
+   },
+   "misconceptions": {
+    "A": "circulo/confunde-area-con-perimetro",
+    "B": null,
+    "C": "circulo/olvida-elevar-el-radio",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -1.04,
+   "order_index": 50,
+   "question": "¿Cuál es el área de un círculo de radio $3$ cm? (deja el resultado en función de $\\pi$)",
+   "options": {
+    "A": "$6\\pi$ cm$^2$",
+    "B": "$3\\pi$ cm$^2$",
+    "C": "$9\\pi$ cm$^2$",
+    "D": "$36\\pi$ cm$^2$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el **perímetro**: $2\\pi(3)$. El área usa el radio al cuadrado.",
+    "B": "Falta elevar el radio: $A = \\pi r^2$, no $\\pi r$.",
+    "C": "Correcto. $A = \\pi (3)^2 = 9\\pi$ cm$^2$.",
+    "D": "Se usó el diámetro ($6$) en lugar del radio, y además al cuadrado."
+   },
+   "misconceptions": {
+    "A": "circulo/confunde-area-con-perimetro",
+    "B": "circulo/olvida-elevar-el-radio",
+    "C": null,
+    "D": "circulo/confunde-radio-con-diametro"
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -0.92,
+   "order_index": 60,
+   "question": "¿Cuál es el perímetro de una circunferencia de radio $4$ cm? (en función de $\\pi$)",
+   "options": {
+    "A": "$8\\pi$ cm",
+    "B": "$16\\pi$ cm",
+    "C": "$4\\pi$ cm",
+    "D": "$2\\pi$ cm"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $P = 2\\pi r = 2\\pi(4) = 8\\pi$ cm.",
+    "B": "Ese es el **área**: $\\pi(4)^2$. Un perímetro no lleva el radio al cuadrado.",
+    "C": "Falta el factor $2$: el perímetro es $2\\pi r$, no $\\pi r$.",
+    "D": "Se perdió el radio: quedó solo la constante."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "circulo/confunde-area-con-perimetro",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -0.81,
+   "order_index": 70,
+   "question": "El número $\\pi$ vale aproximadamente:",
+   "options": {
+    "A": "$3{,}00$",
+    "B": "$22$",
+    "C": "$1{,}41$",
+    "D": "$3{,}14$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Es una aproximación muy gruesa: $\\pi$ pasa de $3$ por algo más de una décima.",
+    "B": "El $22$ aparece en la aproximación $\\frac{22}{7}$, pero solo dividido por $7$.",
+    "C": "Ese es aproximadamente $\\sqrt{2}$, que es otra constante.",
+    "D": "Correcto. $\\pi \\approx 3{,}14159\\dots$, y es la razón entre el perímetro y el diámetro de cualquier circunferencia."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -0.69,
+   "order_index": 80,
+   "question": "Un círculo tiene diámetro $10$ cm. ¿Cuál es su área? (en función de $\\pi$)",
+   "options": {
+    "A": "$100\\pi$ cm$^2$",
+    "B": "$25\\pi$ cm$^2$",
+    "C": "$10\\pi$ cm$^2$",
+    "D": "$20\\pi$ cm$^2$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se usó el diámetro como si fuera el radio. Primero hay que dividirlo por $2$.",
+    "B": "Correcto. El radio es $5$, así que $A = \\pi(5)^2 = 25\\pi$ cm$^2$.",
+    "C": "Falta elevar al cuadrado, y además se usó el diámetro.",
+    "D": "Se usó la fórmula del **perímetro** y encima con el diámetro como radio: $2\\pi(10) = 20\\pi$. El área lleva el radio al cuadrado."
+   },
+   "misconceptions": {
+    "A": "circulo/confunde-radio-con-diametro",
+    "B": null,
+    "C": "circulo/olvida-elevar-el-radio",
+    "D": "circulo/confunde-area-con-perimetro"
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -0.58,
+   "order_index": 90,
+   "question": "Si el radio de un círculo se **duplica**, ¿qué pasa con su área?",
+   "options": {
+    "A": "Se duplica",
+    "B": "Queda igual",
+    "C": "Se cuadruplica",
+    "D": "Se multiplica por ocho"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El área depende del radio **al cuadrado**: al duplicar el radio, el factor también se eleva.",
+    "B": "El área cambia: es proporcional a $r^2$.",
+    "C": "Correcto. $A = \\pi(2r)^2 = 4\\pi r^2$: el área queda multiplicada por $4$.",
+    "D": "Ese es el factor del **volumen** de un cuerpo al duplicar sus dimensiones, porque ahí el exponente es $3$."
+   },
+   "misconceptions": {
+    "A": "circulo/escala-lineal-en-el-area",
+    "B": "circulo/escala-lineal-en-el-area",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -0.46,
+   "order_index": 100,
+   "question": "¿Cuánto mide el **arco** de un semicírculo de radio $6$ cm? (en función de $\\pi$)",
+   "options": {
+    "A": "$6\\pi$ cm",
+    "B": "$12\\pi$ cm",
+    "C": "$3\\pi$ cm",
+    "D": "$18\\pi$ cm"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. El arco es la mitad del perímetro: $\\frac{2\\pi(6)}{2} = 6\\pi$ cm.",
+    "B": "Ese es el perímetro de la circunferencia **completa**. El semicírculo tiene la mitad.",
+    "C": "Se dividió dos veces por $2$: el arco de media circunferencia es $\\pi r$, no $\\frac{\\pi r}{2}$.",
+    "D": "Ese es el **área** del semicírculo: $\\frac{\\pi(6)^2}{2} = 18\\pi$ cm$^2$. Acá se pide la longitud del arco, que es una distancia."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -0.35,
+   "order_index": 110,
+   "question": "¿Cuál es el área de un sector circular de $90^\\circ$ en un círculo de radio $4$ cm? (en función de $\\pi$)",
+   "options": {
+    "A": "$16\\pi$ cm$^2$",
+    "B": "$8\\pi$ cm$^2$",
+    "C": "$2\\pi$ cm$^2$",
+    "D": "$4\\pi$ cm$^2$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Esa es el área del círculo **completo**. Un sector de $90^\\circ$ es una cuarta parte.",
+    "B": "Se tomó la mitad del círculo. $90^\\circ$ de $360^\\circ$ es un cuarto, no un medio.",
+    "C": "Se dividió por $8$: eso correspondería a un sector de $45^\\circ$.",
+    "D": "Correcto. $\\frac{90}{360} = \\frac{1}{4}$ del área total: $\\frac{\\pi(4)^2}{4} = 4\\pi$ cm$^2$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -0.23,
+   "order_index": 120,
+   "question": "Una circunferencia tiene perímetro $20\\pi$ cm. ¿Cuánto mide su radio?",
+   "options": {
+    "A": "$20$ cm",
+    "B": "$10$ cm",
+    "C": "$40$ cm",
+    "D": "$\\sqrt{20}$ cm"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es el **diámetro**. El radio es su mitad.",
+    "B": "Correcto. De $2\\pi r = 20\\pi$ se sigue que $r = 10$ cm.",
+    "C": "Se multiplicó por $2$ en vez de dividir.",
+    "D": "Se despejó como si la fórmula tuviera el radio al cuadrado, que es la del área."
+   },
+   "misconceptions": {
+    "A": "circulo/confunde-radio-con-diametro",
+    "B": null,
+    "C": "circulo/confunde-radio-con-diametro",
+    "D": "circulo/confunde-area-con-perimetro"
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": -0.12,
+   "order_index": 130,
+   "question": "Un círculo tiene área $36\\pi$ cm$^2$. ¿Cuánto mide su radio?",
+   "options": {
+    "A": "$18$ cm",
+    "B": "$36$ cm",
+    "C": "$6$ cm",
+    "D": "$12$ cm"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se dividió por $2$ en vez de sacar la raíz cuadrada.",
+    "B": "Se tomó el número tal cual, sin despejar. En $A = \\pi r^2$ hay que sacar la raíz.",
+    "C": "Correcto. De $\\pi r^2 = 36\\pi$ queda $r^2 = 36$, así que $r = 6$ cm.",
+    "D": "Ese es el diámetro, que es el doble del radio."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "circulo/olvida-elevar-el-radio",
+    "C": null,
+    "D": "circulo/confunde-radio-con-diametro"
+   }
+  },
+  {
+   "module_slug": "geometria/circulo",
+   "difficulty": 0.0,
+   "order_index": 140,
+   "question": "Una corona circular está formada por dos círculos concéntricos de radios $5$ cm y $3$ cm. ¿Cuál es su área? (en función de $\\pi$)",
+   "options": {
+    "A": "$16\\pi$ cm$^2$",
+    "B": "$4\\pi$ cm$^2$",
+    "C": "$34\\pi$ cm$^2$",
+    "D": "$2\\pi$ cm$^2$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Es la diferencia de las dos áreas: $\\pi(25) - \\pi(9) = 16\\pi$ cm$^2$.",
+    "B": "Se restaron los radios antes de elevar: $(5-3)^2 = 4$. Hay que elevar cada radio **primero** y restar después.",
+    "C": "Se sumaron las dos áreas en vez de restarlas. La corona es el anillo que queda entre los dos círculos.",
+    "D": "Se restaron los radios sin elevar al cuadrado ni multiplicar por $\\pi$ correctamente."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "circulo/olvida-elevar-el-radio",
+    "C": null,
+    "D": "circulo/olvida-elevar-el-radio"
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": -0.8,
+   "order_index": 10,
+   "question": "¿Cuál es el área de un rectángulo de $4$ cm por $6$ cm?",
+   "options": {
+    "A": "$24$ cm$^2$",
+    "B": "$20$ cm",
+    "C": "$10$ cm$^2$",
+    "D": "$12$ cm$^2$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. El área del rectángulo es base por altura: $4 \\times 6 = 24$ cm$^2$.",
+    "B": "Ese es el **perímetro**: $2(4) + 2(6)$. Además está en centímetros, no en centímetros cuadrados.",
+    "C": "Se sumaron los dos lados. El área se obtiene multiplicándolos.",
+    "D": "Se dividió el área por $2$, que es la división de la fórmula del **triángulo**. El rectángulo no la lleva."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "areas/confunde-area-con-perimetro",
+    "C": "areas/confunde-area-con-perimetro",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": -0.68,
+   "order_index": 20,
+   "question": "¿Cuál es el área de un cuadrado de lado $7$ cm?",
+   "options": {
+    "A": "$28$ cm$^2$",
+    "B": "$14$ cm$^2$",
+    "C": "$7$ cm$^2$",
+    "D": "$49$ cm$^2$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es el **perímetro**: $4 \\times 7$.",
+    "B": "Se sumaron dos lados. El área multiplica lado por lado.",
+    "C": "Ese es un solo lado.",
+    "D": "Correcto. $A = 7 \\times 7 = 49$ cm$^2$."
+   },
+   "misconceptions": {
+    "A": "areas/confunde-area-con-perimetro",
+    "B": "areas/confunde-area-con-perimetro",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": -0.55,
+   "order_index": 30,
+   "question": "¿Cuál es el área de un triángulo de base $10$ cm y altura $6$ cm?",
+   "options": {
+    "A": "$60$ cm$^2$",
+    "B": "$16$ cm$^2$",
+    "C": "$30$ cm$^2$",
+    "D": "$32$ cm$^2$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Falta dividir por $2$. Ese es el área del **paralelogramo** de igual base y altura; el triángulo es su mitad.",
+    "B": "Se sumaron base y altura. El área las multiplica.",
+    "C": "Correcto. $A = \\frac{10 \\times 6}{2} = 30$ cm$^2$.",
+    "D": "Ese es el perímetro de un rectángulo de $10$ por $6$: $2(10+6)$. Acá se pide superficie, y el triángulo además es la mitad."
+   },
+   "misconceptions": {
+    "A": "areas/olvida-dividir-por-dos-en-el-triangulo",
+    "B": "areas/confunde-area-con-perimetro",
+    "C": null,
+    "D": "areas/confunde-area-con-perimetro"
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": -0.43,
+   "order_index": 40,
+   "question": "¿Cuál es la fórmula del área de un triángulo?",
+   "options": {
+    "A": "$b \\cdot h$",
+    "B": "$\\dfrac{b \\cdot h}{2}$",
+    "C": "$b + h$",
+    "D": "$2(b + h)$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Esa es la del paralelogramo o rectángulo. El triángulo es exactamente su mitad.",
+    "B": "Correcto. $A = \\frac{b \\cdot h}{2}$.",
+    "C": "Sumar base y altura no da una superficie: el área siempre multiplica dos longitudes.",
+    "D": "Esa es la fórmula del perímetro de un rectángulo."
+   },
+   "misconceptions": {
+    "A": "areas/olvida-dividir-por-dos-en-el-triangulo",
+    "B": null,
+    "C": "areas/confunde-area-con-perimetro",
+    "D": "areas/confunde-area-con-perimetro"
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": -0.31,
+   "order_index": 50,
+   "question": "¿Cuál es el área de un paralelogramo de base $8$ cm y altura $5$ cm?",
+   "options": {
+    "A": "$26$ cm$^2$",
+    "B": "$13$ cm$^2$",
+    "C": "$20$ cm$^2$",
+    "D": "$40$ cm$^2$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es el perímetro si los lados midieran $8$ y $5$, pero la altura no es un lado del paralelogramo.",
+    "B": "Se sumaron base y altura.",
+    "C": "Se dividió por $2$. Esa división corresponde al **triángulo**, no al paralelogramo.",
+    "D": "Correcto. $A = b \\cdot h = 8 \\times 5 = 40$ cm$^2$."
+   },
+   "misconceptions": {
+    "A": "areas/confunde-area-con-perimetro",
+    "B": "areas/confunde-area-con-perimetro",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": -0.18,
+   "order_index": 60,
+   "question": "¿En qué unidades se expresa un área?",
+   "options": {
+    "A": "En unidades cuadradas, como cm$^2$",
+    "B": "En unidades simples, como cm",
+    "C": "En unidades cúbicas, como cm$^3$",
+    "D": "En grados"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. El área multiplica dos longitudes, así que la unidad también queda elevada al cuadrado.",
+    "B": "Esas son las unidades de una longitud o de un perímetro.",
+    "C": "Esas son las de un **volumen**, que multiplica tres longitudes.",
+    "D": "Los grados miden ángulos, no superficies."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "areas/confunde-area-con-perimetro",
+    "C": "volumenes/confunde-volumen-con-area",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": -0.06,
+   "order_index": 70,
+   "question": "Un trapecio tiene bases de $6$ cm y $10$ cm, y altura $4$ cm. ¿Cuál es su área?",
+   "options": {
+    "A": "$240$ cm$^2$",
+    "B": "$32$ cm$^2$",
+    "C": "$20$ cm$^2$",
+    "D": "$64$ cm$^2$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se multiplicaron las tres medidas. La fórmula promedia las bases antes de multiplicar por la altura.",
+    "B": "Correcto. $A = \\frac{(6+10)}{2} \\times 4 = 8 \\times 4 = 32$ cm$^2$.",
+    "C": "Se sumaron las tres medidas.",
+    "D": "Se sumaron las bases y se multiplicó por la altura sin dividir por $2$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "areas/confunde-area-con-perimetro",
+    "D": "areas/olvida-dividir-por-dos-en-el-triangulo"
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": 0.06,
+   "order_index": 80,
+   "question": "Dos rectángulos tienen el **mismo perímetro**. ¿Qué se puede afirmar de sus áreas?",
+   "options": {
+    "A": "Son iguales",
+    "B": "El más alargado tiene mayor área",
+    "C": "El área es siempre la mitad del perímetro",
+    "D": "Pueden ser muy distintas"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "No se sigue. Un rectángulo de $1 \\times 9$ y uno de $3 \\times 7$ tienen perímetro $20$ y áreas de $9$ y $21$.",
+    "B": "Con el mismo perímetro pasa justo al revés: el de $1 \\times 9$ tiene área $9$ y el de $5 \\times 5$, $25$. Alargar la figura le quita área.",
+    "C": "No hay ninguna relación fija entre área y perímetro: dependen de la forma.",
+    "D": "Correcto. Con el mismo perímetro, mientras más parecida al cuadrado sea la figura, mayor es su área."
+   },
+   "misconceptions": {
+    "A": "areas/mismo-perimetro-misma-area",
+    "B": null,
+    "C": "areas/confunde-area-con-perimetro",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": 0.18,
+   "order_index": 90,
+   "question": "Si se **duplican** los lados de un cuadrado, ¿qué pasa con su área?",
+   "options": {
+    "A": "Se duplica",
+    "B": "Queda igual",
+    "C": "Se cuadruplica",
+    "D": "Se multiplica por ocho"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El área multiplica dos longitudes, y las dos se duplicaron: el factor aparece dos veces.",
+    "B": "El área cambia: depende del tamaño del lado.",
+    "C": "Correcto. $(2\\ell)^2 = 4\\ell^2$: el área queda multiplicada por $4$.",
+    "D": "Ese es el factor del **volumen** al duplicar las aristas, donde el factor aparece tres veces."
+   },
+   "misconceptions": {
+    "A": "areas/escala-lineal-en-el-area",
+    "B": "areas/escala-lineal-en-el-area",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": 0.31,
+   "order_index": 100,
+   "question": "¿Cuál es el área de un rectángulo de $3$ m de largo por $200$ cm de ancho?",
+   "options": {
+    "A": "$600$ m$^2$",
+    "B": "$6$ m$^2$",
+    "C": "$203$ m$^2$",
+    "D": "$600$ cm$^2$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se multiplicaron $3$ y $200$ sin igualar las unidades: quedaron metros por centímetros.",
+    "B": "Correcto. $200$ cm $= 2$ m, así que $A = 3 \\times 2 = 6$ m$^2$.",
+    "C": "Se sumaron las dos medidas, y además en unidades distintas.",
+    "D": "El valor sale de multiplicar sin convertir, y la unidad tampoco corresponde: $600$ cm$^2$ es una superficie diminuta."
+   },
+   "misconceptions": {
+    "A": "areas/opera-con-unidades-distintas",
+    "B": null,
+    "C": "areas/opera-con-unidades-distintas",
+    "D": "areas/opera-con-unidades-distintas"
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": 0.43,
+   "order_index": 110,
+   "question": "Un cuadrado tiene área $64$ cm$^2$. ¿Cuánto mide su lado?",
+   "options": {
+    "A": "$8$ cm",
+    "B": "$32$ cm",
+    "C": "$16$ cm",
+    "D": "$64$ cm"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Si $\\ell^2 = 64$, entonces $\\ell = 8$ cm.",
+    "B": "Se dividió por $2$ en vez de sacar la raíz cuadrada.",
+    "C": "Se dividió por $4$, que es el número de lados: eso serviría para pasar de perímetro a lado, no de área.",
+    "D": "Ese es el área. El lado se obtiene sacándole la raíz."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "areas/confunde-area-con-perimetro",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": 0.55,
+   "order_index": 120,
+   "question": "A un rectángulo de $10$ cm por $6$ cm se le recorta un cuadrado de $2$ cm de lado. ¿Cuál es el área que queda?",
+   "options": {
+    "A": "$58$ cm$^2$",
+    "B": "$60$ cm$^2$",
+    "C": "$56$ cm$^2$",
+    "D": "$64$ cm$^2$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se restaron $2$ en vez del área del cuadrado, que es $2^2 = 4$.",
+    "B": "Ese es el área del rectángulo completo, sin descontar el recorte.",
+    "C": "Correcto. $10 \\times 6 = 60$ cm$^2$, menos $2 \\times 2 = 4$ cm$^2$, quedan $56$ cm$^2$.",
+    "D": "Se sumó el área del recorte en vez de restarla."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": 0.68,
+   "order_index": 130,
+   "question": "Un triángulo tiene área $24$ cm$^2$ y base $8$ cm. ¿Cuánto mide su altura?",
+   "options": {
+    "A": "$3$ cm",
+    "B": "$6$ cm",
+    "C": "$16$ cm",
+    "D": "$192$ cm"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se dividió el área por la base sin considerar el $2$ de la fórmula. De $\\frac{8h}{2} = 24$ queda $4h = 24$.",
+    "B": "Correcto. $\\frac{8 \\times h}{2} = 24$, o sea $4h = 24$ y $h = 6$ cm.",
+    "C": "Se multiplicó por $2$ donde había que dividir, o se restó la base del área.",
+    "D": "Se multiplicó el área por la base. Para despejar la altura hay que dividir."
+   },
+   "misconceptions": {
+    "A": "areas/olvida-dividir-por-dos-en-el-triangulo",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/areas",
+   "difficulty": 0.8,
+   "order_index": 140,
+   "question": "Un terreno mide $1.500$ m$^2$. ¿A cuántas hectáreas equivale? ($1$ ha $= 10.000$ m$^2$)",
+   "options": {
+    "A": "$15$ ha",
+    "B": "$1{,}5$ ha",
+    "C": "$150$ ha",
+    "D": "$0{,}15$ ha"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se dividió por $100$. El factor entre hectárea y metro cuadrado es $10.000$.",
+    "B": "Se dividió por $1.000$.",
+    "C": "Se multiplicó en vez de dividir. Al pasar a una unidad **más grande** el número baja.",
+    "D": "Correcto. $1.500 \\div 10.000 = 0{,}15$ ha."
+   },
+   "misconceptions": {
+    "A": "areas/opera-con-unidades-distintas",
+    "B": "areas/opera-con-unidades-distintas",
+    "C": "areas/opera-con-unidades-distintas",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 0.0,
+   "order_index": 10,
+   "question": "¿Cuál es el volumen de un cubo de arista $3$ cm?",
+   "options": {
+    "A": "$9$ cm$^3$",
+    "B": "$27$ cm$^3$",
+    "C": "$12$ cm$^3$",
+    "D": "$54$ cm$^3$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es el área de **una cara**: $3 \\times 3$. El volumen multiplica las tres dimensiones.",
+    "B": "Correcto. $V = 3 \\times 3 \\times 3 = 27$ cm$^3$.",
+    "C": "Se multiplicó la arista por el número de aristas de una cara. El volumen no cuenta aristas.",
+    "D": "Esa es la **superficie total** del cubo: seis caras de $9$ cm$^2$ cada una."
+   },
+   "misconceptions": {
+    "A": "volumenes/confunde-volumen-con-area",
+    "B": null,
+    "C": null,
+    "D": "volumenes/confunde-volumen-con-area"
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 0.13,
+   "order_index": 20,
+   "question": "¿En qué unidades se expresa un volumen?",
+   "options": {
+    "A": "En unidades cúbicas, como cm$^3$",
+    "B": "En unidades cuadradas, como cm$^2$",
+    "C": "En unidades simples, como cm",
+    "D": "En grados"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. El volumen multiplica tres longitudes, así que la unidad queda elevada al cubo.",
+    "B": "Esas son las de un **área**, que multiplica dos longitudes.",
+    "C": "Esas son las de una longitud.",
+    "D": "Los grados miden ángulos."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "volumenes/confunde-volumen-con-area",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 0.26,
+   "order_index": 30,
+   "question": "¿Cuál es el volumen de una caja rectangular de $2$ cm × $3$ cm × $4$ cm?",
+   "options": {
+    "A": "$9$ cm$^3$",
+    "B": "$12$ cm$^3$",
+    "C": "$24$ cm$^3$",
+    "D": "$52$ cm$^3$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se sumaron las tres medidas. El volumen las multiplica.",
+    "B": "Se multiplicaron solo dos de las tres dimensiones: eso da el área de una cara.",
+    "C": "Correcto. $V = 2 \\times 3 \\times 4 = 24$ cm$^3$.",
+    "D": "Esa es la **superficie total** de la caja, la suma de sus seis caras."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "volumenes/confunde-volumen-con-area",
+    "C": null,
+    "D": "volumenes/confunde-volumen-con-area"
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 0.39,
+   "order_index": 40,
+   "question": "¿Cuál es la fórmula del volumen de un cilindro de radio $r$ y altura $h$?",
+   "options": {
+    "A": "$2\\pi r h$",
+    "B": "$\\pi r^2$",
+    "C": "$\\pi r h$",
+    "D": "$\\pi r^2 h$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Esa es el área **lateral** del cilindro, la superficie del manto desenrollado.",
+    "B": "Esa es el área de la base. Falta multiplicar por la altura.",
+    "C": "Falta elevar el radio al cuadrado: la base es un círculo de área $\\pi r^2$.",
+    "D": "Correcto. Volumen de un prisma o cilindro es área de la base por altura: $\\pi r^2 h$."
+   },
+   "misconceptions": {
+    "A": "volumenes/confunde-volumen-con-area",
+    "B": "volumenes/olvida-el-area-de-la-base",
+    "C": "volumenes/olvida-el-area-de-la-base",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 0.52,
+   "order_index": 50,
+   "question": "¿Cuál es el volumen de un cilindro de radio $2$ cm y altura $5$ cm? (en función de $\\pi$)",
+   "options": {
+    "A": "$10\\pi$ cm$^3$",
+    "B": "$20\\pi$ cm$^3$",
+    "C": "$40\\pi$ cm$^3$",
+    "D": "$100\\pi$ cm$^3$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Falta elevar el radio al cuadrado: se calculó $\\pi r h$ en vez de $\\pi r^2 h$.",
+    "B": "Correcto. $V = \\pi (2)^2 (5) = 20\\pi$ cm$^3$.",
+    "C": "Se agregó un factor $2$ de más, probablemente arrastrado de la fórmula del perímetro.",
+    "D": "Se elevó la altura en vez del radio."
+   },
+   "misconceptions": {
+    "A": "volumenes/olvida-el-area-de-la-base",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 0.65,
+   "order_index": 60,
+   "question": "¿A cuántos centímetros cúbicos equivale $1$ litro?",
+   "options": {
+    "A": "$1.000$ cm$^3$",
+    "B": "$100$ cm$^3$",
+    "C": "$10$ cm$^3$",
+    "D": "$1.000.000$ cm$^3$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $1$ L $= 1.000$ cm$^3$, que es el volumen de un cubo de $10$ cm de arista.",
+    "B": "Ese es el factor entre metros y centímetros para longitudes, no para capacidad.",
+    "C": "Ese factor tampoco corresponde: un cubo de $10$ cm de lado tiene $10^3$ cm$^3$.",
+    "D": "Ese es el factor entre metro cúbico y centímetro cúbico: $1$ m$^3 = 1.000$ L."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "volumenes/confunde-litros-con-metros-cubicos",
+    "C": "volumenes/confunde-litros-con-metros-cubicos",
+    "D": "volumenes/confunde-litros-con-metros-cubicos"
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 0.78,
+   "order_index": 70,
+   "question": "Si se **duplica** la arista de un cubo, ¿qué pasa con su volumen?",
+   "options": {
+    "A": "Se duplica",
+    "B": "Se cuadruplica",
+    "C": "Se multiplica por ocho",
+    "D": "Queda igual"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El volumen multiplica tres longitudes, y las tres se duplicaron.",
+    "B": "Ese es el factor del **área**, donde el factor aparece dos veces. En el volumen aparece tres.",
+    "C": "Correcto. $(2a)^3 = 8a^3$: el volumen queda multiplicado por $8$.",
+    "D": "El volumen depende del tamaño de la arista, así que cambia."
+   },
+   "misconceptions": {
+    "A": "volumenes/escala-lineal-en-el-volumen",
+    "B": "volumenes/escala-lineal-en-el-volumen",
+    "C": null,
+    "D": "volumenes/escala-lineal-en-el-volumen"
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 0.92,
+   "order_index": 80,
+   "question": "Un cubo tiene volumen $125$ cm$^3$. ¿Cuánto mide su arista?",
+   "options": {
+    "A": "$25$ cm",
+    "B": "$41{,}7$ cm",
+    "C": "$62{,}5$ cm",
+    "D": "$5$ cm"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se sacó la raíz cuadrada. En un cubo hay que sacar la raíz **cúbica**, porque son tres dimensiones.",
+    "B": "Se dividió por $3$. El $3$ es un exponente, no un factor.",
+    "C": "Se dividió por $2$.",
+    "D": "Correcto. $5 \\times 5 \\times 5 = 125$, así que la arista mide $5$ cm."
+   },
+   "misconceptions": {
+    "A": "volumenes/confunde-volumen-con-area",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 1.05,
+   "order_index": 90,
+   "question": "Un estanque mide $2$ m × $1$ m × $0{,}5$ m. ¿Cuántos litros de agua caben?",
+   "options": {
+    "A": "$1$ L",
+    "B": "$1.000$ L",
+    "C": "$100$ L",
+    "D": "$1.000.000$ L"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es el volumen en **metros cúbicos**, no en litros. Falta convertir.",
+    "B": "Correcto. $V = 2 \\times 1 \\times 0{,}5 = 1$ m$^3$, y $1$ m$^3 = 1.000$ L.",
+    "C": "Se usó un factor de $100$ entre metro cúbico y litro. El factor correcto es $1.000$.",
+    "D": "Ese es el factor entre metro cúbico y **centímetro** cúbico, no litros."
+   },
+   "misconceptions": {
+    "A": "volumenes/confunde-litros-con-metros-cubicos",
+    "B": null,
+    "C": "volumenes/confunde-litros-con-metros-cubicos",
+    "D": "volumenes/confunde-litros-con-metros-cubicos"
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 1.18,
+   "order_index": 100,
+   "question": "Un prisma tiene base triangular de base $6$ cm y altura $4$ cm, y una longitud de $10$ cm. ¿Cuál es su volumen?",
+   "options": {
+    "A": "$120$ cm$^3$",
+    "B": "$240$ cm$^3$",
+    "C": "$20$ cm$^3$",
+    "D": "$60$ cm$^3$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. El área de la base triangular es $\\frac{6 \\times 4}{2} = 12$ cm$^2$, y $12 \\times 10 = 120$ cm$^3$.",
+    "B": "El área de la base se calculó sin dividir por $2$: se usó $6 \\times 4 = 24$ en vez de $12$.",
+    "C": "Se sumaron las tres medidas.",
+    "D": "Se multiplicaron solo dos de las tres medidas, o se dividió el resultado por $2$ una vez de más."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "areas/olvida-dividir-por-dos-en-el-triangulo",
+    "C": null,
+    "D": "volumenes/olvida-el-area-de-la-base"
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 1.31,
+   "order_index": 110,
+   "question": "Un cilindro tiene volumen $100\\pi$ cm$^3$ y radio $5$ cm. ¿Cuál es su altura?",
+   "options": {
+    "A": "$20$ cm",
+    "B": "$10$ cm",
+    "C": "$4$ cm",
+    "D": "$2$ cm"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se dividió por el radio sin elevarlo al cuadrado: el área de la base es $\\pi(5)^2 = 25\\pi$, no $5\\pi$.",
+    "B": "Se dividió por el **diámetro** ($10$) como si fuera el área de la base. La base es un círculo de área $\\pi(5)^2$.",
+    "C": "Correcto. $\\pi(5)^2 h = 100\\pi$, o sea $25h = 100$ y $h = 4$ cm.",
+    "D": "Se tomó el área de la base como el doble de lo que es ($50$ en vez de $25$), y quedó la mitad de la altura."
+   },
+   "misconceptions": {
+    "A": "volumenes/olvida-el-area-de-la-base",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 1.44,
+   "order_index": 120,
+   "question": "Un tarro cilíndrico tiene radio $10$ cm y altura $20$ cm. Tomando $\\pi \\approx 3{,}14$, ¿cuántos litros contiene aproximadamente?",
+   "options": {
+    "A": "$62{,}8$ L",
+    "B": "$0{,}628$ L",
+    "C": "$628$ L",
+    "D": "$6{,}28$ L"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "El volumen en cm$^3$ es $6.280$; al pasar a litros hay que dividir por $1.000$, no por $100$.",
+    "B": "Se dividió por $10.000$. El factor entre centímetro cúbico y litro es $1.000$.",
+    "C": "Ese es el volumen en cm$^3$ dividido por $10$: quedó a un paso de la conversión.",
+    "D": "Correcto. $V = 3{,}14 \\times 100 \\times 20 = 6.280$ cm$^3$, y $6.280 \\div 1.000 = 6{,}28$ L."
+   },
+   "misconceptions": {
+    "A": "volumenes/confunde-litros-con-metros-cubicos",
+    "B": "volumenes/confunde-litros-con-metros-cubicos",
+    "C": "volumenes/confunde-litros-con-metros-cubicos",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 1.57,
+   "order_index": 130,
+   "question": "Si se duplica la arista de un cubo, ¿cómo cambian su **superficie total** y su **volumen**?",
+   "options": {
+    "A": "Los dos se duplican",
+    "B": "La superficie se cuadruplica y el volumen se multiplica por ocho",
+    "C": "La superficie se duplica y el volumen se cuadruplica",
+    "D": "Los dos se multiplican por ocho"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Solo las longitudes se duplican. La superficie y el volumen crecen más rápido, porque combinan varias longitudes.",
+    "B": "Correcto. La superficie depende de $a^2$, así que crece $2^2 = 4$ veces; el volumen depende de $a^3$ y crece $2^3 = 8$ veces.",
+    "C": "Los factores están corridos: la superficie va con el exponente $2$ y el volumen con el $3$.",
+    "D": "El factor $8$ corresponde solo al volumen. La superficie crece cuatro veces."
+   },
+   "misconceptions": {
+    "A": "volumenes/escala-lineal-en-el-volumen",
+    "B": null,
+    "C": "volumenes/escala-lineal-en-el-volumen",
+    "D": "volumenes/escala-lineal-en-el-volumen"
+   }
+  },
+  {
+   "module_slug": "geometria/volumenes",
+   "difficulty": 1.7,
+   "order_index": 140,
+   "question": "Un cubo de arista $6$ cm se corta en cubitos de arista $2$ cm. ¿Cuántos cubitos se obtienen?",
+   "options": {
+    "A": "$3$",
+    "B": "$9$",
+    "C": "$27$",
+    "D": "$18$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es cuántos cubitos caben a lo **largo** de una arista. Hay que contar en las tres direcciones.",
+    "B": "Se contó en dos direcciones: eso da los cubitos de una sola capa.",
+    "C": "Correcto. Caben $3$ en cada dirección, así que son $3 \\times 3 \\times 3 = 27$. Se comprueba con los volúmenes: $216 \\div 8 = 27$.",
+    "D": "Se multiplicó por $2$ el resultado de una capa, en vez de considerar las tres capas."
+   },
+   "misconceptions": {
+    "A": "volumenes/escala-lineal-en-el-volumen",
+    "B": "volumenes/confunde-volumen-con-area",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 0.8,
+   "order_index": 10,
+   "question": "El teorema de Pitágoras relaciona:",
+   "options": {
+    "A": "los ángulos de cualquier triángulo",
+    "B": "los lados de cualquier triángulo",
+    "C": "el área y el perímetro de un triángulo",
+    "D": "los lados de un triángulo **rectángulo**"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "El teorema habla de longitudes, no de ángulos. Lo que suma $180^\\circ$ son los ángulos interiores, y eso es otra propiedad.",
+    "B": "Solo vale si el triángulo tiene un ángulo recto. En cualquier otro la igualdad no se cumple.",
+    "C": "No relaciona área con perímetro: relaciona los cuadrados de tres longitudes.",
+    "D": "Correcto. En un triángulo rectángulo, el cuadrado de la hipotenusa es igual a la suma de los cuadrados de los catetos."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "pitagoras/aplica-el-teorema-en-triangulo-no-rectangulo",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 0.95,
+   "order_index": 20,
+   "question": "En un triángulo rectángulo, la **hipotenusa** es:",
+   "options": {
+    "A": "el lado más corto",
+    "B": "el lado opuesto al ángulo recto, y siempre el más largo",
+    "C": "cualquiera de los dos lados que forman el ángulo recto",
+    "D": "la altura del triángulo"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Es al revés: la hipotenusa es siempre el lado más largo, porque se opone al ángulo mayor.",
+    "B": "Correcto. La hipotenusa se opone al ángulo recto y supera a cualquiera de los catetos.",
+    "C": "Esos son los **catetos**: los dos lados que forman el ángulo recto.",
+    "D": "La altura es un segmento auxiliar, no uno de los tres lados."
+   },
+   "misconceptions": {
+    "A": "pitagoras/confunde-cateto-con-hipotenusa",
+    "B": null,
+    "C": "pitagoras/confunde-cateto-con-hipotenusa",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 1.1,
+   "order_index": 30,
+   "question": "Un triángulo rectángulo tiene catetos de $3$ y $4$ cm. ¿Cuánto mide su hipotenusa?",
+   "options": {
+    "A": "$7$ cm",
+    "B": "$25$ cm",
+    "C": "$5$ cm",
+    "D": "$12$ cm"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se sumaron los catetos sin elevarlos al cuadrado. El teorema relaciona los cuadrados.",
+    "B": "Ese es $c^2$: $9 + 16 = 25$. Falta el último paso, sacar la raíz cuadrada.",
+    "C": "Correcto. $c^2 = 3^2 + 4^2 = 9 + 16 = 25$, así que $c = 5$ cm.",
+    "D": "Se multiplicaron los catetos. Ese producto sirve para el área ($\\frac{3\\times 4}{2}$), no para la hipotenusa."
+   },
+   "misconceptions": {
+    "A": "pitagoras/suma-los-lados-sin-elevar",
+    "B": "pitagoras/olvida-la-raiz-final",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 1.25,
+   "order_index": 40,
+   "question": "Un triángulo rectángulo tiene catetos de $6$ y $8$ cm. ¿Cuánto mide su hipotenusa?",
+   "options": {
+    "A": "$10$ cm",
+    "B": "$14$ cm",
+    "C": "$100$ cm",
+    "D": "$2$ cm"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $c^2 = 36 + 64 = 100$, así que $c = 10$ cm.",
+    "B": "Se sumaron los catetos directamente, sin elevar al cuadrado.",
+    "C": "Ese es $c^2$. Falta sacar la raíz.",
+    "D": "Se restaron los catetos. Para la hipotenusa los cuadrados se **suman**; restar sirve para hallar un cateto."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "pitagoras/suma-los-lados-sin-elevar",
+    "C": "pitagoras/olvida-la-raiz-final",
+    "D": "pitagoras/resta-donde-corresponde-sumar"
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 1.4,
+   "order_index": 50,
+   "question": "En un triángulo rectángulo la hipotenusa mide $13$ cm y un cateto $5$ cm. ¿Cuánto mide el otro cateto?",
+   "options": {
+    "A": "$18$ cm",
+    "B": "$\\sqrt{194}$ cm",
+    "C": "$8$ cm",
+    "D": "$12$ cm"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se sumaron las dos medidas. Además, un cateto nunca puede ser mayor que la hipotenusa.",
+    "B": "Se sumaron los cuadrados ($169 + 25$) en vez de restarlos. Ese cálculo da la hipotenusa de otro triángulo, no el cateto que falta.",
+    "C": "Se restaron las medidas sin elevarlas al cuadrado: $13 - 5$. La resta va entre los **cuadrados**.",
+    "D": "Correcto. $b^2 = 13^2 - 5^2 = 169 - 25 = 144$, así que $b = 12$ cm."
+   },
+   "misconceptions": {
+    "A": "pitagoras/suma-los-lados-sin-elevar",
+    "B": "pitagoras/resta-donde-corresponde-sumar",
+    "C": "pitagoras/suma-los-lados-sin-elevar",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 1.6,
+   "order_index": 60,
+   "question": "¿Es rectángulo un triángulo de lados $5$, $12$ y $13$?",
+   "options": {
+    "A": "No, porque los tres lados son distintos",
+    "B": "Sí, porque $5^2 + 12^2 = 13^2$",
+    "C": "No, porque $5 + 12 \\neq 13$",
+    "D": "Sí, porque $13$ es un número primo"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Un triángulo rectángulo puede perfectamente tener los tres lados distintos: este lo es.",
+    "B": "Correcto. $25 + 144 = 169 = 13^2$: el recíproco del teorema confirma que hay un ángulo recto.",
+    "C": "Que los dos lados menores sumen más que el mayor solo garantiza que el triángulo **existe**. Para el ángulo recto hay que comparar los cuadrados.",
+    "D": "Que un lado sea primo no dice nada sobre los ángulos."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": "pitagoras/suma-los-lados-sin-elevar",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 1.8,
+   "order_index": 70,
+   "question": "¿Es rectángulo un triángulo de lados $4$, $5$ y $6$?",
+   "options": {
+    "A": "Sí, porque $4 + 5 > 6$",
+    "B": "Sí, porque los lados son consecutivos",
+    "C": "No, porque $4^2 + 5^2 = 41$ y $6^2 = 36$",
+    "D": "No se puede saber sin conocer los ángulos"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Esa condición solo asegura que el triángulo se puede construir, no que tenga un ángulo recto.",
+    "B": "Que los lados sean consecutivos no implica nada sobre los ángulos: $3$, $4$, $5$ también lo son y ese sí es rectángulo.",
+    "C": "Correcto. Como $41 \\neq 36$, no se cumple el teorema y el triángulo no es rectángulo. De hecho, al ser $41 > 36$, el ángulo mayor es agudo.",
+    "D": "Sí se puede: el recíproco del teorema permite decidirlo solo con los lados."
+   },
+   "misconceptions": {
+    "A": "pitagoras/suma-los-lados-sin-elevar",
+    "B": "pitagoras/aplica-el-teorema-en-triangulo-no-rectangulo",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 2.0,
+   "order_index": 80,
+   "question": "¿Cuánto mide la **diagonal** de un rectángulo de $3$ cm por $4$ cm?",
+   "options": {
+    "A": "$5$ cm",
+    "B": "$7$ cm",
+    "C": "$12$ cm",
+    "D": "$14$ cm"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. La diagonal parte el rectángulo en dos triángulos rectángulos de catetos $3$ y $4$: mide $\\sqrt{9+16} = 5$ cm.",
+    "B": "Se sumaron los lados sin elevar al cuadrado.",
+    "C": "Ese es el **área** del rectángulo, no una longitud.",
+    "D": "Ese es el perímetro."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "pitagoras/suma-los-lados-sin-elevar",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 2.15,
+   "order_index": 90,
+   "question": "¿Cuánto mide la diagonal de un cuadrado de lado $5$ cm?",
+   "options": {
+    "A": "$10$ cm",
+    "B": "$25$ cm",
+    "C": "$5$ cm",
+    "D": "$5\\sqrt{2}$ cm"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Se sumaron los dos lados. La diagonal es la hipotenusa de un triángulo de catetos $5$ y $5$, y vale bastante menos que $10$.",
+    "B": "Ese es el área del cuadrado, no una longitud. Aplicando el teorema queda $d^2 = 25 + 25 = 50$, y todavía falta sacar la raíz.",
+    "C": "Ese es el lado. La diagonal siempre es más larga que el lado.",
+    "D": "Correcto. $d = \\sqrt{5^2 + 5^2} = \\sqrt{50} = 5\\sqrt{2} \\approx 7{,}07$ cm."
+   },
+   "misconceptions": {
+    "A": "pitagoras/suma-los-lados-sin-elevar",
+    "B": "pitagoras/olvida-la-raiz-final",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 2.3,
+   "order_index": 100,
+   "question": "¿Cuál es la distancia entre los puntos $(0, 0)$ y $(3, 4)$ del plano?",
+   "options": {
+    "A": "$7$",
+    "B": "$5$",
+    "C": "$12$",
+    "D": "$1$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se sumaron las coordenadas. La distancia es la hipotenusa de un triángulo de catetos $3$ y $4$.",
+    "B": "Correcto. $d = \\sqrt{3^2 + 4^2} = \\sqrt{25} = 5$.",
+    "C": "Se multiplicaron las coordenadas.",
+    "D": "Se restaron las coordenadas entre sí. La resta va entre coordenadas del **mismo** eje, y acá el origen está en cero."
+   },
+   "misconceptions": {
+    "A": "pitagoras/suma-los-lados-sin-elevar",
+    "B": null,
+    "C": null,
+    "D": "pitagoras/distancia-sin-restar-coordenadas"
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 2.5,
+   "order_index": 110,
+   "question": "Una escalera de $5$ m se apoya en una pared, con su base a $3$ m del muro. ¿A qué altura llega?",
+   "options": {
+    "A": "$8$ m",
+    "B": "$2$ m",
+    "C": "$4$ m",
+    "D": "$\\sqrt{34}$ m"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Se sumaron las dos medidas. La escalera es la hipotenusa: la altura tiene que ser **menor** que $5$ m.",
+    "B": "Se restaron las medidas sin elevarlas al cuadrado. La resta va entre los cuadrados: $25 - 9$.",
+    "C": "Correcto. $h^2 = 5^2 - 3^2 = 25 - 9 = 16$, así que $h = 4$ m.",
+    "D": "Se sumaron los cuadrados en vez de restarlos. Acá el $5$ es la hipotenusa, así que su cuadrado es del que se resta."
+   },
+   "misconceptions": {
+    "A": "pitagoras/suma-los-lados-sin-elevar",
+    "B": "pitagoras/suma-los-lados-sin-elevar",
+    "C": null,
+    "D": "pitagoras/resta-donde-corresponde-sumar"
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 2.7,
+   "order_index": 120,
+   "question": "¿Cuál es la distancia entre los puntos $(1, 2)$ y $(4, 6)$?",
+   "options": {
+    "A": "$5$",
+    "B": "$7$",
+    "C": "$\\sqrt{57}$",
+    "D": "$13$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Las diferencias son $4-1 = 3$ y $6-2 = 4$, así que $d = \\sqrt{9 + 16} = 5$.",
+    "B": "Se sumaron las diferencias ($3 + 4$) sin elevarlas al cuadrado.",
+    "C": "Se elevaron las cuatro coordenadas y se sumaron: $1+4+16+36 = 57$. Primero hay que restar coordenada con coordenada del mismo eje.",
+    "D": "Se sumaron las cuatro coordenadas."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "pitagoras/suma-los-lados-sin-elevar",
+    "C": "pitagoras/distancia-sin-restar-coordenadas",
+    "D": "pitagoras/distancia-sin-restar-coordenadas"
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 2.85,
+   "order_index": 130,
+   "question": "¿Cuánto mide la altura de un triángulo **equilátero** de lado $6$ cm?",
+   "options": {
+    "A": "$6$ cm",
+    "B": "$3$ cm",
+    "C": "$\\sqrt{45}$ cm",
+    "D": "$3\\sqrt{3}$ cm"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "La altura siempre es menor que el lado: cae dentro del triángulo.",
+    "B": "Ese es la mitad del lado, o sea el cateto de la base, no la altura.",
+    "C": "Se usó $6$ y $3$ como catetos y se sumaron sus cuadrados. Acá el $6$ es la **hipotenusa**, así que se resta: $36 - 9$.",
+    "D": "Correcto. La altura parte el equilátero en dos triángulos rectángulos de hipotenusa $6$ y cateto $3$: $h = \\sqrt{36-9} = \\sqrt{27} = 3\\sqrt{3} \\approx 5{,}2$ cm."
+   },
+   "misconceptions": {
+    "A": "pitagoras/confunde-cateto-con-hipotenusa",
+    "B": null,
+    "C": "pitagoras/resta-donde-corresponde-sumar",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "geometria/pitagoras",
+   "difficulty": 3.0,
+   "order_index": 140,
+   "question": "Una caja mide $3$ cm × $4$ cm × $12$ cm. ¿Cuánto mide la varilla más larga que cabe dentro, en línea recta?",
+   "options": {
+    "A": "$19$ cm",
+    "B": "$13$ cm",
+    "C": "$12$ cm",
+    "D": "$5$ cm"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Se sumaron las tres aristas. La diagonal es mucho más corta que recorrer los tres bordes.",
+    "B": "Correcto. Se aplica el teorema dos veces: la diagonal de la base es $\\sqrt{9+16} = 5$, y con la altura queda $\\sqrt{25 + 144} = \\sqrt{169} = 13$ cm.",
+    "C": "Esa es la arista más larga. La diagonal del cuerpo la supera, porque también recorre las otras dos dimensiones.",
+    "D": "Esa es la diagonal de la **base**. Falta combinarla con la altura de $12$ cm."
+   },
+   "misconceptions": {
+    "A": "pitagoras/suma-los-lados-sin-elevar",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  }
+ ]
+}
