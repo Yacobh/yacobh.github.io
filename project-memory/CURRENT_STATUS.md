@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-28** · Rama **`main`** · SESSION-037/038 **pusheadas** (`0a70d09`); lo de SESSION-039 está commiteado y **la migración `048` sigue sin aplicar**
+**Fecha de corte: 2026-08-28** · Rama **`main`** · **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
 
@@ -45,7 +45,10 @@
 > para no aplicar la migración.**
 >
 > **Estado:** 181 tests / 2677 assertions / 0 failures, 5/5 auditores, build sin warnings.
-> **`048` sin aplicar** y **el motor nuevo no se ha probado en vivo contra Supabase.**
+> **En producción** (`2549ac0`): el owner aplicó `048` **antes** del push —el orden que R-39 exigía—
+> y verificó 283 filas backfilleadas a v1 con 0 sin versión. **Falta rendir un diagnóstico real con
+> el motor v2**: el primer test que entre debe quedar con `engine_version = 2`, y esa es la
+> comprobación de que el estampado funciona de punta a punta.
 >
 > 🔜 **Lo que queda dicho y no hecho:** el estudiante fuerte sigue con **37 %** de banda correcta
 > (T-117) — el techo ahí son 12 ítems, no el estimador —, y la parada por precisión sigue sin

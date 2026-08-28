@@ -1,6 +1,6 @@
 # RISKS
 
-Última actualización: **2026-08-28** — **R-39 nuevo** (el bundle puede llegar a producción antes que la migración `048` y perder el diagnóstico completo de un estudiante; mitigado con reintento en el cliente) y **R-40 nuevo** (los θ de motor v1 y v2 no son comparables y nada impide compararlos). **R-38 empeoró a propósito**: con azar, el piso del SE sube de 0,577 a ≈0,73. · Antes: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
+Última actualización: **2026-08-28** — **R-39 abierto y cerrado el mismo día** (el bundle podía llegar a producción antes que `048` y perder el diagnóstico completo de un estudiante; el owner aplicó la migración antes del push y no se materializó — el patrón sigue vivo para migraciones futuras) y **R-40 nuevo** (los θ de motor v1 y v2 no son comparables y nada impide compararlos). **R-38 empeoró a propósito**: con azar, el piso del SE sube de 0,577 a ≈0,73. · Antes: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
 de los 306 ítems; mitigado en el cliente por ADR-030, el dato sigue sesgado). ·
 Antes: **2026-08-17** — **R-33 nuevo** (la pantalla de Google nombra a `supabase.co`
 y no a la marca, visto en vivo al verificar T-92; toca la confianza justo en el registro) y **R-32
@@ -885,7 +885,10 @@ pese a ser lo que recomienda la teoría de tests de clasificación.
 
 ### R-39 · El bundle puede llegar a producción antes que su migración, y el test del estudiante se pierde
 
-**Abierto 2026-08-28** con ADR-034. **Severidad: alta si ocurre, mitigado.**
+**Abierto y cerrado 2026-08-28** con ADR-034. **No se materializó:** el owner aplicó `048` **antes**
+del push y verificó el backfill (283 filas en v1, 0 sin versión), que era exactamente el orden que
+este riesgo pedía. Se conserva porque **el patrón no se cerró, solo esta instancia**: cada migración
+futura que agregue una columna que el cliente escriba vuelve a abrir la misma ventana.
 
 Las migraciones de este proyecto **se aplican a mano** en el SQL Editor (§9 de `CLAUDE.md`), y el
 historial dice que la ventana entre desplegar y aplicar es real: `045` estuvo commiteada y sin
@@ -904,7 +907,7 @@ que la red no se apague sola, incluido el caso que **no** debe reintentarse (un 
 **La red no es un permiso para no aplicar la migración:** mientras `048` no esté, todos los tests
 nuevos entran sin versión y R-40 se agrava.
 
-- **Severidad:** 🔴 alta si ocurre · probabilidad media · **mitigado en el cliente**
+- **Severidad:** ✅ **cerrado 2026-08-28** para `048` · el patrón sigue vivo para migraciones futuras
 - **Relacionado:** ADR-034, ADR-003, R-40, `supabase/migrations/048_*.sql`, [[LESSONS_LEARNED]]
 
 ### R-40 · Los θ de v1 y v2 no son comparables, y nada impide compararlos

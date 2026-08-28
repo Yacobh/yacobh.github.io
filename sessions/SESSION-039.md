@@ -33,7 +33,9 @@ falla del estudiante, sin eso todo lo demás es solo un producto cosmético muy 
    `numbers_v1`. Ocho simulaciones.
 3. **Se implementó ADR-034 / D-65**: azar fijo `c = 0,25`, prior a N(0, 2²), los dos configurables
    por evaluación, y `tests.engine_version`.
-4. **Migración `048`**, aditiva, con backfill a 1 y verificación al pie. **Sin aplicar todavía.**
+4. **Migración `048`**, aditiva, con backfill a 1 y verificación al pie. **Aplicada por el owner al
+   cierre de la sesión, antes del push** —el orden que exigía R-39— y verificada: 283 filas
+   backfilleadas a v1, 0 sin versión.
 5. Se respondió, sin tocar código, la pregunta del owner sobre tiempo de respuesta y sobre repetir
    nivel antes de subir (van der Linden 2007; testlets / MST).
 
@@ -89,8 +91,10 @@ columna, con test para el caso que **no** debe reintentarse (un fallo de RLS).
 
 ## Pendiente para el owner
 
-1. **Aplicar `048`** — mientras no esté, los tests nuevos entran sin versión (R-39/R-40).
-2. **Verificar en vivo** un diagnóstico completo con el motor nuevo. No se probó contra Supabase.
+1. ~~Aplicar `048`~~ — ✅ **hecho al cierre de la sesión**, antes del push (283 filas en v1).
+2. **Verificar en vivo** un diagnóstico completo con el motor nuevo: el primer test que entre debe
+   quedar con `engine_version = 2`. Es la comprobación de que el estampado funciona de punta a
+   punta, y es lo único de esta sesión que no está verificado.
 3. **T-117**: el 37 % del estudiante fuerte. El techo son 12 ítems, no el estimador.
 4. **T-111**: la parada por precisión, ahora con la aritmética peor.
 
