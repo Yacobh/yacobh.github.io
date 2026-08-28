@@ -57,7 +57,10 @@ EMBUDO = {
     "privacidad.cljs",
 }
 
-ADMIN = {"admin.cljs", "admin_questions.cljs", "admin_test_configs.cljs"}
+# Edición: el panel de admin y el editor en vivo del diagnóstico (ADR-032),
+# que vive dentro de una pantalla del embudo pero solo se le muestra a un admin.
+ADMIN = {"admin.cljs", "admin_questions.cljs", "admin_test_configs.cljs",
+         "test_editor.cljs", "campos.cljs"}
 
 ANCHO_TELEFONO = 360
 

@@ -45,7 +45,13 @@ PANEL = {
     "400": "#9E9E9A", "500": "#7A7A76", "600": "#565652", "700": "#3A3A37",
     "800": "#2B2B28", "900": "#1F1F1D", "950": "#151513",
 }
-LED = {"300": "#7BF2DA", "400": "#4CEBCC", "500": "#2EE6C5", "600": "#16C79A", "700": "#0E9E7A"}
+LED = {"300": "#7BF2DA", "400": "#4CEBCC", "500": "#2EE6C5", "600": "#16C79A",
+       "700": "#0E9E7A", "800": "#0A7A5E"}
+# LED de alarma (ADR-033): el rojo del instrumento. Reemplaza a los
+# `green-*`/`red-*` de fábrica que tenía el diagnóstico, que eran la única
+# familia de color del producto fuera de la paleta.
+ALARMA = {"300": "#FF9F91", "400": "#FF7361", "500": "#FF4B38", "600": "#D93724",
+          "700": "#A82A1B", "800": "#7C1F14"}
 BLANCO = "#FFFFFF"
 
 # (descripción, frente, fondo, umbral)
@@ -104,6 +110,18 @@ PARES = [
     #   significa acierto/fallo y un escape no es ninguno de los dos.
     ("escape · pista del botón",        "#4B5563",      PANEL["100"],   4.5),
     ("escape · distintivo neutro",      PANEL["50"],    PANEL["600"],   4.5),
+
+    # Estado del diagnóstico (ADR-033). La regla que ordena estos cinco pares:
+    # el estado se dice con un DIODO dentro de su alojamiento y con palabras —
+    # nunca pintando la superficie de la alternativa, que se queda en panel-100
+    # sea cual sea el resultado. Por eso no hay ningún par "verde sobre blanco".
+    ("alojamiento · LED de alarma",     ALARMA["500"],  PANEL["700"],   3.0),
+    ("alojamiento · LED de alarma (oscuro)", ALARMA["500"], PANEL["950"], 3.0),
+    # Las reglas laterales son objeto gráfico (3.0). led-700 daba 2.33 sobre la
+    # superficie de la alternativa y no delimitaba: por eso existe el 800.
+    ("alternativa · regla correcta",    LED["800"],     PANEL["100"],   3.0),
+    ("alternativa · regla de la elegida", ALARMA["700"], PANEL["100"],  3.0),
+    ("alternativa · badge «tu respuesta»", PANEL["50"], PANEL["700"],   4.5),
 
     ("modal · texto de la explicación", "#1F2937",      PANEL["50"],    4.5),
     # senal-500 daba 2.75 acá y no llegaba ni a objeto gráfico: va en 600.
