@@ -1,6 +1,6 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-08-28** — **L-52 y L-53 nuevas** (la explicación obvia de un sesgo puede ser falsa tres veces seguidas y solo la medición lo dice; un test que compara dos configuraciones puede estar midiendo la salvaguarda en vez de la configuración). · Antes: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
+Última actualización: **2026-08-28 (2ª pasada)** — **L-54, L-55 y L-56 nuevas** (la memoria puede documentar una capacidad que la base no tiene —`questions.active` no existía y dos tareas se planificaron encima—; una migración idempotente por contenido no corrige lo ya cargado, hace falta una de delta calculado; reordenar las alternativas de un ítem ya rendido rompe el histórico, porque `tests` guarda la letra) y **L-46 con una tercera repetición**: el fixture volvió a construirse desde el supuesto que debía refutar, y lo que lo atrapó fue una guarda dentro de la migración. · Antes: **2026-08-28** — **L-52 y L-53 nuevas** (la explicación obvia de un sesgo puede ser falsa tres veces seguidas y solo la medición lo dice; un test que compara dos configuraciones puede estar midiendo la salvaguarda en vez de la configuración). · Antes: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
 ruta de login** — el gate legal no va donde está el formulario sino donde nace la cuenta; y
 **L-43**, si Google Cloud te pide datos tributarios para configurar OAuth, te desviaste de camino.
 Antes ese mismo día: **L-41**, una copia que nadie mira diverge — la pregunta útil
@@ -787,8 +787,77 @@ error, la columna puede no existir — un `select` de Supabase falla ruidosament
 ausente de un mapa no. Fue exactamente el caso: `q.explanation` era `undefined` en el bucle de
 corrección y se saltaba en silencio.
 
+> ⚠️ **2026-08-28 — pasó una tercera vez, con esta lección ya escrita.** La migración de reparación
+> del eje de probabilidad se probó contra un PostgreSQL desechable y pasó; el fixture lo escribió el
+> agente **con** una columna `questions.active` porque creía que existía. Contra la base real:
+> `P0001` — no existía. La lección estaba escrita hace nueve días y aun así el fixture volvió a
+> construirse desde el supuesto. **Escribir la lección no la aplica.** Lo que sí funcionó fue una
+> guarda dentro de la migración (`if not exists (select … information_schema.columns …) then raise`),
+> que le pregunta a la base **real** en el momento de aplicar: cuesta seis líneas y es lo único que
+> no puede compartir el supuesto del agente. Desde acá, toda migración que dependa de una columna
+> que no creó ella misma lleva esa guarda.
+
 - **Relacionado:** [[BACKLOG]] T-105, `supabase/migrations/047_arreglar_escapes_latex_dobles.sql`,
   `supabase/SCHEMA.md`, [[L-44]].
+
+### L-54 · La memoria del proyecto puede documentar una capacidad que la base no tiene
+
+**Síntoma.** [[BACKLOG]] T-122 llevaba días recomendando «`active = false` en vez de `delete`, es
+reversible y no toca el histórico», y la skill `banco-de-items` medía la cobertura del banco con
+`... from questions where active`. Se planificó una reparación completa encima de eso. Al aplicarla:
+`P0001: public.questions no tiene columna active`. **No existía.** Y `next_question` (`024`) tampoco
+filtraba por nada equivalente, así que ni siquiera había una forma de retirar un ítem sin borrarlo.
+
+**Causa.** Las dos frases se escribieron como *plan* —«el camino reversible sería…»— y con el tiempo
+se leyeron como *descripción*. Nadie corrió nunca la consulta de la skill: habría fallado el primer
+día. Una memoria que se escribe sola, sin ejecutar, acumula capacidades imaginarias.
+
+**Regla.** Una afirmación sobre el esquema que la memoria repita —«la tabla tiene X», «basta con
+poner Y»— **se verifica contra la base antes de planificar encima**, y si no se puede verificar se
+escribe en condicional. Una consulta que vive en un documento y nadie ejecuta no es documentación:
+es una hipótesis con formato de hecho.
+
+- **Relacionado:** [[BACKLOG]] T-122, T-126, `supabase/migrations/057_questions_active_y_next_question.sql`,
+  [[L-46]], [[../adr/ADR-017-topic-canonico-por-trigger]] (el mismo modo de fallo: nada falla, nada
+  se registra).
+
+### L-55 · Una migración idempotente por contenido no puede corregir lo que ya cargó
+
+**Síntoma.** El owner aplicó `056` (100 ítems). Después cambiaron dos reglas de contenido y hubo que
+sacar 12 ítems y reescribir tres explicaciones. Reaplicar la versión corregida de `056` **no arregló
+nada**: entra lo nuevo y lo viejo se queda igual.
+
+**Causa.** Esa idempotencia es deliberada y correcta —`where not exists (select 1 … where topic = …
+and question = …)` evita duplicar—, pero significa que la migración es **de alta, no de sincronía**.
+Un archivo que se llama «el banco del eje» invita a leerlo como si describiera el estado deseado; lo
+que describe es un conjunto de altas.
+
+**Regla.** Cuando el contenido ya aplicado cambia, hace falta una **migración de delta** aparte, y
+el delta se **calcula**, no se transcribe: se diffean el JSON viejo (lo aplicado) y el nuevo, y se
+emiten `update` solo para los campos que difieren. Acá eso redujo 102 ítems a **8 `update`**, y
+ninguno se escribió a mano.
+
+- **Relacionado:** `supabase/migrations/058_reparacion_del_eje_de_probabilidad.sql`,
+  `scripts/generar_migracion_items.py`, [[BACKLOG]] T-126.
+
+### L-56 · Reordenar las alternativas de un ítem ya rendido rompe el histórico
+
+**Síntoma.** Agregar dos ítems a la tanda corrió la rotación de claves del generador y cambió la
+letra de la respuesta correcta en **50 ítems que ya estaban en producción**. El diff parecía enorme
+y de contenido; era casi todo permutación.
+
+**Causa.** `tests` guarda la respuesta del estudiante **por letra**. Repermutar en la base un ítem ya
+respondido no rompe nada visible —el ítem sigue siendo coherente consigo mismo— pero convierte cada
+respuesta histórica en la de otra alternativa. El daño es silencioso y no se puede deshacer.
+
+**Regla.** El orden de las alternativas de un ítem publicado es **inmutable**. Cuando el generador y
+la base discrepan, **manda la base**: se fija el JSON al orden aplicado (mapeando por el *texto* de
+cada alternativa, no por su letra) y a la base viajan solo los cambios de contenido reales. El
+reparto de claves de R-35 se decide **una vez, al nacer la tanda**, y los ítems que se agreguen
+después toman las letras que falten para equilibrar — nunca se recalcula sobre los ya publicados.
+
+- **Relacionado:** [[RISKS]] R-35, `contenido/items/probabilidad.json`,
+  `supabase/migrations/058_reparacion_del_eje_de_probabilidad.sql`.
 
 ### L-47 · Un auditor de paleta no ve el fondo que un elemento **hereda**
 

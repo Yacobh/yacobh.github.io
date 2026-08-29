@@ -1,6 +1,6 @@
 # RISKS
 
-Última actualización: **2026-08-28** — **R-39 abierto y cerrado el mismo día** (el bundle podía llegar a producción antes que `048` y perder el diagnóstico completo de un estudiante; el owner aplicó la migración antes del push y no se materializó — el patrón sigue vivo para migraciones futuras) y **R-40 nuevo** (los θ de motor v1 y v2 no son comparables y nada impide compararlos). **R-38 empeoró a propósito**: con azar, el piso del SE sube de 0,577 a ≈0,73. · Antes: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
+Última actualización: **2026-08-28 (2ª pasada)** — **R-41 nuevo**: los 414 ítems de los cuatro bancos nuevos se publicaron sin revisión pedagógica y ya llegan a estudiantes (decisión explícita del owner); mitigable de a poco ahora que `057` permite retirar un ítem sin borrarlo. · Antes: **2026-08-28** — **R-39 abierto y cerrado el mismo día** (el bundle podía llegar a producción antes que `048` y perder el diagnóstico completo de un estudiante; el owner aplicó la migración antes del push y no se materializó — el patrón sigue vivo para migraciones futuras) y **R-40 nuevo** (los θ de motor v1 y v2 no son comparables y nada impide compararlos). **R-38 empeoró a propósito**: con azar, el piso del SE sube de 0,577 a ≈0,73. · Antes: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
 de los 306 ítems; mitigado en el cliente por ADR-030, el dato sigue sesgado). ·
 Antes: **2026-08-17** — **R-33 nuevo** (la pantalla de Google nombra a `supabase.co`
 y no a la marca, visto en vivo al verificar T-92; toca la confianza justo en el registro) y **R-32
@@ -909,6 +909,34 @@ nuevos entran sin versión y R-40 se agrava.
 
 - **Severidad:** ✅ **cerrado 2026-08-28** para `048` · el patrón sigue vivo para migraciones futuras
 - **Relacionado:** ADR-034, ADR-003, R-40, `supabase/migrations/048_*.sql`, [[LESSONS_LEARNED]]
+
+### R-41 · 414 ítems sin revisión pedagógica ya están delante de los estudiantes
+
+**Abierto 2026-08-28.** Los cuatro bancos nuevos (`numeros`, `algebra`, `geometria`, `probabilidad`)
+se publicaron con `059` por decisión explícita del owner, **antes** de que se revisara un solo ítem:
+T-120, T-121, T-123 y T-124 siguen abiertas. Hasta ese día el riesgo era teórico porque ninguno
+tenía fila en `test_configs` y por lo tanto nadie podía rendirlos; ahora sí.
+
+**Qué puede salir mal, en concreto.** El antecedente es T-105: 306 ítems revisados a mano, y ahí
+aparecieron **tres sin ninguna alternativa correcta y siete con dos**. `verificar_items.py` atrapa
+justamente esa familia, así que esos defectos no deberían repetirse; lo que ningún script verifica
+es lo otro: que el distractor sea el error que los estudiantes **de verdad** cometen, que el
+enunciado no sea ambiguo, y que la `difficulty` tenga sentido pedagógico. Un ítem ambiguo no falla:
+mide mal, y el θ que produce parece igual de legítimo que cualquier otro.
+
+**Agravante propio de este producto:** el θ que sale de esas respuestas **se guarda y no se
+sobrescribe** (G-4 promete entregar Δθ), así que un banco malo no ensucia una sesión sino el
+histórico entero, y encima es el insumo de la calibración (G-2).
+
+**Mitigación.** Retirar un ítem ahora **sí es posible y barato**: `057` creó `questions.active` y
+`next_question` la respeta, así que un ítem que se descubra malo sale de circulación con un `update`
+y sin tocar el histórico. Eso convierte la revisión en incremental —no hace falta parar todo— pero
+no la reemplaza.
+
+- **Severidad:** 🟠 **media-alta** · sube a alta en cuanto haya volumen de diagnósticos rendidos
+- **Mitigación:** T-120, T-121, T-123, T-124 (revisión por eje) · `questions.active` para retirar
+- **Relacionado:** T-105, R-17 (`difficulty` es autoral), G-2, G-4,
+  `supabase/migrations/059_test_configs_de_los_cuatro_ejes.sql`
 
 ### R-40 · Los θ de v1 y v2 no son comparables, y nada impide compararlos
 
