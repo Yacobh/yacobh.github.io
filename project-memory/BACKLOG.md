@@ -1319,10 +1319,11 @@ Lo mismo aplica a los demás fragmentos del eje: `terminos_semejantes` (10), `fa
 **Camino sugerido:** `active = false` en vez de `delete`, y desactivar su `test_configs`. Es
 reversible y no toca el histórico.
 
-> ⚠️ **2026-08-28 — corrección: `active = false` no bastaba.** `next_question` (migración `024`)
-> **nunca miró esa columna**, así que un ítem marcado inactivo se seguía sirviendo. Lo arregla
-> `058`. Desactivar el `test_configs` del banco sí funcionaba, porque eso saca el banco entero del
-> selector; lo que no funcionaba era retirar ítems sueltos.
+> ⚠️ **2026-08-28 — corrección: `questions.active` no existía.** Este «camino sugerido» se escribió
+> suponiendo una columna que la tabla no tenía, y `next_question` tampoco filtraba por nada
+> equivalente: un ítem «marcado inactivo» se seguía sirviendo, y en realidad ni siquiera se podía
+> marcar. La crea `057`, junto con el filtro en la RPC. Desactivar el `test_configs` del banco sí
+> funcionaba, porque saca el banco entero del selector; lo que no existía era retirar ítems sueltos.
 
 ⚠️ **Antes de desactivar, revisar si alguno de esos ítems vale la pena rescatar** hacia el banco
 nuevo: son contenido que alguien escribió, y `052` no los reemplaza uno a uno.
@@ -1385,14 +1386,15 @@ cuatro en la misma sesión.
 
 - `055` y `056` nuevas: crean `probabilidad/conteo`, corrigen la banda de `probabilidad/posicion` e
   insertan los 14 ítems nuevos. Los 100 ya cargados no se tocan (idempotencia por `(topic, question)`).
-- `057`: el delta sobre lo ya cargado — cinco ítems de rango que cambian de módulo, tres
+- `058`: el delta sobre lo ya cargado — cinco ítems de rango que cambian de módulo, tres
   explicaciones de cuartiles a la convención DEMRE, los 12 ítems fuera de temario a `active = false`,
   y el módulo `probabilidad/dispersion` borrado.
-- `058`: hace que `active` signifique algo. **Tiene un pre-chequeo obligatorio al pie**: mirar qué
-  otros bancos tienen ítems inactivos antes de aplicarla, porque dejarán de servirse de golpe.
+- `057`: **crea `questions.active`** —que no existía— y hace que `next_question` la respete. Al
+  aplicarse no hay ningún ítem inactivo, así que no cambia lo que recibe ningún estudiante.
+- `058`: la reparación propiamente tal. **Se niega a correr sin `057`**, verificado.
 
-**Mientras `058` no esté aplicada, los 12 ítems fuera de temario se siguen sirviendo** aunque `057`
-los haya marcado inactivos.
+**Mientras `057` no esté aplicada no hay forma de retirar un ítem sin borrarlo**, y por eso las dos
+van juntas.
 
 **Terminado cuando:** las cuatro consultas de verificación del pie de `057` dan lo esperado (102
 activos, 12 inactivos, 0 activos con varianza o desviación, 0 sin módulo).

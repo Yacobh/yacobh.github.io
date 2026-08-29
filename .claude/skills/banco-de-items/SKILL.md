@@ -44,9 +44,14 @@ tanda que no hay que escribir.
           count(*) filter (where difficulty >=  2) as sobre_2,
           count(*) as total
      from questions
-    where active and topic not like 'mq\_%'
+    where coalesce(active, true) and topic not like 'mq\_%'
     group by topic order by total desc;
    ```
+
+   > ⚠️ `questions.active` **existe recién desde la migración `057`** (2026-08-28): antes no había
+   > ninguna forma de retirar un ítem sin borrarlo, y esta consulta —que la skill traía desde el
+   > primer día— fallaba con `column "active" does not exist`. Si la base que estás midiendo no
+   > tiene `057` aplicada, sacá esa condición.
 
    El objetivo sale de esa tabla, no de una intuición. Un tramo con menos de ~6
    ítems es donde el diagnóstico se va a agotar.

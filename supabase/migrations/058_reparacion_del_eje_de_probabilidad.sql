@@ -11,9 +11,10 @@
 -- `056` es idempotente por `(topic, question)`: reaplicarla inserta los 14 ítems
 -- nuevos, pero **no toca** los 100 que ya entraron. Esta migración es ese delta.
 --
--- ORDEN: `055` (versión nueva) → `056` (versión nueva) → **`057`** → `058`.
+-- ORDEN: `055` (versión nueva) → `056` (versión nueva) → `057` → **`058`**.
 -- `055` crea `probabilidad/conteo` y corrige la banda de `probabilidad/posicion`;
--- `056` inserta los 14 ítems nuevos; `057` arregla lo ya cargado.
+-- `056` inserta los 14 ítems nuevos; `057` crea `questions.active` y hace que
+-- `next_question` la respete; `058` arregla lo ya cargado.
 --
 -- SOBRE UNA BASE LIMPIA ESTA MIGRACIÓN NO HACE NADA: todos sus `update` quedan
 -- en 0 filas si `055`/`056` nuevas se aplicaron desde cero. Es segura de correr
@@ -27,10 +28,11 @@
 -- acá viajan solo los cambios de contenido reales.
 --
 -- ⚠️ Los 12 ítems fuera de temario se marcan `active = false`, NO se borran: el
--- histórico de `tests` puede referenciarlos (mismo criterio que T-122). Pero
--- **`active = false` por sí solo no los saca del diagnóstico**: `next_question`
--- (migración `024`) no filtra por esa columna. Eso lo arregla **`058`**, que hay
--- que aplicar en la misma sesión.
+-- histórico de `tests` puede referenciarlos (mismo criterio que T-122). Para que
+-- eso signifique algo hace falta **`057`**, que crea la columna y hace que
+-- `next_question` la respete — antes de `057` no existía ninguna forma de retirar
+-- un ítem sin borrarlo. Por eso `057` es precondición dura de esta migración, y
+-- la guarda de abajo lo verifica.
 
 -- -----------------------------------------------------------------------------
 -- 0. Guardas
@@ -40,7 +42,7 @@ begin
   if not exists (select 1 from information_schema.columns
                   where table_schema = 'public' and table_name = 'questions'
                     and column_name = 'active') then
-    raise exception 'public.questions no tiene columna `active`: revisar antes de seguir';
+    raise exception 'Falta `questions.active`: aplicar primero 057_questions_active_y_next_question.sql';
   end if;
   if not exists (select 1 from public.modules where slug = 'probabilidad/conteo') then
     raise exception 'Falta `probabilidad/conteo`: aplicar primero la versión nueva de 055';

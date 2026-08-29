@@ -412,26 +412,34 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     Reaplicar no duplica y la reversión deja la base como estaba.
     ⚠️ `difficulty` es **hipótesis autoral**, no medición (R-17).
 
-59. `migrations/057_reparacion_del_eje_de_probabilidad.sql` — ⏳ **escrita, SIN APLICAR**
+59. `migrations/057_questions_active_y_next_question.sql` — ⏳ **escrita, SIN APLICAR**
+    (2026-08-28) · **crea `public.questions.active`** (`not null default true`) y hace que
+    `next_question` la respete (`and coalesce(q.active, true)`).
+    ⚠️ **Hallazgo:** la columna **no existía**. La memoria venía recomendando desde T-122
+    «`active = false` en vez de `delete`» y la skill medía el banco con `where active`: las dos
+    cosas eran falsas, y lo destapó la guarda de `058` al aplicarse contra la base real. Hasta acá
+    **no había ninguna forma de retirar un ítem sin borrarlo**.
+    Los dos pasos van en la misma migración a propósito: la columna nace en `true`, así que al
+    aplicarla **no hay ningún ítem inactivo** y el filtro nuevo no cambia lo que recibe nadie.
+    Separarlas dejaría una ventana en la que marcar un ítem inactivo no lo retira, que es el
+    defecto que se está cerrando. **Precondición de `058`.** El bundle no cambia:
+    `question-select-cols` no pide esa columna.
+
+60. `migrations/058_reparacion_del_eje_de_probabilidad.sql` — ⏳ **escrita, SIN APLICAR**
     (2026-08-28) · **el delta entre lo que el owner ya aplicó y lo que el temario exige.**
     `056` es idempotente por `(topic, question)`, así que reaplicarla inserta los 14 ítems nuevos
-    pero **no toca** los 100 que ya entraron. `057` hace lo que falta: mueve los cinco ítems de
+    pero **no toca** los 100 que ya entraron. `058` hace lo que falta: mueve los cinco ítems de
     rango a `probabilidad/posicion`, corrige las tres explicaciones de cuartiles y percentiles a
     la convención DEMRE, marca `active = false` los **12 ítems de varianza y desviación estándar**,
     los reasigna para no dejarlos sin módulo y borra el módulo `probabilidad/dispersion`, ya vacío.
     **Orden: `055` → `056` → `057` → `058`.** Sobre una base limpia es **inocua** (todos sus
-    `update` quedan en 0 filas): verificado.
+    `update` quedan en 0 filas): verificado, igual que la cadena completa contra una réplica del
+    estado real —`055`/`056` viejas aplicadas y **sin** columna `active`—, que deja 102 activos,
+    12 inactivos, los 102 idénticos al JSON campo por campo y `next_question` sin servir ninguno
+    de los 12, que sí caen en su ventana de dificultad.
     ⚠️ **No repermuta alternativas a propósito.** Al agregar dos ítems, la rotación de claves del
     JSON movió las letras de 50 ítems ya cargados; como `tests` guarda la respuesta **por letra**,
     se hizo al revés — el JSON se fijó al orden ya aplicado.
-
-60. `migrations/058_next_question_respeta_active.sql` — ⏳ **escrita, SIN APLICAR** (2026-08-28) ·
-    **`next_question` (de `024`) nunca miró `questions.active`**, así que marcar un ítem como
-    inactivo **no lo sacaba del diagnóstico**. Se descubrió al escribir `057`. Agrega
-    `and coalesce(q.active, true)` y nada más: misma firma, mismos tipos, mismos permisos.
-    ⚠️ **Pre-chequeo obligatorio antes de aplicar** (está al pie de la migración): todo ítem con
-    `active = false` deja de servirse de golpe, así que hay que mirar primero qué bancos tienen
-    ítems inactivos, para no dejar uno corto y que su diagnóstico se agote.
 
 61. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 

@@ -17,13 +17,21 @@
 > delta: mueve los cinco ítems de rango, corrige las tres explicaciones de cuartiles, desactiva los
 > 12 fuera de temario y borra el módulo vacío. Sobre una base limpia es **inocua**.
 >
-> ⭐⭐ **`next_question` nunca miró `questions.active`.** Marcar un ítem como inactivo **no lo sacaba
-> del diagnóstico**: la RPC de `024` filtra por topic, por respondidos y por ventana de dificultad,
-> y nada más. O sea que el «camino reversible» que la memoria viene recomendando desde T-122
-> —`active = false` en vez de `delete`— **no funcionaba**. Lo arregla **`058`**, con un pre-chequeo
-> obligatorio: al empezar a respetarse, todo ítem inactivo de cualquier banco deja de servirse de
-> golpe. Es el modo de fallo de ADR-017 otra vez — nada falla, nada se registra, el contenido sigue
-> circulando cuando alguien creyó haberlo retirado.
+> ⭐⭐ **`questions.active` no existía, y `next_question` tampoco miraba nada parecido.** La memoria
+> venía recomendando desde T-122 «`active = false` en vez de `delete`, que es reversible», y la
+> skill medía el banco con `where active`. **Las dos cosas eran falsas.** Lo destapó la guarda de la
+> migración de reparación al correrla contra la base real: `P0001: public.questions no tiene columna
+> active`. O sea que hasta ahora **no había ninguna forma de retirar un ítem de circulación sin
+> borrarlo**. Lo crea **`057`**: la columna (`not null default true`) y el filtro en la RPC, juntos
+> en la misma migración porque así **no hay ningún ítem inactivo en el instante en que se aplica** y
+> nadie ve un cambio. Es el modo de fallo de ADR-017 otra vez —nada falla, nada se registra— y esta
+> vez con un agravante: la memoria del proyecto **documentaba una capacidad que no existía**, y dos
+> tareas (T-122, y la propia reparación) se planificaron encima de ella.
+>
+> **Lección: una guarda al principio de la migración valió más que toda la verificación previa.**
+> El agente había probado la cadena contra un PostgreSQL desechable con un fixture escrito por él
+> mismo, y el fixture **tenía** la columna porque el agente creía que existía. La réplica confirmó
+> lo que ya se suponía; la guarda fue lo único que preguntó.
 >
 > ⭐ **Lo que NO se hizo, a propósito: repermutar alternativas.** Agregar dos ítems corrió la
 > rotación de claves y movió las letras de 50 ítems ya cargados. Como `tests` guarda la respuesta
@@ -31,11 +39,12 @@
 > histórico. Se hizo al revés: **el JSON se fijó al orden ya aplicado**, y a la base viajan solo los
 > cambios de contenido reales — 8 ítems.
 >
-> **Verificado replicando el estado del owner:** un PostgreSQL 14 desechable con `055`/`056` viejas
-> aplicadas, y encima `055`→`056`→`057`→`058` nuevas. Resultado: **102 activos y 12 inactivos**, los
-> 102 idénticos al JSON campo por campo, 0 sin módulo, 0 ítems activos con varianza o desviación,
-> `057` idempotente, y `next_question` **dejando de servir** los 12 inactivos que sí caen en su
-> ventana de dificultad. La misma cadena sobre una base limpia deja 102 activos y 0 inactivos.
+> **Verificado replicando el estado real del owner** —`055`/`056` viejas aplicadas y **sin** columna
+> `active`, que es lo que la guarda enseñó— y aplicando encima `055`→`056`→`057`→`058`: **102
+> activos y 12 inactivos**, los 102 idénticos al JSON campo por campo, 0 sin módulo, 0 activos con
+> varianza o desviación, las dos migraciones idempotentes, y `next_question` **dejando de servir**
+> los 12 inactivos, que sí caen en su ventana de dificultad. La misma cadena sobre una base limpia
+> deja 102 activos y 0 inactivos. También se verificó que `058` **se niega a correr** sin `057`.
 >
 > 🔜 **Riesgo abierto y nuevo (T-125): puede que los cuatro bancos no los vea nadie.** Ninguna de
 > las migraciones de banco crea su fila en `test_configs`, y esa tabla —que es la que arma el
