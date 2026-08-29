@@ -1317,7 +1317,8 @@ Lo mismo aplica a los demás fragmentos del eje: `terminos_semejantes` (10), `fa
 `notacion_algebraica` (1). Ninguno sostiene un diagnóstico por sí solo.
 
 **Camino sugerido:** `active = false` en vez de `delete`, y desactivar su `test_configs`. Es
-reversible y no toca el histórico.
+reversible y no toca el histórico. **Desde `057` esto ya funciona de verdad** — antes la columna no
+existía.
 
 > ⚠️ **2026-08-28 — corrección: `questions.active` no existía.** Este «camino sugerido» se escribió
 > suponiendo una columna que la tabla no tenía, y `next_question` tampoco filtraba por nada

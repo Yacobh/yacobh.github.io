@@ -102,6 +102,8 @@ seguir con el de **probabilidad y estadística**, el último que faltaba del tem
 | `supabase/migrations/057_*.sql` | **Nueva.** Crea `questions.active` y hace que `next_question` la respete |
 | `supabase/migrations/058_*.sql` | **Nueva.** Delta de reparación sobre lo ya aplicado |
 | `supabase/migrations/059_*.sql` | **Nueva.** `test_configs` de los cuatro bancos (cierra T-125) |
+| `supabase/migrations/060_*.sql` | **Nueva.** Banda explícita para los dos módulos que no la tenían |
+| `project-memory/ARCHITECTURE.md` | `modules` 20 → 26, `questions.active`, `misconceptions` ya no vacío, `test_configs` y el filtro de `next_question` |
 | `.claude/skills/banco-de-items/SKILL.md` | La consulta de cobertura usaba `where active`: no podía haber corrido nunca |
 | `.claude/skills/banco-de-items/referencias/ejes-y-bandas.md` | El eje 4 ya no «no existe»; y las dos reglas de contenido del temario, escritas para las tandas siguientes |
 | `project-memory/CURRENT_STATUS.md` | Pasadas 5ª, 6ª y 7ª |
@@ -187,16 +189,16 @@ Ninguno más: las tres decisiones de contenido se preguntaron en vez de suponers
    selector hoy muestra el diagnóstico nuevo junto a `numbers_v1`, `polinomios` y sus fragmentos.
 3. **Recursos para los seis módulos nuevos** — extensión de T-56: el criterio L-2 pasó de 18/18 a
    26/26 módulos con recurso.
-4. **Bandas explícitas para los dos módulos que quedaron sin ellas** —
-   `aritmetica/operaciones_fundamentales` y `algebra/inecuaciones`—, que hoy dependen de un reparto
-   derivado que se mueve solo cada vez que se agrega un módulo.
-5. **Pushear.** Los siete commits de la sesión están en `main` local, sin subir.
+4. **Aplicar `060`** — le da banda explícita a `aritmetica/operaciones_fundamentales` y
+   `algebra/inecuaciones`, los dos últimos que dependían de un reparto derivado que se mueve solo.
+   Escrita y verificada al cierre de la sesión; es la única migración pendiente de aplicar.
+5. **Pushear.** Los commits de la sesión están en `main` local, sin subir.
 
 ## Pendientes
 
-- **Nada a medias en migraciones:** `053`…`059` están aplicadas y verificadas. De esta cadena
-  (`049`…`059`) no queda ninguna pendiente; el estado de las anteriores no se re-verificó en esta
-  sesión.
+- **Migraciones:** `053`…`059` aplicadas y verificadas. Queda **`060` sin aplicar** (bandas de los
+  dos módulos sueltos), escrita y probada contra la réplica al cierre. El estado de las anteriores a
+  `049` no se re-verificó en esta sesión.
 - **Sin pushear:** siete commits (`3f6ef68`…`8c6cd36`).
 - **`clj -M:test` no se corrió** porque no se tocó ClojureScript. El estado de referencia sigue
   siendo el de SESSION-039: 181 tests / 2677 assertions / 0 failures.
@@ -208,9 +210,10 @@ Ninguno más: las tres decisiones de contenido se preguntaron en vez de suponers
 - [x] `project-memory/RISKS.md`
 - [ ] `project-memory/DECISIONS.md` — no aplica: ninguna decisión llegó a ADR
 - [ ] `adr/ADR-0NN-….md` (nuevo) — ninguno
-- [ ] `project-memory/ARCHITECTURE.md` — **pendiente menor**: el eje sumó 6 módulos y `questions`
-      una columna; el diagrama de tablas no cambia, pero la lista de módulos del producto pasó de
-      18 a 26
+- [x] `project-memory/ARCHITECTURE.md` — hecho al cierre: `modules` 20 → **26 módulos PAES** con
+      `probabilidad` en el check de `track` y las columnas de banda; `questions` con **`active`** y
+      su tamaño medido; `misconceptions` deja de estar «vacío para el producto» (159 filas);
+      `test_configs` explica por qué cuatro bancos estuvieron aplicados e inalcanzables
 - [ ] `project-memory/ROADMAP.md` — no aplica
 - [ ] `project-memory/REQUIREMENTS.md` — no aplica
 - [x] `project-memory/OPEN_QUESTIONS.md` — no había preguntas nuevas; las dos del eje quedaron

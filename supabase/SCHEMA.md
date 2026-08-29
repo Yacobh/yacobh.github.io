@@ -460,7 +460,18 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     se puede ejecutar porque `057` creó la columna) y **los 414 ítems se publican sin revisión
     pedagógica** (T-120, T-121, T-123, T-124 abiertas).
 
-62. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+62. `migrations/060_bandas_de_los_dos_modulos_sin_banda.sql` — ⏳ **escrita, SIN APLICAR**
+    (2026-08-28) · le da banda explícita a los **dos módulos que quedaban sin ella**,
+    `aritmetica/operaciones_fundamentales` y `algebra/inecuaciones` (los que creó `031`). Con esto
+    los **26 módulos del producto** tienen banda explícita y ninguno depende del reparto derivado,
+    que se recalcula —y los mueve— cada vez que se agrega un módulo. Los valores salen del mismo
+    criterio que `049`/`051`/`053`/`055`: interpolar entre los dos vecinos de eje por
+    `order_index`. Dos `update`, sin ítems de por medio. Verificada contra la réplica: 7/7, 6/6,
+    7/7 y 6/6 con banda, y las bandas de cada eje quedan monótonas y solapadas.
+    ⚠️ Sigue siendo hipótesis autoral (R-17); lo que cambia no es que sea más cierta, es que deja
+    de moverse sola.
+
+63. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
