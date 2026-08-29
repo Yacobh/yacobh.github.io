@@ -19,6 +19,12 @@
 -- álgebra 110…150, geometría 210…270, y este eje **310…360**.
 -- Las bandas **se solapan a propósito**.
 --
+-- ⚠️ **Varianza y desviación estándar NO entran en el temario M1 de Admisión
+-- 2027** (owner, 2026-08-28). Por eso el módulo 340 es de **conteo** y no de
+-- medidas de dispersión: lo que queda de dispersión en M1 —el rango y el rango
+-- intercuartílico— vive en `probabilidad/posicion`, junto a los cuartiles y el
+-- diagrama de cajón que lo hacen visible.
+--
 -- ⚠️ **Precondición de `056`.**
 --
 -- ⚠️⚠️ **ORDEN DE APLICACIÓN: `051` y `053` van ANTES que esta.**
@@ -49,11 +55,11 @@ values
   ('probabilidad/tendencia-central', 'Media, mediana y moda', 'probabilidad', 320,
    'Resumir muchos datos en un solo número: el promedio nació de la astronomía, la mediana de la necesidad de resistir a los valores extremos.',
    -2.4, -1.0),
-  ('probabilidad/posicion', 'Cuartiles, percentiles y diagrama de cajón', 'probabilidad', 330,
+  ('probabilidad/posicion', 'Cuartiles, percentiles, diagrama de cajón y rango', 'probabilidad', 330,
    'Galton y Pearson midieron poblaciones enteras por posición relativa; el diagrama de cajón de Tukey (1970) hizo visible esa idea.',
-   -1.6, -0.2),
-  ('probabilidad/dispersion', 'Rango y desviación estándar', 'probabilidad', 340,
-   'Dos grupos con el mismo promedio pueden ser muy distintos: medir cuánto se alejan los datos del centro es lo que separa describir de entender.',
+   -1.6, 0.0),
+  ('probabilidad/conteo', 'Principio multiplicativo y diagramas de árbol', 'probabilidad', 340,
+   'Contar sin enumerar es el paso que hace posible el cálculo de probabilidades: sin él, cada problema exigiría escribir todos los casos.',
    -0.8, 0.8),
   ('probabilidad/azar', 'Probabilidad clásica y regla de Laplace', 'probabilidad', 350,
    'La correspondencia Pascal–Fermat (1654) sobre un juego de dados fundó el cálculo de probabilidades.',

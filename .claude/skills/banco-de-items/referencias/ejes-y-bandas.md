@@ -92,10 +92,26 @@ Seis módulos, creados por `055` con su banda explícita desde el nacimiento
 |---|---|---|
 | `probabilidad/datos` | [−3,0, −1,6] | 17 |
 | `probabilidad/tendencia-central` | [−2,4, −1,0] | 17 |
-| `probabilidad/posicion` | [−1,6, −0,2] | 17 |
-| `probabilidad/dispersion` | [−0,8, +0,8] | 17 |
+| `probabilidad/posicion` | [−1,6, 0,0] | 24 |
+| `probabilidad/conteo` | [−0,8, +0,8] | 12 |
 | `probabilidad/azar` | [ 0,0, +1,8] | 16 |
 | `probabilidad/reglas` | [+1,2, +3,0] | 16 |
+
+⚠️ **Dos reglas de contenido de este eje, decididas por el owner el 2026-08-28.** No son
+negociables por un agente: si un ítem nuevo las contradice, el ítem está mal.
+
+1. **Cuartiles y percentiles, datos no agrupados: se usa la posición localizadora**
+   $P = \dfrac{k \cdot n}{4}$ (convención DEMRE).
+   - $P$ **decimal** → se aproxima **siempre al entero siguiente**, y el cuartil es el dato que
+     ocupa esa posición.
+   - $P$ **entero** → el cuartil es el **promedio** de los datos de las posiciones $P$ y $P+1$.
+   - $Q_2$ es siempre la mediana, y el diagrama de cajón se lee con esta misma convención.
+   No se usa «la mediana de la mitad inferior»: da lo mismo con $n$ par y **distinto** con $n$
+   impar, que es justo donde el estudiante se pierde.
+
+2. **Varianza y desviación estándar NO entran en el temario M1 de Admisión 2027.** No se escriben
+   ítems de esas medidas. La dispersión que sí entra —**rango** y **rango intercuartílico**— vive
+   en `probabilidad/posicion`, junto a los cuartiles.
 
 ⚠️ **Crear módulos nuevos cambia las bandas derivadas de todos los demás.**
 `default-bands` reparte los centros entre **todos** los módulos del producto: al

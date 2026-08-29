@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-08-28** (6ª pasada: el eje de **probabilidad y estadística** existe — `055` crea sus seis módulos (**T-119 cerrada**) y `056` trae 100 ítems con 41 ideas erróneas nuevas. **T-124 nueva**: revisar esos 100 ítems y decidir cuánta varianza pide la M1. ⚠️ `055` va **después** de `051` y `053`: crear módulos corre las bandas derivadas de los demás. Antes, 5ª pasada: el eje de **geometría** escrito — `053` bandas y `054` con 100 ítems y 33 ideas erróneas nuevas, el primer eje **sin banco previo**. **T-123 nueva**: revisar esos 100 ítems. Antes, 4ª pasada: **`049` y `050` aplicadas** por el owner, y el eje de **álgebra** escrito — `051` bandas y `052` con 100 ítems. **T-121 y T-122 nuevas**: revisar esos 100 ítems, y retirar de circulación el banco `polinomios` viejo y los once fragmentos del eje. Antes, 3ª pasada: **T-118 aprobada y escrita** en `049`, y **T-120 nueva**: revisar a mano los 100 ítems del eje de números que trae `050`, que es lo único que ningún script puede verificar. Antes, 2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
+Última actualización: **2026-08-28** (6ª pasada: el eje de **probabilidad y estadística** existe — `055` crea sus seis módulos (**T-119 cerrada**) y `056` trae 102 ítems con 45 ideas erróneas nuevas. **T-124 nueva**: revisar esos 102 ítems. El owner respondió en la misma sesión las dos preguntas de contenido: la convención de cuartiles del DEMRE, y que **varianza y desviación estándar no entran en M1** — salieron 12 ítems y el módulo 340 pasó a ser `conteo`. ⚠️ `055` va **después** de `051` y `053`: crear módulos corre las bandas derivadas de los demás. Antes, 5ª pasada: el eje de **geometría** escrito — `053` bandas y `054` con 100 ítems y 33 ideas erróneas nuevas, el primer eje **sin banco previo**. **T-123 nueva**: revisar esos 100 ítems. Antes, 4ª pasada: **`049` y `050` aplicadas** por el owner, y el eje de **álgebra** escrito — `051` bandas y `052` con 100 ítems. **T-121 y T-122 nuevas**: revisar esos 100 ítems, y retirar de circulación el banco `polinomios` viejo y los once fragmentos del eje. Antes, 3ª pasada: **T-118 aprobada y escrita** en `049`, y **T-120 nueva**: revisar a mano los 100 ítems del eje de números que trae `050`, que es lo único que ningún script puede verificar. Antes, 2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
 verificado en producción, con D-21 respetado en las dos rutas — **ADR-028 / D-56**. Abre **T-95**
 (persistir el consentimiento) y **R-33** (la pantalla de Google nombra a `supabase.co`)). Antes: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
 G-1…G-5, tareas T-76…T-89), abierta por
@@ -1342,22 +1342,29 @@ fallar «¿cuánto mide un ángulo recto?».
 
 **Terminado cuando:** los siete módulos están revisados y `054` aplicada.
 
-### T-124 · Revisar los 100 ítems del eje de probabilidad y estadística — **P1** · `abierto`
+### T-124 · Revisar los 102 ítems del eje de probabilidad y estadística — **P1** · `abierto`
 
-Igual que T-120, T-121 y T-123: `056` trae 100 ítems y 41 ideas erróneas nuevas, verificados
+Igual que T-120, T-121 y T-123: `056` trae 102 ítems y 45 ideas erróneas nuevas, verificados
 mecánicamente, revisados uno por uno contra su clave y aplicados contra un PostgreSQL desechable.
 **Falta la revisión pedagógica**, que ningún script hace.
 
-**Y acá hay además una decisión de contenido que el agente no podía tomar:** cuánta **varianza y
-desviación estándar** pide de verdad la PAES M1. El módulo `dispersion` las trata a nivel de
-definición y de cálculo simple (varianza ↔ desviación, efecto de sumar o multiplicar una
-constante). Si la M1 pide menos, sobran ítems; si pide más, faltan, y el hueco quedaría justo en
-el centro de la escala del eje.
+✅ **Las dos preguntas de contenido que bloqueaban esta tarea están respondidas** (owner,
+2026-08-28) y ya están incorporadas al banco:
 
-**Segundo punto a revisar:** los cuartiles se calcularon con **conjuntos de tamaño par**
-(`2, 4, …, 16`) a propósito, para que la mitad inferior y la superior queden sin ambigüedad. Con
-cantidad impar de datos hay dos convenciones —incluir o excluir la mediana— y dan resultados
-distintos. **Hay que decidir cuál se enseña** antes de escribir la segunda tanda.
+1. **Convención de cuartiles del DEMRE para datos no agrupados.** Se ubica la posición
+   $P = \dfrac{k \cdot n}{4}$. Si $P$ es **decimal**, se aproxima **siempre al entero siguiente**
+   y el cuartil es el dato de esa posición; si $P$ es **entero**, el cuartil es el promedio de los
+   datos de las posiciones $P$ y $P+1$. $Q_2$ es siempre la mediana. La regla queda escrita en
+   [[../.claude/skills/banco-de-items/referencias/ejes-y-bandas]] para las tandas siguientes.
+2. **Varianza y desviación estándar NO entran en el temario M1 de Admisión 2027.** Salieron los 12
+   ítems que las usaban; el módulo 340 pasó a ser `probabilidad/conteo` y los cinco ítems de rango
+   se mudaron a `probabilidad/posicion`.
+
+**Lo que sigue siendo criterio del profesor:** que el distractor sea el error que los estudiantes
+de verdad cometen, que la explicación no rete a quien acaba de equivocarse y que la `difficulty`
+tenga sentido pedagógico. Los módulos con más riesgo son `reglas` —donde casi todo depende de
+distinguir excluyentes de independientes— y `datos`, donde varios ítems describen un gráfico con
+palabras porque el banco todavía no soporta imágenes.
 
 **Terminado cuando:** los seis módulos están revisados y `056` aplicada.
 
