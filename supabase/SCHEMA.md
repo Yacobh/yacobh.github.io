@@ -460,8 +460,7 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     se puede ejecutar porque `057` creó la columna) y **los 414 ítems se publican sin revisión
     pedagógica** (T-120, T-121, T-123, T-124 abiertas).
 
-62. `migrations/060_bandas_de_los_dos_modulos_sin_banda.sql` — ⏳ **escrita, SIN APLICAR**
-    (2026-08-28) · le da banda explícita a los **dos módulos que quedaban sin ella**,
+62. `migrations/060_bandas_de_los_dos_modulos_sin_banda.sql` — ✅ **aplicada 2026-08-28** por el owner · le da banda explícita a los **dos módulos que quedaban sin ella**,
     `aritmetica/operaciones_fundamentales` y `algebra/inecuaciones` (los que creó `031`). Con esto
     los **26 módulos del producto** tienen banda explícita y ninguno depende del reparto derivado,
     que se recalcula —y los mueve— cada vez que se agrega un módulo. Los valores salen del mismo

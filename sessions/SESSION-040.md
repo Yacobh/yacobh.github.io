@@ -189,16 +189,12 @@ Ninguno más: las tres decisiones de contenido se preguntaron en vez de suponers
    selector hoy muestra el diagnóstico nuevo junto a `numbers_v1`, `polinomios` y sus fragmentos.
 3. **Recursos para los seis módulos nuevos** — extensión de T-56: el criterio L-2 pasó de 18/18 a
    26/26 módulos con recurso.
-4. **Aplicar `060`** — le da banda explícita a `aritmetica/operaciones_fundamentales` y
-   `algebra/inecuaciones`, los dos últimos que dependían de un reparto derivado que se mueve solo.
-   Escrita y verificada al cierre de la sesión; es la única migración pendiente de aplicar.
-5. **Pushear.** Los commits de la sesión están en `main` local, sin subir.
+4. **Pushear.** Los commits de la sesión están en `main` local, sin subir. Es lo único que queda.
 
 ## Pendientes
 
-- **Migraciones:** `053`…`059` aplicadas y verificadas. Queda **`060` sin aplicar** (bandas de los
-  dos módulos sueltos), escrita y probada contra la réplica al cierre. El estado de las anteriores a
-  `049` no se re-verificó en esta sesión.
+- **Migraciones: ninguna pendiente.** `053`…`060` aplicadas y verificadas, incluida `060` al cierre
+  de la sesión. El estado de las anteriores a `049` no se re-verificó acá.
 - **Sin pushear:** siete commits (`3f6ef68`…`8c6cd36`).
 - **`clj -M:test` no se corrió** porque no se tocó ClojureScript. El estado de referencia sigue
   siendo el de SESSION-039: 181 tests / 2677 assertions / 0 failures.
