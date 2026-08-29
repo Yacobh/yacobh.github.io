@@ -343,12 +343,12 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     0 ítems sin módulo, 0 ideas huérfanas, y los 100 dentro de la banda de su módulo.
     ⚠️ `difficulty` es **hipótesis autoral**, no medición (R-17).
 
-53. `migrations/051_bandas_explicitas_del_eje_de_algebra.sql` — ⏳ **escrita, SIN APLICAR**
-    (2026-08-28) · lo mismo que `049` hizo con números, para los cinco módulos de álgebra.
+53. `migrations/051_bandas_explicitas_del_eje_de_algebra.sql` — ✅ **aplicada 2026-08-28**
+    por el owner · lo mismo que `049` hizo con números, para los cinco módulos de álgebra.
     **Precondición de `052`**: sin ella las bandas derivadas comprimen el eje entero en
     `[-1,16, +0,87]`. Reversible poniendo las dos columnas en `null`.
 
-54. `migrations/052_banco_del_eje_de_algebra.sql` — ⏳ **escrita, SIN APLICAR** (2026-08-28) ·
+54. `migrations/052_banco_del_eje_de_algebra.sql` — ✅ **aplicada 2026-08-28** por el owner ·
     **100 ítems** del eje de álgebra en los cinco módulos, más **34 ideas erróneas nuevas**.
     **Aplicar después de `051`.** Generada desde `contenido/items/algebra.json`, verificada con
     `scripts/verificar_items.py` (claves 25/25/25/25, cobertura ≥6 por tramo) y **aplicada de
@@ -359,14 +359,14 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     esos 20 ítems de circulación es decisión de contenido del owner ([[../project-memory/BACKLOG]]
     T-122).
 
-55. `migrations/053_bandas_explicitas_del_eje_de_geometria.sql` — ⏳ **escrita, SIN APLICAR**
-    (2026-08-28) · lo mismo que `049` y `051`, para los siete módulos de geometría.
+55. `migrations/053_bandas_explicitas_del_eje_de_geometria.sql` — ✅ **aplicada 2026-08-28**
+    por el owner · lo mismo que `049` y `051`, para los siete módulos de geometría.
     **Precondición de `054`**: sin ella las bandas derivadas dejan el eje entero **por encima de
     θ = 0,26**, o sea el defecto de números pero por el otro extremo — un estudiante que todavía no
     llega ahí no encuentra ningún ítem lo bastante fácil. Reversible poniendo las dos columnas en
     `null`.
 
-56. `migrations/054_banco_del_eje_de_geometria.sql` — ⏳ **escrita, SIN APLICAR** (2026-08-28) ·
+56. `migrations/054_banco_del_eje_de_geometria.sql` — ✅ **aplicada 2026-08-28** por el owner ·
     **100 ítems** del eje de geometría en los siete módulos, más **33 ideas erróneas nuevas**.
     **Aplicar después de `053`.** Es el primer eje que se escribe **sin banco previo**: geometría
     no tenía ningún `topic` identificable en `questions`, así que no reemplaza ni compite con nada.
@@ -379,8 +379,9 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     `null` en silencio. Reaplicar no duplica y la reversión deja la base como estaba.
     ⚠️ `difficulty` es **hipótesis autoral**, no medición (R-17).
 
-57. `migrations/055_modulos_del_eje_de_probabilidad.sql` — ⏳ **escrita, SIN APLICAR**
-    (2026-08-28) · **crea los seis módulos del cuarto eje** con su `track`, su
+57. `migrations/055_modulos_del_eje_de_probabilidad.sql` — ⚠️ **aplicada 2026-08-28 en su
+    versión ORIGINAL**, antes del recorte del temario; **hay que reaplicar la versión actual**
+    (crea `probabilidad/conteo` y corrige la banda de `probabilidad/posicion`) · **crea los seis módulos del cuarto eje** con su `track`, su
     `order_index` (310…360) y su banda explícita: `datos`, `tendencia-central`, `posicion`
     (que incluye el rango), `conteo`, `azar` y `reglas`. Cierra [[../project-memory/BACKLOG]] T-119:
     `046` había ampliado el check de `track` para admitir `probabilidad`, pero nadie había
@@ -391,7 +392,8 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     caería de `[1,95, 2,85]` a `[0,70, 1,60]`. Con `051` y `053` aplicadas, los 18 anteriores
     tienen banda explícita y esta migración no mueve a nadie.
 
-58. `migrations/056_banco_del_eje_de_probabilidad.sql` — ⏳ **escrita, SIN APLICAR** (2026-08-28) ·
+58. `migrations/056_banco_del_eje_de_probabilidad.sql` — ⚠️ **aplicada 2026-08-28 en su versión
+    ORIGINAL** (100 ítems); **reaplicar la actual** para que entren los 14 ítems nuevos ·
     **102 ítems** del eje de probabilidad y estadística en los seis módulos, más **45 ideas
     erróneas nuevas** — el catálogo más grande de las cuatro tandas, porque es el eje donde
     más se confunden pares de conceptos (media/mediana/moda, excluyentes/independientes,
@@ -410,7 +412,28 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     Reaplicar no duplica y la reversión deja la base como estaba.
     ⚠️ `difficulty` es **hipótesis autoral**, no medición (R-17).
 
-59. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+59. `migrations/057_reparacion_del_eje_de_probabilidad.sql` — ⏳ **escrita, SIN APLICAR**
+    (2026-08-28) · **el delta entre lo que el owner ya aplicó y lo que el temario exige.**
+    `056` es idempotente por `(topic, question)`, así que reaplicarla inserta los 14 ítems nuevos
+    pero **no toca** los 100 que ya entraron. `057` hace lo que falta: mueve los cinco ítems de
+    rango a `probabilidad/posicion`, corrige las tres explicaciones de cuartiles y percentiles a
+    la convención DEMRE, marca `active = false` los **12 ítems de varianza y desviación estándar**,
+    los reasigna para no dejarlos sin módulo y borra el módulo `probabilidad/dispersion`, ya vacío.
+    **Orden: `055` → `056` → `057` → `058`.** Sobre una base limpia es **inocua** (todos sus
+    `update` quedan en 0 filas): verificado.
+    ⚠️ **No repermuta alternativas a propósito.** Al agregar dos ítems, la rotación de claves del
+    JSON movió las letras de 50 ítems ya cargados; como `tests` guarda la respuesta **por letra**,
+    se hizo al revés — el JSON se fijó al orden ya aplicado.
+
+60. `migrations/058_next_question_respeta_active.sql` — ⏳ **escrita, SIN APLICAR** (2026-08-28) ·
+    **`next_question` (de `024`) nunca miró `questions.active`**, así que marcar un ítem como
+    inactivo **no lo sacaba del diagnóstico**. Se descubrió al escribir `057`. Agrega
+    `and coalesce(q.active, true)` y nada más: misma firma, mismos tipos, mismos permisos.
+    ⚠️ **Pre-chequeo obligatorio antes de aplicar** (está al pie de la migración): todo ítem con
+    `active = false` deja de servirse de golpe, así que hay que mirar primero qué bancos tienen
+    ítems inactivos, para no dejar uno corto y que su diagnóstico se agote.
+
+61. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del

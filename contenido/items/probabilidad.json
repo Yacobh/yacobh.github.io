@@ -1314,21 +1314,21 @@
    "question": "Si $Q_1 = 5$ y $Q_3 = 13$, ¿cuánto vale el **rango intercuartílico**?",
    "options": {
     "A": "$18$",
-    "B": "$9$",
-    "C": "$8$",
+    "B": "$8$",
+    "C": "$9$",
     "D": "$-8$"
    },
-   "correct": "C",
+   "correct": "B",
    "errors": {
     "A": "Se sumaron los dos cuartiles. El rango intercuartílico es una diferencia.",
-    "B": "Ese es el promedio de los dos cuartiles, que no mide dispersión.",
-    "C": "Correcto. $Q_3 - Q_1 = 13 - 5 = 8$: es el ancho de la caja, donde vive el $50\\%$ central.",
+    "B": "Correcto. $Q_3 - Q_1 = 13 - 5 = 8$: es el ancho de la caja, donde vive el $50\\%$ central.",
+    "C": "Ese es el promedio de los dos cuartiles, que no mide dispersión.",
     "D": "Se restó al revés. Como $Q_3 \\geq Q_1$, el resultado nunca es negativo."
    },
    "misconceptions": {
     "A": "posicion/rango-intercuartil-mal-restado",
-    "B": "posicion/rango-intercuartil-mal-restado",
-    "C": null,
+    "B": null,
+    "C": "posicion/rango-intercuartil-mal-restado",
     "D": "posicion/rango-intercuartil-mal-restado"
    }
   },
@@ -1338,21 +1338,21 @@
    "order_index": 70,
    "question": "El **percentil 40** de un conjunto de datos es el valor que:",
    "options": {
-    "A": "corresponde al $40\\%$ del valor del dato mayor",
-    "B": "deja bajo sí el $40\\%$ de los datos",
+    "A": "deja bajo sí el $40\\%$ de los datos",
+    "B": "corresponde al $40\\%$ del valor del dato mayor",
     "C": "aparece $40$ veces",
     "D": "es el $40\\%$ del promedio"
    },
-   "correct": "B",
+   "correct": "A",
    "errors": {
-    "A": "El percentil no se calcula sacándole un porcentaje al máximo: es una posición en la lista.",
-    "B": "Correcto. Los percentiles reparten los datos ordenados en cien partes.",
+    "A": "Correcto. Los percentiles reparten los datos ordenados en cien partes.",
+    "B": "El percentil no se calcula sacándole un porcentaje al máximo: es una posición en la lista.",
     "C": "Eso sería una frecuencia, no un percentil.",
     "D": "El promedio no interviene: los percentiles son medidas de posición."
    },
    "misconceptions": {
-    "A": "posicion/cuartil-como-cuarta-parte-del-valor",
-    "B": null,
+    "A": null,
+    "B": "posicion/cuartil-como-cuarta-parte-del-valor",
     "C": "datos/confunde-frecuencia-con-dato",
     "D": "posicion/cuartil-como-cuarta-parte-del-valor"
    }
@@ -1365,15 +1365,15 @@
    "options": {
     "A": "contestó bien el $90\\%$ de las preguntas",
     "B": "obtuvo $90$ puntos",
-    "C": "el $90\\%$ de quienes rindieron le ganó",
-    "D": "superó al $90\\%$ de quienes rindieron"
+    "C": "superó al $90\\%$ de quienes rindieron",
+    "D": "el $90\\%$ de quienes rindieron le ganó"
    },
-   "correct": "D",
+   "correct": "C",
    "errors": {
     "A": "El percentil no habla de cuántas respuestas acertó, sino de cómo le fue **comparado con los demás**.",
     "B": "El percentil no es un puntaje: es una posición relativa dentro del grupo.",
-    "C": "Está al revés: en el percentil 90 son pocos los que quedan por encima.",
-    "D": "Correcto. El percentil 90 deja bajo sí al $90\\%$ del grupo."
+    "C": "Correcto. El percentil 90 deja bajo sí al $90\\%$ del grupo.",
+    "D": "Está al revés: en el percentil 90 son pocos los que quedan por encima."
    },
    "misconceptions": {
     "A": "posicion/percentil-como-porcentaje-de-logro",
@@ -1389,21 +1389,21 @@
    "question": "En un diagrama de cajón, los dos extremos de la **caja** representan:",
    "options": {
     "A": "el mínimo y el máximo",
-    "B": "la media y la mediana",
-    "C": "los percentiles $10$ y $90$",
-    "D": "$Q_1$ y $Q_3$"
+    "B": "$Q_1$ y $Q_3$",
+    "C": "la media y la mediana",
+    "D": "los percentiles $10$ y $90$"
    },
-   "correct": "D",
+   "correct": "B",
    "errors": {
     "A": "Esos son los extremos de los **bigotes**, no de la caja.",
-    "B": "La media no aparece en el diagrama de cajón; la mediana es la línea de adentro.",
-    "C": "El diagrama estándar se construye con cuartiles, no con esos percentiles.",
-    "D": "Correcto. La caja va del primer al tercer cuartil, así que encierra el $50\\%$ central de los datos."
+    "B": "Correcto. La caja va del primer al tercer cuartil, así que encierra el $50\\%$ central de los datos.",
+    "C": "La media no aparece en el diagrama de cajón; la mediana es la línea de adentro.",
+    "D": "El diagrama estándar se construye con cuartiles, no con esos percentiles."
    },
    "misconceptions": {
     "A": "posicion/lee-mal-el-cajon",
-    "B": "posicion/lee-mal-el-cajon",
-    "C": null,
+    "B": null,
+    "C": "posicion/lee-mal-el-cajon",
     "D": null
    }
   },
@@ -1413,21 +1413,21 @@
    "order_index": 100,
    "question": "En un diagrama de cajón, la línea dibujada **dentro** de la caja es:",
    "options": {
-    "A": "la media",
-    "B": "la mediana",
+    "A": "el rango",
+    "B": "la media",
     "C": "la moda",
-    "D": "el rango"
+    "D": "la mediana"
    },
-   "correct": "B",
+   "correct": "D",
    "errors": {
-    "A": "La media no se dibuja en el diagrama de cajón estándar.",
-    "B": "Correcto. Es $Q_2$, o sea la mediana, y por eso no siempre queda al centro de la caja.",
+    "A": "El rango es una distancia, no una línea del gráfico.",
+    "B": "La media no se dibuja en el diagrama de cajón estándar.",
     "C": "La moda tampoco: el diagrama se arma con posiciones, no con frecuencias.",
-    "D": "El rango es una distancia, no una línea del gráfico."
+    "D": "Correcto. Es $Q_2$, o sea la mediana, y por eso no siempre queda al centro de la caja."
    },
    "misconceptions": {
-    "A": "estadistica/confunde-las-tres-medidas",
-    "B": null,
+    "A": null,
+    "B": "estadistica/confunde-las-tres-medidas",
     "C": "estadistica/confunde-las-tres-medidas",
     "D": null
    }
@@ -1439,21 +1439,21 @@
    "question": "En un diagrama de cajón, la mediana quedó dibujada mucho más cerca de $Q_1$ que de $Q_3$. Eso indica que:",
    "options": {
     "A": "hay un error en el gráfico, porque la mediana va al centro",
-    "B": "hay más datos en la mitad superior",
-    "C": "el $25\\%$ superior de los datos está más estirado",
-    "D": "la media es igual a la mediana"
+    "B": "la media es igual a la mediana",
+    "C": "hay más datos en la mitad superior",
+    "D": "el $25\\%$ superior de los datos está más estirado"
    },
-   "correct": "C",
+   "correct": "D",
    "errors": {
     "A": "No es un error: la mediana parte la caja en dos mitades con **igual cantidad de datos**, no de igual ancho.",
-    "B": "Cada cuarto tiene la misma cantidad de datos por construcción; lo que cambia es el ancho.",
-    "C": "Correcto. Entre la mediana y $Q_3$ hay la misma cantidad de datos que entre $Q_1$ y la mediana, pero repartidos en un tramo más largo.",
-    "D": "El diagrama no muestra la media, y nada obliga a que coincidan."
+    "B": "El diagrama no muestra la media, y nada obliga a que coincidan.",
+    "C": "Cada cuarto tiene la misma cantidad de datos por construcción; lo que cambia es el ancho.",
+    "D": "Correcto. Entre la mediana y $Q_3$ hay la misma cantidad de datos que entre $Q_1$ y la mediana, pero repartidos en un tramo más largo."
    },
    "misconceptions": {
     "A": "posicion/lee-mal-el-cajon",
-    "B": "posicion/lee-mal-el-cajon",
-    "C": null,
+    "B": null,
+    "C": "posicion/lee-mal-el-cajon",
     "D": null
    }
   },
@@ -1463,21 +1463,21 @@
    "order_index": 120,
    "question": "En un curso de $40$ estudiantes, ¿cuántos quedan bajo el primer cuartil de las notas?",
    "options": {
-    "A": "$10$",
-    "B": "$25$",
+    "A": "$25$",
+    "B": "$10$",
     "C": "$4$",
     "D": "$1$"
    },
-   "correct": "A",
+   "correct": "B",
    "errors": {
-    "A": "Correcto. El $25\\%$ de $40$ es $10$ estudiantes.",
-    "B": "Ese es el porcentaje ($25\\%$) escrito como si fuera la cantidad de estudiantes.",
+    "A": "Ese es el porcentaje ($25\\%$) escrito como si fuera la cantidad de estudiantes.",
+    "B": "Correcto. El $25\\%$ de $40$ es $10$ estudiantes.",
     "C": "Se dividió por $10$ o se contó un cuarto de cada diez: el cuarto de $40$ es $10$.",
     "D": "Los cuartiles son tres cortes, pero el primero deja bajo sí una cuarta parte del curso, no a una persona."
    },
    "misconceptions": {
-    "A": null,
-    "B": "datos/confunde-el-porcentaje-con-la-cantidad",
+    "A": "datos/confunde-el-porcentaje-con-la-cantidad",
+    "B": null,
     "C": "posicion/cuartil-como-cuarta-parte-del-valor",
     "D": null
    }
@@ -1489,15 +1489,15 @@
    "question": "Dos cursos tienen la misma mediana, pero el cajón de uno es mucho más ancho que el del otro. ¿Qué se puede afirmar?",
    "options": {
     "A": "Que el de caja ancha tiene mejores notas",
-    "B": "Que en el de caja ancha las notas están más repartidas",
-    "C": "Que el de caja ancha tiene más estudiantes",
+    "B": "Que el de caja ancha tiene más estudiantes",
+    "C": "Que en el de caja ancha las notas están más repartidas",
     "D": "Que hay un error, porque con igual mediana las cajas deben ser iguales"
    },
-   "correct": "B",
+   "correct": "C",
    "errors": {
     "A": "El nivel lo marca la mediana, y es la misma en los dos. El ancho habla de otra cosa.",
-    "B": "Correcto. La caja es el rango intercuartílico: más ancha significa un $50\\%$ central más disperso.",
-    "C": "El ancho de la caja no depende de cuántos estudiantes hay: los cuartiles reparten porcentajes.",
+    "B": "El ancho de la caja no depende de cuántos estudiantes hay: los cuartiles reparten porcentajes.",
+    "C": "Correcto. La caja es el rango intercuartílico: más ancha significa un $50\\%$ central más disperso.",
     "D": "No hay error: dos grupos con la misma mediana pueden tener dispersiones muy distintas."
    },
    "misconceptions": {
@@ -1513,17 +1513,17 @@
    "order_index": 140,
    "question": "Si todos los datos de un conjunto son iguales, ¿cuánto vale su rango intercuartílico?",
    "options": {
-    "A": "$1$",
+    "A": "$0$",
     "B": "El valor del dato",
-    "C": "No se puede calcular",
-    "D": "$0$"
+    "C": "$1$",
+    "D": "No se puede calcular"
    },
-   "correct": "D",
+   "correct": "A",
    "errors": {
-    "A": "El rango intercuartílico es una diferencia entre dos valores iguales, no una constante fija.",
+    "A": "Correcto. $Q_1$ y $Q_3$ valen lo mismo que todos los datos, así que su diferencia es $0$.",
     "B": "Se entregó el dato en vez de la distancia entre cuartiles.",
-    "C": "Sí se puede: los cuartiles existen igual, solo que coinciden.",
-    "D": "Correcto. $Q_1$ y $Q_3$ valen lo mismo que todos los datos, así que su diferencia es $0$."
+    "C": "El rango intercuartílico es una diferencia entre dos valores iguales, no una constante fija.",
+    "D": "Sí se puede: los cuartiles existen igual, solo que coinciden."
    },
    "misconceptions": {
     "A": null,
@@ -1538,21 +1538,21 @@
    "order_index": 150,
    "question": "El percentil $50$ coincide con:",
    "options": {
-    "A": "la mediana y $Q_2$",
-    "B": "la media",
+    "A": "la media",
+    "B": "la mediana y $Q_2$",
     "C": "$Q_1$",
     "D": "el rango intercuartílico"
    },
-   "correct": "A",
+   "correct": "B",
    "errors": {
-    "A": "Correcto. Los tres nombres describen el mismo corte: el que deja la mitad de los datos bajo sí.",
-    "B": "La media es un promedio, no un corte de posición, y puede caer en cualquier parte.",
+    "A": "La media es un promedio, no un corte de posición, y puede caer en cualquier parte.",
+    "B": "Correcto. Los tres nombres describen el mismo corte: el que deja la mitad de los datos bajo sí.",
     "C": "$Q_1$ deja bajo sí el $25\\%$, no el $50\\%$.",
     "D": "Ese es una distancia entre dos cortes, no un corte."
    },
    "misconceptions": {
-    "A": null,
-    "B": "estadistica/confunde-las-tres-medidas",
+    "A": "estadistica/confunde-las-tres-medidas",
+    "B": null,
     "C": "posicion/mediana-no-es-q2",
     "D": "posicion/rango-intercuartil-mal-restado"
    }
@@ -1564,21 +1564,21 @@
    "question": "En una lista ordenada de $100$ notas, ¿qué lugar ocupa aproximadamente el percentil $25$?",
    "options": {
     "A": "El lugar $4$",
-    "B": "El lugar $50$",
-    "C": "El lugar $25$",
-    "D": "El lugar $75$"
+    "B": "El lugar $75$",
+    "C": "El lugar $50$",
+    "D": "El lugar $25$"
    },
-   "correct": "C",
+   "correct": "D",
    "errors": {
     "A": "Se dividió por $4$ el número de percentil en vez de ubicar la posición dentro de los $100$ datos.",
-    "B": "Ese es el percentil $50$, o sea la mediana.",
-    "C": "Correcto. Con $100$ datos la posición es $P = \\dfrac{25 \\cdot 100}{100} = 25$: el corte queda entre el dato $25$ y el $26$.",
-    "D": "Ese es el percentil $75$, o sea $Q_3$."
+    "B": "Ese es el percentil $75$, o sea $Q_3$.",
+    "C": "Ese es el percentil $50$, o sea la mediana.",
+    "D": "Correcto. Con $100$ datos la posición es $P = \\dfrac{25 \\cdot 100}{100} = 25$: el corte queda entre el dato $25$ y el $26$."
    },
    "misconceptions": {
     "A": "posicion/cuartil-como-cuarta-parte-del-valor",
-    "B": "posicion/mediana-no-es-q2",
-    "C": null,
+    "B": null,
+    "C": "posicion/mediana-no-es-q2",
     "D": null
    }
   },
@@ -1588,16 +1588,16 @@
    "order_index": 170,
    "question": "Las notas de un curso tienen mínimo $2{,}0$, $Q_1 = 4{,}0$, mediana $5{,}0$, $Q_3 = 6{,}0$ y máximo $7{,}0$. ¿Qué porcentaje del curso tiene nota entre $4{,}0$ y $6{,}0$?",
    "options": {
-    "A": "Un $25\\%$",
+    "A": "Un $50\\%$",
     "B": "Un $100\\%$",
-    "C": "Un $50\\%$",
+    "C": "Un $25\\%$",
     "D": "No se puede saber sin las notas"
    },
-   "correct": "C",
+   "correct": "A",
    "errors": {
-    "A": "Ese es el porcentaje que hay entre dos cuartiles **consecutivos**, y acá hay dos tramos.",
+    "A": "Correcto. De $Q_1$ a $Q_3$ está siempre el $50\\%$ central de los datos.",
     "B": "Entre el mínimo y el máximo está el $100\\%$; entre $Q_1$ y $Q_3$, la mitad.",
-    "C": "Correcto. De $Q_1$ a $Q_3$ está siempre el $50\\%$ central de los datos.",
+    "C": "Ese es el porcentaje que hay entre dos cuartiles **consecutivos**, y acá hay dos tramos.",
     "D": "Sí se puede: para eso sirven los cuartiles, aunque no se conozca cada nota."
    },
    "misconceptions": {
@@ -1613,22 +1613,22 @@
    "order_index": 180,
    "question": "El **rango** de un conjunto de datos es:",
    "options": {
-    "A": "la diferencia entre el mayor y el menor",
-    "B": "la suma del mayor y el menor",
-    "C": "el promedio del mayor y el menor",
+    "A": "la suma del mayor y el menor",
+    "B": "el promedio del mayor y el menor",
+    "C": "la diferencia entre el mayor y el menor",
     "D": "la cantidad de datos distintos"
    },
-   "correct": "A",
+   "correct": "C",
    "errors": {
-    "A": "Correcto. El rango es máximo menos mínimo, y por eso se mide en las mismas unidades que los datos.",
-    "B": "Sumar los extremos no mide cuánto se separan: dos grupos muy distintos pueden dar la misma suma.",
-    "C": "Ese promedio es un valor central, no una medida de cuánto se dispersan los datos.",
+    "A": "Sumar los extremos no mide cuánto se separan: dos grupos muy distintos pueden dar la misma suma.",
+    "B": "Ese promedio es un valor central, no una medida de cuánto se dispersan los datos.",
+    "C": "Correcto. El rango es máximo menos mínimo, y por eso se mide en las mismas unidades que los datos.",
     "D": "Eso es un conteo de categorías."
    },
    "misconceptions": {
-    "A": null,
+    "A": "dispersion/rango-mal-calculado",
     "B": "dispersion/rango-mal-calculado",
-    "C": "dispersion/rango-mal-calculado",
+    "C": null,
     "D": null
    }
   },
@@ -1638,23 +1638,23 @@
    "order_index": 190,
    "question": "¿Cuál es el rango de los datos $4$, $9$, $2$ y $15$?",
    "options": {
-    "A": "$8{,}5$",
+    "A": "$30$",
     "B": "$17$",
-    "C": "$30$",
-    "D": "$13$"
+    "C": "$13$",
+    "D": "$8{,}5$"
    },
-   "correct": "D",
+   "correct": "C",
    "errors": {
-    "A": "Ese es el promedio de los dos extremos.",
+    "A": "Esa es la suma de los cuatro datos.",
     "B": "Se sumaron los extremos en vez de restarlos.",
-    "C": "Esa es la suma de los cuatro datos.",
-    "D": "Correcto. El mayor es $15$ y el menor es $2$: $15 - 2 = 13$."
+    "C": "Correcto. El mayor es $15$ y el menor es $2$: $15 - 2 = 13$.",
+    "D": "Ese es el promedio de los dos extremos."
    },
    "misconceptions": {
     "A": "dispersion/rango-mal-calculado",
     "B": "dispersion/rango-mal-calculado",
-    "C": "dispersion/rango-mal-calculado",
-    "D": null
+    "C": null,
+    "D": "dispersion/rango-mal-calculado"
    }
   },
   {
@@ -1664,16 +1664,16 @@
    "question": "Un conjunto de datos tiene rango $0$. ¿Qué se puede afirmar?",
    "options": {
     "A": "Que no hay datos",
-    "B": "Que todos los datos son iguales",
+    "B": "Que hay la misma cantidad de datos altos y bajos",
     "C": "Que el promedio es $0$",
-    "D": "Que hay la misma cantidad de datos altos y bajos"
+    "D": "Que todos los datos son iguales"
    },
-   "correct": "B",
+   "correct": "D",
    "errors": {
     "A": "Si no hubiera datos no habría rango que calcular.",
-    "B": "Correcto. El máximo y el mínimo coinciden, así que no queda ningún valor distinto en medio.",
+    "B": "El rango no cuenta datos: mide la distancia entre los extremos.",
     "C": "El promedio es el valor repetido, que puede ser cualquiera.",
-    "D": "El rango no cuenta datos: mide la distancia entre los extremos."
+    "D": "Correcto. El máximo y el mínimo coinciden, así que no queda ningún valor distinto en medio."
    },
    "misconceptions": {
     "A": null,
@@ -1688,15 +1688,15 @@
    "order_index": 210,
    "question": "El **rango** es especialmente sensible a:",
    "options": {
-    "A": "un solo dato extremo",
-    "B": "la cantidad de datos",
+    "A": "la cantidad de datos",
+    "B": "un solo dato extremo",
     "C": "el orden en que se anotan los datos",
     "D": "la unidad de medida elegida"
    },
-   "correct": "A",
+   "correct": "B",
    "errors": {
-    "A": "Correcto. Como solo usa el máximo y el mínimo, un único dato lejano lo dispara. El rango intercuartílico no tiene ese problema, porque deja fuera los extremos.",
-    "B": "Se puede calcular igual con $5$ o con $500$ datos.",
+    "A": "Se puede calcular igual con $5$ o con $500$ datos.",
+    "B": "Correcto. Como solo usa el máximo y el mínimo, un único dato lejano lo dispara. El rango intercuartílico no tiene ese problema, porque deja fuera los extremos.",
     "C": "El rango no cambia si se reordenan los datos.",
     "D": "Cambiar de unidad cambia el número, pero no lo vuelve más ni menos sensible."
    },
@@ -1713,21 +1713,21 @@
    "order_index": 220,
    "question": "¿Cuál de estos dos conjuntos tiene mayor dispersión: $A = \\{5, 5, 5, 5\\}$ o $B = \\{1, 4, 6, 9\\}$?",
    "options": {
-    "A": "$A$, porque sus datos son mayores",
-    "B": "Los dos igual, porque tienen la misma cantidad de datos",
-    "C": "$B$, porque sus datos se separan entre sí",
+    "A": "$B$, porque sus datos se separan entre sí",
+    "B": "$A$, porque sus datos son mayores",
+    "C": "Los dos igual, porque tienen la misma cantidad de datos",
     "D": "$A$, porque todos sus datos son iguales"
    },
-   "correct": "C",
+   "correct": "A",
    "errors": {
-    "A": "El tamaño de los datos no es dispersión: en $A$ todos valen lo mismo y no hay ninguna separación.",
-    "B": "La cantidad de datos no dice nada sobre cuánto se separan.",
-    "C": "Correcto. En $A$ el rango es $0$; en $B$ los datos van de $1$ a $9$.",
+    "A": "Correcto. En $A$ el rango es $0$; en $B$ los datos van de $1$ a $9$.",
+    "B": "El tamaño de los datos no es dispersión: en $A$ todos valen lo mismo y no hay ninguna separación.",
+    "C": "La cantidad de datos no dice nada sobre cuánto se separan.",
     "D": "Que todos sean iguales es exactamente lo contrario de tener dispersión."
    },
    "misconceptions": {
-    "A": "dispersion/confunde-nivel-con-dispersion",
-    "B": null,
+    "A": null,
+    "B": "dispersion/confunde-nivel-con-dispersion",
     "C": null,
     "D": null
    }
@@ -2038,22 +2038,22 @@
    "order_index": 10,
    "question": "Según la regla de Laplace, la probabilidad de un evento se calcula como:",
    "options": {
-    "A": "casos favorables multiplicado por casos totales",
+    "A": "casos favorables dividido por casos desfavorables",
     "B": "casos totales dividido por casos favorables",
-    "C": "casos favorables dividido por casos desfavorables",
-    "D": "casos favorables dividido por casos totales"
+    "C": "casos favorables dividido por casos totales",
+    "D": "casos favorables multiplicado por casos totales"
    },
-   "correct": "D",
+   "correct": "C",
    "errors": {
-    "A": "Multiplicar no compara la parte con el todo.",
+    "A": "El denominador es el **total**, no lo que queda fuera.",
     "B": "Al revés daría un número mayor que $1$, que no puede ser una probabilidad.",
-    "C": "El denominador es el **total**, no lo que queda fuera.",
-    "D": "Correcto. Se divide lo que sirve por todo lo que puede pasar, y por eso el resultado queda entre $0$ y $1$."
+    "C": "Correcto. Se divide lo que sirve por todo lo que puede pasar, y por eso el resultado queda entre $0$ y $1$.",
+    "D": "Multiplicar no compara la parte con el todo."
    },
    "misconceptions": {
-    "A": null,
+    "A": "azar/favorables-sobre-desfavorables",
     "B": "azar/probabilidad-fuera-de-cero-uno",
-    "C": "azar/favorables-sobre-desfavorables",
+    "C": null,
     "D": null
    }
   },
@@ -2063,21 +2063,21 @@
    "order_index": 20,
    "question": "Al lanzar un dado corriente de $6$ caras, ¿cuál es la probabilidad de obtener un $4$?",
    "options": {
-    "A": "$\\dfrac{4}{6}$",
-    "B": "$\\dfrac{1}{6}$",
-    "C": "$\\dfrac{1}{4}$",
+    "A": "$\\dfrac{1}{6}$",
+    "B": "$\\dfrac{1}{4}$",
+    "C": "$\\dfrac{4}{6}$",
     "D": "$4$"
    },
-   "correct": "B",
+   "correct": "A",
    "errors": {
-    "A": "El $4$ es el resultado buscado, no la cantidad de casos favorables: hay una sola cara con un $4$.",
-    "B": "Correcto. Hay una cara favorable de seis posibles.",
-    "C": "El $4$ terminó en el denominador. El total de casos es $6$, que son las caras del dado.",
+    "A": "Correcto. Hay una cara favorable de seis posibles.",
+    "B": "El $4$ terminó en el denominador. El total de casos es $6$, que son las caras del dado.",
+    "C": "El $4$ es el resultado buscado, no la cantidad de casos favorables: hay una sola cara con un $4$.",
     "D": "Una probabilidad nunca puede ser $4$: como máximo vale $1$."
    },
    "misconceptions": {
-    "A": "azar/cuenta-mal-el-espacio-muestral",
-    "B": null,
+    "A": null,
+    "B": "azar/cuenta-mal-el-espacio-muestral",
     "C": "azar/cuenta-mal-el-espacio-muestral",
     "D": "azar/probabilidad-fuera-de-cero-uno"
    }
@@ -2088,23 +2088,23 @@
    "order_index": 30,
    "question": "¿Cuál es la probabilidad de obtener un número **par** al lanzar un dado de $6$ caras?",
    "options": {
-    "A": "$\\dfrac{1}{2}$",
-    "B": "$\\dfrac{1}{6}$",
+    "A": "$\\dfrac{1}{6}$",
+    "B": "$\\dfrac{2}{6}$",
     "C": "$\\dfrac{1}{3}$",
-    "D": "$\\dfrac{2}{6}$"
+    "D": "$\\dfrac{1}{2}$"
    },
-   "correct": "A",
+   "correct": "D",
    "errors": {
-    "A": "Correcto. Son $3$ casos favorables de $6$: $\\dfrac{3}{6} = \\dfrac{1}{2}$.",
-    "B": "Se contó «par» como un solo caso favorable, pero hay tres caras pares: $2$, $4$ y $6$.",
+    "A": "Se contó «par» como un solo caso favorable, pero hay tres caras pares: $2$, $4$ y $6$.",
+    "B": "Son tres las caras pares —$2$, $4$ y $6$—, así que faltó contar una.",
     "C": "Eso equivale a $2$ casos favorables de $6$: faltó contar una de las tres caras pares.",
-    "D": "Son tres las caras pares —$2$, $4$ y $6$—, así que faltó contar una."
+    "D": "Correcto. Son $3$ casos favorables de $6$: $\\dfrac{3}{6} = \\dfrac{1}{2}$."
    },
    "misconceptions": {
-    "A": null,
+    "A": "azar/cuenta-mal-el-espacio-muestral",
     "B": "azar/cuenta-mal-el-espacio-muestral",
     "C": "azar/cuenta-mal-el-espacio-muestral",
-    "D": "azar/cuenta-mal-el-espacio-muestral"
+    "D": null
    }
   },
   {
@@ -2114,22 +2114,22 @@
    "question": "Una bolsa tiene $3$ bolitas rojas y $5$ azules. ¿Cuál es la probabilidad de sacar una roja?",
    "options": {
     "A": "$\\dfrac{3}{5}$",
-    "B": "$\\dfrac{5}{8}$",
-    "C": "$\\dfrac{3}{8}$",
-    "D": "$\\dfrac{1}{3}$"
+    "B": "$\\dfrac{3}{8}$",
+    "C": "$\\dfrac{1}{3}$",
+    "D": "$\\dfrac{5}{8}$"
    },
-   "correct": "C",
+   "correct": "B",
    "errors": {
     "A": "En el denominador quedaron las azules, o sea los casos **desfavorables**. Van todas las bolitas.",
-    "B": "Esa es la probabilidad de sacar una **azul**.",
-    "C": "Correcto. Hay $3$ rojas entre $3+5 = 8$ bolitas.",
-    "D": "Se contó una de cada tres, como si hubiera tres colores igual de probables."
+    "B": "Correcto. Hay $3$ rojas entre $3+5 = 8$ bolitas.",
+    "C": "Se contó una de cada tres, como si hubiera tres colores igual de probables.",
+    "D": "Esa es la probabilidad de sacar una **azul**."
    },
    "misconceptions": {
     "A": "azar/favorables-sobre-desfavorables",
     "B": null,
-    "C": null,
-    "D": "azar/cuenta-mal-el-espacio-muestral"
+    "C": "azar/cuenta-mal-el-espacio-muestral",
+    "D": null
    }
   },
   {
@@ -2138,21 +2138,21 @@
    "order_index": 50,
    "question": "¿Cuánto vale la probabilidad de un evento **seguro**?",
    "options": {
-    "A": "$100$",
-    "B": "$1$",
+    "A": "$1$",
+    "B": "$100$",
     "C": "$0$",
     "D": "$0{,}5$"
    },
-   "correct": "B",
+   "correct": "A",
    "errors": {
-    "A": "El $100$ es el porcentaje. En la escala de probabilidades, el máximo es $1$.",
-    "B": "Correcto. Si el evento ocurre siempre, los casos favorables son todos los posibles.",
+    "A": "Correcto. Si el evento ocurre siempre, los casos favorables son todos los posibles.",
+    "B": "El $100$ es el porcentaje. En la escala de probabilidades, el máximo es $1$.",
     "C": "Ese es el valor de un evento **imposible**.",
     "D": "Ese es el valor de un evento que ocurre la mitad de las veces."
    },
    "misconceptions": {
-    "A": "azar/probabilidad-fuera-de-cero-uno",
-    "B": null,
+    "A": null,
+    "B": "azar/probabilidad-fuera-de-cero-uno",
     "C": null,
     "D": null
    }
@@ -2165,21 +2165,21 @@
    "options": {
     "A": "Sí, si hay muchos casos favorables en juego",
     "B": "Sí, si el evento es muy probable",
-    "C": "Solo si se expresa en porcentaje",
-    "D": "No: toda probabilidad está entre $0$ y $1$"
+    "C": "No: toda probabilidad está entre $0$ y $1$",
+    "D": "Solo si se expresa en porcentaje"
    },
-   "correct": "D",
+   "correct": "C",
    "errors": {
     "A": "Por muchos que sean, los casos favorables nunca superan al total: la fracción no pasa de $1$.",
     "B": "«Muy probable» se acerca a $1$, nunca lo supera.",
-    "C": "En porcentaje el techo es $100\\%$, que es el mismo $1$ escrito de otra forma.",
-    "D": "Correcto. Los casos favorables son parte de los totales, así que el cociente vive en $[0, 1]$."
+    "C": "Correcto. Los casos favorables son parte de los totales, así que el cociente vive en $[0, 1]$.",
+    "D": "En porcentaje el techo es $100\\%$, que es el mismo $1$ escrito de otra forma."
    },
    "misconceptions": {
     "A": "azar/probabilidad-fuera-de-cero-uno",
     "B": "azar/probabilidad-fuera-de-cero-uno",
-    "C": "azar/probabilidad-fuera-de-cero-uno",
-    "D": null
+    "C": null,
+    "D": "azar/probabilidad-fuera-de-cero-uno"
    }
   },
   {
@@ -2189,22 +2189,22 @@
    "question": "Se lanza una moneda dos veces. ¿Cuántos resultados distintos puede haber?",
    "options": {
     "A": "$2$",
-    "B": "$3$",
-    "C": "$8$",
-    "D": "$4$"
+    "B": "$4$",
+    "C": "$3$",
+    "D": "$8$"
    },
-   "correct": "D",
+   "correct": "B",
    "errors": {
     "A": "Esos son los resultados de **un** lanzamiento. Con dos lanzamientos hay más combinaciones.",
-    "B": "Se contaron «dos caras», «dos sellos» y «una de cada», pero la mixta ocurre de dos maneras: cara-sello y sello-cara.",
-    "C": "Ese sería el total con **tres** lanzamientos: $2^3$.",
-    "D": "Correcto. Dos opciones en el primer lanzamiento por dos en el segundo: $2 \\cdot 2 = 4$."
+    "B": "Correcto. Dos opciones en el primer lanzamiento por dos en el segundo: $2 \\cdot 2 = 4$.",
+    "C": "Se contaron «dos caras», «dos sellos» y «una de cada», pero la mixta ocurre de dos maneras: cara-sello y sello-cara.",
+    "D": "Ese sería el total con **tres** lanzamientos: $2^3$."
    },
    "misconceptions": {
     "A": "azar/cuenta-mal-el-espacio-muestral",
-    "B": "azar/resultados-compuestos-como-equiprobables",
-    "C": "azar/cuenta-mal-el-espacio-muestral",
-    "D": null
+    "B": null,
+    "C": "azar/resultados-compuestos-como-equiprobables",
+    "D": "azar/cuenta-mal-el-espacio-muestral"
    }
   },
   {
@@ -2214,22 +2214,22 @@
    "question": "Se lanza una moneda dos veces. ¿Cuál es la probabilidad de obtener **dos caras**?",
    "options": {
     "A": "$\\dfrac{1}{2}$",
-    "B": "$\\dfrac{1}{4}$",
+    "B": "$\\dfrac{1}{3}$",
     "C": "$\\dfrac{2}{4}$",
-    "D": "$\\dfrac{1}{3}$"
+    "D": "$\\dfrac{1}{4}$"
    },
-   "correct": "B",
+   "correct": "D",
    "errors": {
     "A": "Esa es la probabilidad de cara en **un** lanzamiento.",
-    "B": "Correcto. De los cuatro resultados posibles, solo cara-cara sirve.",
+    "B": "Se trataron como equiprobables «dos caras», «dos sellos» y «una de cada», pero la mixta pasa el doble de veces.",
     "C": "Eso es $\\dfrac{1}{2}$ escrito de otra forma: hay un solo resultado favorable de cuatro, no dos.",
-    "D": "Se trataron como equiprobables «dos caras», «dos sellos» y «una de cada», pero la mixta pasa el doble de veces."
+    "D": "Correcto. De los cuatro resultados posibles, solo cara-cara sirve."
    },
    "misconceptions": {
     "A": null,
-    "B": null,
+    "B": "azar/resultados-compuestos-como-equiprobables",
     "C": "azar/cuenta-mal-el-espacio-muestral",
-    "D": "azar/resultados-compuestos-como-equiprobables"
+    "D": null
    }
   },
   {
@@ -2239,22 +2239,22 @@
    "question": "Se lanzan dos dados corrientes. ¿Cuántos resultados posibles hay?",
    "options": {
     "A": "$12$",
-    "B": "$11$",
-    "C": "$36$",
-    "D": "$6$"
+    "B": "$6$",
+    "C": "$11$",
+    "D": "$36$"
    },
-   "correct": "C",
+   "correct": "D",
    "errors": {
     "A": "Se sumaron las caras de los dos dados. Para contar pares de resultados hay que multiplicar.",
-    "B": "Esas son las **sumas** posibles ($2$ a $12$), que no son igual de probables entre sí.",
-    "C": "Correcto. Seis resultados del primer dado por seis del segundo: $6 \\cdot 6 = 36$.",
-    "D": "Esas son las caras de un solo dado."
+    "B": "Esas son las caras de un solo dado.",
+    "C": "Esas son las **sumas** posibles ($2$ a $12$), que no son igual de probables entre sí.",
+    "D": "Correcto. Seis resultados del primer dado por seis del segundo: $6 \\cdot 6 = 36$."
    },
    "misconceptions": {
     "A": "azar/cuenta-mal-el-espacio-muestral",
-    "B": "azar/resultados-compuestos-como-equiprobables",
-    "C": null,
-    "D": "azar/cuenta-mal-el-espacio-muestral"
+    "B": "azar/cuenta-mal-el-espacio-muestral",
+    "C": "azar/resultados-compuestos-como-equiprobables",
+    "D": null
    }
   },
   {
@@ -2263,22 +2263,22 @@
    "order_index": 100,
    "question": "Se lanzan dos dados. ¿Cuál es la probabilidad de que la **suma** sea $7$?",
    "options": {
-    "A": "$\\dfrac{1}{6}$",
-    "B": "$\\dfrac{7}{36}$",
-    "C": "$\\dfrac{1}{11}$",
+    "A": "$\\dfrac{1}{11}$",
+    "B": "$\\dfrac{1}{6}$",
+    "C": "$\\dfrac{7}{36}$",
     "D": "$\\dfrac{1}{12}$"
    },
-   "correct": "A",
+   "correct": "B",
    "errors": {
-    "A": "Correcto. Hay $6$ pares que suman $7$ de $36$ posibles: $\\dfrac{6}{36} = \\dfrac{1}{6}$.",
-    "B": "Se usó el $7$ como si fuera la cantidad de casos favorables. Los pares que suman $7$ son seis.",
-    "C": "Se tomaron las $11$ sumas posibles como si fueran igual de probables, y no lo son: el $7$ sale de seis maneras y el $2$, de una sola.",
+    "A": "Se tomaron las $11$ sumas posibles como si fueran igual de probables, y no lo son: el $7$ sale de seis maneras y el $2$, de una sola.",
+    "B": "Correcto. Hay $6$ pares que suman $7$ de $36$ posibles: $\\dfrac{6}{36} = \\dfrac{1}{6}$.",
+    "C": "Se usó el $7$ como si fuera la cantidad de casos favorables. Los pares que suman $7$ son seis.",
     "D": "Ese sería el resultado con un solo caso favorable entre $12$, y ni el numerador ni el denominador corresponden."
    },
    "misconceptions": {
-    "A": null,
-    "B": "azar/cuenta-mal-el-espacio-muestral",
-    "C": "azar/resultados-compuestos-como-equiprobables",
+    "A": "azar/resultados-compuestos-como-equiprobables",
+    "B": null,
+    "C": "azar/cuenta-mal-el-espacio-muestral",
     "D": "azar/cuenta-mal-el-espacio-muestral"
    }
   },
@@ -2289,21 +2289,21 @@
    "question": "De una baraja inglesa de $52$ cartas se saca una al azar. ¿Cuál es la probabilidad de que sea de corazones?",
    "options": {
     "A": "$\\dfrac{1}{52}$",
-    "B": "$\\dfrac{1}{4}$",
-    "C": "$\\dfrac{1}{13}$",
+    "B": "$\\dfrac{1}{13}$",
+    "C": "$\\dfrac{1}{4}$",
     "D": "$\\dfrac{4}{52}$"
    },
-   "correct": "B",
+   "correct": "C",
    "errors": {
     "A": "Esa es la probabilidad de sacar **una carta determinada**, no una pinta completa.",
-    "B": "Correcto. Hay $13$ corazones entre $52$ cartas: $\\dfrac{13}{52} = \\dfrac{1}{4}$.",
-    "C": "Ese sería el caso de trece cartas iguales; las de corazones son $13$ de $52$, no $1$ de $13$.",
+    "B": "Ese sería el caso de trece cartas iguales; las de corazones son $13$ de $52$, no $1$ de $13$.",
+    "C": "Correcto. Hay $13$ corazones entre $52$ cartas: $\\dfrac{13}{52} = \\dfrac{1}{4}$.",
     "D": "Ese es el $4$ de las pintas puesto como casos favorables: las pintas son cuatro, pero las cartas favorables son trece."
    },
    "misconceptions": {
     "A": "azar/cuenta-mal-el-espacio-muestral",
-    "B": null,
-    "C": "azar/favorables-sobre-desfavorables",
+    "B": "azar/favorables-sobre-desfavorables",
+    "C": null,
     "D": "azar/cuenta-mal-el-espacio-muestral"
    }
   },
@@ -2313,21 +2313,21 @@
    "order_index": 120,
    "question": "Una bolsa tiene $4$ bolitas rojas y $6$ verdes. Se saca una y **no se devuelve**. ¿Cuántas bolitas quedan para la segunda extracción?",
    "options": {
-    "A": "$10$",
-    "B": "$6$",
+    "A": "$9$",
+    "B": "$10$",
     "C": "$4$",
-    "D": "$9$"
+    "D": "$6$"
    },
-   "correct": "D",
+   "correct": "A",
    "errors": {
-    "A": "Ese era el total **antes** de la primera extracción. Sin reposición, el total baja.",
-    "B": "Esas son las verdes del comienzo.",
+    "A": "Correcto. Salió una bolita y no volvió: quedan $9$.",
+    "B": "Ese era el total **antes** de la primera extracción. Sin reposición, el total baja.",
     "C": "Esas son las rojas del comienzo, no el total que queda.",
-    "D": "Correcto. Salió una bolita y no volvió: quedan $9$."
+    "D": "Esas son las verdes del comienzo."
    },
    "misconceptions": {
-    "A": "azar/olvida-que-no-hay-reposicion",
-    "B": null,
+    "A": null,
+    "B": "azar/olvida-que-no-hay-reposicion",
     "C": null,
     "D": null
    }
@@ -2338,21 +2338,21 @@
    "order_index": 130,
    "question": "En un curso hay $12$ mujeres y $18$ hombres. Se elige a una persona al azar. ¿Cuál es la probabilidad de que sea mujer?",
    "options": {
-    "A": "$\\dfrac{2}{5}$",
-    "B": "$\\dfrac{12}{18}$",
+    "A": "$\\dfrac{12}{18}$",
+    "B": "$\\dfrac{2}{5}$",
     "C": "$\\dfrac{3}{5}$",
     "D": "$\\dfrac{1}{12}$"
    },
-   "correct": "A",
+   "correct": "B",
    "errors": {
-    "A": "Correcto. $\\dfrac{12}{30} = \\dfrac{2}{5}$.",
-    "B": "En el denominador quedaron los hombres, que son los casos desfavorables. Va el curso completo: $30$.",
+    "A": "En el denominador quedaron los hombres, que son los casos desfavorables. Va el curso completo: $30$.",
+    "B": "Correcto. $\\dfrac{12}{30} = \\dfrac{2}{5}$.",
     "C": "Esa es la probabilidad de que sea **hombre**: $\\dfrac{18}{30}$.",
     "D": "Ese sería el caso de elegir a una mujer determinada entre las doce."
    },
    "misconceptions": {
-    "A": null,
-    "B": "azar/favorables-sobre-desfavorables",
+    "A": "azar/favorables-sobre-desfavorables",
+    "B": null,
     "C": null,
     "D": "azar/cuenta-mal-el-espacio-muestral"
    }
@@ -2364,21 +2364,21 @@
    "question": "Con $3$ poleras y $4$ pantalones distintos, ¿cuántas tenidas diferentes se pueden armar?",
    "options": {
     "A": "$7$",
-    "B": "$34$",
-    "C": "$12$",
-    "D": "$1$"
+    "B": "$1$",
+    "C": "$34$",
+    "D": "$12$"
    },
-   "correct": "C",
+   "correct": "D",
    "errors": {
     "A": "Se sumaron las prendas. Sumar cuenta cuántas prendas hay, no cuántas combinaciones.",
-    "B": "Se escribieron los dos números seguidos. Contar combinaciones es multiplicarlos: $3 \\cdot 4$.",
-    "C": "Correcto. Por el principio multiplicativo, cada una de las $3$ poleras se puede usar con cualquiera de los $4$ pantalones: $3 \\cdot 4 = 12$.",
-    "D": "Hay muchas combinaciones posibles, no una sola."
+    "B": "Hay muchas combinaciones posibles, no una sola.",
+    "C": "Se escribieron los dos números seguidos. Contar combinaciones es multiplicarlos: $3 \\cdot 4$.",
+    "D": "Correcto. Por el principio multiplicativo, cada una de las $3$ poleras se puede usar con cualquiera de los $4$ pantalones: $3 \\cdot 4 = 12$."
    },
    "misconceptions": {
     "A": "azar/cuenta-mal-el-espacio-muestral",
-    "B": "azar/cuenta-mal-el-espacio-muestral",
-    "C": null,
+    "B": null,
+    "C": "azar/cuenta-mal-el-espacio-muestral",
     "D": null
    }
   },
@@ -2388,21 +2388,21 @@
    "order_index": 150,
    "question": "Una bolsa tiene $4$ bolitas rojas y $6$ verdes. Se sacan dos **sin reposición**. ¿Cuál es la probabilidad de que las dos sean rojas?",
    "options": {
-    "A": "$\\dfrac{4}{25}$",
-    "B": "$\\dfrac{2}{5}$",
-    "C": "$\\dfrac{2}{15}$",
+    "A": "$\\dfrac{2}{15}$",
+    "B": "$\\dfrac{4}{25}$",
+    "C": "$\\dfrac{2}{5}$",
     "D": "$\\dfrac{8}{19}$"
    },
-   "correct": "C",
+   "correct": "A",
    "errors": {
-    "A": "Ese es el resultado **con** reposición: $\\dfrac{4}{10} \\cdot \\dfrac{4}{10}$. Acá la primera bolita no vuelve.",
-    "B": "Esa es la probabilidad de que la **primera** sea roja; falta la segunda extracción.",
-    "C": "Correcto. $\\dfrac{4}{10} \\cdot \\dfrac{3}{9} = \\dfrac{12}{90} = \\dfrac{2}{15}$: en la segunda extracción quedan $3$ rojas de $9$ bolitas.",
+    "A": "Correcto. $\\dfrac{4}{10} \\cdot \\dfrac{3}{9} = \\dfrac{12}{90} = \\dfrac{2}{15}$: en la segunda extracción quedan $3$ rojas de $9$ bolitas.",
+    "B": "Ese es el resultado **con** reposición: $\\dfrac{4}{10} \\cdot \\dfrac{4}{10}$. Acá la primera bolita no vuelve.",
+    "C": "Esa es la probabilidad de que la **primera** sea roja; falta la segunda extracción.",
     "D": "Los totales se sumaron entre sí. Dos extracciones seguidas se multiplican, no se suman."
    },
    "misconceptions": {
-    "A": "azar/olvida-que-no-hay-reposicion",
-    "B": null,
+    "A": null,
+    "B": "azar/olvida-que-no-hay-reposicion",
     "C": null,
     "D": "reglas/suma-donde-va-producto"
    }
@@ -2413,22 +2413,22 @@
    "order_index": 160,
    "question": "Se lanza un dado dos veces. ¿Cuál es la probabilidad de obtener **al menos un** $6$?",
    "options": {
-    "A": "$\\dfrac{11}{36}$",
+    "A": "$\\dfrac{1}{3}$",
     "B": "$\\dfrac{1}{36}$",
-    "C": "$\\dfrac{1}{3}$",
+    "C": "$\\dfrac{11}{36}$",
     "D": "$\\dfrac{2}{6}$"
    },
-   "correct": "A",
+   "correct": "C",
    "errors": {
-    "A": "Correcto. Es más corto por el complemento: no sacar ningún $6$ tiene probabilidad $\\dfrac{5}{6} \\cdot \\dfrac{5}{6} = \\dfrac{25}{36}$, y $1 - \\dfrac{25}{36} = \\dfrac{11}{36}$.",
+    "A": "Se sumaron $\\dfrac{1}{6} + \\dfrac{1}{6}$, y eso cuenta dos veces el caso en que salen dos seises.",
     "B": "Esa es la probabilidad de sacar **dos** seises, que es un solo resultado de los $36$.",
-    "C": "Se sumaron $\\dfrac{1}{6} + \\dfrac{1}{6}$, y eso cuenta dos veces el caso en que salen dos seises.",
+    "C": "Correcto. Es más corto por el complemento: no sacar ningún $6$ tiene probabilidad $\\dfrac{5}{6} \\cdot \\dfrac{5}{6} = \\dfrac{25}{36}$, y $1 - \\dfrac{25}{36} = \\dfrac{11}{36}$.",
     "D": "Es $\\dfrac{1}{3}$ sin simplificar: sumar los dos lanzamientos cuenta dos veces el caso en que salen dos seises."
    },
    "misconceptions": {
-    "A": null,
+    "A": "reglas/suma-donde-va-producto",
     "B": null,
-    "C": "reglas/suma-donde-va-producto",
+    "C": null,
     "D": "reglas/suma-donde-va-producto"
    }
   },
@@ -2438,22 +2438,22 @@
    "order_index": 10,
    "question": "Si $P(A) = 0{,}3$, ¿cuánto vale la probabilidad de que $A$ **no** ocurra?",
    "options": {
-    "A": "$0{,}3$",
+    "A": "$99{,}7$",
     "B": "$-0{,}3$",
-    "C": "$99{,}7$",
-    "D": "$0{,}7$"
+    "C": "$0{,}7$",
+    "D": "$0{,}3$"
    },
-   "correct": "D",
+   "correct": "C",
    "errors": {
-    "A": "Esa es la probabilidad de que **sí** ocurra.",
+    "A": "Se restó de $100$ pero dejando el $0{,}3$ en escala de probabilidad. O se trabaja en porcentajes ($100 - 30 = 70$) o en probabilidades ($1 - 0{,}3$).",
     "B": "Se le cambió el signo. Ninguna probabilidad es negativa.",
-    "C": "Se restó de $100$ pero dejando el $0{,}3$ en escala de probabilidad. O se trabaja en porcentajes ($100 - 30 = 70$) o en probabilidades ($1 - 0{,}3$).",
-    "D": "Correcto. El complemento se calcula como $1 - P(A) = 1 - 0{,}3 = 0{,}7$."
+    "C": "Correcto. El complemento se calcula como $1 - P(A) = 1 - 0{,}3 = 0{,}7$.",
+    "D": "Esa es la probabilidad de que **sí** ocurra."
    },
    "misconceptions": {
-    "A": null,
+    "A": "reglas/complemento-mal-calculado",
     "B": "reglas/complemento-mal-calculado",
-    "C": "reglas/complemento-mal-calculado",
+    "C": null,
     "D": null
    }
   },
@@ -2463,21 +2463,21 @@
    "order_index": 20,
    "question": "Dos eventos son **excluyentes** cuando:",
    "options": {
-    "A": "uno no influye en la probabilidad del otro",
-    "B": "no pueden ocurrir los dos a la vez",
+    "A": "no pueden ocurrir los dos a la vez",
+    "B": "uno no influye en la probabilidad del otro",
     "C": "tienen la misma probabilidad",
     "D": "juntos suman probabilidad $1$"
    },
-   "correct": "B",
+   "correct": "A",
    "errors": {
-    "A": "Esa es la definición de eventos **independientes**, que es otra cosa.",
-    "B": "Correcto. Su intersección es vacía: si ocurre uno, el otro queda descartado.",
+    "A": "Correcto. Su intersección es vacía: si ocurre uno, el otro queda descartado.",
+    "B": "Esa es la definición de eventos **independientes**, que es otra cosa.",
     "C": "Dos eventos pueden ser igual de probables y ocurrir juntos sin problema.",
     "D": "Eso ocurre con un evento y su complemento, que es un caso particular."
    },
    "misconceptions": {
-    "A": "reglas/confunde-excluyentes-con-independientes",
-    "B": null,
+    "A": null,
+    "B": "reglas/confunde-excluyentes-con-independientes",
     "C": null,
     "D": null
    }
@@ -2488,22 +2488,22 @@
    "order_index": 30,
    "question": "Dos eventos son **independientes** cuando:",
    "options": {
-    "A": "que ocurra uno no cambia la probabilidad del otro",
+    "A": "no pueden ocurrir juntos",
     "B": "siempre ocurren juntos",
-    "C": "no pueden ocurrir juntos",
-    "D": "tienen la misma cantidad de casos favorables"
+    "C": "tienen la misma cantidad de casos favorables",
+    "D": "que ocurra uno no cambia la probabilidad del otro"
    },
-   "correct": "A",
+   "correct": "D",
    "errors": {
-    "A": "Correcto. Saber que ocurrió $B$ no aporta información sobre $A$, y por eso $P(A \\cap B) = P(A) \\cdot P(B)$.",
+    "A": "Eso es ser **excluyentes**. Dos eventos excluyentes se influyen al máximo: si pasa uno, el otro ya no puede pasar.",
     "B": "Eso sería depender por completo el uno del otro.",
-    "C": "Eso es ser **excluyentes**. Dos eventos excluyentes se influyen al máximo: si pasa uno, el otro ya no puede pasar.",
-    "D": "La cantidad de casos favorables no tiene relación con la independencia."
+    "C": "La cantidad de casos favorables no tiene relación con la independencia.",
+    "D": "Correcto. Saber que ocurrió $B$ no aporta información sobre $A$, y por eso $P(A \\cap B) = P(A) \\cdot P(B)$."
    },
    "misconceptions": {
-    "A": null,
+    "A": "reglas/confunde-excluyentes-con-independientes",
     "B": null,
-    "C": "reglas/confunde-excluyentes-con-independientes",
+    "C": null,
     "D": null
    }
   },
@@ -2514,21 +2514,21 @@
    "question": "Si $A$ y $B$ son **excluyentes**, entonces $P(A \\cup B)$ es igual a:",
    "options": {
     "A": "$P(A) \\cdot P(B)$",
-    "B": "$P(A) + P(B) - P(A) \\cdot P(B)$",
-    "C": "$P(A) + P(B)$",
+    "B": "$P(A) + P(B)$",
+    "C": "$P(A) + P(B) - P(A) \\cdot P(B)$",
     "D": "$P(A) - P(B)$"
    },
-   "correct": "C",
+   "correct": "B",
    "errors": {
     "A": "Multiplicar corresponde a que ocurran **los dos**, y dos eventos excluyentes nunca ocurren juntos.",
-    "B": "Ese descuento corresponde a eventos independientes que sí pueden ocurrir juntos. Acá la intersección es $0$.",
-    "C": "Correcto. Como no se superponen, no hay nada que descontar: las probabilidades se suman directo.",
+    "B": "Correcto. Como no se superponen, no hay nada que descontar: las probabilidades se suman directo.",
+    "C": "Ese descuento corresponde a eventos independientes que sí pueden ocurrir juntos. Acá la intersección es $0$.",
     "D": "Restar dejaría fuera parte de los casos de $B$, y la unión los incluye a todos."
    },
    "misconceptions": {
     "A": "reglas/confunde-excluyentes-con-independientes",
-    "B": "reglas/confunde-excluyentes-con-independientes",
-    "C": null,
+    "B": null,
+    "C": "reglas/confunde-excluyentes-con-independientes",
     "D": null
    }
   },
@@ -2538,22 +2538,22 @@
    "order_index": 50,
    "question": "Para dos eventos cualesquiera, $P(A \\cup B)$ es igual a:",
    "options": {
-    "A": "$P(A) + P(B)$",
-    "B": "$P(A) + P(B) - P(A \\cap B)$",
-    "C": "$P(A) \\cdot P(B)$",
+    "A": "$P(A) + P(B) - P(A \\cap B)$",
+    "B": "$P(A) \\cdot P(B)$",
+    "C": "$P(A) + P(B)$",
     "D": "$1 - P(A) - P(B)$"
    },
-   "correct": "B",
+   "correct": "A",
    "errors": {
-    "A": "Esa fórmula sirve solo si los eventos son excluyentes: si no, los casos comunes quedan contados dos veces.",
-    "B": "Correcto. Se suman las dos probabilidades y se descuenta una vez la parte que comparten.",
-    "C": "Ese es el cálculo de la intersección para eventos independientes, no el de la unión.",
+    "A": "Correcto. Se suman las dos probabilidades y se descuenta una vez la parte que comparten.",
+    "B": "Ese es el cálculo de la intersección para eventos independientes, no el de la unión.",
+    "C": "Esa fórmula sirve solo si los eventos son excluyentes: si no, los casos comunes quedan contados dos veces.",
     "D": "Esa expresión puede dar negativa, así que no puede ser una probabilidad."
    },
    "misconceptions": {
-    "A": "reglas/suma-sin-restar-la-interseccion",
-    "B": null,
-    "C": "reglas/suma-donde-va-producto",
+    "A": null,
+    "B": "reglas/suma-donde-va-producto",
+    "C": "reglas/suma-sin-restar-la-interseccion",
     "D": "reglas/complemento-mal-calculado"
    }
   },
@@ -2565,15 +2565,15 @@
    "options": {
     "A": "$0{,}9$",
     "B": "$0{,}2$",
-    "C": "$0{,}1$",
-    "D": "$0{,}7$"
+    "C": "$0{,}7$",
+    "D": "$0{,}1$"
    },
-   "correct": "D",
+   "correct": "C",
    "errors": {
     "A": "Se sumaron las dos probabilidades sin descontar a quienes practican los dos: esos quedaron contados dos veces.",
     "B": "Esa es la probabilidad de practicar **ambos**, que es solo una parte de la respuesta.",
-    "C": "Se restaron las dos probabilidades ($0{,}5 - 0{,}4$). La unión suma y descuenta la intersección; no resta.",
-    "D": "Correcto. $0{,}5 + 0{,}4 - 0{,}2 = 0{,}7$."
+    "C": "Correcto. $0{,}5 + 0{,}4 - 0{,}2 = 0{,}7$.",
+    "D": "Se restaron las dos probabilidades ($0{,}5 - 0{,}4$). La unión suma y descuenta la intersección; no resta."
    },
    "misconceptions": {
     "A": "reglas/suma-sin-restar-la-interseccion",
@@ -2589,16 +2589,16 @@
    "question": "Si $A$ y $B$ son **independientes**, entonces $P(A \\cap B)$ es igual a:",
    "options": {
     "A": "$P(A) + P(B)$",
-    "B": "$P(A) - P(B)$",
+    "B": "$P(A) \\cdot P(B)$",
     "C": "$0$",
-    "D": "$P(A) \\cdot P(B)$"
+    "D": "$P(A) - P(B)$"
    },
-   "correct": "D",
+   "correct": "B",
    "errors": {
     "A": "Sumar corresponde a la unión, o sea a que ocurra **alguno** de los dos.",
-    "B": "La resta se parece a «$A$ pero no $B$», que se calcula con $P(A) - P(A \\cap B)$, y no es la intersección.",
+    "B": "Correcto. Que ocurran los dos, sin que uno influya en el otro, es el producto de sus probabilidades.",
     "C": "La intersección vale $0$ cuando los eventos son **excluyentes**, que es lo contrario de independientes.",
-    "D": "Correcto. Que ocurran los dos, sin que uno influya en el otro, es el producto de sus probabilidades."
+    "D": "La resta se parece a «$A$ pero no $B$», que se calcula con $P(A) - P(A \\cap B)$, y no es la intersección."
    },
    "misconceptions": {
     "A": "reglas/suma-donde-va-producto",
@@ -2614,21 +2614,21 @@
    "question": "Se lanza una moneda y un dado. ¿Cuál es la probabilidad de obtener cara **y** un $5$?",
    "options": {
     "A": "$\\dfrac{2}{3}$",
-    "B": "$\\dfrac{1}{12}$",
-    "C": "$\\dfrac{1}{8}$",
-    "D": "$\\dfrac{1}{6}$"
+    "B": "$\\dfrac{1}{8}$",
+    "C": "$\\dfrac{1}{6}$",
+    "D": "$\\dfrac{1}{12}$"
    },
-   "correct": "B",
+   "correct": "D",
    "errors": {
     "A": "Se sumaron $\\dfrac{1}{2}$ y $\\dfrac{1}{6}$. La palabra «y» pide que ocurran los dos, y eso se multiplica.",
-    "B": "Correcto. $\\dfrac{1}{2} \\cdot \\dfrac{1}{6} = \\dfrac{1}{12}$, que es uno de los doce resultados posibles.",
-    "C": "El denominador no corresponde: los resultados posibles son $2 \\cdot 6 = 12$, no $8$.",
-    "D": "Esa es solo la probabilidad del $5$ en el dado; falta la moneda."
+    "B": "El denominador no corresponde: los resultados posibles son $2 \\cdot 6 = 12$, no $8$.",
+    "C": "Esa es solo la probabilidad del $5$ en el dado; falta la moneda.",
+    "D": "Correcto. $\\dfrac{1}{2} \\cdot \\dfrac{1}{6} = \\dfrac{1}{12}$, que es uno de los doce resultados posibles."
    },
    "misconceptions": {
     "A": "reglas/suma-donde-va-producto",
-    "B": null,
-    "C": "azar/cuenta-mal-el-espacio-muestral",
+    "B": "azar/cuenta-mal-el-espacio-muestral",
+    "C": null,
     "D": null
    }
   },
@@ -2639,16 +2639,16 @@
    "question": "Una bolsa tiene $5$ bolitas rojas y $5$ azules. Se sacan dos **sin reposición**. ¿Cuál es la probabilidad de que las dos sean rojas?",
    "options": {
     "A": "$\\dfrac{1}{4}$",
-    "B": "$\\dfrac{1}{2}$",
-    "C": "$\\dfrac{2}{9}$",
-    "D": "$\\dfrac{5}{9}$"
+    "B": "$\\dfrac{5}{9}$",
+    "C": "$\\dfrac{1}{2}$",
+    "D": "$\\dfrac{2}{9}$"
    },
-   "correct": "C",
+   "correct": "D",
    "errors": {
     "A": "Ese es el resultado **con** reposición: $\\dfrac{5}{10} \\cdot \\dfrac{5}{10}$.",
-    "B": "Esa es la probabilidad de que la primera sea roja; falta la segunda extracción.",
-    "C": "Correcto. $\\dfrac{5}{10} \\cdot \\dfrac{4}{9} = \\dfrac{20}{90} = \\dfrac{2}{9}$: para la segunda quedan $4$ rojas de $9$ bolitas.",
-    "D": "Esa es solo la segunda fracción del cálculo, sin multiplicarla por la primera."
+    "B": "Esa es solo la segunda fracción del cálculo, sin multiplicarla por la primera.",
+    "C": "Esa es la probabilidad de que la primera sea roja; falta la segunda extracción.",
+    "D": "Correcto. $\\dfrac{5}{10} \\cdot \\dfrac{4}{9} = \\dfrac{20}{90} = \\dfrac{2}{9}$: para la segunda quedan $4$ rojas de $9$ bolitas."
    },
    "misconceptions": {
     "A": "azar/olvida-que-no-hay-reposicion",
@@ -2663,21 +2663,21 @@
    "order_index": 100,
    "question": "La probabilidad condicional $P(A \\mid B)$ se lee como:",
    "options": {
-    "A": "la probabilidad de que ocurra $A$ sabiendo que ocurrió $B$",
-    "B": "la probabilidad de que ocurra $B$ sabiendo que ocurrió $A$",
+    "A": "la probabilidad de que ocurra $B$ sabiendo que ocurrió $A$",
+    "B": "la probabilidad de que ocurra $A$ sabiendo que ocurrió $B$",
     "C": "la probabilidad de que ocurran los dos",
     "D": "la probabilidad de que ocurra alguno de los dos"
    },
-   "correct": "A",
+   "correct": "B",
    "errors": {
-    "A": "Correcto. La condición va después de la barra: $B$ ya ocurrió y reduce el espacio muestral.",
-    "B": "Está al revés, y no dan lo mismo: entre quienes tienen fiebre, la proporción de resfriados no es la misma que entre los resfriados, la de fiebre.",
+    "A": "Está al revés, y no dan lo mismo: entre quienes tienen fiebre, la proporción de resfriados no es la misma que entre los resfriados, la de fiebre.",
+    "B": "Correcto. La condición va después de la barra: $B$ ya ocurrió y reduce el espacio muestral.",
     "C": "Esa es la intersección, $P(A \\cap B)$.",
     "D": "Esa es la unión, $P(A \\cup B)$."
    },
    "misconceptions": {
-    "A": null,
-    "B": "reglas/condicional-usa-el-total-equivocado",
+    "A": "reglas/condicional-usa-el-total-equivocado",
+    "B": null,
     "C": null,
     "D": null
    }
@@ -2689,21 +2689,21 @@
    "question": "De $40$ estudiantes, $24$ practican algún deporte y $9$ de esos $24$ son mujeres. Si se elige al azar a alguien **que practica deporte**, ¿cuál es la probabilidad de que sea mujer?",
    "options": {
     "A": "$\\dfrac{9}{40}$",
-    "B": "$\\dfrac{3}{8}$",
-    "C": "$\\dfrac{24}{40}$",
+    "B": "$\\dfrac{24}{40}$",
+    "C": "$\\dfrac{3}{8}$",
     "D": "$\\dfrac{9}{16}$"
    },
-   "correct": "B",
+   "correct": "C",
    "errors": {
     "A": "Se dividió por el curso completo, pero la condición ya restringe el grupo a los $24$ deportistas.",
-    "B": "Correcto. $\\dfrac{9}{24} = \\dfrac{3}{8}$: dentro del grupo condicionado el total es $24$.",
-    "C": "Esa es la probabilidad de practicar deporte, que es otra pregunta.",
+    "B": "Esa es la probabilidad de practicar deporte, que es otra pregunta.",
+    "C": "Correcto. $\\dfrac{9}{24} = \\dfrac{3}{8}$: dentro del grupo condicionado el total es $24$.",
     "D": "En el denominador quedaron los $16$ que no practican deporte, que son justamente los que la condición excluye."
    },
    "misconceptions": {
     "A": "reglas/condicional-usa-el-total-equivocado",
-    "B": null,
-    "C": "reglas/condicional-usa-el-total-equivocado",
+    "B": "reglas/condicional-usa-el-total-equivocado",
+    "C": null,
     "D": "azar/favorables-sobre-desfavorables"
    }
   },
@@ -2713,23 +2713,23 @@
    "order_index": 120,
    "question": "Se lanza una moneda cuatro veces y salen cuatro caras seguidas. ¿Cuál es la probabilidad de que en el quinto lanzamiento salga cara?",
    "options": {
-    "A": "Menor que $\\dfrac{1}{2}$, porque ya salieron muchas caras",
-    "B": "Mayor que $\\dfrac{1}{2}$, porque la moneda viene cargada a cara",
+    "A": "$\\dfrac{1}{2}$",
+    "B": "Menor que $\\dfrac{1}{2}$, porque ya salieron muchas caras",
     "C": "$\\dfrac{1}{32}$",
-    "D": "$\\dfrac{1}{2}$"
+    "D": "Mayor que $\\dfrac{1}{2}$, porque la moneda viene cargada a cara"
    },
-   "correct": "D",
+   "correct": "A",
    "errors": {
-    "A": "La moneda no recuerda los lanzamientos anteriores: no hay ninguna fuerza que «equilibre» los resultados.",
-    "B": "Los resultados pasados no son evidencia de que la moneda esté cargada, y el enunciado no lo dice.",
+    "A": "Correcto. Cada lanzamiento es independiente, así que la probabilidad sigue siendo $\\dfrac{1}{2}$.",
+    "B": "La moneda no recuerda los lanzamientos anteriores: no hay ninguna fuerza que «equilibre» los resultados.",
     "C": "Esa es la probabilidad de sacar **cinco** caras seguidas **antes** de empezar a lanzar. Acá cuatro ya ocurrieron.",
-    "D": "Correcto. Cada lanzamiento es independiente, así que la probabilidad sigue siendo $\\dfrac{1}{2}$."
+    "D": "Los resultados pasados no son evidencia de que la moneda esté cargada, y el enunciado no lo dice."
    },
    "misconceptions": {
-    "A": "reglas/falacia-del-jugador",
+    "A": null,
     "B": "reglas/falacia-del-jugador",
     "C": null,
-    "D": null
+    "D": "reglas/falacia-del-jugador"
    }
   },
   {
@@ -2738,22 +2738,22 @@
    "order_index": 130,
    "question": "Si $A$ y $B$ son excluyentes con $P(A) = 0{,}4$ y $P(B) = 0{,}3$, ¿cuánto vale $P(A \\cap B)$?",
    "options": {
-    "A": "$0$",
-    "B": "$0{,}7$",
-    "C": "$0{,}12$",
+    "A": "$0{,}12$",
+    "B": "$0$",
+    "C": "$0{,}7$",
     "D": "$0{,}1$"
    },
-   "correct": "A",
+   "correct": "B",
    "errors": {
-    "A": "Correcto. Si no pueden ocurrir a la vez, la intersección es imposible: vale $0$.",
-    "B": "Esa es la probabilidad de la **unión**, no de la intersección.",
-    "C": "Se multiplicaron las probabilidades, que es la regla de eventos **independientes**. Excluyentes es lo contrario: no pueden ocurrir juntos.",
+    "A": "Se multiplicaron las probabilidades, que es la regla de eventos **independientes**. Excluyentes es lo contrario: no pueden ocurrir juntos.",
+    "B": "Correcto. Si no pueden ocurrir a la vez, la intersección es imposible: vale $0$.",
+    "C": "Esa es la probabilidad de la **unión**, no de la intersección.",
     "D": "Se restaron las dos probabilidades ($0{,}4 - 0{,}3$). La resta no entrega la parte común, y con eventos excluyentes esa parte no existe."
    },
    "misconceptions": {
-    "A": null,
+    "A": "reglas/confunde-excluyentes-con-independientes",
     "B": null,
-    "C": "reglas/confunde-excluyentes-con-independientes",
+    "C": null,
     "D": null
    }
   },
@@ -2764,22 +2764,22 @@
    "question": "Se lanza un dado tres veces. ¿Cuál es la probabilidad de obtener **al menos un** $6$?",
    "options": {
     "A": "$\\dfrac{1}{2}$",
-    "B": "$\\dfrac{1}{216}$",
-    "C": "$\\dfrac{91}{216}$",
-    "D": "$\\dfrac{3}{6}$"
+    "B": "$\\dfrac{3}{6}$",
+    "C": "$\\dfrac{1}{216}$",
+    "D": "$\\dfrac{91}{216}$"
    },
-   "correct": "C",
+   "correct": "D",
    "errors": {
     "A": "Se sumaron los tres lanzamientos ($\\dfrac{1}{6}$ tres veces), y eso cuenta varias veces los casos con dos o tres seises.",
-    "B": "Esa es la probabilidad de sacar **tres** seises.",
-    "C": "Correcto. Por el complemento: $1 - \\left(\\dfrac{5}{6}\\right)^3 = 1 - \\dfrac{125}{216} = \\dfrac{91}{216}$.",
-    "D": "Es $\\dfrac{1}{2}$ sin simplificar: sumar los tres lanzamientos no sirve para «al menos uno»."
+    "B": "Es $\\dfrac{1}{2}$ sin simplificar: sumar los tres lanzamientos no sirve para «al menos uno».",
+    "C": "Esa es la probabilidad de sacar **tres** seises.",
+    "D": "Correcto. Por el complemento: $1 - \\left(\\dfrac{5}{6}\\right)^3 = 1 - \\dfrac{125}{216} = \\dfrac{91}{216}$."
    },
    "misconceptions": {
     "A": "reglas/suma-donde-va-producto",
-    "B": null,
+    "B": "reglas/suma-donde-va-producto",
     "C": null,
-    "D": "reglas/suma-donde-va-producto"
+    "D": null
    }
   },
   {
@@ -2788,22 +2788,22 @@
    "order_index": 150,
    "question": "La urna $A$ tiene $2$ bolitas rojas y $3$ azules; la urna $B$ tiene $4$ rojas y $1$ azul. Se elige una urna al azar y se saca una bolita. ¿Cuál es la probabilidad de que sea roja?",
    "options": {
-    "A": "$\\dfrac{6}{5}$",
+    "A": "$\\dfrac{3}{5}$",
     "B": "$\\dfrac{6}{25}$",
-    "C": "$\\dfrac{3}{5}$",
+    "C": "$\\dfrac{6}{5}$",
     "D": "$\\dfrac{1}{2}$"
    },
-   "correct": "C",
+   "correct": "A",
    "errors": {
-    "A": "Se sumaron las dos probabilidades sin considerar que cada urna se elige la mitad de las veces. Además, una probabilidad no puede pasar de $1$.",
+    "A": "Correcto. $\\dfrac{1}{2} \\cdot \\dfrac{2}{5} + \\dfrac{1}{2} \\cdot \\dfrac{4}{5} = \\dfrac{1}{5} + \\dfrac{2}{5} = \\dfrac{3}{5}$.",
     "B": "Se multiplicaron las dos probabilidades, como si hubiera que sacar roja de las dos urnas.",
-    "C": "Correcto. $\\dfrac{1}{2} \\cdot \\dfrac{2}{5} + \\dfrac{1}{2} \\cdot \\dfrac{4}{5} = \\dfrac{1}{5} + \\dfrac{2}{5} = \\dfrac{3}{5}$.",
+    "C": "Se sumaron las dos probabilidades sin considerar que cada urna se elige la mitad de las veces. Además, una probabilidad no puede pasar de $1$.",
     "D": "Ese es el peso de cada urna, no la probabilidad de sacar una bolita roja."
    },
    "misconceptions": {
-    "A": "azar/probabilidad-fuera-de-cero-uno",
+    "A": null,
     "B": "reglas/suma-donde-va-producto",
-    "C": null,
+    "C": "azar/probabilidad-fuera-de-cero-uno",
     "D": null
    }
   },
@@ -2813,22 +2813,22 @@
    "order_index": 160,
    "question": "Se lanzan dos dados. ¿Cuál es la probabilidad de que la suma sea $8$ **sabiendo** que el primer dado mostró un $5$?",
    "options": {
-    "A": "$\\dfrac{1}{6}$",
+    "A": "$\\dfrac{5}{36}$",
     "B": "$\\dfrac{1}{11}$",
-    "C": "$\\dfrac{1}{36}$",
-    "D": "$\\dfrac{5}{36}$"
+    "C": "$\\dfrac{1}{6}$",
+    "D": "$\\dfrac{1}{36}$"
    },
-   "correct": "A",
+   "correct": "C",
    "errors": {
-    "A": "Correcto. Con el primer dado en $5$, la suma da $8$ solo si el segundo es $3$: un caso de seis.",
+    "A": "Se siguió usando los $36$ resultados, pero la condición ya fijó el primer dado: quedan solo $6$ casos posibles.",
     "B": "Se tomaron las once sumas posibles como equiprobables, y además se ignoró la condición.",
-    "C": "Ese es uno de los $36$ pares, sin usar que el primer dado ya está determinado.",
-    "D": "Se siguió usando los $36$ resultados, pero la condición ya fijó el primer dado: quedan solo $6$ casos posibles."
+    "C": "Correcto. Con el primer dado en $5$, la suma da $8$ solo si el segundo es $3$: un caso de seis.",
+    "D": "Ese es uno de los $36$ pares, sin usar que el primer dado ya está determinado."
    },
    "misconceptions": {
-    "A": null,
+    "A": "reglas/condicional-usa-el-total-equivocado",
     "B": "azar/resultados-compuestos-como-equiprobables",
-    "C": "reglas/condicional-usa-el-total-equivocado",
+    "C": null,
     "D": "reglas/condicional-usa-el-total-equivocado"
    }
   }

@@ -1,8 +1,48 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-28** · Rama **`main`** · **`049` y `050` aplicadas** por el owner (números: bandas + 100 ítems); **`051`…`056` escritas y SIN APLICAR** (álgebra, geometría y probabilidad: bandas + 100 ítems cada eje). **Los cuatro ejes del temario tienen banco.** Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
+**Fecha de corte: 2026-08-28** · Rama **`main`** · **`049`…`056` aplicadas** por el owner: los **cuatro ejes del temario tienen banco** (400 ítems) y bandas explícitas. ⚠️ `055` y `056` se aplicaron en su **versión original**, antes del recorte del temario: falta reaplicarlas y correr **`057` (reparación) y `058`**. Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
+
+> ## 🆕 2026-08-28 (7ª pasada) — estaba todo aplicado, y `active` no servía para nada
+>
+> **El owner ya había aplicado `049`…`056`** —incluidas `055` y `056` en su versión original, antes
+> de que llegaran las dos reglas de contenido. La base quedó con el módulo `probabilidad/dispersion`
+> y sus 12 ítems de varianza y desviación estándar, que el temario M1 de Admisión 2027 no incluye.
+> Estado verificado con consultas, no supuesto: 400 ítems en los cuatro bancos nuevos, 24 de 26
+> módulos del producto con banda explícita.
+>
+> ⭐ **Reaplicar `056` no arregla nada: es idempotente por `(topic, question)`.** Entran los 14 ítems
+> nuevos, pero los 100 ya cargados no se tocan. Por eso existe **`057`**, que es exactamente el
+> delta: mueve los cinco ítems de rango, corrige las tres explicaciones de cuartiles, desactiva los
+> 12 fuera de temario y borra el módulo vacío. Sobre una base limpia es **inocua**.
+>
+> ⭐⭐ **`next_question` nunca miró `questions.active`.** Marcar un ítem como inactivo **no lo sacaba
+> del diagnóstico**: la RPC de `024` filtra por topic, por respondidos y por ventana de dificultad,
+> y nada más. O sea que el «camino reversible» que la memoria viene recomendando desde T-122
+> —`active = false` en vez de `delete`— **no funcionaba**. Lo arregla **`058`**, con un pre-chequeo
+> obligatorio: al empezar a respetarse, todo ítem inactivo de cualquier banco deja de servirse de
+> golpe. Es el modo de fallo de ADR-017 otra vez — nada falla, nada se registra, el contenido sigue
+> circulando cuando alguien creyó haberlo retirado.
+>
+> ⭐ **Lo que NO se hizo, a propósito: repermutar alternativas.** Agregar dos ítems corrió la
+> rotación de claves y movió las letras de 50 ítems ya cargados. Como `tests` guarda la respuesta
+> del estudiante **por letra**, repermutarlos en la base habría cambiado el significado del
+> histórico. Se hizo al revés: **el JSON se fijó al orden ya aplicado**, y a la base viajan solo los
+> cambios de contenido reales — 8 ítems.
+>
+> **Verificado replicando el estado del owner:** un PostgreSQL 14 desechable con `055`/`056` viejas
+> aplicadas, y encima `055`→`056`→`057`→`058` nuevas. Resultado: **102 activos y 12 inactivos**, los
+> 102 idénticos al JSON campo por campo, 0 sin módulo, 0 ítems activos con varianza o desviación,
+> `057` idempotente, y `next_question` **dejando de servir** los 12 inactivos que sí caen en su
+> ventana de dificultad. La misma cadena sobre una base limpia deja 102 activos y 0 inactivos.
+>
+> 🔜 **Riesgo abierto y nuevo (T-125): puede que los cuatro bancos no los vea nadie.** Ninguna de
+> las migraciones de banco crea su fila en `test_configs`, y esa tabla —que es la que arma el
+> selector y la regla de parada— se sembró en `020` con los topics que existían entonces. Si
+> `numeros`, `algebra`, `geometria` o `probabilidad` no tienen fila, esos 400 ítems están aplicados
+> y son inalcanzables. Hay una consulta para comprobarlo en T-125.
+>
 
 > ## 🆕 2026-08-28 (6ª pasada) — el cuarto eje existe, y el temario lo recortó a tiempo
 >
