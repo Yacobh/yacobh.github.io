@@ -46,11 +46,39 @@
 > los 12 inactivos, que sí caen en su ventana de dificultad. La misma cadena sobre una base limpia
 > deja 102 activos y 0 inactivos. También se verificó que `058` **se niega a correr** sin `057`.
 >
-> 🔜 **Riesgo abierto y nuevo (T-125): puede que los cuatro bancos no los vea nadie.** Ninguna de
-> las migraciones de banco crea su fila en `test_configs`, y esa tabla —que es la que arma el
-> selector y la regla de parada— se sembró en `020` con los topics que existían entonces. Si
-> `numeros`, `algebra`, `geometria` o `probabilidad` no tienen fila, esos 400 ítems están aplicados
-> y son inalcanzables. Hay una consulta para comprobarlo en T-125.
+> ⭐⭐⭐ **CONFIRMADO: los cuatro bancos no los podía rendir nadie.** Ninguna migración de banco
+> crea su fila en `test_configs` —la tabla que arma el selector y la regla de parada, sembrada una
+> sola vez en `020` con los topics de entonces—. Medido en producción:
+>
+> | topic | ítems | filas de config |
+> |---|---|---|
+> | `numeros` | 100 | **0** |
+> | `algebra` | 100 | **0** |
+> | `geometria` | 100 | **0** |
+> | `probabilidad` | 114 | **0** |
+>
+> **414 ítems aplicados e inalcanzables**, que es el riesgo R-30 en su forma más literal: más
+> producto, cero uso. Lo cierra **`059`**, con dos decisiones del owner: los cuatro **publicados**
+> y **encadenados** (números como prerrequisito de los otros tres, sin θ mínimo). Los parámetros de
+> parada quedan en los de `020` —5/12/0,35—; cambiarlos es otra decisión (T-111, T-117).
+>
+> `059` trae dos guardas y las dos están probadas: se niega a correr sin `questions.active`, y se
+> niega si queda algún ítem de varianza o desviación activo en `probabilidad`, porque publicar ese
+> banco antes de `058` pondría los 12 ítems fuera de temario delante de un estudiante.
+>
+> **Dos consecuencias que el owner aceptó explícitamente:** van a convivir **bancos duplicados** en
+> el selector (`numeros` con `numbers_v1`, `algebra` con `polinomios` y sus once fragmentos → T-122,
+> que recién ahora se puede ejecutar de verdad), y los **414 ítems se publican sin revisión
+> pedagógica** — T-120, T-121, T-123 y T-124 siguen abiertas y pasan a ser lo más urgente del
+> contenido, porque ahora sí llegan a alguien.
+>
+> **Probado de punta a punta contra la réplica:** con `049`…`059` aplicadas, `next_question`
+> devuelve ítem en los cuatro ejes y en θ = −2, 0 y +2, y el módulo que devuelve es el que
+> corresponde a esa altura de la escala (`aritmetica/numeros` → `potencias` → `porcentajes`;
+> `probabilidad/datos` → `azar` → `reglas`).
+>
+> 🔜 **Pendiente de aplicar, en este orden: `057` → `058` → `059`** (T-126). `055` y `056` nuevas ya
+> las aplicó el owner: `probabilidad` tiene 114 ítems, o sea los 14 nuevos adentro.
 >
 
 > ## 🆕 2026-08-28 (6ª pasada) — el cuarto eje existe, y el temario lo recortó a tiempo

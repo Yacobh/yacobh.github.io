@@ -441,7 +441,25 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     JSON movió las letras de 50 ítems ya cargados; como `tests` guarda la respuesta **por letra**,
     se hizo al revés — el JSON se fijó al orden ya aplicado.
 
-61. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+61. `migrations/059_test_configs_de_los_cuatro_ejes.sql` — ⏳ **escrita, SIN APLICAR** (2026-08-28) ·
+    **crea la fila de `test_configs` de los cuatro bancos nuevos**, que ninguna migración de banco
+    creaba. Cierra [[../project-memory/BACKLOG]] T-125. Medido en producción el 2026-08-28:
+    `numeros`, `algebra`, `geometria` y `probabilidad` tenían **0 filas** de config, o sea **414
+    ítems aplicados que ningún estudiante podía rendir**.
+    Decisiones del owner: los cuatro **publicados** (`active = true`) y **encadenados**
+    (`numeros` como `prerequisite_topic` de los otros tres, sin `min_theta`). Los parámetros de
+    parada son los de `020` —5/12/0,35— y no se tocan acá: cambiar la regla de parada es otra
+    decisión, con su propia evidencia (T-111, T-117).
+    ⚠️ **Va después de `057` y `058`**, y dos guardas lo hacen cumplir: se niega a correr sin
+    `questions.active`, y se niega si queda algún ítem de varianza o desviación estándar activo en
+    `probabilidad` — publicar el banco antes de `058` pondría esos 12 ítems delante de un
+    estudiante. Las dos guardas verificadas contra la réplica.
+    ⚠️ Consecuencias aceptadas por el owner: **convivirán bancos duplicados** en el selector
+    (`numeros` con `numbers_v1`, `algebra` con `polinomios` y sus fragmentos → T-122, que ahora sí
+    se puede ejecutar porque `057` creó la columna) y **los 414 ítems se publican sin revisión
+    pedagógica** (T-120, T-121, T-123, T-124 abiertas).
+
+62. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
