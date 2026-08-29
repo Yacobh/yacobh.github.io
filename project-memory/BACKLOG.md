@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-08-28** (7ª pasada: **el owner ya había aplicado `049`…`056`**, `055`/`056` en su versión original. **T-125 cerrada y T-126 P0**: los cuatro bancos no tenían fila en `test_configs` —414 ítems inalcanzables, medido— y `059` las crea; falta aplicar `057`, `058` y `059` (`next_question` nunca miró `questions.active`, así que retirar un ítem no lo retiraba). Antes, 6ª pasada: el eje de **probabilidad y estadística** existe — `055` crea sus seis módulos (**T-119 cerrada**) y `056` trae 102 ítems con 45 ideas erróneas nuevas. **T-124 nueva**: revisar esos 102 ítems. El owner respondió en la misma sesión las dos preguntas de contenido: la convención de cuartiles del DEMRE, y que **varianza y desviación estándar no entran en M1** — salieron 12 ítems y el módulo 340 pasó a ser `conteo`. ⚠️ `055` va **después** de `051` y `053`: crear módulos corre las bandas derivadas de los demás. Antes, 5ª pasada: el eje de **geometría** escrito — `053` bandas y `054` con 100 ítems y 33 ideas erróneas nuevas, el primer eje **sin banco previo**. **T-123 nueva**: revisar esos 100 ítems. Antes, 4ª pasada: **`049` y `050` aplicadas** por el owner, y el eje de **álgebra** escrito — `051` bandas y `052` con 100 ítems. **T-121 y T-122 nuevas**: revisar esos 100 ítems, y retirar de circulación el banco `polinomios` viejo y los once fragmentos del eje. Antes, 3ª pasada: **T-118 aprobada y escrita** en `049`, y **T-120 nueva**: revisar a mano los 100 ítems del eje de números que trae `050`, que es lo único que ningún script puede verificar. Antes, 2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
+Última actualización: **2026-08-28** (7ª pasada: **el owner ya había aplicado `049`…`056`**, `055`/`056` en su versión original. **T-125 y T-126 cerradas**: los cuatro bancos no tenían fila en `test_configs` —414 ítems inalcanzables, medido— y `059` las crea. `055`…`059` **aplicadas y verificadas** el mismo día; no quedan migraciones pendientes (`next_question` nunca miró `questions.active`, así que retirar un ítem no lo retiraba). Antes, 6ª pasada: el eje de **probabilidad y estadística** existe — `055` crea sus seis módulos (**T-119 cerrada**) y `056` trae 102 ítems con 45 ideas erróneas nuevas. **T-124 nueva**: revisar esos 102 ítems. El owner respondió en la misma sesión las dos preguntas de contenido: la convención de cuartiles del DEMRE, y que **varianza y desviación estándar no entran en M1** — salieron 12 ítems y el módulo 340 pasó a ser `conteo`. ⚠️ `055` va **después** de `051` y `053`: crear módulos corre las bandas derivadas de los demás. Antes, 5ª pasada: el eje de **geometría** escrito — `053` bandas y `054` con 100 ítems y 33 ideas erróneas nuevas, el primer eje **sin banco previo**. **T-123 nueva**: revisar esos 100 ítems. Antes, 4ª pasada: **`049` y `050` aplicadas** por el owner, y el eje de **álgebra** escrito — `051` bandas y `052` con 100 ítems. **T-121 y T-122 nuevas**: revisar esos 100 ítems, y retirar de circulación el banco `polinomios` viejo y los once fragmentos del eje. Antes, 3ª pasada: **T-118 aprobada y escrita** en `049`, y **T-120 nueva**: revisar a mano los 100 ítems del eje de números que trae `050`, que es lo único que ningún script puede verificar. Antes, 2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
 verificado en producción, con D-21 respetado en las dos rutas — **ADR-028 / D-56**. Abre **T-95**
 (persistir el consentimiento) y **R-33** (la pantalla de Google nombra a `supabase.co`)). Antes: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
 G-1…G-5, tareas T-76…T-89), abierta por
@@ -1348,7 +1348,7 @@ fallar «¿cuánto mide un ángulo recto?».
 
 **Terminado cuando:** los siete módulos están revisados y `054` aplicada.
 
-### T-125 · Los cuatro bancos nuevos no llegaban a nadie — **P0** · `cerrado 2026-08-28` (⏳ falta aplicar `059`)
+### T-125 · Los cuatro bancos nuevos no llegaban a nadie — **P0** · `cerrado 2026-08-28`
 
 **Ninguna migración de banco (`050`, `052`, `054`, `056`) crea su fila en `test_configs`.** Esa
 tabla está keyed por `questions.topic` y es la que arma el selector de diagnósticos y la regla de
@@ -1381,9 +1381,10 @@ por eso pasan a ser lo más urgente del contenido: ahora sí llegan a un estudia
 **Es P0 porque toca el riesgo dominante R-30:** cuatro tandas de contenido aplicadas que nadie
 puede rendir son exactamente «más producto y cero uso».
 
-**Terminado cuando:** ~~cada banco tiene su fila~~ → hecho en `059`; falta aplicarla (T-126).
+**Terminado cuando:** ~~cada banco tiene su fila y un estudiante puede rendir los cuatro
+diagnósticos~~ → ✅ hecho: `059` aplicada el 2026-08-28.
 
-### T-126 · Aplicar `057`, `058` y `059` — **P0** · `abierto`
+### T-126 · Aplicar `057`, `058` y `059` — **P0** · `cerrado 2026-08-28`
 
 `055` y `056` se aplicaron el 2026-08-28 en su **versión original**, antes de que el owner precisara
 que varianza y desviación estándar no entran en M1. **Orden: `055` → `056` → `057` → `058` → `059`.**
@@ -1405,8 +1406,9 @@ los 14 nuevos adentro); faltan las tres últimas, en la misma sesión.
 **Mientras `057` no esté aplicada no hay forma de retirar un ítem sin borrarlo**, y por eso las dos
 van juntas.
 
-**Terminado cuando:** las cuatro consultas de verificación del pie de `057` dan lo esperado (102
-activos, 12 inactivos, 0 activos con varianza o desviación, 0 sin módulo).
+✅ **Cerrada el 2026-08-28.** Las tres aplicadas por el owner y verificadas: **0 módulos
+`probabilidad/dispersion`, 102 activos, 12 inactivos**. La guarda de `059` frenó una vez el intento
+de publicar con `058` sin aplicar — hizo exactamente su trabajo. No quedan migraciones pendientes.
 
 ### T-124 · Revisar los 102 ítems del eje de probabilidad y estadística — **P1** · `abierto`
 
@@ -3472,7 +3474,7 @@ de negocio, no técnica.
 
 | Prioridad | Tareas |
 |-----------|--------|
-| **P0** | **T-118**, T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50, **T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-88, T-90, T-91, T-93, T-110**, **T-126** |
+| **P0** | **T-118**, T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50, **T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-88, T-90, T-91, T-93, T-110** |
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92, T-111, T-117, T-120, T-121, T-123, T-124** |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86, T-95, T-113, T-115, T-116, T-122** |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |

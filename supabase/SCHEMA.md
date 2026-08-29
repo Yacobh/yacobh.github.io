@@ -379,9 +379,9 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     `null` en silencio. Reaplicar no duplica y la reversión deja la base como estaba.
     ⚠️ `difficulty` es **hipótesis autoral**, no medición (R-17).
 
-57. `migrations/055_modulos_del_eje_de_probabilidad.sql` — ⚠️ **aplicada 2026-08-28 en su
-    versión ORIGINAL**, antes del recorte del temario; **hay que reaplicar la versión actual**
-    (crea `probabilidad/conteo` y corrige la banda de `probabilidad/posicion`) · **crea los seis módulos del cuarto eje** con su `track`, su
+57. `migrations/055_modulos_del_eje_de_probabilidad.sql` — ✅ **aplicada 2026-08-28** por el owner,
+    primero en su versión original y después en la actual (que crea `probabilidad/conteo` y corrige
+    la banda de `probabilidad/posicion`) · **crea los seis módulos del cuarto eje** con su `track`, su
     `order_index` (310…360) y su banda explícita: `datos`, `tendencia-central`, `posicion`
     (que incluye el rango), `conteo`, `azar` y `reglas`. Cierra [[../project-memory/BACKLOG]] T-119:
     `046` había ampliado el check de `track` para admitir `probabilidad`, pero nadie había
@@ -392,8 +392,8 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     caería de `[1,95, 2,85]` a `[0,70, 1,60]`. Con `051` y `053` aplicadas, los 18 anteriores
     tienen banda explícita y esta migración no mueve a nadie.
 
-58. `migrations/056_banco_del_eje_de_probabilidad.sql` — ⚠️ **aplicada 2026-08-28 en su versión
-    ORIGINAL** (100 ítems); **reaplicar la actual** para que entren los 14 ítems nuevos ·
+58. `migrations/056_banco_del_eje_de_probabilidad.sql` — ✅ **aplicada 2026-08-28** por el owner:
+    primero la versión original (100 ítems) y después la actual, que sumó los 14 nuevos ·
     **102 ítems** del eje de probabilidad y estadística en los seis módulos, más **45 ideas
     erróneas nuevas** — el catálogo más grande de las cuatro tandas, porque es el eje donde
     más se confunden pares de conceptos (media/mediana/moda, excluyentes/independientes,
@@ -412,8 +412,7 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     Reaplicar no duplica y la reversión deja la base como estaba.
     ⚠️ `difficulty` es **hipótesis autoral**, no medición (R-17).
 
-59. `migrations/057_questions_active_y_next_question.sql` — ⏳ **escrita, SIN APLICAR**
-    (2026-08-28) · **crea `public.questions.active`** (`not null default true`) y hace que
+59. `migrations/057_questions_active_y_next_question.sql` — ✅ **aplicada 2026-08-28** por el owner · **crea `public.questions.active`** (`not null default true`) y hace que
     `next_question` la respete (`and coalesce(q.active, true)`).
     ⚠️ **Hallazgo:** la columna **no existía**. La memoria venía recomendando desde T-122
     «`active = false` en vez de `delete`» y la skill medía el banco con `where active`: las dos
@@ -425,8 +424,9 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     defecto que se está cerrando. **Precondición de `058`.** El bundle no cambia:
     `question-select-cols` no pide esa columna.
 
-60. `migrations/058_reparacion_del_eje_de_probabilidad.sql` — ⏳ **escrita, SIN APLICAR**
-    (2026-08-28) · **el delta entre lo que el owner ya aplicó y lo que el temario exige.**
+60. `migrations/058_reparacion_del_eje_de_probabilidad.sql` — ✅ **aplicada 2026-08-28** por el
+    owner, y verificada con la consulta de control: **0 módulos `dispersion`, 102 activos, 12
+    inactivos** · **el delta entre lo que el owner ya aplicó y lo que el temario exige.**
     `056` es idempotente por `(topic, question)`, así que reaplicarla inserta los 14 ítems nuevos
     pero **no toca** los 100 que ya entraron. `058` hace lo que falta: mueve los cinco ítems de
     rango a `probabilidad/posicion`, corrige las tres explicaciones de cuartiles y percentiles a
@@ -441,7 +441,8 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     JSON movió las letras de 50 ítems ya cargados; como `tests` guarda la respuesta **por letra**,
     se hizo al revés — el JSON se fijó al orden ya aplicado.
 
-61. `migrations/059_test_configs_de_los_cuatro_ejes.sql` — ⏳ **escrita, SIN APLICAR** (2026-08-28) ·
+61. `migrations/059_test_configs_de_los_cuatro_ejes.sql` — ✅ **aplicada 2026-08-28** por el owner,
+    después de que su guarda lo frenara una vez por intentar publicar con `058` sin aplicar ·
     **crea la fila de `test_configs` de los cuatro bancos nuevos**, que ninguna migración de banco
     creaba. Cierra [[../project-memory/BACKLOG]] T-125. Medido en producción el 2026-08-28:
     `numeros`, `algebra`, `geometria` y `probabilidad` tenían **0 filas** de config, o sea **414

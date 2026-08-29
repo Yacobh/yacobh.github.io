@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-28** · Rama **`main`** · **`049`…`056` aplicadas** por el owner: los **cuatro ejes del temario tienen banco** (400 ítems) y bandas explícitas. ⚠️ `055` y `056` se aplicaron en su **versión original**, antes del recorte del temario: falta reaplicarlas y correr **`057` (reparación) y `058`**. Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
+**Fecha de corte: 2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **Nada queda pendiente de aplicar.** Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
 
@@ -77,8 +77,17 @@
 > corresponde a esa altura de la escala (`aritmetica/numeros` → `potencias` → `porcentajes`;
 > `probabilidad/datos` → `azar` → `reglas`).
 >
-> 🔜 **Pendiente de aplicar, en este orden: `057` → `058` → `059`** (T-126). `055` y `056` nuevas ya
-> las aplicó el owner: `probabilidad` tiene 114 ítems, o sea los 14 nuevos adentro.
+> ✅ **Todo aplicado el 2026-08-28** (`055`…`059`), y verificado con la consulta de control:
+> **0 módulos `probabilidad/dispersion`, 102 ítems activos, 12 inactivos.** La guarda de `059`
+> frenó una vez el intento de publicar con `058` sin aplicar, que es exactamente para lo que estaba.
+> **T-126 cerrada.** No hay migraciones pendientes: el repositorio y la base vuelven a estar
+> alineados.
+>
+> 🔜 **Lo urgente pasa a ser de contenido, no de esquema.** Los 414 ítems ya llegan a un estudiante:
+> la revisión pedagógica (T-120, T-121, T-123, T-124) dejó de ser una tarea de fondo. Y el selector
+> muestra **bancos duplicados** —el diagnóstico nuevo de números junto a `numbers_v1`, el de álgebra
+> junto a `polinomios` y sus once fragmentos—: eso es **T-122**, que ahora sí se puede ejecutar
+> porque `057` creó la columna.
 >
 
 > ## 🆕 2026-08-28 (6ª pasada) — el cuarto eje existe, y el temario lo recortó a tiempo
