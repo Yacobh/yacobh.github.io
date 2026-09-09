@@ -2,8 +2,8 @@
 
 ## Estado
 
-Aprobada — implementada en `supabase/migrations/062`–`066` (rama `track-electrotecnia`).
-**No aplicada todavía en producción.**
+Aprobada — implementada en `supabase/migrations/062`–`066` (rama `track-electrotecnia`) y
+**aplicada en producción el 2026-09-09** por el owner. El track queda **publicado**.
 
 ## Fecha
 
@@ -104,7 +104,7 @@ recursos, 2 configuraciones de banco.
 |-------------|---------------------|
 | **`active = false`, como `cuantica`** | Es la opción segura y la que no molesta a nadie, y por eso fue la primera que se planteó al owner. Se descartó porque **deja el track sin destinatario**: el alumno no es admin y no vería nada. Guardar 116 ítems que nadie puede rendir es R-30 en su forma más literal — más producto, cero uso — y es exactamente el defecto que `059` acababa de cerrar |
 | **Darle cuenta de admin al alumno** | Le daría acceso al panel completo: banco de ítems, perfiles de estudiantes, cupos, gestión de roles. Es un agujero de privacidad sobre datos de terceros para resolver un problema de visibilidad de dos filas |
-| **Construir visibilidad por usuario** (tabla de matrícula + policy nueva) | Es la solución correcta a largo plazo y probablemente haga falta para G-1 —un colegio va a querer ver solo lo suyo—. Se descartó **ahora** por dos razones: toca una policy del camino crítico del producto para un solo usuario, y **convertiría un pedido de contenido en un proyecto de esquema**, que es la forma en que R-30 se materializa. Queda anotado como T-127 |
+| **Construir visibilidad por usuario** (tabla de matrícula + policy nueva) | Es la solución correcta a largo plazo y probablemente haga falta para G-1 —un colegio va a querer ver solo lo suyo—. Se descartó **ahora** por dos razones: toca una policy del camino crítico del producto para un solo usuario, y **convertiría un pedido de contenido en un proyecto de esquema**, que es la forma en que R-30 se materializa. Queda anotado como T-129 |
 | **Un proyecto Supabase aparte** | Mismo argumento que ADR-018: duplica esquema, policies, `is_admin()`, RPC y despliegue del bundle. Y acá es peor, porque el alumno tendría que crearse una cuenta en un sitio distinto |
 | **Un topic por módulo** (modelo `cuantica`, 12 bancos) | Doce líneas nuevas en el selector de todo estudiante en vez de dos, y fragmenta el diagnóstico: el alumno tendría que saber qué tema elegir **antes** de tener un diagnóstico que se lo diga. Contradice el objetivo de producto n.º 1 — de «no sé por dónde partir» a un plan en una sesión |
 | **Un solo banco en vez de dos** | Más barato, pero deja sin cubrir el tema concreto de la prueba: con `max_items = 12` sobre doce módulos, un diagnóstico general toca la alterna de refilón. El segundo banco existe para que haya dónde profundizar |
@@ -161,9 +161,13 @@ recursos, 2 configuraciones de banco.
 
 ## Seguimiento
 
-- ⏳ **Aplicar `062`…`066` en producción, en ese orden**, y anotar la fecha en `supabase/SCHEMA.md`.
-  El orden importa: `063` antes que `064`, y `065` al final.
-- ⏳ Correr la batería de control del pie de `065` y contrastar con los valores esperados.
+- ✅ **Aplicadas en producción el 2026-09-09** por el owner. Con eso los dos bancos son visibles en
+  el selector de todo estudiante autenticado: **R-42 pasa de riesgo previsto a hecho vigente**.
+- ⏳ **Correr la batería de control del pie de `065`** y contrastar con los valores esperados. Es lo
+  único que queda por verificar contra la base real, y es exactamente el pendiente que ADR-018 dejó
+  abierto con `040` y nunca se cerró. Los números a mirar: 12 módulos con banda, 74 + 42 ítems, 0
+  ítems sin módulo, 60 ideas erróneas, 24 recursos con `published = false`, y las dos filas de
+  `test_configs` con su prerrequisito.
 - ⏳ **Que el alumno rinda `electrotecnia` y anotar qué ideas erróneas aparecen.** Es el dato que
   este track existe para producir, y es lo único que convierte 116 ítems en información.
 - ⏳ Revisar el contenido —rehaciendo las cuentas, no leyéndolo— y recién entonces publicar los 24

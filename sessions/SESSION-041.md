@@ -188,9 +188,11 @@ incógnita sino una funcionalidad que no existe, y por eso quedó como tarea (T-
 
 ## Próximos pasos
 
-1. **Aplicar `062` → `063` → `064` → `065` → `066` en producción, en ese orden** (T-127, P0). El
-   orden `063` antes que `064` **no tiene guarda**: verificarlo con la consulta del pie de `065`.
-2. Correr la batería de control del pie de `065` y anotar la fecha en `supabase/SCHEMA.md`.
+1. ~~Aplicar `062` → `063` → `064` → `065` → `066`~~ ✅ **hecho el 2026-09-09** por el owner, y
+   anotado en `supabase/SCHEMA.md`.
+2. **Correr la batería de control del pie de `065`** (T-127, lo que queda). Sirve además para
+   descartar de una vez que el orden `063`/`064` se haya invertido: eso no falla, deja los 42 ítems
+   del banco de CA sin ninguna idea errónea y en silencio.
 3. **Que el alumno rinda `electrotecnia`** y anotar qué ideas erróneas aparecen. Es el dato que este
    track existe para producir.
 4. Revisar el contenido rehaciendo las cuentas y publicar los 24 recursos (T-128, P1).
@@ -199,8 +201,9 @@ incógnita sino una funcionalidad que no existe, y por eso quedó como tarea (T-
 
 ## Pendientes
 
-- **Las cinco migraciones están escritas y verificadas, pero ninguna aplicada.** Falta exactamente
-  eso: pegarlas en el SQL Editor de Supabase en orden y correr la batería.
+- ✅ **Las cinco aplicadas por el owner el 2026-09-09**, al cierre de la sesión. **Falta la batería
+  de control del pie de `065`**, que es lo único que contrasta contra la base real y no contra el
+  fixture — el mismo pendiente que ADR-018 dejó abierto con `040` y nunca se cerró.
 - **La revisión de contenido no se hizo** (T-128). `verificar_items.py` valida estructura, no física.
 - **`061_visitor_fuente.sql` sigue sin commitear** y sin registrar en `SCHEMA.md`. No es de esta
   sesión y no se tocó; queda anotado en `SCHEMA.md` para que la numeración no lo tape.

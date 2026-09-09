@@ -916,6 +916,9 @@ nuevos entran sin versión y R-40 se agrava.
 **Abierto 2026-09-09** con D-66 / [[../adr/ADR-035-track-electrotecnia-visible]]. **Es la decisión,
 no un descuido**, y por eso su probabilidad es «confirmada» en vez de una estimación.
 
+⚠️ **Vigente desde el mismo día:** el owner aplicó `062`…`066` el 2026-09-09, así que esto ya no es
+un riesgo previsto sino el estado de producción.
+
 **El mecanismo, en una línea.** La policy `test_configs_select` de `020` es
 `using (active = true or public.is_admin())`. Tiene dos estados y no hay un tercero: **no existe
 visibilidad por usuario**. El destinatario de `cuantica` era el autor, que es admin, y por eso

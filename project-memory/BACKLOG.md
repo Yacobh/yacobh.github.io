@@ -1385,7 +1385,7 @@ puede rendir son exactamente «más producto y cero uso».
 **Terminado cuando:** ~~cada banco tiene su fila y un estudiante puede rendir los cuatro
 diagnósticos~~ → ✅ hecho: `059` aplicada el 2026-08-28.
 
-### T-127 · Aplicar `062`…`066` (track de electrotecnia) y correr su batería — **P0** · `abierto`
+### T-127 · Aplicar `062`…`066` (track de electrotecnia) y correr su batería — **P0** · `en curso`
 
 Cinco migraciones, **en este orden**: `062` (track y doce módulos) → `063` (banco general, 74 ítems
 y 54 ideas erróneas) → `064` (banco de alterna, 42 ítems y 6 ideas nuevas) → `065` (las dos filas de
@@ -1407,6 +1407,13 @@ todavía, correr después:
 
 **Terminado cuando:** las cinco aplicadas, la batería del pie de `065` da los valores esperados, y
 la fecha anotada en `supabase/SCHEMA.md`.
+
+✅ **Aplicadas el 2026-09-09** por el owner, y anotadas en `supabase/SCHEMA.md`. **Queda un tercio de
+la tarea:** correr la batería del pie de `065`. No es formalidad — es lo único que contrasta la
+cadena contra la base **real** y no contra el fixture, y es el mismo pendiente que ADR-018 dejó
+abierto con `040` en 2026-08-11 y sigue sin cerrar. Los cinco números a mirar están en el pie de
+`065`; el que más importa es **ítems sin módulo = 0**, porque un `module_slug` mal escrito no falla,
+deja el `module_id` en null y en silencio (T-119).
 
 ### T-128 · Revisar el contenido de electrotecnia antes de que lo use alguien — **P1** · `abierto`
 

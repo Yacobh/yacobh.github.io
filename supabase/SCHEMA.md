@@ -474,7 +474,7 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > 2026-09-09 sigue sin commitear). Quien lo aplique tiene que anotarlo acá; esta numeración lo
 > saltea a propósito para no inventarle una fecha.
 
-63. `migrations/062_electrotecnia_track_y_modulos.sql` — ⏳ **sin aplicar** (escrita 2026-09-09) ·
+63. `migrations/062_electrotecnia_track_y_modulos.sql` — ✅ **aplicada 2026-09-09** por el owner ·
     abre el **track `electrotecnia`**, el segundo fuera del temario PAES, con sus **12 módulos** y
     **banda explícita en todos** (`band_min`/`band_max`, de −3,0 a 2,6). Amplía los dos `check` de
     lista cerrada, `modules.track` y `class_slots.track` — el segundo es la lección de `046`: si no
@@ -484,14 +484,14 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     meterlo en el reparto movería las bandas de los 26 módulos del producto — el defecto que `060`
     acababa de cerrar. Ver [[../adr/ADR-035-track-electrotecnia-visible]].
 
-64. `migrations/063_banco_de_electrotecnia.sql` — ⏳ **sin aplicar** (escrita 2026-09-09) ·
+64. `migrations/063_banco_de_electrotecnia.sql` — ✅ **aplicada 2026-09-09** por el owner ·
     **74 ítems** y **54 ideas erróneas nuevas** (prefijo `et/`), repartidos en los doce módulos y
     cubriendo θ ∈ [−3, 3] con al menos 6 ítems por tramo de 1,0 logit. Es el banco de **entrada**:
     un diagnóstico que recorre el curso completo. Generada desde
     `contenido/items/electrotecnia.json` con la skill `banco-de-items`; el JSON es la fuente de
     verdad y el `.sql` un artefacto — se corrige el JSON y se regenera.
 
-65. `migrations/064_banco_de_electrotecnia_ca.sql` — ⏳ **sin aplicar** (escrita 2026-09-09) ·
+65. `migrations/064_banco_de_electrotecnia_ca.sql` — ✅ **aplicada 2026-09-09** por el owner ·
     **42 ítems** y **6 ideas erróneas nuevas** sobre los seis módulos de corriente alterna, θ ∈
     [−1, 3]. Es el banco de **profundización**, con el temario de la prueba que motivó el track.
     ⚠️ **Va después de `063`, y no hay guarda que lo verifique.** Reutiliza 29 slugs de idea errónea
@@ -499,7 +499,7 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     quedan sin ninguna idea errónea, en silencio (modo de fallo de T-119). La consulta que lo
     detecta está en el pie de `065`.
 
-66. `migrations/065_test_configs_de_electrotecnia.sql` — ⏳ **sin aplicar** (escrita 2026-09-09) ·
+66. `migrations/065_test_configs_de_electrotecnia.sql` — ✅ **aplicada 2026-09-09** por el owner ·
     crea las **dos filas de `test_configs`** (`electrotecnia` y `electrotecnia_ca`, encadenadas sin
     `min_theta`) con los parámetros de `020`/`059`: 5/12/0,35 y `min_response_seconds = 3`.
     ⚠️ **Es la que publica, y lo hace con `active = true`.** No hay estado intermedio en
@@ -509,7 +509,7 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     banco no llega a 20 ítems activos — T-125 al revés, porque una config sin banco deja al
     estudiante sin preguntas a mitad del diagnóstico.
 
-67. `migrations/066_electrotecnia_resources.sql` — ⏳ **sin aplicar** (escrita 2026-09-09) ·
+67. `migrations/066_electrotecnia_resources.sql` — ✅ **aplicada 2026-09-09** por el owner ·
     **24 recursos** de capa 1 (una guía y una práctica guiada por módulo), todos con
     `published = false` según ADR-016 §1. No es precondición de nada: los recursos no intervienen en
     el diagnóstico. Se publican **después** de auditarlos rehaciendo las cuentas (T-128).
@@ -831,7 +831,7 @@ esperados. Aplicar sin verificar deja el mismo hueco que T-48 describe para el r
 
 ---
 
-## Track `electrotecnia` (`062`–`066`) — ⏳ sin aplicar (escritas 2026-09-09)
+## Track `electrotecnia` (`062`–`066`) — ✅ aplicadas 2026-09-09
 
 Segundo track fuera del temario PAES M1, y **el primero cuyo destinatario no es el autor**. Decisión
 completa en [[../adr/ADR-035-track-electrotecnia-visible]] (D-66).
@@ -876,8 +876,17 @@ de migraciones: aplicación limpia en orden, guardas que frenan, idempotencia po
 `next_question` en los dos bancos y en tres alturas de θ, un ítem inactivo dejando de servirse, y
 reversión completa. Sobre un fixture, no sobre la base real (R-02, T-48).
 
-**Pendiente:** aplicarlas (T-127), correr la batería del pie de `065`, y **revisar el contenido**
-(T-128) — 116 ítems asistidos por IA delante de un alumno que no puede detectar un error de signo.
+**Aplicadas en producción el 2026-09-09** por el owner, sin incidentes reportados. Con eso el
+track queda **publicado**: los dos bancos son visibles en el selector de todo estudiante (R-42).
+
+⚠️ **La batería de control del pie de `065` todavía no se corrió** —o al menos no se reportó su
+resultado—, así que los números esperados (12 módulos, 74 + 42 ítems, 0 sin módulo, 60 ideas
+erróneas, 24 recursos despublicados) siguen sin contrastar contra la base real. Es el mismo hueco
+que ADR-018 dejó abierto con `040`, y conviene no repetirlo: aplicar sin verificar deja el mismo
+punto ciego que describe T-48.
+
+**Pendiente:** correr esa batería, y **revisar el contenido** (T-128) — 116 ítems asistidos por IA
+delante de un alumno que no puede detectar un error de signo.
 
 ---
 
