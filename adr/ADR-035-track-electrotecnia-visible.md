@@ -163,11 +163,12 @@ recursos, 2 configuraciones de banco.
 
 - ✅ **Aplicadas en producción el 2026-09-09** por el owner. Con eso los dos bancos son visibles en
   el selector de todo estudiante autenticado: **R-42 pasa de riesgo previsto a hecho vigente**.
-- ⏳ **Correr la batería de control del pie de `065`** y contrastar con los valores esperados. Es lo
-  único que queda por verificar contra la base real, y es exactamente el pendiente que ADR-018 dejó
-  abierto con `040` y nunca se cerró. Los números a mirar: 12 módulos con banda, 74 + 42 ítems, 0
-  ítems sin módulo, 60 ideas erróneas, 24 recursos con `published = false`, y las dos filas de
-  `test_configs` con su prerrequisito.
+- ✅ **Batería de control corrida el 2026-09-09**, el mismo día de la aplicación, y **los nueve
+  controles coinciden**: 12 módulos con banda, 116 ítems, **0 sin módulo**, 60 ideas erróneas, 24
+  recursos despublicados, 2 configuraciones activas y **0 ítems de `electrotecnia_ca` sin ninguna
+  idea errónea** —o sea que el orden `063` antes que `064` se respetó, que era el único modo de
+  fallo silencioso sin guarda—. Con esto se cierra T-127 y, de paso, se hace lo que ADR-018 dejó
+  pendiente con `040` desde 2026-08-11.
 - ⏳ **Que el alumno rinda `electrotecnia` y anotar qué ideas erróneas aparecen.** Es el dato que
   este track existe para producir, y es lo único que convierte 116 ítems en información.
 - ⏳ Revisar el contenido —rehaciendo las cuentas, no leyéndolo— y recién entonces publicar los 24

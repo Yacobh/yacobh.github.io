@@ -879,14 +879,29 @@ reversión completa. Sobre un fixture, no sobre la base real (R-02, T-48).
 **Aplicadas en producción el 2026-09-09** por el owner, sin incidentes reportados. Con eso el
 track queda **publicado**: los dos bancos son visibles en el selector de todo estudiante (R-42).
 
-⚠️ **La batería de control del pie de `065` todavía no se corrió** —o al menos no se reportó su
-resultado—, así que los números esperados (12 módulos, 74 + 42 ítems, 0 sin módulo, 60 ideas
-erróneas, 24 recursos despublicados) siguen sin contrastar contra la base real. Es el mismo hueco
-que ADR-018 dejó abierto con `040`, y conviene no repetirlo: aplicar sin verificar deja el mismo
-punto ciego que describe T-48.
+✅ **Batería de control corrida el mismo día contra la base real**, y los nueve controles coinciden
+con lo esperado:
 
-**Pendiente:** correr esa batería, y **revisar el contenido** (T-128) — 116 ítems asistidos por IA
-delante de un alumno que no puede detectar un error de signo.
+| Control | Medido | Esperado |
+|---|---|---|
+| módulos del track | 12 | 12 |
+| módulos sin banda explícita | 0 | 0 |
+| ítems | 116 | 116 |
+| **ítems sin módulo** | **0** | 0 |
+| ideas erróneas `et/` | 60 | 60 |
+| recursos | 24 | 24 |
+| recursos publicados | 0 | 0 |
+| **ítems de `electrotecnia_ca` sin ninguna idea errónea** | **0** | 0 |
+| configuraciones activas | 2 | 2 |
+
+Las dos filas en negrita son las que valía la pena mirar, porque son las únicas que **no fallan
+solas**: un `module_slug` mal escrito deja el `module_id` en null en silencio (T-119), y `064`
+aplicada antes que `063` habría dejado los 42 ítems del banco de alterna sin ninguna idea errónea,
+también en silencio. Ninguna ocurrió. **T-127 cerrada**, y con ella el hueco que ADR-018 dejó
+abierto con `040` desde 2026-08-11 — allá la batería nunca se corrió.
+
+**Pendiente:** **revisar el contenido** (T-128) — 116 ítems asistidos por IA delante de un alumno
+que no puede detectar un error de signo. Ningún script verifica eso.
 
 ---
 

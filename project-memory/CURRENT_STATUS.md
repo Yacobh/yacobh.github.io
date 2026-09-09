@@ -48,16 +48,21 @@
 > R-42 deja de ser un riesgo previsto para ser un hecho vigente: los dos bancos de Electrotecnia
 > están en el selector de todo estudiante autenticado.
 >
+> ✅ **Batería de control corrida el mismo día: los nueve controles coinciden.** 12 módulos con
+> banda, 116 ítems, **0 sin módulo**, 60 ideas erróneas, 24 recursos despublicados, 2 configuraciones
+> activas, y **0 ítems de `electrotecnia_ca` sin idea errónea** —o sea que el orden `063` antes que
+> `064`, el único modo de fallo silencioso sin guarda, se respetó—. **T-127 cerrada**, y con ella el
+> pendiente que ADR-018 arrastraba desde `040`: aquella batería nunca se corrió.
+>
 > 🔜 **Lo que sigue, y en este orden:**
 >
-> 1. **Correr la batería de control del pie de `065`** (T-127, lo único que le queda). Es lo único
->    que contrasta la cadena contra la base **real** y no contra el fixture. El número que más
->    importa es **ítems sin módulo = 0**: un `module_slug` mal escrito no falla, deja el `module_id`
->    en null y en silencio (T-119). Ojo también con los 42 ítems de `electrotecnia_ca`: si los
->    cuatro `misconception_*_id` están en null en todos, `064` corrió antes que `063`.
-> 2. **Que el alumno rinda `electrotecnia`.** Es el dato que este track existe para producir.
-> 3. **Revisar el contenido** (T-128). El riesgo real de esta entrega no es técnico: son 116 ítems
->    asistidos por IA delante de un alumno que no tiene cómo detectar un error de signo.
+> 1. **Que el alumno rinda `electrotecnia`.** Es el dato que este track existe para producir, y lo
+>    único que convierte 116 ítems en información. Nada más de la cadena está bloqueando.
+> 2. **Revisar el contenido** (T-128). El riesgo real de esta entrega no es técnico y no lo cerró
+>    ninguna batería: son 116 ítems asistidos por IA delante de un alumno que no tiene cómo detectar
+>    un error de signo. `verificar_items.py` valida estructura, no física.
+> 3. Actualizar la consulta de medición de la skill `banco-de-items`, que excluye `mq\_%` pero no
+>    `electrotecnia%`.
 >
 > ⚠️ Dos cosas del árbol que **no** son de esta sesión y siguen pendientes: `061_visitor_fuente.sql`
 > sigue sin commitear y sin registrar en `SCHEMA.md`, y `029_topic_normalization.sql` tiene una
