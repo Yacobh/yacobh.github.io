@@ -156,6 +156,28 @@ Supabase PostgreSQL  ── RLS es el único límite de seguridad ──
 Edge Function `send-enrollment-emails` (Deno) → Resend
 ```
 
+> ### ⚠️ En la misma base hay **dos tracks que no son el producto**
+>
+> El motor IRT es agnóstico del temario, y eso se aprovechó dos veces. Lo que ata la plataforma a
+> matemática escolar es el contenido de `modules`, `questions` y `resources`, no el código.
+>
+> | Track | Migraciones | Visible para el estudiante | Por qué |
+> |---|---|---|---|
+> | `cuantica` | `033`–`040` (aplicadas) | **No** (`active = false`) | Su destinatario es el autor, que es admin ([[adr/ADR-018-track-experimental-cuantica]]) |
+> | `electrotecnia` | `062`–`066` (**sin aplicar**) | **Sí** (`active = true`) | Su destinatario es un **alumno**, y `test_configs_select` de `020` no admite un estado intermedio ([[adr/ADR-035-track-electrotecnia-visible]], D-66, R-42) |
+>
+> Tres consecuencias para cualquier agente que trabaje acá:
+>
+> 1. **Toda consulta de métricas del banco PAES necesita excluir los dos:**
+>    `where topic not like 'mq\_%' and topic not like 'electrotecnia%'`. El conteo crudo de
+>    `questions` dejó de significar «el banco del producto».
+> 2. **Un track nuevo lleva banda explícita en todos sus módulos.** `universo.bands` es el único
+>    namespace que nombra tracks: uno desconocido no recibe banda derivada, y agregarlo a
+>    `product-tracks` movería las bandas de los 26 módulos del producto. Con banda explícita el
+>    track entra **sin recompilar el bundle**.
+> 3. **Los ítems de un track nuevo entran por la skill `banco-de-items`, igual que los del producto.**
+>    El JSON de `contenido/items/` es la fuente de verdad; el `.sql` es un artefacto generado.
+
 **No hay backend propio.** El cliente habla directo con Supabase; toda autorización se hace con
 Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e infraestructura:
 [[project-memory/ARCHITECTURE]].

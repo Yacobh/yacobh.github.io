@@ -1,8 +1,57 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
+**Fecha de corte: 2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
+
+> ## 🆕 2026-09-09 — un segundo track fuera del temario, y esta vez el alumno tiene que verlo
+>
+> **Rama `track-electrotecnia`. Cinco migraciones escritas y verificadas, ninguna aplicada.**
+> `062`…`066` agregan el track **`electrotecnia`**: 12 módulos, **116 ítems**, 60 ideas erróneas,
+> 24 recursos y 2 configuraciones de banco. Es 100 % datos — `clj -M:test` cierra en las mismas
+> **181 / 2677 / 0** y los cinco auditores en verde.
+>
+> ⭐ **La decisión que hubo que tomar no es «hacer el track»** —eso ya lo había resuelto ADR-018 con
+> cuántica— **sino qué hacer cuando el mecanismo de aislamiento de aquel experimento no sirve.**
+> `cuantica` se apagó con `active = false` porque su destinatario era el autor, que es admin. Acá el
+> destinatario es un alumno, y la policy `test_configs_select` de `020`
+> (`active = true or public.is_admin()`) tiene **dos estados y ninguno intermedio**: o lo ve solo el
+> admin, o lo ven todos. **El owner eligió publicarlo** (D-66): todo estudiante de PAES M1 va a ver
+> «Electrotecnia» en su selector. Es R-42, y no es un efecto lateral: es la decisión, con su
+> `update` de apagado escrito al principio de `065`.
+>
+> ⭐ **Dos bancos y no doce.** `electrotecnia` (74 ítems, los doce módulos, θ ∈ [−3, 3]) como
+> diagnóstico de entrada, y `electrotecnia_ca` (42 ítems, la alterna) como profundización, con el
+> general de prerrequisito y sin `min_theta`. El modelo de cuántica —un topic por módulo— habría
+> puesto doce líneas nuevas en el selector de todos, y habría obligado al alumno a saber qué tema
+> elegir **antes** de tener un diagnóstico que se lo diga.
+>
+> ⭐ **La banda explícita es lo que evita recompilar el bundle.** `universo.bands` es el único
+> namespace que nombra tracks; un track fuera de `product-tracks` **no recibe banda derivada**, y
+> agregarlo al reparto movería las bandas de los 26 módulos del producto, que es exactamente lo que
+> `060` acababa de estabilizar. Por eso los 12 módulos traen `band_min`/`band_max` escritos.
+>
+> ⭐ **Los ítems entraron por la skill `banco-de-items`, sin tocarle una línea.** Los mismos
+> `verificar_items.py` y `generar_migracion_items.py` sirvieron para un dominio que no es PAES: es
+> evidencia de que ese tooling no estaba atado al temario. Los 116 pasaron el sexto auditor —clave
+> repartida entre las cuatro letras, una sola correcta, las cuatro `error_*`, LaTeX con escape
+> simple, cobertura sin huecos—, pero **ese script verifica estructura, no física** (T-128).
+>
+> **Verificado contra un PostgreSQL 14 desechable levantado con las migraciones reales del repo**
+> (fixture a mano solo para las tablas previas al MVP): aplican limpio en orden, las dos guardas de
+> `065` frenan con el mensaje correcto, la segunda corrida no cambia nada —idempotencia comprobada
+> por hash—, `next_question` sirve ítem en los dos bancos y en θ = −2, 0 y +2 devolviendo el módulo
+> que corresponde a esa altura, doce ítems consecutivos sin agotar el banco, un ítem inactivo deja
+> de servirse, y la reversión completa deja la base como estaba.
+>
+> 🔜 **Lo que sigue:** aplicarlas (T-127, P0, **en orden — `063` antes que `064`, sin guarda que lo
+> verifique**), y revisar el contenido (T-128). El riesgo real de esta entrega no es técnico: son
+> 116 ítems asistidos por IA delante de un alumno que no tiene cómo detectar un error de signo.
+>
+> ⚠️ Dos cosas del árbol que **no** son de esta sesión y siguen pendientes: `061_visitor_fuente.sql`
+> sigue sin commitear y sin registrar en `SCHEMA.md`, y `029_topic_normalization.sql` tiene una
+> edición sin commitear que **descomenta una consulta de verificación** — reaplicarla ejecutaría un
+> `select` suelto en vez de dejarlo como comentario.
 
 > ## 🆕 2026-08-28 (7ª pasada) — estaba todo aplicado, y `active` no servía para nada
 >

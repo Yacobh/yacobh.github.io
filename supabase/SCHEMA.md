@@ -470,7 +470,62 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     ⚠️ Sigue siendo hipótesis autoral (R-17); lo que cambia no es que sea más cierta, es que deja
     de moverse sola.
 
-63. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
+> ⚠️ **`061_visitor_fuente.sql` existe en `supabase/migrations/` y no está en esta lista** (a
+> 2026-09-09 sigue sin commitear). Quien lo aplique tiene que anotarlo acá; esta numeración lo
+> saltea a propósito para no inventarle una fecha.
+
+63. `migrations/062_electrotecnia_track_y_modulos.sql` — ⏳ **sin aplicar** (escrita 2026-09-09) ·
+    abre el **track `electrotecnia`**, el segundo fuera del temario PAES, con sus **12 módulos** y
+    **banda explícita en todos** (`band_min`/`band_max`, de −3,0 a 2,6). Amplía los dos `check` de
+    lista cerrada, `modules.track` y `class_slots.track` — el segundo es la lección de `046`: si no
+    se amplía, no se puede publicar un cupo del track y el fallo aparece lejos.
+    ⚠️ **La banda explícita es lo que evita recompilar el bundle.** `universo.bands` es el único
+    namespace que nombra tracks; un track fuera de `product-tracks` no recibe banda derivada, y
+    meterlo en el reparto movería las bandas de los 26 módulos del producto — el defecto que `060`
+    acababa de cerrar. Ver [[../adr/ADR-035-track-electrotecnia-visible]].
+
+64. `migrations/063_banco_de_electrotecnia.sql` — ⏳ **sin aplicar** (escrita 2026-09-09) ·
+    **74 ítems** y **54 ideas erróneas nuevas** (prefijo `et/`), repartidos en los doce módulos y
+    cubriendo θ ∈ [−3, 3] con al menos 6 ítems por tramo de 1,0 logit. Es el banco de **entrada**:
+    un diagnóstico que recorre el curso completo. Generada desde
+    `contenido/items/electrotecnia.json` con la skill `banco-de-items`; el JSON es la fuente de
+    verdad y el `.sql` un artefacto — se corrige el JSON y se regenera.
+
+65. `migrations/064_banco_de_electrotecnia_ca.sql` — ⏳ **sin aplicar** (escrita 2026-09-09) ·
+    **42 ítems** y **6 ideas erróneas nuevas** sobre los seis módulos de corriente alterna, θ ∈
+    [−1, 3]. Es el banco de **profundización**, con el temario de la prueba que motivó el track.
+    ⚠️ **Va después de `063`, y no hay guarda que lo verifique.** Reutiliza 29 slugs de idea errónea
+    que declara `063`; aplicada antes, el `left join` no falla: resuelve a null y los 42 ítems
+    quedan sin ninguna idea errónea, en silencio (modo de fallo de T-119). La consulta que lo
+    detecta está en el pie de `065`.
+
+66. `migrations/065_test_configs_de_electrotecnia.sql` — ⏳ **sin aplicar** (escrita 2026-09-09) ·
+    crea las **dos filas de `test_configs`** (`electrotecnia` y `electrotecnia_ca`, encadenadas sin
+    `min_theta`) con los parámetros de `020`/`059`: 5/12/0,35 y `min_response_seconds = 3`.
+    ⚠️ **Es la que publica, y lo hace con `active = true`.** No hay estado intermedio en
+    `test_configs_select`: todo estudiante de PAES va a ver «Electrotecnia» en su selector. Decisión
+    del owner (D-66, R-42), no efecto lateral; el apagado es un `update` de una línea escrito al
+    principio del archivo. **Dos guardas probadas:** se niega sin los 12 módulos y se niega si algún
+    banco no llega a 20 ítems activos — T-125 al revés, porque una config sin banco deja al
+    estudiante sin preguntas a mitad del diagnóstico.
+
+67. `migrations/066_electrotecnia_resources.sql` — ⏳ **sin aplicar** (escrita 2026-09-09) ·
+    **24 recursos** de capa 1 (una guía y una práctica guiada por módulo), todos con
+    `published = false` según ADR-016 §1. No es precondición de nada: los recursos no intervienen en
+    el diagnóstico. Se publican **después** de auditarlos rehaciendo las cuentas (T-128).
+
+> **Verificación de `062`…`066` (2026-09-09).** Contra un PostgreSQL 14 desechable construido
+> **aplicando las migraciones reales del repositorio** —fixture escrito a mano solo para las tablas
+> previas al MVP, que ninguna migración crea—: las cinco aplican limpio en orden; las dos guardas de
+> `065` frenan con el mensaje correcto; la segunda corrida no cambia **nada** (idempotencia
+> verificada por hash de todo el contenido); `next_question` devuelve ítem en los dos bancos y en
+> θ = −2, 0 y +2, con el módulo que corresponde a esa altura (`kirchhoff` → `magnetismo` →
+> `resonancia`); doce ítems consecutivos sin agotar ninguno de los dos bancos; un ítem marcado
+> `active = false` deja de servirse; y la reversión completa deja la base exactamente como estaba.
+> ⚠️ Sigue siendo un fixture y no la base real (R-02, T-48): cubre la lógica de las migraciones, no
+> el estado de producción. Antes de aplicar, correr `supabase/queries/verificacion_esquema.sql`.
+
+68. Deploy `functions/send-enrollment-emails` + secret `RESEND_API_KEY`
 
 
 > ✅ **`028` y `029` aplicadas por el owner el 2026-08-10** y verificadas con las tres consultas del
@@ -773,6 +828,56 @@ contra la base real: que `027` estaba aplicada (existen `misconceptions` y las c
 
 **Pendiente:** correr la batería de control del final de `040` y contrastar con los valores
 esperados. Aplicar sin verificar deja el mismo hueco que T-48 describe para el resto del esquema.
+
+---
+
+## Track `electrotecnia` (`062`–`066`) — ⏳ sin aplicar (escritas 2026-09-09)
+
+Segundo track fuera del temario PAES M1, y **el primero cuyo destinatario no es el autor**. Decisión
+completa en [[../adr/ADR-035-track-electrotecnia-visible]] (D-66).
+
+| Migración | Qué hace |
+|---|---|
+| `062_electrotecnia_track_y_modulos.sql` | Amplía los `check` de `modules.track` **y de `class_slots.track`** a un sexto valor, y siembra **12 módulos** con `historical_blurb` y **banda explícita** (`band_min`/`band_max`) |
+| `063_banco_de_electrotecnia.sql` | **74 ítems** y **54 ideas erróneas** nuevas (prefijo `et/`), topic `electrotecnia`, θ ∈ [−3, 3]. Banco de entrada |
+| `064_banco_de_electrotecnia_ca.sql` | **42 ítems** y **6 ideas nuevas**, topic `electrotecnia_ca`, θ ∈ [−1, 3]. Profundización en corriente alterna. **Requiere `063` aplicada antes** |
+| `065_test_configs_de_electrotecnia.sql` | Las **2 configuraciones**, encadenadas y con **`active = true`**. Dos guardas, batería de control y reversión |
+| `066_electrotecnia_resources.sql` | **24 recursos** de capa 1 (guía + práctica por módulo), todos `published = false` (ADR-016 §1) |
+
+**En qué se diferencia del track `cuantica`, y por qué importa:**
+
+| | `cuantica` (`033`–`040`) | `electrotecnia` (`062`–`066`) |
+|---|---|---|
+| Destinatario | el autor, que es **admin** | un **alumno**, que no lo es |
+| `test_configs.active` | `false` — invisible para el estudiante | **`true` — visible para todos** |
+| Bancos | 15, uno por módulo | **2**: entrada + profundización |
+| Bandas de los módulos | ninguna (derivadas, y no las recibe) | **explícitas en los 12** |
+| Cómo entraron los ítems | migraciones escritas a mano | skill **`banco-de-items`**, JSON verificado |
+
+La diferencia de `active` **no es un cambio de criterio**: es que la policy `test_configs_select` de
+`020` (`active = true or public.is_admin()`) tiene dos estados y ninguno intermedio, y con
+`active = false` el alumno no vería nada. El costo —ruido en el selector de todo estudiante de
+PAES— está registrado como [[../project-memory/RISKS]] R-42, y lo cerraría T-129.
+
+**Qué lo mantiene identificable:** prefijos `topic` → `electrotecnia`/`electrotecnia_ca`,
+misconception `slug` → `et/`, module `slug` → `electrotecnia/`, `track = 'electrotecnia'`. Toda
+consulta de métricas del banco PAES necesita ahora
+`where topic not like 'mq\_%' and topic not like 'electrotecnia%'` — y la consulta de medición de la
+skill `banco-de-items`, que solo excluye `mq\_%`, **queda desactualizada**.
+
+**Es 100 % datos.** No se toca ClojureScript, no se recompila `public/js/app.js`, `clj -M:test`
+cierra en las mismas **181 pruebas / 2677 aserciones / 0 fallas** y los cinco auditores siguen en
+verde. Lo que lo hace posible es la **banda explícita**: un track fuera de `bands/product-tracks` no
+recibe banda derivada, y agregarlo al reparto movería las bandas de los 26 módulos del producto —el
+defecto que `060` cerró—, así que se escriben a mano y `bands/band-for` las prefiere.
+
+**Verificación previa (2026-09-09).** Detallada más arriba, junto a las entradas 63–67 de la lista
+de migraciones: aplicación limpia en orden, guardas que frenan, idempotencia por hash,
+`next_question` en los dos bancos y en tres alturas de θ, un ítem inactivo dejando de servirse, y
+reversión completa. Sobre un fixture, no sobre la base real (R-02, T-48).
+
+**Pendiente:** aplicarlas (T-127), correr la batería del pie de `065`, y **revisar el contenido**
+(T-128) — 116 ítems asistidos por IA delante de un alumno que no puede detectar un error de signo.
 
 ---
 
