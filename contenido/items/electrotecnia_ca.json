@@ -1,0 +1,1133 @@
+{
+ "topic": "electrotecnia_ca",
+ "migracion_archivo": "064_banco_de_electrotecnia_ca.sql",
+ "migracion_titulo": "Banco de profundización en corriente alterna del track de electrotecnia",
+ "migracion_notas": "42 ítems de profundización en corriente alterna, repartidos en los seis módulos\ndel bloque de CA del track, cubriendo [-1, 3] con al menos 6 ítems por tramo de\n1,0 logit.\n\nREQUIERE 062 (los módulos) y 063 (el banco general, que declara las ideas\nerróneas que esta tanda reutiliza). El `on conflict (slug) do nothing` del bloque\nde misconceptions hace que reaplicar sea inocuo, pero si 063 no se aplicó primero\nlas entradas reutilizadas no existirían y los `misconception_*_id` quedarían en\nnull EN SILENCIO, que es exactamente el modo de fallo de T-119.\n\nEs el banco de PROFUNDIZACIÓN, no el de entrada: `electrotecnia` es su\nprerrequisito (ver 065). Cubre el temario de la prueba que motivó este track\n—reactancia, impedancia, leyes de Kirchhoff en CA, componente real de la\ncorriente y carácter del circuito— con ítems de cálculo, no solo conceptuales.\n\nContenido REDACTADO DESDE CERO. Ningún ítem reproduce una pregunta de una prueba\nexistente: los temas son los del temario, los números y los distractores son\npropios.\n\n`difficulty` es una HIPÓTESIS EDITORIAL, no una medición (R-17, G-2).",
+ "cobertura_objetivo": {
+  "min": -1.0,
+  "max": 3.0,
+  "ancho_tramo": 1.0,
+  "min_por_tramo": 6
+ },
+ "misconceptions": [
+  {
+   "slug": "et/ca/componente-real-como-modulo",
+   "name": "Confunde la componente real de un fasor con su módulo",
+   "description": "Entrega el módulo cuando se pide la parte real (o activa), o al revés. Usar cuando la operación fasorial está bien pero no proyectó sobre el eje que pide la pregunta. Aparece sobre todo al pedir «la componente real de la corriente total».",
+   "module_slug": "electrotecnia/ca_senales"
+  },
+  {
+   "slug": "et/fasor/suma-sin-descomponer",
+   "name": "Suma fasores sin descomponerlos en componentes",
+   "description": "Suma módulos y ángulos por separado, como si fueran dos escalares independientes. Sumar fasores exige pasar a forma rectangular, sumar componente a componente y volver a polar. Usar cuando el ángulo del resultado es la suma o el promedio de los ángulos de los sumandos.",
+   "module_slug": "electrotecnia/ca_senales"
+  },
+  {
+   "slug": "et/impedancia/paralelo-con-formula-de-serie",
+   "name": "Aplica en paralelo la regla de la conexión en serie",
+   "description": "Suma impedancias que están en paralelo, o suma admitancias de elementos que están en serie. Usar cuando la operación es correcta pero corresponde a la otra topología.",
+   "module_slug": "electrotecnia/impedancia"
+  },
+  {
+   "slug": "et/impedancia/caracter-por-la-reactancia-mayor",
+   "name": "Decide el carácter del circuito mirando la reactancia mayor sin considerar la topología",
+   "description": "En serie manda la reactancia de mayor módulo; en paralelo manda la de menor módulo, porque es la que deja pasar más corriente. Usar cuando aplica el criterio de la serie a un circuito paralelo o viceversa.",
+   "module_slug": "electrotecnia/impedancia"
+  },
+  {
+   "slug": "et/potencia/factor-de-potencia-sin-caracter",
+   "name": "Da el factor de potencia sin decir si es en atraso o en adelanto",
+   "description": "Trata $\\cos\\varphi$ como un número suelto. El mismo valor corresponde a dos situaciones opuestas —carga inductiva o capacitiva— que exigen correcciones contrarias. Usar cuando omite o invierte el carácter.",
+   "module_slug": "electrotecnia/potencia_ca"
+  },
+  {
+   "slug": "et/trifasico/desequilibrado-con-formulas-de-equilibrado",
+   "name": "Aplica a un sistema desequilibrado las fórmulas del equilibrado",
+   "description": "Usa $\\sqrt{3}$, la cancelación del neutro o $P = 3P_F$ en un sistema con cargas distintas por fase. Esas relaciones suponen tres fases idénticas. Usar cuando el error es aplicar el atajo fuera de su hipótesis.",
+   "module_slug": "electrotecnia/trifasico"
+  }
+ ],
+ "misconceptions_preexistentes": [
+  "et/admitancia/invierte-solo-el-modulo",
+  "et/ca/eficaz-como-amplitud",
+  "et/ca/omega-sin-2pi",
+  "et/ca/periodo-y-frecuencia-invertidos",
+  "et/ca/valor-medio-no-nulo",
+  "et/fasor/desfase-como-retardo-en-segundos",
+  "et/impedancia/angulo-con-signo-cambiado",
+  "et/impedancia/reactancias-sin-restarse",
+  "et/impedancia/suma-aritmetica-de-modulos",
+  "et/ohm/multiplica-en-vez-de-dividir",
+  "et/potencia/aparente-como-suma-aritmetica",
+  "et/potencia/corrige-fp-con-el-elemento-equivocado",
+  "et/potencia/formula-con-la-variable-equivocada",
+  "et/potencia/fp-sin-coseno",
+  "et/potencia/reactiva-se-consume",
+  "et/reactancia/desfase-invertido",
+  "et/reactancia/disipa-potencia",
+  "et/reactancia/xc-crece-con-la-frecuencia",
+  "et/reactancia/xc-sin-invertir",
+  "et/reactancia/xl-baja-con-la-frecuencia",
+  "et/resonancia/frecuencia-depende-de-r",
+  "et/resonancia/impedancia-maxima-en-serie",
+  "et/resonancia/q-y-ancho-de-banda-directos",
+  "et/resonancia/reactancias-se-anulan-fisicamente",
+  "et/trifasico/confunde-fase-con-linea",
+  "et/trifasico/potencia-sin-raiz-de-tres",
+  "et/trifasico/raiz-de-tres-invertida",
+  "et/trifasico/suma-aritmetica-de-fases",
+  "et/unidades/prefijos-mal-convertidos"
+ ],
+ "items": [
+  {
+   "module_slug": "electrotecnia/ca_senales",
+   "difficulty": -0.8,
+   "order_index": 110,
+   "question": "Una tensión vale $v(t) = 311\\operatorname{sen}(314t)$ V. ¿Cuáles son su valor eficaz y su frecuencia?",
+   "options": {
+    "A": "$311$ V y $314$ Hz.",
+    "B": "$440$ V y $50$ Hz.",
+    "C": "$220$ V y $314$ Hz.",
+    "D": "$220$ V y $50$ Hz."
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Leíste los dos números tal como aparecen. El $311$ es la **amplitud**, y el eficaz es $311/\\sqrt{2}$; el $314$ es $\\omega$ en rad/s, y la frecuencia es $\\omega/2\\pi$.",
+    "B": "Multiplicaste por $\\sqrt{2}$ en vez de dividir. El valor eficaz siempre es **menor** que la amplitud, nunca mayor.",
+    "C": "El eficaz está bien, pero $314$ es la frecuencia **angular** en rad/s. Para pasarla a hertz hay que dividir por $2\\pi$, y da los $50$ Hz de la red.",
+    "D": "Correcto. $V_{ef} = 311/\\sqrt{2} \\approx 220$ V y $f = 314/(2\\pi) = 50$ Hz: es la red domiciliaria escrita en forma instantánea. Conviene reconocer el par $311$–$314$ de memoria."
+   },
+   "misconceptions": {
+    "A": "et/ca/eficaz-como-amplitud",
+    "B": "et/ca/eficaz-como-amplitud",
+    "C": "et/ca/omega-sin-2pi",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/ca_senales",
+   "difficulty": -0.6,
+   "order_index": 120,
+   "question": "Una corriente senoidal de $60$ Hz se atrasa $30^\\circ$ respecto de la tensión. ¿A cuánto tiempo equivale ese desfase?",
+   "options": {
+    "A": "$1{,}39$ ms",
+    "B": "$30$ ms",
+    "C": "$0{,}5$ ms",
+    "D": "$8{,}3$ ms"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. Un ciclo completo son $360^\\circ$ y dura $T = 1/60 \\approx 16{,}7$ ms. Entonces $30^\\circ$ son $16{,}7 \\times 30/360 \\approx 1{,}39$ ms. El puente entre ángulo y tiempo es siempre la fracción de período.",
+    "B": "Tomaste el número del ángulo y le pusiste unidades de tiempo. Grados y milisegundos no son intercambiables: hay que pasar por el período de la señal, que depende de la frecuencia.",
+    "C": "Dividiste $30$ por $60$, mezclando el ángulo con la frecuencia. La cuenta correcta usa el período, no la frecuencia: $T\\cdot(30/360)$.",
+    "D": "Ese es medio período ($180^\\circ$). El desfase pedido es de $30^\\circ$, o sea la duodécima parte del ciclo, no la mitad."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "et/fasor/desfase-como-retardo-en-segundos",
+    "C": "et/ca/periodo-y-frecuencia-invertidos",
+    "D": "et/fasor/desfase-como-retardo-en-segundos"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/ca_senales",
+   "difficulty": -0.4,
+   "order_index": 130,
+   "question": "¿Cuál es la **componente real** del fasor $\\vec{I} = 10\\angle{-60^\\circ}$ A?",
+   "options": {
+    "A": "$10$ A",
+    "B": "$8{,}66$ A",
+    "C": "$5$ A",
+    "D": "$-8{,}66$ A"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el **módulo**. La componente real es su proyección sobre el eje horizontal: $|I|\\cos\\theta$, y solo coincide con el módulo si el ángulo es cero.",
+    "B": "Usaste el seno en vez del coseno: $10\\operatorname{sen}60^\\circ = 8{,}66$. Eso es la componente **imaginaria** en módulo. La proyección sobre el eje real siempre lleva coseno.",
+    "C": "Correcto. $\\operatorname{Re}(\\vec{I}) = 10\\cos(-60^\\circ) = 10 \\times 0{,}5 = 5$ A. En forma rectangular, $\\vec{I} = 5 - j8{,}66$ A. Con la tensión como referencia, esta es la componente **activa** de la corriente.",
+    "D": "Ese es el valor de la componente **imaginaria**, que sí es negativa por el ángulo de $-60^\\circ$. La real, en cambio, es positiva: el coseno de $-60^\\circ$ vale $+0{,}5$."
+   },
+   "misconceptions": {
+    "A": "et/ca/componente-real-como-modulo",
+    "B": "et/ca/componente-real-como-modulo",
+    "C": null,
+    "D": "et/ca/componente-real-como-modulo"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/ca_senales",
+   "difficulty": -0.2,
+   "order_index": 140,
+   "question": "Dos corrientes llegan a un nodo: $\\vec{I_1} = 3\\angle 0^\\circ$ A e $\\vec{I_2} = 4\\angle 90^\\circ$ A. ¿Cuánto vale la corriente total?",
+   "options": {
+    "A": "$7\\angle 90^\\circ$ A",
+    "B": "$7\\angle 45^\\circ$ A",
+    "C": "$12\\angle 90^\\circ$ A",
+    "D": "$5\\angle 53{,}1^\\circ$ A"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Sumaste los módulos y te quedaste con uno de los ángulos. Sumar fasores exige pasarlos a forma rectangular: $3 + j4$, y recién entonces volver a polar.",
+    "B": "Sumaste los módulos y promediaste los ángulos. Ninguna de las dos operaciones es válida: el módulo del resultado no es la suma salvo que los fasores estén alineados.",
+    "C": "Multiplicaste los módulos. En una suma fasorial no hay producto; el producto de módulos aparece al **multiplicar** complejos, y ahí además los ángulos se suman.",
+    "D": "Correcto. $3 + j4$ tiene módulo $\\sqrt{9+16} = 5$ y ángulo $\\arctan(4/3) = 53{,}1^\\circ$. Este es el mismo triángulo $3$-$4$-$5$ que aparece en las impedancias, ahora con corrientes."
+   },
+   "misconceptions": {
+    "A": "et/fasor/suma-sin-descomponer",
+    "B": "et/fasor/suma-sin-descomponer",
+    "C": "et/fasor/suma-sin-descomponer",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/ca_senales",
+   "difficulty": 0.1,
+   "order_index": 150,
+   "question": "¿Cuánto vale el valor medio de una tensión senoidal a lo largo de **un ciclo completo**?",
+   "options": {
+    "A": "Cero.",
+    "B": "$0{,}637\\,V_m$.",
+    "C": "$0{,}707\\,V_m$.",
+    "D": "$V_m$."
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. El semiciclo positivo y el negativo tienen la misma área con signos opuestos, así que se cancelan. Por eso un multímetro en modo continua marca $0$ sobre una senoidal pura, y por eso el valor eficaz —que promedia el **cuadrado**— es el que sirve.",
+    "B": "Ese es el valor medio de **media onda** o de una onda rectificada de onda completa: $2V_m/\\pi$. Sobre un ciclo entero, sin rectificar, la mitad negativa cancela a la positiva.",
+    "C": "Ese es el valor **eficaz**, $V_m/\\sqrt{2}$. Media y eficaz son promedios distintos: uno promedia la señal y el otro su cuadrado, y por eso el eficaz nunca da cero.",
+    "D": "El máximo se alcanza en un solo instante de cada semiciclo. El promedio de una señal no puede ser igual a su valor máximo salvo que la señal sea constante."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "et/ca/valor-medio-no-nulo",
+    "C": "et/ca/valor-medio-no-nulo",
+    "D": "et/ca/eficaz-como-amplitud"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/ca_senales",
+   "difficulty": 0.3,
+   "order_index": 160,
+   "question": "En notación fasorial, ¿por qué derivar respecto del tiempo equivale a multiplicar por $j\\omega$?",
+   "options": {
+    "A": "Porque la derivada de una senoidal es otra senoidal de la misma frecuencia, adelantada $90^\\circ$ y con la amplitud multiplicada por $\\omega$.",
+    "B": "Porque $j$ representa la unidad de tiempo en el plano complejo.",
+    "C": "Porque al derivar se pierde la componente continua de la señal.",
+    "D": "Porque $\\omega$ es la pendiente media de la senoidal."
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $\\frac{d}{dt}[A\\operatorname{sen}(\\omega t)] = A\\omega\\cos(\\omega t) = A\\omega\\operatorname{sen}(\\omega t + 90^\\circ)$. Multiplicar por $j$ es exactamente rotar $90^\\circ$, y multiplicar por $\\omega$ es escalar la amplitud. De ahí salen $Z_L = j\\omega L$ y $Z_C = 1/(j\\omega C)$.",
+    "B": "$j$ no representa tiempo: representa una rotación de $90^\\circ$ en el plano complejo. Que aparezca al derivar es consecuencia de que la derivada de un seno es un coseno, no de una interpretación temporal.",
+    "C": "Que la derivada elimine la componente continua es cierto, pero es un efecto lateral y no explica de dónde salen el $j$ ni el $\\omega$. Además, en régimen senoidal puro esa componente ya es cero.",
+    "D": "La pendiente media de una senoidal a lo largo de un ciclo es cero. Lo que $\\omega$ escala es la pendiente **instantánea** máxima, que es proporcional a la frecuencia."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "et/ca/omega-sin-2pi"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/ca_senales",
+   "difficulty": 0.6,
+   "order_index": 170,
+   "question": "Un osciloscopio muestra una senoidal de $8$ divisiones de pico a pico, con la escala vertical en $5$ V por división. ¿Cuál es el valor eficaz?",
+   "options": {
+    "A": "$40$ V",
+    "B": "$28{,}3$ V",
+    "C": "$14{,}1$ V",
+    "D": "$20$ V"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el valor de **pico a pico**: $8 \\times 5 = 40$ V. Faltan dos pasos: dividir por dos para llegar a la amplitud y por $\\sqrt{2}$ para llegar al eficaz.",
+    "B": "Dividiste el pico a pico por $\\sqrt{2}$, saltándote la división por dos. El eficaz se calcula desde la **amplitud**, que es la mitad del pico a pico.",
+    "C": "Correcto. Pico a pico $= 40$ V, amplitud $V_m = 20$ V, y $V_{ef} = 20/\\sqrt{2} \\approx 14{,}1$ V. Es la cadena completa que hay que recorrer al leer un osciloscopio, que muestra la onda y no su valor eficaz.",
+    "D": "Ese es $V_m$, la amplitud. Es el paso intermedio correcto, pero falta dividir por $\\sqrt{2}$ para llegar al eficaz."
+   },
+   "misconceptions": {
+    "A": "et/ca/eficaz-como-amplitud",
+    "B": "et/ca/eficaz-como-amplitud",
+    "C": null,
+    "D": "et/ca/eficaz-como-amplitud"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/reactancia",
+   "difficulty": -0.4,
+   "order_index": 110,
+   "question": "Un inductor de $200$ mH se conecta a una red de $50$ Hz. ¿Cuánto vale su reactancia?",
+   "options": {
+    "A": "$62{,}8\\,\\Omega$",
+    "B": "$10\\,\\Omega$",
+    "C": "$0{,}016\\,\\Omega$",
+    "D": "$6{,}28\\,\\Omega$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $X_L = 2\\pi f L = 314 \\times 0{,}2 = 62{,}8\\,\\Omega$. La secuencia es siempre la misma: $f \\to \\omega$ multiplicando por $2\\pi$, la inductancia a henry, y recién entonces el producto.",
+    "B": "Usaste $f$ en vez de $\\omega$: $50 \\times 0{,}2 = 10$. Falta el factor $2\\pi$, y se nota porque el resultado correcto es $6{,}28$ veces mayor.",
+    "C": "Invertiste el producto, aplicándole al inductor la fórmula del capacitor. Lo que calculaste es una susceptancia en siemens, no una reactancia.",
+    "D": "Perdiste un factor de diez en la conversión de los milihenry: $200$ mH son $0{,}2$ H, no $0{,}02$ H."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "et/ca/omega-sin-2pi",
+    "C": "et/reactancia/xc-sin-invertir",
+    "D": "et/unidades/prefijos-mal-convertidos"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/reactancia",
+   "difficulty": -0.2,
+   "order_index": 120,
+   "question": "Un capacitor tiene una reactancia de $80\\,\\Omega$ a $50$ Hz. ¿Cuánto vale a $200$ Hz?",
+   "options": {
+    "A": "$320\\,\\Omega$",
+    "B": "$40\\,\\Omega$",
+    "C": "$80\\,\\Omega$",
+    "D": "$20\\,\\Omega$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Multiplicaste por cuatro, que es lo que le pasaría a un **inductor**. La reactancia capacitiva tiene la frecuencia en el denominador: si la frecuencia se cuadruplica, $X_C$ se divide por cuatro.",
+    "B": "Dividiste por dos, como si la dependencia fuera con $\\sqrt{f}$ o con la mitad del cambio. La relación es inversamente proporcional a $f$: cuatro veces más frecuencia, cuatro veces menos reactancia.",
+    "C": "La reactancia de un capacitor depende de la frecuencia, siempre. Lo único que no depende es la capacitancia, que es una propiedad del componente.",
+    "D": "Correcto. $X_C = 1/(\\omega C)$ es inversamente proporcional a la frecuencia: al pasar de $50$ a $200$ Hz la frecuencia se cuadruplica y la reactancia baja a $80/4 = 20\\,\\Omega$. Por eso un capacitor deja pasar bien las señales rápidas y bloquea la continua."
+   },
+   "misconceptions": {
+    "A": "et/reactancia/xc-crece-con-la-frecuencia",
+    "B": null,
+    "C": "et/reactancia/xc-crece-con-la-frecuencia",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/reactancia",
+   "difficulty": 0.0,
+   "order_index": 130,
+   "question": "En una red de $60$ Hz se necesita una reactancia capacitiva de $50\\,\\Omega$. ¿Qué capacitancia hay que usar?",
+   "options": {
+    "A": "$18{,}9$ mF",
+    "B": "$53\\,\\mu\\text{F}$",
+    "C": "$3{,}3\\,\\mu\\text{F}$",
+    "D": "$18{,}9\\,\\mu\\text{F}$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "El número corresponde a otro despeje y además el prefijo está tres órdenes de magnitud arriba. Un capacitor de $18{,}9$ mF es un banco industrial, no un componente de $50\\,\\Omega$ a red.",
+    "B": "Correcto. De $X_C = 1/(\\omega C)$ sale $C = 1/(\\omega X_C) = 1/(377 \\times 50) \\approx 5{,}3\\times10^{-5}$ F $= 53\\,\\mu\\text{F}$. Conviene despejar en símbolos antes de reemplazar.",
+    "C": "Usaste $f = 60$ en vez de $\\omega = 377$ en algún punto del despeje, o dividiste de más. El factor $2\\pi$ tiene que aparecer exactamente una vez.",
+    "D": "Calculaste $1/(\\omega \\times ...)$ con los factores mezclados. El control es directo: con $53\\,\\mu\\text{F}$, $X_C = 1/(377 \\times 53\\times10^{-6}) = 50\\,\\Omega$; con $18{,}9\\,\\mu\\text{F}$ da unos $140\\,\\Omega$."
+   },
+   "misconceptions": {
+    "A": "et/unidades/prefijos-mal-convertidos",
+    "B": null,
+    "C": "et/ca/omega-sin-2pi",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/reactancia",
+   "difficulty": 0.3,
+   "order_index": 140,
+   "question": "En un capacitor ideal alimentado con CA, ¿qué relación de fase hay entre la corriente y la tensión?",
+   "options": {
+    "A": "La corriente atrasa $90^\\circ$ a la tensión.",
+    "B": "Están en fase.",
+    "C": "La corriente adelanta $90^\\circ$ a la tensión.",
+    "D": "El desfase es de $180^\\circ$."
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el comportamiento del **inductor**. En el capacitor pasa lo contrario, y es fácil de recordar por la fórmula: $i = C\\,dv/dt$, así que la corriente es máxima cuando la tensión cambia más rápido, o sea cuando la tensión pasa por cero.",
+    "B": "El desfase nulo es propio del resistor. En un elemento que almacena energía siempre hay un desfase de $90^\\circ$, con un signo u otro.",
+    "C": "Correcto. En el capacitor la corriente adelanta $90^\\circ$ (la parte ICE de la mnemotecnia «ELI the ICE man»), y su impedancia es $Z_C = -jX_C = X_C\\angle{-90^\\circ}$. El ángulo negativo de la impedancia es la otra cara del ángulo positivo de la corriente.",
+    "D": "Un desfase de $180^\\circ$ significaría una corriente exactamente opuesta a la tensión, o sea potencia media negativa: el elemento estaría entregando energía todo el tiempo. Ningún componente pasivo hace eso."
+   },
+   "misconceptions": {
+    "A": "et/reactancia/desfase-invertido",
+    "B": null,
+    "C": null,
+    "D": "et/reactancia/desfase-invertido"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/reactancia",
+   "difficulty": 0.5,
+   "order_index": 150,
+   "question": "Sobre un inductor ideal de $X_L = 25\\,\\Omega$ hay $100$ V eficaces. ¿Qué corriente circula y qué potencia activa consume?",
+   "options": {
+    "A": "$4$ A y $400$ W.",
+    "B": "$0$ A, porque el inductor bloquea la alterna.",
+    "C": "$2500$ A y $0$ W.",
+    "D": "$4$ A y $0$ W."
+   },
+   "correct": "D",
+   "errors": {
+    "A": "La corriente está bien, pero los $400$ W son la potencia **reactiva** en var. En un inductor ideal la tensión y la corriente están a $90^\\circ$, y $\\cos 90^\\circ = 0$: la potencia activa es cero.",
+    "B": "El inductor bloquea los **cambios** de corriente, no la corriente alterna: su reactancia es finita y por él circulan los $4$ A. Lo que bloquea la alterna casi por completo es una reactancia muy grande, no cualquier inductor.",
+    "C": "Multiplicaste en vez de dividir. La reactancia cumple el mismo papel que la resistencia en la ley de Ohm: divide a la tensión para dar la corriente.",
+    "D": "Correcto. $I = V/X_L = 100/25 = 4$ A, y $P = VI\\cos 90^\\circ = 0$. El inductor toma $400$ var: energía que va y vuelve cada ciclo sin consumirse. Que $P = 0$ no significa que no circule corriente."
+   },
+   "misconceptions": {
+    "A": "et/reactancia/disipa-potencia",
+    "B": null,
+    "C": "et/ohm/multiplica-en-vez-de-dividir",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/reactancia",
+   "difficulty": 0.8,
+   "order_index": 160,
+   "question": "Un inductor y un capacitor tienen, a $60$ Hz, $X_L = 30\\,\\Omega$ y $X_C = 30\\,\\Omega$. Si la frecuencia **baja** a $30$ Hz, ¿qué pasa?",
+   "options": {
+    "A": "Las dos reactancias se mantienen iguales entre sí.",
+    "B": "$X_L$ pasa a $60\\,\\Omega$ y $X_C$ a $15\\,\\Omega$: el circuito se vuelve inductivo.",
+    "C": "$X_L$ pasa a $15\\,\\Omega$ y $X_C$ a $60\\,\\Omega$: el circuito se vuelve capacitivo.",
+    "D": "Las dos se reducen a la mitad."
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Solo coinciden en la frecuencia de resonancia, que acá es $60$ Hz. En cualquier otra frecuencia se separan, porque una crece y la otra decrece.",
+    "B": "Invertiste las dos dependencias. $X_L = \\omega L$ baja al bajar la frecuencia, y $X_C = 1/(\\omega C)$ sube. Por debajo de la resonancia manda siempre el capacitor.",
+    "C": "Correcto. Al bajar la frecuencia a la mitad, $X_L$ se divide por dos y $X_C$ se multiplica por dos. Con $X_C > X_L$ la reactancia neta es capacitiva. Esa es la regla general: por debajo de $f_0$, capacitivo; por encima, inductivo.",
+    "D": "Solo la reactancia inductiva baja. La capacitiva hace lo contrario, y por eso las dos curvas se cruzan en un punto —la resonancia— en vez de bajar juntas."
+   },
+   "misconceptions": {
+    "A": "et/reactancia/xc-crece-con-la-frecuencia",
+    "B": "et/reactancia/xl-baja-con-la-frecuencia",
+    "C": null,
+    "D": "et/reactancia/xc-crece-con-la-frecuencia"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/reactancia",
+   "difficulty": 1.0,
+   "order_index": 170,
+   "question": "Un inductor de $30\\,\\Omega$ de reactancia y un capacitor de $30\\,\\Omega$ de reactancia se conectan **en paralelo** a la misma fuente de CA. ¿Cuánta corriente entrega la fuente?",
+   "options": {
+    "A": "El doble de la de cada rama.",
+    "B": "Cero, idealmente: las dos corrientes de rama se cancelan.",
+    "C": "La misma que circula por una rama.",
+    "D": "$\\sqrt{2}$ veces la de una rama."
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Sumarías los módulos, y eso valdría si las dos corrientes estuvieran en fase. Están a $180^\\circ$ una de otra: una adelanta $90^\\circ$ a la tensión y la otra la atrasa $90^\\circ$.",
+    "B": "Correcto. Con reactancias iguales, $I_L$ e $I_C$ tienen el mismo módulo y sentidos opuestos: se cancelan en el nodo. Es la resonancia **paralelo**, y por dentro sigue circulando corriente entre las dos ramas aunque la fuente no entregue casi nada.",
+    "C": "Ese sería el resultado si una de las dos ramas no existiera. Con las dos presentes hay cancelación, no dominio de una sobre la otra.",
+    "D": "El $\\sqrt{2}$ aparecería si las dos corrientes estuvieran a $90^\\circ$. Están a $180^\\circ$, que es el caso de cancelación total."
+   },
+   "misconceptions": {
+    "A": "et/impedancia/suma-aritmetica-de-modulos",
+    "B": null,
+    "C": null,
+    "D": "et/impedancia/suma-aritmetica-de-modulos"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/impedancia",
+   "difficulty": 0.0,
+   "order_index": 110,
+   "question": "Un circuito serie tiene $R = 60\\,\\Omega$ y $X_C = 80\\,\\Omega$. Escribe su impedancia en forma polar.",
+   "options": {
+    "A": "$100\\angle{-53{,}1^\\circ}\\,\\Omega$",
+    "B": "$100\\angle 53{,}1^\\circ\\,\\Omega$",
+    "C": "$140\\angle{-53{,}1^\\circ}\\,\\Omega$",
+    "D": "$20\\angle{-53{,}1^\\circ}\\,\\Omega$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $|Z| = \\sqrt{60^{2}+80^{2}} = 100\\,\\Omega$ y $\\theta = \\arctan(-80/60) = -53{,}1^\\circ$. El signo negativo es lo que dice que el circuito es capacitivo y que la corriente adelanta.",
+    "B": "El módulo está bien, el signo del ángulo no. Una reactancia **capacitiva** entra como $-jX_C$: su ángulo es negativo. El positivo corresponde al caso inductivo.",
+    "C": "Sumaste los dos valores. $R$ y $X$ son perpendiculares en el plano complejo: se combinan con Pitágoras, no sumando.",
+    "D": "Restaste los dos valores. La resta aparece entre $X_L$ y $X_C$, que se oponen entre sí; entre la resistencia y una reactancia nunca hay resta."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "et/impedancia/angulo-con-signo-cambiado",
+    "C": "et/impedancia/suma-aritmetica-de-modulos",
+    "D": "et/impedancia/suma-aritmetica-de-modulos"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/impedancia",
+   "difficulty": 0.2,
+   "order_index": 120,
+   "question": "Dos impedancias, $Z_1 = 4 + j3\\,\\Omega$ y $Z_2 = 6 - j8\\,\\Omega$, se conectan **en serie**. ¿Cuál es la impedancia total?",
+   "options": {
+    "A": "$10 + j11\\,\\Omega$",
+    "B": "$15\\angle{-8^\\circ}\\,\\Omega$",
+    "C": "$2 - j11\\,\\Omega$",
+    "D": "$10 - j5\\,\\Omega$"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Sumaste los módulos de las partes imaginarias sin respetar sus signos: $+3$ y $-8$ no dan $+11$. En forma rectangular hay que sumar cada componente **con su signo**.",
+    "B": "Sumaste los módulos ($5 + 10 = 15$) y promediaste los ángulos. Los complejos se suman en forma **rectangular**; en polar solo se multiplican y dividen con comodidad.",
+    "C": "Restaste las partes reales. La suma en serie es suma en las dos componentes; el signo de la parte imaginaria viene de cada impedancia, no de la operación.",
+    "D": "Correcto. En serie las impedancias se suman como números complejos: parte real con parte real ($4+6 = 10$) e imaginaria con imaginaria ($+3-8 = -5$). El resultado es capacitivo, aunque uno de los sumandos fuera inductivo."
+   },
+   "misconceptions": {
+    "A": "et/impedancia/reactancias-sin-restarse",
+    "B": "et/impedancia/suma-aritmetica-de-modulos",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/impedancia",
+   "difficulty": 0.5,
+   "order_index": 130,
+   "question": "Un resistor de $40\\,\\Omega$ y una reactancia inductiva de $30\\,\\Omega$ están **en paralelo**. ¿Cuánto vale el módulo de la impedancia equivalente?",
+   "options": {
+    "A": "$70\\,\\Omega$",
+    "B": "$50\\,\\Omega$",
+    "C": "$24\\,\\Omega$",
+    "D": "$17{,}1\\,\\Omega$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Sumaste, que es la regla de la **serie** y además sin tener en cuenta que son perpendiculares. En paralelo el equivalente tiene que quedar por debajo del menor de los dos, o sea por debajo de $30\\,\\Omega$.",
+    "B": "Ese es el módulo que darían $40$ y $30$ **en serie**: $\\sqrt{1600+900} = 50$. Es el mismo triángulo, pero aplicado a la topología equivocada.",
+    "C": "Correcto. Con dos elementos, $Z = \\dfrac{Z_1 Z_2}{Z_1+Z_2} = \\dfrac{40 \\times j30}{40+j30}$. El módulo es $\\dfrac{40 \\times 30}{50} = 24\\,\\Omega$: se dividen los productos de módulos por el módulo de la suma.",
+    "D": "Aplicaste la fórmula del paralelo de resistencias con los módulos sin cuidar la parte compleja del denominador: $1/(1/40+1/30) = 17{,}1$. Ese resultado vale solo si los dos elementos son del mismo tipo, y acá uno es resistivo y el otro reactivo."
+   },
+   "misconceptions": {
+    "A": "et/impedancia/paralelo-con-formula-de-serie",
+    "B": "et/impedancia/paralelo-con-formula-de-serie",
+    "C": null,
+    "D": "et/impedancia/suma-aritmetica-de-modulos"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/impedancia",
+   "difficulty": 0.7,
+   "order_index": 140,
+   "question": "Un circuito **paralelo** tiene una rama inductiva de $X_L = 2\\,\\Omega$ y una capacitiva de $X_C = 10\\,\\Omega$, alimentadas por la misma fuente. ¿Qué carácter tiene el circuito?",
+   "options": {
+    "A": "Capacitivo, porque $X_C$ es la reactancia de mayor valor.",
+    "B": "Resistivo, porque las dos reactancias se compensan.",
+    "C": "Inductivo, porque la rama de menor reactancia es la que más corriente conduce.",
+    "D": "Depende de la resistencia que haya en paralelo con ellas."
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese criterio es el de la conexión en **serie**, donde manda la reactancia de mayor módulo porque las dos llevan la misma corriente. En paralelo las dos ven la misma tensión, y quien manda es la que deja pasar más corriente: la de reactancia **menor**.",
+    "B": "Se compensarían solo si fueran iguales, que es la condición de resonancia. Acá $X_L = 2$ y $X_C = 10$: las corrientes de rama son $V/2$ y $V/10$, muy distintas entre sí.",
+    "C": "Correcto. $I_L = V/2$ es cinco veces mayor que $I_C = V/10$, así que la corriente total atrasa: el circuito es inductivo. En paralelo conviene razonar con **admitancias**, donde $B_L = 1/X_L$ es el término dominante.",
+    "D": "Una resistencia en paralelo cambia el factor de potencia y el ángulo, pero no puede invertir el signo de la parte reactiva: la resistencia solo aporta conductancia, que es real."
+   },
+   "misconceptions": {
+    "A": "et/impedancia/caracter-por-la-reactancia-mayor",
+    "B": "et/impedancia/caracter-por-la-reactancia-mayor",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/impedancia",
+   "difficulty": 0.9,
+   "order_index": 150,
+   "question": "Un circuito paralelo tiene tres ramas: $R = 20\\,\\Omega$, $X_L = 10\\,\\Omega$ y $X_C = 20\\,\\Omega$. ¿Cuánto vale la admitancia total?",
+   "options": {
+    "A": "$0{,}05 - j0{,}05$ S",
+    "B": "$0{,}05 + j0{,}15$ S",
+    "C": "$0{,}05 - j0{,}15$ S",
+    "D": "$0{,}05 + j0{,}05$ S"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $Y = \\dfrac{1}{R} + j\\left(\\dfrac{1}{X_C} - \\dfrac{1}{X_L}\\right) = 0{,}05 + j(0{,}05 - 0{,}1) = 0{,}05 - j0{,}05$ S. La susceptancia neta es negativa: el circuito es inductivo, como corresponde a la rama de menor reactancia.",
+    "B": "Sumaste las dos susceptancias en vez de restarlas ($0{,}1 + 0{,}05$) y encima con signo positivo. Inductor y capacitor aportan susceptancias de signo **opuesto**, igual que aportan reactancias de signo opuesto.",
+    "C": "El signo está bien pero el módulo no: sumaste las dos susceptancias en vez de restarlas. La resta da $0{,}05$, no $0{,}15$.",
+    "D": "El módulo está bien, el signo no. En admitancia el capacitor aporta $+jB_C$ y el inductor $-jB_L$; acá domina el inductor, así que la parte imaginaria neta es negativa."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "et/impedancia/reactancias-sin-restarse",
+    "C": "et/impedancia/reactancias-sin-restarse",
+    "D": "et/admitancia/invierte-solo-el-modulo"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/impedancia",
+   "difficulty": 1.2,
+   "order_index": 160,
+   "question": "En el mismo circuito paralelo del problema anterior ($Y = 0{,}05 - j0{,}05$ S) se aplican $100$ V eficaces. ¿Cuánto vale la **componente real** de la corriente total?",
+   "options": {
+    "A": "$7{,}07$ A",
+    "B": "$10$ A",
+    "C": "$0$ A, porque las reactancias no aportan corriente real.",
+    "D": "$5$ A"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es el **módulo** de la corriente total: $|Y|\\,V = 0{,}0707 \\times 100$. La componente real es solo su proyección sobre el eje de la tensión, y vale menos.",
+    "B": "Duplicaste. La componente real de la corriente es $V \\times G$, con $G = 1/R = 0{,}05$ S: da $5$ A. Un $10$ saldría con $R = 10\\,\\Omega$, que no es el dato.",
+    "C": "Al revés: la componente real la aporta justamente la rama resistiva, y es la única que consume potencia. Lo que no aportan las reactancias es componente **real**, pero el resistor sigue ahí.",
+    "D": "Correcto. $\\vec{I} = \\vec{V}\\vec{Y} = 100(0{,}05 - j0{,}05) = 5 - j5$ A: la componente real es $5$ A. Y tiene sentido físico — la parte real de la corriente es exactamente la que circula por el resistor."
+   },
+   "misconceptions": {
+    "A": "et/ca/componente-real-como-modulo",
+    "B": null,
+    "C": "et/reactancia/disipa-potencia",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/impedancia",
+   "difficulty": 1.4,
+   "order_index": 170,
+   "question": "Un circuito serie RLC tiene $R = 5\\,\\Omega$, $X_L = 16\\,\\Omega$ y $X_C = 4\\,\\Omega$, alimentado con $130$ V eficaces. ¿Cuánto vale la corriente?",
+   "options": {
+    "A": "$10$ A, atrasada $67{,}4^\\circ$",
+    "B": "$6{,}3$ A, atrasada $76^\\circ$",
+    "C": "$13$ A, adelantada $67{,}4^\\circ$",
+    "D": "$10$ A, adelantada $67{,}4^\\circ$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $X = 16-4 = 12\\,\\Omega$ inductivos, $|Z| = \\sqrt{5^{2}+12^{2}} = 13\\,\\Omega$ e $I = 130/13 = 10$ A. El ángulo es $\\arctan(12/5) = 67{,}4^\\circ$ y, por ser inductivo, la corriente **atrasa**.",
+    "B": "Sumaste las dos reactancias ($16+4 = 20$) en vez de restarlas, y con eso $|Z| = \\sqrt{25+400} \\approx 20{,}6\\,\\Omega$. $X_L$ y $X_C$ están a $180^\\circ$ una de otra: se restan.",
+    "C": "El $13$ es el módulo de la **impedancia**, no el de la corriente: falta dividir los $130$ V por él. Y el sentido del desfase está invertido: con $X_L > X_C$ el circuito es inductivo.",
+    "D": "El módulo está bien pero el desfase está al revés. La reactancia neta es inductiva ($+12\\,\\Omega$), así que el ángulo de la impedancia es positivo y el de la corriente, negativo: atrasa."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "et/impedancia/reactancias-sin-restarse",
+    "C": "et/ohm/multiplica-en-vez-de-dividir",
+    "D": "et/impedancia/angulo-con-signo-cambiado"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/potencia_ca",
+   "difficulty": 0.4,
+   "order_index": 110,
+   "question": "Un circuito toma $\\vec{I} = 5 - j5$ A de una fuente de $100\\angle 0^\\circ$ V. ¿Cuánta potencia **activa** consume?",
+   "options": {
+    "A": "$707$ W",
+    "B": "$500$ W",
+    "C": "$1000$ W",
+    "D": "$0$ W"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Usaste el módulo de la corriente: $100 \\times 7{,}07$. Eso es la potencia **aparente** en VA. La activa exige proyectar la corriente sobre la tensión, o sea usar solo su componente real.",
+    "B": "Correcto. Con la tensión como referencia, $P = V \\times \\operatorname{Re}(\\vec{I}) = 100 \\times 5 = 500$ W. La componente imaginaria, $-j5$ A, da la reactiva: $Q = 500$ var inductivos.",
+    "C": "Sumaste las dos componentes de la corriente como si fueran una sola. La parte real y la imaginaria son perpendiculares: no se suman aritméticamente.",
+    "D": "Habría potencia activa nula solo si la corriente fuera puramente imaginaria. Acá tiene componente real de $5$ A, que es exactamente la que produce trabajo."
+   },
+   "misconceptions": {
+    "A": "et/ca/componente-real-como-modulo",
+    "B": null,
+    "C": "et/potencia/aparente-como-suma-aritmetica",
+    "D": "et/reactancia/disipa-potencia"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/potencia_ca",
+   "difficulty": 0.7,
+   "order_index": 120,
+   "question": "Un motor consume $3$ kW con factor de potencia $0{,}6$ en atraso. ¿Cuánta potencia reactiva toma?",
+   "options": {
+    "A": "$1{,}8$ kvar",
+    "B": "$5$ kvar",
+    "C": "$4$ kvar",
+    "D": "$2$ kvar"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Multiplicaste la activa por el factor de potencia. La reactiva sale de $Q = P\\tan\\varphi$, y con $\\cos\\varphi = 0{,}6$ la tangente vale $0{,}8/0{,}6 = 1{,}33$.",
+    "B": "Ese es $S = P/\\cos\\varphi = 3/0{,}6 = 5$ kVA, la potencia **aparente**. La reactiva es el otro cateto: $Q = \\sqrt{S^{2}-P^{2}} = \\sqrt{25-9} = 4$ kvar.",
+    "C": "Correcto. $S = 5$ kVA y $Q = \\sqrt{5^{2}-3^{2}} = 4$ kvar. Es el triángulo $3$-$4$-$5$ otra vez, ahora en potencias. Equivale a $Q = P\\tan\\varphi = 3 \\times 1{,}33 = 4$ kvar.",
+    "D": "Restaste $5-3$. Activa, reactiva y aparente forman un triángulo **rectángulo**: la reactiva es un cateto, y se obtiene con Pitágoras, no restando la hipotenusa."
+   },
+   "misconceptions": {
+    "A": "et/potencia/fp-sin-coseno",
+    "B": null,
+    "C": null,
+    "D": "et/potencia/aparente-como-suma-aritmetica"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/potencia_ca",
+   "difficulty": 0.9,
+   "order_index": 130,
+   "question": "Dos cargas se conectan en paralelo a la misma red: una de $P_1 = 4$ kW, $Q_1 = 3$ kvar inductivos, y otra de $P_2 = 2$ kW, $Q_2 = 1$ kvar capacitivos. ¿Cuál es la potencia aparente total?",
+   "options": {
+    "A": "$10$ kVA",
+    "B": "$6$ kVA",
+    "C": "$7{,}2$ kVA",
+    "D": "$6{,}3$ kVA"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Sumaste los cuatro números. Las activas sí se suman entre sí y las reactivas entre sí, pero las reactivas de distinto signo se **restan**, y el total activo y reactivo se combinan con Pitágoras.",
+    "B": "Ese es solo $P_T$. Falta incorporar los $2$ kvar netos, que hacen que la instalación tenga que dimensionarse para algo más que los $6$ kW útiles.",
+    "C": "Sumaste las dos reactivas en vez de restarlas ($3+1 = 4$). Una carga inductiva y una capacitiva aportan reactiva de signo opuesto: se compensan parcialmente, y en eso se basa la corrección del factor de potencia.",
+    "D": "Correcto. $P_T = 4+2 = 6$ kW y $Q_T = 3-1 = 2$ kvar inductivos netos. Entonces $S = \\sqrt{36+4} \\approx 6{,}3$ kVA. Las potencias se suman por componentes, exactamente como los fasores."
+   },
+   "misconceptions": {
+    "A": "et/potencia/aparente-como-suma-aritmetica",
+    "B": "et/potencia/reactiva-se-consume",
+    "C": "et/impedancia/reactancias-sin-restarse",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/potencia_ca",
+   "difficulty": 1.2,
+   "order_index": 140,
+   "question": "Una instalación de $10$ kW tiene $\\cos\\varphi = 0{,}7$ en atraso y se quiere llevar a $0{,}95$. ¿Qué potencia reactiva capacitiva hay que agregar?",
+   "options": {
+    "A": "$10{,}2$ kvar",
+    "B": "$3{,}3$ kvar",
+    "C": "$6{,}9$ kvar",
+    "D": "$2{,}5$ kvar"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es $Q_1$, la reactiva **inicial** ($10 \\times \\tan 45{,}6^\\circ$). Compensarla entera llevaría el factor de potencia a $1$, no a $0{,}95$; y sobrecompensar es un problema real, porque deja la instalación capacitiva.",
+    "B": "Ese es $Q_2$, la reactiva que la instalación debe **conservar** para quedar en $0{,}95$: $10 \\times \\tan 18{,}2^\\circ = 3{,}3$ kvar. Lo que hay que agregar es la diferencia con la inicial.",
+    "C": "Correcto. $Q_C = P(\\tan\\varphi_1 - \\tan\\varphi_2) = 10(1{,}02 - 0{,}33) \\approx 6{,}9$ kvar. La activa no cambia: los capacitores solo cancelan reactiva.",
+    "D": "No corresponde a ninguno de los dos términos de la fórmula. Conviene calcular los dos ángulos por separado —$\\arccos 0{,}7$ y $\\arccos 0{,}95$—, sus tangentes, y recién entonces restar."
+   },
+   "misconceptions": {
+    "A": "et/potencia/corrige-fp-con-el-elemento-equivocado",
+    "B": null,
+    "C": null,
+    "D": "et/potencia/fp-sin-coseno"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/potencia_ca",
+   "difficulty": 1.4,
+   "order_index": 150,
+   "question": "Dos cargas distintas tienen el mismo factor de potencia, $0{,}8$: una en atraso y la otra en adelanto. ¿En qué se diferencian?",
+   "options": {
+    "A": "En nada eléctricamente: el factor de potencia las describe por completo.",
+    "B": "La primera consume reactiva inductiva y la segunda capacitiva; se corrigen con elementos opuestos.",
+    "C": "La segunda consume menos potencia activa que la primera.",
+    "D": "La segunda no consume potencia aparente."
+   },
+   "correct": "B",
+   "errors": {
+    "A": "El número es el mismo, pero el signo del ángulo no: $+36{,}9^\\circ$ contra $-36{,}9^\\circ$. Conectadas juntas se compensan entre sí; tratadas como iguales, cualquier corrección va a empeorar una de las dos.",
+    "B": "Correcto. En atraso la corriente va detrás de la tensión (carga inductiva, $Q > 0$); en adelanto va delante (carga capacitiva, $Q < 0$). Por eso el factor de potencia siempre se informa con su carácter: «$0{,}8$ en atraso» y «$0{,}8$ en adelanto» piden correcciones contrarias.",
+    "C": "Con el mismo $\\cos\\varphi$ y la misma aparente, la activa es la misma: $P = S\\cos\\varphi$. Lo que cambia es el **signo** de la reactiva, no el valor de la activa.",
+    "D": "Toda carga con corriente y tensión no nulas tiene potencia aparente. Lo que puede ser nula es la activa (si $\\cos\\varphi = 0$) o la reactiva (si $\\cos\\varphi = 1$), y acá no es ninguno de los dos casos."
+   },
+   "misconceptions": {
+    "A": "et/potencia/factor-de-potencia-sin-caracter",
+    "B": null,
+    "C": "et/potencia/factor-de-potencia-sin-caracter",
+    "D": "et/potencia/reactiva-se-consume"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/potencia_ca",
+   "difficulty": 1.6,
+   "order_index": 160,
+   "question": "Un circuito serie tiene $R = 12\\,\\Omega$ y $X_L = 16\\,\\Omega$ y circulan por él $5$ A eficaces. ¿Cuáles son $P$, $Q$ y $S$?",
+   "options": {
+    "A": "$P = 300$ W, $Q = 400$ var, $S = 500$ VA",
+    "B": "$P = 400$ W, $Q = 300$ var, $S = 500$ VA",
+    "C": "$P = 300$ W, $Q = 400$ var, $S = 700$ VA",
+    "D": "$P = 700$ W, $Q = 0$ var, $S = 700$ VA"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $P = I^{2}R = 25 \\times 12 = 300$ W, $Q = I^{2}X_L = 25 \\times 16 = 400$ var y $S = I^{2}|Z| = 25 \\times 20 = 500$ VA. El triángulo de potencias es el de impedancias escalado por $I^{2}$: mismos ángulos, misma forma.",
+    "B": "Intercambiaste $R$ y $X_L$. La potencia activa la produce la **resistencia** y la reactiva la reactancia; cambiarlas de lugar invierte el carácter del circuito.",
+    "C": "$P$ y $Q$ están bien, pero $S$ lo obtuviste sumándolos. La aparente es la hipotenusa: $\\sqrt{300^{2}+400^{2}} = 500$ VA, no $700$.",
+    "D": "Sumaste $R$ y $X_L$ como si el circuito fuera puramente resistivo de $28\\,\\Omega$. La reactancia no aporta potencia activa, y por eso $Q$ no puede ser cero mientras haya $X_L$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "et/potencia/formula-con-la-variable-equivocada",
+    "C": "et/potencia/aparente-como-suma-aritmetica",
+    "D": "et/impedancia/suma-aritmetica-de-modulos"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/potencia_ca",
+   "difficulty": 1.8,
+   "order_index": 170,
+   "question": "¿Por qué las distribuidoras penalizan a los clientes industriales con factor de potencia bajo?",
+   "options": {
+    "A": "Porque la energía reactiva se pierde en calor dentro de la red.",
+    "B": "Porque el cliente consume más energía activa de la que declara.",
+    "C": "Porque el factor de potencia bajo baja la frecuencia del sistema.",
+    "D": "Porque la corriente adicional obliga a sobredimensionar conductores y transformadores y aumenta las pérdidas $I^{2}R$ de la red."
+   },
+   "correct": "D",
+   "errors": {
+    "A": "La reactiva en sí no se disipa: va y vuelve. Lo que sí se disipa es la pérdida $I^{2}R$ **provocada** por la corriente extra que la reactiva obliga a hacer circular, y esa es la pérdida real.",
+    "B": "La activa es la que es y está medida. El problema no es que consuma más energía útil, sino que para entregarle esa energía la red tiene que transportar más corriente.",
+    "C": "La frecuencia del sistema la sostiene el balance entre generación y demanda de potencia **activa**. El factor de potencia afecta a la tensión y a las pérdidas, no a la frecuencia.",
+    "D": "Correcto. Con $\\cos\\varphi = 0{,}5$, entregar los mismos kW exige el doble de corriente, y las pérdidas en los conductores —proporcionales al **cuadrado** de la corriente— se cuadruplican. La penalización traslada ese costo a quien lo genera."
+   },
+   "misconceptions": {
+    "A": "et/potencia/reactiva-se-consume",
+    "B": "et/potencia/reactiva-se-consume",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/resonancia",
+   "difficulty": 0.8,
+   "order_index": 110,
+   "question": "Un RLC serie tiene $R = 10\\,\\Omega$, $L = 100$ mH y $C = 10\\,\\mu\\text{F}$. ¿Cuánto vale $\\omega_0$?",
+   "options": {
+    "A": "$1000$ rad/s",
+    "B": "$159$ rad/s",
+    "C": "$10^{6}$ rad/s",
+    "D": "$100$ rad/s"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $\\omega_0 = \\dfrac{1}{\\sqrt{LC}} = \\dfrac{1}{\\sqrt{0{,}1 \\times 10^{-5}}} = \\dfrac{1}{10^{-3}} = 1000$ rad/s. La resistencia no entra: solo fija el $Q$ del circuito.",
+    "B": "Ese es $f_0$ en hertz ($1000/2\\pi \\approx 159$ Hz), no $\\omega_0$. La pregunta pide la frecuencia angular, que es la que sale directamente de $1/\\sqrt{LC}$.",
+    "C": "Olvidaste la raíz cuadrada: $1/(LC) = 10^{6}$. Con la raíz, $\\sqrt{10^{-6}} = 10^{-3}$ y el resultado baja tres órdenes de magnitud.",
+    "D": "Metiste $R$ en la cuenta, o perdiste un prefijo. La frecuencia de resonancia depende **solo** de $L$ y $C$; $R$ aparece en el factor de calidad, no acá."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "et/ca/omega-sin-2pi",
+    "C": null,
+    "D": "et/resonancia/frecuencia-depende-de-r"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/resonancia",
+   "difficulty": 1.1,
+   "order_index": 120,
+   "question": "Para el mismo circuito ($R = 10\\,\\Omega$, $L = 100$ mH, $\\omega_0 = 1000$ rad/s), ¿cuánto vale el factor de calidad $Q$?",
+   "options": {
+    "A": "$0{,}1$",
+    "B": "$100$",
+    "C": "$10$",
+    "D": "$1000$"
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Invertiste la razón: calculaste $R/(\\omega_0 L)$. El factor de calidad de un circuito serie es $Q = \\omega_0 L/R$, y una resistencia **menor** da un $Q$ mayor, no menor.",
+    "B": "Multiplicaste por diez de más, o usaste $L = 1$ H. Con $L = 0{,}1$ H la reactancia en resonancia es $\\omega_0 L = 100\\,\\Omega$, y dividida por $R = 10\\,\\Omega$ da $10$.",
+    "C": "Correcto. $Q = \\dfrac{\\omega_0 L}{R} = \\dfrac{1000 \\times 0{,}1}{10} = 10$. Con eso el ancho de banda es $BW = \\omega_0/Q = 100$ rad/s, y la sobretensión sobre $L$ y $C$ es diez veces la de la fuente.",
+    "D": "Ese es $\\omega_0$, no $Q$. El factor de calidad es adimensional: es un cociente entre dos magnitudes en ohm."
+   },
+   "misconceptions": {
+    "A": "et/resonancia/q-y-ancho-de-banda-directos",
+    "B": "et/unidades/prefijos-mal-convertidos",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/resonancia",
+   "difficulty": 1.4,
+   "order_index": 130,
+   "question": "Un filtro resonante tiene $f_0 = 455$ kHz y ancho de banda de $10$ kHz. ¿Cuánto vale su factor de calidad?",
+   "options": {
+    "A": "$45{,}5$",
+    "B": "$4550$",
+    "C": "$0{,}022$",
+    "D": "$465$"
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. $Q = f_0/BW = 455/10 = 45{,}5$. Es el valor típico de un filtro de frecuencia intermedia de radio AM, cuya banda de $10$ kHz es exactamente la que ocupa una emisora.",
+    "B": "Multiplicaste por el ancho de banda en vez de dividir, o mezclaste los prefijos. Un $Q$ de $4550$ describiría un filtro extraordinariamente selectivo, con un ancho de banda de solo $100$ Hz.",
+    "C": "Invertiste la razón: eso es $BW/f_0$. El factor de calidad mide **selectividad**, así que crece cuando el ancho de banda es chico frente a la frecuencia central.",
+    "D": "Sumaste $455 + 10$. La relación entre $Q$, $f_0$ y $BW$ es multiplicativa, no aditiva: las tres magnitudes no comparten unidad."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "et/resonancia/q-y-ancho-de-banda-directos",
+    "C": "et/resonancia/q-y-ancho-de-banda-directos",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/resonancia",
+   "difficulty": 1.7,
+   "order_index": 140,
+   "question": "En un RLC serie **por debajo** de su frecuencia de resonancia, ¿cómo se comporta el circuito?",
+   "options": {
+    "A": "Inductivo: la corriente atrasa a la tensión.",
+    "B": "Resistivo puro.",
+    "C": "Capacitivo: la corriente adelanta a la tensión.",
+    "D": "Depende del valor de $R$."
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Ese es el comportamiento **por encima** de la resonancia, donde $X_L$ ya superó a $X_C$. Por debajo pasa lo contrario, porque $X_C = 1/(\\omega C)$ crece a medida que la frecuencia baja.",
+    "B": "El circuito es resistivo puro **en** la resonancia, exactamente en $f_0$. A cualquier otra frecuencia hay reactancia neta, de un signo o del otro.",
+    "C": "Correcto. Por debajo de $f_0$, $X_C > X_L$ y la reactancia neta es capacitiva: la corriente adelanta. La regla completa es «capacitivo abajo, resistivo en $f_0$, inductivo arriba», y describe la curva entera.",
+    "D": "$R$ determina cuánta corriente circula y qué tan marcado es el pico, pero no el signo de la reactancia neta, que depende solo de $X_L$ y $X_C$."
+   },
+   "misconceptions": {
+    "A": "et/reactancia/xc-crece-con-la-frecuencia",
+    "B": "et/resonancia/reactancias-se-anulan-fisicamente",
+    "C": null,
+    "D": "et/resonancia/frecuencia-depende-de-r"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/resonancia",
+   "difficulty": 1.9,
+   "order_index": 150,
+   "question": "Un RLC serie en resonancia tiene $R = 4\\,\\Omega$ y se alimenta con $20$ V eficaces. ¿Qué potencia disipa?",
+   "options": {
+    "A": "$0$ W: en resonancia las reactancias se cancelan.",
+    "B": "$5$ W",
+    "C": "$80$ W",
+    "D": "$100$ W"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Lo que se cancela es la reactancia, no la resistencia. En resonancia el circuito es resistivo puro y disipa **más** que en cualquier otra frecuencia, porque es cuando circula la corriente máxima.",
+    "B": "Ese es el valor de la corriente en ampere, no de la potencia. Falta el último paso: multiplicar por la tensión, o elevar al cuadrado y multiplicar por $R$.",
+    "C": "Multiplicaste $20 \\times 4$. Ese producto no corresponde a ninguna fórmula de potencia con estos datos: con tensión y resistencia hay que usar $V^{2}/R$.",
+    "D": "Correcto. En resonancia $|Z| = R = 4\\,\\Omega$, así que $I = 20/4 = 5$ A y $P = I^{2}R = 25 \\times 4 = 100$ W. También $P = V^{2}/R = 400/4$, porque el factor de potencia vale $1$."
+   },
+   "misconceptions": {
+    "A": "et/resonancia/reactancias-se-anulan-fisicamente",
+    "B": null,
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/resonancia",
+   "difficulty": 2.1,
+   "order_index": 160,
+   "question": "Si en un RLC serie se **cuadruplica** la capacitancia sin tocar $L$, ¿qué le pasa a la frecuencia de resonancia?",
+   "options": {
+    "A": "Se cuadruplica.",
+    "B": "Se reduce a la cuarta parte.",
+    "C": "Se reduce a la mitad.",
+    "D": "No cambia."
+   },
+   "correct": "C",
+   "errors": {
+    "A": "El sentido está invertido y el factor también. $C$ está en el **denominador** y bajo una raíz: al aumentarla, la frecuencia baja, y lo hace como $1/\\sqrt{C}$.",
+    "B": "El sentido es el correcto, pero el factor no: la raíz cuadrada de $4$ es $2$, así que la frecuencia se divide por dos y no por cuatro.",
+    "C": "Correcto. $f_0 = 1/(2\\pi\\sqrt{LC})$: multiplicar $C$ por $4$ multiplica $\\sqrt{LC}$ por $2$, y la frecuencia se divide por $2$. Es la razón de que para sintonizar una banda entera de radio se necesite un capacitor variable de gran rango.",
+    "D": "$f_0$ es independiente de $R$, no de $C$. Cambiar $L$ o $C$ mueve la resonancia; cambiar $R$ solo cambia la forma del pico."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "et/resonancia/frecuencia-depende-de-r"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/resonancia",
+   "difficulty": 2.2,
+   "order_index": 170,
+   "question": "Un circuito tanque (RLC paralelo) se usa como filtro **rechaza-banda**. ¿Por qué funciona?",
+   "options": {
+    "A": "Porque en resonancia presenta impedancia máxima y bloquea el paso de esa frecuencia hacia la carga.",
+    "B": "Porque en resonancia presenta impedancia nula y cortocircuita esa frecuencia.",
+    "C": "Porque la resistencia disipa la frecuencia no deseada en forma de calor.",
+    "D": "Porque desplaza la frecuencia no deseada fuera de la banda útil."
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. En resonancia paralelo las susceptancias se cancelan y la admitancia queda en $1/R$: impedancia máxima. Puesto **en serie** con la señal, el tanque bloquea justo la frecuencia de resonancia y deja pasar el resto.",
+    "B": "Esa es la resonancia **serie**. Un RLC serie sí presenta impedancia mínima en $f_0$, y puesto **en paralelo** con la señal actúa como rechaza-banda derivando esa frecuencia a masa. Son dos formas distintas de conseguir el mismo efecto.",
+    "C": "La resistencia disipa lo que circula por ella, sin discriminar frecuencias. La selectividad la produce la combinación $L$-$C$, no la resistencia; $R$ solo controla qué tan angosto es el rechazo.",
+    "D": "Un circuito lineal no desplaza frecuencias: las atenúa o las deja pasar. Generar frecuencias nuevas exige un elemento no lineal, como un mezclador."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "et/resonancia/impedancia-maxima-en-serie",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/trifasico",
+   "difficulty": 1.2,
+   "order_index": 110,
+   "question": "En un sistema trifásico, ¿qué relación hay entre la tensión de línea y la de fase en conexión **triángulo**?",
+   "options": {
+    "A": "$V_L = \\sqrt{3}\\,V_F$",
+    "B": "$V_L = V_F$",
+    "C": "$V_L = 3\\,V_F$",
+    "D": "$V_F = \\sqrt{3}\\,V_L$"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Esa es la relación de la conexión **estrella**. En triángulo cada devanado está conectado directamente entre dos líneas, así que ve la tensión de línea completa.",
+    "B": "Correcto. En triángulo $V_L = V_F$ y el $\\sqrt{3}$ aparece en las corrientes; en estrella es al revés. Conviene memorizar la pareja completa, porque cada conexión tiene su factor en un solo lado.",
+    "C": "El factor $3$ no aparece nunca entre tensiones de línea y de fase: es siempre $\\sqrt{3}$, que viene de la geometría de dos fasores a $120^\\circ$.",
+    "D": "Está invertido y además con el factor de la estrella. En ninguna de las dos conexiones la tensión de fase supera a la de línea."
+   },
+   "misconceptions": {
+    "A": "et/trifasico/confunde-fase-con-linea",
+    "B": null,
+    "C": "et/trifasico/suma-aritmetica-de-fases",
+    "D": "et/trifasico/raiz-de-tres-invertida"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/trifasico",
+   "difficulty": 1.5,
+   "order_index": 120,
+   "question": "Tres impedancias iguales de $20\\,\\Omega$ se conectan en **triángulo** a una red de $380$ V. ¿Cuánto vale la corriente de línea?",
+   "options": {
+    "A": "$19$ A",
+    "B": "$11$ A",
+    "C": "$57$ A",
+    "D": "$32{,}9$ A"
+   },
+   "correct": "D",
+   "errors": {
+    "A": "Ese es $I_F = V_F/Z = 380/20 = 19$ A, la corriente de **fase**, o sea la que circula por cada impedancia. En triángulo la de línea es $\\sqrt{3}$ veces mayor.",
+    "B": "Dividiste la tensión por $\\sqrt{3}$ antes de usarla, como si la conexión fuera estrella. En triángulo cada impedancia ve los $380$ V completos.",
+    "C": "Multiplicaste por $3$ en vez de por $\\sqrt{3}$. Las tres corrientes de fase no se suman aritméticamente en un vértice: se combinan dos de ellas a $120^\\circ$.",
+    "D": "Correcto. $I_F = 380/20 = 19$ A e $I_L = \\sqrt{3} \\times 19 \\approx 32{,}9$ A. El orden importa: primero la corriente de fase con la tensión de fase, después el $\\sqrt{3}$ para pasar a línea."
+   },
+   "misconceptions": {
+    "A": "et/trifasico/confunde-fase-con-linea",
+    "B": "et/trifasico/raiz-de-tres-invertida",
+    "C": "et/trifasico/suma-aritmetica-de-fases",
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/trifasico",
+   "difficulty": 1.8,
+   "order_index": 130,
+   "question": "Una carga trifásica equilibrada consume $15$ kVA con $\\cos\\varphi = 0{,}8$. ¿Cuánta potencia reactiva total toma?",
+   "options": {
+    "A": "$12$ kvar",
+    "B": "$9$ kvar",
+    "C": "$3$ kvar",
+    "D": "$18{,}8$ kvar"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Ese es $P = S\\cos\\varphi = 15 \\times 0{,}8 = 12$ kW, la potencia **activa**. La reactiva usa el seno: $S\\operatorname{sen}\\varphi$.",
+    "B": "Correcto. Con $\\cos\\varphi = 0{,}8$, $\\operatorname{sen}\\varphi = 0{,}6$, así que $Q = 15 \\times 0{,}6 = 9$ kvar. También sale por Pitágoras: $\\sqrt{15^{2}-12^{2}} = 9$.",
+    "C": "Restaste $15-12$. El triángulo de potencias es rectángulo: la reactiva es un cateto y se obtiene con Pitágoras o con el seno, nunca restando la hipotenusa de un cateto.",
+    "D": "Dividiste por el factor de potencia en vez de multiplicar por el seno. La reactiva nunca puede superar a la aparente, que es la hipotenusa del triángulo."
+   },
+   "misconceptions": {
+    "A": "et/potencia/fp-sin-coseno",
+    "B": null,
+    "C": "et/potencia/aparente-como-suma-aritmetica",
+    "D": "et/potencia/fp-sin-coseno"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/trifasico",
+   "difficulty": 2.1,
+   "order_index": 140,
+   "question": "Un motor trifásico de $380$ V toma $30$ A de línea con $\\cos\\varphi = 0{,}88$ y tiene un rendimiento del $90\\,\\%$. ¿Qué potencia mecánica entrega?",
+   "options": {
+    "A": "$17{,}4$ kW",
+    "B": "$15{,}6$ kW",
+    "C": "$19{,}3$ kW",
+    "D": "$9$ kW"
+   },
+   "correct": "B",
+   "errors": {
+    "A": "Esa es la potencia **eléctrica absorbida**: $\\sqrt{3} \\times 380 \\times 30 \\times 0{,}88 \\approx 17{,}4$ kW. Falta aplicar el rendimiento: parte de esa potencia se pierde en el cobre, el hierro y el rozamiento.",
+    "B": "Correcto. $P_{abs} = \\sqrt{3}\\,V_L I_L \\cos\\varphi \\approx 17{,}4$ kW, y $P_{mec} = 0{,}9 \\times 17{,}4 \\approx 15{,}6$ kW. Rendimiento y factor de potencia son cosas distintas: uno mide pérdidas, el otro desfase.",
+    "C": "Dividiste por el rendimiento en vez de multiplicar. Un motor entrega **menos** de lo que absorbe: el rendimiento siempre reduce.",
+    "D": "Aplicaste el rendimiento sobre un valor que no lleva el $\\sqrt{3}$, o mezclaste los factores. Conviene calcular primero la potencia absorbida completa y recién después multiplicar por $0{,}9$."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "et/trifasico/potencia-sin-raiz-de-tres"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/trifasico",
+   "difficulty": 2.3,
+   "order_index": 150,
+   "question": "En una instalación con cargas **desequilibradas** en estrella con neutro, ¿qué corriente circula por el neutro?",
+   "options": {
+    "A": "Cero, como en cualquier sistema trifásico.",
+    "B": "La suma aritmética de las tres corrientes de fase.",
+    "C": "La suma **fasorial** de las tres corrientes de fase, que ya no se cancela.",
+    "D": "Un tercio de la corriente de la fase más cargada."
+   },
+   "correct": "C",
+   "errors": {
+    "A": "La cancelación exige que las tres corrientes tengan el mismo módulo. Con cargas distintas eso no ocurre, y por el neutro circula la corriente de desbalance: por eso en instalaciones domiciliarias el neutro no se dimensiona a la ligera.",
+    "B": "Sumar módulos daría un valor mucho mayor que el real, porque ignora los $120^\\circ$ de desfase. Incluso desequilibradas, las tres corrientes siguen apuntando en direcciones distintas y se compensan en parte.",
+    "C": "Correcto. $\\vec{I_N} = \\vec{I_a} + \\vec{I_b} + \\vec{I_c}$, siempre. Lo que cambia es que en el caso equilibrado esa suma da cero y en el desequilibrado no. El neutro es, literalmente, el camino de retorno de lo que no se cancela.",
+    "D": "No hay ninguna regla de tercios. La corriente del neutro depende de los módulos **y** de los ángulos de las tres corrientes, y hay que calcularla como suma de fasores."
+   },
+   "misconceptions": {
+    "A": "et/trifasico/desequilibrado-con-formulas-de-equilibrado",
+    "B": "et/trifasico/suma-aritmetica-de-fases",
+    "C": null,
+    "D": "et/trifasico/desequilibrado-con-formulas-de-equilibrado"
+   }
+  },
+  {
+   "module_slug": "electrotecnia/trifasico",
+   "difficulty": 2.5,
+   "order_index": 160,
+   "question": "¿Por qué el arranque **estrella-triángulo** limita la corriente de partida de un motor?",
+   "options": {
+    "A": "Porque en estrella cada devanado recibe $V_L/\\sqrt{3}$, y la corriente de línea de arranque cae a un tercio de la que tendría en triángulo.",
+    "B": "Porque en estrella los devanados quedan en serie y se suma su impedancia.",
+    "C": "Porque en estrella el motor arranca con una frecuencia menor.",
+    "D": "Porque la conexión en estrella agrega una resistencia de arranque en serie."
+   },
+   "correct": "A",
+   "errors": {
+    "A": "Correcto. La tensión por devanado baja en $\\sqrt{3}$, así que la corriente de fase baja en $\\sqrt{3}$ y la de línea, que en estrella iguala a la de fase, termina siendo un **tercio** de la de triángulo. El par también cae a un tercio: por eso el método solo sirve para arranques en vacío o con poca carga.",
+    "B": "En estrella los devanados no quedan en serie: quedan conectados entre una línea y el punto neutro común. Lo que cambia es la tensión que ve cada uno, no su asociación.",
+    "C": "La frecuencia la impone la red y no cambia con la conexión. Arrancar con frecuencia reducida es lo que hace un variador de frecuencia, que es otro método distinto.",
+    "D": "No se agrega ningún componente: se reconecta el mismo bobinado. El arranque con resistencias estatóricas existe, pero es otro método y sí disipa energía."
+   },
+   "misconceptions": {
+    "A": null,
+    "B": "et/trifasico/confunde-fase-con-linea",
+    "C": null,
+    "D": null
+   }
+  },
+  {
+   "module_slug": "electrotecnia/trifasico",
+   "difficulty": 2.6,
+   "order_index": 170,
+   "question": "¿Cuántos vatímetros hacen falta, como mínimo, para medir la potencia activa total de un sistema trifásico de **tres conductores**, equilibrado o no?",
+   "options": {
+    "A": "Uno.",
+    "B": "Tres, uno por fase.",
+    "C": "Dos.",
+    "D": "Cuatro, tres de fase y uno de neutro."
+   },
+   "correct": "C",
+   "errors": {
+    "A": "Con un solo vatímetro alcanza únicamente si el sistema es **equilibrado** y se dispone de neutro accesible: se mide una fase y se multiplica por tres. La pregunta pide el caso general, sin suponer equilibrio.",
+    "B": "Tres funcionan, pero no son el mínimo. Es el método de tres vatímetros, que exige acceso al neutro; en un sistema de tres conductores ese punto puede no existir.",
+    "C": "Correcto. Es el método de los dos vatímetros, consecuencia del teorema de Blondel (1893): con $n$ conductores bastan $n-1$ vatímetros. La suma algebraica de las dos lecturas da la potencia total, esté o no equilibrado el sistema.",
+    "D": "En un sistema de tres conductores no hay neutro que medir. Y aunque lo hubiera, el teorema de Blondel dice que con cuatro conductores bastan tres vatímetros, nunca cuatro."
+   },
+   "misconceptions": {
+    "A": "et/trifasico/desequilibrado-con-formulas-de-equilibrado",
+    "B": null,
+    "C": null,
+    "D": "et/trifasico/suma-aritmetica-de-fases"
+   }
+  }
+ ]
+}
