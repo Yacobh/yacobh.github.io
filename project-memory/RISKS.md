@@ -1,6 +1,6 @@
 # RISKS
 
-Última actualización: **2026-08-28 (2ª pasada)** — **R-41 nuevo**: los 414 ítems de los cuatro bancos nuevos se publicaron sin revisión pedagógica y ya llegan a estudiantes (decisión explícita del owner); mitigable de a poco ahora que `057` permite retirar un ítem sin borrarlo. · Antes: **2026-08-28** — **R-39 abierto y cerrado el mismo día** (el bundle podía llegar a producción antes que `048` y perder el diagnóstico completo de un estudiante; el owner aplicó la migración antes del push y no se materializó — el patrón sigue vivo para migraciones futuras) y **R-40 nuevo** (los θ de motor v1 y v2 no son comparables y nada impide compararlos). **R-38 empeoró a propósito**: con azar, el piso del SE sube de 0,577 a ≈0,73. · Antes: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
+Última actualización: **2026-09-09** — **R-42 nuevo**: el track de Electrotecnia se publica con `active = true` y aparece en el selector de todo estudiante de PAES, porque la policy de `020` no admite un estado intermedio (D-66 / ADR-035). Es la versión **confirmada** de R-23, que para `cuantica` era hipotética. · Antes: **2026-08-28 (2ª pasada)** — **R-41 nuevo**: los 414 ítems de los cuatro bancos nuevos se publicaron sin revisión pedagógica y ya llegan a estudiantes (decisión explícita del owner); mitigable de a poco ahora que `057` permite retirar un ítem sin borrarlo. · Antes: **2026-08-28** — **R-39 abierto y cerrado el mismo día** (el bundle podía llegar a producción antes que `048` y perder el diagnóstico completo de un estudiante; el owner aplicó la migración antes del push y no se materializó — el patrón sigue vivo para migraciones futuras) y **R-40 nuevo** (los θ de motor v1 y v2 no son comparables y nada impide compararlos). **R-38 empeoró a propósito**: con azar, el piso del SE sube de 0,577 a ≈0,73. · Antes: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
 de los 306 ítems; mitigado en el cliente por ADR-030, el dato sigue sesgado). ·
 Antes: **2026-08-17** — **R-33 nuevo** (la pantalla de Google nombra a `supabase.co`
 y no a la marca, visto en vivo al verificar T-92; toca la confianza justo en el registro) y **R-32
@@ -73,6 +73,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | **R-31** | **El funnel está diseñado para el canal que nunca produjo un usuario** | Alto | **Confirmada** | **Alta** | 🔺 **abierto 2026-08-16** |
 | **R-32** | ~~Propiedad intelectual~~ **y conflicto de interés con los empleadores (Cpech, liceo)** | Medio | Media | Media | 🔻 **rebajado 2026-08-17** (T-93): **no hay cesión de PI** — la titularidad no está en discusión. Queda solo el conflicto de interés, y con una respuesta concreta: **el canal Cpech no es usable hasta el 2026-11-21** |
 | **R-33** | **La pantalla de Google nombra a `supabase.co`, no a la marca** | Bajo | **Confirmada** | Media | abierto 2026-08-17 |
+| **R-42** | **El track de Electrotecnia es visible para todo estudiante de PAES** | Bajo | **Confirmada** | Media | abierto 2026-09-09 (D-66). No es un efecto lateral: es la decisión. Apagado con un `update` de una línea (`065`) |
 | **R-34** | **El escape («no sé») se usa como salida fácil y diluye la evidencia del banco** | Medio | Media | Media | abierto 2026-08-18 (D-57). Mitigado estructuralmente contra el estudiante —peso 0.0 no mueve θ—; **se reactiva con severidad alta si el escape pasa a tener peso positivo** |
 
 ---
@@ -909,6 +910,42 @@ nuevos entran sin versión y R-40 se agrava.
 
 - **Severidad:** ✅ **cerrado 2026-08-28** para `048` · el patrón sigue vivo para migraciones futuras
 - **Relacionado:** ADR-034, ADR-003, R-40, `supabase/migrations/048_*.sql`, [[LESSONS_LEARNED]]
+
+### R-42 · El track de Electrotecnia es visible para todo estudiante de PAES
+
+**Abierto 2026-09-09** con D-66 / [[../adr/ADR-035-track-electrotecnia-visible]]. **Es la decisión,
+no un descuido**, y por eso su probabilidad es «confirmada» en vez de una estimación.
+
+⚠️ **Vigente desde el mismo día:** el owner aplicó `062`…`066` el 2026-09-09, así que esto ya no es
+un riesgo previsto sino el estado de producción.
+
+**El mecanismo, en una línea.** La policy `test_configs_select` de `020` es
+`using (active = true or public.is_admin())`. Tiene dos estados y no hay un tercero: **no existe
+visibilidad por usuario**. El destinatario de `cuantica` era el autor, que es admin, y por eso
+R-23 se pudo cerrar con `active = false`. El de `electrotecnia` es un alumno que no lo es.
+
+**Qué ve un estudiante de PAES.** Dos evaluaciones más en su selector: «Electrotecnia · Diagnóstico
+general» y «Electrotecnia · Corriente alterna ★». Puede entrar y rendirlas; no rompe nada —el motor
+es agnóstico del temario y su perfil de electrotecnia no contamina el de matemática, porque el
+perfil es por `topic`— pero es tiempo perdido y ruido en un selector que **ya** estaba ruidoso por
+los bancos duplicados de T-122.
+
+**Por qué la severidad no es alta.** El daño es de atención, no de datos ni de seguridad: no expone
+nada de nadie, no altera el contenido PAES y no modifica ningún θ existente. Y el apagado es un
+`update` de una línea, escrito al principio de `065`, no al final.
+
+**Cuándo sube.** Si alguna vez hay tráfico real de estudiantes de PAES y se mide abandono en el
+selector, esto pasa a ser un problema de embudo (G-5) y no una molestia. También sube si el track
+crece: cada banco nuevo publicado es otra línea en la lista de todos.
+
+**Lo que lo cierra de verdad** es T-127: visibilidad por usuario o por cohorte, que además es
+precondición de G-1 —un colegio va a querer ver solo lo suyo—. Hasta entonces, la mitigación es
+tener el `update` de apagado a mano y usarlo si molesta.
+
+- **Severidad:** 🔶 media · baja en impacto, confirmada en probabilidad
+- **Mitigación:** `update public.test_configs set active = false where topic like 'electrotecnia%'`
+- **Relacionado:** R-23 (el mismo riesgo, hipotético, para `cuantica`), R-30, T-122, T-127,
+  D-66, [[../adr/ADR-035-track-electrotecnia-visible]], [[../adr/ADR-018-track-experimental-cuantica]]
 
 ### R-41 · 414 ítems sin revisión pedagógica ya están delante de los estudiantes
 

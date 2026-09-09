@@ -1,6 +1,6 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-08-28 (2ª pasada)** — **L-54, L-55 y L-56 nuevas** (la memoria puede documentar una capacidad que la base no tiene —`questions.active` no existía y dos tareas se planificaron encima—; una migración idempotente por contenido no corrige lo ya cargado, hace falta una de delta calculado; reordenar las alternativas de un ítem ya rendido rompe el histórico, porque `tests` guarda la letra) y **L-46 con una tercera repetición**: el fixture volvió a construirse desde el supuesto que debía refutar, y lo que lo atrapó fue una guarda dentro de la migración. · Antes: **2026-08-28** — **L-52 y L-53 nuevas** (la explicación obvia de un sesgo puede ser falsa tres veces seguidas y solo la medición lo dice; un test que compara dos configuraciones puede estar midiendo la salvaguarda en vez de la configuración). · Antes: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
+Última actualización: **2026-09-09** — **L-57 nueva** (un mecanismo de aislamiento vale mientras el destinatario no cambie: `active = false` aisló el track de cuántica porque su usuario era admin, no por diseño). Antes: **2026-08-28 (2ª pasada)** — **L-54, L-55 y L-56 nuevas** (la memoria puede documentar una capacidad que la base no tiene —`questions.active` no existía y dos tareas se planificaron encima—; una migración idempotente por contenido no corrige lo ya cargado, hace falta una de delta calculado; reordenar las alternativas de un ítem ya rendido rompe el histórico, porque `tests` guarda la letra) y **L-46 con una tercera repetición**: el fixture volvió a construirse desde el supuesto que debía refutar, y lo que lo atrapó fue una guarda dentro de la migración. · Antes: **2026-08-28** — **L-52 y L-53 nuevas** (la explicación obvia de un sesgo puede ser falsa tres veces seguidas y solo la medición lo dice; un test que compara dos configuraciones puede estar midiendo la salvaguarda en vez de la configuración). · Antes: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
 ruta de login** — el gate legal no va donde está el formulario sino donde nace la cuenta; y
 **L-43**, si Google Cloud te pide datos tributarios para configurar OAuth, te desviaste de camino.
 Antes ese mismo día: **L-41**, una copia que nadie mira diverge — la pregunta útil
@@ -839,6 +839,34 @@ ninguno se escribió a mano.
 
 - **Relacionado:** `supabase/migrations/058_reparacion_del_eje_de_probabilidad.sql`,
   `scripts/generar_migracion_items.py`, [[BACKLOG]] T-126.
+
+### L-57 · Un mecanismo de aislamiento vale mientras el destinatario no cambie
+
+**Síntoma.** ADR-018 dejó resuelto cómo montar un track ajeno al temario sin contaminar el producto:
+`test_configs.active = false`. Al llegar el segundo track, la receta parecía aplicable tal cual —
+mismo motor, mismo esquema, mismo tipo de contenido. **No lo era**, y el detalle que la invalidaba
+no está en ninguna de las dos migraciones: está en quién iba a usarla.
+
+**Causa.** El aislamiento de `cuantica` no venía de `active = false` sino de la coincidencia de que
+su destinatario **era admin**. La policy `test_configs_select` (`020`) es
+`using (active = true or public.is_admin())`: dos estados. El primer track cayó del lado bueno por
+accidente biográfico, no por diseño, y eso quedó registrado como una solución cuando era una
+casualidad.
+
+**Regla.** Antes de reusar un mecanismo de aislamiento, preguntar **de qué depende** y no solo qué
+hace. Si depende de una propiedad del usuario —ser admin, tener sesión, estar en una lista—, es una
+precondición del mecanismo y hay que escribirla junto a él. Y cuando la precondición deja de
+cumplirse, lo correcto es **decidir de nuevo y registrarlo**, no forzar la receta anterior ni
+construir el mecanismo que falta en el mismo movimiento: convertir un pedido de contenido en un
+proyecto de esquema es la forma exacta en que R-30 se materializa.
+
+**Corolario que sí valió la pena.** Lo que se reusó de ADR-018 sin ningún problema fue lo que **no**
+dependía del destinatario: el motor agnóstico del temario, los prefijos por dominio, la reversión
+escrita antes de aplicar, y la verificación contra un PostgreSQL desechable.
+
+- **Relacionado:** [[../adr/ADR-035-track-electrotecnia-visible]],
+  [[../adr/ADR-018-track-experimental-cuantica]], [[RISKS]] R-23/R-42/R-30, [[DECISIONS]] D-66,
+  [[BACKLOG]] T-129.
 
 ### L-56 · Reordenar las alternativas de un ítem ya rendido rompe el histórico
 

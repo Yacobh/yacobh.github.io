@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-08-28** (7ª pasada: **el owner ya había aplicado `049`…`056`**, `055`/`056` en su versión original. **T-125 y T-126 cerradas**: los cuatro bancos no tenían fila en `test_configs` —414 ítems inalcanzables, medido— y `059` las crea. `055`…`059` **aplicadas y verificadas** el mismo día; no quedan migraciones pendientes (`next_question` nunca miró `questions.active`, así que retirar un ítem no lo retiraba). Antes, 6ª pasada: el eje de **probabilidad y estadística** existe — `055` crea sus seis módulos (**T-119 cerrada**) y `056` trae 102 ítems con 45 ideas erróneas nuevas. **T-124 nueva**: revisar esos 102 ítems. El owner respondió en la misma sesión las dos preguntas de contenido: la convención de cuartiles del DEMRE, y que **varianza y desviación estándar no entran en M1** — salieron 12 ítems y el módulo 340 pasó a ser `conteo`. ⚠️ `055` va **después** de `051` y `053`: crear módulos corre las bandas derivadas de los demás. Antes, 5ª pasada: el eje de **geometría** escrito — `053` bandas y `054` con 100 ítems y 33 ideas erróneas nuevas, el primer eje **sin banco previo**. **T-123 nueva**: revisar esos 100 ítems. Antes, 4ª pasada: **`049` y `050` aplicadas** por el owner, y el eje de **álgebra** escrito — `051` bandas y `052` con 100 ítems. **T-121 y T-122 nuevas**: revisar esos 100 ítems, y retirar de circulación el banco `polinomios` viejo y los once fragmentos del eje. Antes, 3ª pasada: **T-118 aprobada y escrita** en `049`, y **T-120 nueva**: revisar a mano los 100 ítems del eje de números que trae `050`, que es lo único que ningún script puede verificar. Antes, 2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
+Última actualización: **2026-09-09** (**track de electrotecnia**: `062`…`066` escritas y verificadas contra un PostgreSQL desechable, sin aplicar todavía — **T-127 cerrada** — aplicadas y batería corrida, los nueve controles coinciden; **T-128** revisar sus 116 ítems y 24 recursos, **T-129** visibilidad de `test_configs` por usuario, que es lo que cerraría R-42 y es precondición de G-1. D-66 / ADR-035). Antes: **2026-08-28** (7ª pasada: **el owner ya había aplicado `049`…`056`**, `055`/`056` en su versión original. **T-125 y T-126 cerradas**: los cuatro bancos no tenían fila en `test_configs` —414 ítems inalcanzables, medido— y `059` las crea. `055`…`059` **aplicadas y verificadas** el mismo día; no quedan migraciones pendientes (`next_question` nunca miró `questions.active`, así que retirar un ítem no lo retiraba). Antes, 6ª pasada: el eje de **probabilidad y estadística** existe — `055` crea sus seis módulos (**T-119 cerrada**) y `056` trae 102 ítems con 45 ideas erróneas nuevas. **T-124 nueva**: revisar esos 102 ítems. El owner respondió en la misma sesión las dos preguntas de contenido: la convención de cuartiles del DEMRE, y que **varianza y desviación estándar no entran en M1** — salieron 12 ítems y el módulo 340 pasó a ser `conteo`. ⚠️ `055` va **después** de `051` y `053`: crear módulos corre las bandas derivadas de los demás. Antes, 5ª pasada: el eje de **geometría** escrito — `053` bandas y `054` con 100 ítems y 33 ideas erróneas nuevas, el primer eje **sin banco previo**. **T-123 nueva**: revisar esos 100 ítems. Antes, 4ª pasada: **`049` y `050` aplicadas** por el owner, y el eje de **álgebra** escrito — `051` bandas y `052` con 100 ítems. **T-121 y T-122 nuevas**: revisar esos 100 ítems, y retirar de circulación el banco `polinomios` viejo y los once fragmentos del eje. Antes, 3ª pasada: **T-118 aprobada y escrita** en `049`, y **T-120 nueva**: revisar a mano los 100 ítems del eje de números que trae `050`, que es lo único que ningún script puede verificar. Antes, 2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
 verificado en producción, con D-21 respetado en las dos rutas — **ADR-028 / D-56**. Abre **T-95**
 (persistir el consentimiento) y **R-33** (la pantalla de Google nombra a `supabase.co`)). Antes: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
 G-1…G-5, tareas T-76…T-89), abierta por
@@ -1384,6 +1384,93 @@ puede rendir son exactamente «más producto y cero uso».
 
 **Terminado cuando:** ~~cada banco tiene su fila y un estudiante puede rendir los cuatro
 diagnósticos~~ → ✅ hecho: `059` aplicada el 2026-08-28.
+
+### T-127 · Aplicar `062`…`066` (track de electrotecnia) y correr su batería — **P0** · `cerrado 2026-09-09`
+
+Cinco migraciones, **en este orden**: `062` (track y doce módulos) → `063` (banco general, 74 ítems
+y 54 ideas erróneas) → `064` (banco de alterna, 42 ítems y 6 ideas nuevas) → `065` (las dos filas de
+`test_configs`, y es la que **publica**) → `066` (24 recursos, `published = false`).
+
+**El orden `063` antes que `064` no es cosmético.** `064` reutiliza 29 slugs de idea errónea que
+declara `063`. Si se invierte, el `left join` no falla: resuelve a null, y los 42 ítems del banco de
+CA quedan sin ninguna idea errónea, en silencio. Es el modo de fallo de T-119 y **no hay guarda que
+lo impida** — la consulta que lo detecta está en el pie de `065`, con el número esperado medido (1
+en `electrotecnia`, 0 en `electrotecnia_ca`).
+
+`065` sí trae dos guardas, las dos probadas: se niega a correr si faltan los doce módulos, y se
+niega si alguno de los dos bancos no llega a 20 ítems activos.
+
+⚠️ **`065` publica los dos bancos con `active = true`**, y eso significa que todo estudiante de PAES
+va a ver «Electrotecnia» en su selector (D-66, R-42). Si al aplicarla se prefiere no publicar
+todavía, correr después:
+`update public.test_configs set active = false where topic like 'electrotecnia%';`
+
+**Terminado cuando:** las cinco aplicadas, la batería del pie de `065` da los valores esperados, y
+la fecha anotada en `supabase/SCHEMA.md`.
+
+✅ **Cerrada el 2026-09-09.** Las cinco aplicadas por el owner, anotadas en `supabase/SCHEMA.md`, y
+**la batería corrida contra la base real**: los nueve controles coinciden con lo esperado.
+
+| Control | Medido | Esperado |
+|---|---|---|
+| módulos del track | 12 | 12 |
+| módulos sin banda explícita | 0 | 0 |
+| ítems | 116 | 116 |
+| **ítems sin módulo** | **0** | 0 |
+| ideas erróneas `et/` | 60 | 60 |
+| recursos | 24 | 24 |
+| recursos publicados | 0 | 0 |
+| **ítems de CA sin ninguna idea errónea** | **0** | 0 |
+| configuraciones activas | 2 | 2 |
+
+Las dos filas en negrita son las que importaban, porque son las únicas que **no fallan solas**: un
+`module_slug` mal escrito deja el `module_id` en null en silencio (T-119), y `064` aplicada antes que
+`063` habría dejado los 42 ítems del banco de alterna sin ninguna idea errónea, también en silencio.
+Ninguna de las dos ocurrió: el orden fue el correcto y los 116 ítems tienen módulo.
+
+Con esto queda cerrado también el hueco que ADR-018 dejó abierto con `040` el 2026-08-11 — allá la
+batería nunca se corrió; acá sí, el mismo día de la aplicación.
+
+### T-128 · Revisar el contenido de electrotecnia antes de que lo use alguien — **P1** · `abierto`
+
+116 ítems con 4 explicaciones cada uno y 24 recursos, todos asistidos por IA y **no auditados**.
+`verificar_items.py` los pasó, pero ese script verifica **estructura**, no física: clave repartida,
+una sola correcta, las cuatro `error_*` escritas, LaTeX con escape simple, cobertura sin huecos.
+Que una reactancia esté bien calculada o que un distractor sea el error que de verdad se comete no
+lo mira nadie.
+
+Es la misma tarea que T-120/T-121/T-123/T-124 para los ejes PAES, **con un agravante**: allá el
+destinatario tiene un profesor al lado; acá el destinatario es un alumno solo, que no tiene cómo
+detectar un error de signo. Y una diferencia a favor: son 116 ítems, no 414.
+
+**Cómo:** rehaciendo cada cuenta, no leyéndola (ADR-016 §2). El JSON de
+`contenido/items/electrotecnia*.json` es la fuente de verdad — se corrige ahí, se vuelve a verificar
+y se regenera el `.sql`; si el ítem ya está en la base, además hay que corregirlo en el panel o con
+un `update`.
+
+**Terminado cuando:** los 116 ítems revisados uno por uno, los defectos corregidos en el JSON y en
+la base, y los 24 recursos con `published = true` (o corregidos y publicados).
+
+### T-129 · Visibilidad de `test_configs` por usuario o por cohorte — **P2** · `abierto`
+
+Hoy la policy `test_configs_select` de `020` es `using (active = true or public.is_admin())`:
+**dos estados y ningún intermedio**. Esa es la razón entera de que el track de electrotecnia sea
+visible para todos (D-66, R-42) y de que el de cuántica sea visible para nadie salvo el admin.
+
+No es solo una molestia de selector: **es precondición de G-1.** Un colegio que compre la licencia
+va a querer que sus estudiantes vean su diagnóstico y no el de otro colegio, y eso es exactamente
+esta funcionalidad.
+
+**Forma probable:** una tabla de matrícula (`enrollment` de contenido, no de cupo) que relacione
+usuario o cohorte con `topic`, y una policy que agregue ese caso al `or`. Toca el camino crítico:
+cualquier error acá deja a un estudiante sin poder rendir nada.
+
+**No se hace antes de que haya un segundo destinatario real.** Hacerlo ahora, para un solo alumno,
+sería convertir un pedido de contenido en un proyecto de esquema — que es la forma exacta en que
+R-30 se materializa.
+
+**Terminado cuando:** un banco puede publicarse para un conjunto declarado de usuarios sin que lo
+vea el resto, verificado con las dos cuentas.
 
 ### T-126 · Aplicar `057`, `058` y `059` — **P0** · `cerrado 2026-08-28`
 
@@ -3476,8 +3563,8 @@ de negocio, no técnica.
 | Prioridad | Tareas |
 |-----------|--------|
 | **P0** | **T-118**, T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50, **T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-88, T-90, T-91, T-93, T-110** |
-| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92, T-111, T-117, T-120, T-121, T-123, T-124** |
-| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86, T-95, T-113, T-115, T-116, T-122** |
+| **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92, T-111, T-117, T-120, T-121, T-123, T-124, T-128** |
+| **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86, T-95, T-113, T-115, T-116, T-122, T-129** |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |
 
 > ⚠️ **Esta tabla está incompleta y se detectó el 2026-08-18** (comprobado por script, no a ojo):
