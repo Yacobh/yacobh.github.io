@@ -514,6 +514,28 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     `published = false` según ADR-016 §1. No es precondición de nada: los recursos no intervienen en
     el diagnóstico. Se publican **después** de auditarlos rehaciendo las cuentas (T-128).
 
+68. `migrations/067_tests_origin.sql` — ⏳ **escrita y verificada, SIN aplicar** (2026-09-13) ·
+    **T-110.** Agrega `tests.origin` (`'student'` | `'admin_preview'`), con backfill derivado del rol
+    actual de quien rindió, check, `not null` e índice parcial. Lo escribe un **trigger
+    `before insert`** a partir de `public.is_admin()` — **no el cliente**: `:auth/admin?` es estado de
+    UI y falsificable (CLAUDE.md §7), y un trigger además no necesita que se despliegue el bundle
+    para empezar a marcar.
+    **Para qué:** desde ADR-032 el owner depura un ítem rindiéndolo, y cada corrida dejaba una fila
+    indistinguible de la de un estudiante, concentrada justo en los ítems más depurados. Calibrar con
+    eso adentro sesga el banco **en correlación con la variable de interés** (R-37). Es precondición
+    dura de **G-2**.
+    **Consecuencia aceptada:** si el owner rinde un diagnóstico en serio, esa fila igual queda como
+    `admin_preview`. Se prefiere a hacer el trigger condicional y reabrir la falsificación.
+    **Consulta:** toda métrica de estudiantes filtra `origin = 'student'`.
+
+> **Verificación de `067` (2026-09-13).** Contra un **PostgreSQL 14.18 desechable** con fixture a
+> mano (`auth.uid()`, `profiles`, `tests`, `is_admin()`): aplica limpio con `ON_ERROR_STOP=1`; el
+> backfill separa 2 corridas de admin de 3 de estudiante; un alumno que **envía**
+> `origin = 'admin_preview'` igual queda `student`, y un admin que envía `'student'` igual queda
+> `admin_preview` (no falsificable en ninguna de las dos direcciones); un insert sin sesión queda
+> `student`; el check rechaza cualquier otro valor; **la segunda corrida no cambia nada** (idéntico
+> hash de `(id, origin)`); y la reversión deja la tabla como estaba **sin perder filas**.
+
 > **Verificación de `062`…`066` (2026-09-09).** Contra un PostgreSQL 14 desechable construido
 > **aplicando las migraciones reales del repositorio** —fixture escrito a mano solo para las tablas
 > previas al MVP, que ninguna migración crea—: las cinco aplican limpio en orden; las dos guardas de
