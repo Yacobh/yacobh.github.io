@@ -3828,9 +3828,19 @@ quedan dentro al menos tres cosas marcadas `student`:
 | Qué | Evidencia | Por qué contamina |
 |---|---|---|
 | Cuenta de prueba `a@a.com` | 5 filas | No es una persona rindiendo |
-| Un **profesor explorando** | 12 intentos en ~45 min el 2026-09-10, repartidos entre bancos | Responde como adulto que ya sabe, o clickea para ver la interfaz |
-| Cuentas institucionales de staff | `@slepiqq.cl` | Mismo caso |
+| Corridas del socio | 2 filas, cuenta con rol `admin` | Ya las separa `origin`; se listan para que el conteo cuadre |
 
+⚠️ **Corrección del mismo día, y vale como advertencia de método.** La primera versión de esta ficha
+daba por «profesor explorando» al autor de **12 intentos en 45 minutos**, y por «staff institucional»
+a una cuenta **`@slepiqq.cl`**. **Las dos eran estudiantes del curso**, confirmado por el owner. Se
+infirió el rol de una persona a partir de su patrón de uso y de su dominio de correo, y se falló en
+los dos casos. **No se deduce quién es alguien mirando sus filas: se pregunta.**
+
+- **Lo que el error de arriba sí enseñó, y es aprovechable:** los estudiantes del liceo tienen
+  **correo institucional del SLEP de Iquique** (`@slepiqq.cl`). Si esas cuentas son Google Workspace
+  —hay que **verificarlo, no suponerlo**—, es exactamente la cuarta opción que [[OPEN_QUESTIONS]]
+  Q-37 dejó anotada para entrar a un curso completo sin crear cuentas, y toca directamente a T-91 y
+  a T-92 (login con Google, ya funcionando).
 - **No se resuelve con otra columna de origen.** Lo que falta es poder decir *«esta fila es de un
   estudiante del curso X»*, que es el modelo de curso de **T-81/T-79** — y ese no arranca todavía.
 - **Mientras tanto:** una lista de exclusión **escrita y versionada** en

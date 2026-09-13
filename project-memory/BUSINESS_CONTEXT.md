@@ -82,6 +82,23 @@ la decisión vive en [[OPEN_QUESTIONS]] **Q-43** con la aritmética de los dos l
 **Restricción contractual que acota cualquier movimiento:** el canal **Cpech está cerrado hasta el
 2026-11-21** (T-93), y el **contrato del liceo todavía no se ha leído**.
 
+### 1.2 El segundo stakeholder, que no estaba registrado (2026-09-13)
+
+Apareció por el backfill de `067`: había una segunda cuenta con rol `admin`. Es un **compañero de
+universidad del owner**, hoy en México cursando un **máster en computación cuántica**, que acompaña
+el proyecto **desde el comienzo**. Aportes concretos y verificables:
+
+- Empujó al owner a pagar Claude, que es la herramienta con la que se construye hoy.
+- **Le enseñó el modelo Project Memory First**, que es la metodología con la que está escrita esta
+  carpeta entera y la razón de que exista `CLAUDE.md`.
+- El owner le dijo que **es su socio con el 1 %** de la compañía (acuerdo **verbal**, sobre una
+  sociedad que **no está constituida** — [[OPEN_QUESTIONS]] Q-50).
+
+**Qué cambia y qué no en [[RISKS]] R-01 (bus factor = 1).** No lo cierra: no escribe código, no
+redacta ítems y no vende. Pero **deja de ser literalmente cierto que nadie más conoce el proyecto**,
+y el aporte metodológico no es menor — sin PMF, esta memoria no existiría y una sesión como la del
+2026-09-13 habría empezado de cero. Se registra como stakeholder real, no como conocido.
+
 ### 1.1 🔺 La forma del mercado: churn anual del 100% por construcción
 
 **Hecho estructural, registrado el 2026-08-16.** Es la restricción de mercado más importante del

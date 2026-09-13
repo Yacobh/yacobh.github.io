@@ -1,6 +1,6 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-09-13** (SESSION-042, 3ª pasada) — **Q-48 nueva y 🔴: ¿la plataforma pone notas?** El owner les ofreció a sus alumnos rendir para **obtener nota inmediata**. Es la mejor cuña comercial aparecida hasta ahora (una herramienta que califica deja de ser opcional) **y el instrumento todavía no puede**: contradice el objetivo fundacional de sustituir la nota por el mapa de errores, el banco no está calibrado, R-44 muestra dos estudiantes en el clamp que sacarían la misma nota mínima, el % de aciertos no es escala en un test adaptativo, Q-46 no tiene respuesta y Q-47 penalizaría a los rápidos. **Lo que sí se puede hoy: calificar el proceso, no el resultado.** · Antes, 2ª pasada: **Q-46 nueva y 🔴**: con varios intentos del mismo estudiante, ¿cuál θ vale? Medido: un estudiante pasó de θ=−3,00 (0 de 8, abandonado) a **+0,60** el mismo día, y otro degradó a −0,85 en un tercer intento de 1,5 minutos. La regla que se elija cambia banda, plan y cupo de personas concretas, y **Δθ no significa nada sin ella** (T-142). **Q-47 nueva**: el filtro de esfuerzo descartó **~14 respuestas correctas por rápidas** (13,5 % de los aciertos) — y rápido-y-correcto es la definición de fluidez de ADR-019: ADR-014 y ADR-019 se pisan y nadie lo decidió. · Antes, 1ª pasada: **Q-43 nueva y 🔴**: ¿la línea principal es PAES o física/electricidad/electrónica? El owner **no es profesor de matemática** —enseña física, mecánica, electricidad y electrónica, y sus cursos de 3º y 4º medio son de electrónica—, el único alumno que paga lo hace a **USD 20/h** por electrotecnia, y §1.1 de [[BUSINESS_CONTEXT]] dice que el churn del 100 % anual es propio de PAES, no de un alumno de carrera técnica. **No se toca ADR-025 hasta responderla.** **Q-44 nueva**: ¿la IA vuelve obsoleto el producto? (planteada por el owner, con media respuesta ya escrita en §3.1 de [[TESIS_DE_CRECIMIENTO]]). **Q-45 nueva**: ¿la marca pública es Jacobo Córdova o Academia Integral? — el dominio, el header y `/profesor` dicen cosas distintas y condiciona todo el copy. · Antes: **2026-08-28** — **X-10 cerrada** (ADR-034 documenta el estimador real; y la consecuencia que se le atribuía al tope de paso resultó falsa al medirla: el culpable era el prior). **Q-42 sigue abierta y empeora**: con azar, la información máxima por ítem cae de 0,25 a ≈0,155. · Antes: **2026-08-23 (segunda pasada)** — **Q-42 nueva** (qué se hace con la parada por precisión, que es inalcanzable con `max_items = 12`) y **X-10 nueva** (ADR-004 describe un estimador y un θ inicial que el código ya no usa). · Antes: **2026-08-23 (cierre)** — **Q-41 respondida**: la ciudad es Iquique, Chile; aplicada en el CV y A-37 validado. · Antes: **2026-08-23** — **Q-41 nueva**: en qué ciudad son las dos entradas nuevas de docencia del CV (Colegio Luis Cruz Martínez y CPech); se escribió «Chile» sin la ciudad para no inventarla (A-37). · Antes: **2026-08-18 (noche)** — **Q-40 medida**: el catálogo es 77 de 77 del
+Última actualización: **2026-09-13** (SESSION-042, 4ª pasada) — **Q-49 respondida**: la segunda cuenta admin es un **compañero de universidad y socio con el 1 %**, que acompaña el proyecto desde el comienzo y enseñó el modelo PMF; el rol es deliberado. Abre **Q-50**: ese 1 % es verbal y sobre una sociedad que no existe. · Antes, 3ª pasada — **Q-48 nueva y 🔴: ¿la plataforma pone notas?** El owner les ofreció a sus alumnos rendir para **obtener nota inmediata**. Es la mejor cuña comercial aparecida hasta ahora (una herramienta que califica deja de ser opcional) **y el instrumento todavía no puede**: contradice el objetivo fundacional de sustituir la nota por el mapa de errores, el banco no está calibrado, R-44 muestra dos estudiantes en el clamp que sacarían la misma nota mínima, el % de aciertos no es escala en un test adaptativo, Q-46 no tiene respuesta y Q-47 penalizaría a los rápidos. **Lo que sí se puede hoy: calificar el proceso, no el resultado.** · Antes, 2ª pasada: **Q-46 nueva y 🔴**: con varios intentos del mismo estudiante, ¿cuál θ vale? Medido: un estudiante pasó de θ=−3,00 (0 de 8, abandonado) a **+0,60** el mismo día, y otro degradó a −0,85 en un tercer intento de 1,5 minutos. La regla que se elija cambia banda, plan y cupo de personas concretas, y **Δθ no significa nada sin ella** (T-142). **Q-47 nueva**: el filtro de esfuerzo descartó **~14 respuestas correctas por rápidas** (13,5 % de los aciertos) — y rápido-y-correcto es la definición de fluidez de ADR-019: ADR-014 y ADR-019 se pisan y nadie lo decidió. · Antes, 1ª pasada: **Q-43 nueva y 🔴**: ¿la línea principal es PAES o física/electricidad/electrónica? El owner **no es profesor de matemática** —enseña física, mecánica, electricidad y electrónica, y sus cursos de 3º y 4º medio son de electrónica—, el único alumno que paga lo hace a **USD 20/h** por electrotecnia, y §1.1 de [[BUSINESS_CONTEXT]] dice que el churn del 100 % anual es propio de PAES, no de un alumno de carrera técnica. **No se toca ADR-025 hasta responderla.** **Q-44 nueva**: ¿la IA vuelve obsoleto el producto? (planteada por el owner, con media respuesta ya escrita en §3.1 de [[TESIS_DE_CRECIMIENTO]]). **Q-45 nueva**: ¿la marca pública es Jacobo Córdova o Academia Integral? — el dominio, el header y `/profesor` dicen cosas distintas y condiciona todo el copy. · Antes: **2026-08-28** — **X-10 cerrada** (ADR-034 documenta el estimador real; y la consecuencia que se le atribuía al tope de paso resultó falsa al medirla: el culpable era el prior). **Q-42 sigue abierta y empeora**: con azar, la información máxima por ítem cae de 0,25 a ≈0,155. · Antes: **2026-08-23 (segunda pasada)** — **Q-42 nueva** (qué se hace con la parada por precisión, que es inalcanzable con `max_items = 12`) y **X-10 nueva** (ADR-004 describe un estimador y un θ inicial que el código ya no usa). · Antes: **2026-08-23 (cierre)** — **Q-41 respondida**: la ciudad es Iquique, Chile; aplicada en el CV y A-37 validado. · Antes: **2026-08-23** — **Q-41 nueva**: en qué ciudad son las dos entradas nuevas de docencia del CV (Colegio Luis Cruz Martínez y CPech); se escribió «Chile» sin la ciudad para no inventarla (A-37). · Antes: **2026-08-18 (noche)** — **Q-40 medida**: el catálogo es 77 de 77 del
 experimento de cuántica y el producto tiene cero; el panel ya lo declara, pero la decisión sigue
 abierta. · Antes: **2026-08-18** — **Q-40 nueva**: qué hace la pestaña del catálogo con las 77
 entradas `mq/` del experimento de cuántica, que hoy `fetch-misconceptions` devuelve junto con las del
@@ -32,26 +32,56 @@ Estado: 🔴 abierta y bloqueante · 🟠 abierta e importante · 🟡 abierta m
 
 ## Producto y negocio
 
-### 🔴 Q-49 · ¿Quién es la segunda cuenta con rol `admin`? — **abierta 2026-09-13**
+### ✅ Q-49 · ¿Quién es la segunda cuenta con rol `admin`? — **RESPONDIDA 2026-09-13**
 
-El backfill de `067` marcó como `admin_preview` filas de **`bacourosp@gmail.com`** (ids 265 y 319),
-además de las del owner. O sea que `profiles` tiene **al menos dos cuentas con `role = 'admin'`**, y
-la memoria no registra la segunda en ninguna parte — la propia migración `067` llegó a afirmar por
-escrito que «hoy el único admin es el owner».
+**Respuesta del owner:** `bacourosp@gmail.com` es un **compañero de universidad** que acompaña el
+proyecto **desde el comienzo**, hoy en México cursando un máster en computación cuántica. Fue quien
+lo empujó a pagar Claude y quien le enseñó el modelo **Project Memory First** con el que está escrita
+toda esta carpeta. El owner le dijo que **es su socio con el 1 % de la compañía**.
 
-**Por qué es 🔴 y no un asunto de inventario.** `public.is_admin()` es el primitivo de autorización
-de todo el proyecto (CLAUDE.md §7). Una cuenta admin **lee todos los `tests`** —incluidos los de
-menores del establecimiento donde el owner trabaja—, puede editar el banco y puede cambiar roles.
-Con la Ley 21.719 en plena vigencia desde el **2026-12-01** y R-28 encima, saber quién tiene esa
-llave deja de ser opcional.
+**Consecuencia inmediata:** el rol `admin` es **deliberado** y no hay incidente que investigar. La
+frase de la migración `067` —«hoy el único admin es el owner»— queda corregida en
+`supabase/SCHEMA.md`.
 
-**Qué hay que responder:** quién es, si el rol fue deliberado, y si debe conservarlo. Si no debe,
-bajarlo — **cuidando el trigger `profiles_protect_last_admin`**, que impide quedarse sin ninguno.
+**Pero la respuesta abre dos cosas que la memoria no registraba, y valen más que la pregunta
+original:**
 
-**Consulta para responderla:**
-`select id, email, role, created_at from public.profiles where role = 'admin' order by created_at;`
+1. **Hay un segundo stakeholder y no estaba escrito en ninguna parte.** Ver [[BUSINESS_CONTEXT]] §1.2.
+   Matiza [[RISKS]] **R-01** (bus factor = 1): no lo cierra —no escribe código ni contenido— pero hay
+   **una segunda persona que conoce el proyecto** y cuyo aporte metodológico (PMF) está en la base de
+   cómo se trabaja acá.
+2. **Ese 1 % no existe todavía en ningún papel** → **Q-50**.
 
-**Relacionado:** [[RISKS]] R-28, R-14 · `supabase/admin_rls.sql` · [[BACKLOG]] T-11, T-145 · `067`.
+**Pista que conviene verificar, no afirmar:** las filas de esta cuenta son del **2026-07-26** y del
+**2026-09-05**, y el 2026-09-05 es exactamente el día en que se rindieron los diez bancos `mq_*` de
+mecánica cuántica. [[../adr/ADR-018-track-experimental-cuantica]] dice que el destinatario de ese
+track «es el autor, que es admin». **Un máster en computación cuántica es un destinatario bastante
+más probable.** Si es así, el experimento tuvo un usuario externo real y el ADR describe mal a quién
+servía. Se comprueba con una consulta, no razonando:
+`select "email-user", topic, count(*) from public.tests where topic like 'mq\_%' group by 1,2;`
+
+---
+
+### 🟠 Q-50 · ¿Qué es exactamente el 1 % del socio, y dónde está escrito? — **abierta 2026-09-13**
+
+Hoy es **un acuerdo verbal sobre una compañía que no existe**: no hay sociedad constituida
+([[BACKLOG]] T-93 lo menciona como alternativa ante una cláusula de cesión), así que no hay de qué
+tener el 1 %.
+
+**Por qué registrarlo ahora y no cuando haga falta.** Un acuerdo de participación se escribe fácil
+mientras las dos partes están de acuerdo y no hay dinero sobre la mesa; se escribe mal, tarde y con
+costo cuando ya lo hay. Y este proyecto tiene dos momentos previstos en que deja de ser hipotético:
+la primera licencia institucional (G-1) y cualquier postulación a fondos (F16), que **preguntan por
+la estructura societaria en el formulario**.
+
+**Qué hay que definir, y ninguna es obvia:** 1 % ¿de qué —de la sociedad, de los ingresos, de una
+línea?—; si se diluye o no al entrar capital; si hay vesting o es inmediato por lo ya aportado; qué
+pasa si alguno deja de participar; y **en qué país**, dado que el socio está en México y el negocio
+es chileno.
+
+**No urge, pero no se posterga en silencio:** se decide antes del primer contrato o de la primera
+postulación, lo que ocurra primero. **Relacionado:** [[RISKS]] R-01, R-27 · [[BACKLOG]] T-93, T-89 ·
+[[TESIS_DE_CRECIMIENTO]] §4.
 
 ---
 
