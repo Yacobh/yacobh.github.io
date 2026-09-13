@@ -75,18 +75,36 @@
     (is (= 22.0 (intento/segundos correcta)))))
 
 (def ^:private preguntas
-  ;; La forma cruda que `[:test :questions]` guarda: las columnas de `questions`.
+  ;; ⚠️ LA FORMA REAL, copiada de `events/test.cljs/normalize-question`: la
+  ;; pregunta se **normaliza antes** de guardarse en `[:test :questions]`, así
+  ;; que en `tests.test` NO hay `option_a`. La primera versión de este fixture
+  ;; usaba las columnas planas —escritas de memoria, no leídas del código— y por
+  ;; eso el test pasaba mientras la pantalla mostraba «(sin texto guardado)» en
+  ;; todas las filas.
+  [{:id "101" :question "Suma 1/2 + 1/3"
+    :options [{:value "A" :label "$\\frac{5}{6}$"} {:value "B" :label "$\\frac{2}{5}$"}
+              {:value "C" :label "$\\frac{1}{5}$"} {:value "D" :label "$\\frac{3}{5}$"}]}
+   {:id "102" :question "Resuelve 3x-5>7"
+    :options [{:value "A" :label "$x>2$"} {:value "B" :label "$x>1$"}
+              {:value "C" :label "$x<4$"} {:value "D" :label "$x>4$"}]}])
+
+(def ^:private preguntas-crudas
+  ;; El respaldo: una fila que se hubiera guardado sin normalizar.
   [{:id "101" :option_a "$\\frac{5}{6}$" :option_b "$\\frac{2}{5}$"
-    :option_c "$\\frac{1}{5}$" :option_d "$\\frac{3}{5}$"}
-   {:id "102" :option_a "$x>2$" :option_b "$x>1$"
-    :option_c "$x<4$" :option_d "$x>4$"}])
+    :option_c "$\\frac{1}{5}$" :option_d "$\\frac{3}{5}$"}])
 
 (deftest alternativas-por-id-reduce-a-las-cuatro-letras
   (let [m (intento/alternativas-por-id preguntas)]
     (is (= #{"101" "102"} (set (keys m))))
     (is (= "$\\frac{2}{5}$" (get-in m ["101" "B"])))
     (testing "una pregunta sin id no entra en vez de entrar con clave nil"
-      (is (= {} (intento/alternativas-por-id [{:option_a "x"}]))))))
+      (is (= {} (intento/alternativas-por-id
+                 [{:options [{:value "A" :label "x"}]}]))))
+    (testing "y una sin alternativas tampoco"
+      (is (= {} (intento/alternativas-por-id [{:id "9"}]))))
+    (testing "la forma cruda sigue funcionando como respaldo"
+      (is (= "$\\frac{5}{6}$"
+             (get-in (intento/alternativas-por-id preguntas-crudas) ["101" "A"]))))))
 
 (deftest filas-trae-el-texto-de-la-alternativa-no-solo-la-letra
   (let [m (intento/alternativas-por-id preguntas)

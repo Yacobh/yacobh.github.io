@@ -120,12 +120,22 @@
   "`{id-de-pregunta {\"A\" texto, \"B\" texto, ...}}` a partir de las preguntas
    que el test guardó en `:questions`.
 
+   ⚠️ **La pregunta se guarda normalizada, no cruda.** `events/test.cljs:251`
+   aplica `normalize-question` **antes** de meterla en `[:test :questions]`, así
+   que en `tests.test` **no existen** `option_a`…`option_d`: existe
+   `:options [{:value \"A\" :label \"…\"} …]`. Escribir esta función contra las
+   columnas planas es exactamente el error que la dejó devolviendo nada para
+   todos los ítems la primera vez.
+
+   Se acepta igual la forma plana como respaldo, por si alguna fila vieja se
+   guardó sin normalizar; cuesta cuatro líneas y evita una pantalla vacía.
+
    **Por qué la letra alcanza para cruzar, aunque las alternativas se barajen.**
    ADR-030 baraja el orden de presentación **en el cliente**, y esa permutación
    no se persiste; pero `selected-option` y `correct-option` se guardan en la
    **letra canónica** —la de la columna `option_a`…`option_d`— porque
    `score_answer` corrige contra la base. Así que la letra de la respuesta y la
-   letra de la columna son la misma, y el cruce es directo.
+   del mapa son la misma.
 
    Se reduce acá, al cargar, y no se guarda la pregunta entera: de un ítem solo
    interesan las cuatro alternativas, y quedarse con el resto multiplicaría por
@@ -134,10 +144,22 @@
   (into {}
         (keep (fn [q]
                 (when-let [id (:id q)]
-                  [id {"A" (:option_a q)
-                       "B" (:option_b q)
-                       "C" (:option_c q)
-                       "D" (:option_d q)}]))
+                  (let [desde-options
+                        (into {} (keep (fn [o]
+                                         (when-let [v (some-> (:value o) str str/upper-case
+                                                              not-empty)]
+                                           [v (:label o)]))
+                                       (:options q)))
+                        alternativas (if (seq desde-options)
+                                       desde-options
+                                       ;; Respaldo: fila guardada sin normalizar.
+                                       (into {} (keep (fn [[letra k]]
+                                                        (when-let [t (get q k)]
+                                                          [letra t]))
+                                                      [["A" :option_a] ["B" :option_b]
+                                                       ["C" :option_c] ["D" :option_d]])))]
+                    (when (seq alternativas)
+                      [id alternativas]))))
               (or questions []))))
 
 (defn- texto-de
