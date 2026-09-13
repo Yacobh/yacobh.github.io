@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-09-09** (**track de electrotecnia**: `062`…`066` escritas y verificadas contra un PostgreSQL desechable, sin aplicar todavía — **T-127 cerrada** — aplicadas y batería corrida, los nueve controles coinciden; **T-128** revisar sus 116 ítems y 24 recursos, **T-129** visibilidad de `test_configs` por usuario, que es lo que cerraría R-42 y es precondición de G-1. D-66 / ADR-035). Antes: **2026-08-28** (7ª pasada: **el owner ya había aplicado `049`…`056`**, `055`/`056` en su versión original. **T-125 y T-126 cerradas**: los cuatro bancos no tenían fila en `test_configs` —414 ítems inalcanzables, medido— y `059` las crea. `055`…`059` **aplicadas y verificadas** el mismo día; no quedan migraciones pendientes (`next_question` nunca miró `questions.active`, así que retirar un ítem no lo retiraba). Antes, 6ª pasada: el eje de **probabilidad y estadística** existe — `055` crea sus seis módulos (**T-119 cerrada**) y `056` trae 102 ítems con 45 ideas erróneas nuevas. **T-124 nueva**: revisar esos 102 ítems. El owner respondió en la misma sesión las dos preguntas de contenido: la convención de cuartiles del DEMRE, y que **varianza y desviación estándar no entran en M1** — salieron 12 ítems y el módulo 340 pasó a ser `conteo`. ⚠️ `055` va **después** de `051` y `053`: crear módulos corre las bandas derivadas de los demás. Antes, 5ª pasada: el eje de **geometría** escrito — `053` bandas y `054` con 100 ítems y 33 ideas erróneas nuevas, el primer eje **sin banco previo**. **T-123 nueva**: revisar esos 100 ítems. Antes, 4ª pasada: **`049` y `050` aplicadas** por el owner, y el eje de **álgebra** escrito — `051` bandas y `052` con 100 ítems. **T-121 y T-122 nuevas**: revisar esos 100 ítems, y retirar de circulación el banco `polinomios` viejo y los once fragmentos del eje. Antes, 3ª pasada: **T-118 aprobada y escrita** en `049`, y **T-120 nueva**: revisar a mano los 100 ítems del eje de números que trae `050`, que es lo único que ningún script puede verificar. Antes, 2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
+Última actualización: **2026-09-13** (**épica E9 nueva**, SESSION-042: el owner no puede ver los resultados de su curso, y son **dos problemas** — *dónde se equivocaron* ya está en `tests.test` y solo falta pantalla (**T-132**, **T-133**); *cuáles no lo hicieron* **no se captura**, porque un test abandonado no deja ninguna fila (**T-134**, con ADR). **T-130 escrita y verificada** contra un PostgreSQL desechable: el mapa de errores por SQL, cero despliegues. **T-90 pasa a `a medias`** — se aplicó a un 4º medio real y falta la observación (**T-131**). Además **T-135** cerrar `061` antes de imprimir las tarjetas QR, **T-137**…**T-140** el producto deja de presentarse como si solo existiera la PAES, y **D-67**: la meta es CLP 48M/año, no USD 1M, lo que baja F16. Nueve cambios de prioridad al final de este archivo). Antes: **2026-09-09** (**track de electrotecnia**: `062`…`066` escritas y verificadas contra un PostgreSQL desechable, sin aplicar todavía — **T-127 cerrada** — aplicadas y batería corrida, los nueve controles coinciden; **T-128** revisar sus 116 ítems y 24 recursos, **T-129** visibilidad de `test_configs` por usuario, que es lo que cerraría R-42 y es precondición de G-1. D-66 / ADR-035). Antes: **2026-08-28** (7ª pasada: **el owner ya había aplicado `049`…`056`**, `055`/`056` en su versión original. **T-125 y T-126 cerradas**: los cuatro bancos no tenían fila en `test_configs` —414 ítems inalcanzables, medido— y `059` las crea. `055`…`059` **aplicadas y verificadas** el mismo día; no quedan migraciones pendientes (`next_question` nunca miró `questions.active`, así que retirar un ítem no lo retiraba). Antes, 6ª pasada: el eje de **probabilidad y estadística** existe — `055` crea sus seis módulos (**T-119 cerrada**) y `056` trae 102 ítems con 45 ideas erróneas nuevas. **T-124 nueva**: revisar esos 102 ítems. El owner respondió en la misma sesión las dos preguntas de contenido: la convención de cuartiles del DEMRE, y que **varianza y desviación estándar no entran en M1** — salieron 12 ítems y el módulo 340 pasó a ser `conteo`. ⚠️ `055` va **después** de `051` y `053`: crear módulos corre las bandas derivadas de los demás. Antes, 5ª pasada: el eje de **geometría** escrito — `053` bandas y `054` con 100 ítems y 33 ideas erróneas nuevas, el primer eje **sin banco previo**. **T-123 nueva**: revisar esos 100 ítems. Antes, 4ª pasada: **`049` y `050` aplicadas** por el owner, y el eje de **álgebra** escrito — `051` bandas y `052` con 100 ítems. **T-121 y T-122 nuevas**: revisar esos 100 ítems, y retirar de circulación el banco `polinomios` viejo y los once fragmentos del eje. Antes, 3ª pasada: **T-118 aprobada y escrita** en `049`, y **T-120 nueva**: revisar a mano los 100 ítems del eje de números que trae `050`, que es lo único que ningún script puede verificar. Antes, 2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
 verificado en producción, con D-21 respetado en las dos rutas — **ADR-028 / D-56**. Abre **T-95**
 (persistir el consentimiento) y **R-33** (la pantalla de Google nombra a `supabase.co`)). Antes: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
 G-1…G-5, tareas T-76…T-89), abierta por
@@ -3442,7 +3442,7 @@ Pantalla del PROFESOR, proyectada y en vivo:  el mapa de errores del curso
 - **Ojo con L-37:** rediseñar el funnel **no** es rehacer los cupos. Los cupos están construidos,
   funcionan y no molestan; el punto es qué se construye **después**, no qué se borra.
 
-### T-92 · Conectar el login con Google (existe pero nadie lo llama) — **P1** · `hecho` (2026-08-17, commits `a7312ee` + `1fd5e4c`; **falta un login real de punta a punta**, ver abajo)
+### T-92 · Conectar el login con Google (existe pero nadie lo llama) — **P1** · ✅ `CERRADA` (2026-08-17, commits `a7312ee` + `1fd5e4c`; **login real de punta a punta confirmado por el owner el 2026-09-13**)
 
 `sign-in-with-google` está definida en `src/universo/supabase.cljs:21` desde F0 y **ningún botón la
 invoca**. Conectarla es de horas, no de días, y **cuesta $0** en las tres capas.
@@ -3555,6 +3555,250 @@ de negocio, no técnica.
 > **El texto del contrato no está en el repositorio y no debe agregarse:** contiene datos personales
 > del owner y de terceros, y el repo es público (mismo criterio que R-26). Si hace falta, pedírselo
 > al owner.
+
+---
+
+## Épica E9 — Ver lo que ya pasó (SESSION-042, 2026-09-13)
+
+> **Abierta el 2026-09-13.** Es la consecuencia de una pregunta del owner que resultó tener respuesta
+> técnica: *"solo veo los completados, no sé cuáles intentos no hicieron ni dónde se equivocaron"*.
+>
+> **El hallazgo que ordena la épica:** son **dos problemas distintos**. *"Dónde se equivocaron"* ya
+> está en la base —`tests.test` guarda por ítem la alternativa elegida y el texto de la idea errónea
+> del distractor— y solo falta la pantalla. *"Cuáles no lo hicieron"* **no se captura**: un test
+> abandonado no deja ninguna fila. Lo primero es barato, lo segundo necesita migración.
+>
+> **Orden:** T-130 (SQL, cero despliegues) → T-131 (cerrar T-90) → T-110 → T-132/T-133 → T-134.
+
+### T-130 · Consulta del mapa de errores de un curso — **P0** · ✅ `CERRADA` (2026-09-13)
+
+`supabase/queries/T-130_mapa_de_errores_de_un_curso.sql`, de **solo lectura**, siguiendo el patrón de
+`T-59_calibracion_tiempos.sql`. Seis bloques sobre `jsonb_array_elements(test->'responses')`: los
+tests del grupo · **el ranking de ideas erróneas del curso** (el entregable) · los ítems más fallados
+· el déficit por módulo · los escapes de ADR-029 · la distribución de θ.
+
+- **Dos guardas escritas en el archivo, no recordadas:** excluir `mq\_%` y `electrotecnia%`, y
+  excluir las corridas del owner por `user_id` (R-37, mientras T-110 no exista).
+- **Estado:** verificada contra un **PostgreSQL 14 desechable** con fixture a mano — corre completa
+  con `ON_ERROR_STOP=1`, las corridas del owner quedan fuera, el escape no se cuenta como idea
+  errónea, la respuesta de peso 0 se desestima (ADR-014) y las cinco categorías del control suman el
+  total. **Los números del curso real no están corridos todavía.**
+- ✅ **Corrida el 2026-09-13** sobre la sesión del **2026-09-10**: 17 intentos, 12 estudiantes,
+  195 respuestas, motor v2 en las diecisiete filas. Resultado completo y sus diez hallazgos en
+  `sessions/SESSION-042.md`. **Titular: 7 de 12 (58 %) suman numeradores y denominadores.**
+- **Vector:** G-1, G-5; alimenta G-2. **Es el primer paso de T-82.**
+
+### T-131 · Cerrar T-90 con la observación que falta — **P0** · `abierto` · *no es código*
+
+T-90 se ejecutó **a medias**: el owner aplicó el eje de números a su 4º medio presencial, pero la
+mitad de observación no ocurrió porque el panel no sabe mostrar el mapa. Volver al curso —o a la
+profesora de matemática que ofreció el suyo— con el mapa de T-130 proyectado o impreso.
+
+- **Terminado cuando:** las tres observaciones de T-90 están escritas (cuántos de N terminaron, qué
+  cara pone el profesor, qué preguntan los estudiantes) y **R-31 queda confirmado o refutado**.
+- **Guarda heredada (R-32):** que la dirección o UTP del liceo lo sepa, aunque sea informal.
+- **Bloqueante previo:** **T-93 sigue a medias** — el contrato del liceo no se ha leído.
+
+### T-132 · Vista de detalle de un diagnóstico en el panel — **P0** · `abierto`
+
+Hoy la tabla de "Diagnósticos" (`components/admin.cljs:425-478`) tiene **seis columnas** y las filas
+**no son clickeables**. Hacerlas clickeables y mostrar el intento completo: ítems en orden,
+alternativa elegida vs. correcta, `selected-error`, `time-ms`, si fue escape, si el peso lo descartó;
+y arriba θ con su SE, `theta-history`, `stop-reason` y `engine_version`.
+
+- **Reutilizar, no reescribir:** `profile/deficits-from-responses` y `profile/misconceptions-from`
+  (`src/universo/profile.cljs:73,97`), `effort/discarded-count` (`irt/effort.cljs:117`),
+  `dash/procesar-test-resumen` (`events/dashboard.cljs:65-83`, que **ya calcula** `duracion-min` y
+  `promedio-seg-pregunta` y el admin no pinta) y `irt-chart/irt-progress-chart`.
+- **Ampliar el `select`** de `crud/fetch-admin-tests` (`db/crud.cljs:948`): hoy no trae `topic`,
+  `theta` ni `engine_version`, pese a que ADR-034 dice que θ de versiones distintas no se comparan.
+- **Guarda R-07:** módulo propio (`components/admin_test_detail.cljs`), no más líneas en `admin.cljs`.
+- **Terminado cuando:** desde el panel se puede reconstruir un intento completo sin abrir el SQL
+  Editor.
+
+### T-133 · Agregado del mapa de errores por conjunto de estudiantes — **P0** · `abierto`
+
+La versión en pantalla de T-130: elegido un `topic` y una ventana de fechas (o una lista de correos),
+el ranking de misconceptions, los ítems más fallados y el déficit por módulo.
+
+- **Primer paso real de T-82 sin inventar el modelo de curso:** se agrupa por filtro, no por una
+  tabla `courses` que no existe. El modelo llega con T-79/T-81.
+- **Lógica pura y testeable** en namespace propio (ADR-009), con test en `test/`.
+- **Terminado cuando:** reproduce en pantalla lo que T-130 da por SQL, y hay test de la agregación.
+- **Vector:** G-1. *"Si esta pantalla no impresiona, no hay venta"* (T-82).
+
+### T-134 · Que un diagnóstico abandonado deje rastro — **P0** · `abierto` · **requiere ADR-036**
+
+Hoy el abandono es **invisible**: el único `insert` es `:save-test`, disparado solo desde
+`:test/complete` (`events/test.cljs:668-724`). Un estudiante que responde 8 ítems y cierra la pestaña
+no deja **nada**. Eso impide responder *"cuáles no lo hicieron"* y **sesga la calibración**: los
+ítems que hacen abandonar desaparecen de la muestra.
+
+- **Requiere ADR** porque responde a un contrato que el código declara por escrito
+  (`events/test.cljs:760-764`: *"es seguro porque nada se persiste por ítem… si algún día se guarda
+  respuesta por respuesta, este evento deja de ser solo estado local y necesita su propia
+  migración"*).
+- **Dos opciones a evaluar, no decididas:** (a) fila al **iniciar** con `status`, actualizada al
+  completar — revisar su efecto sobre `:test/reintentar-ultimo` (ADR-032), reversible hoy justo
+  porque nada se persiste; (b) autosave periódico del JSON parcial.
+- **Terminado cuando:** un test abandonado deja fila consultable con θ parcial y respuestas, las
+  policies RLS cubren el estado nuevo, y está en `supabase/SCHEMA.md`.
+- **Vector:** G-2, G-5. **Cierra** el vacío que ADR-029 declara (`irt/escape.cljs:9-10`).
+
+### T-135 · Terminar y desplegar la atribución de campaña (`061`) — **P1** · `abierto`
+
+`061_visitor_fuente.sql` está escrita y razonada (etiqueta `?de=tarjeta` acotada por check) pero
+**sin commitear, sin aplicar**, y `crud/track-visitor` (`db/crud.cljs:49-66`) sigue llamando al RPC
+de 4 argumentos. **Verificado: cero menciones de `fuente` en `src/` y en `public/js/app.js`.**
+
+- **Ventana abierta:** las 100 tarjetas QR y el afiche **todavía no se imprimen**. Si salen antes de
+  esto, cada escaneo es inatribuible y el gasto vuelve a ser fe — que es exactamente lo que la
+  migración se escribió para evitar.
+- **Orden de despliegue (R-39), declarado en la propia migración:** migración primero, bundle
+  después. Por eso el RPC nuevo es **sobrecarga de 5 argumentos** y la de 4 queda intacta.
+- **Límite que hay que decir antes de leer los números:** el tracker inserta solo la **primera**
+  visita de un navegador ⇒ `fuente` responde *"de dónde llegó quien nunca había entrado"*.
+- **Terminado cuando:** `/?de=tarjeta` deja `visitor.fuente = 'tarjeta'` verificado en la base, **y
+  recién entonces se manda a imprimir**.
+- **Vector:** G-5. Es la primera métrica de canal real del proyecto.
+
+### T-136 · Limpiar los dos pendientes sucios del árbol — **P2** · `abierto`
+
+`029_topic_normalization.sql` tiene una edición sin commitear que **descomenta una consulta de
+verificación** (9 líneas): reaplicarla ejecutaría un `select` suelto en vez de dejarlo comentado.
+Decidir si se revierte o se commitea comentada. `061` sale de este estado al cerrar T-135.
+
+### T-137 · Señalizar el track de electrotecnia en el producto — **P1** · `abierto`
+
+**Verificado: cero menciones de "electrotecnia" en `src/`, `index.html` y `404.html`.** El track
+existe **solo como datos** —que es lo que ADR-035 celebra— y también por eso nada orienta al alumno.
+Un alumno real no encontró cómo llegar a las evaluaciones.
+
+- *(Nota: los 24 recursos **sí están publicados y revisados en vivo** por el owner, contra lo que
+  dice la migración `066` (`published = false`, con el `update` de publicación escrito como
+  comentario en L777). Falta señalización, no contenido. Ver L-59.)*
+- **Terminado cuando:** un alumno de electrotecnia que entra por primera vez sabe qué rendir sin que
+  se lo expliquen.
+
+### T-138 · El selector dice qué es cada banco y los agrupa — **P1** · `abierto`
+
+`selection-component` (`components/diagnostic_test.cljs:28-78`) es una **lista plana** de
+`display_name`: sin agrupar, sin descripción, sin duración, sin conteo de ítems.
+
+- Agrupar por track y decir, por banco: duración estimada, nº de ítems, y si es puerta de entrada o
+  profundización — `prerequisite_topic` ya lo sabe (`059:78-92`, `065:141-145`).
+- **Decisión a tomar:** agrupar por el prefijo del `display_name` (convención ya usada por `065`,
+  cero esquema) o agregar `test_configs.track` (más limpio, migración). **Recomendado: prefijo.**
+- **Dependencia de UX: T-122 sube a P1.** Retirar los bancos viejos duplicados es lo que más ruido
+  quita del selector, y ADR-035 ya lo anotó al aceptar publicar electrotecnia.
+
+### T-139 · Ayudas visuales y simulación — **P1** · `abierto` · **requiere ADR-037**
+
+**Hoy no hay ninguna imagen posible en ninguna capa:** `resources.type` es un `check` cerrado
+(`001:92`) sin `image_url`; el parser (`math_render.cljs:80-137`) no reconoce `![alt](url)`; y **no
+existe una sola etiqueta `[:img` en todo `src/universo/`**. KaTeX renderiza notación pero **no
+incluye TikZ/pgfplots**: no hay atajo por LaTeX para dibujar un circuito.
+
+El owner planteó además ir más lejos que la imagen: **simulaciones**. Tres escalones con costos
+separados por órdenes de magnitud:
+
+| | Escalón | Costo | Qué habilita |
+|---|---|---|---|
+| **0** | **Enlazar** simulación externa (PhET u otra) en `media_url` | **cero código** | `resource-card` (`plan.cljs:49-52`) ya pinta `media_url` como "Abrir recurso →". Funciona **hoy** |
+| **1** | Imagen propia (`image_url` + parser + `[:img` + hospedaje) | migración + parser + render | Diagramas, circuitos, gráficas |
+| **2** | Simulación **embebida** e interactiva | alto, decisión de arquitectura | Manipular parámetros dentro del producto |
+
+- **Recomendación para el ADR: empezar por el escalón 0 y medir si se usa.** No hay `iframe` ni CSP
+  propia en el repo, así que el 2 es posible, pero mete una dependencia externa dentro del producto
+  y eso se decide, no se asume.
+- **Escalón 1:** empezar por los recursos (capa 1), **no** por `error_*` (capa 0), que es `text`
+  libre editado desde dos editores (`components/campos.cljs`). `alt` obligatorio y `audit_paleta.py`
+  en verde (ADR-033).
+- **Tensión que el ADR tiene que nombrar, no esquivar:** [[TESIS_DE_CRECIMIENTO]] §3.1 dice que
+  *explicar* es la mitad comoditizada —compite con un LLM gratis y mejor— y que la defendible es
+  **medir**. Una simulación es explicación. A favor: una simulación **manipulable** es justo lo que
+  un LLM en texto no entrega, y en física y electrónica el valor es alto. En contra: es R-30.
+- **Relacionado:** T-62 toca el mismo parser; conviene resolverlos juntos.
+
+### T-140 · Catálogo público de evaluaciones — **P2** · `abierto`
+
+Una ruta **pública** que liste los bancos con su descripción, sin cuenta. Hoy `/diagnostico` es
+sección protegida (`events/auth.cljs:10`) y el selector vive solo ahí: **nadie puede saber que existe
+más de un temario sin registrarse**.
+
+- **No es T-91 y no la reemplaza.** T-91 es el funnel de aula con entrada sin cuenta y espera a T-90.
+- **Hallazgo que va a la ficha de T-91, no acá:** el corte más caro del embudo es la **confirmación
+  por correo** (`components/login.cljs:149-153`), que expulsa al usuario del sitio entre el registro
+  y la primera pregunta.
+- Revisar de paso `plan.cljs:210` ("recursos **Baldor** por módulo"), copy de álgebra escolar que hoy
+  ve también el alumno de electrotecnia.
+- **Vector:** G-5. **Relacionado:** Q-45 (marca y dominio).
+
+### T-141 · El diagnóstico no dura 20 minutos: corregir el copy — **P1** · `abierto`
+
+**Medido el 2026-09-13 sobre 17 intentos reales:** mediana **5,8 min**, media 7,5, rango 1,5–16,5, y
+**10 de 17 por debajo de 10 minutos**. El copy publicado promete ~20.
+
+- **No es solo una cifra equivocada: refuta una premisa de planificación.** La ficha de **T-91** se
+  apoya en que *"20 min consumen la hora completa y no dejan espacio para usar el resultado"*.
+  **Falso**: el test ya cabe con holgura en una hora de clase, con tiempo de sobra para proyectar el
+  mapa de errores. **Acortar el test sale del alcance de T-91.**
+- **Dónde vive el copy:** re-verificar con `grep` cada vez (L-22), no confiar en una lista.
+- **Terminado cuando:** el número publicado corresponde a la mediana medida y T-91 tiene la premisa
+  corregida en su ficha.
+
+### T-142 · Decidir qué θ vale cuando hay varios intentos — **P0** · `abierto` · **Q-46**
+
+**Medido:** 5 de 12 estudiantes rindieron más de una vez el mismo día, y los intentos **no son
+equivalentes**. Un caso pasó de **0 aciertos de 8 (abandonado, θ = −3,00)** a **7 de 12 (θ = +0,60)**;
+otro hizo un tercer intento de **7 ítems en 1,5 minutos con 4 de 7 desestimadas por esfuerzo**, que
+dio θ = −0,85 contra los +0,80 y +0,67 de sus dos intentos serios.
+
+- **Con el primer intento se habría clasificado al primer estudiante como el más débil del curso.
+  Está sobre la mediana.** Con el tercer intento del segundo se habría bajado a alguien que no bajó.
+- **Bloquea a G-2 y a G-4:** la calibración no puede tragar intentos-ruido, y Δθ no significa nada si
+  no está definido entre qué dos números se calcula.
+- **Criterios candidatos, a decidir en el ADR:** último / mejor / primero completo / el de mayor
+  fracción de respuestas con esfuerzo válido. **No se decide de memoria.**
+- **Terminado cuando:** la regla está escrita, implementada en lógica pura con test, y aplicada tanto
+  en el tablero del estudiante como en la calibración.
+
+### T-143 · Los bancos viejos se llevaron la mitad de la hora de clase — **P1** · `abierto`
+
+**Medido el 2026-09-10:** de **40 tests en siete bancos**, `diagnostico` (10), `ecuaciones_simples`
+(5) y `polinomios` (1) —los bancos viejos duplicados que **T-122** quiere retirar— se llevaron
+**16 de 40**. Es tiempo de clase gastado en bancos que la memoria da por muertos, y que además no
+produce dato calibrable del banco bueno.
+
+- **Convierte T-122 de higiene en pérdida medida**, y confirma **T-138** (el selector no dice qué es
+  cada cosa) con datos en vez de con argumento.
+- ✅ **Aclarado por el owner (2026-09-13): R-42 NO se materializó.** Las 4 personas de
+  `electrotecnia` son **sus alumnos de electrónica**, y además **entró un colega profesor**. Ningún
+  estudiante de PAES se fue al track ajeno.
+- ⚠️ **Matiz que el owner aportó y que cambia el diagnóstico de esta tarea:** *"durante la clase les
+  dije que podían hacer otros"*. O sea que el paseo por varios bancos fue **instruido**, no deriva
+  del selector. **La tarea no se cae, se afina:** lo que sigue siendo defecto es **adónde** fueron —
+  `diagnostico` (10), `ecuaciones_simples` (5) y `polinomios` (1), los duplicados muertos— mientras
+  `geometria` y `algebra`, que son los bancos **buenos** y nuevos, recibieron **un test cada uno**.
+  El selector no perdió su tiempo: **los mandó al lugar equivocado**, que es exactamente T-138.
+
+---
+
+## Cambios de prioridad decididos el 2026-09-13 (SESSION-042)
+
+| Tarea | Antes | Ahora | Por qué |
+|---|---|---|---|
+| **T-110** | P0 en cola | **P0, bloquea T-130 y G-2** | Sin ella el mapa mezcla las corridas de depuración del owner (R-37) |
+| **T-122** | P2 higiene | **P1, pérdida medida** | 16 de 40 tests del 2026-09-10 cayeron en bancos viejos duplicados (T-143) |
+| **T-128** | P1 (116 ítems + 24 recursos) | **P1, solo los 116 ítems** | Los recursos ya se revisaron en vivo con el alumno |
+| **T-82** | P0 abstracta | reencuadrada | Se parte en T-130 (SQL) + T-133 (pantalla), sin modelo de curso |
+| **T-90** | P0 `abierto` | **`a medias`**, cierra con T-131 | La mitad de datos ya ocurrió el 2026-09 |
+| **T-93** | `hecho a medias` | **P0, falta la mitad del liceo** | Bloquea hablar con la dirección |
+| **T-91** | P0 | **premisa refutada** | El test dura 5,8 min de mediana, no 20: acortarlo sale de su alcance (T-141). Se le anota además el corte de confirmación por correo |
+| **T-111** | P1 | **confirmada con datos reales** | 15 de 17 pararon por `max-items`, 2 por abandono, **0 por precisión** |
+| **T-134** | P0 | **afinada** | El abandono por botón **sí** deja fila (`parada = null`, 2 de 17); lo invisible es solo cerrar la pestaña |
+| **T-129** | P2 "no antes de un segundo destinatario" | **reevaluar** | Ya hay dos destinatarios y una queja de UX real |
+| **F16 (capital)** | fase activa | **baja urgencia** | D-67: 20 colegios no necesitan fondo externo |
 
 ---
 

@@ -1,6 +1,6 @@
 # ROADMAP
 
-Última actualización: **2026-08-16** — **el roadmap cambia de naturaleza**. Las fases F0–F11
+Última actualización: **2026-09-13** (SESSION-042) — **F16 (capital) baja de urgencia** por **D-67**: la meta es CLP 48M/año y no USD 1M, o sea **~20 colegios y no ~380**, que no necesitan capital externo ni socios. **F12 gana dos precondiciones nuevas**: T-110 (separar las corridas de admin) y T-134 (que el abandono deje rastro) — sin ellas la muestra de calibración está sesgada por los dos extremos. Y nace la **épica E9**, que es el trabajo previo a F13: el mapa de errores por curso existe en la base y el panel no lo muestra. · Antes: **2026-08-16** — **el roadmap cambia de naturaleza**. Las fases F0–F11
 respondían a "MVP actual → en uso"; ese trabajo está esencialmente hecho y **el proyecto no está
 detenido por código**. Con el pivote de negocio del 2026-08-16
 ([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]], [[TESIS_DE_CRECIMIENTO]]) se abren las
@@ -57,7 +57,7 @@ bloqueante justo antes del primer contrato institucional.
 |-----------|--------|
 | SPA ClojureScript + re-frame desplegada en GitHub Pages con dominio propio | ✅ |
 | Supabase Auth (email/password) con rehidratación de sesión | ✅ |
-| Google OAuth (`sign-in-with-google` en `universo.supabase`) | ⛔ definida pero sin botón en la UI |
+| Google OAuth (`sign-in-with-google` en `universo.supabase`) | ✅ **listo y verificado de punta a punta** (T-92 / ADR-028 / D-56; confirmado por el owner el 2026-09-13). El botón respeta la declaración de edad de D-21 en las dos rutas. Pendientes menores que **no** bloquean: T-95 (persistir el consentimiento) y R-33 (la pantalla de Google nombra a `supabase.co`) |
 | `profiles` + `is_admin()` + RLS base (`admin_rls.sql`) | ✅ |
 | Secciones protegidas y redirección post-login | ✅ |
 
@@ -331,6 +331,23 @@ motor.
 | Evaluación de salto a **2PL** (discriminación por ítem) | Solo cuando el volumen lo permita |
 | **Reporte técnico de calibración publicable**, con metodología y limitaciones declaradas | Es el entregable de venta y de due diligence |
 
+> ### ⚠️ Dos precondiciones agregadas el 2026-09-13 (SESSION-042)
+>
+> La muestra con la que se va a calibrar está sesgada **por los dos extremos**, y ninguno de los dos
+> se arregla calibrando mejor:
+>
+> - **T-110 — por arriba:** desde ADR-032, depurar un ítem significa rendirlo. Cada corrida del owner
+>   deja una fila indistinguible de la de un estudiante, **concentrada justo en los ítems más
+>   depurados** ([[RISKS]] R-37).
+> - **T-134 — por abajo:** un test abandonado **no deja ninguna fila**, así que los ítems que hacen
+>   abandonar desaparecen de la muestra. Se calibraría solo con quienes llegaron al final.
+>
+> ⚠️ **Y un problema de denominador que conviene mirar antes de seguir escribiendo ítems:** el banco
+> pasó de 387 a **530 ítems** (414 del producto + 116 de electrotecnia) mientras los diagnósticos
+> siguen en **252**. Del orden de **~12 respuestas por ítem**, uno o dos órdenes de magnitud por
+> debajo de lo que 1PL necesita. **Cada ítem nuevo diluye la N en vez de acercarla:** escribir ítems
+> y calibrar el banco no son la misma tarea, y hoy compiten por el mismo tiempo.
+
 **Hito H13:** existe un documento que un jefe de UTP o un evaluador técnico puede leer y que
 sostiene la afirmación "esto mide de verdad". **Cierra [[RISKS]] R-17** y responde Q-05.
 **Riesgo de la fase:** que la calibración muestre que el banco no discrimina (ADR-025 §Seguimiento).
@@ -389,9 +406,25 @@ Construir capacidad antes de que el mercado responda es inventar oferta.
 
 ---
 
-## F16 — Capital (transversal)
+## F16 — Capital (transversal) — 🔻 **BAJA DE URGENCIA el 2026-09-13 (D-67)**
 
-**Objetivo:** financiar F12–F15 sin que dependan de las horas libres de una persona.
+> **La meta de ingreso pasó de USD 1M a CLP 48.000.000/año** — el millón era un marcador. A CLP 2,4M
+> por colegio eso son **~20 colegios, no ~380**, y **veinte colegios no necesitan capital externo**:
+> ni CORFO, ni semilla, ni contratación, ni socios.
+>
+> **F16 deja de ser precondición de nada.** Se conserva como opción —si aparece una ventana buena, se
+> evalúa— pero **ninguna otra fase espera por ella**, y ninguna postulación se prepara antes de que
+> T-80 valide los supuestos A-31…A-35.
+>
+> **Lo que no cambia:** el techo de las clases por hora (≈ USD 16.000/año) sigue **por debajo** de la
+> meta real, así que el argumento de ADR-025 —desacoplar el ingreso de las horas del fundador— sigue
+> en pie. F12 (calibrar) y el track de distribución **no bajan de prioridad**; lo que baja es buscar
+> plata para financiarlos.
+>
+> **Precondición que sigue viva de esta fase:** **T-80** (validar precio y tamaño con compradores
+> reales) pasa de "insumo para postular" a **insumo para saber si son 20 colegios o 40**.
+
+**Objetivo (si se retoma):** financiar F12–F15 sin que dependan de las horas libres de una persona.
 
 | Entregable | Nota |
 |-----------|------|
