@@ -118,11 +118,26 @@
     (is (nil? (:seg-por-item r)))
     (is (not (:theta-censurado? r)))))
 
+(deftest puntos-del-grafico-numera-para-el-eje-horizontal
+  (testing "sin :n, x-scale hace (dec nil) → NaN y el SVG apila todo sobre el eje"
+    (let [ps (intento/puntos-del-grafico {:responses [correcta incorrecta]
+                                          :theta-history [0.1 -0.3]})]
+      (is (= [1 2] (mapv :n ps)))
+      (is (= [{:n 1 :theta 0.1 :difficulty -0.4}
+              {:n 2 :theta -0.3 :difficulty 0.2}] ps)))))
+
 (deftest puntos-del-grafico-tolera-largos-distintos
   (testing "se dibuja lo que hay; un test viejo o guardado a medias no revienta"
-    (is (= [{:theta 0.1 :difficulty -0.4}]
+    (is (= [{:n 1 :theta 0.1 :difficulty -0.4}]
            (intento/puntos-del-grafico {:responses [correcta incorrecta]
                                         :theta-history [0.1]})))
     (is (= [] (intento/puntos-del-grafico {:responses [correcta]
                                            :theta-history nil})))
     (is (= [] (intento/puntos-del-grafico {})))))
+
+(deftest razon-de-parada-normaliza-lo-que-vuelve-de-supabase
+  (testing "clj->js serializa el keyword a string y keywordize-keys no lo revierte"
+    (is (= :max-items (intento/razon-de-parada "max-items")))
+    (is (= :precision (intento/razon-de-parada :precision)))
+    (is (nil? (intento/razon-de-parada nil)))
+    (is (nil? (intento/razon-de-parada "")))))

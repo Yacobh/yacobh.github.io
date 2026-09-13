@@ -100,7 +100,7 @@
     [dato "Parada"
      (cond
        (:abandonado? r) "salió"
-       (:stop-reason r) (str/replace (str (name (:stop-reason r))) "-" " ")
+       (:stop-reason r) (str/replace (str (name (intento/razon-de-parada (:stop-reason r)))) "-" " ")
        :else "—")
      (when (:abandonado? r) "cerró con el botón; la fila sí quedó guardada")]
     [dato "Duración"
@@ -192,7 +192,7 @@
 
      (when (seq puntos)
        [:div {:class "mb-4"}
-        [irt-chart/irt-progress-chart puntos (:stop-reason d)]])
+        [irt-chart/irt-progress-chart puntos (intento/razon-de-parada (:stop-reason d))]])
 
      (if (seq fs)
        [tabla fs]

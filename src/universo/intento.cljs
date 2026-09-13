@@ -175,16 +175,40 @@
      :seg-por-item (when (and duracion-min (pos? n))
                      (/ (* 60.0 (double duracion-min)) n))}))
 
+(defn razon-de-parada
+  "La razón de parada como **keyword**, venga como venga.
+
+   Un test releído desde Supabase la trae como string: `clj->js` serializa
+   `:max-items` a `\"max-items\"` y al volver, `:keywordize-keys true` solo
+   keywordiza las **claves**, no los valores. `irt-chart/stop-reason-label`
+   compara con un `case` contra keywords, así que sin esta normalización la
+   leyenda del gráfico simplemente no aparecía — fallaba en silencio, que es
+   peor que fallar."
+  [reason]
+  (cond
+    (keyword? reason) reason
+    (and (string? reason) (seq reason)) (keyword reason)
+    :else nil))
+
 (defn puntos-del-grafico
   "Puntos para `irt-chart/irt-progress-chart`: θ estimado y dificultad del ítem,
    uno por respuesta.
 
    Se reconstruyen acá porque el gráfico del test se alimenta del `app-db` en
-   vivo y un intento guardado no lo tiene. `theta-history` y `responses` deberían
-   ir parejos, pero **se recorren con `map` de dos colecciones a propósito**: si
-   una quedó más corta —un test viejo, un guardado a medias— se dibuja lo que hay
-   en vez de reventar o de inventar un punto."
+   vivo y un intento guardado no lo tiene.
+
+   ⚠️ **`:n` no es decorativo: es la coordenada horizontal.** `irt-chart/x-scale`
+   reparte los puntos con `(:n p)`, así que sin esa clave el cálculo da `NaN`, el
+   SVG interpreta la coordenada inválida como 0 y **los puntos se apilan sobre el
+   eje vertical**. Pasó exactamente eso la primera vez que se dibujó acá.
+
+   `theta-history` y `responses` deberían ir parejos, pero **se recorren con `map`
+   de dos colecciones a propósito**: si una quedó más corta —un test viejo, un
+   guardado a medias— se dibuja lo que hay en vez de reventar o de inventar un
+   punto."
   [{:keys [responses theta-history]}]
-  (vec (map (fn [r th] {:theta th :difficulty (:difficulty r)})
-            (or responses [])
-            (or theta-history []))))
+  (vec (map-indexed (fn [i [r th]]
+                      {:n (inc i)
+                       :theta th
+                       :difficulty (:difficulty r)})
+                    (map vector (or responses []) (or theta-history [])))))
