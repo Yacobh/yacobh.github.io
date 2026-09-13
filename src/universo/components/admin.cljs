@@ -7,6 +7,7 @@
    [universo.components.admin-catalog :as admin-cat]
    [universo.components.admin-misconceptions :as admin-mis]
    [universo.components.admin-questions :as admin-q]
+   [universo.components.admin-test-detail :as admin-test-detail]
    [universo.components.admin-test-configs :as admin-tc]
    [universo.components.plan :as plan]
    [universo.components.ui :as ui]
@@ -424,12 +425,17 @@
 
 (defn- tests-panel []
   (let [{:keys [rows total page pages]} @(re-frame/subscribe [:admin/tests-view])
-        query @(re-frame/subscribe [:admin/tests-query])]
+        query @(re-frame/subscribe [:admin/tests-query])
+        abierto @(re-frame/subscribe [:admin/test-abierto])]
     [section-frame
      {:section :tests
       :title "Diagnósticos"
-      :description "Resultados de los tests adaptativos, del más reciente al más antiguo."}
-     [:div
+      :description (if abierto
+                     "Un intento, ítem por ítem: qué marcó, qué era y qué idea errónea delata."
+                     "Resultados de los tests adaptativos, del más reciente al más antiguo. Haz clic en una fila para ver el detalle.")}
+     (if abierto
+       [admin-test-detail/detalle-panel abierto]
+       [:div
       [:div {:class "mb-4"}
        [search-input {:value query
                       :placeholder "Buscar por correo o tema"
@@ -453,7 +459,20 @@
            [:tbody {:class "divide-y divide-gray-100 bg-white"}
             (for [t rows]
               ^{:key (:id t)}
-              [:tr {:class "hover:bg-gray-50"}
+              ;; La fila entera es el disparador. `tabIndex` + `on-key-down`
+              ;; porque un `tr` clickeable no es alcanzable por teclado por sí
+              ;; solo, y esta tabla la usa el owner con el teclado tanto como con
+              ;; el mouse.
+              [:tr {:class "cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-senal-600"
+                    :tab-index 0
+                    :role "button"
+                    :aria-label (str "Ver el detalle del diagnóstico de "
+                                     (or (:email t) "un estudiante"))
+                    :on-click #(re-frame/dispatch [:admin/open-test (:id t)])
+                    :on-key-down (fn [e]
+                                   (when (contains? #{"Enter" " "} (.-key e))
+                                     (.preventDefault e)
+                                     (re-frame/dispatch [:admin/open-test (:id t)])))}
                [:td {:class "px-4 py-3 font-medium text-gray-900"} (or (:email t) "—")]
                [:td {:class "px-4 py-3 text-gray-500"} (format-date-time (:fecha t))]
                [:td {:class "px-4 py-3 text-gray-700"} (or (:tema t) "—")]
@@ -471,7 +490,7 @@
                   [badge :green "completado"]
                   [badge :amber "incompleto"])]])]]]
          [pagination {:page page :pages pages :total total
-                      :on-page #(re-frame/dispatch [:admin/set-tests-page %])}]])]]))
+                      :on-page #(re-frame/dispatch [:admin/set-tests-page %])}]])])]))
 
 ;; -----------------------------------------------------------------------------
 ;; Libro de visitas (moderación)

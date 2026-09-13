@@ -37,6 +37,10 @@
            :tests []
            :tests-query ""
            :tests-page 0
+           ;; Id del intento cuyo detalle se está mirando, o nil por la lista
+           ;; (T-132). Se guarda el id y no la fila para que una recarga de
+           ;; `:tests` no deje la vista mostrando una copia congelada.
+           :test-abierto nil
            :guestbook []
            :guestbook-filter :pending
            :guestbook-counts {}

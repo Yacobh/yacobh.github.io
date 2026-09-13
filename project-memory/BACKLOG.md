@@ -1092,7 +1092,7 @@ la caja scrollea en horizontal, las salidas son bajar el riel a 24rem, subir el 
 
 **Terminado cuando:** hay una medición sobre los ítems reales, no una impresión.
 
-### T-110 · Distinguir las corridas de admin en `tests` — **P0** · `abierto`
+### T-110 · Distinguir las corridas de admin en `tests` — **P0** · ⏳ `escrita, falta aplicar` (2026-09-13)
 
 **Precondición dura de G-2.** Desde ADR-032, depurar un ítem significa rendir el diagnóstico y volver
 a servir el mismo ítem varias veces. Cada corrida deja una fila en `tests` indistinguible de la de un
@@ -1107,6 +1107,13 @@ versionada**, no recordada.
 
 **Terminado cuando:** una corrida de admin y una de estudiante se pueden separar con un `where`, y el
 criterio está en `supabase/SCHEMA.md`.
+
+⏳ **Estado 2026-09-13:** `067_tests_origin.sql` escrita y **verificada contra un PostgreSQL 14
+desechable**; falta que el owner la aplique. ⭐ **Se resolvió mejor que como estaba especificada:** no
+lo escribe el cliente desde `:test/complete` sino un **trigger `before insert`** que usa
+`public.is_admin()`. Tres ventajas: no es falsificable (`:auth/admin?` es estado de UI, CLAUDE.md §7),
+no necesita recompilar el bundle —así que no hay ventana entre migración y despliegue en la que los
+datos entren mal— y reusa el único primitivo de autorización que el proyecto ya tiene.
 
 ### T-111 · Decidir qué se hace con la parada por precisión — **P1** · `abierto`
 
@@ -3599,7 +3606,7 @@ profesora de matemática que ofreció el suyo— con el mapa de T-130 proyectado
 - **Guarda heredada (R-32):** que la dirección o UTP del liceo lo sepa, aunque sea informal.
 - **Bloqueante previo:** **T-93 sigue a medias** — el contrato del liceo no se ha leído.
 
-### T-132 · Vista de detalle de un diagnóstico en el panel — **P0** · `abierto`
+### T-132 · Vista de detalle de un diagnóstico en el panel — **P0** · ✅ `CÓDIGO LISTO, falta verlo en vivo` (2026-09-13)
 
 Hoy la tabla de "Diagnósticos" (`components/admin.cljs:425-478`) tiene **seis columnas** y las filas
 **no son clickeables**. Hacerlas clickeables y mostrar el intento completo: ítems en orden,
@@ -3614,7 +3621,18 @@ y arriba θ con su SE, `theta-history`, `stop-reason` y `engine_version`.
   `theta` ni `engine_version`, pese a que ADR-034 dice que θ de versiones distintas no se comparan.
 - **Guarda R-07:** módulo propio (`components/admin_test_detail.cljs`), no más líneas en `admin.cljs`.
 - **Terminado cuando:** desde el panel se puede reconstruir un intento completo sin abrir el SQL
-  Editor.
+  Editor. ⏳ **Falta lo único que no se puede automatizar: que el owner abra una fila y lo mire.**
+- ✅ **Hecho 2026-09-13.** `universo.intento` (lógica pura, 14 tests) + `admin_test_detail.cljs`
+  (módulo propio, R-07). `fetch-admin-tests` ahora pide `topic`, `theta`, `engine_version` y `origin`,
+  **con reintento sin `origin`** si `067` no está aplicada: si no, PostgREST rechazaría el select
+  entero y la pestaña dejaría de cargar del todo.
+- ⭐ **Hallazgo de diseño:** la categoría de una respuesta **no es binaria**. Acertar, rendirse
+  (ADR-029) y contar para θ (ADR-014) son tres dimensiones ortogonales, y cruzarlas da **cinco**
+  categorías. La que importa es `:correcta-desestimada` —un acierto que el filtro descartó por veloz,
+  14 de 104 en la sesión real—: mostrarla como acierto esconde que no contó, y como error es falso.
+  Es Q-47 hecha visible.
+- El θ en el borde del clamp se marca como **censurado** y se dice en pantalla que no es una
+  medición (R-44).
 
 ### T-133 · Agregado del mapa de errores por conjunto de estudiantes — **P0** · `abierto`
 

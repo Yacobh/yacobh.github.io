@@ -285,27 +285,55 @@
                                   :error (.-message error)}))))
     ch))
 
+;; Columnas que `fetch-admin-tests` pide siempre. `topic`, `theta` (021) y
+;; `engine_version` (048) estaban aplicadas y **no se pedían**: el panel mostraba
+;; θ sacándolo del JSON y no sabía con qué motor se había calculado, pese a que
+;; ADR-034 dice que dos θ de versiones distintas no son comparables.
+(def ^:private admin-tests-columnas-base
+  "id,created_at,email-user,user_id,test,topic,theta,engine_version")
+
+;; `origin` llega con la migración `067` (T-110). Se pide aparte porque las
+;; migraciones de este proyecto se aplican **a mano**: si el bundle se adelanta,
+;; PostgREST rechaza el select entero por una columna que no conoce y la pestaña
+;; de diagnósticos deja de cargar **del todo**. Mismo criterio que `:save-test`
+;; con `engine_version`, pero acá el costo de equivocarse es una pantalla en
+;; blanco en vez de un test perdido.
+(def ^:private admin-tests-columna-origen "origin")
+
 (defn fetch-admin-tests
-  "Lista tests recientes para admin (RLS is_admin)."
+  "Lista tests recientes para admin (RLS is_admin).
+
+   Si `067` no está aplicada, reintenta sin `origin` en vez de fallar: el panel
+   funciona igual, solo que sin poder separar las corridas de depuración."
   ([]
    (fetch-admin-tests 100))
   ([limit]
-   (let [ch (async/chan)]
-     (-> (.from supabase-client "tests")
-         (.select "id,created_at,email-user,user_id,test")
-         (.order "created_at" #js {:ascending false})
-         (.limit limit)
-         (.then (fn [result]
-                  (if (.-error result)
-                    (async/put! ch {:success false
-                                    :error (.-message (.-error result))})
-                    (async/put! ch {:success true
-                                    :data (or (js->clj (.-data result)
-                                                       :keywordize-keys true)
-                                              [])}))))
-         (.catch (fn [error]
-                   (async/put! ch {:success false
-                                   :error (.-message error)}))))
+   (let [ch (async/chan)
+         consultar
+         (fn consultar [columnas reintentar?]
+           (-> (.from supabase-client "tests")
+               (.select columnas)
+               (.order "created_at" #js {:ascending false})
+               (.limit limit)
+               (.then (fn [result]
+                        (if (.-error result)
+                          (let [msg (.-message (.-error result))]
+                            (if (and reintentar?
+                                     (not= -1 (.indexOf (str msg)
+                                                        admin-tests-columna-origen)))
+                              (do
+                                (js/console.warn
+                                 "La migración 067 no está aplicada: se cargan los tests sin origin.")
+                                (consultar admin-tests-columnas-base false))
+                              (async/put! ch {:success false :error msg})))
+                          (async/put! ch {:success true
+                                          :data (or (js->clj (.-data result)
+                                                             :keywordize-keys true)
+                                                    [])}))))
+               (.catch (fn [error]
+                         (async/put! ch {:success false
+                                         :error (.-message error)})))))]
+     (consultar (str admin-tests-columnas-base "," admin-tests-columna-origen) true)
      ch)))
 
 (defn fetch-visitors-by-ids

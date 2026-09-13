@@ -395,13 +395,60 @@
    (let [summaries (mapv (fn [row]
                            (let [email (or (get row (keyword "email-user"))
                                            (:email-user row)
-                                           (:email_user row))]
+                                           (:email_user row))
+                                 test (:test row)]
                              (-> (dash/procesar-test-resumen row)
                                  (assoc :email email)
-                                 (assoc :user-id (:user_id row)))))
+                                 (assoc :user-id (:user_id row))
+                                 ;; El detalle viaja **con el resumen** en vez de
+                                 ;; pedirse otra vez al abrir la fila: la
+                                 ;; consulta ya trae el JSON entero de `test`, y
+                                 ;; tirarlo acá era la única razón por la que
+                                 ;; «¿en qué se equivocó?» no tenía respuesta en
+                                 ;; la aplicación (T-132). No hay viaje extra a
+                                 ;; la red y no hay estado de carga que manejar.
+                                 (assoc :detalle
+                                        {:responses (:responses test)
+                                         :theta-history (:theta-history test)
+                                         :stop-reason (:stop-reason test)
+                                         :stop-config (:stop-config test)
+                                         ;; De las columnas propias, no del JSON:
+                                         ;; son las que el select ahora sí pide.
+                                         :engine-version (:engine_version row)
+                                         :origin (:origin row)}))))
                          (or rows []))]
      {:db (assoc-in db [:admin :tests] summaries)
       :dispatch [:admin/section-ok :tests]})))
+
+;; -----------------------------------------------------------------------------
+;; Detalle de un intento (T-132)
+;; -----------------------------------------------------------------------------
+;; El intento abierto se guarda **por id**, no como el mapa completo: si los
+;; tests se recargan mientras hay uno abierto, la vista sigue el dato nuevo en
+;; vez de mostrar una copia congelada.
+
+(re-frame/reg-event-db
+ :admin/open-test
+ (fn [db [_ id]]
+   (assoc-in db [:admin :test-abierto] id)))
+
+(re-frame/reg-event-db
+ :admin/close-test
+ (fn [db _]
+   (assoc-in db [:admin :test-abierto] nil)))
+
+(re-frame/reg-sub
+ :admin/test-abierto-id
+ (fn [db _]
+   (get-in db [:admin :test-abierto])))
+
+(re-frame/reg-sub
+ :admin/test-abierto
+ :<- [:admin/tests]
+ :<- [:admin/test-abierto-id]
+ (fn [[rows id] _]
+   (when id
+     (first (filter #(= id (:id %)) rows)))))
 
 ;; -----------------------------------------------------------------------------
 ;; Guestbook
