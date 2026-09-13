@@ -528,6 +528,23 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     `admin_preview`. Se prefiere a hacer el trigger condicional y reabrir la falsificación.
     **Consulta:** toda métrica de estudiantes filtra `origin = 'student'`.
 
+> ✅ **Aplicada en producción el 2026-09-13.** Resultado del backfill: **275 `student` y 70
+> `admin_preview`** sobre 345 filas. O sea que **el 20 % de lo que iba a entrar a la calibración
+> eran corridas de depuración** (R-37 medido, no estimado), concentradas en los períodos de edición
+> intensa del banco (11–19 de agosto y 5 de septiembre).
+>
+> ⚠️ **El backfill falsificó un supuesto de esta misma migración.** Decía «hoy el único admin es el
+> owner»; el resultado marcó también filas de **`bacourosp@gmail.com`**, o sea que existe **una
+> segunda cuenta con rol `admin`** en `profiles`. No cambia la corrección del backfill —esas filas
+> son de un admin y se excluyen igual— pero sí invalida la frase, y abre **Q-49**: quién es esa
+> cuenta y si debe conservar el rol. Un admin lee **todos** los `tests` por RLS y puede editar el
+> banco (`is_admin()`), así que no es una curiosidad de inventario.
+>
+> ⚠️ **Lo que `origin` NO separa, y hay que decirlo antes de calibrar:** una cuenta de prueba
+> (`a@a.com`, 5 filas) y un **profesor explorando** quedan como `student`, porque no son admin. El
+> origen distingue depuración de no-depuración, no «muestra válida» de «ruido». Filtrar por
+> `origin = 'student'` es necesario y **no suficiente**.
+
 > **Verificación de `067` (2026-09-13).** Contra un **PostgreSQL 14.18 desechable** con fixture a
 > mano (`auth.uid()`, `profiles`, `tests`, `is_admin()`): aplica limpio con `ON_ERROR_STOP=1`; el
 > backfill separa 2 corridas de admin de 3 de estudiante; un alumno que **envía**

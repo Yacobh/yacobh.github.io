@@ -1092,7 +1092,7 @@ la caja scrollea en horizontal, las salidas son bajar el riel a 24rem, subir el 
 
 **Terminado cuando:** hay una medición sobre los ítems reales, no una impresión.
 
-### T-110 · Distinguir las corridas de admin en `tests` — **P0** · ⏳ `escrita, falta aplicar` (2026-09-13)
+### T-110 · Distinguir las corridas de admin en `tests` — **P0** · ✅ `CERRADA` (2026-09-13, aplicada y verificada)
 
 **Precondición dura de G-2.** Desde ADR-032, depurar un ítem significa rendir el diagnóstico y volver
 a servir el mismo ítem varias veces. Cada corrida deja una fila en `tests` indistinguible de la de un
@@ -1108,8 +1108,10 @@ versionada**, no recordada.
 **Terminado cuando:** una corrida de admin y una de estudiante se pueden separar con un `where`, y el
 criterio está en `supabase/SCHEMA.md`.
 
-⏳ **Estado 2026-09-13:** `067_tests_origin.sql` escrita y **verificada contra un PostgreSQL 14
-desechable**; falta que el owner la aplique. ⭐ **Se resolvió mejor que como estaba especificada:** no
+✅ **Aplicada el 2026-09-13.** Backfill: **275 `student` / 70 `admin_preview`** sobre 345 filas — el
+**20 %** de la muestra eran corridas de depuración, concentradas en los períodos de edición del banco.
+Dos hallazgos del propio resultado: existe **una segunda cuenta admin** (Q-49), y `origin` **no**
+separa una cuenta de prueba ni a un profesor explorando, que quedan como `student` (ver T-145). ⭐ **Se resolvió mejor que como estaba especificada:** no
 lo escribe el cliente desde `:test/complete` sino un **trigger `before insert`** que usa
 `public.is_admin()`. Tres ventajas: no es falsificable (`:auth/admin?` es estado de UI, CLAUDE.md §7),
 no necesita recompilar el bundle —así que no hay ventana entre migración y despliegue en la que los
@@ -3816,6 +3818,26 @@ de ADR-019) y `score-error`.
   buscar quién la lee — incluidas las consultas de `supabase/queries/`.
 - **Terminado cuando:** existe una lista explícita de qué se persiste y por qué, `:test/complete`
   guarda solo eso, y está en `supabase/SCHEMA.md`. Las filas viejas **no se migran** (D-… histórico).
+
+### T-145 · `origin = 'student'` no alcanza para calibrar — **P1** · `abierto`
+
+Lo destapó el backfill de `067`. La columna separa **depuración de no-depuración**, que era su
+objetivo, pero la muestra de calibración necesita separar **estudiante real de todo lo demás**, y ahí
+quedan dentro al menos tres cosas marcadas `student`:
+
+| Qué | Evidencia | Por qué contamina |
+|---|---|---|
+| Cuenta de prueba `a@a.com` | 5 filas | No es una persona rindiendo |
+| Un **profesor explorando** | 12 intentos en ~45 min el 2026-09-10, repartidos entre bancos | Responde como adulto que ya sabe, o clickea para ver la interfaz |
+| Cuentas institucionales de staff | `@slepiqq.cl` | Mismo caso |
+
+- **No se resuelve con otra columna de origen.** Lo que falta es poder decir *«esta fila es de un
+  estudiante del curso X»*, que es el modelo de curso de **T-81/T-79** — y ese no arranca todavía.
+- **Mientras tanto:** una lista de exclusión **escrita y versionada** en
+  `supabase/queries/`, junto a las guardas que ya tiene T-130. Recordada de memoria no sirve (L-59).
+- **Terminado cuando:** la consulta de calibración declara en el archivo a quién excluye y por qué, y
+  el reporte de T-77 lo dice en sus limitaciones.
+- **Vector:** G-2. **Relacionado:** T-110 ✅, T-76, T-77, R-37, R-17.
 
 ---
 

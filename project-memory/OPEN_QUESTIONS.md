@@ -32,6 +32,29 @@ Estado: 🔴 abierta y bloqueante · 🟠 abierta e importante · 🟡 abierta m
 
 ## Producto y negocio
 
+### 🔴 Q-49 · ¿Quién es la segunda cuenta con rol `admin`? — **abierta 2026-09-13**
+
+El backfill de `067` marcó como `admin_preview` filas de **`bacourosp@gmail.com`** (ids 265 y 319),
+además de las del owner. O sea que `profiles` tiene **al menos dos cuentas con `role = 'admin'`**, y
+la memoria no registra la segunda en ninguna parte — la propia migración `067` llegó a afirmar por
+escrito que «hoy el único admin es el owner».
+
+**Por qué es 🔴 y no un asunto de inventario.** `public.is_admin()` es el primitivo de autorización
+de todo el proyecto (CLAUDE.md §7). Una cuenta admin **lee todos los `tests`** —incluidos los de
+menores del establecimiento donde el owner trabaja—, puede editar el banco y puede cambiar roles.
+Con la Ley 21.719 en plena vigencia desde el **2026-12-01** y R-28 encima, saber quién tiene esa
+llave deja de ser opcional.
+
+**Qué hay que responder:** quién es, si el rol fue deliberado, y si debe conservarlo. Si no debe,
+bajarlo — **cuidando el trigger `profiles_protect_last_admin`**, que impide quedarse sin ninguno.
+
+**Consulta para responderla:**
+`select id, email, role, created_at from public.profiles where role = 'admin' order by created_at;`
+
+**Relacionado:** [[RISKS]] R-28, R-14 · `supabase/admin_rls.sql` · [[BACKLOG]] T-11, T-145 · `067`.
+
+---
+
 ### 🔴 Q-48 · ¿La plataforma pone notas? — **abierta 2026-09-13**
 
 **De dónde sale.** El owner, tras ver el resultado de T-130: *"les comenté que era posible que
