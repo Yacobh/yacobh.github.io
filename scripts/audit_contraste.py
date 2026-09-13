@@ -123,6 +123,13 @@ PARES = [
     ("alternativa · regla de la elegida", ALARMA["700"], PANEL["100"],  3.0),
     ("alternativa · badge «tu respuesta»", PANEL["50"], PANEL["700"],   4.5),
 
+    # Alarma en tema oscuro. `alarma` era la única familia sin mapeo de tema, y
+    # alarma-700 está definida para fondo CLARO: sobre panel-800 daba 2.04. El
+    # mapeo vive en src/css/app.css (`.dark .text-alarma-700`).
+    ("alarma · texto sobre panel claro",  ALARMA["700"], PANEL["100"],  4.5),
+    ("alarma · texto sobre panel oscuro", ALARMA["400"], PANEL["800"],  4.5),
+    ("alarma · regla sobre panel oscuro", ALARMA["500"], PANEL["800"],  3.0),
+
     ("modal · texto de la explicación", "#1F2937",      PANEL["50"],    4.5),
     # senal-500 daba 2.75 acá y no llegaba ni a objeto gráfico: va en 600.
     ("modal · regla de la explicación", SENAL["600"],   PANEL["50"],    3.0),

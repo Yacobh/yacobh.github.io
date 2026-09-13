@@ -392,6 +392,26 @@
 .dark .border-panel-300 { border-color: theme('colors.panel.700'); }
 .dark .border-panel-400 { border-color: theme('colors.panel.950'); }
 .dark .border-panel-500 { border-color: theme('colors.panel.600'); }
+
+/* --- Alarma en tema oscuro (2026-09-13) ----------------------------------- */
+/* El hueco que tapan estas tres reglas: `alarma` era la ÚNICA familia de la
+   paleta sin mapeo para el tema oscuro. `bg-panel-*` lo tenía (arriba) y
+   `text-gray-*` también, pero `alarma-700` —que la paleta define como "texto o
+   regla sobre fondo CLARO"— se quedaba tal cual sobre una superficie oscura:
+   #A82A1B sobre panel-800 da **2.04**, menos de la mitad del mínimo AA.
+
+   Lo reportó el owner sobre la tabla del detalle de un intento, pero no era un
+   defecto de ese componente: lo mismo le pasaba a la nota de `test_editor` y a
+   las reglas laterales del diagnóstico. Por eso se arregla acá, en la capa de
+   tema, y no en el sitio de llamada — que es la misma lección de ADR-031 sobre
+   los fondos heredados.
+
+   Los tonos no son libres: en oscuro sube un escalón para texto (400, da 5.39)
+   y se queda en el del diodo para objeto gráfico (500, da 4.37). Los tres pares
+   están declarados en scripts/audit_contraste.py. */
+.dark .text-alarma-700 { color: theme('colors.alarma.400'); }
+.dark .border-alarma-700 { border-color: theme('colors.alarma.500'); }
+.dark .border-l-alarma-700 { border-left-color: theme('colors.alarma.500'); }
 .dark .text-panel-600 { color: theme('colors.panel.300'); }
 .dark .text-panel-700 { color: theme('colors.panel.200'); }
 

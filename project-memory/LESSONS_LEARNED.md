@@ -1110,3 +1110,40 @@ contradice al repositorio, **gana el owner** y se corrige la memoria en el mismo
 
 - **Relacionado:** [[BACKLOG]] T-128, T-137 · [[CURRENT_STATUS]] (2026-08-28, `questions.active`) ·
   `supabase/queries/verificacion_esquema.sql` · `sessions/SESSION-042.md`.
+
+
+---
+
+### L-60 · Una familia de color sin mapeo de tema es una falla que ningún auditor ve
+
+**Síntoma.** El owner reportó que el rojo de la tabla del detalle de un intento «no es coherente con
+el tema y no se ve bien en el tema oscuro». Los **cinco auditores estaban en verde** cuando se
+escribió ese componente.
+
+**Causa, y son dos capas.**
+
+1. **`alarma` era la única familia de la paleta sin mapeo para tema oscuro.** `bg-panel-*` lo tenía
+   (`app.css` §dark), `text-gray-*` también, `senal` también (T-72). `alarma` no — así que
+   `alarma-700`, que la propia paleta define como *«texto o regla sobre fondo claro»*, se quedaba
+   igual sobre una superficie oscura: **2.04 de contraste**, menos de la mitad del mínimo AA.
+2. **Se usó el tono correcto en el idioma equivocado.** ADR-033 dice que el estado se señala con un
+   diodo y con reglas, **no pintando la tinta del contenido**. El diagnóstico marca la alternativa
+   elegida con una **regla lateral** (`border-l-alarma-700`) y deja el texto en su color; el panel
+   nuevo tiñó el texto. Con LaTeX encima, el rojo además compite con el propio KaTeX.
+
+**Por qué ningún auditor lo vio.** `audit_contraste.py` verifica **los pares que están declarados**:
+si un par no existe en su tabla, no se mide. Y `audit_paleta.py` pregunta si el color **pertenece** a
+la paleta —`alarma-700` pertenece— no si es el tono correcto para esa superficie **en ese tema**. Es
+la misma clase de agujero que ADR-031 documentó con los fondos heredados y que le costó al CV **52
+textos bajo AA con los cuatro auditores en verde**.
+
+**Regla.** Al usar una familia de color en una superficie nueva, comprobar **dos** cosas antes de
+darla por buena: que exista el mapeo `.dark` de esa clase en `src/css/app.css`, y que el par esté
+**declarado** en `audit_contraste.py`. Si el par no está declarado, el verde del auditor no significa
+nada sobre ese uso. Y el arreglo va en la **capa de tema**, no en el componente: mapear `alarma` en
+`app.css` cubrió de paso la nota de `test_editor.cljs` y las reglas laterales del diagnóstico, que
+arrastraban el mismo defecto sin que nadie lo hubiera notado.
+
+- **Relacionado:** [[../adr/ADR-033-el-estado-se-dice-con-un-diodo]],
+  [[../adr/ADR-031-fondo-como-plano-de-medida]], L-50/L-51, `scripts/audit_contraste.py`,
+  `sessions/SESSION-042.md`.

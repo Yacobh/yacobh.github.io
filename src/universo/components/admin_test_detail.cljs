@@ -79,19 +79,23 @@
   [{:keys [marcada correcta texto-marcada texto-correcta categoria]}]
   (let [acerto? (contains? #{:correcta :correcta-desestimada} categoria)]
     [:div {:class "min-w-[12rem] space-y-1.5"}
-     ;; La que marcó.
-     [:div {:class "flex gap-2"}
-      [:span {:class (str "font-mono text-xs shrink-0 "
-                          (if acerto? "text-gray-500" "text-alarma-700"))}
-       (letra marcada)]
-      [:div {:class (str "text-sm " (if acerto? "text-gray-900" "text-alarma-700"))}
+     ;; La que marcó. Si está mal, lo dice una **regla lateral** y no el color
+     ;; del texto: es el mismo idioma con que el diagnóstico marca la
+     ;; alternativa elegida (`diagnostic_test.cljs`, `feedback_modal.cljs`), y
+     ;; es lo que ADR-033 pide — el estado se señala, no se pinta la superficie
+     ;; ni la tinta del contenido. Un enunciado con LaTeX teñido de rojo además
+     ;; compite con el propio KaTeX.
+     [:div {:class (str "flex gap-2 " (when-not acerto?
+                                        "border-l-2 border-l-alarma-700 pl-2"))}
+      [:span {:class "shrink-0 font-mono text-xs text-gray-500"} (letra marcada)]
+      [:div {:class "text-sm text-gray-900"}
        (if texto-marcada
          [math/latex texto-marcada]
          (if (= :escape categoria) "—" "(sin texto guardado)"))]]
      ;; La correcta, solo si no es la misma.
      (when-not acerto?
-       [:div {:class "flex gap-2 border-t border-panel-400 pt-1.5"}
-        [:span {:class "font-mono text-xs shrink-0 text-gray-500"} (letra correcta)]
+       [:div {:class "flex gap-2 border-t border-panel-400 pt-1.5 pl-2"}
+        [:span {:class "shrink-0 font-mono text-xs text-gray-500"} (letra correcta)]
         [:div {:class "text-sm text-gray-700"}
          (if texto-correcta
            [math/latex texto-correcta]
