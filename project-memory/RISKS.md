@@ -1,6 +1,6 @@
 # RISKS
 
-Última actualización: **2026-09-09** — **R-42 nuevo**: el track de Electrotecnia se publica con `active = true` y aparece en el selector de todo estudiante de PAES, porque la policy de `020` no admite un estado intermedio (D-66 / ADR-035). Es la versión **confirmada** de R-23, que para `cuantica` era hipotética. · Antes: **2026-08-28 (2ª pasada)** — **R-41 nuevo**: los 414 ítems de los cuatro bancos nuevos se publicaron sin revisión pedagógica y ya llegan a estudiantes (decisión explícita del owner); mitigable de a poco ahora que `057` permite retirar un ítem sin borrarlo. · Antes: **2026-08-28** — **R-39 abierto y cerrado el mismo día** (el bundle podía llegar a producción antes que `048` y perder el diagnóstico completo de un estudiante; el owner aplicó la migración antes del push y no se materializó — el patrón sigue vivo para migraciones futuras) y **R-40 nuevo** (los θ de motor v1 y v2 no son comparables y nada impide compararlos). **R-38 empeoró a propósito**: con azar, el piso del SE sube de 0,577 a ≈0,73. · Antes: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
+Última actualización: **2026-09-13** (SESSION-042, 2ª pasada) — **R-44 nuevo y 🔺alto**: corrido T-130 sobre 17 intentos reales, **dos estudiantes quedaron en θ = −3,00 exacto, que es el clamp y no una estimación** — y **no fue click-through**: uno trabajó 16,5 minutos con una sola respuesta desestimada. El banco no llega al suelo de sus propios estudiantes, no se les puede distinguir ni planificar, y un valor censurado ensucia la calibración. · Antes, 1ª pasada: **R-43 nuevo y 🔺alto**: el trabajo de distribución **sí ocurre y no queda registrado** — tres actos en cuatro semanas (un curso real diagnosticado, una campaña de 100 tarjetas QR con su migración escrita, un alumno pagando USD 20/h) y **ninguno** estaba en la memoria. **Corrige la señal de alarma de R-30**: *"si el `git log` de un mes muestra solo código"* **no ve la mitad del trabajo** y produjo un falso positivo. R-30 sigue siendo el riesgo dominante; lo que cambia es cómo se detecta. · Antes: **2026-09-09** — **R-42 nuevo**: el track de Electrotecnia se publica con `active = true` y aparece en el selector de todo estudiante de PAES, porque la policy de `020` no admite un estado intermedio (D-66 / ADR-035). Es la versión **confirmada** de R-23, que para `cuantica` era hipotética. · Antes: **2026-08-28 (2ª pasada)** — **R-41 nuevo**: los 414 ítems de los cuatro bancos nuevos se publicaron sin revisión pedagógica y ya llegan a estudiantes (decisión explícita del owner); mitigable de a poco ahora que `057` permite retirar un ítem sin borrarlo. · Antes: **2026-08-28** — **R-39 abierto y cerrado el mismo día** (el bundle podía llegar a producción antes que `048` y perder el diagnóstico completo de un estudiante; el owner aplicó la migración antes del push y no se materializó — el patrón sigue vivo para migraciones futuras) y **R-40 nuevo** (los θ de motor v1 y v2 no son comparables y nada impide compararlos). **R-38 empeoró a propósito**: con azar, el piso del SE sube de 0,577 a ≈0,73. · Antes: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
 de los 306 ítems; mitigado en el cliente por ADR-030, el dato sigue sesgado). ·
 Antes: **2026-08-17** — **R-33 nuevo** (la pantalla de Google nombra a `supabase.co`
 y no a la marca, visto en vivo al verificar T-92; toca la confianza justo en el registro) y **R-32
@@ -522,6 +522,115 @@ formas concretas en que se manifiesta.
 
 **Lo que NO lo mitiga:** mejorar el producto. Es exactamente lo que se hizo las tres veces
 anteriores.
+
+> ### ⚠️ Corrección de su señal de alarma (2026-09-13, SESSION-042)
+>
+> La regla de gasto de tiempo dice *"si el `git log` de un mes muestra solo código, el riesgo se está
+> materializando"*. **Esa señal no ve la mitad del trabajo y produjo un falso positivo.** Al 2026-09
+> el `git log` desde el pivote mostraba 66 commits, todos de producto y contenido — y sin embargo el
+> owner había aplicado el diagnóstico a un curso real, tenía una campaña de tarjetas QR preparada con
+> su migración escrita, y un alumno pagando. **Ninguno de los tres deja commit.** La propia ficha de
+> la épica E8 ya lo advertía: *"buena parte de su trabajo no es de repositorio… que una tarea no
+> produzca un commit no la hace menos tarea"*.
+>
+> **La señal corregida es R-43**, que mide el registro y no el `git log`. R-30 sigue vigente y sigue
+> siendo el riesgo dominante: lo que cambia es cómo se detecta.
+
+---
+
+### ℹ️ R-42 · Nota de seguimiento (2026-09-13): **no se materializó**
+
+La primera medición después de publicar el track dice que **ningún estudiante de PAES se fue a
+Electrotecnia**: las 4 personas que la rindieron el 2026-09-10 son **los alumnos de electrónica del
+owner**, más **un colega profesor** que entró a mirar. El riesgo sigue vigente como posibilidad —la
+policy de `020` no cambió— pero **la consecuencia temida no ocurrió en su primera exposición real**.
+D-66 resiste su primer contacto con datos.
+
+---
+
+### R-44 · El banco no llega al suelo de sus propios estudiantes — 🔺 **alto** (2026-09-13)
+
+**Qué pasa, y está medido.** En la sesión del 2026-09-10, **dos estudiantes de doce quedaron en
+θ = −3,00 exacto** — que es el **clamp** del estimador, no una estimación— y un tercero en −2,93.
+
+**Lo importante es que no fue click-through.** Uno de ellos rindió los 12 ítems en **16,5 minutos**,
+el test más largo de toda la sesión, con **una sola** respuesta desestimada por esfuerzo; el otro los
+rindió en 10,8 minutos **sin ninguna** desestimada. Trabajaron. **El motor no los midió: chocó contra
+su límite inferior.**
+
+**Consecuencias, y son las tres que más duelen dado a qué se dedica el producto:**
+
+1. **No se distinguen entre sí.** Dos estudiantes con déficits probablemente distintos comparten un
+   número que solo dice "por debajo de lo que este banco puede medir".
+2. **No se les puede ubicar en banda ni armar un plan calibrado**, que es literalmente la promesa del
+   producto — y les toca a quienes más lo necesitan. Es el mismo argumento con el que ADR-034
+   justificó soltar el prior: *"+1,00 logits de regalo a un estudiante en θ = −1,5, justo a quien el
+   producto existe para ayudar"*.
+3. **Ensucia la calibración (G-2):** un valor en el clamp es censura, no dato, y tratarlo como
+   observación sesga la estimación de `difficulty` de los ítems que ese estudiante vio.
+
+**Causas posibles, sin decidir cuál es.** No se resuelve razonando: hay que mirar los ítems que se
+les sirvieron (T-132). (a) El banco `numeros` no tiene ítems suficientemente fáciles —el reparto de
+`050` cubre la escala pero la cobertura efectiva en el extremo bajo no se ha medido—; (b) el
+`initial_theta` de −1,0 más el tope de paso de 0,4 no alcanzan a bajar en 12 ítems; (c) el déficit es
+real y está fuera del rango del instrumento, que sería un hallazgo pedagógico de primer orden.
+
+**Mitigación.** Medir la cobertura de `difficulty` del banco en el extremo bajo antes de tocar el
+motor; revisar los intentos con T-132; y **no reportar un θ en el clamp como si fuera una medición**
+—ni al estudiante, ni a un colegio, ni en el reporte de calibración de T-77—: se informa como
+*"por debajo del rango medible de este banco"*.
+
+**Relacionado:** [[../adr/ADR-034-azar-fijo-prior-suelto-y-version-del-motor]], R-17, R-40,
+[[BACKLOG]] T-118, T-132, T-142, `sessions/SESSION-042.md`.
+
+---
+
+### R-43 · El trabajo de distribución ocurre y no queda registrado — 🔺 **alto** (2026-09-13)
+
+**Qué puede pasar.** Que el owner haga trabajo de distribución real —aplicar el diagnóstico en un
+curso, preparar una campaña impresa, conseguir un alumno que paga— y que **nada de eso quede escrito
+ni medido**, de modo que no compone, no informa la decisión siguiente, y no se puede mostrar a un
+colegio, a un evaluador ni a un fondo. El proyecto se ve, desde fuera y desde su propia memoria,
+como si solo hubiera escrito código.
+
+**Por qué es alto y por qué no es hipotético — pasó, y está medido.** En las cuatro semanas
+posteriores al pivote del 2026-08-16 ocurrieron **tres actos de distribución** y **ninguno** estaba
+en `project-memory/` al 2026-09-13:
+
+| Qué ocurrió | Dónde estaba registrado |
+|---|---|
+| Diagnóstico aplicado a un 4º medio real, presencial | En ninguna parte. T-90 seguía `abierto` |
+| Campaña de 100 tarjetas QR + afiche, con su migración escrita | `061_visitor_fuente.sql`, **sin commitear** |
+| Un alumno de electrotecnia pagando **USD 20/h** | En ninguna parte |
+
+**Las tres consecuencias, en orden de gravedad.**
+
+1. **No compone.** La clase que se rindió no produjo mapa de errores, así que no produjo
+   conversación con la UTP, así que no produjo piloto. La cadena se corta en el primer eslabón.
+2. **No se puede defender.** G-5 promete CAC y LTV medidos; una campaña sin atribución desplegada
+   convierte el gasto de imprenta en fe (que es, textualmente, lo que `061` se escribió para evitar).
+3. **Distorsiona el diagnóstico del propio proyecto.** Un agente —o el propio owner en tres meses—
+   que mire el repositorio va a concluir que R-30 se está materializando cuando no necesariamente es
+   así. La memoria no puede corregir un sesgo que ella misma introduce.
+
+**Causa raíz, y es de herramienta antes que de voluntad.** El trabajo de distribución **no tiene
+dónde aterrizar**: el panel muestra seis columnas y ninguna responde *"¿dónde se equivocó este
+curso?"*, y no hay ningún registro de contactos, pilotos ni campañas. Registrar cuesta más que hacer.
+
+**Mitigación.**
+
+- **T-130** (mapa de errores por SQL, cero despliegues) y **T-132/T-133** (el panel deja de esconder
+  lo que la base ya tiene): que el resultado de una sesión de aula sea visible el mismo día.
+- **T-135**: cerrar el circuito de `061` **antes** de imprimir, para que la campaña nazca medida.
+- **T-78**: el pipeline B2B (contactados → piloto → propuesta → contrato) consultable.
+- **Regla de cierre de sesión:** si una sesión incluyó trabajo de distribución, se registra en
+  `CURRENT_STATUS` y en la ficha de la tarea **aunque no haya un solo commit de código**.
+
+**Señal de alarma.** Que la próxima revisión vuelva a descubrir un hecho comercial relevante por
+conversación y no por lectura de la memoria.
+
+**Relacionado:** R-30 (riesgo padre), R-31, [[LESSONS_LEARNED]] L-58, [[BACKLOG]] E9,
+[[TESIS_DE_CRECIMIENTO]] G-5, `sessions/SESSION-042.md`.
 
 ---
 

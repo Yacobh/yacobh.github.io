@@ -1,6 +1,6 @@
 # OPEN_QUESTIONS
 
-Última actualización: **2026-08-28** — **X-10 cerrada** (ADR-034 documenta el estimador real; y la consecuencia que se le atribuía al tope de paso resultó falsa al medirla: el culpable era el prior). **Q-42 sigue abierta y empeora**: con azar, la información máxima por ítem cae de 0,25 a ≈0,155. · Antes: **2026-08-23 (segunda pasada)** — **Q-42 nueva** (qué se hace con la parada por precisión, que es inalcanzable con `max_items = 12`) y **X-10 nueva** (ADR-004 describe un estimador y un θ inicial que el código ya no usa). · Antes: **2026-08-23 (cierre)** — **Q-41 respondida**: la ciudad es Iquique, Chile; aplicada en el CV y A-37 validado. · Antes: **2026-08-23** — **Q-41 nueva**: en qué ciudad son las dos entradas nuevas de docencia del CV (Colegio Luis Cruz Martínez y CPech); se escribió «Chile» sin la ciudad para no inventarla (A-37). · Antes: **2026-08-18 (noche)** — **Q-40 medida**: el catálogo es 77 de 77 del
+Última actualización: **2026-09-13** (SESSION-042, 3ª pasada) — **Q-48 nueva y 🔴: ¿la plataforma pone notas?** El owner les ofreció a sus alumnos rendir para **obtener nota inmediata**. Es la mejor cuña comercial aparecida hasta ahora (una herramienta que califica deja de ser opcional) **y el instrumento todavía no puede**: contradice el objetivo fundacional de sustituir la nota por el mapa de errores, el banco no está calibrado, R-44 muestra dos estudiantes en el clamp que sacarían la misma nota mínima, el % de aciertos no es escala en un test adaptativo, Q-46 no tiene respuesta y Q-47 penalizaría a los rápidos. **Lo que sí se puede hoy: calificar el proceso, no el resultado.** · Antes, 2ª pasada: **Q-46 nueva y 🔴**: con varios intentos del mismo estudiante, ¿cuál θ vale? Medido: un estudiante pasó de θ=−3,00 (0 de 8, abandonado) a **+0,60** el mismo día, y otro degradó a −0,85 en un tercer intento de 1,5 minutos. La regla que se elija cambia banda, plan y cupo de personas concretas, y **Δθ no significa nada sin ella** (T-142). **Q-47 nueva**: el filtro de esfuerzo descartó **~14 respuestas correctas por rápidas** (13,5 % de los aciertos) — y rápido-y-correcto es la definición de fluidez de ADR-019: ADR-014 y ADR-019 se pisan y nadie lo decidió. · Antes, 1ª pasada: **Q-43 nueva y 🔴**: ¿la línea principal es PAES o física/electricidad/electrónica? El owner **no es profesor de matemática** —enseña física, mecánica, electricidad y electrónica, y sus cursos de 3º y 4º medio son de electrónica—, el único alumno que paga lo hace a **USD 20/h** por electrotecnia, y §1.1 de [[BUSINESS_CONTEXT]] dice que el churn del 100 % anual es propio de PAES, no de un alumno de carrera técnica. **No se toca ADR-025 hasta responderla.** **Q-44 nueva**: ¿la IA vuelve obsoleto el producto? (planteada por el owner, con media respuesta ya escrita en §3.1 de [[TESIS_DE_CRECIMIENTO]]). **Q-45 nueva**: ¿la marca pública es Jacobo Córdova o Academia Integral? — el dominio, el header y `/profesor` dicen cosas distintas y condiciona todo el copy. · Antes: **2026-08-28** — **X-10 cerrada** (ADR-034 documenta el estimador real; y la consecuencia que se le atribuía al tope de paso resultó falsa al medirla: el culpable era el prior). **Q-42 sigue abierta y empeora**: con azar, la información máxima por ítem cae de 0,25 a ≈0,155. · Antes: **2026-08-23 (segunda pasada)** — **Q-42 nueva** (qué se hace con la parada por precisión, que es inalcanzable con `max_items = 12`) y **X-10 nueva** (ADR-004 describe un estimador y un θ inicial que el código ya no usa). · Antes: **2026-08-23 (cierre)** — **Q-41 respondida**: la ciudad es Iquique, Chile; aplicada en el CV y A-37 validado. · Antes: **2026-08-23** — **Q-41 nueva**: en qué ciudad son las dos entradas nuevas de docencia del CV (Colegio Luis Cruz Martínez y CPech); se escribió «Chile» sin la ciudad para no inventarla (A-37). · Antes: **2026-08-18 (noche)** — **Q-40 medida**: el catálogo es 77 de 77 del
 experimento de cuántica y el producto tiene cero; el panel ya lo declara, pero la decisión sigue
 abierta. · Antes: **2026-08-18** — **Q-40 nueva**: qué hace la pestaña del catálogo con las 77
 entradas `mq/` del experimento de cuántica, que hoy `fetch-misconceptions` devuelve junto con las del
@@ -31,6 +31,171 @@ Estado: 🔴 abierta y bloqueante · 🟠 abierta e importante · 🟡 abierta m
 ---
 
 ## Producto y negocio
+
+### 🔴 Q-48 · ¿La plataforma pone notas? — **abierta 2026-09-13**
+
+**De dónde sale.** El owner, tras ver el resultado de T-130: *"les comenté que era posible que
+pudiera hacerlos rendir el examen por ahí por la página, esto sería realmente grandioso porque
+podrían obtener sus notas inmediatamente."*
+
+**Por qué es la mejor cuña comercial que ha aparecido hasta ahora.** Una herramienta que **califica**
+deja de ser un extra opcional y pasa a ser parte del flujo obligatorio del establecimiento. Ahorra
+corrección —que es la queja universal del profesorado—, le da al estudiante una razón real para
+esforzarse (hoy no la tiene: 14,9 % de las respuestas vinieron sin esfuerzo válido), y es un valor
+que una UTP entiende en diez segundos, sin tener que explicarle qué es θ. Es G-1 entrando por la
+puerta de servicio.
+
+**Por qué NO se puede hacer todavía, y son siete razones medidas, no prudencia genérica:**
+
+1. **Contradice el objetivo fundacional.** [[../CLAUDE]] §2 objetivo 2 es *"sustituir la nota por un
+   mapa de errores"*, y D-50 vende **progreso medido, no acceso ni calificación**. Convertir θ en
+   nota es exactamente lo contrario. Puede decidirse — pero **se decide, no se resbala hacia ello**.
+2. **El banco no está calibrado** (R-17, R-29). `difficulty` es autoral. Para *"estudia esto"* es
+   suficiente; para *"tu nota es 4,2"* no lo es: una nota entra al libro de clases, afecta promoción
+   y **un apoderado la puede impugnar**.
+3. **R-44, medido ayer:** dos estudiantes quedaron en el **clamp** θ = −3,00. Como nota, **los dos
+   sacan lo mismo y es el mínimo**, sin que se pueda defender la diferencia entre ellos. Calificar
+   con un instrumento que tiene suelo alcanzable es indefendible.
+4. **El porcentaje de aciertos no sirve como escala.** Un test adaptativo sirve a cada estudiante
+   ítems en **su propio borde**, así que los aciertos miden qué tan bien el algoritmo encontró ese
+   borde, **no cuánto sabe**. Y como cada uno ve ítems distintos, *"a mí me tocaron más difíciles"*
+   es una objeción **válida** mientras el banco no esté calibrado — que es precisamente el problema
+   que θ resuelve, cuando hay calibración.
+5. **Q-46 sigue sin respuesta y acá deja de ser teórica:** 5 de 12 rindieron más de una vez el mismo
+   día. ¿Cuál intento es la nota? Hoy no hay regla.
+6. **El filtro de esfuerzo penalizaría a los rápidos** (Q-47): ~14 respuestas **correctas** fueron
+   descartadas por veloces. En un diagnóstico es un ajuste; en una nota es un perjuicio.
+7. **Ley 21.719** (plena vigencia 2026-12-01): una calificación es dato personal de mayor
+   sensibilidad que un diagnóstico voluntario, sobre menores, en el establecimiento donde el owner
+   **es empleado**. Y el contrato del liceo **sigue sin leerse** (T-93).
+
+**Lo que sí se puede hacer ya, y no necesita nada de lo anterior:** calificar **el proceso** —haber
+rendido el diagnóstico completo, con esfuerzo válido— en vez del resultado. Eso es formativo, es
+defendible con los datos que ya existen (`items`, `descartadas`, `parada`), le da al estudiante el
+incentivo que hoy falta, y **no le pide al instrumento algo que todavía no puede dar**.
+
+**Camino para la versión sumativa, si se decide que sí:** (a) **forma fija** —los mismos ítems para
+todos, que **hoy no existe**: `test_configs` no tiene ese modo y la selección es siempre por
+cercanía a θ—; (b) calibración (G-2, T-76/T-77); (c) Q-46 resuelta; (d) R-44 cerrado.
+
+**Terminado cuando:** existe un ADR que decide si el producto califica, con qué instrumento y bajo
+qué condiciones. **No se implementa antes del ADR.**
+**Relacionado:** [[TESIS_DE_CRECIMIENTO]] G-1/G-4, D-50, R-17, R-29, R-44, R-28, Q-46, Q-47,
+[[BACKLOG]] T-76, T-77, T-93, T-142.
+
+---
+
+### 🔴 Q-46 · Con varios intentos del mismo estudiante, ¿cuál θ vale? — **abierta 2026-09-13**
+
+**Medido, no supuesto:** 5 de 12 estudiantes rindieron más de una vez el mismo día y **los intentos
+no son equivalentes**. Un caso pasó de **0 de 8 (abandonado, θ = −3,00)** a **7 de 12 (θ = +0,60)**;
+otro hizo un tercer intento de **7 ítems en 1,5 minutos con 4 de 7 desestimadas por esfuerzo**
+(θ = −0,85) contra +0,80 y +0,67 en sus dos intentos serios.
+
+**Por qué es 🔴 y no una preferencia de UI:** con el primer intento del primer estudiante se le
+habría clasificado como el más débil del curso, y está **sobre la mediana**. La regla que se elija
+**cambia la banda, el plan y el cupo** de personas concretas.
+
+**Bloquea a G-2 y a G-4:** la calibración no puede tragar intentos-ruido, y **Δθ no significa nada si
+no está definido entre qué dos números se calcula** — que es justo lo que D-50 prometió vender.
+**Candidatos:** último · mejor · primero completo · el de mayor fracción de respuestas con esfuerzo
+válido. **Tarea:** T-142. **Ojo:** la consulta 0.c de T-130 usa `max(theta)` y el bloque 6 usa el
+**último**; esa inconsistencia es precisamente el síntoma de que la regla no existe.
+
+---
+
+### 🟠 Q-47 · ¿El filtro de esfuerzo está borrando la evidencia de fluidez? — **abierta 2026-09-13**
+
+**Medido:** **29 de 195 respuestas (14,9 %) tienen `weight = 0`**. Nueve son incorrectas y seis son
+escapes; **las otras ~14 son respuestas CORRECTAS descartadas por rápidas** — el **13,5 % de todos
+los aciertos de la sesión**.
+
+**La tensión es entre dos ADR del propio proyecto, y nunca se decidió explícitamente:**
+
+- **ADR-014 / T-44:** una respuesta muy rápida es sospechosa y no debe aportar a θ.
+- **ADR-019:** **rápido y correcto es la definición de fluidez (λ)**, el segundo eje del perfil.
+
+Hoy el filtro de esfuerzo se aplica **antes** y borra justo la evidencia que λ necesita. **No es un
+bug**: es una decisión que nadie tomó. **Qué falta para cerrarla:** saber si `irt.fluency` mira las
+respuestas antes o después del peso, y si el umbral `min_response_seconds` está calibrado o es
+autoral (R-24, T-65, T-116). **Relacionado:** T-45, T-59.
+
+---
+
+### 🔴 Q-43 · ¿La línea principal es PAES, o es física / electricidad / electrónica? — **abierta 2026-09-13**
+
+**Lo que la hace urgente, y no estaba en ninguna parte de la memoria:** el owner **no es profesor de
+matemática**. Enseña **física, mecánica, electricidad y electrónica**, y **sus cursos de 3º y 4º
+medio son de electrónica**. El diagnóstico del eje de números se lo aplicó a **su propio curso**,
+como prerrequisito matemático de la especialidad.
+
+**A favor de abrir la vertical técnica:**
+
+- El **único alumno que paga hoy** paga **USD 20/h** ≈ CLP 19.000 — casi el doble de la tarifa PAES
+  de D-32 — y es de **electrotecnia**.
+- El motor es agnóstico del temario y el track de electrotecnia ya lo demostró: 116 ítems y 24
+  recursos entraron por la misma skill y el mismo verificador, y los recursos ya se revisaron en vivo.
+- [[BUSINESS_CONTEXT]] §1.1: la restricción estructural del mercado PAES es el **churn del 100 %
+  anual por construcción**. Un alumno de carrera técnica o de postgrado **no se va al final de la
+  temporada** — que es exactamente lo que hoy impide que exista LTV.
+- El activo más caro de construir —contenido con cada distractor mapeado a un error nombrado— se
+  produce **mucho más barato en el dominio que el owner enseña todos los días**.
+- La UNAP ya fue el canal que produjo los **únicos 252 usuarios reales** en 16 años, y era
+  universitario.
+
+**En contra:**
+
+- Es **exactamente la forma en que [[RISKS]] R-30 se materializa**: abrir un frente nuevo en vez de
+  cerrar el que está a medio camino.
+- PAES es el mercado con tamaño verificable y el único con producto terminado.
+- `universo.topics` está hardcodeado a matemática escolar (20 slugs, vocabulario Baldor) y
+  `universo.bands/product-tracks` excluye los tracks técnicos por diseño: no reciben módulo ni banda
+  derivada sin trabajo.
+
+**Dato de distribución que nadie había juntado:** hay **tres audiencias cautivas** disponibles sin
+llamar a ningún desconocido — el 3º medio del owner, su 4º medio, y el 4º medio de matemática que
+una profesora del liceo **ya ofreció y todavía no se usa**.
+
+**No se decide leyendo.** Se responde con T-130 corrido sobre los tres grupos y con T-80.
+**Terminado cuando:** existe un ADR que decide con números de ambos lados, y
+[[TESIS_DE_CRECIMIENTO]] queda corregida en el mismo commit si cambia la línea principal.
+**Relacionado:** [[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]] (que **no** se toca hasta que
+esto se responda), [[../adr/ADR-035-track-electrotecnia-visible]], D-67, [[BACKLOG]] T-80.
+
+---
+
+### 🟠 Q-44 · ¿La IA vuelve obsoleto el producto? — **abierta 2026-09-13**
+
+Planteada por el owner, junto con su propia respuesta: *las escuelas van a seguir funcionando, y esto
+es una especie de modelo de entrenamiento para humanos.* Se registra porque **una UTP o un evaluador
+técnico la va a preguntar**, y conviene tenerla escrita antes que improvisada.
+
+**Media respuesta ya existe** en [[TESIS_DE_CRECIMIENTO]] §3.1: el contenido de texto que **explica**
+compite de frente con un LLM gratuito, ilimitado y mejor explicando; la parte defendible es
+**medir** — saber lo que no sabes que no sabes. Automatizar la explicación es automatizar la mitad
+comoditizada.
+
+**Lo que falta para cerrarla:** la versión de dos minutos, decible en una reunión, y la consecuencia
+de producto — si la explicación es commodity, ¿cuánto vale seguir invirtiendo en capa 0 y en
+recursos, frente a invertir en calibración (G-2)? Toca directamente a **T-139**.
+
+---
+
+### 🟡 Q-45 · ¿La marca pública es Jacobo Córdova o Academia Integral? — **abierta 2026-09-13**
+
+El dominio es `jacobocordova.com`; la marca del header dice "Academia ∫ Integral"
+(`src/universo/home.cljs:21-36`); y existe una ruta pública `/profesor` con el CV. Son **dos
+identidades conviviendo sin decisión registrada**.
+
+No es cosmético: G-5 §3 de [[TESIS_DE_CRECIMIENTO]] apuesta explícitamente a la **marca personal**
+como motor de contenido (los 16 años verificables del owner), mientras que una licencia institucional
+se le vende más fácil a "Academia Integral" que a una persona. Y el owner además señala que el sitio
+se lee como si solo existiera la PAES, cuando ya hay dos tracks y él enseña cinco materias.
+
+**Condiciona:** [[BACKLOG]] T-137, T-138, T-140 y todo el copy público.
+**No se resuelve acá.** Se registra para que no se decida por omisión al escribir la próxima landing.
+
+---
 
 ### ✅ Q-01 · ¿Cuál es el vínculo formal con la UNAP?
 **Respondida 2026-07-28 (owner):** hubo un convenio a honorarios entre el owner y la Universidad

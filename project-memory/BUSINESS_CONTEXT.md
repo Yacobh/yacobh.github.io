@@ -52,6 +52,36 @@ esta propuesta. Encuadre ante un colegio que ya conoce Kahoot: *"Kahoot mide a l
 cada estudiante y le dice qué estudiar"*. Ver [[RAIZ_SISTEMA_LLOVIZNA]] §2.5. **Desde el 2026-08-16
 esa frase dejó de ser una analogía y es el encuadre de venta de G-1** ([[TESIS_DE_CRECIMIENTO]] §2).
 
+### 1.0 ⭐ El portafolio docente real del fundador (registrado 2026-09-13)
+
+**No estaba escrito en ninguna parte de la memoria, y reordena la pregunta de segmento.**
+
+El owner **no es profesor de matemática**. Enseña **física, mecánica, electricidad y electrónica**,
+y **sus cursos de 3º y 4º medio del liceo son de electrónica**. Cuando aplicó el diagnóstico del eje
+de números a su 4º medio, lo hizo sobre **su propio curso de especialidad**, como prerrequisito
+matemático — no como profesor de la asignatura.
+
+**Tres consecuencias que valen más que el dato:**
+
+1. **El único ingreso vigente no es PAES.** Un alumno de electrotecnia paga **USD 20/h**
+   ≈ CLP 19.000 — casi el doble de la tarifa PAES de D-32 (CLP 10.000/hora). Es la línea de mayor
+   margen del proyecto.
+2. **Hay tres audiencias cautivas, no una:** su 3º medio, su 4º medio, y el **4º medio de matemática
+   que una profesora del liceo ya ofreció y todavía no se usa** (ficha T-90). Ninguna requiere una
+   llamada en frío, que es donde murieron los tres intentos históricos (§1).
+3. **El contenido más caro de producir sale más barato en su dominio.** El activo defendible es un
+   banco con cada distractor mapeado a un error nombrado (G-2); producirlo cuesta tiempo de
+   profesor, y el owner tiene ese tiempo acumulado en física y electrónica, no en matemática
+   escolar. El track `electrotecnia` —116 ítems y 24 recursos por la misma skill y el mismo
+   verificador— es la prueba de que el motor no pone resistencia.
+
+**Contrapeso, y no es menor:** abrir un frente nuevo antes de cerrar el que está a medias es la
+forma exacta en que [[RISKS]] R-30 se materializa. Por eso esto **no decide nada**: se registra, y
+la decisión vive en [[OPEN_QUESTIONS]] **Q-43** con la aritmética de los dos lados.
+
+**Restricción contractual que acota cualquier movimiento:** el canal **Cpech está cerrado hasta el
+2026-11-21** (T-93), y el **contrato del liceo todavía no se ha leído**.
+
 ### 1.1 🔺 La forma del mercado: churn anual del 100% por construcción
 
 **Hecho estructural, registrado el 2026-08-16.** Es la restricción de mercado más importante del

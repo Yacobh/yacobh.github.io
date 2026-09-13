@@ -1051,3 +1051,62 @@ diferir del logotipo de la nav, que es exactamente lo que no se quiere.
 
 **Relacionado:** `src/universo/components/resume.cljs`, `sessions/SESSION-036.md`.
 
+
+---
+
+### L-58 · El `git log` no es el registro del trabajo de negocio
+
+**Síntoma.** Una revisión del proyecto al 2026-09-13 concluyó, mirando el `git log` desde el pivote
+del 2026-08-16, que había **66 commits y cero trabajo de distribución en cuatro semanas** — y citó
+como evidencia la propia señal de alarma de [[RISKS]] R-30: *"si el `git log` de un mes muestra solo
+código, el riesgo se está materializando"*.
+
+**Era falso, y por partida triple.** En esas mismas cuatro semanas el owner había aplicado el
+diagnóstico a un 4º medio real y presencial, tenía una campaña de 100 tarjetas QR preparada con su
+migración ya escrita, y un alumno pagando USD 20/h. **Ninguno de los tres deja commit.** El segundo
+ni siquiera aparecía como archivo sin trackear en la mayoría de los `git status` porque nadie lo
+miraba.
+
+**Causa.** Se usó como métrica la que estaba **disponible** en vez de la que medía el fenómeno. Es
+el mismo modo de fallo que L-22 (la memoria afirmó "tres lugares" cuando eran cinco): una
+aproximación cómoda que se cita como si fuera el dato. Y la propia ficha de la épica E8 ya lo
+advertía por escrito —*"buena parte de su trabajo no es de repositorio… que una tarea no produzca un
+commit no la hace menos tarea"*—; el aviso estaba y no se leyó antes de concluir.
+
+**Regla.** Antes de afirmar que algo **no ocurrió** porque no está en el repositorio, preguntar si
+ese algo **dejaría rastro en el repositorio si hubiera ocurrido**. Para el trabajo comercial la
+respuesta es casi siempre que no. La corrección estructural es [[RISKS]] R-43: medir el **registro**,
+no el `git log`, y registrar el trabajo de distribución en `CURRENT_STATUS` y en la ficha de su tarea
+aunque no haya un solo commit de código.
+
+**Corolario para cualquier agente que trabaje acá.** Las tareas de la épica E8 y E9 que dicen *"no es
+código"* (T-80, T-90, T-131, T-93) se cierran preguntándole al owner, no haciendo `grep`.
+
+- **Relacionado:** [[RISKS]] R-30, R-43 · [[BACKLOG]] E8, E9 · L-22 · `sessions/SESSION-042.md`.
+
+---
+
+### L-59 · El estado publicado de un recurso no se deduce de su migración
+
+**Síntoma.** La memoria afirmaba que los 24 recursos de electrotecnia estaban **despublicados**,
+citando `066_electrotecnia_resources.sql` (`published = false`, L30). El owner corrigió: están
+**publicados**, y su contenido fue **revisado en vivo** con el alumno compartiendo pantalla. La
+migración además deja el `update … set published = true` escrito **como comentario** en L777,
+precisamente para que se ejecutara a mano — y se ejecutó.
+
+**Causa.** Una migración describe el estado en el que una fila **nace**, no el estado en el que
+**está**. Todo lo que después se cambia desde el panel de administración —publicar un recurso,
+desactivar un ítem, editar un enunciado— es invisible para quien lee `supabase/migrations/`.
+
+**Es la tercera vez.** Antes: `questions.active`, que la memoria daba por existente desde T-122 y
+**no existía** hasta `057`; y `055`/`056`, aplicadas en su versión original antes de que llegaran las
+dos reglas de contenido. El patrón se repite porque el repositorio es la fuente de verdad del
+**esquema** y nunca lo fue del **contenido**.
+
+**Regla.** Cualquier afirmación sobre el estado de los datos —cuántos ítems activos, qué recursos
+publicados, qué configuraciones visibles— se verifica **con una consulta**, no leyendo migraciones.
+`supabase/queries/verificacion_esquema.sql` existe para eso. Y cuando el owner afirma un estado que
+contradice al repositorio, **gana el owner** y se corrige la memoria en el mismo commit.
+
+- **Relacionado:** [[BACKLOG]] T-128, T-137 · [[CURRENT_STATUS]] (2026-08-28, `questions.active`) ·
+  `supabase/queries/verificacion_esquema.sql` · `sessions/SESSION-042.md`.

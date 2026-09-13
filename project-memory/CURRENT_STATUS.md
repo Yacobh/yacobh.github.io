@@ -1,8 +1,69 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; **no se ha rendido un diagnóstico real con él todavía**
+**Fecha de corte: 2026-09-13** (SESSION-042, sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
+
+> ## ⭐ 2026-09-13 — el dato estaba ahí y el panel no lo mostraba (SESSION-042)
+>
+> **Sesión de negocio, no de código.** El owner pidió mentoría y terminó en una repriorización del
+> backlog (**épica E9**, T-130…T-140) más una consulta SQL verificada. Seis hechos que la memoria
+> **no registraba**:
+>
+> 1. ⭐ **T-90 se ejecutó a medias.** El owner aplicó el eje de números a su 4º medio del liceo,
+>    **presencial en clase**. La mitad de datos ocurrió; la mitad de observación —*"qué cara pone el
+>    profesor cuando ve el mapa de errores proyectado"*, que la propia ficha llama **el producto
+>    entero**— no se pudo hacer **porque el panel no sabe mostrar ese mapa**. T-90 pasa a `a medias`
+>    y cierra con **T-131**.
+> 2. ⭐ **Hay una campaña de distribución preparada y sin cerrar.** `061_visitor_fuente.sql` está
+>    escrita (etiqueta `?de=tarjeta`, G-5 en su versión más barata) pero **sin commitear y sin
+>    aplicar**, y `crud/track-visitor` sigue llamando al RPC de 4 argumentos — cero menciones de
+>    `fuente` en `src/` y en `app.js`. **Las 100 tarjetas QR todavía no se imprimen**, así que hay
+>    ventana para que salgan ya trazadas (**T-135**).
+> 3. **El alumno de electrotecnia paga USD 20/h** ≈ CLP 19.000, **casi el doble** de la hora PAES
+>    (CLP 10.000, D-32). Es la línea de mayor margen del proyecto y no estaba registrada.
+> 4. **La meta dejó de ser un marcador:** USD 1M era referencial; el número real es **CLP
+>    48.000.000/año** (**D-67**). A CLP 2,4M por colegio eso son **~20 colegios**, no 380 — y **no
+>    exige capital externo**, lo que baja la urgencia de F16.
+> 5. ⭐⭐ **El owner no es profesor de matemática.** Enseña **física, mecánica, electricidad y
+>    electrónica**, y **sus cursos de 3º y 4º medio son de electrónica**. El diagnóstico de números
+>    se lo aplicó a su propio curso, como prerrequisito. Tiene **tres audiencias cautivas**: sus dos
+>    cursos más el 4º medio de matemática que una profesora ya ofreció y **no se ha usado**. Abre
+>    **Q-43**, que pasa a ser la pregunta estratégica más importante del proyecto.
+> 6. **Tres señales de producto de usuarios reales:** el alumno de electrotecnia no encontró cómo
+>    llegar a las evaluaciones; un conocido echó de menos ayudas visuales (y el owner plantea ir más
+>    lejos, a **simulaciones**); y el sitio se lee como "PAES" cuando ya hay dos tracks.
+>
+> ⭐ **El hallazgo técnico, y es dos problemas, no uno:**
+>
+> - **🟡 Existe en la base y el panel NO lo muestra.** `tests.test` ya guarda **por ítem**:
+>   `selected-option` (la alternativa que marcó), `correct-option`, **`selected-error`** (el texto de
+>   la idea errónea de ese distractor), `question-id`, `question-text`, `difficulty`, `module-slug`,
+>   `time-ms`, `weight` (ADR-014) y `escape` (ADR-029); más `theta-history`, `stop-reason` y
+>   `stop-config`. La pestaña "Diagnósticos" (`components/admin.cljs:425-478`) muestra **seis
+>   columnas** y **las filas no son clickeables**; `fetch-admin-tests` (`db/crud.cljs:948`) ni
+>   siquiera trae `topic`, `theta` ni `engine_version`. → **T-132**, **T-133**.
+> - **🔴 El abandono no se captura.** Un test cerrado a mitad **no deja ninguna fila**: el único
+>   `insert` es `:save-test`, disparado solo desde `:test/complete`, y el propio código lo declara
+>   por escrito (`events/test.cljs:760-764`). No hay `beforeunload`, ni autosave, ni heartbeat. →
+>   **T-134**, con ADR.
+>
+> ✅ **`supabase/queries/T-130_mapa_de_errores_de_un_curso.sql` escrita y verificada** contra un
+> **PostgreSQL 14 desechable** con fixture a mano: corre completa con `ON_ERROR_STOP=1`, las corridas
+> del owner quedan excluidas (R-37), el escape no se cuenta como idea errónea, la respuesta de peso 0
+> se desestima y las cinco categorías del control suman el total. ⏳ **Los números del curso real no
+> están corridos todavía** — es el próximo paso y no necesita ningún despliegue.
+>
+> 🔺 **Riesgo nuevo R-43, y corrige a R-30:** el trabajo de distribución **sí está ocurriendo** (una
+> clase real, una campaña impresa lista, un alumno que paga) pero **no queda registrado**, así que no
+> compone ni informa la decisión siguiente. La señal de alarma de R-30 —*"si el `git log` de un mes
+> muestra solo código"*— **no ve la mitad del trabajo**: nada de esos tres hechos deja commit.
+>
+> ✏️ **Corrección de memoria:** los **24 recursos de electrotecnia están publicados y su contenido
+> revisado en vivo** con el alumno compartiendo pantalla. La migración `066` los inserta con
+> `published = false` (L30) y deja el `update … set published = true` como comentario (L777); se
+> ejecutó. Lo que sigue diciendo "24 recursos despublicados" más abajo en este archivo **está
+> desactualizado**. **T-128 se reduce a los 116 ítems.** Ver L-59.
 
 > ## 🆕 2026-09-09 — un segundo track fuera del temario, y esta vez el alumno tiene que verlo
 >

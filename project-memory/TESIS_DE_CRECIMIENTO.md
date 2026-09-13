@@ -1,6 +1,6 @@
 # TESIS_DE_CRECIMIENTO
 
-Última actualización: **2026-08-16** (creación; misma fecha: **§3.1** — por qué no existe un modelo por volumen en este mercado, D-52) · Decisión de origen:
+Última actualización: **2026-09-13** — **D-67: la meta es CLP 48.000.000/año, no USD 1.000.000** (el millón era un marcador). Son **~20 colegios** y no ~380, y por lo tanto **no exige capital externo, contratación ni socios**: F16 baja de urgencia. Los cinco vectores y su orden **no se tocan**, y el techo de las clases por hora sigue estando por debajo de la meta real, así que el argumento de ADR-025 sigue en pie. Ver §3. ⚠️ **Q-43 abierta**: el owner enseña física/electricidad/electrónica, no matemática, y el único alumno que paga lo hace a USD 20/h por electrotecnia — si la línea principal cambia, «colegios» deja de ser la unidad. · Antes: **2026-08-16** (creación; misma fecha: **§3.1** — por qué no existe un modelo por volumen en este mercado, D-52) · Decisión de origen:
 [[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]] · [[DECISIONS]] D-47 … D-51
 
 > **Qué es este archivo.** Es el **archivo canónico de los cinco vectores de valor (G-1 … G-5)**
@@ -218,7 +218,54 @@ el patrón por cuarta vez**.
 
 ---
 
-## 3. Aritmética del millón (supuestos, no hechos)
+## 3. Aritmética (supuestos, no hechos)
+
+> ### ⭐ 2026-09-13 — la meta real es CLP 48M/año, no USD 1M (D-67)
+>
+> **Todo lo que sigue en esta sección se escribió contra CLP 950M/año. Ese número era un
+> marcador, no un objetivo**, y el owner lo confirmó explícitamente: **el número que le cambia la
+> vida es CLP 48.000.000/año**, sin plazo forzado.
+>
+> **La sección no se borra** (CLAUDE.md §11) — queda como escenario de largo plazo y como la
+> aritmética que descartó los modelos por volumen, que sigue siendo correcta. Lo que cambia es el
+> **encuadre**, y cambia más de lo que parece:
+>
+> | | Meta CLP 950M (escrita abajo) | **Meta CLP 48M (real)** |
+> |---|---|---|
+> | Colegios necesarios (a CLP 2,4M c/u) | ~380 (≈ 11,5 % del país) | **~20** |
+> | ¿Requiere capital externo? | Sí — §4, F16, CORFO, semilla | **No** |
+> | ¿Requiere contratar? | Sí, desde 2028 | No en el horizonte inmediato |
+> | ¿Requiere ceder dirección del producto? | Sí, con un inversionista en la mesa | **No** |
+> | ¿Sale de Tarapacá? | Obligatoriamente | Probablemente no |
+>
+> **Por qué esto importa más que la cifra.** En la misma sesión el owner declaró su bloqueo real:
+> *no sentirse listo para que otras personas influyan en el rumbo de la aplicación.* Con la meta del
+> millón ese bloqueo era **incompatible con el plan**, porque el plan exigía capital externo. Con la
+> meta real **deja de serlo**: 20 colegios no necesitan inversionistas, necesitan **clientes**, y un
+> cliente de licencia no dirige el roadmap — lo máximo que puede hacer es no renovar. La resistencia
+> del owner no era irracional: estaba resistiéndose al plan equivocado.
+>
+> **Lo que NO cambia, y conviene decirlo para que nadie lea esto como una rebaja de ambición:**
+>
+> - El techo de las clases por hora (≈ **USD 16.000/año**, §1) sigue estando **por debajo** de CLP
+>   48M ≈ USD 50.000. O sea que **la meta real sigue siendo inalcanzable dando clases**, y el
+>   argumento central de [[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]] —desacoplar el
+>   ingreso de las horas del fundador— **no depende de la escala y sigue en pie**.
+> - Los cinco vectores G-1…G-5 y su orden de ejecución (§5) **no se tocan**.
+> - Los precios siguen sin validar ([[ASSUMPTIONS]] A-31…A-35, tarea **T-80**). Que la meta sea más
+>   chica no vuelve ciertos los supuestos: si la licencia resulta valer CLP 1,2M en vez de 2,4M,
+>   son 40 colegios y no 20.
+>
+> **Consecuencia de planificación:** **F16 (capital) baja de urgencia** en [[ROADMAP]] y deja de ser
+> precondición de nada. Ver D-67 y `sessions/SESSION-042.md`.
+>
+> ⚠️ **Y una pregunta abierta que puede reescribir hasta el denominador de esta tabla:** el owner
+> **no es profesor de matemática** —enseña física, mecánica, electricidad y electrónica— y el único
+> alumno que paga hoy lo hace a **USD 20/h** por electrotecnia. Si la línea principal deja de ser
+> PAES, "colegios" no es la unidad correcta. Está en [[OPEN_QUESTIONS]] **Q-43** y **no se decide
+> aquí**.
+
+### 3.0 Aritmética del millón (escenario de largo plazo)
 
 > **Todo esta sección es supuesto sin validar** ([[ASSUMPTIONS]] A-31 … A-35). Los precios no están
 > testeados con ningún comprador real, y el tamaño de mercado no está verificado contra fuentes
