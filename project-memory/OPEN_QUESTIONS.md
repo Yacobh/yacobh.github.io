@@ -52,15 +52,24 @@ original:**
    cómo se trabaja acá.
 2. **Ese 1 % no existe todavía en ningún papel** → **Q-50**.
 
-**Pista que conviene verificar, no afirmar:** las filas de esta cuenta son del **2026-07-26** y del
-**2026-09-05**, y el 2026-09-05 es exactamente el día en que se rindieron los diez bancos `mq_*` de
-mecánica cuántica. [[../adr/ADR-018-track-experimental-cuantica]] dice que el destinatario de ese
-track «es el autor, que es admin». **Un máster en computación cuántica es un destinatario bastante
-más probable.** Si es así, el experimento tuvo un usuario externo real y el ADR describe mal a quién
-servía. Se comprueba con una consulta, no razonando:
-`select "email-user", topic, count(*) from public.tests where topic like 'mq\_%' group by 1,2;`
+✅ **Pista comprobada el mismo día, y salió negativa.** Se había anotado que el socio podía ser el
+verdadero destinatario del track de mecánica cuántica —máster en computación cuántica, y sus filas
+caen el 2026-09-05, el día de los bancos `mq_*`—. **El dato lo desmiente:** de 33 intentos `mq_*`,
+**32 son del owner** y el socio rindió **uno** (`mq_espin`). Un intento suelto es haber probado la
+herramienta, no ser su destinatario.
 
----
+**[[../adr/ADR-018-track-experimental-cuantica]] queda confirmado con datos**, no solo por diseño:
+su destinatario es el autor. Eso importa porque **[[LESSONS_LEARNED]] L-57 se apoya en esa premisa**
+—el aislamiento de `cuantica` funcionó por «accidente biográfico», porque su destinatario era
+admin— y ahora la premisa está medida en vez de supuesta.
+
+**Efecto colateral útil:** las dos cuentas son admin, así que las 33 filas `mq_*` quedan marcadas
+`admin_preview` por `067`. La calibración las excluye **por dos vías independientes** —el filtro de
+`origin` y la guarda `topic not like 'mq\_%'`—, que es redundancia barata y bienvenida.
+
+**Nota de método, tercera del día:** esta pista y las dos de T-145 son el mismo error —inferir el rol
+o la intención de una persona a partir de su rastro de uso— y las tres salieron falsas. El rastro
+dice **qué** pasó; **quién** y **por qué** hay que preguntarlos.
 
 ### 🟠 Q-50 · ¿Qué es exactamente el 1 % del socio, y dónde está escrito? — **abierta 2026-09-13**
 
