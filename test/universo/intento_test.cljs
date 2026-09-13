@@ -74,6 +74,40 @@
     (is (nil? (intento/segundos (dissoc correcta :time-ms))))
     (is (= 22.0 (intento/segundos correcta)))))
 
+(def ^:private preguntas
+  ;; La forma cruda que `[:test :questions]` guarda: las columnas de `questions`.
+  [{:id "101" :option_a "$\\frac{5}{6}$" :option_b "$\\frac{2}{5}$"
+    :option_c "$\\frac{1}{5}$" :option_d "$\\frac{3}{5}$"}
+   {:id "102" :option_a "$x>2$" :option_b "$x>1$"
+    :option_c "$x<4$" :option_d "$x>4$"}])
+
+(deftest alternativas-por-id-reduce-a-las-cuatro-letras
+  (let [m (intento/alternativas-por-id preguntas)]
+    (is (= #{"101" "102"} (set (keys m))))
+    (is (= "$\\frac{2}{5}$" (get-in m ["101" "B"])))
+    (testing "una pregunta sin id no entra en vez de entrar con clave nil"
+      (is (= {} (intento/alternativas-por-id [{:option_a "x"}]))))))
+
+(deftest filas-trae-el-texto-de-la-alternativa-no-solo-la-letra
+  (let [m (intento/alternativas-por-id preguntas)
+        [f1 f2] (intento/filas [correcta incorrecta] m)]
+    (testing "la que marcó y la correcta, con su texto"
+      (is (= "$\\frac{5}{6}$" (:texto-marcada f1)))
+      (is (= "$x>1$" (:texto-marcada f2)))
+      (is (= "$x>4$" (:texto-correcta f2))))
+    (testing "la letra minúscula también cruza"
+      (is (= "$x>1$" (:texto-marcada
+                      (first (intento/filas [(assoc incorrecta :selected-option "b")] m))))))))
+
+(deftest filas-sin-preguntas-guardadas-se-degrada-sin-romper
+  (testing "un intento viejo sin :questions deja las letras y no tumba la vista"
+    (let [f (first (intento/filas [incorrecta] nil))]
+      (is (nil? (:texto-marcada f)))
+      (is (= "b" (:marcada f)))))
+  (testing "tampoco rompe un escape, que no tiene alternativa marcada"
+    (let [f (first (intento/filas [escape] (intento/alternativas-por-id preguntas)))]
+      (is (nil? (:texto-marcada f))))))
+
 (deftest filas-numera-desde-uno-y-oculta-la-idea-cuando-no-aplica
   (let [fs (intento/filas [correcta incorrecta escape])]
     (is (= [1 2 3] (mapv :n fs)))

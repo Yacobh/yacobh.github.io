@@ -16,6 +16,7 @@
    [universo.db.crud :as crud]
    [universo.editor :as editor]
    [universo.events.dashboard :as dash]
+   [universo.intento :as intento]
    [universo.misconceptions :as mis]))
 
 (def page-size 20)
@@ -409,6 +410,13 @@
                                  ;; la red y no hay estado de carga que manejar.
                                  (assoc :detalle
                                         {:responses (:responses test)
+                                         ;; Solo las cuatro alternativas por
+                                         ;; pregunta, no la pregunta entera:
+                                         ;; guardarla completa multiplicaría por
+                                         ;; varios megas lo que el panel mantiene
+                                         ;; en memoria para 200 intentos.
+                                         :alternativas (intento/alternativas-por-id
+                                                        (:questions test))
                                          :theta-history (:theta-history test)
                                          :stop-reason (:stop-reason test)
                                          :stop-config (:stop-config test)

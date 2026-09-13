@@ -116,26 +116,76 @@
     (when (and (number? ms) (pos? ms))
       (/ (double ms) 1000.0))))
 
+(defn alternativas-por-id
+  "`{id-de-pregunta {\"A\" texto, \"B\" texto, ...}}` a partir de las preguntas
+   que el test guardó en `:questions`.
+
+   **Por qué la letra alcanza para cruzar, aunque las alternativas se barajen.**
+   ADR-030 baraja el orden de presentación **en el cliente**, y esa permutación
+   no se persiste; pero `selected-option` y `correct-option` se guardan en la
+   **letra canónica** —la de la columna `option_a`…`option_d`— porque
+   `score_answer` corrige contra la base. Así que la letra de la respuesta y la
+   letra de la columna son la misma, y el cruce es directo.
+
+   Se reduce acá, al cargar, y no se guarda la pregunta entera: de un ítem solo
+   interesan las cuatro alternativas, y quedarse con el resto multiplicaría por
+   varios megas lo que el panel mantiene en memoria para 200 intentos."
+  [questions]
+  (into {}
+        (keep (fn [q]
+                (when-let [id (:id q)]
+                  [id {"A" (:option_a q)
+                       "B" (:option_b q)
+                       "C" (:option_c q)
+                       "D" (:option_d q)}]))
+              (or questions []))))
+
+(defn- texto-de
+  "El texto de una alternativa, o nil.
+
+   La letra se normaliza a mayúscula porque `selected-option` viaja a veces en
+   minúscula. `alternativas` puede ser nil —un intento viejo sin `:questions`, o
+   una pregunta que no quedó en el mapa— y por eso se usa `get` y no se invoca el
+   mapa como función: llamar a nil revienta, y el modo de fallo correcto acá es
+   quedarse sin texto, no tumbar la pantalla."
+  [alternativas letra]
+  (when (and (map? alternativas) (some? letra))
+    (not-empty (get alternativas (str/upper-case (str letra))))))
+
 (defn fila
-  "Una respuesta lista para pintar, con su número de orden (1-indexado)."
-  [indice respuesta]
-  {:n (inc indice)
-   :question-id (:question-id respuesta)
-   :enunciado (:question-text respuesta)
-   :modulo (:module-slug respuesta)
-   :dificultad (:difficulty respuesta)
-   :marcada (:selected-option respuesta)
-   :correcta (:correct-option respuesta)
-   :idea-erronea (when (cuenta-como-error? respuesta)
-                   (:selected-error respuesta))
-   :escape (escape/escape-of respuesta)
-   :categoria (categoria respuesta)
-   :segundos (segundos respuesta)})
+  "Una respuesta lista para pintar, con su número de orden (1-indexado).
+
+   `alternativas` es el mapa de esa pregunta (`{\"A\" texto …}`); puede faltar —
+   un intento viejo sin `:questions`—, y en ese caso las letras quedan sin texto
+   en vez de romper la vista."
+  ([indice respuesta] (fila indice respuesta nil))
+  ([indice respuesta alternativas]
+   (let [marcada (:selected-option respuesta)
+         correcta (:correct-option respuesta)]
+     {:n (inc indice)
+      :question-id (:question-id respuesta)
+      :enunciado (:question-text respuesta)
+      :modulo (:module-slug respuesta)
+      :dificultad (:difficulty respuesta)
+      :marcada marcada
+      :correcta correcta
+      :texto-marcada (texto-de alternativas marcada)
+      :texto-correcta (texto-de alternativas correcta)
+      :idea-erronea (when (cuenta-como-error? respuesta)
+                      (:selected-error respuesta))
+      :escape (escape/escape-of respuesta)
+      :categoria (categoria respuesta)
+      :segundos (segundos respuesta)})))
 
 (defn filas
-  "Las respuestas de un intento, en el orden en que se rindieron."
-  [respuestas]
-  (vec (map-indexed fila (or respuestas []))))
+  "Las respuestas de un intento, en el orden en que se rindieron.
+
+   `alternativas-por-pregunta` viene de `alternativas-por-id`."
+  ([respuestas] (filas respuestas nil))
+  ([respuestas alternativas-por-pregunta]
+   (vec (map-indexed (fn [i r]
+                       (fila i r (get alternativas-por-pregunta (:question-id r))))
+                     (or respuestas [])))))
 
 (defn resumen
   "Los números de cabecera de un intento.

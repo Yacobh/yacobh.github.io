@@ -62,17 +62,40 @@
       [:span {:class (str "led h-2 w-2 rounded-full " led)}]]
      [:span {:class "whitespace-nowrap text-xs text-gray-700"} texto]]))
 
+(defn- letra
+  [v]
+  (or (some-> v str str/upper-case not-empty) "—"))
+
 (defn- alternativa
-  "La letra que se marcó frente a la correcta. En mayúscula porque en la pantalla
-   del estudiante las alternativas se rotulan con letras, no con índices."
-  [marcada correcta]
-  (let [m (some-> marcada str str/upper-case not-empty)
-        c (some-> correcta str str/upper-case not-empty)]
-    [:span {:class "whitespace-nowrap font-mono text-sm"}
-     [:span {:class (if (and m c (= m c)) "text-gray-900" "text-alarma-700")}
-      (or m "—")]
-     [:span {:class "text-gray-500"} " / "]
-     [:span {:class "text-gray-700"} (or c "—")]]))
+  "Qué marcó y qué era, **con el texto de cada alternativa**, no solo la letra.
+
+   La letra sola —«B / D»— obliga a ir a buscar el ítem al banco para entender
+   nada, que es justo el viaje que esta pantalla existe para evitar. Cuando
+   acertó se muestra una sola línea: repetir la misma alternativa dos veces no
+   agrega información.
+
+   Si el intento es viejo y no guardó `:questions`, el texto falta y quedan las
+   letras: se degrada, no se rompe."
+  [{:keys [marcada correcta texto-marcada texto-correcta categoria]}]
+  (let [acerto? (contains? #{:correcta :correcta-desestimada} categoria)]
+    [:div {:class "min-w-[12rem] space-y-1.5"}
+     ;; La que marcó.
+     [:div {:class "flex gap-2"}
+      [:span {:class (str "font-mono text-xs shrink-0 "
+                          (if acerto? "text-gray-500" "text-alarma-700"))}
+       (letra marcada)]
+      [:div {:class (str "text-sm " (if acerto? "text-gray-900" "text-alarma-700"))}
+       (if texto-marcada
+         [math/latex texto-marcada]
+         (if (= :escape categoria) "—" "(sin texto guardado)"))]]
+     ;; La correcta, solo si no es la misma.
+     (when-not acerto?
+       [:div {:class "flex gap-2 border-t border-panel-400 pt-1.5"}
+        [:span {:class "font-mono text-xs shrink-0 text-gray-500"} (letra correcta)]
+        [:div {:class "text-sm text-gray-700"}
+         (if texto-correcta
+           [math/latex texto-correcta]
+           "(sin texto guardado)")]])]))
 
 ;; -----------------------------------------------------------------------------
 ;; Cabecera
@@ -141,7 +164,7 @@
        (if (= :enunciado (:escape f))
          "Declaró que no entendía el enunciado."
          "Declaró que no sabía resolverlo.")])]
-   [:td {:class "px-3 py-3"} [alternativa (:marcada f) (:correcta f)]]
+   [:td {:class "px-3 py-3"} [alternativa f]]
    [:td {:class "px-3 py-3 whitespace-nowrap text-xs text-gray-600"}
     (or (:modulo f) "—")]
    [:td {:class "px-3 py-3 whitespace-nowrap font-mono text-xs text-gray-600"}
@@ -155,7 +178,7 @@
    [:table {:class "w-full text-left text-sm"}
     [:thead {:class "bg-panel-200"}
      [:tr
-      (for [h ["#" "Estado" "Ítem e idea errónea" "Marcó / era" "Módulo" "Dif." "Tiempo"]]
+      (for [h ["#" "Estado" "Ítem e idea errónea" "Marcó · y era" "Módulo" "Dif." "Tiempo"]]
         ^{:key h}
         [:th {:scope "col" :class "grabado px-3 py-2"} h])]]
     [:tbody {:class "divide-y divide-panel-400 bg-panel-50"}
@@ -173,7 +196,7 @@
   (let [d (:detalle fila)
         r (intento/resumen (assoc d :theta (:theta fila)
                                     :duracion-min (:duracion-min fila)))
-        fs (intento/filas (:responses d))
+        fs (intento/filas (:responses d) (:alternativas d))
         puntos (intento/puntos-del-grafico d)]
     [:div
      [:div {:class "mb-4 flex flex-wrap items-center justify-between gap-3"}
