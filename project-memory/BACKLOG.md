@@ -584,13 +584,25 @@ entrada de `.gitignore` (ya no hace falta ignorar un archivo que no existe). Ver
 - **Terminado cuando:** se decide y ejecuta una de dos: `git rm --cached` (si es local/personal) o
   quitarlo del `.gitignore` (si es parte del proyecto). Registrar la razón. ✅
 
-### T-17 · Limpiar archivos huérfanos — **P3** · `abierto`
+### T-17 · Limpiar archivos huérfanos — **P3** · ✅ `CERRADA` (2026-09-13)
 
 `src/universo/components/math_render_2` (archivo **sin extensión**, no compilable),
 `compile-test.clj`, `avatar.html`, `out/test.js` versionado.
 
 - **Terminado cuando:** cada archivo está borrado, renombrado con extensión correcta, o
-  documentado como intencional en `docs/`.
+  documentado como intencional en `docs/`. ✅
+
+**Resuelto 2026-09-13**, uno por uno y con la razón de cada caso:
+
+| Archivo | Qué se hizo | Por qué |
+|---|---|---|
+| `src/universo/components/math_render_2` | **borrado** | Sin extensión, no compilable, 0 referencias. El que sí se usa es `math_render.cljs` |
+| `compile-test.clj` | **borrado** | Último commit 2025-06-01 («Version 0.1»), 0 referencias |
+| `style.css` (raíz) | **borrado** | 0 referencias en todo el repo, **tampoco en `index.html` ni `404.html`**. El CSS vivo es `src/css/app.css` → `public/css/app.css` |
+| `out/test.js` | ya no existía | 0 archivos trackeados bajo `out/` |
+| `avatar.html` | **se conserva** | Es una utilidad que funciona y [[TECH_STACK]] ya la documenta como intencional, que es una de las dos salidas que esta ficha admite |
+
+`clj -M:test` (197/2744/0) y `shadow-cljs release` (0 warnings) en verde **después** de borrar.
 
 ### T-18 · Ordenar las ramas — **P2** · `hecho` (2026-08-09)
 
@@ -1549,7 +1561,7 @@ La lista de contenidos es **decisión del owner** —sale del temario DEMRE— y
 **Terminado cuando:** existen los módulos del eje con su `track`, `order_index` y banda, y
 `bands/product-modules` los toma.
 
-### T-109 · Borrar `src/universo/animations.cljs` (código muerto) — **P3** · `abierto`
+### T-109 · Borrar `src/universo/animations.cljs` (código muerto) — **P3** · ✅ `CERRADA` (2026-09-13)
 
 Contiene un `movable-box`, un `"WOW"` animado y un `fade-in-page` de ejemplo. **`grep` confirma que
 ningún namespace lo requiere** (verificado 2026-08-23). Es además el fósil del enfoque canvas +
@@ -3682,11 +3694,16 @@ de 4 argumentos. **Verificado: cero menciones de `fuente` en `src/` y en `public
   recién entonces se manda a imprimir**.
 - **Vector:** G-5. Es la primera métrica de canal real del proyecto.
 
-### T-136 · Limpiar los dos pendientes sucios del árbol — **P2** · `abierto`
+### T-136 · Limpiar los dos pendientes sucios del árbol — **P2** · 🔶 `mitad hecha` (2026-09-13)
 
 `029_topic_normalization.sql` tiene una edición sin commitear que **descomenta una consulta de
 verificación** (9 líneas): reaplicarla ejecutaría un `select` suelto en vez de dejarlo comentado.
-Decidir si se revierte o se commitea comentada. `061` sale de este estado al cerrar T-135.
+✅ **Resuelto: se revirtió.** La consulta es **documentación** —se copia y se pega en el SQL Editor—,
+así que su forma correcta es comentada; descomentarla solo servía para correrla una vez, y quedó sin
+revertir. Reaplicar `029` ya no ejecuta un `select` suelto.
+
+⏳ **Sigue pendiente `061`**, que no es suciedad sino **T-135**: se commitea cuando esté aplicada y el
+cliente mande `p_fuente`, y antes de imprimir las tarjetas.
 
 ### T-137 · Señalizar el track de electrotecnia en el producto — **P1** · `abierto`
 

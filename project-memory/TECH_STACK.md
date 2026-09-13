@@ -194,8 +194,8 @@ desincronizarse cada vez que se agrega una migración, como ya pasó una vez con
 | `src/universo/user.cljs` | **Sí, aunque `.gitignore` lo lista** ⚠️ | Fue trackeado antes de ignorarse; `.gitignore` no destrackea. Ver [[BACKLOG]] T-16 |
 | `graphify-out/` | No versionado hoy (untracked) | El snapshot versionado vive en `project-memory/graph/` |
 | `src/universo/components/math_render_2` | Sí | **Archivo sin extensión** (7,7 KB), no compilable. Ver [[BACKLOG]] T-17 |
-| `avatar.html` | Sí | Utilidad suelta para generar un avatar; no parte de la app |
-| `compile-test.clj` | Sí | Script suelto de prueba de compilación |
+| `avatar.html` | Sí | Utilidad suelta para generar un avatar; no parte de la app. **Se conserva a propósito** (T-17, 2026-09-13): funciona y esta fila es su documentación |
+| ~~`compile-test.clj`~~ | — | **Borrado 2026-09-13** (T-17): 0 referencias, último commit 2025-06-01 |
 
 ## 8. Configuración de agentes en el repo
 
