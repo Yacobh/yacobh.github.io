@@ -193,3 +193,37 @@
     (is (= :precision (intento/razon-de-parada :precision)))
     (is (nil? (intento/razon-de-parada nil)))
     (is (nil? (intento/razon-de-parada "")))))
+
+;; -----------------------------------------------------------------------------
+;; Reproducción con la forma EXACTA de producción
+;; -----------------------------------------------------------------------------
+;; Copiada literal de una consulta a Supabase el 2026-09-13 sobre un intento real
+;; del 4º medio: id numérico (547, no string) y options con label/value. Existe
+;; porque dos arreglos anteriores fallaron por escribir el fixture de memoria.
+
+(def ^:private pregunta-real
+  {:id 547
+   :topic "numeros"
+   :options [{:label "$6$" :value "A"}
+             {:label "$9$" :value "B"}
+             {:label "$8$" :value "C"}
+             {:label "$5$" :value "D"}]
+   :position 3
+   :question "¿Cuánto es...?"
+   :module-id "abc"
+   :difficulty -0.2
+   :module-slug "aritmetica/numeros"})
+
+(def ^:private respuesta-real
+  {:question-id 547 :selected-option "B" :correct-option "C" :correct? false
+   :selected-error "Se sumaron los exponentes." :module-slug "aritmetica/numeros"
+   :difficulty -0.2 :time-ms 31000 :weight 1.0 :question-text "¿Cuánto es...?"})
+
+(deftest produccion-id-numerico-y-options-con-label
+  (let [m (intento/alternativas-por-id [pregunta-real])]
+    (testing "la clave del mapa es el id tal cual, número"
+      (is (= {547 {"A" "$6$" "B" "$9$" "C" "$8$" "D" "$5$"}} m)))
+    (testing "y la fila recupera los dos textos"
+      (let [f (first (intento/filas [respuesta-real] m))]
+        (is (= "$9$" (:texto-marcada f)))
+        (is (= "$8$" (:texto-correcta f)))))))

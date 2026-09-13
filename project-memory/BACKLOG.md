@@ -3606,7 +3606,7 @@ profesora de matemática que ofreció el suyo— con el mapa de T-130 proyectado
 - **Guarda heredada (R-32):** que la dirección o UTP del liceo lo sepa, aunque sea informal.
 - **Bloqueante previo:** **T-93 sigue a medias** — el contrato del liceo no se ha leído.
 
-### T-132 · Vista de detalle de un diagnóstico en el panel — **P0** · ✅ `CÓDIGO LISTO, falta verlo en vivo` (2026-09-13)
+### T-132 · Vista de detalle de un diagnóstico en el panel — **P0** · ✅ `CERRADA` (2026-09-13, verificada en vivo por el owner)
 
 Hoy la tabla de "Diagnósticos" (`components/admin.cljs:425-478`) tiene **seis columnas** y las filas
 **no son clickeables**. Hacerlas clickeables y mostrar el intento completo: ítems en orden,
@@ -3621,7 +3621,7 @@ y arriba θ con su SE, `theta-history`, `stop-reason` y `engine_version`.
   `theta` ni `engine_version`, pese a que ADR-034 dice que θ de versiones distintas no se comparan.
 - **Guarda R-07:** módulo propio (`components/admin_test_detail.cljs`), no más líneas en `admin.cljs`.
 - **Terminado cuando:** desde el panel se puede reconstruir un intento completo sin abrir el SQL
-  Editor. ⏳ **Falta lo único que no se puede automatizar: que el owner abra una fila y lo mire.**
+  Editor. ✅ **Verificada en vivo por el owner el 2026-09-13**, con tres correcciones que salieron de usarla: los puntos del gráfico se apilaban sobre el eje (faltaba `:n`), la leyenda de parada no aparecía (`stop-reason` vuelve como string), y la columna mostraba la letra en vez del texto de la alternativa.
 - ✅ **Hecho 2026-09-13.** `universo.intento` (lógica pura, 14 tests) + `admin_test_detail.cljs`
   (módulo propio, R-07). `fetch-admin-tests` ahora pide `topic`, `theta`, `engine_version` y `origin`,
   **con reintento sin `origin`** si `067` no está aplicada: si no, PostgREST rechazaría el select
@@ -3799,6 +3799,23 @@ produce dato calibrable del banco bueno.
   `diagnostico` (10), `ecuaciones_simples` (5) y `polinomios` (1), los duplicados muertos— mientras
   `geometria` y `algebra`, que son los bancos **buenos** y nuevos, recibieron **un test cada uno**.
   El selector no perdió su tiempo: **los mandó al lugar equivocado**, que es exactamente T-138.
+
+### T-144 · `tests.test` guarda estado de UI junto al diagnóstico — **P2** · `abierto`
+
+Descubierto el 2026-09-13 mirando las claves reales de una fila. `:test/complete`
+serializa **el mapa `:test` entero del `app-db`**, así que cada diagnóstico guarda, junto a las
+respuestas: `editor`, `configs`, `feedback`, `scoring?`, `prefetching?`, `topics-loading?`,
+`topics-error`, `available-topics`, `prefetched-question`, `question-ids`, `traits` (el stub muerto
+de ADR-019) y `score-error`.
+
+- **No rompe nada y no es urgente**, pero infla cada fila y mezcla dato con estado: quien lea
+  `tests.test` dentro de un año no va a saber qué claves son el diagnóstico y cuáles son residuo de
+  la pantalla. Con G-4 prometiendo Δθ sobre este histórico, conviene que la fila diga lo que es.
+- **Ojo antes de tocarlo:** no se puede recortar a ciegas. `:questions` parecía residuo y resultó ser
+  lo que hace posible **T-132** (el texto de las alternativas). Antes de sacar una clave hay que
+  buscar quién la lee — incluidas las consultas de `supabase/queries/`.
+- **Terminado cuando:** existe una lista explícita de qué se persiste y por qué, `:test/complete`
+  guarda solo eso, y está en `supabase/SCHEMA.md`. Las filas viejas **no se migran** (D-… histórico).
 
 ---
 
