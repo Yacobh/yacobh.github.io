@@ -1,8 +1,57 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-09-13** (SESSION-042, sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
+**Fecha de corte: 2026-09-13** (SESSION-042, **cerrada y mergeada a `main`** — T-130, T-110, T-132 y T-92 ✅, `067` aplicada, 20 % de la muestra era depuración; sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
+
+> ## ✅ 2026-09-13 (cierre) — el panel ya muestra el intento, y el 20 % de la muestra era ruido propio
+>
+> **Todo mergeado a `main`.** Nueve commits. Cuatro tareas cerradas y tres migraciones de estado:
+>
+> | | Estado |
+> |---|---|
+> | **T-130** mapa de errores por SQL | ✅ escrita, verificada y **corrida** sobre la sesión del 2026-09-10 |
+> | **T-110** `origin` en `tests` | ✅ **`067` aplicada**: 275 `student` / 70 `admin_preview` de 345 |
+> | **T-132** detalle del intento | ✅ **verificada en vivo** por el owner |
+> | **T-92** login con Google | ✅ cerrada (de punta a punta, confirmado por el owner) |
+> | **Q-49** segunda cuenta admin | ✅ respondida: es el socio |
+>
+> ⭐ **El número que más importa: 70 de 345 filas (20 %) eran corridas de depuración del owner** y
+> hasta hoy entraban a la calibración como si fueran de estudiantes, concentradas justo en los ítems
+> más editados. R-37 deja de ser una advertencia y pasa a ser una cifra, y G-2 pierde su primer
+> bloqueo. **Pero `origin = 'student'` es necesario y no suficiente** (T-145): una cuenta de prueba
+> sigue contando como estudiante.
+>
+> ⭐ **`universo.intento` y el hallazgo que lo ordena:** la categoría de una respuesta **no es
+> binaria**. Acertar, rendirse (ADR-029) y contar para θ (ADR-014) son tres dimensiones ortogonales
+> y dan **cinco** categorías. La que sorprende es `:correcta-desestimada` —un acierto descartado por
+> veloz, 14 de 104 en la sesión real—, que es **Q-47 hecha visible**: para ADR-019 rápido y correcto
+> es la definición de fluidez, y el filtro de esfuerzo la borra antes de que λ pueda verla.
+>
+> ⚠️ **Lo que ningún test habría encontrado.** Las tres correcciones del panel salieron de **abrirlo**:
+> los puntos del gráfico apilados sobre el eje (faltaba `:n`), la leyenda de parada ausente
+> (`stop-reason` vuelve como string), y la columna mostrando la letra en vez del texto de la
+> alternativa. El build en verde nunca significó que funcionara. Y una de ellas se tardó de más porque
+> **el fixture del test estaba escrito de memoria y no leído del código** — repetía la suposición en
+> vez de contradecirla. Ver L-58, L-59.
+>
+> ⚠️ **Tres inferencias sobre personas, las tres falsas** (un «profesor explorando» y una «cuenta
+> institucional de staff» que eran estudiantes, y el socio como supuesto destinatario del track de
+> cuántica). El rastro de uso dice **qué** pasó; **quién** y **por qué** se preguntan. De paso,
+> ADR-018 queda **confirmado con datos**: 32 de 33 intentos `mq_*` son del owner.
+>
+> 🆕 **Un stakeholder que la memoria no registraba:** el owner tiene un **socio con el 1 %**, que
+> acompaña el proyecto desde el comienzo y **le enseñó Project Memory First** — o sea, la metodología
+> con la que está escrita esta carpeta. Matiza R-01 sin cerrarlo. Ese 1 % es **verbal y sobre una
+> sociedad que no existe**: **Q-50**.
+>
+> 🔜 **Lo que NO se movió, y es lo único que mide el negocio:** el mapa de errores lo sigue habiendo
+> visto **solo el owner**. **T-131** —café con el colega, con la pantalla delante— sigue abierta y
+> es el siguiente paso. Todo lo de hoy existe para hacer esa conversación posible, no para
+> reemplazarla.
+>
+> ⏳ **Pendientes de árbol, los mismos de siempre:** `061` sin commitear (T-135, y **las tarjetas QR
+> todavía no se imprimen**) y `029` con una edición sin decidir (T-136).
 
 > ## ⭐ 2026-09-13 — el dato estaba ahí y el panel no lo mostraba (SESSION-042)
 >

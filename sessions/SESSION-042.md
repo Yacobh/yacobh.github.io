@@ -352,3 +352,34 @@ al track por el selector.
 `CURRENT_STATUS` decía *"el motor v2 está en producción; **no se ha rendido un diagnóstico real con
 él todavía**"*. Se rindieron **17** (40 contando los otros bancos), todos con `engine_version = 2`.
 **Esa frase queda obsoleta.**
+
+
+---
+
+# ✅ Cierre — 2026-09-13
+
+**Mergeado a `main` por el owner.** Nueve commits.
+
+| Tarea | Estado final |
+|---|---|
+| **T-130** consulta del mapa de errores | ✅ cerrada, **corrida** sobre 17 intentos reales |
+| **T-110** `tests.origin` | ✅ cerrada — `067` **aplicada**: 275 `student` / 70 `admin_preview` |
+| **T-132** detalle del intento en el panel | ✅ cerrada, **verificada en vivo** |
+| **T-92** login con Google | ✅ cerrada por confirmación del owner |
+| **T-90** diagnóstico en un curso real | `a medias` → cierra con **T-131** |
+| **Q-49** segunda cuenta admin | ✅ respondida (el socio) |
+
+**Abiertas que dejó esta sesión:** Q-43 (segmento: PAES vs. técnico) · Q-44 (IA) · Q-45 (marca) ·
+Q-46 (qué θ vale) · Q-47 (esfuerzo vs. fluidez) · Q-48 (¿notas?) · Q-50 (el 1 % por escrito) ·
+R-43 · R-44 · T-131, T-133…T-145.
+
+**Verificación final:** `clj -M:test` → **197 tests / 2744 assertions / 0 failures** (se entró con
+181/2677) · `shadow-cljs release app` → 0 warnings · los cinco auditores en verde · `067` verificada
+contra PostgreSQL 14 desechable **y** aplicada en producción.
+
+**Lo que quedó fuera y por qué:** `061_visitor_fuente.sql` sin commitear (T-135 — se cierra **antes**
+de imprimir las tarjetas QR, que todavía no se imprimen) y `029_topic_normalization.sql` con una
+edición sin decidir (T-136).
+
+**El único paso siguiente que mueve el negocio: T-131.** Café con el colega, con el detalle del
+intento proyectado. Todo lo construido hoy existe para hacer esa conversación posible.
