@@ -1147,3 +1147,34 @@ arrastraban el mismo defecto sin que nadie lo hubiera notado.
 - **Relacionado:** [[../adr/ADR-033-el-estado-se-dice-con-un-diodo]],
   [[../adr/ADR-031-fondo-como-plano-de-medida]], L-50/L-51, `scripts/audit_contraste.py`,
   `sessions/SESSION-042.md`.
+
+---
+
+### L-61 · Con `watch` corriendo, `public/js/app.js` en disco es el bundle de DESARROLLO
+
+**Síntoma.** Al cerrar la sesión del 2026-09-13, `git status` mostraba `public/js/app.js` modificado
+**sin que nadie hubiera compilado**. El diff era enorme (−3.059 / +1.737 líneas). El archivo en disco
+pesaba **9.867.879 bytes**; el commiteado, **1.457.244**. **6,8× más grande.**
+
+**Causa.** Había un `clojure -M:shadow-cljs watch app` vivo —el que se usa para probar la aplicación—
+y **el watch escribe en la misma ruta que el release**: `public/js/app.js`. Cada recompilación de
+desarrollo pisa el artefacto de producción.
+
+**Por qué importa acá más que en otros proyectos.** ADR-003: ese archivo **está versionado en Git y
+es lo que sirve GitHub Pages**. No hay pipeline que compile al desplegar. Así que la secuencia
+`watch` → `git add -A` → `commit` → `push` **publica el bundle de desarrollo en producción**: casi
+siete veces más pesado, para estudiantes que entran desde el teléfono con datos móviles. No falla
+ningún test, no falla ningún auditor y la aplicación *funciona* — por eso puede pasar inadvertido.
+
+**Regla.** Antes de commitear `public/js/app.js`, **siempre**:
+
+1. `npx shadow-cljs release app` (aunque parezca que ya se corrió: si el watch siguió vivo, ya no
+   vale), y
+2. mirar el **tamaño**, que es la señal más barata: el release ronda **1,4 MB**; cualquier cosa
+   cercana a 10 MB es el build de desarrollo.
+
+`git diff --stat public/js/app.js` también lo delata: un cambio de código real mueve decenas o
+cientos de líneas, no miles.
+
+**Relacionado:** [[../adr/ADR-003-github-pages-artefacto-versionado]], [[RISKS]] R-02,
+`sessions/SESSION-042.md`.
