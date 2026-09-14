@@ -41,6 +41,8 @@
            ;; (T-132). Se guarda el id y no la fila para que una recarga de
            ;; `:tests` no deje la vista mostrando una copia congelada.
            :test-abierto nil
+           ;; Filas de `visitor` para el panel de métricas (T-22).
+           :visitantes []
            :guestbook []
            :guestbook-filter :pending
            :guestbook-counts {}

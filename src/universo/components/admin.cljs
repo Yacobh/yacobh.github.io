@@ -8,6 +8,7 @@
    [universo.components.admin-misconceptions :as admin-mis]
    [universo.components.admin-questions :as admin-q]
    [universo.components.admin-test-detail :as admin-test-detail]
+   [universo.components.admin-visitantes :as admin-vis]
    [universo.components.admin-test-configs :as admin-tc]
    [universo.components.plan :as plan]
    [universo.components.ui :as ui]
@@ -1305,6 +1306,7 @@
 
 (def ^:private tabs
   [[:overview "Resumen"]
+   [:visitantes "Visitantes"]
    [:users "Usuarios"]
    [:tests "Diagnósticos"]
    [:questions "Preguntas"]
@@ -1421,6 +1423,7 @@
             [:div {:class "min-w-0 flex-1"}
             (case tab
               :overview [overview-panel]
+              :visitantes [admin-vis/visitantes-panel]
               :users [users-panel]
               :tests [tests-panel]
               :questions [admin-q/questions-panel]

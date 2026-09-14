@@ -3866,6 +3866,44 @@ los dos casos. **No se deduce quién es alguien mirando sus filas: se pregunta.*
   el reporte de T-77 lo dice en sus limitaciones.
 - **Vector:** G-2. **Relacionado:** T-110 ✅, T-76, T-77, R-37, R-17.
 
+### T-146 · Panel de visitantes en administración — **P1** · ✅ `HECHA` (2026-09-14)
+
+Pedido del owner como «pulido del admin»; **es el primer trozo de T-22**, o sea F10, o sea G-5. No
+necesitó ninguna migración: `015_visitor_select_admin.sql` ya le daba SELECT al admin.
+
+- `universo.visitantes` (lógica pura, 7 tests) + `components/admin_visitantes.cljs`.
+- Muestra: total y últimos 7/30 días, cuántos dejaron correo, serie de 14 días, y rankings de país,
+  ciudad e idioma. La tabla cruda al final.
+- **Dos límites se declaran EN PANTALLA**, no en un comentario: que cada fila es **un navegador
+  nuevo y no una visita** (el tracker inserta solo la primera vez), y que **de dónde vino cada quien
+  no se puede responder** hasta aplicar `061`. Un panel de métricas que no dice qué no puede medir
+  invita a concluir de más.
+- `fetch-admin-visitors` pide `fuente` y **reintenta sin ella** si `061` no está aplicada; el día que
+  se aplique, el ranking de canal aparece solo.
+- ⚠️ **Bug que atrapó el test y no la pantalla:** las claves de día se calculaban en hora **local** y
+  el eje se rearmaba parseando `"2026-09-12"`, que el runtime lee como medianoche **UTC** — en Chile
+  eso corría la serie **un día entero**. Además el avance de día usa `setDate` y no `+86.400.000 ms`,
+  que se rompe en los dos cambios de hora del año.
+- **Relacionado:** T-22, T-20, T-135, [[TESIS_DE_CRECIMIENTO]] G-5.
+
+### T-147 · `CLAUDE.md` §7 declara datos personales que quizá no se recolectan — **P1** · `abierto`
+
+§7 dice: *«Datos personales presentes: email, IP, ciudad/país, batería, user-agent (`visitor`,
+`contacto`, `guestbook`)»*. Verificado contra `information_schema` el 2026-09-14, **`visitor` tiene
+siete columnas y ninguna es IP, batería ni user-agent**: `id`, `created_at`, `pais`, `ciudad`,
+`timezone`, `idioma`, `email`.
+
+- La frase agrupa tres tablas, así que puede que IP y batería vivan en `contacto` o `guestbook` —
+  **o puede que no existan en ninguna**, y entonces el proyecto declara recolectar más de lo que
+  recolecta.
+- **Por qué no es un detalle de redacción:** ese texto y el aviso de privacidad (D-20) son a lo que
+  se acude si un apoderado pregunta qué se guarda de su hijo, y con la Ley 21.719 en plena vigencia
+  desde el **2026-12-01** y R-28 encima, la respuesta tiene que ser exacta en las dos direcciones.
+  Declarar de más tampoco es gratis: obliga a cumplir sobre datos que no se tienen.
+- **Terminado cuando:** las columnas reales de las tres tablas están verificadas con una consulta,
+  `CLAUDE.md` §7 dice exactamente eso, y el aviso de privacidad concuerda.
+- **Cuesta una consulta.** **Relacionado:** [[RISKS]] R-06, R-28, D-20, T-88.
+
 ---
 
 ## Cambios de prioridad decididos el 2026-09-13 (SESSION-042)

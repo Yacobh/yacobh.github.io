@@ -995,6 +995,49 @@
                     (async/put! ch {:success false :error (.-message error)})))))
     ch))
 
+(def ^:private admin-visitors-columnas-base
+  "Las siete columnas reales de `visitor`, verificadas contra
+   `information_schema` el 2026-09-14. La tabla es **previa al MVP** y no tiene
+   `create table` versionado, así que esta lista es la única declaración
+   explícita que hay de su forma."
+  "id,created_at,pais,ciudad,timezone,idioma,email")
+
+(defn fetch-admin-visitors
+  "Visitantes recientes para admin (policy `visitor_select_admin`, `015`).
+
+   Pide también `fuente` y **reintenta sin ella** si la migración `061` no está
+   aplicada: mismo criterio que `fetch-admin-tests`, porque las migraciones de
+   este proyecto se aplican a mano y un select con una columna inexistente falla
+   entero — la pestaña quedaría en blanco en vez de mostrar lo que sí hay."
+  ([] (fetch-admin-visitors 500))
+  ([limit]
+   (let [ch (async/chan)
+         consultar
+         (fn consultar [columnas reintentar?]
+           (-> (.from supabase-client "visitor")
+               (.select columnas)
+               (.order "created_at" #js {:ascending false})
+               (.limit limit)
+               (.then (fn [result]
+                        (if (.-error result)
+                          (let [msg (.-message (.-error result))]
+                            (if (and reintentar?
+                                     (not= -1 (.indexOf (str msg) "fuente")))
+                              (do
+                                (js/console.warn
+                                 "La migración 061 no está aplicada: se cargan visitantes sin fuente.")
+                                (consultar admin-visitors-columnas-base false))
+                              (async/put! ch {:success false :error msg})))
+                          (async/put! ch {:success true
+                                          :data (or (js->clj (.-data result)
+                                                             :keywordize-keys true)
+                                                    [])}))))
+               (.catch (fn [error]
+                         (async/put! ch {:success false
+                                         :error (.-message error)})))))]
+     (consultar (str admin-visitors-columnas-base ",fuente") true)
+     ch)))
+
 (defn fetch-admin-resources
   []
   (let [ch (async/chan)]

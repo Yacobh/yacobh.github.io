@@ -31,7 +31,8 @@
    :misconceptions :admin/load-misconceptions
    :slots :admin/load-slots
    :guestbook :admin/load-guestbook
-   :contacto :admin/load-contacto})
+   :contacto :admin/load-contacto
+   :visitantes :admin/load-visitantes})
 
 ;; -----------------------------------------------------------------------------
 ;; Estado por sección
@@ -427,6 +428,33 @@
                          (or rows []))]
      {:db (assoc-in db [:admin :tests] summaries)
       :dispatch [:admin/section-ok :tests]})))
+
+(re-frame/reg-fx
+ :admin/fetch-visitantes
+ (fn [_]
+   (go
+     (let [result (<! (crud/fetch-admin-visitors 500))]
+       (if (:success result)
+         (re-frame/dispatch [:admin/visitantes-loaded (:data result)])
+         (re-frame/dispatch [:admin/section-fail :visitantes
+                             (or (:error result) "No se pudieron cargar los visitantes")]))))))
+
+(re-frame/reg-event-fx
+ :admin/load-visitantes
+ (fn [_ _]
+   {:dispatch [:admin/section-start :visitantes]
+    :admin/fetch-visitantes nil}))
+
+(re-frame/reg-event-fx
+ :admin/visitantes-loaded
+ (fn [{:keys [db]} [_ rows]]
+   {:db (assoc-in db [:admin :visitantes] (vec (or rows [])))
+    :dispatch [:admin/section-ok :visitantes]}))
+
+(re-frame/reg-sub
+ :admin/visitantes
+ (fn [db _]
+   (get-in db [:admin :visitantes] [])))
 
 ;; -----------------------------------------------------------------------------
 ;; Detalle de un intento (T-132)
