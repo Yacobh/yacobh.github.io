@@ -1317,25 +1317,64 @@
    [:contacto "Contacto"]
    [:apariencia "Apariencia"]])
 
-(defn- tab-btn
+(defn- pendientes-de-moderar
+  "El contador del badge de Moderación. Vive aparte para que el ítem del menú y
+   el `<select>` del teléfono lean el mismo número."
+  [id]
+  (when (= id :guestbook)
+    (let [n (:pending @(re-frame/subscribe [:admin/guestbook-counts]))]
+      (when (and n (pos? n)) n))))
+
+(defn- tab-item
+  "Un ítem del menú lateral.
+
+   ── Por qué vertical (2026-09-14) ──────────────────────────────────────────
+   Con doce secciones, la barra horizontal obligaba a **scroll lateral**, y el
+   problema no era la incomodidad sino que **las secciones fuera de pantalla
+   eran invisibles**: nadie descubre una pestaña que nunca ve. En vertical caben
+   las doce a la vez.
+
+   El estado activo se dice con una **regla lateral** y no pintando el fondo
+   (ADR-033), que es la misma pieza que la barra usaba abajo: cambió la
+   disposición, no el vocabulario de color."
   [id label current]
   (let [active? (= id current)
-        pending @(re-frame/subscribe [:admin/guestbook-counts])
-        n (when (= id :guestbook) (:pending pending))]
+        n (pendientes-de-moderar id)]
     [:button
      {:type "button"
       :aria-current (when active? "page")
-      :class (str "-mb-px inline-flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 "
-                  "text-sm font-medium transition focus:outline-none "
+      :class (str "flex w-full items-center justify-between gap-2 border-l-2 px-3 py-2 "
+                  "text-left text-sm transition focus:outline-none "
                   "focus-visible:ring-2 focus-visible:ring-indigo-400 "
                   (if active?
-                    "border-indigo-600 text-indigo-700"
+                    "border-indigo-600 font-medium text-indigo-700"
                     "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800"))
       :on-click #(re-frame/dispatch [:admin/set-tab id])}
-     label
-     (when (and n (pos? n))
+     [:span label]
+     (when n
        [:span {:class "rounded-full bg-amber-100 px-1.5 text-xs font-semibold text-amber-800"}
         n])]))
+
+(defn- tab-select
+  "La misma navegación para pantallas chicas.
+
+   Doce ítems apilados empujarían el contenido fuera de la pantalla en un
+   teléfono, así que abajo de `lg` la lista se convierte en un desplegable — que
+   además es un objetivo táctil grande de una sola pieza."
+  [current]
+  [:div {:class "lg:hidden"}
+   [:label {:for "admin-seccion" :class "grabado mb-1 block"} "Sección"]
+   [:select
+    {:id "admin-seccion"
+     :class (str "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 "
+                 "text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400")
+     :value (name current)
+     :on-change #(re-frame/dispatch [:admin/set-tab (keyword (.. % -target -value))])}
+    (for [[id label] tabs]
+      ^{:key id}
+      [:option {:value (name id)}
+       (let [n (pendientes-de-moderar id)]
+         (if n (str label " (" n ")") label))])]])
 
 (defn admin-panel []
   (r/create-class
@@ -1364,13 +1403,22 @@
              "No tienes permisos de administrador."]]
 
            :else
-           [:div
-            [:div {:class "mb-8 overflow-x-auto border-b border-gray-200"}
-             [:nav {:class "flex gap-1" :aria-label "Secciones de administración"}
+           [:div {:class "lg:flex lg:gap-8"}
+            ;; La barra lateral es `sticky`: con la tabla de diagnósticos larga,
+            ;; un menú que se va con el scroll obliga a subir hasta arriba para
+            ;; cambiar de sección.
+            [:aside {:class "mb-6 lg:mb-0 lg:sticky lg:top-6 lg:w-56 lg:shrink-0 lg:self-start"}
+             [tab-select tab]
+             [:nav {:class "hidden lg:flex lg:flex-col lg:gap-0.5"
+                    :aria-label "Secciones de administración"}
               (for [[id label] tabs]
                 ^{:key id}
-                [tab-btn id label tab])]]
+                [tab-item id label tab])]]
 
+            ;; `min-w-0` no es decorativo: sin él, una tabla ancha estira el
+            ;; contenedor flex y se lleva por delante a la barra lateral en vez
+            ;; de hacer su propio scroll horizontal.
+            [:div {:class "min-w-0 flex-1"}
             (case tab
               :overview [overview-panel]
               :users [users-panel]
@@ -1384,6 +1432,6 @@
               :guestbook [guestbook-panel]
               :contacto [contacto-panel]
               :apariencia [apariencia-panel]
-              [overview-panel])])
+              [overview-panel])]])
 
          [toast-view]]))}))
