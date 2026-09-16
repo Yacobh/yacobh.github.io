@@ -11,7 +11,7 @@
 
 ## Objetivo de la sesión
 
-Cerrar **T-135 completo**: verificar `061_visitor_fuente.sql` contra un PostgreSQL desechable y
+**Cumplido: T-135 cerrada y verificada en producción.** Se venía a cerrar **T-135 completo**: verificar `061_visitor_fuente.sql` contra un PostgreSQL desechable y
 escribir la otra mitad —que el cliente lea `?de=` y mande `p_fuente`—, que es lo que hace que el
 panel de visitantes muestre el canal. El objetivo no cambió.
 
@@ -59,6 +59,12 @@ panel de visitantes muestre el canal. El objetivo no cambió.
 9. Desmontaje del cluster desechable.
 10. **El owner aplicó `061` en producción** al cierre de la sesión, antes de commitear — el orden
     que pide R-39. Se actualizó la memoria que decía «sin aplicar» y se cerró **T-136**.
+11. **Push y verificación del despliegue:** GitHub Pages republicó en ~30 s y el bundle servido es
+    byte por byte el release local (1.476.022 bytes) con `p_fuente`. *(No se pudo confirmar desde
+    acá el schema cache de PostgREST: Supabase devuelve **401** en el endpoint OpenAPI para `anon`,
+    y la única alternativa era llamar al RPC, que habría insertado una fila en producción.)*
+12. **El owner verificó en vivo:** `/?de=tarjeta` dejó la fila **1052** con `fuente = 'tarjeta'`.
+    **T-135 cierra** y se abrió **T-148** para la decisión que queda.
 
 **Lo que no funcionó / se descartó:**
 
@@ -97,7 +103,7 @@ panel de visitantes muestre el canal. El objetivo no cambió.
 | `project-memory/ARCHITECTURE.md` | Fila de `universo.fuente`, la advertencia del orden en el arranque, y `fuente` en la tabla de datos personales (como **no** personal) |
 | `project-memory/DECISIONS.md` | **D-68** |
 | `project-memory/RISKS.md` | R-39: segunda instancia, con el modo de fallo medido |
-| `project-memory/BACKLOG.md` | T-135 → `aplicada y desplegada`; **T-136 cerrada** |
+| `project-memory/BACKLOG.md` | **T-135 y T-136 cerradas**; **T-148 nueva** (decidir las etiquetas del QR) |
 | `project-memory/CURRENT_STATUS.md` | Bloque del 2026-09-16 y fecha de corte |
 | `project-memory/LESSONS_LEARNED.md` | **L-62** |
 
@@ -168,24 +174,23 @@ Ninguna. La única indecisión —qué etiquetas van impresas— es una decisió
 1. ✅ **Aplicar `061`** — hecho por el owner el 2026-09-16, anotado en `supabase/SCHEMA.md`
    (entrada 63).
 2. ✅ **Commitear y publicar** — hecho el 2026-09-16, con la migración ya aplicada (R-39).
-3. ⏳ **Verificar en vivo:** abrir `https://jacobocordova.com/?de=tarjeta` en un navegador que
-   **nunca** haya entrado —el tracker solo inserta la primera visita, si hay `visitor-id` en
-   `localStorage` no pasa nada— y confirmar la fila en la base. Recién ahí T-135 se cierra. Todo lo
-   verificado en esta sesión fue contra una base desechable, **no contra producción**.
-4. ⏳ **Decidir las etiquetas y mandar a imprimir** las 100 tarjetas y el afiche. Una vez impreso el
-   QR, la etiqueta no se corrige.
+3. ✅ **Verificado en producción** el 2026-09-16: la fila **1052** (`15:56:40+00`) llegó con
+   `fuente = 'tarjeta'` y las anteriores en `null`. **T-135 cierra.**
+4. ⏳ **Decidir las etiquetas y mandar a imprimir** las 100 tarjetas y el afiche — **T-148**. Una vez
+   impreso el QR, la etiqueta no se corrige.
 5. Sin relación con esto: **T-131** (café con el colega, con el mapa de errores delante) sigue
    siendo el paso que mide el negocio.
 
 ## Pendientes
 
-- **La verificación en vivo del paso 3** es lo único que separa a T-135 de `cerrada`. Todo lo demás
-  —migración, cliente, tests, artefacto, despliegue— está hecho; pero lo verificado es contra una
-  **base desechable**, y una fila real en producción es otra cosa.
-- **Las etiquetas del QR sin decidir** (paso 4). Es lo único con plazo duro: después de la imprenta
-  no se corrige.
-- ✅ `061` aplicada y commiteada, y `029` ya estaba revertida ⇒ **T-136 cierra** y el árbol queda
-  limpio.
+- **Las etiquetas del QR sin decidir** — **T-148**, lo único que queda de esta línea y lo único con
+  plazo duro: después de la imprenta no se corrige. Y es más que un nombre: **cuántos canales se
+  distinguen** (una etiqueta para todo lo impreso, una por pieza, una por lugar) es un corte que
+  cuesta cero en software y que solo se puede tomar antes de imprimir.
+- **Borrar o descontar la fila 1052**, que es la prueba del owner y ya cuenta como una llegada por
+  tarjeta en la consulta de campaña. R-37 en miniatura; la propia migración lo anticipaba.
+- ✅ **T-135 cerrada** (verificada en producción) y **T-136 cerrada** (`061` commiteada, `029` ya
+  revertida): el árbol queda limpio.
 
 ## Actualizaciones requeridas en Project Memory
 

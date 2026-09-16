@@ -603,9 +603,10 @@ en `project-memory/` al 2026-09-13:
 | Campaña de 100 tarjetas QR + afiche, con su migración escrita | `061_visitor_fuente.sql`, **sin commitear** |
 | Un alumno de electrotecnia pagando **USD 20/h** | En ninguna parte |
 
-*(Actualización 2026-09-16: la segunda fila se resolvió. `061` está **aplicada y desplegada**, y el
-cliente manda la etiqueta de campaña — T-135, D-68. Falta ver una fila real y decidir las etiquetas
-antes de imprimir. Las otras dos filas siguen igual: **T-131** —la observación que cierra T-90— es
+*(Actualización 2026-09-16: la segunda fila se resolvió. `061` está **aplicada, desplegada y
+verificada en producción** —la fila 1052 llegó con `fuente = 'tarjeta'`— y el cliente manda la
+etiqueta de campaña: **T-135 cerrada**, D-68. Queda **T-148**, decidir las etiquetas antes de
+imprimir. Las otras dos filas siguen igual: **T-131** —la observación que cierra T-90— es
 el paso que sigue midiendo el negocio.)*
 
 **Las tres consecuencias, en orden de gravedad.**
