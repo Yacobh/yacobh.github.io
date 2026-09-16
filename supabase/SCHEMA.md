@@ -148,6 +148,48 @@ bigint` que inserta y devuelve **solo el id**, sin exponer la fila completa. El 
 —el de `dispatch`— tapaba el `boolean` real), por lo que el tracker se disparaba en cada carga en
 vez de una sola vez por visitante.
 
+## De dónde vino la visita (`061_visitor_fuente.sql`)
+
+`014` guarda país, ciudad, idioma y timezone, y **nada sobre el origen**. `061` agrega
+`visitor.fuente`: la **etiqueta de campaña** que viaja en la query string (`/?de=tarjeta`), acotada
+por el check `visitor_fuente_formato` a `^[a-z0-9._-]{1,40}$`.
+
+**El RPC es una sobrecarga, no un reemplazo.** `track_visitor` existe ahora con 4 y con 5
+argumentos, y la de `014` **queda intacta**. Eso es lo que permite el orden de despliegue que R-39
+pide —migración primero, bundle después— sin una ventana en la que nada funcione. El cliente
+(`db/crud.track-visitor!`) manda `p_fuente` **siempre**, incluso `nil`, porque PostgREST elige la
+sobrecarga por el conjunto de claves del cuerpo; y **reintenta sin ella** si la base todavía no
+tiene `061` (`universo.fuente/falta-el-argumento-de-fuente?`, mismo patrón que
+`motor/falta-la-columna-de-version?`), porque con el orden invertido lo que se pierde no es la
+etiqueta sino **la fila entera** —`404 PGRST202`, medido— y con ella el `visitor-id` que el
+guestbook usa como FK.
+
+**La etiqueta se normaliza de los dos lados y se valida de los dos lados.** La función baja a
+minúsculas, recorta y, si no cumple el formato, **guarda `null` en vez de fallar**: un QR mal
+impreso no puede romper el registro de la visita. El cliente aplica la misma regla en
+`universo.fuente` antes de mandar. La autoridad es el check; el cliente es cortesía.
+
+**Lo que este dato no es:** no es analítica ni seguimiento de personas, y no amplía la recolección
+de datos personales (CLAUDE.md §7.6). Es una etiqueta que elegimos e imprimimos nosotros. **No se
+guarda la query string cruda** a propósito — ahí es donde una etiqueta de campaña se convierte, sin
+querer, en un campo libre con datos de quien visita.
+
+**Límite de la atribución, que hay que decir antes de leer los números:**
+`visitor-tracker/start-tracking!` inserta solo la **primera** vez que un navegador entra, así que
+`fuente` responde *«de dónde llegó quien nunca había entrado»*, no *«de dónde llegó esta visita»*.
+Un conocido que ya visitó la página y después escanea la tarjeta **no suma**.
+
+La consulta de la campaña:
+
+```sql
+select coalesce(fuente, '(sin etiqueta)') as canal, count(*) as visitantes
+  from public.visitor
+ group by 1 order by 2 desc;
+```
+
+Las filas anteriores al despliegue quedan todas en `(sin etiqueta)`, así que la comparación útil es
+**entre canales**, no contra el histórico.
+
 ## Contexto de visitante para el admin (`015_visitor_select_admin.sql`)
 
 Mejora del flujo de comentarios (2026-07-31): el panel de moderación del guestbook
@@ -470,11 +512,36 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     ⚠️ Sigue siendo hipótesis autoral (R-17); lo que cambia no es que sea más cierta, es que deja
     de moverse sola.
 
-> ⚠️ **`061_visitor_fuente.sql` existe en `supabase/migrations/` y no está en esta lista** (a
-> 2026-09-09 sigue sin commitear). Quien lo aplique tiene que anotarlo acá; esta numeración lo
-> saltea a propósito para no inventarle una fecha.
+63. `migrations/061_visitor_fuente.sql` — ✅ **aplicada 2026-09-16** por el owner ·
+    **T-135.** Agrega `visitor.fuente`, la **etiqueta de campaña** que llega por la query string
+    (`?de=tarjeta`), más un índice parcial y una **sobrecarga de 5 argumentos** de `track_visitor`.
+    **Para qué:** hoy una visita que llega por el QR de la tarjeta es indistinguible de una que
+    llegó por Google, y sin eso no se puede responder qué canal trajo gente (G-5, R-31).
+    ⚠️ **No es analítica ni dato personal.** `fuente` es una etiqueta que elegimos nosotros, acotada
+    por el check `visitor_fuente_formato` a `^[a-z0-9._-]{1,40}$` porque **viene de un input que
+    cualquiera puede escribir**. No se guarda la query string cruda: ahí es donde una etiqueta de
+    campaña se convierte, sin querer, en un campo libre con datos de la persona (CLAUDE.md §7.6).
+    ⚠️ **La versión de 4 argumentos de `014` se deja intacta a propósito** (R-39): mientras el
+    bundle publicado siga llamando a la de 4, sigue funcionando igual.
+    **Límite que hay que decir antes de leer los números:** `visitor-tracker/start-tracking!`
+    inserta solo la **primera** visita de un navegador, así que `fuente` responde «de dónde llegó
+    quien nunca había entrado», no «de dónde llegó esta visita».
+    **Verificada (2026-09-16)** contra un PostgreSQL 14.18 desechable **y un PostgREST real**, con
+    una réplica de `visitor` (sus siete columnas) y `014` cargados antes:
+    - aplica limpia y es **idempotente** (la segunda corrida solo emite los `NOTICE` de
+      `if not exists`);
+    - las **dos sobrecargas conviven**, ambas con `execute` para `anon` y `authenticated`;
+    - 13 etiquetas hostiles guardan `null` **sin romper la fila**: `<script>`, `' or 1=1--`,
+      espacios, tildes, 41 caracteres y `tarjeta\nDROP TABLE visitor` (el `~` de Postgres **no** es
+      multilínea, así que el salto de línea no parte la etiqueta);
+    - el check **sí rechaza** un `insert` directo que se saltee el RPC;
+    - por HTTP, PostgREST elige la sobrecarga **sin ambigüedad**: 4 claves → la de `014`, 5 claves
+      → la de `061`, también con `p_fuente: null`;
+    - **con el orden invertido** (bundle antes que migración) la respuesta es `404 PGRST202` y se
+      pierde **la fila entera**, no solo la etiqueta — de ahí el reintento del cliente;
+    - la **reversión escrita en el pie funciona** y deja la de 4 argumentos intacta.
 
-63. `migrations/062_electrotecnia_track_y_modulos.sql` — ✅ **aplicada 2026-09-09** por el owner ·
+64. `migrations/062_electrotecnia_track_y_modulos.sql` — ✅ **aplicada 2026-09-09** por el owner ·
     abre el **track `electrotecnia`**, el segundo fuera del temario PAES, con sus **12 módulos** y
     **banda explícita en todos** (`band_min`/`band_max`, de −3,0 a 2,6). Amplía los dos `check` de
     lista cerrada, `modules.track` y `class_slots.track` — el segundo es la lección de `046`: si no
@@ -484,14 +551,14 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     meterlo en el reparto movería las bandas de los 26 módulos del producto — el defecto que `060`
     acababa de cerrar. Ver [[../adr/ADR-035-track-electrotecnia-visible]].
 
-64. `migrations/063_banco_de_electrotecnia.sql` — ✅ **aplicada 2026-09-09** por el owner ·
+65. `migrations/063_banco_de_electrotecnia.sql` — ✅ **aplicada 2026-09-09** por el owner ·
     **74 ítems** y **54 ideas erróneas nuevas** (prefijo `et/`), repartidos en los doce módulos y
     cubriendo θ ∈ [−3, 3] con al menos 6 ítems por tramo de 1,0 logit. Es el banco de **entrada**:
     un diagnóstico que recorre el curso completo. Generada desde
     `contenido/items/electrotecnia.json` con la skill `banco-de-items`; el JSON es la fuente de
     verdad y el `.sql` un artefacto — se corrige el JSON y se regenera.
 
-65. `migrations/064_banco_de_electrotecnia_ca.sql` — ✅ **aplicada 2026-09-09** por el owner ·
+66. `migrations/064_banco_de_electrotecnia_ca.sql` — ✅ **aplicada 2026-09-09** por el owner ·
     **42 ítems** y **6 ideas erróneas nuevas** sobre los seis módulos de corriente alterna, θ ∈
     [−1, 3]. Es el banco de **profundización**, con el temario de la prueba que motivó el track.
     ⚠️ **Va después de `063`, y no hay guarda que lo verifique.** Reutiliza 29 slugs de idea errónea
@@ -499,7 +566,7 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     quedan sin ninguna idea errónea, en silencio (modo de fallo de T-119). La consulta que lo
     detecta está en el pie de `065`.
 
-66. `migrations/065_test_configs_de_electrotecnia.sql` — ✅ **aplicada 2026-09-09** por el owner ·
+67. `migrations/065_test_configs_de_electrotecnia.sql` — ✅ **aplicada 2026-09-09** por el owner ·
     crea las **dos filas de `test_configs`** (`electrotecnia` y `electrotecnia_ca`, encadenadas sin
     `min_theta`) con los parámetros de `020`/`059`: 5/12/0,35 y `min_response_seconds = 3`.
     ⚠️ **Es la que publica, y lo hace con `active = true`.** No hay estado intermedio en
@@ -509,12 +576,12 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     banco no llega a 20 ítems activos — T-125 al revés, porque una config sin banco deja al
     estudiante sin preguntas a mitad del diagnóstico.
 
-67. `migrations/066_electrotecnia_resources.sql` — ✅ **aplicada 2026-09-09** por el owner ·
+68. `migrations/066_electrotecnia_resources.sql` — ✅ **aplicada 2026-09-09** por el owner ·
     **24 recursos** de capa 1 (una guía y una práctica guiada por módulo), todos con
     `published = false` según ADR-016 §1. No es precondición de nada: los recursos no intervienen en
     el diagnóstico. Se publican **después** de auditarlos rehaciendo las cuentas (T-128).
 
-68. `migrations/067_tests_origin.sql` — ⏳ **escrita y verificada, SIN aplicar** (2026-09-13) ·
+69. `migrations/067_tests_origin.sql` — ⏳ **escrita y verificada, SIN aplicar** (2026-09-13) ·
     **T-110.** Agrega `tests.origin` (`'student'` | `'admin_preview'`), con backfill derivado del rol
     actual de quien rindió, check, `not null` e índice parcial. Lo escribe un **trigger
     `before insert`** a partir de `public.is_admin()` — **no el cliente**: `:auth/admin?` es estado de

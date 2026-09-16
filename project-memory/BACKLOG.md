@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-09-13** (**épica E9 nueva**, SESSION-042: el owner no puede ver los resultados de su curso, y son **dos problemas** — *dónde se equivocaron* ya está en `tests.test` y solo falta pantalla (**T-132**, **T-133**); *cuáles no lo hicieron* **no se captura**, porque un test abandonado no deja ninguna fila (**T-134**, con ADR). **T-130 escrita y verificada** contra un PostgreSQL desechable: el mapa de errores por SQL, cero despliegues. **T-90 pasa a `a medias`** — se aplicó a un 4º medio real y falta la observación (**T-131**). Además **T-135** cerrar `061` antes de imprimir las tarjetas QR, **T-137**…**T-140** el producto deja de presentarse como si solo existiera la PAES, y **D-67**: la meta es CLP 48M/año, no USD 1M, lo que baja F16. Nueve cambios de prioridad al final de este archivo). Antes: **2026-09-09** (**track de electrotecnia**: `062`…`066` escritas y verificadas contra un PostgreSQL desechable, sin aplicar todavía — **T-127 cerrada** — aplicadas y batería corrida, los nueve controles coinciden; **T-128** revisar sus 116 ítems y 24 recursos, **T-129** visibilidad de `test_configs` por usuario, que es lo que cerraría R-42 y es precondición de G-1. D-66 / ADR-035). Antes: **2026-08-28** (7ª pasada: **el owner ya había aplicado `049`…`056`**, `055`/`056` en su versión original. **T-125 y T-126 cerradas**: los cuatro bancos no tenían fila en `test_configs` —414 ítems inalcanzables, medido— y `059` las crea. `055`…`059` **aplicadas y verificadas** el mismo día; no quedan migraciones pendientes (`next_question` nunca miró `questions.active`, así que retirar un ítem no lo retiraba). Antes, 6ª pasada: el eje de **probabilidad y estadística** existe — `055` crea sus seis módulos (**T-119 cerrada**) y `056` trae 102 ítems con 45 ideas erróneas nuevas. **T-124 nueva**: revisar esos 102 ítems. El owner respondió en la misma sesión las dos preguntas de contenido: la convención de cuartiles del DEMRE, y que **varianza y desviación estándar no entran en M1** — salieron 12 ítems y el módulo 340 pasó a ser `conteo`. ⚠️ `055` va **después** de `051` y `053`: crear módulos corre las bandas derivadas de los demás. Antes, 5ª pasada: el eje de **geometría** escrito — `053` bandas y `054` con 100 ítems y 33 ideas erróneas nuevas, el primer eje **sin banco previo**. **T-123 nueva**: revisar esos 100 ítems. Antes, 4ª pasada: **`049` y `050` aplicadas** por el owner, y el eje de **álgebra** escrito — `051` bandas y `052` con 100 ítems. **T-121 y T-122 nuevas**: revisar esos 100 ítems, y retirar de circulación el banco `polinomios` viejo y los once fragmentos del eje. Antes, 3ª pasada: **T-118 aprobada y escrita** en `049`, y **T-120 nueva**: revisar a mano los 100 ítems del eje de números que trae `050`, que es lo único que ningún script puede verificar. Antes, 2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
+Última actualización: **2026-09-16** (SESSION-043: **T-135 aplicada y desplegada** — `061` verificada contra un PostgreSQL 14.18 desechable **y un PostgREST real**, y escrita la mitad cliente que faltaba: `universo.fuente` lee `?de=tarjeta`, `core/init!` la captura **antes** de que el router borre la query con `replaceState`, y `crud/track-visitor!` manda `p_fuente` con reintento si la migración no está aplicada — **D-68**. Lo que falta ya no es código: el owner aplicó `061` el mismo día y el bundle salió después. Falta **ver una fila real en producción** y **decidir las etiquetas antes de mandar el QR a la imprenta**. Medido: con el bundle antes que la migración se pierde **la fila entera**, no la etiqueta — segunda instancia de **R-39**. **T-136 cierra**: el árbol queda limpio). Antes: **2026-09-13** (**épica E9 nueva**, SESSION-042: el owner no puede ver los resultados de su curso, y son **dos problemas** — *dónde se equivocaron* ya está en `tests.test` y solo falta pantalla (**T-132**, **T-133**); *cuáles no lo hicieron* **no se captura**, porque un test abandonado no deja ninguna fila (**T-134**, con ADR). **T-130 escrita y verificada** contra un PostgreSQL desechable: el mapa de errores por SQL, cero despliegues. **T-90 pasa a `a medias`** — se aplicó a un 4º medio real y falta la observación (**T-131**). Además **T-135** cerrar `061` antes de imprimir las tarjetas QR, **T-137**…**T-140** el producto deja de presentarse como si solo existiera la PAES, y **D-67**: la meta es CLP 48M/año, no USD 1M, lo que baja F16. Nueve cambios de prioridad al final de este archivo). Antes: **2026-09-09** (**track de electrotecnia**: `062`…`066` escritas y verificadas contra un PostgreSQL desechable, sin aplicar todavía — **T-127 cerrada** — aplicadas y batería corrida, los nueve controles coinciden; **T-128** revisar sus 116 ítems y 24 recursos, **T-129** visibilidad de `test_configs` por usuario, que es lo que cerraría R-42 y es precondición de G-1. D-66 / ADR-035). Antes: **2026-08-28** (7ª pasada: **el owner ya había aplicado `049`…`056`**, `055`/`056` en su versión original. **T-125 y T-126 cerradas**: los cuatro bancos no tenían fila en `test_configs` —414 ítems inalcanzables, medido— y `059` las crea. `055`…`059` **aplicadas y verificadas** el mismo día; no quedan migraciones pendientes (`next_question` nunca miró `questions.active`, así que retirar un ítem no lo retiraba). Antes, 6ª pasada: el eje de **probabilidad y estadística** existe — `055` crea sus seis módulos (**T-119 cerrada**) y `056` trae 102 ítems con 45 ideas erróneas nuevas. **T-124 nueva**: revisar esos 102 ítems. El owner respondió en la misma sesión las dos preguntas de contenido: la convención de cuartiles del DEMRE, y que **varianza y desviación estándar no entran en M1** — salieron 12 ítems y el módulo 340 pasó a ser `conteo`. ⚠️ `055` va **después** de `051` y `053`: crear módulos corre las bandas derivadas de los demás. Antes, 5ª pasada: el eje de **geometría** escrito — `053` bandas y `054` con 100 ítems y 33 ideas erróneas nuevas, el primer eje **sin banco previo**. **T-123 nueva**: revisar esos 100 ítems. Antes, 4ª pasada: **`049` y `050` aplicadas** por el owner, y el eje de **álgebra** escrito — `051` bandas y `052` con 100 ítems. **T-121 y T-122 nuevas**: revisar esos 100 ítems, y retirar de circulación el banco `polinomios` viejo y los once fragmentos del eje. Antes, 3ª pasada: **T-118 aprobada y escrita** en `049`, y **T-120 nueva**: revisar a mano los 100 ítems del eje de números que trae `050`, que es lo único que ningún script puede verificar. Antes, 2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
 verificado en producción, con D-21 respetado en las dos rutas — **ADR-028 / D-56**. Abre **T-95**
 (persistir el consentimiento) y **R-33** (la pantalla de Google nombra a `supabase.co`)). Antes: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
 G-1…G-5, tareas T-76…T-89), abierta por
@@ -3677,11 +3677,45 @@ no deja **nada**. Eso impide responder *"cuáles no lo hicieron"* y **sesga la c
   policies RLS cubren el estado nuevo, y está en `supabase/SCHEMA.md`.
 - **Vector:** G-2, G-5. **Cierra** el vacío que ADR-029 declara (`irt/escape.cljs:9-10`).
 
-### T-135 · Terminar y desplegar la atribución de campaña (`061`) — **P1** · `abierto`
+### T-135 · Terminar y desplegar la atribución de campaña (`061`) — **P1** · 🔶 `APLICADA Y DESPLEGADA, falta verla en vivo` (2026-09-16)
 
 `061_visitor_fuente.sql` está escrita y razonada (etiqueta `?de=tarjeta` acotada por check) pero
 **sin commitear, sin aplicar**, y `crud/track-visitor` (`db/crud.cljs:49-66`) sigue llamando al RPC
 de 4 argumentos. **Verificado: cero menciones de `fuente` en `src/` y en `public/js/app.js`.**
+
+✅ **Las dos mitades están hechas, verificadas y desplegadas (2026-09-16, SESSION-043).** `061`
+**la aplicó el owner** ese mismo día y el bundle con `p_fuente` salió después, que es el orden que
+pide R-39. Lo que falta no es código ni despliegue: es **mirar una fila real** y **decidir las
+etiquetas**.
+
+**La migración, verificada contra un PostgreSQL 14.18 desechable y un PostgREST real** (ver
+`supabase/SCHEMA.md`): aplica limpia, es idempotente, las dos sobrecargas conviven con sus grants,
+13 etiquetas hostiles guardan `null` sin romper la fila (incluido `tarjeta\nDROP TABLE visitor` —
+el `~` de Postgres no es multilínea), el check rechaza un `insert` directo que se saltee el RPC, y
+la reversión escrita en el pie funciona.
+
+**La mitad cliente** (D-68): `universo.fuente` —namespace puro, 8 tests— lee **solo** la clave `de`
+y normaliza con la misma regla que el check; `core/init!` captura la query string **antes** de
+`:router/init`, que la borraría con `replaceState`; `crud/track-visitor!` manda `p_fuente` siempre y
+reintenta sin él si `061` no está aplicada. Verificado de punta a punta con el **supabase-js real
+del proyecto** contra la base desechable: `?de=tarjeta` deja `visitor.fuente = 'tarjeta'` y sin
+`?de=` deja `null`.
+
+**Medido y relevante para el orden de despliegue (R-39):** con el bundle antes que la migración,
+PostgREST responde `404 PGRST202` y se pierde **la fila entera**, no la etiqueta. De ahí el
+reintento. El orden correcto sigue siendo **migración primero**.
+
+**Lo que le queda al owner, en orden:**
+
+1. ✅ **Aplicar `061`** — hecho el 2026-09-16, anotado en `supabase/SCHEMA.md` (entrada 63).
+2. ✅ **Commitear y publicar** — hecho el 2026-09-16, con la migración ya aplicada (R-39).
+3. ⏳ Abrir `https://jacobocordova.com/?de=tarjeta` **en un navegador que nunca haya entrado** (el
+   tracker solo inserta la primera visita: si ya hay `visitor-id` en `localStorage`, no pasa nada)
+   y confirmar la fila en la base. **Recién ahí se manda a imprimir**, y recién ahí T-135 cierra.
+   *(Lo verificado hasta acá es contra una base desechable, no contra producción.)*
+4. ⏳ **Decidir las etiquetas antes de mandar el QR a la imprenta.** No están decididas y no se
+   inventaron: la migración nombra `tarjeta`, `afiche` e `instagram` como ejemplos. Una vez impreso
+   el QR, la etiqueta no se puede corregir.
 
 - **Ventana abierta:** las 100 tarjetas QR y el afiche **todavía no se imprimen**. Si salen antes de
   esto, cada escaneo es inatribuible y el gasto vuelve a ser fe — que es exactamente lo que la
@@ -3694,7 +3728,7 @@ de 4 argumentos. **Verificado: cero menciones de `fuente` en `src/` y en `public
   recién entonces se manda a imprimir**.
 - **Vector:** G-5. Es la primera métrica de canal real del proyecto.
 
-### T-136 · Limpiar los dos pendientes sucios del árbol — **P2** · 🔶 `mitad hecha` (2026-09-13)
+### T-136 · Limpiar los dos pendientes sucios del árbol — **P2** · ✅ `CERRADA` (2026-09-16)
 
 `029_topic_normalization.sql` tiene una edición sin commitear que **descomenta una consulta de
 verificación** (9 líneas): reaplicarla ejecutaría un `select` suelto en vez de dejarlo comentado.
@@ -3702,8 +3736,9 @@ verificación** (9 líneas): reaplicarla ejecutaría un `select` suelto en vez d
 así que su forma correcta es comentada; descomentarla solo servía para correrla una vez, y quedó sin
 revertir. Reaplicar `029` ya no ejecuta un `select` suelto.
 
-⏳ **Sigue pendiente `061`**, que no es suciedad sino **T-135**: se commitea cuando esté aplicada y el
-cliente mande `p_fuente`, y antes de imprimir las tarjetas.
+~~⏳ **Sigue pendiente `061`**~~ ✅ **Resuelto el 2026-09-16:** la migración se aplicó y se commiteó
+junto con el cliente que manda `p_fuente` (T-135). **El árbol queda limpio**: T-136 ya no tiene
+pendientes.
 
 ### T-137 · Señalizar el track de electrotecnia en el producto — **P1** · `abierto`
 

@@ -1,6 +1,6 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-09-09** — **L-57 nueva** (un mecanismo de aislamiento vale mientras el destinatario no cambie: `active = false` aisló el track de cuántica porque su usuario era admin, no por diseño). Antes: **2026-08-28 (2ª pasada)** — **L-54, L-55 y L-56 nuevas** (la memoria puede documentar una capacidad que la base no tiene —`questions.active` no existía y dos tareas se planificaron encima—; una migración idempotente por contenido no corrige lo ya cargado, hace falta una de delta calculado; reordenar las alternativas de un ítem ya rendido rompe el histórico, porque `tests` guarda la letra) y **L-46 con una tercera repetición**: el fixture volvió a construirse desde el supuesto que debía refutar, y lo que lo atrapó fue una guarda dentro de la migración. · Antes: **2026-08-28** — **L-52 y L-53 nuevas** (la explicación obvia de un sesgo puede ser falsa tres veces seguidas y solo la medición lo dice; un test que compara dos configuraciones puede estar midiendo la salvaguarda en vez de la configuración). · Antes: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
+Última actualización: **2026-09-16** — **L-62 nueva** (lo que trae la URL hay que leerlo antes de que el router la normalice: el modo de fallo de una función de medición es **parecerse a un resultado**). Antes: **2026-09-09** — **L-57 nueva** (un mecanismo de aislamiento vale mientras el destinatario no cambie: `active = false` aisló el track de cuántica porque su usuario era admin, no por diseño). Antes: **2026-08-28 (2ª pasada)** — **L-54, L-55 y L-56 nuevas** (la memoria puede documentar una capacidad que la base no tiene —`questions.active` no existía y dos tareas se planificaron encima—; una migración idempotente por contenido no corrige lo ya cargado, hace falta una de delta calculado; reordenar las alternativas de un ítem ya rendido rompe el histórico, porque `tests` guarda la letra) y **L-46 con una tercera repetición**: el fixture volvió a construirse desde el supuesto que debía refutar, y lo que lo atrapó fue una guarda dentro de la migración. · Antes: **2026-08-28** — **L-52 y L-53 nuevas** (la explicación obvia de un sesgo puede ser falsa tres veces seguidas y solo la medición lo dice; un test que compara dos configuraciones puede estar midiendo la salvaguarda en vez de la configuración). · Antes: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
 ruta de login** — el gate legal no va donde está el formulario sino donde nace la cuenta; y
 **L-43**, si Google Cloud te pide datos tributarios para configurar OAuth, te desviaste de camino.
 Antes ese mismo día: **L-41**, una copia que nadie mira diverge — la pregunta útil
@@ -1178,3 +1178,34 @@ cientos de líneas, no miles.
 
 **Relacionado:** [[../adr/ADR-003-github-pages-artefacto-versionado]], [[RISKS]] R-02,
 `sessions/SESSION-042.md`.
+
+### L-62 · Lo que trae la URL hay que leerlo antes de que el router la normalice
+
+**Síntoma (evitado, no sufrido).** Al escribir la mitad cliente de `061` (T-135), el lugar natural
+para leer `?de=tarjeta` era `visitor-tracker/start-tracking!`, que es donde vive todo lo demás del
+tracking. Habría devuelto **siempre** la cadena vacía.
+
+**Causa.** `universo.core/init!` despacha `[:router/init]` con `dispatch-sync` **antes** de arrancar
+el tracker, y ese evento normaliza la URL con `replaceState` al path canónico (ADR-026). Para cuando
+el tracker corre, `/?de=tarjeta` ya es `/` y la query string no existe. El `go` que espera la
+consulta de IP lo empeora: aunque se leyera un poco antes, lo haría después de la normalización.
+
+**Por qué no lo habría encontrado nada.** El build queda en verde, los tests en verde, la columna
+existe en la base, el RPC responde `200` y se guardan filas. Lo único distinto es que **`fuente`
+sale `null` siempre**, que es indistinguible de «nadie llegó por la tarjeta». O sea: el modo de
+fallo de una función de medición es **parecerse a un resultado**. Se habrían impreso 100 tarjetas
+para medir un canal que no se estaba midiendo.
+
+**Regla.** Lo que llega en la URL —query string, fragmento— es **efímero por diseño** en esta
+aplicación: hay un router que la reescribe en el arranque. Se captura en `init!`, en la primera
+línea, **antes de cualquier `dispatch`**, y se pasa como argumento a quien lo necesite. Una función
+que lo lea de `js/window` por su cuenta está leyendo lo que quedó después del router, no lo que
+escribió la persona.
+
+**Corolario más general.** Cuando el valor correcto y el valor vacío producen la misma pantalla,
+ningún test de los que hay acá los distingue: la verificación tiene que ser **el orden del código**,
+leído, o un dato real en la base. Es la misma familia que [[LESSONS_LEARNED]] L-58 y L-59 —el verde
+no significa que funcione— aplicada a una función cuyo producto es un número.
+
+**Relacionado:** [[../adr/ADR-026-router-y-deep-links]], [[DECISIONS]] D-68, [[BACKLOG]] T-135,
+`src/universo/core.cljs`, `src/universo/fuente.cljs`, `sessions/SESSION-043.md`.

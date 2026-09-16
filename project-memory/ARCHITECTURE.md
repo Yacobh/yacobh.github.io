@@ -23,7 +23,8 @@ contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 │           └─ universo.core/init!                                          │
 │                ├─ dispatch-sync [:initialize-db]   → universo.db          │
 │                ├─ dispatch [:auth/init]            → events.auth          │
-│                ├─ tracker/start-tracking!          → visitor_tracker      │
+│                ├─ tracker/start-tracking! query    → visitor_tracker      │
+│                │    (`query` se lee ANTES de :router/init — T-135)          │
 │                └─ mount-root → views/main-panel → home                    │
 │                                                                           │
 │  ┌──── re-frame ─────────────────────────────────────────────────────┐    │
@@ -91,6 +92,7 @@ contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 | Bootstrap | `universo.core` | Inicializa `app-db`, sesión, tracking y monta React. Requiere todos los `events/*` (si un ns de eventos no se requiere aquí, sus handlers no existen) |
 | Estado | `universo.db` | `default-db`: forma completa y documentada del `app-db` (auth, admin, landing, visitor, dashboard, student-profile, plan, slots, notifications, test, bookings) |
 | Lectura | `universo.subs` | Suscripciones globales de UI (`:current-page`, `:current-section`, `:transitioning`) y **`:complete-navigation`**, el único punto donde se escribe la URL (ADR-026) |
+| Atribución | `universo.fuente` (puro) | Etiqueta de campaña de la URL (`?de=tarjeta`): la lee, la normaliza con la misma regla que el check de `061`, y reconoce el error de PostgREST que dice que la migración no está aplicada. La usan `visitor_tracker` y `db.crud` (T-135, D-68) |
 | Router | `universo.router` (puro) + `universo.events.router` | Traducción `sección ↔ path` y acceso al History API. Ver la nota de arquitectura debajo de esta tabla y ADR-026 |
 | Ruteo | `universo.views` + `universo.home` | `views/pages` solo resuelve `:home`. El **ruteo real** es por *sección* dentro de `home/main-content` (`case current-section`) |
 | Layout | `universo.home` | Nav fija (links según `:auth/ready?`, `logged-in?`, `admin?`, botón de tema), contenido con transición de opacidad, footer con contacto |
@@ -267,6 +269,7 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
 | `site_settings` | `id` (booleano fijo en `true`), `theme_default` (`claro`/`oscuro`/`sistema`), `updated_at`, `updated_by` | Configuración global, **una sola fila** garantizada por un `check` sobre la PK (`043`, ADR-022). Lectura pública a propósito: el visitante anónimo necesita el valor antes de autenticarse. Escritura solo admin |
 | `guestbook` | firma pública, `is_approved` tri-state (`null`/`true`/`false`) | Fuente de los testimonios |
 | `visitor` | IP, ciudad, país, idioma, navegador, SO | Tracking |
+| `visitor.fuente` | **Ninguno**: etiqueta de campaña que elegimos nosotros (`tarjeta`), no dato de la persona. Acotada por check a `^[a-z0-9._-]{1,40}$`; **nunca la query string cruda** (`061`, D-68) | Atribución de canal (G-5) |
 | `contacto` | mensajes del formulario | |
 
 ### 3.2 Forma de `student_profiles.profile` (JSONB)
@@ -320,8 +323,12 @@ init! → [:initialize-db] (sync)
       → [:auth/init] → get-session → :auth/session-established | :auth/session-cleared
                      → carga profiles.role → :auth {:admin? :role}
                      → :auth/ready? true  (hasta aquí el nav muestra "…")
-      → start-tracking! → ip/geo → insert visitor
+      → start-tracking! query → ip/geo → track_visitor(… , p_fuente)
       → mount-root
+
+⚠️ La query string (`/?de=tarjeta`) se captura en `init!` **antes** de `[:router/init]`, porque ese
+evento normaliza la URL con `replaceState` y la query deja de existir. Por eso `start-tracking!` la
+recibe como argumento en vez de leerla de `js/window`: cuando corre, ya es tarde (T-135, D-68).
 ```
 
 ### 4.1.b Vuelta del login con Google (T-92, desde 2026-08-17)

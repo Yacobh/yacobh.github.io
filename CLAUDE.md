@@ -145,6 +145,7 @@ Navegador (SPA ClojureScript/re-frame)
                        irt.progress · irt.effort · irt.fluency (eje λ, ADR-019)
                        misconceptions (catálogo de 027, T-57) · reintento (ADR-032)
                        motor (versión y parámetros del estimador, ADR-034)
+                       fuente (etiqueta de campaña ?de=, 061 · D-68)
       │
       ▼  @supabase/supabase-js (JWT del usuario)
 Supabase PostgreSQL  ── RLS es el único límite de seguridad ──
@@ -190,7 +191,7 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
   a un namespace puro y testeable (`universo.profile`, `universo.slots.logic`,
   `universo.irt.progress`, `universo.irt.effort`, `universo.irt.fluency`, `universo.topics`,
   `universo.router`, `universo.components.tetha`, `universo.misconceptions`, `universo.reintento`,
-  `universo.motor`),
+  `universo.motor`, `universo.fuente`),
   **no** dentro de un `reg-event-fx`.
 - **Navegación:** si agregas una sección, agrégala al `case` de `home/main-content` **y** a la tabla
   de `universo.router` (y a `protected-sections` si es privada). La sección es el estado

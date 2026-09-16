@@ -603,6 +603,11 @@ en `project-memory/` al 2026-09-13:
 | Campaña de 100 tarjetas QR + afiche, con su migración escrita | `061_visitor_fuente.sql`, **sin commitear** |
 | Un alumno de electrotecnia pagando **USD 20/h** | En ninguna parte |
 
+*(Actualización 2026-09-16: la segunda fila se resolvió. `061` está **aplicada y desplegada**, y el
+cliente manda la etiqueta de campaña — T-135, D-68. Falta ver una fila real y decidir las etiquetas
+antes de imprimir. Las otras dos filas siguen igual: **T-131** —la observación que cierra T-90— es
+el paso que sigue midiendo el negocio.)*
+
 **Las tres consecuencias, en orden de gravedad.**
 
 1. **No compone.** La clase que se rindió no produjo mapa de errores, así que no produjo
@@ -1013,6 +1018,23 @@ entere salvo por la consola.
 (`universo.motor/falta-la-columna-de-version?`) y **reintenta sin la columna**, avisando por consola.
 Un θ sin versión se puede reconstruir por fecha; una fila que nunca se guardó, no. Tiene test para
 que la red no se apague sola, incluido el caso que **no** debe reintentarse (un fallo de RLS).
+
+**Segunda instancia, 2026-09-16 (`061` / T-135) — y esta vez el modo de fallo está medido.** El
+cliente ahora manda `p_fuente` a `track_visitor`, un argumento que crea `061`. Se levantó PostgREST
+contra una base **sin** la migración y la respuesta es `404 PGRST202`: la visita **no se registra
+en absoluto**, y con ella se pierde el `visitor-id` que `guestbook.visitor_id` necesita como FK. O
+sea que lo que está en juego no es la etiqueta de campaña, que es lo barato, sino la fila.
+
+`061` ya mitigaba por diseño —el RPC nuevo es una **sobrecarga** y la versión de 4 argumentos de
+`014` queda intacta, así que el bundle viejo sigue funcionando contra la base nueva—, pero eso cubre
+un solo sentido del error. El otro lo cubre el cliente, con el mismo patrón de D-65:
+`universo.fuente/falta-el-argumento-de-fuente?` reconoce ese error concreto y **reintenta con los 4
+argumentos de siempre**, avisando por consola. Tiene test, incluido el caso que **no** debe
+reintentarse (un fallo de RLS).
+
+**Lo que no cambia:** el orden correcto sigue siendo migración primero, bundle después. La red
+existe para que equivocarse cueste una etiqueta en vez de una fila, no para hacer el orden
+irrelevante.
 
 **La red no es un permiso para no aplicar la migración:** mientras `048` no esté, todos los tests
 nuevos entran sin versión y R-40 se agrava.

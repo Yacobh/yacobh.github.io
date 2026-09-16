@@ -1,6 +1,7 @@
 (ns universo.db.crud
   (:require [universo.supabase :refer [supabase-client]]
             [universo.catalog :as catalog]
+            [universo.fuente :as fuente]
             [cljs.core.async :as async :refer [go <!]]
             [clojure.string :as str]))
 
@@ -50,22 +51,51 @@
    en vez de insert-data-table!: visitor guarda datos personales (IP/ciudad/
    país) y no tiene policy SELECT, así que un insert con .select().single()
    revierte por RLS. La función devuelve solo el id (necesario como FK real
-   al firmar el guestbook), sin exponer la fila completa."
-  [{:keys [pais ciudad idioma timezone]}]
-  (let [ch (async/chan)]
-    (-> (.rpc supabase-client "track_visitor"
-              #js {:p_pais pais :p_ciudad ciudad :p_idioma idioma :p_timezone timezone})
-        (.then (fn [result]
-                 (if (.-error result)
-                   (do
-                     (js/console.error "Error de Supabase:" "track_visitor" (.-error result))
-                     (async/put! ch {:success false
-                                     :error (.-message (.-error result))}))
-                   (async/put! ch {:success true :id (.-data result)}))))
-        (.catch (fn [error]
-                  (js/console.error "Error capturado:" "track_visitor" error)
-                  (async/put! ch {:success false
-                                  :error (.-message error)}))))
+   al firmar el guestbook), sin exponer la fila completa.
+
+   `fuente` es la etiqueta de campaña de `061` (T-135): llega ya normalizada
+   por `universo.fuente`, o `nil`.
+
+   **Reintenta sin `p_fuente` si `061` no está aplicada**, mismo criterio que
+   `fetch-admin-visitors`: las migraciones de este proyecto se aplican a mano,
+   y `061` deja la de 4 argumentos intacta justo para que las dos convivan. Sin
+   el reintento, publicar el bundle antes que la migración no pierde la
+   etiqueta sino **la fila entera** —PostgREST responde 404 `PGRST202`, medido
+   el 2026-09-16— y con ella el `visitor-id` que el guestbook usa como FK. El
+   orden correcto sigue siendo migración primero (R-39); esto es para que
+   equivocarse salga barato."
+  [{:keys [pais ciudad idioma timezone fuente]}]
+  (let [ch (async/chan)
+        llamar
+        (fn llamar [args reintentar?]
+          (-> (.rpc supabase-client "track_visitor" args)
+              (.then (fn [result]
+                       (if (.-error result)
+                         (let [msg (str (.-message (.-error result)))]
+                           (if (and reintentar?
+                                    (fuente/falta-el-argumento-de-fuente? msg))
+                             (do
+                               (js/console.warn
+                                "La migración 061 no está aplicada: se registra la visita sin fuente.")
+                               (llamar #js {:p_pais pais :p_ciudad ciudad
+                                            :p_idioma idioma :p_timezone timezone}
+                                       false))
+                             (do
+                               (js/console.error "Error de Supabase:" "track_visitor" (.-error result))
+                               (async/put! ch {:success false :error msg}))))
+                         (async/put! ch {:success true :id (.-data result)}))))
+              (.catch (fn [error]
+                        (js/console.error "Error capturado:" "track_visitor" error)
+                        (async/put! ch {:success false
+                                        :error (.-message error)})))))]
+    ;; `p_fuente` viaja siempre, incluso en `nil`: PostgREST elige la sobrecarga
+    ;; por el conjunto de claves del cuerpo, así que mandarla solo cuando hay
+    ;; etiqueta partiría el camino en dos y el que falla sería justo el de la
+    ;; campaña. Verificado contra PostgREST real: con las cinco claves elige la
+    ;; de 5 argumentos sin ambigüedad, también con `p_fuente: null`.
+    (llamar #js {:p_pais pais :p_ciudad ciudad :p_idioma idioma
+                 :p_timezone timezone :p_fuente fuente}
+            true)
     ch))
 
 (defn get-all-table "Obtiene todos los elementos de la tabla"
