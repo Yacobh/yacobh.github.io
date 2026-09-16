@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-09-13** (SESSION-042, **cerrada y mergeada a `main`** — T-130, T-110, T-132 y T-92 ✅, `067` aplicada, 20 % de la muestra era depuración; sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
+**Fecha de corte: 2026-09-16** (SESSION-043 — **la atribución de campaña está viva**: `061` **aplicada por el owner** y el bundle con `p_fuente` publicado después, que es el orden que pide R-39. La migración se verificó antes contra un PostgreSQL 14.18 desechable **y un PostgREST real**, y `/?de=tarjeta` deja `visitor.fuente = 'tarjeta'` de punta a punta con el supabase-js del proyecto. **T-136 cierra**: el árbol queda limpio. Falta **ver una fila real en producción** y **decidir las etiquetas del QR** antes de imprimir — las dos son actos del owner, no código. **D-68**, **L-62**; segunda instancia de **R-39**, esta vez con el modo de fallo medido. Detalle en el bloque de abajo). Antes: **2026-09-13** (SESSION-042, **cerrada y mergeada a `main`** — T-130, T-110, T-132 y T-92 ✅, `067` aplicada, 20 % de la muestra era depuración; sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
 
@@ -52,6 +52,46 @@
 >
 > ⏳ **Pendientes de árbol, los mismos de siempre:** `061` sin commitear (T-135, y **las tarjetas QR
 > todavía no se imprimen**) y `029` con una edición sin decidir (T-136).
+>
+> *(Actualizado 2026-09-16: **los dos se cerraron**. `061` está aplicada y commiteada (T-135) y la
+> edición de `029` se revirtió, así que **T-136 cierra** y el árbol queda limpio.)*
+
+> ## 🔶 2026-09-16 — la campaña ya nace medida (SESSION-043)
+>
+> **T-135 pasa de `abierto` a `aplicada y desplegada`.** Las dos mitades de `061` están hechas,
+> verificadas y en producción: el owner **aplicó la migración** y el bundle con `p_fuente` salió
+> después. Lo que queda no es código ni despliegue.
+>
+> **La migración, contra un PostgreSQL 14.18 desechable y un PostgREST real.** Aplica limpia y es
+> idempotente, las dos sobrecargas de `track_visitor` conviven con sus grants, 13 etiquetas hostiles
+> guardan `null` **sin romper la fila** (incluido `tarjeta\nDROP TABLE visitor` — el `~` de Postgres
+> no es multilínea), el check rechaza un `insert` directo que se saltee el RPC, y la reversión del
+> pie funciona dejando la versión de 4 argumentos intacta.
+>
+> **La mitad cliente** (**D-68**): `universo.fuente`, namespace puro con 8 tests, lee **solo** la
+> clave `de` y normaliza con la misma regla que el check; `crud/track-visitor!` manda `p_fuente`
+> siempre. Suite en **211 tests / 2817 assertions / 0 failures**.
+>
+> ⚠️ **El defecto que casi se escribe, y que no lo habría encontrado ningún test:** `:router/init`
+> normaliza la URL con `replaceState` **antes** de que arranque el tracker, así que `/?de=tarjeta`
+> ya es `/` cuando `start-tracking!` corre. Leer `location.search` ahí adentro habría devuelto
+> siempre la cadena vacía y **la campaña entera habría salido sin atribuir**, con todo en verde. Por
+> eso `core/init!` captura la query string en la primera línea y la pasa como argumento.
+>
+> ⚠️ **Medido, no supuesto:** con el bundle publicado **antes** que la migración, PostgREST responde
+> `404 PGRST202` y se pierde **la fila entera** —y con ella el `visitor-id` que el guestbook usa
+> como FK—, no solo la etiqueta. De ahí el reintento del cliente, mismo patrón que D-65 dejó en
+> `motor/falta-la-columna-de-version?`. Es la segunda instancia de **R-39**; el orden correcto
+> sigue siendo **migración primero**.
+>
+> 🔜 **Lo que falta, y no es código:** abrir `/?de=tarjeta` en un navegador **que nunca haya
+> entrado** —el tracker solo inserta la primera visita— y confirmar la fila **en producción**. Todo
+> lo verificado hasta acá fue contra una base desechable. **Recién ahí se manda a imprimir**, y
+> antes del QR hay que **decidir las etiquetas**: no están decididas y no se inventaron; una vez
+> impreso, la etiqueta no se corrige.
+>
+> ✅ **T-136 cierra de paso:** sus dos pendientes de árbol eran `029` (revertida) y `061` (ahora
+> aplicada y commiteada).
 
 > ## ⭐ 2026-09-13 — el dato estaba ahí y el panel no lo mostraba (SESSION-042)
 >
