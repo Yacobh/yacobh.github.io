@@ -178,7 +178,16 @@ los aciertos de la sesión**.
 - **ADR-019:** **rápido y correcto es la definición de fluidez (λ)**, el segundo eje del perfil.
 
 Hoy el filtro de esfuerzo se aplica **antes** y borra justo la evidencia que λ necesita. **No es un
-bug**: es una decisión que nadie tomó. **Qué falta para cerrarla:** saber si `irt.fluency` mira las
+bug**: es una decisión que nadie tomó.
+
+> **2026-09-17 — sigue abierta, pero ya no está trabada.** Se midió la causa de fondo y quedó en
+> **ADR-039**: el umbral de «rápido» no es una constante del banco sino una propiedad del ítem, y
+> hoy se aproxima con el **largo del enunciado**, que es **plano en los cuatro tramos de abajo**
+> (~2,4 s para 81 de 100 ítems de `numeros`). Con `expected_seconds` por ítem, ADR-014 («muy
+> rápido es sospechoso») y ADR-019 («rápido y correcto es fluidez») **dejan de contradecirse**,
+> porque dejan de comparar contra el mismo número. El `k` del piso se fija al implementar
+> (**T-150**), con estos datos delante. Mitigación parcial mientras tanto: cortes de λ por módulo
+> (**ADR-038** §Fluidez, **T-149**). **Qué falta para cerrarla:** saber si `irt.fluency` mira las
 respuestas antes o después del peso, y si el umbral `min_response_seconds` está calibrado o es
 autoral (R-24, T-65, T-116). **Relacionado:** T-45, T-59.
 

@@ -1263,7 +1263,7 @@ dan 79 %. Las tres salidas, que hay que elegir con el owner:
 
 **Relacionado:** T-111 (misma raíz: 12 ítems), y el diseño de la cadena de ejes.
 
-### T-118 · Decidir el reparto de bandas con diagnósticos por eje — **P0** · `abierto`
+### T-118 · Decidir el reparto de bandas con diagnósticos por eje — **P0** · ✅ `CERRADA` (2026-09-17)
 
 **Es precondición de escribir un solo ítem nuevo**, y bloquea la primera tanda del eje de números.
 
@@ -1291,8 +1291,100 @@ escrito que la cadena por eje no se hace.
 
 **2026-08-28 — aprobado por el owner y escrito en `049`.** Reparto adoptado: `numeros`
 [−3,0, −1,6], `enteros` [−2,4, −1,0], `fracciones` [−1,8, −0,4], `potencias` [−1,0, +0,6],
-`proporciones` [−0,2, +1,6], `porcentajes` [+0,6, +3,0], solapándose a propósito. **Queda por
-aplicar la migración**; hasta entonces la tarea sigue abierta.
+`proporciones` [−0,2, +1,6], `porcentajes` [+0,6, +3,0], solapándose a propósito.
+
+> ### ✅ 2026-09-17 — CERRADA, y llevaba **20 días cumplida** sin que la ficha lo dijera
+>
+> El criterio literal —*«las bandas explícitas están en una migración aplicada»*— **se cumplió el
+> 2026-08-28**. Verificado contra `supabase/SCHEMA.md`, las cinco migraciones de banda están
+> **✅ aplicadas** esa misma fecha: `049` (números), `051` (álgebra), `053` (geometría), `055`
+> (probabilidad) y `060` (los dos módulos que quedaban). **Los 26 módulos del producto tienen banda
+> explícita y ninguno depende del reparto derivado** — `CURRENT_STATUS` ya lo decía desde entonces.
+>
+> Lo único que quedó vivo fue la última línea de esta ficha, *«queda por aplicar la migración»*, que
+> dejó de ser cierta el mismo día en que se escribió y **arrastró a T-118 al tope de la tabla de P0
+> durante veinte días**. La P0 que encabezaba el backlog no existía.
+>
+> **La lección, y es de método, no de contenido:** una ficha que describe su propio cierre en futuro
+> (*«queda por…»*) no se entera cuando el futuro llega. El cierre lo dispara el estado de
+> `SCHEMA.md`, no la memoria de quien aplicó la migración. Es la misma familia que **L-22** (la
+> memoria dijo «tres lugares» cuando eran cinco) y que **L-59** (el fixture escrito de memoria en
+> vez de leído del código): **se re-verifica, no se recuerda.**
+>
+> **Lo que NO cierra con esto**, y conviene no confundirlo con esta tarea: el reparto por eje se
+> adoptó y **nadie midió si movió el 37 % de banda correcta de T-117**. Ésa es la pregunta viva, y
+> ahora tiene quien la responda — es el §Seguimiento de **ADR-038**.
+
+### T-149 · Implementar el módulo rendible (ADR-038) — **P1** · `abierto`
+
+`ADR-038` está **aprobado y sin implementar**. Fija el diseño completo; esto es escribirlo.
+
+**Precondiciones duras, y no son negociables:** **T-122** (retirar los ~14 bancos viejos del
+selector) y **T-138** (agrupar y describir). El selector pasa de 4 filas a ~30, y con los bancos
+muertos todavía ahí esta tarea **empeora T-143 en vez de mejorarlo** — medido: 16 de 40 tests del
+2026-09-10 fueron a bancos muertos con menos filas de las que va a haber.
+
+**Las tres piezas, en este orden:**
+
+1. **Migración** — `test_configs` gana `item_topic text` y `module_id uuid references modules(id)`,
+   las dos nullable; `next_question` gana la sobrecarga de 6 argumentos con `p_module_id`,
+   conservando la de 5. **En la misma sobrecarga va `random()` como último criterio del `order by`**
+   (ADR-038 §Empates): con empate exacto de `difficulty` hoy gana siempre la misma fila, y de cada
+   par uno puede no salir nunca — electrotecnia tiene **49 de 74 ítems en empate**, y eso le quita a
+   G-2 la mitad del banco. Y **los cortes de λ se fijan por módulo** en las 26 filas nuevas
+   (ADR-038 §Fluidez), que es lo que destraba T-116 sin esquema nuevo. Aditiva: las cuatro filas actuales quedan en `null` y no cambian de
+   comportamiento. Verificar contra un PostgreSQL desechable **y un PostgREST real**, como `061`:
+   las dos sobrecargas tienen que convivir con sus grants.
+2. **Cliente** — `crud/next-question` toma `item_topic` y `module_id` de la fila de `test_configs`
+   que ya viaja en `[:test :configs]`. `universo.access` **no se toca**. ⚠️ **Migración antes que
+   bundle** (R-39): al revés, PostgREST responde `404 PGRST202`.
+3. **Contenido** — las ~26 filas de `test_configs` de módulo y el grafo de `module_prerequisites`.
+   **Esto no lo puede hacer un agente solo:** el orden entre módulos es una decisión pedagógica del
+   owner. Entra por la skill `unidad-de-contenido`.
+
+**Antes de crear la fila de cada módulo:** correr la métrica **M3** (cobertura por tramo de 1,0
+logit dentro de la banda). Números tiene 16–18 ítems por módulo y alcanza; **los ejes con bandas más
+anchas hay que medirlos**, o el test para en `:exhausted` a la primera.
+
+**Terminado cuando:** un estudiante rinde el ubicador de números, ve el módulo que le toca, lo rinde,
+y el θ que queda en `tests` está bajo el `topic` del módulo. Y el reporte dice cuántos ítems sirvió
+cada test de módulo, para poder contestar el seguimiento de ADR-038.
+
+**Relacionado:** [[../adr/ADR-038-el-modulo-es-rendible]], [[DECISIONS]] D-69, T-101, T-111, T-117,
+T-122, T-138, T-143, [[RISKS]] R-44, R-42, R-39, R-30, `.claude/skills/unidad-de-contenido/`.
+
+### T-150 · `expected_seconds` por ítem (ADR-039) — **P2** · `abierto`
+
+`ADR-039` está **aprobado y sin implementar**. λ normaliza hoy por el largo del enunciado, y eso
+**invierte la clasificación en los extremos**: medido sobre `numeros`, el normalizador es plano en
+los cuatro tramos de abajo (~2,4 s para **81 de 100 ítems**), así que
+$\frac{3}{4}+\frac{2}{5}$ —1 s de «lectura», 30 de trabajo— cae en `:laboriosa` por más fluido que
+sea el estudiante, y los ítems del piso del banco son justamente los más cortos.
+
+**Tres piezas, y la primera es barata:**
+
+1. **Migración** — `questions` gana `expected_seconds double precision` nullable con check
+   `> 0 and <= 600`. Aditiva, aplicable con el bundle viejo en producción sin que nada cambie.
+2. **Cliente** — `effort/expected-seconds` con fallback a `reading-seconds`; `fluency/relative-time`
+   y `effort/min-response-seconds` pasan a usarla. Tests para el fallback **y** para la mezcla
+   (un banco con la mitad estimada). ⚠️ `universo.motor/version` **no** sube: θ no mira el tiempo.
+3. **Contenido** — estimar el campo, ítem por ítem. **Es el costo real**: 402 ítems del producto más
+   116 de electrotecnia. El fallback lo hace incremental: **se empieza por un módulo**, el que se
+   vaya a usar con alguien real, no por el banco entero.
+
+**Se engancha con la revisión pedagógica pendiente** (T-120, T-121, T-123, T-124, T-128): esos ítems
+hay que mirarlos uno por uno igual, y estimar el tiempo es un campo más en una pasada que ya toca.
+
+**Ojo con la escala:** se estima *«¿cuánto tarda alguien que ya sabe hacer esto?»*, no el estudiante
+promedio. Es la única lectura que hace que `t_rel` alto signifique «le costó».
+
+**Terminado cuando:** un módulo tiene todos sus ítems estimados, un estudiante real lo rinde, y se
+puede comparar la estimación autoral contra la mediana observada. **Esa comparación es el
+entregable** — que no coincidan no invalida nada: significa que la columna se calibra, que es para
+lo que se creó.
+
+**Relacionado:** [[../adr/ADR-039-tiempo-esperado-por-item]], [[DECISIONS]] D-70, T-116, T-149,
+T-120…T-124, T-128, [[OPEN_QUESTIONS]] Q-47, [[RISKS]] R-24, R-17, R-30, R-41.
 
 ### T-120 · Revisar los 100 ítems del eje de números — **P1** · `abierto`
 
@@ -3986,7 +4078,7 @@ vez impresas las 100 tarjetas y el afiche, la etiqueta no se corrige.
 
 | Prioridad | Tareas |
 |-----------|--------|
-| **P0** | **T-118**, T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50, **T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-88, T-90, T-91, T-93, T-110** |
+| **P0** | T-01, T-02, T-03, T-04, T-08, T-19, T-30, T-47, T-50, **T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-88, T-90, T-91, T-93, T-110** |
 | **P1** | T-05, T-06, T-07, T-09, T-10, T-12, T-20, T-24, T-25, T-27, T-28, T-35, T-39, T-44, T-48, T-51, T-59, T-60, T-67, T-68, T-70, T-72, T-73, T-75, **T-83, T-84, T-87, T-89, T-92, T-111, T-117, T-120, T-121, T-123, T-124, T-128** |
 | **P2** | T-11, T-13, T-15, T-16, T-18, T-21, T-26, T-31, T-33, T-34, T-36, T-38, T-40, T-41, T-42, T-45, T-49, T-63, T-65, T-66, T-69, T-71, T-74, **T-85, T-86, T-95, T-113, T-115, T-116, T-122, T-129** |
 | **P3** | T-14, T-17, T-22, T-23, T-29, T-32, T-37, T-43, T-46, T-52, T-61, T-62 |

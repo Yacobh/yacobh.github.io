@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-09-16** (SESSION-043 — ⭐ **el proyecto mide un canal por primera vez**: `/?de=tarjeta` dejó la fila **1052** con `fuente = 'tarjeta'` **en producción**. `061` la aplicó el owner y el bundle con `p_fuente` salió después, que es el orden que pide R-39. La migración se verificó antes contra un PostgreSQL 14.18 desechable **y un PostgREST real**, y `/?de=tarjeta` deja `visitor.fuente = 'tarjeta'` de punta a punta con el supabase-js del proyecto. **T-135 y T-136 cierran**; el árbol queda limpio. Queda **T-148**: decidir las etiquetas del QR antes de imprimir, que es lo único con plazo duro. **D-68**, **L-62**; segunda instancia de **R-39**, esta vez con el modo de fallo medido. Detalle en el bloque de abajo). Antes: **2026-09-13** (SESSION-042, **cerrada y mergeada a `main`** — T-130, T-110, T-132 y T-92 ✅, `067` aplicada, 20 % de la muestra era depuración; sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
+**Fecha de corte: 2026-09-17** (SESSION-044 — **sesión de documentación y decisión, cero código**: ADR-038 (el módulo es rendible), ADR-039 (`expected_seconds` por ítem), skill `unidad-de-contenido` con su séptimo auditor, **T-118 cerrada tras 20 días cumplida**, y ⭐ **un defecto de producción encontrado leyendo**: los 102 ítems de probabilidad y los 116 de electrotecnia **no pueden producir un plan personalizado** porque sus slugs no están en `universo.topics/module-slugs`. Detalle en el bloque de abajo). Antes: **2026-09-16** (SESSION-043 — ⭐ **el proyecto mide un canal por primera vez**: `/?de=tarjeta` dejó la fila **1052** con `fuente = 'tarjeta'` **en producción**. `061` la aplicó el owner y el bundle con `p_fuente` salió después, que es el orden que pide R-39. La migración se verificó antes contra un PostgreSQL 14.18 desechable **y un PostgREST real**, y `/?de=tarjeta` deja `visitor.fuente = 'tarjeta'` de punta a punta con el supabase-js del proyecto. **T-135 y T-136 cierran**; el árbol queda limpio. Queda **T-148**: decidir las etiquetas del QR antes de imprimir, que es lo único con plazo duro. **D-68**, **L-62**; segunda instancia de **R-39**, esta vez con el modo de fallo medido. Detalle en el bloque de abajo). Antes: **2026-09-13** (SESSION-042, **cerrada y mergeada a `main`** — T-130, T-110, T-132 y T-92 ✅, `067` aplicada, 20 % de la muestra era depuración; sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
 
@@ -55,6 +55,49 @@
 >
 > *(Actualizado 2026-09-16: **los dos se cerraron**. `061` está aplicada y commiteada (T-135) y la
 > edición de `029` se revirtió, así que **T-136 cierra** y el árbol queda limpio.)*
+
+> ## ⭐ 2026-09-17 — el flujo del estudiante, estudiado; y un defecto de producción que nadie veía (SESSION-044)
+>
+> **Sesión de documentación y decisión: cero código.** Dos ADR aprobados, una skill con su
+> verificador, y **un defecto en producción encontrado leyendo**, no corriendo nada.
+>
+> ⭐ **Los 102 ítems de probabilidad y los 116 de electrotecnia no pueden producir un plan
+> personalizado.** `universo.topics/module-slugs` (`topics.cljs:64`) lista **20 slugs** y no incluye
+> los seis `probabilidad/*` que creó `055`. Cadena verificada en el código:
+> `question-select-cols` (`crud.cljs:597`) trae `module_id` pero **no `module_slug`** →
+> `profile/module-slug-for` cae a `topics/module-slug-for` → `nil` → déficit `unknown/probabilidad`
+> → `plan/resources-for-deficits` devuelve `:general`. **La migración estaba perfecta, el build en
+> verde y los seis auditores en verde.** El arreglo es de una línea más `release app`; **no tiene
+> ficha de backlog todavía** (ver Pendientes de SESSION-044).
+>
+> ⭐ **ADR-038 — el módulo es rendible.** El eje ubica (12 ítems sobre `[-3,+3]`), el módulo mide
+> (4–8 ítems en su banda), encadenados por `module_prerequisites` —que existe desde `045` y está
+> **vacía**—. Aditiva: `test_configs` gana `item_topic` + `module_id`, `next_question` una sobrecarga
+> con `p_module_id`, y las cuatro filas de hoy quedan en `null` comportándose igual. Ataca la raíz
+> común de **T-111**, **T-117** y «no hay nada que rendir después». Implementación: **T-149**.
+>
+> ⭐ **ADR-039 — `expected_seconds` por ítem.** Salió de preguntar para qué sirve `order_index`
+> (respuesta medida: para nada, es el rango de dificultad con otro nombre — 2 inversiones en 476
+> pares). λ normaliza por el **largo del enunciado**, y eso es **plano en los cuatro tramos de
+> abajo**: ~2,4 s para **81 de 100 ítems**. Resultado medido: `$\frac{3}{4}+\frac{2}{5}$` cae en
+> `:laboriosa` por más automatizado que esté el estudiante. **La clasificación de λ está invertida en
+> los extremos**, y el sesgo cae sobre el estudiante más débil. Implementación: **T-150**.
+>
+> ✅ **T-118 cerrada, y llevaba 20 días cumplida.** Las cinco migraciones de banda (`049`, `051`,
+> `053`, `055`, `060`) están aplicadas desde el **2026-08-28**. Lo único vivo era la última línea de
+> su ficha —*«queda por aplicar la migración»*— que **arrastró a T-118 al tope de la tabla de P0
+> durante veinte días**. La P0 que encabezaba el backlog no existía.
+>
+> 🆕 **Skill `unidad-de-contenido`** — la capa de arriba de `banco-de-items`, que solo cubre ítems.
+> Una unidad es una fila de `modules` y toca **18 lugares**, de los cuales **solo uno falla
+> ruidosamente**. Su verificador (`scripts/verificar_unidad.py`, séptimo auditor) **lee el código en
+> vez de copiarlo**, y al primer uso real reprodujo el defecto de probabilidad **y encontró un bug
+> propio** (el regex de slug aceptaba `_` pero no `-`, y `probabilidad/tendencia-central` es real).
+>
+> 🔜 **Lo que NO se movió, y sigue siendo lo único que mide el negocio:** **T-131**, el café con el
+> colega con el mapa de errores en pantalla. Nada de esta sesión lo bloquea y nada lo reemplaza.
+> Pendientes de árbol: `graphify update .` sin correr, `RISKS.md` sin los dos hallazgos 🔺, y el
+> defecto de `module-slugs` sin ficha propia.
 
 > ## ⭐ 2026-09-16 — el proyecto mide un canal por primera vez (SESSION-043)
 >
