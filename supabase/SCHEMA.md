@@ -612,6 +612,48 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > origen distingue depuración de no-depuración, no «muestra válida» de «ruido». Filtrar por
 > `origin = 'student'` es necesario y **no suficiente**.
 
+70. `migrations/068_banco_de_operaciones_fundamentales.sql` — ⏳ **escrita y verificada, SIN aplicar**
+    (2026-09-17) · **SESSION-044.** 8 ítems bajo `topic = 'numeros'` para
+    `aritmetica/operaciones_fundamentales`, más **8 ideas erróneas nuevas**. Generada por
+    `scripts/generar_migracion_items.py` desde `contenido/items/numeros_operaciones_fundamentales.json`,
+    que es la fuente de verdad: el `.sql` no se edita, se regenera.
+    **Para qué:** ese módulo existe desde `031` y tiene banda explícita desde `060` (`[-2,7 · -1,3]`),
+    y **tenía cero ítems, cero recursos y cero ideas erróneas**. La propia `031` lo anticipó en un
+    comentario y nadie volvió. Medido con la métrica M3 de la skill `unidad-de-contenido`: era uno de
+    los tres únicos módulos del producto con hueco real, y el único cuyo hueco era el banco entero.
+    Es el módulo del estudiante que todavía no automatizó sumar, restar, multiplicar y dividir — el
+    piso real del eje de números. Con **ADR-038** pasa a ser un test rendible, y sin ítems pararía en
+    `:exhausted` en la primera pregunta.
+
+71. `migrations/069_banco_de_inecuaciones.sql` — ⏳ **escrita y verificada, SIN aplicar** (2026-09-17) ·
+    **SESSION-044.** 10 ítems bajo `topic = 'algebra'` para `algebra/inecuaciones`, más **6 ideas
+    erróneas nuevas**. Mismo origen: `contenido/items/algebra_inecuaciones.json`.
+    **Para qué:** el segundo de los dos módulos que `031` creó y nunca se llenaron. El eje de la tanda
+    es una sola idea —multiplicar o dividir por un negativo da vuelta la desigualdad—, que es el único
+    paso donde una inecuación deja de comportarse como una ecuación; cuatro de los diez ítems la
+    atacan desde ángulos distintos.
+
+> **Verificadas juntas (2026-09-17)** contra un **PostgreSQL 14.18 desechable**, con una réplica
+> mínima de `modules`, `misconceptions` y `questions` tal como los dejaron `001`, `027`, `031` y `057`.
+> Los nueve controles coinciden: **0** ítems sin `module_id` (el modo de fallo de T-119), **0** ítems
+> sin ninguna idea errónea (el de `064`), **0** fuera de su banda, **0** ideas erróneas huérfanas,
+> **0** con idea errónea en la alternativa correcta, **0** enunciados duplicados, **0** LaTeX con
+> doble escape (`047`); **18 ítems** y **14 ideas erróneas** en total. **Idempotentes:** la segunda
+> pasada completa deja los mismos 18 y 14, no 36 y 28.
+>
+> ⚠️ **Dos defectos que la base desechable encontró y que ningún script había visto.** (1) Dos ítems
+> tenían **las cuatro** `misconception_*` en null: verificaban bien y **no diagnosticaban nada**, que
+> es exactamente el modo de fallo de `064`. Se catalogaron dos ideas erróneas más y se corrigió el
+> JSON. (2) La consulta de «fuera de banda» daba **dos falsos positivos**: `questions.difficulty` es
+> `real` y `modules.band_min` es `numeric`, así que un ítem en `-2.7` dentro de una banda que empieza
+> en `-2.7` sale fuera. **Toda comparación entre ambas lleva `::numeric(4,2)`** — corregido también en
+> la skill, que traía la consulta mala.
+>
+> ⚠️ **Entran con verificación mecánica solamente**, por decisión explícita del owner el 2026-09-17:
+> quedan bajo **R-41** junto a los otros 402. `difficulty` es **hipótesis autoral**, no medición
+> (R-17, G-2).
+
+
 > **Verificación de `067` (2026-09-13).** Contra un **PostgreSQL 14.18 desechable** con fixture a
 > mano (`auth.uid()`, `profiles`, `tests`, `is_admin()`): aplica limpio con `ON_ERROR_STOP=1`; el
 > backfill separa 2 corridas de admin de 3 de estudiante; un alumno que **envía**

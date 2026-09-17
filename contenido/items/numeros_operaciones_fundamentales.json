@@ -1,0 +1,265 @@
+{
+  "topic": "numeros",
+  "migracion_archivo": "068_banco_de_operaciones_fundamentales.sql",
+  "migracion_titulo": "Los ocho ítems del módulo que no tenía ninguno",
+  "migracion_notas": "`aritmetica/operaciones_fundamentales` existe desde `031` y tiene banda explícita desde `060` ([-2,7 · -1,3]), y hasta hoy tenía CERO ítems, cero recursos y cero ideas erróneas. La propia `031` lo anticipó: «los dos módulos nuevos nacen sin ningún recurso publicado». Medido el 2026-09-17 con la métrica M3 de la skill `unidad-de-contenido`: es uno de los tres únicos módulos del producto con hueco real, y el único cuyo hueco es el banco entero.\n\nPor qué importa más que su tamaño: es el módulo del estudiante que todavía no automatizó sumar, restar, multiplicar y dividir por escrito, y es el piso real del eje de números. Con ADR-038 pasa a ser un test rendible, y sin ítems pararía en `:exhausted` en la primera pregunta.\n\nLos ocho van bajo `topic = 'numeros'` —el banco del eje— y se distinguen por `module_id`. Así son alcanzables HOY por el diagnóstico de números, y mañana por el test de módulo de ADR-038 sin tocarlos.\n\n⚠️ `difficulty` es hipótesis autoral, no medición (R-17, G-2). ⚠️ Entran con verificación mecánica solamente, por decisión explícita del owner el 2026-09-17: quedan bajo R-41 junto a los otros 402.",
+  "cobertura_objetivo": {
+    "min": -2.7,
+    "max": -1.3,
+    "ancho_tramo": 0.7,
+    "min_por_tramo": 4
+  },
+  "misconceptions_preexistentes": [],
+  "misconceptions": [
+    {
+      "slug": "operaciones/no-lleva-en-la-suma",
+      "name": "Suma columna por columna sin llevar",
+      "description": "Usar cuando el estudiante suma cada columna por separado y escribe el resultado completo sin arrastrar la decena. NO usar para errores de alineación de cifras, que son de valor posicional.",
+      "module_slug": "aritmetica/operaciones_fundamentales"
+    },
+    {
+      "slug": "operaciones/resta-la-cifra-menor-de-la-mayor",
+      "name": "Resta siempre la cifra chica de la grande, columna por columna",
+      "description": "Usar cuando el estudiante evita el préstamo invirtiendo la resta dentro de una columna ($3-7$ lo resuelve como $7-3$). Es el error de resta más frecuente y tiene nombre propio en la literatura (smaller-from-larger). NO usar para errores de signo con números negativos.",
+      "module_slug": "aritmetica/operaciones_fundamentales"
+    },
+    {
+      "slug": "operaciones/no-corre-el-renglon-en-la-multiplicacion",
+      "name": "No desplaza el segundo renglón al multiplicar por dos cifras",
+      "description": "Usar cuando el estudiante multiplica bien por cada cifra pero suma los renglones sin correr el segundo un lugar a la izquierda. NO usar cuando el error está en una tabla de multiplicar mal recordada.",
+      "module_slug": "aritmetica/operaciones_fundamentales"
+    },
+    {
+      "slug": "operaciones/ignora-el-cero-en-el-cociente",
+      "name": "Se saltea el cero del cociente en la división",
+      "description": "Usar cuando el estudiante omite escribir un 0 en el cociente al bajar una cifra que no alcanza para dividir, y el resultado le queda con una cifra de menos. NO usar para errores en el resto.",
+      "module_slug": "aritmetica/operaciones_fundamentales"
+    },
+    {
+      "slug": "operaciones/orden-de-izquierda-a-derecha",
+      "name": "Opera de izquierda a derecha ignorando la jerarquía",
+      "description": "Usar cuando el estudiante resuelve una expresión combinada en el orden en que está escrita, sin dar precedencia a la multiplicación o la división sobre la suma y la resta. NO usar cuando el error es de signos dentro de un paréntesis.",
+      "module_slug": "aritmetica/operaciones_fundamentales"
+    },
+    {
+      "slug": "operaciones/resta-no-es-conmutativa",
+      "name": "Trata la resta y la división como si fueran conmutativas",
+      "description": "Usar cuando el estudiante invierte los términos de una resta o una división completas ($a-b$ por $b-a$, $a:b$ por $b:a$) porque le resulta más cómodo. NO usar para la inversión dentro de una columna, que es `operaciones/resta-la-cifra-menor-de-la-mayor`.",
+      "module_slug": "aritmetica/operaciones_fundamentales"
+    },
+    {
+      "slug": "operaciones/elige-la-operacion-equivocada",
+      "name": "Resuelve con una operación distinta de la que pide el problema",
+      "description": "Usar cuando el estudiante calcula bien pero con la operación que no es —suma donde había que multiplicar, resta donde había que dividir—, sea por leer mal el signo o por no interpretar el enunciado. NO usar cuando la operación es la correcta y el error está en el procedimiento.",
+      "module_slug": "aritmetica/operaciones_fundamentales"
+    },
+    {
+      "slug": "operaciones/repite-un-factor-en-la-multiplicacion",
+      "name": "Multiplica un dato por sí mismo en vez de usar los dos",
+      "description": "Usar cuando el estudiante eleva al cuadrado uno de los dos datos del problema en lugar de multiplicarlos entre sí. NO usar cuando el error viene de una tabla mal recordada.",
+      "module_slug": "aritmetica/operaciones_fundamentales"
+    }
+  ],
+  "items": [
+    {
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.7,
+      "order_index": 10,
+      "question": "¿Cuál es el resultado de $28 + 45$?",
+      "options": {
+        "A": "$613$",
+        "B": "$73$",
+        "C": "$63$",
+        "D": "$17$"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Sumaste cada columna por separado y escribiste los dos resultados seguidos: $8+5=13$ y $2+4=6$, y quedó $613$. Cuando una columna pasa de $9$ hay que llevar la decena a la siguiente.",
+        "B": "Correcto. $8+5=13$: queda $3$ y llevas $1$. Después $2+4+1=7$. El resultado es $73$.",
+        "C": "Sumaste bien las unidades hasta el $13$ pero dejaste el $3$ y perdiste la decena que había que llevar. Esa decena se suma a la columna siguiente: $2+4+1=7$.",
+        "D": "Restaste en vez de sumar: $45-28=17$. La operación pedida es una suma."
+      },
+      "misconceptions": {
+        "A": "operaciones/no-lleva-en-la-suma",
+        "B": null,
+        "C": "operaciones/no-lleva-en-la-suma",
+        "D": "operaciones/elige-la-operacion-equivocada"
+      }
+    },
+    {
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.5,
+      "order_index": 20,
+      "question": "¿Cuál es el resultado de $52 - 37$?",
+      "options": {
+        "A": "$25$",
+        "B": "$89$",
+        "C": "$15$",
+        "D": "$-15$"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "En la columna de las unidades hiciste $7-2=5$ en vez de $2-7$, y en las decenas $5-3=2$. Cuando la cifra de arriba es menor, no se da vuelta la resta: se pide prestado a la decena.",
+        "B": "Sumaste en vez de restar: $52+37=89$.",
+        "C": "Correcto. $2$ no alcanza para restar $7$, así que pides prestado: $12-7=5$, y en las decenas queda $4-3=1$. El resultado es $15$.",
+        "D": "El resultado tiene el valor correcto pero el signo cambiado. $52$ es mayor que $37$, así que la diferencia es positiva."
+      },
+      "misconceptions": {
+        "A": "operaciones/resta-la-cifra-menor-de-la-mayor",
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.3,
+      "order_index": 30,
+      "question": "Una caja trae $6$ paquetes y cada paquete trae $7$ galletas. ¿Cuántas galletas hay en la caja?",
+      "options": {
+        "A": "$13$",
+        "B": "$49$",
+        "C": "$36$",
+        "D": "$42$"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Sumaste $6+7$. Acá cada uno de los $6$ paquetes aporta $7$ galletas, así que hay que sumar $7$ seis veces, que es multiplicar.",
+        "B": "Multiplicaste $7 \\times 7$. Los paquetes son $6$, no $7$.",
+        "C": "Multiplicaste $6 \\times 6$. Uno de los factores es la cantidad de paquetes y el otro es lo que trae cada paquete: $6$ y $7$.",
+        "D": "Correcto. $6$ paquetes de $7$ galletas son $6 \\times 7 = 42$."
+      },
+      "misconceptions": {
+        "A": "operaciones/elige-la-operacion-equivocada",
+        "B": "operaciones/repite-un-factor-en-la-multiplicacion",
+        "C": "operaciones/repite-un-factor-en-la-multiplicacion",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.1,
+      "order_index": 40,
+      "question": "¿Cuál es el resultado de $34 \\times 12$?",
+      "options": {
+        "A": "$408$",
+        "B": "$102$",
+        "C": "$115$",
+        "D": "$46$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. $34 \\times 2 = 68$ y $34 \\times 10 = 340$. Sumando, $68 + 340 = 408$.",
+        "B": "Multiplicaste solo por el $3$ de las decenas del segundo factor sin considerarlo como $30$, o te quedaste con un renglón. $12$ son $10$ más $2$, y hay que sumar los dos productos.",
+        "C": "Los dos renglones están bien calculados pero se sumaron sin correr el segundo un lugar: $68$ y $34$ alineados en la misma columna dan $102$... y acá quedó $115$ por el mismo desplazamiento perdido. El segundo renglón es $34 \\times 10 = 340$, no $34$.",
+        "D": "Sumaste los dos números: $34 + 12 = 46$. La operación pedida es una multiplicación."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "operaciones/no-corre-el-renglon-en-la-multiplicacion",
+        "C": "operaciones/no-corre-el-renglon-en-la-multiplicacion",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -1.9,
+      "order_index": 50,
+      "question": "¿Cuál es el resultado de $96 : 8$?",
+      "options": {
+        "A": "$88$",
+        "B": "$11$",
+        "C": "$12$",
+        "D": "$104$"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Restaste $96 - 8$. El signo $:$ indica una división, no una resta.",
+        "B": "Te falta una unidad: $8 \\times 11 = 88$, y sobran $8$, que alcanzan para una vez más. La comprobación de una división es multiplicar el cociente por el divisor y llegar al dividendo.",
+        "C": "Correcto. $8 \\times 12 = 96$, así que $96 : 8 = 12$.",
+        "D": "Sumaste $96 + 8$. La operación pedida es una división."
+      },
+      "misconceptions": {
+        "A": "operaciones/elige-la-operacion-equivocada",
+        "B": null,
+        "C": null,
+        "D": "operaciones/elige-la-operacion-equivocada"
+      }
+    },
+    {
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -1.7,
+      "order_index": 60,
+      "question": "¿Cuál es el resultado de $618 : 6$?",
+      "options": {
+        "A": "$13$",
+        "B": "$103$",
+        "C": "$18$",
+        "D": "$130$"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Te saltaste el cero del medio. Al bajar el $1$, el $6$ no cabe en $1$: ahí va un $0$ en el cociente antes de bajar el $8$. Sin ese cero el resultado pierde una cifra entera.",
+        "B": "Correcto. $6:6=1$; el $1$ no alcanza para dividir por $6$, así que va $0$ y se baja el $8$: $18:6=3$. El cociente es $103$.",
+        "C": "Dividiste solo las cifras que sí alcanzaban y pegaste los resultados: $6:6=1$ y $18:6=3$ dan $13$, y acá quedó $18$. La posición de cada cifra del cociente importa tanto como su valor.",
+        "D": "Las cifras son las correctas pero en el orden equivocado. El cociente se arma de izquierda a derecha a medida que se baja cada cifra: $1$, después $0$, después $3$."
+      },
+      "misconceptions": {
+        "A": "operaciones/ignora-el-cero-en-el-cociente",
+        "B": null,
+        "C": "operaciones/ignora-el-cero-en-el-cociente",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -1.5,
+      "order_index": 70,
+      "question": "¿Cuál es el resultado de $5 + 3 \\times 4$?",
+      "options": {
+        "A": "$32$",
+        "B": "$12$",
+        "C": "$27$",
+        "D": "$17$"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Resolviste de izquierda a derecha: primero $5+3=8$ y después $8 \\times 4 = 32$. La multiplicación se resuelve antes que la suma, aunque esté escrita después.",
+        "B": "Calculaste bien $3 \\times 4 = 12$ y ahí te detuviste. Falta sumarle el $5$.",
+        "C": "Multiplicaste el $5$ por algo que no corresponde. En $5 + 3 \\times 4$ el $5$ solo participa de la suma: el producto es entre el $3$ y el $4$.",
+        "D": "Correcto. Primero $3 \\times 4 = 12$, y recién después $5 + 12 = 17$."
+      },
+      "misconceptions": {
+        "A": "operaciones/orden-de-izquierda-a-derecha",
+        "B": null,
+        "C": "operaciones/orden-de-izquierda-a-derecha",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -1.4,
+      "order_index": 80,
+      "question": "En un curso hay $32$ estudiantes. Se reparten en grupos de $4$ y después cada grupo recibe $5$ hojas. ¿Cuántas hojas se reparten en total?",
+      "options": {
+        "A": "$40$",
+        "B": "$160$",
+        "C": "$8$",
+        "D": "$37$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. $32 : 4 = 8$ grupos, y cada grupo recibe $5$ hojas: $8 \\times 5 = 40$.",
+        "B": "Multiplicaste $32 \\times 5$, como si cada estudiante recibiera $5$ hojas. Las hojas se reparten por grupo, y los grupos son $8$, no $32$.",
+        "C": "Llegaste a los $8$ grupos, que es el paso difícil, y ahí te detuviste. Falta el segundo paso: cada uno de esos $8$ grupos recibe $5$ hojas.",
+        "D": "Sumaste $32 + 5$. Ninguna de las dos operaciones del problema es una suma: primero se divide para saber cuántos grupos hay y después se multiplica."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "operaciones/resta-no-es-conmutativa",
+        "C": null,
+        "D": null
+      }
+    }
+  ]
+}

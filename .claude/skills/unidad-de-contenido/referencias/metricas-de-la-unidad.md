@@ -10,6 +10,19 @@ tamaño se verifican con un script, no mirando.
 > where topic not like 'mq\_%' and topic not like 'electrotecnia%'
 > ```
 
+> ⚠️ **`difficulty` es `real` y `band_min`/`band_max` son `numeric`. Compararlos
+> directamente miente.** Medido el 2026-09-17 contra un PostgreSQL 14.18: un ítem
+> guardado con `difficulty = -2.7` en una banda que empieza en `-2.7` sale
+> **fuera de banda**, porque el `float4` se promueve a un valor apenas menor.
+> Las dos filas que devolvió la consulta eran falsos positivos.
+>
+> **Toda comparación entre las dos columnas lleva cast explícito:**
+> ```sql
+> q.difficulty::numeric(4,2) < m.band_min    -- no: q.difficulty < m.band_min
+> ```
+> No es cosmético: sin el cast, **todo ítem que caiga justo en un borde de banda
+> aparece como defecto**, y los bordes son donde el reparto pone ítems a propósito.
+
 > ⚠️ **Toda consulta sobre respuestas reales excluye la depuración.** `067` agregó
 > `tests.origin`: **70 de 345 filas (20 %) eran corridas del owner**, concentradas
 > justo en los ítems más editados. Y `origin = 'student'` es **necesario y no
@@ -41,6 +54,7 @@ select slug, band_min, band_max
   from public.modules
  where band_min is not null
    and (band_min < -3 or band_max > 3 or band_min >= band_max);
+-- (M2 compara numeric con numeric: acá no hace falta cast.)
 ```
 **Esperado: 0 filas.** θ vive en `[-3, 3]`.
 
@@ -64,7 +78,8 @@ select t.slug, t.tramo as desde, t.tramo + 1 as hasta,
   left join public.questions q
     on q.module_id = (select id from public.modules where slug = t.slug)
    and coalesce(q.active, true)
-   and q.difficulty >= t.tramo and q.difficulty < t.tramo + 1
+   and q.difficulty::numeric(4,2) >= t.tramo
+   and q.difficulty::numeric(4,2) <  t.tramo + 1   -- cast: ver el aviso de arriba
  group by 1,2,3
 having count(q.id) < 6
  order by items, t.slug;
