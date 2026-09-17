@@ -1,0 +1,95 @@
+{
+  "_lease": "Molde de una unidad de contenido. Copiar a contenido/unidades/<slug-con-guiones>.json, llenar, y verificar con: python3 scripts/verificar_unidad.py contenido/unidades/<archivo>.json — los campos que empiezan con _ son comentarios y el verificador los ignora.",
+
+  "slug": "aritmetica/enteros",
+  "title": "Números enteros",
+  "track": "aritmetica",
+  "order_index": 20,
+  "_order_index": "Dejá huecos de 10 en 10 para poder insertar entre medio sin correr a los vecinos.",
+
+  "track_nuevo": false,
+  "_track_nuevo": "true obliga a dropear y recrear modules_track_check (A2 del mapa) y a decidir si entra en bands/product-tracks (B3). Es el ÚNICO lugar del mapa que falla ruidosamente: error 23514.",
+
+  "banda": { "min": -2.4, "max": -1.0 },
+  "_banda": "SIEMPRE explícita, nunca derivada. Con diagnósticos por eje, cada eje reparte sus módulos a lo largo de todo [-3, 3]. Las bandas se solapan a propósito. Ancho típico: 1,4 a 2,4 logits.",
+
+  "items_objetivo": 18,
+  "_items_objetivo": "Mínimo 6 por cada tramo de 1,0 logit dentro de la banda. Una banda de 1,4 logits pide ~9; una de 2,4 pide ~15.",
+
+  "rendible": true,
+  "_rendible": "DECIDIDO 2026-09-17: toda unidad nueva nace rendible. El eje queda como ubicador (12 ítems, «¿dónde estoy?») y el módulo es un test corto dentro de su banda. false solo para una unidad que a propósito se rinde dentro del test de su eje — que es el estado heredado de las 26 de hoy, no el objetivo. OJO: next_question filtra `where q.topic = p_topic` y NO por módulo, así que esto pide ADR-038 (ver las-tablas-y-su-sentido.md §5). Hasta entonces la migración de test_configs se deja escrita y SIN aplicar, anotada como ⏳ en SCHEMA.md.",
+
+  "test_config": {
+    "_solo_si_rendible": "Ignorado si rendible = false.",
+    "topic": "aritmetica/enteros",
+    "_topic": "Con ADR-038 opción B, el test de módulo se identifica por module_id y este topic es el del eje. Con opción A sería un topic propio por módulo. Mientras el ADR no esté escrito, poné el slug del módulo y dejá la migración sin aplicar.",
+    "display_name": "Números enteros",
+    "min_items": 4,
+    "max_items": 8,
+    "_max_items": "Un test de MÓDULO es corto: 6-8 ítems dentro de una banda de ~1,4 logits. Los 12 de los cuatro ejes son del UBICADOR, que tiene que barrer [-3, +3]. Copiar 12 acá sería pedirle a un módulo el trabajo de un eje.",
+    "se_threshold": 0.35,
+    "_se_threshold": "OJO: 0.35 no se dispara nunca. Con el motor v2 el piso del SE con 12 ítems es ~0,73, y 0 de 17 tests reales pararon por precisión (T-111, R-38). Copiarlo es copiar una regla que no corre.",
+    "prerequisite_topic": "numeros",
+    "_prerequisite_topic": "null significa DIAGNÓSTICO ABIERTO A TODO EL MUNDO. No es un default inocente: así entraron los ~14 bancos muertos que hoy ensucian el selector (T-122, T-138). Un test de módulo cuelga del ubicador de su eje.",
+    "min_theta": null,
+    "_min_theta": "Hoy es NULL en los cuatro ejes: basta HABER RENDIDO números, no haber alcanzado nada. Si dejás null, que sea una decisión dicha. Ojo: con módulos rendibles, el orden real lo da `prerrequisitos` (module_prerequisites), no esta columna.",
+    "initial_theta": -1.0,
+    "active": true,
+    "_active": "test_configs_select (020) no admite estado intermedio: o lo ven todos los autenticados, o solo admin. No hay «visible para este estudiante» — eso es T-129."
+  },
+
+  "prerrequisitos": [
+    {
+      "prerequisite_slug": "aritmetica/numeros",
+      "strength": "duro",
+      "rationale": "Sin leer y ordenar números naturales no se puede operar con signo."
+    }
+  ],
+  "_prerrequisitos": "duro = bloquea, y es a donde manda un escape (ADR-029). blando = línea fina en el mapa, el escape la ignora. El rationale es PARA EL PROFESOR: es lo que evita un grafo lleno de aristas que nadie recuerda haber decidido.",
+
+  "habilita": ["aritmetica/fracciones"],
+  "_habilita": "Las unidades que tienen a ÉSTA como prerrequisito. El alta casi siempre agrega dos aristas, no una: si solo declarás la de entrada, la unidad es un callejón sin salida. El verificador las usa para detectar ciclos.",
+
+  "misconceptions": [
+    {
+      "slug": "numeros/resta-de-negativos-como-suma",
+      "name": "Trata la resta de un negativo como si fuera una resta común",
+      "description": "Usar cuando el estudiante calcula a − (−b) como a − b. NO usar para errores de signo en la multiplicación.",
+      "recursos": ["regla-de-los-signos-en-la-resta"]
+    }
+  ],
+  "_misconceptions": "slug: minúsculas, dígitos, - o / (check de 027). name: prosa PARA EL PROFESOR, nunca para el estudiante — lo que el estudiante lee es questions.error_*. description: cuándo SÍ y cuándo NO, y es lo único que impide un catálogo de duplicados. `recursos` son claves de la lista de abajo: cada idea errónea necesita al menos una, o la capa 1 de «Mi plan» queda genérica por estructura (A8, T-54).",
+
+  "misconceptions_preexistentes": [],
+  "_misconceptions_preexistentes": "Slugs que YA están en la base. Desde el JSON no se puede consultar Supabase, así que sin declararlos un slug mal escrito se vuelve un null silencioso.",
+
+  "recursos": [
+    {
+      "clave": "regla-de-los-signos-en-la-resta",
+      "type": "text",
+      "title": "Restar un negativo es sumar",
+      "body": "…",
+      "media_url": null,
+      "published": true,
+      "order_index": 10
+    }
+  ],
+  "_recursos": "type ∈ text | video_url | audio_url | pdf_url | exercise (CHECK de 001). published es false por default y la policy resources_select_published lo esconde SIN AVISAR. `clave` es interna del JSON, para que las misconceptions puedan apuntarle; no se guarda.",
+
+  "reemplaza": [],
+  "_reemplaza": "Topics viejos que esta unidad deja duplicados. Se apagan con active = false, NUNCA delete: es reversible y no toca el histórico de tests, que es evidencia y que universo.access usa para desbloquear. Antes de apagar, revisá si algún ítem vale la pena rescatar. Es la única pérdida medida del proyecto en esta área: 16 de 40 tests el 2026-09-10 (T-122, T-143).",
+
+  "justificacion": {
+    "hueco_medido": "El tramo [-2, -1] de `numeros` tiene 3 ítems activos y el diagnóstico paró por :exhausted el 2026-08-28.",
+    "quien_revisa": "…",
+    "cuando": "…"
+  },
+  "_justificacion": "hueco_medido sale de la consulta de metricas-de-la-unidad.md, NO de una intuición. «para completar el eje» no es una justificación válida — R-30 es el riesgo dominante del proyecto. quien_revisa: el cuello de botella es la revisión humana; ya hay 402 ítems activos sin revisar delante de estudiantes. Si nadie va a revisarla, decilo en la entrega.",
+
+  "preguntas_abiertas": [],
+  "_preguntas_abiertas": "Lo que NO pudiste responder. Va con su Q- a project-memory/OPEN_QUESTIONS.md y se menciona en la entrega, no en un comentario del SQL. Una unidad incompleta y dicha es mejor que una completa e inventada.",
+
+  "migracion_archivo": "0XX_unidad_<slug>.sql",
+  "migracion_titulo": "…",
+  "migracion_notas": "…"
+}

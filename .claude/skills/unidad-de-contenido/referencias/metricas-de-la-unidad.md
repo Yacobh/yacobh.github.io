@@ -1,0 +1,244 @@
+# Métricas de una unidad
+
+Cómo saber si una unidad está **completa** y si está **sana**, con consultas, no
+a ojo. Es la misma cultura que los seis `audit_*.py` del repo: el color y el
+tamaño se verifican con un script, no mirando.
+
+> ⚠️ **Toda consulta del banco PAES excluye los tracks que no son el producto.**
+> El conteo crudo de `questions` dejó de significar «el banco del producto»:
+> ```sql
+> where topic not like 'mq\_%' and topic not like 'electrotecnia%'
+> ```
+
+> ⚠️ **Toda consulta sobre respuestas reales excluye la depuración.** `067` agregó
+> `tests.origin`: **70 de 345 filas (20 %) eran corridas del owner**, concentradas
+> justo en los ítems más editados. Y `origin = 'student'` es **necesario y no
+> suficiente** (T-145): quedan dentro cuentas de prueba. La lista de exclusión va
+> **escrita y versionada** en `supabase/queries/`, no recordada de memoria (L-59).
+
+---
+
+## 1. Métricas de completitud — antes de aplicar
+
+Se responden con **una consulta cada una** y la respuesta correcta es siempre
+cero filas. Son el equivalente SQL de la tabla del mapa.
+
+### M1 · Ningún módulo sin banda explícita
+
+```sql
+select slug, track, order_index, band_min, band_max
+  from public.modules
+ where band_min is null or band_max is null
+ order by track, order_index;
+```
+**Esperado: 0 filas.** Un módulo sin banda depende del reparto derivado, y ese
+reparto se mueve cada vez que alguien crea otro módulo.
+
+### M2 · Ninguna banda inválida
+
+```sql
+select slug, band_min, band_max
+  from public.modules
+ where band_min is not null
+   and (band_min < -3 or band_max > 3 or band_min >= band_max);
+```
+**Esperado: 0 filas.** θ vive en `[-3, 3]`.
+
+### M3 · Cobertura de ítems dentro de la banda
+
+La que decide si el test se agota. Por módulo y por tramo de 1,0 logit:
+
+```sql
+with tramos as (
+  select m.slug, m.band_min, m.band_max,
+         generate_series(
+           floor(m.band_min)::int,
+           ceil(m.band_max)::int - 1
+         ) as tramo
+    from public.modules m
+   where m.band_min is not null
+)
+select t.slug, t.tramo as desde, t.tramo + 1 as hasta,
+       count(q.id) as items
+  from tramos t
+  left join public.questions q
+    on q.module_id = (select id from public.modules where slug = t.slug)
+   and coalesce(q.active, true)
+   and q.difficulty >= t.tramo and q.difficulty < t.tramo + 1
+ group by 1,2,3
+having count(q.id) < 6
+ order by items, t.slug;
+```
+**Esperado: 0 filas.** Un tramo con menos de 6 ítems es donde el diagnóstico se
+va a cortar. El motor sirve el ítem con `b` más cercano a θ en `[θ−1, θ+1]` y
+amplía a `[θ−2, θ+2]` antes de declarar agotado el banco.
+
+### M4 · Ningún ítem huérfano de módulo
+
+```sql
+select topic, count(*) as sin_modulo
+  from public.questions
+ where module_id is null and coalesce(active, true)
+ group by topic order by 2 desc;
+```
+Un `module_slug` mal escrito en la migración **deja `module_id` en null en
+silencio** — es el modo de fallo de T-119 y **no hay guarda que lo impida**.
+
+### M5 · Ningún distractor sin idea errónea
+
+```sql
+select q.topic, count(*) as sin_misconception
+  from public.questions q
+ where coalesce(q.active, true)
+   and (q.misconception_a_id is null and q.misconception_b_id is null
+    and q.misconception_c_id is null and q.misconception_d_id is null)
+ group by 1 order by 2 desc;
+```
+⚠️ Es el modo de fallo de `064`: ítems sin ninguna idea errónea, **en silencio**.
+Sin esto el mapa de errores —que es el producto— no dice nada de esa unidad.
+
+### M6 · Ninguna idea errónea huérfana de recurso
+
+```sql
+select mc.slug, mc.name
+  from public.misconceptions mc
+  left join public.resource_misconceptions rm on rm.misconception_id = mc.id
+ where rm.misconception_id is null
+ order by mc.slug;
+```
+⚠️ **Hoy devuelve el catálogo entero**: `resource_misconceptions` está vacía
+(T-54). Es la razón estructural de que la capa 1 de «Mi plan» sea genérica.
+
+### M7 · Ningún módulo sin recurso publicado
+
+```sql
+select m.slug, count(r.id) filter (where r.published) as publicados
+  from public.modules m
+  left join public.resources r on r.module_id = m.id
+ group by 1 having count(r.id) filter (where r.published) = 0
+ order by 1;
+```
+⚠️ Ojo con `published`: es `false` por default y la policy lo esconde sin avisar.
+
+### M8 · Ningún ítem inalcanzable
+
+```sql
+select q.topic,
+       count(*) filter (where coalesce(q.active, true)) as items_activos,
+       c.topic is not null as tiene_config,
+       c.active as config_activa
+  from public.questions q
+  left join public.test_configs c on c.topic = q.topic
+ group by q.topic, c.topic, c.active
+ order by 2 desc;
+```
+Medido: los cuatro bancos nuevos tuvieron **414 ítems inalcanzables** hasta que
+`059` les creó su fila (T-125). Un banco sin `test_configs` **no existe** para el
+estudiante.
+
+### M9 · Ningún eslabón muerto en la cadena
+
+```sql
+select c.topic, c.active, c.prerequisite_topic,
+       p.active as prerrequisito_activo, c.min_theta
+  from public.test_configs c
+  left join public.test_configs p on p.topic = c.prerequisite_topic
+ where c.active
+   and (p.topic is not null and not p.active);
+```
+**Esperado: 0 filas.** Un prerrequisito inactivo deja inalcanzable a todo lo que
+cuelga de él.
+
+### M10 · Ningún banco duplicado en el selector
+
+```sql
+select c.topic, c.display_name, c.active, c.prerequisite_topic,
+       count(q.id) filter (where coalesce(q.active, true)) as items
+  from public.test_configs c
+  left join public.questions q on q.topic = c.topic
+ where c.active
+ group by 1,2,3,4
+ order by items asc;
+```
+Revisá los de arriba: **un banco activo con pocos ítems y sin prerrequisito es un
+diagnóstico falso** compitiendo con el bueno. Medido el 2026-09-10: `diagnostico`
+(10), `ecuaciones_simples` (5) y `polinomios` (1) se llevaron **16 de 40 tests**,
+mientras `geometria` y `algebra` recibieron **uno cada uno** (T-122, T-143).
+
+### M11 · Ningún slug del cliente desactualizado — ⭐
+
+**Esta no es SQL.** Es el hueco por el que se cayó probabilidad:
+
+```bash
+# Todos los slugs de módulo que existen en la base (pegar el resultado de:
+#   select slug from public.modules order by slug;)
+# contra el `def` literal del cliente:
+grep -n -A12 "^(def module-slugs" src/universo/topics.cljs
+```
+
+**Si un slug está en `modules` y no en `module-slugs`**, sus déficits salen como
+`unknown/<topic>` y «Mi plan» no puede personalizarse. Verificado el 2026-09-17:
+el `def` tiene 20 slugs y **faltan los seis de `probabilidad/*`**.
+
+---
+
+## 2. Métricas de salud — después de que alguien la rinda
+
+Éstas **necesitan respuestas reales** y son las que convierten una hipótesis
+editorial en dato. Son el camino a **G-2**.
+
+### S1 · ¿Cuántas respuestas lleva cada ítem?
+
+```sql
+-- Calibrar pide ~30 respuestas por ítem. Medí cuánto falta.
+-- Requiere desanidar tests.test; ver supabase/queries/ para la forma exacta.
+```
+⚠️ **Hoy hay 0 ítems con 30 respuestas.** Ése es el estado real de G-2, y es la
+razón por la que `difficulty` sigue siendo **hipótesis editorial, no medición**
+(R-17). Ningún material de cara al cliente puede decir otra cosa.
+
+### S2 · ¿Por qué paran los tests de esta unidad?
+
+`:precision` / `:max-items` / `:exhausted` / `null` (abandono).
+
+Línea base real del 2026-09-10 sobre 17 tests de `numeros`:
+**15 por `max_items`, 2 por abandono, 0 por precisión.** Si tu unidad da
+`:exhausted`, el banco tiene un hueco → volvé a M3.
+
+⚠️ El abandono **por botón sí deja fila** (`parada = null`); lo invisible es solo
+cerrar la pestaña (T-134).
+
+### S3 · ¿La banda estimada es la correcta?
+
+La métrica que más importa y la peor del proyecto: **en θ = 2,0 la banda correcta
+es 37 %** — dos de cada tres estudiantes avanzados quedan en la banda equivocada,
+y la banda decide el cupo, o sea con quién estudian (T-117).
+
+Medido: el techo no es el estimador sino **12 ítems** (20 ítems → 70 %, 30 → 79 %).
+Y **el lugar del corte pesa más que la cantidad**: con 3 bandas mal puestas,
+`intermedio` sube a 85 % pero `basico` cae a 41 %.
+
+### S4 · ¿Los distractores discriminan?
+
+Un distractor que **nadie elige nunca** no está midiendo nada y ocupa el lugar de
+uno que sí. Uno que elige **todo el mundo** puede ser un ítem mal escrito, no una
+idea errónea — precedente: T-105 encontró 3 ítems sin ninguna alternativa correcta
+y 7 con dos.
+
+### S5 · ¿La `difficulty` editorial coincide con la observada?
+
+Proporción de aciertos por ítem contra su `b` declarado. Un ítem marcado `-2,5`
+que acierta el 30 % **no es fácil**. Es la señal más barata de que una hipótesis
+editorial está mal, y **no necesita las 30 respuestas de S1**.
+
+---
+
+## 3. Lo que NO se puede medir todavía, y hay que decirlo
+
+| Pregunta | Por qué no |
+|---|---|
+| ¿Los recursos sirven? | `resource_misconceptions.rank` es criterio del autor, no eficacia medida. Está dicho en `045` |
+| ¿Cuánto mejora el estudiante? | Δθ es **G-4** y pide histórico de perfiles que nunca se sobrescriba, más un segundo intento |
+| ¿Cuáles NO lo hicieron? | Un test abandonado cerrando la pestaña **no deja fila** (T-134) |
+| ¿Esta fila es de un estudiante real? | `origin` separa depuración, no cuentas de prueba (T-145) |
+| ¿El θ de números es comparable al de geometría? | **No, y es a propósito.** Con bandas por eje cada uno tiene su escala. Se puede decir «nivel 2 en números»; **no** «nivel 2 en general» |
