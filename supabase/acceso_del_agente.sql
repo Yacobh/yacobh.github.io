@@ -41,7 +41,8 @@
 -- =============================================================================
 -- -----------------------------------------------------------------------------
 -- ⚠️ CAMBIÁ LA CONTRASEÑA antes de ejecutar, y guardala en `.env`, NUNCA en Git.
---    Generá una larga y al azar (por ejemplo: openssl rand -base64 32).
+--    Generá una larga y al azar con `openssl rand -hex 32`. **No uses `-base64 32`**:
+--    mete `/` y `=`, que después hay que percent-encodear en la URL de `.env` (2026-09-18).
 
 do $$
 begin
