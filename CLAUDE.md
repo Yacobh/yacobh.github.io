@@ -313,8 +313,16 @@ python3 scripts/verificar_unidad.py contenido/unidades/<slug>.json # la unidad e
   y se commitee el `app.js` resultante. Ver [[adr/ADR-003-github-pages-artefacto-versionado]].
 - `npm run build:css` antes de publicar si cambiaron clases Tailwind (Tailwind purga por
   contenido; una clase nueva sin rebuild no existe en producción).
-- Las migraciones SQL se aplican **a mano** en el SQL Editor de Supabase, en el orden de
-  `supabase/SCHEMA.md`. No hay `supabase db push` en el flujo actual.
+- Las migraciones SQL se aplican en el orden de `supabase/SCHEMA.md`. No hay `supabase db push`.
+  **Desde el 2026-09-18 (ADR-040) el agente puede aplicarlas**, con el rol `claude_ddl` de
+  `supabase/acceso_del_agente.sql` y **solo cuando el owner lo pide**; el rol por defecto es
+  `claude_ro`, de solo lectura, que no ve ninguna tabla con datos personales. Antes de aplicar,
+  siempre: verificada contra un **PostgreSQL desechable** con una segunda pasada que prueba
+  idempotencia, reversión escrita, y **migración antes que bundle** (R-39, materializado dos
+  veces). Nada destructivo —`drop`, `truncate`, `delete` sin `where`, un `update` masivo del
+  banco, cualquier cosa sobre datos personales— sin confirmación explícita en el momento. Y
+  `SCHEMA.md` se actualiza **en el mismo commit**: una migración aplicada y no anotada deja a la
+  siguiente sesión sin saber en qué estado está la base.
 - Edge Functions: `supabase functions deploy send-enrollment-emails` + secret `RESEND_API_KEY`.
 - **Hay dos HTML en producción y ninguno es copia del otro** (ADR-027 cerró T-12; `public/index.html`
   ya no existe y el dev server sirve la raíz, así que en local ves el archivo que se publica):

@@ -1315,6 +1315,35 @@ escrito que la cadena por eje no se hace.
 > adoptó y **nadie midió si movió el 37 % de banda correcta de T-117**. Ésa es la pregunta viva, y
 > ahora tiene quien la responda — es el §Seguimiento de **ADR-038**.
 
+### T-151 · Crear los dos roles de acceso y cargar las cadenas (ADR-040) — **P1** · `abierto`
+
+`ADR-040` está aprobado y el SQL está **escrito y verificado**; falta ejecutarlo. Es del owner,
+porque implica crear credenciales.
+
+1. Generar **dos** contraseñas largas y distintas (`openssl rand -base64 32`).
+2. Pegar `supabase/acceso_del_agente.sql` en el SQL Editor, con las contraseñas puestas.
+3. Copiar `.env.example` a `.env` y cargar `SUPABASE_DB_URL_RO` y `SUPABASE_DB_URL_DDL` con la
+   cadena del dashboard (Project Settings → Database), cambiando usuario y contraseña. Si la
+   conexión directa no resuelve, usar la del **pooler en modo sesión**: la directa suele ser IPv6.
+4. Correr las verificaciones del pie del archivo: 8 grants, todos `SELECT`; 0 filas sobre las tablas
+   con datos personales; y desde `psql`, que `select count(*) from questions` devuelva el banco y
+   que `select count(*) from profiles` falle.
+
+**Verificado contra PostgreSQL 14.18 desechable (2026-09-18):** aplica limpio, es idempotente, y los
+límites de los dos roles son los esperados — `claude_ro` lee contenido y `tests`, no lee `profiles`
+ni `visitor`, no inserta, no modifica, no borra y **ya no puede crear tablas**; `claude_ddl` hace
+`alter table`, `insert` y `create policy`; y `alter role claude_ddl nologin` lo corta dejando la
+lectura intacta.
+
+**Lo primero que se corre cuando esté:** M1…M11 de `metricas-de-la-unidad.md` sobre la base real —
+nunca se corrieron— y la consulta de **T-117**, que son 40 tests esperando desde hace veinte días.
+
+**Sube de importancia con esto:** **T-09** (staging) y **T-07** (respaldo). La base de producción es
+la única que hay.
+
+**Relacionado:** [[../adr/ADR-040-el-agente-accede-a-la-base]], [[DECISIONS]] D-71, T-09, T-07,
+T-77, T-117, T-145, [[RISKS]] R-28, R-02, R-39.
+
 ### T-149 · Implementar el módulo rendible (ADR-038) — **P1** · `abierto`
 
 `ADR-038` está **aprobado y sin implementar**. Fija el diseño completo; esto es escribirlo.

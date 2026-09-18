@@ -92,8 +92,9 @@ python3 scripts/generar_migracion_items.py contenido/items/numeros.json
 
 ### 4. Entregar
 
-El agente **no aplica migraciones**: se aplican a mano en el SQL Editor. Al
-entregar, decir explícitamente:
+Desde **ADR-040** (2026-09-18) el agente **puede** aplicar la migración, con el rol
+`claude_ddl` y **solo si el owner lo pide**; el default sigue siendo entregarla
+sin aplicar. En los dos casos, al entregar hay que decir explícitamente:
 
 - cuántos ítems y en qué tramos de dificultad;
 - cuántas ideas erróneas nuevas entran al catálogo;

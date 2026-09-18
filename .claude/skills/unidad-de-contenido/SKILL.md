@@ -157,7 +157,8 @@ erróneas, ítems, recursos) entra igual y sirve desde el primer día.
 6. Generar SQL      python3 scripts/generar_migracion_items.py  (para los ítems)
                     el resto del SQL se escribe a mano desde el mapa
 7. Recorrer el mapa referencias/mapa-de-la-unidad.md ← TODOS los lugares
-8. Aplicar          el owner, en el SQL Editor. Migración ANTES que bundle (R-39)
+8. Aplicar          el owner, o el agente con `claude_ddl` si lo pide (ADR-040).
+                    Migración ANTES que bundle (R-39), y SCHEMA.md en el mismo commit
 9. Cerrar memoria   CLAUDE.md §11
 ```
 
