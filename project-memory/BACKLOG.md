@@ -1315,9 +1315,25 @@ escrito que la cadena por eje no se hace.
 > adoptó y **nadie midió si movió el 37 % de banda correcta de T-117**. Ésa es la pregunta viva, y
 > ahora tiene quien la responda — es el §Seguimiento de **ADR-038**.
 
-### T-152 · 33 módulos no están en `universo.topics/module-slugs` — **P1** · `abierto`
+### T-152 · 33 módulos no están en `universo.topics/module-slugs` — **P1** · ✅ `CERRADA` (2026-09-18)
 
-**Cinco personas reales ya rindieron un diagnóstico cuyo plan no se pudo personalizar.**
+> ## ⚠️ La ficha original decía «cinco personas reales afectadas». Es FALSO, y la corrección importa
+>
+> Se midió antes de tocar el código y el resultado dio vuelta el diagnóstico:
+>
+> | motor | período | tests | respuestas con `module-slug` |
+> |---|---|---|---|
+> | v1 | antes del 2026-08-28 | 128 | **0 %** |
+> | v2 | desde el 2026-08-28 | 20 | **100 %** |
+>
+> `events/test.cljs:35` copia `module_slug` del RPC a cada ítem, y `next_question` lo devuelve desde
+> `024`. **Todo test rendido desde el 2026-08-28 lo trae en el 100 % de sus respuestas**, así que
+> `profile/module-slug-for` encuentra `:module-slug` en el primer `or` y **nunca llega al fallback
+> roto**. Los 4 tests de estudiante de electrotecnia lo traen los 4: su plan **no** salió `:general`.
+>
+> **T-152 era un defecto latente, no activo.** La cadena que describía es real y el fallback está
+> roto, pero hoy nada lo alcanza. El error fue afirmar daño medido sin haber medido el camino
+> completo — se verificó el código y se dio por hecha la consecuencia.
 
 `universo.topics/module-slugs` (`topics.cljs:64`) es un `def` literal con **20 slugs**. En la base
 hay **53 módulos**. Medido contra producción el 2026-09-18 (métrica **M11**):
@@ -1352,7 +1368,19 @@ puede decirle qué estudiar.**
 los seis auditores en verde. **El lugar que faltaba tocar es un `def` en el cliente**, y el grafo de
 graphify **no indexa `.cljs`** (CLAUDE.md §13), así que tampoco aparecía por ahí.
 
-**El arreglo es de una línea… y ahí está la decisión que hay que tomar:**
+> ### ⚠️ Y agregar los 18 slugs tampoco era el arreglo
+>
+> `suffix-match` compara el **topic** con el sufijo del slug, y los topics reales son
+> `probabilidad`, `electrotecnia` y `electrotecnia_ca` — **ningún módulo tiene sufijo
+> `probabilidad`**. Con los 18 slugs adentro, los tres siguen devolviendo `nil`. Verificado también
+> que no hay colisiones de sufijo, o sea que agregarlos no rompe nada; simplemente no resuelve nada.
+>
+> **Lo que sí corresponde, y es lo que se hizo:** los tres son **bancos de eje que abarcan 6, 12 y 6
+> módulos**, exactamente como `diagnostico` y `paes_m1`. Van a `catch-all-topics`, donde `nil` deja
+> de ser un hueco accidental y pasa a ser **una decisión escrita**: asignarles un módulo sería
+> inventar el dato.
+
+**Lo decidido, y por qué cada parte:**
 
 1. **`probabilidad` (6 slugs) — sin discusión.** Es banco del producto, 102 ítems, y hoy nadie lo
    rindió: se arregla **antes** de que alguien lo haga.
@@ -1374,9 +1402,27 @@ antes de dar por hecho que basta con el `def`.
 (ADR-003), o el arreglo no llega a producción. Y test en `topics_test.cljs` — **leyendo el `def`
 real, no de memoria** (L-59).
 
-- **Terminado cuando:** M11 devuelve cero faltantes entre los módulos que se decidió incluir, un
-  diagnóstico de `probabilidad` produce un plan `:personalized`, y queda escrito qué se decidió con
-  `cuantica`.
+> ### ✅ 2026-09-18 — hecho
+>
+> **Los 18 slugs** (6 de probabilidad + 12 de electrotecnia, confirmados por el owner) están en
+> `module-slugs`, y **`probabilidad`, `electrotecnia` y `electrotecnia_ca` en `catch-all-topics`**,
+> que es lo que de verdad cierra el ticket. **`cuantica` queda afuera** (ADR-018, `active = false`),
+> anotado en `TRACKS_TOLERADOS` del auditor con su razón.
+>
+> Suite en **213 tests / 2843 assertions / 0 failures**; bundle compilado con **0 warnings** y
+> `app.js` commiteado (ADR-003); `comparar_module_slugs.py` en verde.
+>
+> ⚠️ **Dos aserciones del test viejo cayeron y eso es el hallazgo de método:** fijaban
+> `(= 20 (count module-slugs))` y una lista de tres tracks. **Ese trinquete existía y nadie lo movió
+> mientras el banco crecía a 53 módulos** — el test no falló porque el `def` tampoco creció. Un
+> trinquete que solo se actualiza cuando alguien ya hizo el trabajo no avisa de nada; el que sí
+> avisa es `comparar_module_slugs.py`, que compara contra **la base**.
+>
+> 🔜 **Lo que queda anotado y NO se arregló:** `numeros`, `algebra` y `geometria` son igual de
+> mezclados y **no** están en `catch-all-topics`: `numeros` resuelve por sufijo a
+> `aritmetica/numeros` y `algebra` por la tabla explícita a `algebra/ecuaciones`, o sea que
+> **atribuyen los 100 ítems del eje a un solo módulo**. Es incorrecto, es anterior a T-152, y hoy no
+> hace daño por la misma razón que arriba. Queda en el comentario del código.
 - **Vector:** G-1 (el plan es lo que se le muestra a un colegio). **Relacionado:** T-128,
   [[../adr/ADR-035-track-electrotecnia-visible]], [[../adr/ADR-018-track-experimental-cuantica]],
   [[DECISIONS]] D-71, `.claude/skills/unidad-de-contenido/referencias/mapa-de-la-unidad.md` §B1,

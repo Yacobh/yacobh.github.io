@@ -69,7 +69,21 @@
     "algebra/sistemas" "algebra/polinomios" "algebra/funciones"
     "geometria/basica" "geometria/angulos" "geometria/triangulos"
     "geometria/circulo" "geometria/areas" "geometria/volumenes"
-    "geometria/pitagoras"})
+    "geometria/pitagoras"
+    ;; Agregados el 2026-09-18 (T-152). Faltaban desde que `055` creó el eje de
+    ;; probabilidad y `062` el track de electrotecnia: **este `def` es un lugar
+    ;; que ninguna migración toca**, y por eso ni los auditores ni el build lo
+    ;; notaron. El grafo tampoco: no indexa `.cljs` (CLAUDE.md §13).
+    "probabilidad/datos" "probabilidad/tendencia-central" "probabilidad/posicion"
+    "probabilidad/conteo" "probabilidad/azar" "probabilidad/reglas"
+    ;; Electrotecnia está fuera del producto (ADR-035) y aun así va acá: este set
+    ;; alimenta `suffix-match`, **no** el reparto de bandas. Agregarlo NO toca
+    ;; `bands/product-tracks` ni mueve la banda de ningún módulo.
+    "electrotecnia/magnitudes" "electrotecnia/dc_series_paralelo"
+    "electrotecnia/kirchhoff" "electrotecnia/teoremas" "electrotecnia/capacitancia"
+    "electrotecnia/magnetismo" "electrotecnia/ca_senales" "electrotecnia/reactancia"
+    "electrotecnia/impedancia" "electrotecnia/potencia_ca" "electrotecnia/resonancia"
+    "electrotecnia/trifasico"})
 
 ;; Solo los topics cuyo nombre NO coincide con el sufijo de su módulo. El resto
 ;; los resuelve `suffix-match` sin necesidad de listarlos, que es lo que evita
@@ -122,8 +136,24 @@
 ;; Bancos mezclados: agrupan ítems de varios módulos, así que asignarles un
 ;; módulo sería inventar el dato. `nil` es la respuesta honesta y deja el
 ;; hueco visible en vez de taparlo con una asignación plausible pero falsa.
+;;
+;; ⚠️ 2026-09-18 (T-152): `probabilidad`, `electrotecnia` y `electrotecnia_ca`
+;; entran acá, y esto es **lo que de verdad arregla** ese ticket. Los tres son
+;; bancos de eje que abarcan 6, 12 y 6 módulos: `suffix-match` nunca los iba a
+;; resolver —ningún módulo tiene sufijo `probabilidad`— y la única forma de que
+;; «resolvieran» sería inventarles un módulo, que es justo lo que este set
+;; impide. `nil` ya era el resultado; lo que cambia es que ahora es **una
+;; decisión escrita** y no un hueco que el próximo agente va a intentar tapar.
+;;
+;; Ojo con `numeros`, `algebra` y `geometria`, que NO están acá y son igual de
+;; mezclados: `numeros` resuelve por sufijo a `aritmetica/numeros` y `algebra`
+;; por la tabla explícita a `algebra/ecuaciones`, o sea que **atribuyen los 100
+;; ítems del eje a un solo módulo**. Es incorrecto y es anterior a T-152; hoy no
+;; hace daño porque todo test desde el 2026-08-28 trae `module-slug` en cada
+;; respuesta y `profile` nunca llega a este fallback. Queda anotado, no arreglado.
 (def catch-all-topics
-  #{"diagnostico" "paes_m1"})
+  #{"diagnostico" "paes_m1"
+    "probabilidad" "electrotecnia" "electrotecnia_ca"})
 
 (defn- suffix-match
   "Módulo cuyo sufijo (lo que va después de `/`) es exactamente el topic:

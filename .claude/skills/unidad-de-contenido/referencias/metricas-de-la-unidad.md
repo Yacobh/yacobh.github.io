@@ -206,14 +206,32 @@ python3 scripts/comparar_module_slugs.py /tmp/slugs.txt
 
 ⚠️ **Medido contra producción el 2026-09-18: 53 módulos en la base, 20 en el
 `def`, 33 faltando** — 6 de `probabilidad`, 12 de `electrotecnia`, 15 de
-`cuantica`. Y el daño no es hipotético: **5 personas reales rindieron
-electrotecnia** y su plan no se pudo personalizar. Es **T-152**.
+`cuantica`. Cerrado por **T-152**: entraron los 18 del producto; `cuantica` queda
+afuera a propósito (ADR-018).
 
-⚠️ **Agregar el slug no siempre alcanza.** `module-slugs` alimenta `suffix-match`,
-que compara el topic con lo que va después de la `/`: `probabilidad/datos` ↔
-topic `probabilidad` **no** coincide, así que ese caso necesita además una
-entrada en `explicit-topic->module-slug`. Verificá cuál de los dos mecanismos
-resuelve cada topic antes de darlo por arreglado.
+⚠️ **Esta métrica sobreestima el daño, y hay que decirlo al leerla.** Un slug
+faltante **solo** importa si la respuesta llega sin `module-slug`, y
+`events/test.cljs:35` lo copia de `next_question` para cada ítem. Medido: **0 %
+de las respuestas del motor v1 lo traen y 100 % de las de v2**, o sea que desde
+el 2026-08-28 `profile/module-slug-for` lo encuentra en el primer `or` y nunca
+llega al fallback. Un faltante acá es **latente**, no activo. Antes de escribir
+«N personas afectadas», medilo:
+
+```sql
+select engine_version,
+       count(*) filter (where resp->>'module-slug' is not null) as con_slug,
+       count(*) as respuestas
+  from (select t.engine_version, jsonb_array_elements(t.test->'responses') as resp
+          from tests_sin_identidad t where t.origin='student') r
+ group by 1 order by 1;
+```
+
+⚠️ **Y agregar el slug no siempre es el arreglo.** `module-slugs` alimenta
+`suffix-match`, que compara el **topic** con lo que va después de la `/`:
+`probabilidad/datos` ↔ topic `probabilidad` **no** coincide, así que agregarlo no
+resuelve nada. Si el topic es un **banco de eje que abarca varios módulos**, lo
+correcto es `catch-all-topics` — `nil` como decisión escrita, en vez de
+inventarle un módulo. Eso fue lo que realmente cerró T-152.
 
 ---
 

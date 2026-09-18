@@ -149,10 +149,48 @@
 
   (testing "todo módulo tiene track y nombre, y su sufijo es único"
     (let [sufijos (map #(second (str/split % #"/")) topics/module-slugs)]
-      ;; 18 de 002_seed_modules.sql + 2 de 031 (inecuaciones, operaciones fundamentales)
-      (is (= 20 (count topics/module-slugs)))
+      ;; 18 de 002_seed_modules.sql + 2 de 031 (inecuaciones, operaciones
+      ;; fundamentales) + 6 de 055 (probabilidad) + 12 de 062 (electrotecnia).
+      ;; El número es un trinquete a propósito: si alguien crea un módulo y no
+      ;; lo agrega acá, este test cae. Eso es **exactamente lo que no pasó** con
+      ;; los 18 de T-152, porque la cuenta decía 20 y nadie la movió durante los
+      ;; meses en que el banco creció a 53 módulos.
+      (is (= 38 (count topics/module-slugs)))
       (is (= (count sufijos) (count (set sufijos)))
           "dos módulos con el mismo sufijo romperían la regla de coincidencia")
-      (is (every? #(contains? #{"aritmetica" "algebra" "geometria"}
+      ;; `cuantica` NO está, y es deliberado: ADR-018 la mantiene fuera del
+      ;; producto y su `test_configs` está inactivo (ver TRACKS_TOLERADOS en
+      ;; scripts/comparar_module_slugs.py).
+      (is (every? #(contains? #{"aritmetica" "algebra" "geometria"
+                                "probabilidad" "electrotecnia"}
                               (first (str/split % #"/")))
                   topics/module-slugs)))))
+
+;; ── T-152 (2026-09-18) ──────────────────────────────────────────────────────
+;; Los 18 slugs que faltaban, y la razón por la que agregarlos NO alcanzaba.
+
+(deftest t-152-los-modulos-del-banco-estan-en-el-set
+  (testing "probabilidad: los seis que creó `055`"
+    (doseq [s ["probabilidad/datos" "probabilidad/tendencia-central"
+               "probabilidad/posicion" "probabilidad/conteo"
+               "probabilidad/azar" "probabilidad/reglas"]]
+      (is (contains? topics/module-slugs s) (str s " falta en module-slugs"))))
+  (testing "electrotecnia: los doce que creó `062`"
+    (doseq [s ["electrotecnia/magnitudes" "electrotecnia/dc_series_paralelo"
+               "electrotecnia/kirchhoff" "electrotecnia/teoremas"
+               "electrotecnia/capacitancia" "electrotecnia/magnetismo"
+               "electrotecnia/ca_senales" "electrotecnia/reactancia"
+               "electrotecnia/impedancia" "electrotecnia/potencia_ca"
+               "electrotecnia/resonancia" "electrotecnia/trifasico"]]
+      (is (contains? topics/module-slugs s) (str s " falta en module-slugs")))))
+
+(deftest t-152-los-bancos-de-eje-devuelven-nil-a-proposito
+  (testing "son bancos mezclados: `nil` es la respuesta honesta, no un hueco"
+    (is (nil? (topics/module-slug-for "probabilidad")))
+    (is (nil? (topics/module-slug-for "electrotecnia")))
+    (is (nil? (topics/module-slug-for "electrotecnia_ca"))))
+  (testing "y NO porque el slug falte: agregarlos al set no los resuelve,
+            porque suffix-match compara el topic con el sufijo y ningún
+            módulo tiene sufijo `probabilidad`"
+    (is (contains? topics/module-slugs "probabilidad/datos"))
+    (is (contains? topics/catch-all-topics "probabilidad"))))
