@@ -10,7 +10,7 @@
 -- alternativa correcta, las cuatro explicaciones escritas, la correcta sin idea
 -- errónea, LaTeX con escape simple (047) y cobertura de dificultad sin huecos.
 --
--- `algebra/inecuaciones` existe desde `031` (`order_index` 125, entre ecuaciones y sistemas) y tiene banda explícita desde `060` ([-1,7 · 0,0]), y hasta hoy tenía CERO ítems, cero recursos y cero ideas erróneas — el segundo de los dos módulos que `031` creó y nunca se llenaron. Medido el 2026-09-17 con la métrica M3 de la skill `unidad-de-contenido`.
+-- `algebra/inecuaciones` existe desde `031` (`order_index` 125, entre ecuaciones y sistemas) y tiene banda explícita desde `060` ([-1,7 · 0,0]), y hasta hoy **no tenía un solo ítem en el banco del eje**. Verificado contra producción el 2026-09-18: sus únicos 2 ítems vienen del topic `inecuaciones`, que está `active = false`, así que desde el diagnóstico de `algebra` el módulo es inalcanzable. Recursos e ideas erróneas propias: cero. Es el segundo de los dos módulos que `031` creó y nunca se llenaron. Medido el 2026-09-17 con la métrica M3 de la skill `unidad-de-contenido`.
 --
 -- El eje de esta tanda es UNA idea: multiplicar o dividir por un negativo da vuelta el signo de desigualdad. Es el único paso donde una inecuación deja de comportarse como una ecuación, y es donde se pierde casi todo el mundo. Cuatro de los diez ítems la atacan desde ángulos distintos.
 --

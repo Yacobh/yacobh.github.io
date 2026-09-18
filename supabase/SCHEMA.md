@@ -612,8 +612,8 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > origen distingue depuración de no-depuración, no «muestra válida» de «ruido». Filtrar por
 > `origin = 'student'` es necesario y **no suficiente**.
 
-70. `migrations/068_banco_de_operaciones_fundamentales.sql` — ⏳ **escrita y verificada, SIN aplicar**
-    (2026-09-17) · **SESSION-044.** 8 ítems bajo `topic = 'numeros'` para
+70. `migrations/068_banco_de_operaciones_fundamentales.sql` — ✅ **aplicada 2026-09-18 por el agente**
+    (primera migración aplicada bajo ADR-040) · **SESSION-044.** 8 ítems bajo `topic = 'numeros'` para
     `aritmetica/operaciones_fundamentales`, más **8 ideas erróneas nuevas**. Generada por
     `scripts/generar_migracion_items.py` desde `contenido/items/numeros_operaciones_fundamentales.json`,
     que es la fuente de verdad: el `.sql` no se edita, se regenera.
@@ -625,7 +625,7 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     piso real del eje de números. Con **ADR-038** pasa a ser un test rendible, y sin ítems pararía en
     `:exhausted` en la primera pregunta.
 
-71. `migrations/069_banco_de_inecuaciones.sql` — ⏳ **escrita y verificada, SIN aplicar** (2026-09-17) ·
+71. `migrations/069_banco_de_inecuaciones.sql` — ✅ **aplicada 2026-09-18 por el agente** ·
     **SESSION-044.** 10 ítems bajo `topic = 'algebra'` para `algebra/inecuaciones`, más **6 ideas
     erróneas nuevas**. Mismo origen: `contenido/items/algebra_inecuaciones.json`.
     **Para qué:** el segundo de los dos módulos que `031` creó y nunca se llenaron. El eje de la tanda
@@ -652,6 +652,23 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > ⚠️ **Entran con verificación mecánica solamente**, por decisión explícita del owner el 2026-09-17:
 > quedan bajo **R-41** junto a los otros 402. `difficulty` es **hipótesis autoral**, no medición
 > (R-17, G-2).
+
+> ## ✅ Aplicadas en producción el 2026-09-18, y son las primeras de ADR-040
+>
+> Las aplicó el **agente** con el rol `claude_ddl`, no el owner. Verificación corrida después,
+> contra la base real: los **18 ítems** entraron con su `module_id` resuelto (**0** sin módulo),
+> **0** fuera de la banda de su módulo, las **14 ideas erróneas** nuevas existen y **ninguna quedó
+> huérfana**, **0** ítems sin diagnosticar y **0** con idea errónea en la alternativa correcta.
+>
+> ⚠️ **Lo que la base corrigió de estas fichas antes de aplicarlas.** Decían que los dos módulos
+> tenían «cero ítems», y eso se había medido sobre los JSON del repo, no sobre producción. La
+> consulta real mostró **21 ítems** colgando de `aritmetica/operaciones_fundamentales` y **2** de
+> `algebra/inecuaciones`. Al mirarlos: los 21 son 20 del banco mezclado `diagnostico` —de −3,0 a
+> +2,9, que no es una escala de ese módulo— más 1 con dificultad +1,80, fuera de su propia banda y
+> en un topic `active = false`; y los 2 de `inecuaciones`, también inactivo. **Desde el diagnóstico
+> del eje los dos módulos eran igual de inalcanzables**, así que la premisa se sostuvo y la
+> redacción no: las notas de las dos migraciones se corrigieron y se regeneró el `.sql` antes de
+> aplicar. Es la cuarta vez en dos días que la documentación dice una cosa y la base otra.
 
 
 > **Verificación de `067` (2026-09-13).** Contra un **PostgreSQL 14.18 desechable** con fixture a
