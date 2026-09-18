@@ -192,18 +192,28 @@ mientras `geometria` y `algebra` recibieron **uno cada uno** (T-122, T-143).
 
 ### M11 · Ningún slug del cliente desactualizado — ⭐
 
-**Esta no es SQL.** Es el hueco por el que se cayó probabilidad:
+**Es mitad SQL y mitad `grep`**, porque cruza la base con un `def` del cliente.
+Con acceso a la base (ADR-040) se automatiza — guardá esto como script y corrélo:
 
 ```bash
-# Todos los slugs de módulo que existen en la base (pegar el resultado de:
-#   select slug from public.modules order by slug;)
-# contra el `def` literal del cliente:
-grep -n -A12 "^(def module-slugs" src/universo/topics.cljs
+set -a && . ./.env && set +a
+psql "$SUPABASE_DB_URL_RO" -tAc "select slug from modules order by slug;" > /tmp/slugs.txt
+python3 scripts/comparar_module_slugs.py /tmp/slugs.txt
 ```
 
 **Si un slug está en `modules` y no en `module-slugs`**, sus déficits salen como
-`unknown/<topic>` y «Mi plan» no puede personalizarse. Verificado el 2026-09-17:
-el `def` tiene 20 slugs y **faltan los seis de `probabilidad/*`**.
+`unknown/<topic>` y «Mi plan» no puede personalizarse.
+
+⚠️ **Medido contra producción el 2026-09-18: 53 módulos en la base, 20 en el
+`def`, 33 faltando** — 6 de `probabilidad`, 12 de `electrotecnia`, 15 de
+`cuantica`. Y el daño no es hipotético: **5 personas reales rindieron
+electrotecnia** y su plan no se pudo personalizar. Es **T-152**.
+
+⚠️ **Agregar el slug no siempre alcanza.** `module-slugs` alimenta `suffix-match`,
+que compara el topic con lo que va después de la `/`: `probabilidad/datos` ↔
+topic `probabilidad` **no** coincide, así que ese caso necesita además una
+entrada en `explicit-topic->module-slug`. Verificá cuál de los dos mecanismos
+resuelve cada topic antes de darlo por arreglado.
 
 ---
 

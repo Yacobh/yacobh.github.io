@@ -264,6 +264,7 @@ python3 scripts/audit_paleta.py       # color de fábrica fuera de la paleta (AD
 python3 scripts/verificar_items.py contenido/items/<topic>.json   # ítems antes de que entren al banco
 python3 scripts/generar_migracion_items.py contenido/items/<topic>.json
 python3 scripts/verificar_unidad.py contenido/unidades/<slug>.json # la unidad entera (séptimo auditor)
+python3 scripts/comparar_module_slugs.py /tmp/slugs.txt            # M11: módulos de la base vs el `def` del cliente
 ```
 
 ## 6. Convenciones de documentación

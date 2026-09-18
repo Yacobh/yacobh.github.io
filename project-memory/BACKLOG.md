@@ -1315,7 +1315,74 @@ escrito que la cadena por eje no se hace.
 > adoptó y **nadie midió si movió el 37 % de banda correcta de T-117**. Ésa es la pregunta viva, y
 > ahora tiene quien la responda — es el §Seguimiento de **ADR-038**.
 
-### T-151 · Crear los dos roles de acceso y cargar las cadenas (ADR-040) — **P1** · `abierto`
+### T-152 · 33 módulos no están en `universo.topics/module-slugs` — **P1** · `abierto`
+
+**Cinco personas reales ya rindieron un diagnóstico cuyo plan no se pudo personalizar.**
+
+`universo.topics/module-slugs` (`topics.cljs:64`) es un `def` literal con **20 slugs**. En la base
+hay **53 módulos**. Medido contra producción el 2026-09-18 (métrica **M11**):
+
+| track | faltan | ítems activos | ¿banco visible? | tests rendidos |
+|---|---|---|---|---|
+| `probabilidad` | 6 | **102** | sí | **0** |
+| `electrotecnia` | 12 | **116** | sí | **6, de 5 personas, todas `student`** |
+| `cuantica` | 15 | 133 | no (`active = false`) | 33, todas del owner |
+
+Ninguno sobra: los 20 del `def` existen todos en la base.
+
+**La cadena, verificada en el código, no supuesta:**
+
+```
+crud/question-select-cols (crud.cljs:597)  trae module_id, NO module_slug
+  └── profile/module-slug-for (profile.cljs:36-48)
+       busca :module-slug → nil · busca :module_slug → nil
+       cae a topics/module-slug-for "<topic>"
+        └── el topic no está en module-slugs ni en explicit-topic->module-slug
+             └── nil  →  déficit = "unknown/<topic>"
+                  └── plan/resources-for-deficits (plan.cljs:43) cruza POR SLUG
+                       └── sin coincidencia → {:kind :general}
+```
+
+`:general` es *«esto es todo lo que hay»*, no una recomendación — y `plan.cljs` existe justamente
+para no disfrazar una de otra. **El estudiante rinde, el motor estima bien su θ, y «Mi plan» no
+puede decirle qué estudiar.**
+
+**Por qué nadie lo vio:** no falla nada. `055` creó los seis módulos de probabilidad con su banda,
+`056` trajo sus ítems, `059` su `test_configs`; todo verificado, todo aplicado, el build en verde y
+los seis auditores en verde. **El lugar que faltaba tocar es un `def` en el cliente**, y el grafo de
+graphify **no indexa `.cljs`** (CLAUDE.md §13), así que tampoco aparecía por ahí.
+
+**El arreglo es de una línea… y ahí está la decisión que hay que tomar:**
+
+1. **`probabilidad` (6 slugs) — sin discusión.** Es banco del producto, 102 ítems, y hoy nadie lo
+   rindió: se arregla **antes** de que alguien lo haga.
+2. **`electrotecnia` (12 slugs) — hay daño ya ocurrido.** Cinco estudiantes reales. Ojo: es un track
+   fuera del producto (**ADR-035**), así que hay que confirmar que agregarlo a este `def` es lo
+   deseado y no solo lo cómodo — `module-slugs` alimenta `suffix-match`, no las bandas, así que no
+   toca `bands/product-tracks` ni mueve ninguna banda. **Verificar antes de escribir.**
+3. **`cuantica` (15 slugs) — probablemente no.** `test_configs.active = false`, destinatario el
+   propio owner, y **ADR-018** lo mantiene fuera del producto a propósito. Sus 33 tests son todos
+   suyos. Que su plan salga `:general` puede ser aceptable; **es una pregunta para el owner**, no
+   una omisión que corregir por simetría.
+
+**Ojo con `explicit-topic->module-slug`:** solo hace falta si el `topic` **no** coincide con el
+sufijo del slug. `probabilidad/datos` ↔ topic `probabilidad` **no** coincide, así que con agregar el
+slug no alcanza para ese caso — hay que verificar cuál de los dos mecanismos resuelve cada topic
+antes de dar por hecho que basta con el `def`.
+
+**No olvidar:** tocar `.cljs` exige `npx shadow-cljs release app` **y commitear `public/js/app.js`**
+(ADR-003), o el arreglo no llega a producción. Y test en `topics_test.cljs` — **leyendo el `def`
+real, no de memoria** (L-59).
+
+- **Terminado cuando:** M11 devuelve cero faltantes entre los módulos que se decidió incluir, un
+  diagnóstico de `probabilidad` produce un plan `:personalized`, y queda escrito qué se decidió con
+  `cuantica`.
+- **Vector:** G-1 (el plan es lo que se le muestra a un colegio). **Relacionado:** T-128,
+  [[../adr/ADR-035-track-electrotecnia-visible]], [[../adr/ADR-018-track-experimental-cuantica]],
+  [[DECISIONS]] D-71, `.claude/skills/unidad-de-contenido/referencias/mapa-de-la-unidad.md` §B1,
+  `sessions/SESSION-044.md`.
+
+### T-151 · Crear los dos roles de acceso y cargar las cadenas (ADR-040) — **P1** · ✅ `CERRADA` (2026-09-18)
 
 `ADR-040` está aprobado y el SQL está **escrito y verificado**; falta ejecutarlo. Es del owner,
 porque implica crear credenciales.
@@ -1350,6 +1417,26 @@ nunca se corrieron— y la consulta de **T-117**, que son 40 tests esperando des
 
 **Sube de importancia con esto:** **T-09** (staging) y **T-07** (respaldo). La base de producción es
 la única que hay.
+
+> ### 2026-09-18 — cerrada el mismo día, con dos tropiezos que valieron
+>
+> Los dos roles existen y las dos cadenas estan en `.env`. **Conectado a PostgreSQL 17.6** via el
+> pooler de `sa-east-1`, y los diez limites verificados contra produccion.
+>
+> **Tropiezo 1 — el `grant`:** `grant postgres to claude_ddl` fallo con `42501`. En PG16+ el
+> `postgres` de Supabase no tiene ADMIN OPTION sobre si mismo. **Mejoro el diseno**: obligo a un
+> limite tecnico real (`claude_ddl` no es dueno de nada, asi que puede contenido y no esquema).
+>
+> **Tropiezo 2 — la conexion, dos cosas:** la contrasena de `openssl rand -base64 32` trae `/` y
+> rompe la URL (hay que percent-encodearla), y la conexion directa `db.<ref>.supabase.co` es
+> **solo IPv6**. Va la del **pooler en modo sesion**, y ahi el usuario lleva el ref pegado:
+> `claude_ro.<project-ref>`. Sin eso el pooler no sabe a que proyecto conectar.
+>
+> **Y el acceso salio mal a la primera:** `tests` tiene una columna `email-user` poblada en las
+> 350 filas. Corregido el mismo dia con `tests_sin_identidad` — ver **D-71** y `SCHEMA.md`.
+>
+> **Lo que se corrio apenas estuvo:** M1...M11 sobre la base real por primera vez (M1 tenia un bug
+> propio, corregido), **T-117** —que resulto no ser medible todavia— y **068/069 aplicadas**.
 
 **Relacionado:** [[../adr/ADR-040-el-agente-accede-a-la-base]], [[DECISIONS]] D-71, T-09, T-07,
 T-77, T-117, T-145, [[RISKS]] R-28, R-02, R-39.
