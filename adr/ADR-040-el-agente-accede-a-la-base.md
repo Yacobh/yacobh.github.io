@@ -82,21 +82,55 @@ Dos detalles que no son adorno:
    lectura» que crea tablas no lo es. Se corrige con
    `revoke create on schema public from public`.
 
-### `claude_ddl` — aplicar, solo cuando el owner lo pide
+### `claude_ddl` — aplicar migraciones **de contenido**, cuando el owner lo pide
 
-Miembro de `postgres`, porque `alter table` exige derechos de dueño.
+> ⚠️ **La primera versión de este ADR estaba mal y el error mejoró el diseño.**
+> Decía que `claude_ddl` sería miembro de `postgres`, y el SQL Editor lo rechazó:
+>
+> ```
+> ERROR: 42501: permission denied to grant role "postgres"
+> DETAIL: Only roles with the ADMIN option on role "postgres" may grant this role.
+> ```
+>
+> En PostgreSQL 16+ otorgar un rol exige ADMIN OPTION sobre él, y el `postgres`
+> de Supabase **no lo tiene sobre sí mismo**: el superusuario es `supabase_admin`,
+> al que el SQL Editor no llega. O sea que **darle derechos de dueño a un rol no
+> se puede desde el dashboard**.
+>
+> Eso obligó a un diseño con **un límite técnico de verdad**, en vez de la
+> «separación de flujo de trabajo» que este ADR iba a tener que confesar que no
+> contenía nada. El obstáculo dio el mejor diseño.
 
-⚠️ **No es una contención técnica y este ADR no la va a llamar así: es una
-separación de flujo de trabajo.** En la práctica `claude_ddl` puede lo mismo que
-`postgres`. Lo que consigue es otra cosa, y vale:
+`claude_ddl` **no es dueño de nada**, y de ahí sale el corte:
 
-- **el default es no poder** — la cadena que el agente usa siempre es la de
-  `claude_ro`; la otra vive en `SUPABASE_DB_URL_DDL` y se usa cuando se pide;
-- **deja rastro** — lo aplicado por este rol es distinguible de lo aplicado por
-  una persona, que es el mismo argumento de `067`/`origin` (R-37, donde el 20 %
-  de la muestra resultó ser depuración del owner);
-- **se apaga con una sentencia**, `alter role claude_ddl nologin`, sin tocar la
-  lectura ni el acceso de nadie más. Verificado.
+| | |
+|---|---|
+| **PUEDE** | `insert` / `update` / `delete` sobre las siete tablas de contenido, y crear funciones y tablas nuevas. O sea **las migraciones de contenido**: ítems (`068`, `069`), ideas erróneas, módulos, recursos, filas de `test_configs` y las aristas de `module_prerequisites` |
+| **NO PUEDE** | `alter table` ni `drop table` sobre lo que ya existe — exige ser dueño. **Las migraciones de esquema siguen siendo del owner**, y entre ellas están las de ADR-038 y ADR-039 |
+| **NO PUEDE** | escribir en `tests`, que es solo lectura también para este rol |
+| **NO VE** | ninguna tabla con datos personales |
+
+**Ese corte no es una limitación que haya que tolerar: es el corte correcto.**
+Separa **agregar contenido** —reversible con un `delete`, y algo que el banco
+hace todas las semanas— de **cambiar la forma de la base**, que es donde un error
+cuesta caro y donde conviene que haya una persona leyendo antes.
+
+Y **`tests` queda solo lectura a propósito**: es la evidencia que G-4 promete y
+el histórico que nunca se reescribe. Un rol que puede aplicar migraciones de
+contenido no tiene ninguna razón para poder tocarlo.
+
+Dos cosas más, las dos medidas el 2026-09-18:
+
+1. **Sin policy, el grant no alcanza tampoco para escribir.** Con los grants
+   puestos y sin `claude_ddl_escritura`, el `insert` falla con
+   `new row violates row-level security policy`. Es el mismo hallazgo que en la
+   parte 1 pero del otro lado, y es `CLAUDE.md` §7.1 en acción: **la policy es el
+   límite real; el grant es solo la puerta.**
+2. **Hace falta `grant usage on all sequences`**, o el `insert` en `questions`
+   falla por el `bigserial` de su `id`.
+
+**El interruptor sigue siendo una sentencia:** `alter role claude_ddl nologin`,
+verificado, y no toca la lectura.
 
 ### El procedimiento, que es donde está la seguridad real
 
@@ -147,9 +181,9 @@ aplicar, porque la siguiente sesión no puede saber en qué estado está la base
 
 **Negativas / costos aceptados**
 
-- ⚠️ **`claude_ddl` puede, técnicamente, lo mismo que `postgres`.** Está dicho
-  arriba y se repite acá para que nadie lo lea como una caja fuerte. La garantía
-  es el procedimiento y la reversibilidad de las migraciones, no el rol.
+- **Las migraciones de esquema siguen necesitando al owner.** ADR-038 y ADR-039
+  agregan columnas, así que las dos pasan por el SQL Editor. Es fricción real, y
+  es la contrapartida de tener un límite técnico en vez de uno de buena fe.
 - **Dos secretos más que cuidar**, en una base con datos de menores (R-28). Van a
   `.env`, que ya está en `.gitignore`, y `.env.example` documenta el formato sin
   valores.

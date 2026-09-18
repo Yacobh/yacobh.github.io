@@ -5,7 +5,8 @@
 -- que hay que poner a mano (una por parte) y que van a `.env`, nunca a Git.
 --
 --   PARTE 1 · `claude_ro`   solo lectura. Es el default y se usa siempre.
---   PARTE 2 · `claude_ddl`  aplica migraciones, solo cuando el owner lo pide.
+--   PARTE 2 · `claude_ddl`  aplica migraciones de CONTENIDO, cuando el owner lo pide.
+--                           Las de ESQUEMA (alter table) siguen siendo del owner.
 --
 -- ── Por qué DOS roles y no uno con todo ──────────────────────────────────────
 --
@@ -173,44 +174,53 @@ create policy "claude_ro_lectura" on public.tests
 --   alter role claude_ro nologin;
 
 -- =============================================================================
--- PARTE 2 · `claude_ddl` — aplicar migraciones bajo autorización explícita
+-- PARTE 2 · `claude_ddl` — aplicar migraciones de CONTENIDO
 -- =============================================================================
--- Autorizado por el owner el 2026-09-18. Ver ADR-040 y CLAUDE.md §9, que se
--- corrigieron en el mismo commit: hasta esa fecha la regla escrita era «las
--- migraciones se aplican a mano» y no podía quedar un archivo diciendo una cosa
--- y otro la contraria.
+-- Autorizado por el owner el 2026-09-18. Ver ADR-040 y CLAUDE.md §9.
 --
--- ── Lo que este rol es, dicho con precisión ─────────────────────────────────
+-- ⚠️ HISTORIAL, porque la primera versión de este archivo NO FUNCIONÓ y el error
+--    vale más que el arreglo. Decía `grant postgres to claude_ddl`, y el SQL
+--    Editor respondió:
 --
--- **No es una contención técnica, es una separación de flujo de trabajo.** Para
--- aplicar una migración hay que poder `alter` tablas que son de `postgres`, y
--- eso exige derechos de dueño: por eso `claude_ddl` es **miembro de `postgres`**
--- y puede, en la práctica, lo mismo que `postgres`.
+--      ERROR: 42501: permission denied to grant role "postgres"
+--      DETAIL: Only roles with the ADMIN option on role "postgres" may grant this role.
 --
--- Lo que sí consigue, y por eso existe separado de `claude_ro`:
+--    En PostgreSQL 16+ otorgar un rol exige ADMIN OPTION sobre él, y el
+--    `postgres` de Supabase **no lo tiene sobre sí mismo** — el superusuario es
+--    `supabase_admin`, al que el SQL Editor no llega. O sea que darle a un rol
+--    los derechos de dueño **no se puede desde acá**, y eso resultó ser una
+--    buena noticia: obligó a una versión con un límite técnico de verdad en vez
+--    de una separación de flujo de trabajo.
 --
---   · **el default es no poder.** La cadena que el agente usa siempre es la de
---     `claude_ro`. La de `claude_ddl` vive en otra variable de entorno y solo se
---     usa cuando el owner lo pide para una migración concreta.
---   · **deja rastro.** Lo que aplicó este rol es distinguible de lo que aplicó
---     una persona desde el SQL Editor — es el mismo argumento de `067`/`origin`,
---     que midió que el 20 % de la muestra era depuración del owner (R-37).
---   · **se apaga con una sentencia** (`alter role claude_ddl nologin`) sin tocar
---     el acceso de lectura ni el de nadie más.
+-- ── Qué puede y qué no, medido ──────────────────────────────────────────────
 --
--- ── La seguridad real no está acá, está en el procedimiento ─────────────────
+--   PUEDE  insert/update/delete sobre las siete tablas de contenido, y crear
+--          funciones y tablas nuevas. O sea **las migraciones de contenido**:
+--          ítems (`068`, `069`), ideas erróneas, módulos, recursos, filas de
+--          `test_configs` y las aristas de `module_prerequisites`.
+--   NO PUEDE  `alter table` ni `drop table` sobre lo que ya existe: eso exige
+--          ser dueño, y no lo es. **Las migraciones de ESQUEMA siguen siendo del
+--          owner** — entre ellas las de ADR-038 y ADR-039, que agregan columnas.
+--   NO VE  ninguna tabla con datos personales.
+--
+--   Ese corte no es arbitrario: separa **agregar contenido**, que es reversible
+--   con un `delete` y que el banco hace todas las semanas, de **cambiar la forma
+--   de la base**, que es donde un error cuesta caro y donde conviene que haya
+--   una persona leyendo.
+--
+-- ── La seguridad real sigue estando en el procedimiento ─────────────────────
 --
 --   1. **Toda migración se verifica primero contra un PostgreSQL desechable**
---      con el esquema real, incluida una segunda pasada para probar
---      idempotencia. Es lo que se hizo con `061`, `062`–`066` y `068`/`069`, y
---      lo que encontró dos defectos en `068` que ningún script vio.
+--      con el esquema real, más una segunda pasada que prueba idempotencia.
+--      Es lo que encontró en `068` dos ítems que no diagnosticaban nada y dos
+--      falsos positivos por comparar `real` con `numeric`.
 --   2. **Migración antes que bundle, siempre** (R-39, materializado dos veces).
---   3. **Toda migración trae su reversión escrita** antes de aplicarse.
---   4. **Nada destructivo sin confirmación explícita en el momento**: `drop`,
---      `truncate`, `delete` sin `where`, o cualquier cosa sobre las tablas con
---      datos personales. Un `update` masivo del banco cuenta como destructivo.
---   5. **El histórico de `tests` no se reescribe.** Es evidencia y es el
---      producto que G-4 promete.
+--   3. **Reversión escrita** antes de aplicar.
+--   4. **Nada destructivo sin confirmación en el momento**: `delete` sin
+--      `where`, o un `update` masivo del banco, cuentan como destructivos
+--      aunque este rol pueda hacerlos.
+--   5. **El histórico de `tests` no se reescribe**: es evidencia, y es lo que
+--      G-4 promete. Por eso acá `tests` es **solo lectura**.
 
 do $$
 begin
@@ -219,28 +229,68 @@ begin
   end if;
 end $$;
 
--- Derechos de dueño, que es lo que `alter table` exige. `noinherit` no: acá se
--- quiere que los herede al conectarse, porque el objetivo es poder aplicar.
-grant postgres to claude_ddl;
+grant usage, create on schema public to claude_ddl;
+
+-- Las siete tablas de contenido, enumeradas por la misma razón que en la parte 1.
+grant select, insert, update, delete on
+  public.modules, public.questions, public.misconceptions, public.resources,
+  public.test_configs, public.module_prerequisites, public.resource_misconceptions
+  to claude_ddl;
+
+-- `questions.id` es `bigserial`: sin esto, el `insert` falla por la secuencia.
+grant usage on all sequences in schema public to claude_ddl;
+
+-- `tests` SOLO LECTURA, a propósito (regla 5).
+grant select on public.tests to claude_ddl;
 
 -- -----------------------------------------------------------------------------
--- Verificación de la parte 2
+-- RLS, otra vez: sin policy el grant no alcanza
 -- -----------------------------------------------------------------------------
---   -- Que exista y pueda entrar:
+-- Medido el 2026-09-18: con los grants de arriba y sin policy, el insert falla
+-- con `new row violates row-level security policy`. Es el mismo hallazgo que en
+-- la parte 1 pero del lado de la escritura, y es `CLAUDE.md` §7.1 en acción:
+-- **la policy es el límite real, el grant es solo la puerta.**
+
+do $$
+declare t text;
+begin
+  foreach t in array array['modules','questions','misconceptions','resources',
+                           'test_configs','module_prerequisites','resource_misconceptions']
+  loop
+    execute format('drop policy if exists "claude_ddl_escritura" on public.%I', t);
+    execute format('create policy "claude_ddl_escritura" on public.%I for all to claude_ddl using (true) with check (true)', t);
+  end loop;
+end $$;
+
+-- `tests`: lectura y nada más.
+drop policy if exists "claude_ddl_lectura" on public.tests;
+create policy "claude_ddl_lectura" on public.tests
+  for select to claude_ddl using (true);
+
+-- -----------------------------------------------------------------------------
+-- Verificación de la parte 2 (probada contra PostgreSQL 14.18 el 2026-09-18)
+-- -----------------------------------------------------------------------------
 --   select rolname, rolcanlogin, rolsuper, rolcreaterole, rolcreatedb
 --     from pg_roles where rolname in ('claude_ro','claude_ddl');
---   -- esperado: los dos con login; NINGUNO superuser, createrole ni createdb.
+--   -- los dos con login; NINGUNO superuser, createrole ni createdb.
 --
---   -- Quién es miembro de postgres (debe aparecer claude_ddl, y nadie más nuevo):
---   select r.rolname as miembro
---     from pg_auth_members m
---     join pg_roles r on r.oid = m.member
---     join pg_roles g on g.oid = m.roleid
---    where g.rolname = 'postgres';
+--   Y desde psql con la cadena de claude_ddl:
+--     insert into questions (topic, difficulty) values ('zz', 0);  -- debe PODER
+--     alter table questions add column zz int;    -- debe fallar: «must be owner»
+--     select count(*) from profiles;              -- debe fallar: «permission denied»
+--     delete from questions where topic = 'zz';   -- limpiar la prueba
 --
 -- Apagar SOLO la escritura, dejando la lectura intacta:
 --   alter role claude_ddl nologin;
 --
 -- Reversión completa de la parte 2:
---   revoke postgres from claude_ddl;
+--   do $$ declare t text; begin
+--     foreach t in array array['modules','questions','misconceptions','resources',
+--                              'test_configs','module_prerequisites','resource_misconceptions']
+--     loop execute format('drop policy if exists "claude_ddl_escritura" on public.%I', t); end loop;
+--   end $$;
+--   drop policy if exists "claude_ddl_lectura" on public.tests;
+--   revoke all on all tables in schema public from claude_ddl;
+--   revoke all on all sequences in schema public from claude_ddl;
+--   revoke all on schema public from claude_ddl;
 --   drop role claude_ddl;

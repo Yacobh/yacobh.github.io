@@ -1322,6 +1322,11 @@ porque implica crear credenciales.
 
 1. Generar **dos** contraseñas largas y distintas (`openssl rand -base64 32`).
 2. Pegar `supabase/acceso_del_agente.sql` en el SQL Editor, con las contraseñas puestas.
+   > ⚠️ **La primera versión de este archivo falló acá** (2026-09-18) con
+   > `42501: permission denied to grant role "postgres"`: en PG16+ el `postgres` de Supabase no
+   > tiene ADMIN OPTION sobre sí mismo. Está corregido — y el arreglo **mejoró el diseño**, porque
+   > obligó a un límite técnico real en vez de uno de buena fe. Si vuelve a aparecer ese error,
+   > es que se pegó una copia vieja.
 3. Copiar `.env.example` a `.env` y cargar `SUPABASE_DB_URL_RO` y `SUPABASE_DB_URL_DDL` con la
    cadena del dashboard (Project Settings → Database), cambiando usuario y contraseña. Si la
    conexión directa no resuelve, usar la del **pooler en modo sesión**: la directa suele ser IPv6.
@@ -1331,9 +1336,14 @@ porque implica crear credenciales.
 
 **Verificado contra PostgreSQL 14.18 desechable (2026-09-18):** aplica limpio, es idempotente, y los
 límites de los dos roles son los esperados — `claude_ro` lee contenido y `tests`, no lee `profiles`
-ni `visitor`, no inserta, no modifica, no borra y **ya no puede crear tablas**; `claude_ddl` hace
-`alter table`, `insert` y `create policy`; y `alter role claude_ddl nologin` lo corta dejando la
-lectura intacta.
+ni `visitor`, no inserta, no modifica, no borra y **ya no puede crear tablas**; `claude_ddl` aplica migraciones de **contenido** (insert en `questions`, `misconceptions`,
+`test_configs`, `module_prerequisites`) y **no puede** `alter table`, `drop table` ni escribir en
+`tests`; y `alter role claude_ddl nologin` lo corta dejando la lectura intacta.
+
+**El límite que hay que tener presente al planificar:** las migraciones de **esquema** siguen siendo
+del owner. Entre ellas, las de **ADR-038** y **ADR-039**, que agregan columnas. Las de contenido
+—`068`, `069`, las filas de `test_configs`, las aristas del grafo de prerrequisitos— las puede
+aplicar el agente.
 
 **Lo primero que se corre cuando esté:** M1…M11 de `metricas-de-la-unidad.md` sobre la base real —
 nunca se corrieron— y la consulta de **T-117**, que son 40 tests esperando desde hace veinte días.
