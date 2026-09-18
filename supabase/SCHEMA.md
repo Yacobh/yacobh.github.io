@@ -612,6 +612,30 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > origen distingue depuración de no-depuración, no «muestra válida» de «ruido». Filtrar por
 > `origin = 'student'` es necesario y **no suficiente**.
 
+> ## 🔒 2026-09-18 — `public.tests_sin_identidad` (vista), y el defecto que la motivó
+>
+> **No es una migración numerada**: vive en `supabase/acceso_correccion_tests_pii.sql`, junto al
+> resto del acceso del agente. **Aplicada por el owner el 2026-09-18.**
+>
+> **El defecto:** `tests` tiene una columna **`email-user` poblada en las 350 filas** y el jsonb
+> `test` una clave `email` en 348. ADR-040 había dado `select` sobre `tests` a los roles del agente
+> afirmando que la tabla «no tiene email ni nombre». Durante ese rato el rol de lectura podía ver el
+> correo de cada estudiante que rindió —incluidos menores del liceo, **R-28**—.
+>
+> **Por qué se escapó:** la lista de exclusiones se armó leyendo este archivo, donde `tests` figura
+> como la tabla de resultados. La columna existe desde el MVP, con un guion en el nombre que ninguna
+> búsqueda de «email» encuentra, en una tabla que **preexiste al esquema versionado** (mismo motivo
+> que `questions`, L-46).
+>
+> **El arreglo:** se revoca `select on tests` a `claude_ro` y `claude_ddl`, se borran sus policies, y
+> se crea `tests_sin_identidad` — `id`, `created_at`, `user_id`, `topic`, `theta`, `engine_version`,
+> `origin` y `(test::jsonb) - 'email'`. Las columnas se listan **una por una a propósito**: si mañana
+> alguien agrega otra con datos personales a `tests`, la vista no la arrastra sola.
+>
+> **Verificado después de aplicar:** `permission denied` para los dos roles sobre `tests` y sobre
+> `email-user`; la vista devuelve **350 filas**, con **0** claves `email` y **0** arrobas en todo el
+> jsonb, y conserva las **280** de `origin = 'student'` que G-2 necesita.
+
 70. `migrations/068_banco_de_operaciones_fundamentales.sql` — ✅ **aplicada 2026-09-18 por el agente**
     (primera migración aplicada bajo ADR-040) · **SESSION-044.** 8 ítems bajo `topic = 'numeros'` para
     `aritmetica/operaciones_fundamentales`, más **8 ideas erróneas nuevas**. Generada por

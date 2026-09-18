@@ -58,15 +58,46 @@ y otro para aplicar, con credenciales distintas en variables distintas.
 
 ### `claude_ro` — el default, siempre disponible
 
-`select` y nada más, sobre **ocho tablas enumeradas una por una**: `modules`,
-`questions`, `misconceptions`, `resources`, `test_configs`,
-`module_prerequisites`, `resource_misconceptions` y `tests`.
+`select` y nada más, sobre **siete tablas de contenido enumeradas una por una**
+—`modules`, `questions`, `misconceptions`, `resources`, `test_configs`,
+`module_prerequisites`, `resource_misconceptions`— **más la vista
+`tests_sin_identidad`**.
 
 **No ve** `profiles`, `visitor`, `contacto`, `guestbook`, `enrollments`,
 `notifications`, `email_outbox`, `student_profiles` ni `class_slots` — o sea
 emails, IP, ciudad, user-agent e inscripciones. Puede decir *«el estudiante
 3f2a… quedó en θ = −3,00»* y **no puede saber quién es**, porque `auth.users` le
 está cerrada.
+
+> ### ⚠️ La primera versión de este ADR daba acceso a `tests` y eso fue un error real
+>
+> Este ADR afirmaba que `tests` *«no tiene email ni nombre — solo `user_id`, que
+> es un uuid»*. **Es falso**, y se descubrió al conectarse a la base por primera
+> vez (2026-09-18): `tests` tiene una columna **`email-user` poblada en las 350
+> filas**, y el jsonb `test` trae además una clave `email` en 348. O sea que
+> durante ese rato el rol de solo lectura **podía leer el correo de cada
+> estudiante que rindió**, incluidos los del 4º medio del liceo, que son menores
+> de edad (**R-28**).
+>
+> **Por qué no lo vio nadie:** la lista de exclusiones se armó leyendo
+> `SCHEMA.md`, donde `tests` figura como la tabla de resultados. La columna
+> existe desde el MVP, con un guion en el nombre que ninguna búsqueda de «email»
+> en las migraciones encuentra, en una tabla que **preexiste al esquema
+> versionado** — el mismo motivo por el que `questions` no tiene `create table` y
+> la fuente de verdad es `crud.cljs` (L-46).
+>
+> **Corregido y verificado el 2026-09-18** (`supabase/acceso_correccion_tests_pii.sql`,
+> aplicada por el owner): los dos roles perdieron `select` sobre `tests`, y en su
+> lugar hay una vista **`tests_sin_identidad`** sin la columna ni la clave del
+> jsonb. Medido después: `claude_ro` y `claude_ddl` reciben `permission denied`
+> sobre `tests`; la vista devuelve las 350 filas con **0** claves `email` y **0**
+> arrobas en todo el jsonb, y conserva las 280 de `origin = 'student'` que G-2
+> necesita.
+>
+> **La lección, y es la que ordena todo este ADR:** el diseño de acceso se
+> verifica **contra la base**, no contra la documentación del esquema. Fue la
+> cuarta vez en dos días que las dos no coincidieron; las tres anteriores
+> costaban una consulta mal contada y ésta costaba datos personales de menores.
 
 Dos detalles que no son adorno:
 
@@ -107,7 +138,7 @@ Dos detalles que no son adorno:
 |---|---|
 | **PUEDE** | `insert` / `update` / `delete` sobre las siete tablas de contenido, y crear funciones y tablas nuevas. O sea **las migraciones de contenido**: ítems (`068`, `069`), ideas erróneas, módulos, recursos, filas de `test_configs` y las aristas de `module_prerequisites` |
 | **NO PUEDE** | `alter table` ni `drop table` sobre lo que ya existe — exige ser dueño. **Las migraciones de esquema siguen siendo del owner**, y entre ellas están las de ADR-038 y ADR-039 |
-| **NO PUEDE** | escribir en `tests`, que es solo lectura también para este rol |
+| **NO PUEDE** | tocar `tests` — desde la corrección del 2026-09-18 **ni siquiera leerla**: ve `tests_sin_identidad`, igual que `claude_ro` |
 | **NO VE** | ninguna tabla con datos personales |
 
 **Ese corte no es una limitación que haya que tolerar: es el corte correcto.**
@@ -115,9 +146,10 @@ Separa **agregar contenido** —reversible con un `delete`, y algo que el banco
 hace todas las semanas— de **cambiar la forma de la base**, que es donde un error
 cuesta caro y donde conviene que haya una persona leyendo antes.
 
-Y **`tests` queda solo lectura a propósito**: es la evidencia que G-4 promete y
-el histórico que nunca se reescribe. Un rol que puede aplicar migraciones de
-contenido no tiene ninguna razón para poder tocarlo.
+Y **`tests` queda fuera del alcance de los dos roles**: es la evidencia que G-4
+promete y el histórico que nunca se reescribe. Lo que ven es la vista
+`tests_sin_identidad` — ver el recuadro de arriba, que es la corrección que
+costó descubrir que este ADR se equivocaba.
 
 Dos cosas más, las dos medidas el 2026-09-18:
 
