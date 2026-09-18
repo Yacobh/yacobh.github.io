@@ -41,11 +41,21 @@ cero filas. Son el equivalente SQL de la tabla del mapa.
 ```sql
 select slug, track, order_index, band_min, band_max
   from public.modules
- where band_min is null or band_max is null
+ where (band_min is null or band_max is null)
+   and track <> 'cuantica'        -- ← ver el aviso de abajo
  order by track, order_index;
 ```
 **Esperado: 0 filas.** Un módulo sin banda depende del reparto derivado, y ese
 reparto se mueve cada vez que alguien crea otro módulo.
+
+> ⚠️ **Sin el `track <> 'cuantica'` esta consulta miente, y se comprobó corriéndola
+> contra producción el 2026-09-18: devolvía 15 filas** y parecía contradecir a
+> `CURRENT_STATUS`. **Las 15 eran todas de `cuantica`**, que está fuera de
+> `bands/product-tracks` a propósito (ADR-018) y por eso **no recibe banda
+> derivada ni la necesita**. Los 26 módulos del producto y los 12 de
+> electrotecnia sí tienen banda explícita, o sea que la memoria estaba bien y la
+> consulta estaba mal. Es el mismo descuido que la nota de arriba sobre excluir
+> los tracks ajenos, ahora del lado de `modules` en vez de `questions`.
 
 ### M2 · Ninguna banda inválida
 
