@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-09-18** (SESSION-044 día 2 — ⭐ **el agente puede consultar la base**: dos roles, `068`/`069` aplicadas por él, y **cuatro defectos que la documentación ocultaba**, incluido `tests.email-user` poblada en las 350 filas (**R-45**). Detalle abajo). Antes: **2026-09-17** (SESSION-044 día 1 — **sesión de documentación y decisión, cero código**: ADR-038 (el módulo es rendible), ADR-039 (`expected_seconds` por ítem), skill `unidad-de-contenido` con su séptimo auditor, **T-118 cerrada tras 20 días cumplida**, y ⭐ **un defecto de producción encontrado leyendo**: los 102 ítems de probabilidad y los 116 de electrotecnia **no pueden producir un plan personalizado** porque sus slugs no están en `universo.topics/module-slugs`. Detalle en el bloque de abajo). Antes: **2026-09-16** (SESSION-043 — ⭐ **el proyecto mide un canal por primera vez**: `/?de=tarjeta` dejó la fila **1052** con `fuente = 'tarjeta'` **en producción**. `061` la aplicó el owner y el bundle con `p_fuente` salió después, que es el orden que pide R-39. La migración se verificó antes contra un PostgreSQL 14.18 desechable **y un PostgREST real**, y `/?de=tarjeta` deja `visitor.fuente = 'tarjeta'` de punta a punta con el supabase-js del proyecto. **T-135 y T-136 cierran**; el árbol queda limpio. Queda **T-148**: decidir las etiquetas del QR antes de imprimir, que es lo único con plazo duro. **D-68**, **L-62**; segunda instancia de **R-39**, esta vez con el modo de fallo medido. Detalle en el bloque de abajo). Antes: **2026-09-13** (SESSION-042, **cerrada y mergeada a `main`** — T-130, T-110, T-132 y T-92 ✅, `067` aplicada, 20 % de la muestra era depuración; sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
+**Fecha de corte: 2026-09-18** (SESSION-045 — ✅ **el incidente de credenciales queda cerrado**: las dos contraseñas rotadas, el historial reescrito y publicado en `16e2800`, y **cero exposición fuera de la máquina**, medido. **L-63** y **L-64** nuevas. Detalle abajo). Antes, el mismo día: (SESSION-044 día 2 — ⭐ **el agente puede consultar la base**: dos roles, `068`/`069` aplicadas por él, y **cuatro defectos que la documentación ocultaba**, incluido `tests.email-user` poblada en las 350 filas (**R-45**). Detalle abajo). Antes: **2026-09-17** (SESSION-044 día 1 — **sesión de documentación y decisión, cero código**: ADR-038 (el módulo es rendible), ADR-039 (`expected_seconds` por ítem), skill `unidad-de-contenido` con su séptimo auditor, **T-118 cerrada tras 20 días cumplida**, y ⭐ **un defecto de producción encontrado leyendo**: los 102 ítems de probabilidad y los 116 de electrotecnia **no pueden producir un plan personalizado** porque sus slugs no están en `universo.topics/module-slugs`. Detalle en el bloque de abajo). Antes: **2026-09-16** (SESSION-043 — ⭐ **el proyecto mide un canal por primera vez**: `/?de=tarjeta` dejó la fila **1052** con `fuente = 'tarjeta'` **en producción**. `061` la aplicó el owner y el bundle con `p_fuente` salió después, que es el orden que pide R-39. La migración se verificó antes contra un PostgreSQL 14.18 desechable **y un PostgREST real**, y `/?de=tarjeta` deja `visitor.fuente = 'tarjeta'` de punta a punta con el supabase-js del proyecto. **T-135 y T-136 cierran**; el árbol queda limpio. Queda **T-148**: decidir las etiquetas del QR antes de imprimir, que es lo único con plazo duro. **D-68**, **L-62**; segunda instancia de **R-39**, esta vez con el modo de fallo medido. Detalle en el bloque de abajo). Antes: **2026-09-13** (SESSION-042, **cerrada y mergeada a `main`** — T-130, T-110, T-132 y T-92 ✅, `067` aplicada, 20 % de la muestra era depuración; sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
 
@@ -56,6 +56,39 @@
 > *(Actualizado 2026-09-16: **los dos se cerraron**. `061` está aplicada y commiteada (T-135) y la
 > edición de `029` se revirtió, así que **T-136 cierra** y el árbol queda limpio.)*
 
+> ## ✅ 2026-09-18 (cierre) — el incidente de credenciales, cerrado y medido (SESSION-045)
+>
+> **Las dos contraseñas de los roles del agente están rotadas y el historial limpio.** Exposición
+> real fuera de la máquina: **ninguna**, y eso está medido, no supuesto.
+>
+> | | Estado |
+> |---|---|
+> | ¿Se pushó alguna vez el secreto? | **No.** `origin/main` estaba en `77ddcba`, el local *ahead 13* |
+> | Commits afectados | **Solo `6556e86`**, verificado con `git log --all -S` sobre los dos secretos |
+> | Contraseñas | **Rotadas** por el owner (`claude_ro` y `claude_ddl`), generadas con `openssl rand -hex 32` |
+> | Historial | 7 commits reescritos con `filter-branch`; **solo** cambió `.env.example`, con autor, fecha y mensaje idénticos |
+> | Publicado | `77ddcba..16e2800`, **fast-forward**, sin `--force`. Cero ocurrencias en todo `origin/main` |
+> | Respaldo | Borrado tras verificar producción; los commits viejos **purgados**, no solo desreferenciados |
+>
+> ⚠️ **El defecto de fondo no era el descuido, y por eso el arreglo no es "tener más cuidado".** La
+> credencial entró al `.example` **depurando**: `openssl rand -base64 32` mete `/` y `=`, la cadena de
+> conexión no andaba, y se probó la versión percent-encodeada en el archivo que estaba abierto. El
+> commit `35a0465` corrige el consejo en los **dos** lugares donde vivía — `.env.example` y
+> `supabase/acceso_del_agente.sql` — para que la contraseña no tenga nada que encodear. **L-63.**
+>
+> ⚠️ **Y una pérdida irreversible que casi ocurre:** el `git reflog expire --expire=now --all` de la
+> receta habitual habría borrado **13 stashes** del owner, porque `git stash list` **es** el reflog de
+> `refs/stash`. Se acotó a `refs/heads/main HEAD` y se contó antes y después: 13 → 13. **L-64.**
+>
+> 📌 **Metodológico, tercera vez en dos sesiones:** el agente escribió un resumen del estado —si
+> había respaldo, si se había pusheado— **sin medirlo**, y salió mal. La rama de respaldo que daba
+> por inexistente existía, y apuntaba a otro sitio. Es la nota de SESSION-044 otra vez: antes de
+> afirmar una consecuencia, correr la consulta. Acá costaba un `git log`.
+>
+> 🚧 **Bloqueo del día, resuelto:** el proceso perdió el acceso a `~/Documents` por **TCC de macOS**
+> (no permisos POSIX, que estaban bien). Todo binario fallaba con `Operation not permitted`. Lo
+> desbloquea el owner en Ajustes del Sistema → Privacidad y seguridad.
+
 > ## ⭐ 2026-09-18 — el agente entra a la base, y la base desmiente a la documentación cuatro veces (SESSION-044, día 2)
 >
 > **El proyecto puede consultarse.** Dos roles en PostgreSQL 17.6 vía el pooler de `sa-east-1`:
@@ -98,7 +131,7 @@
 > ocurrió**. **T-111 reconfirmada** (17 de 22 por `max-items`, cero por precisión) y **R-44 empeoró**:
 > **4 de 22 (18 %)** en el clamp, era 2 de 12.
 >
-> 🔜 **Pendientes:** rotar la contraseña de `claude_ro` (quedó un fragmento en la conversación);
+> 🔜 **Pendientes:** ~~rotar la contraseña de `claude_ro` (quedó un fragmento en la conversación)~~ — **hecha el 2026-09-18**, junto con la de `claude_ddl`, y el historial limpiado (SESSION-045);
 > `numeros`/`algebra`/`geometria` atribuyen los 100 ítems del eje a un solo módulo (anterior,
 > inofensivo hoy, sin ficha); R-44 sin mitigación. Y **T-131 sigue sin moverse**, que es lo único que
 > mide el negocio.

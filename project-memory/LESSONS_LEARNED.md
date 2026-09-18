@@ -1,6 +1,6 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-09-16** — **L-62 nueva** (lo que trae la URL hay que leerlo antes de que el router la normalice: el modo de fallo de una función de medición es **parecerse a un resultado**). Antes: **2026-09-09** — **L-57 nueva** (un mecanismo de aislamiento vale mientras el destinatario no cambie: `active = false` aisló el track de cuántica porque su usuario era admin, no por diseño). Antes: **2026-08-28 (2ª pasada)** — **L-54, L-55 y L-56 nuevas** (la memoria puede documentar una capacidad que la base no tiene —`questions.active` no existía y dos tareas se planificaron encima—; una migración idempotente por contenido no corrige lo ya cargado, hace falta una de delta calculado; reordenar las alternativas de un ítem ya rendido rompe el histórico, porque `tests` guarda la letra) y **L-46 con una tercera repetición**: el fixture volvió a construirse desde el supuesto que debía refutar, y lo que lo atrapó fue una guarda dentro de la migración. · Antes: **2026-08-28** — **L-52 y L-53 nuevas** (la explicación obvia de un sesgo puede ser falsa tres veces seguidas y solo la medición lo dice; un test que compara dos configuraciones puede estar midiendo la salvaguarda en vez de la configuración). · Antes: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
+Última actualización: **2026-09-18** — **L-63 y L-64 nuevas** (la credencial real entra al `.example` **depurando**, y el arreglo de fondo es generar la contraseña en hex para que no haya nada que encodear; y `git reflog expire --all` borra los stashes, porque `git stash list` **es** un reflog). Antes: **2026-09-16** — **L-62** (lo que trae la URL hay que leerlo antes de que el router la normalice: el modo de fallo de una función de medición es **parecerse a un resultado**). Antes: **2026-09-09** — **L-57 nueva** (un mecanismo de aislamiento vale mientras el destinatario no cambie: `active = false` aisló el track de cuántica porque su usuario era admin, no por diseño). Antes: **2026-08-28 (2ª pasada)** — **L-54, L-55 y L-56 nuevas** (la memoria puede documentar una capacidad que la base no tiene —`questions.active` no existía y dos tareas se planificaron encima—; una migración idempotente por contenido no corrige lo ya cargado, hace falta una de delta calculado; reordenar las alternativas de un ítem ya rendido rompe el histórico, porque `tests` guarda la letra) y **L-46 con una tercera repetición**: el fixture volvió a construirse desde el supuesto que debía refutar, y lo que lo atrapó fue una guarda dentro de la migración. · Antes: **2026-08-28** — **L-52 y L-53 nuevas** (la explicación obvia de un sesgo puede ser falsa tres veces seguidas y solo la medición lo dice; un test que compara dos configuraciones puede estar midiendo la salvaguarda en vez de la configuración). · Antes: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
 ruta de login** — el gate legal no va donde está el formulario sino donde nace la cuenta; y
 **L-43**, si Google Cloud te pide datos tributarios para configurar OAuth, te desviaste de camino.
 Antes ese mismo día: **L-41**, una copia que nadie mira diverge — la pregunta útil
@@ -1209,3 +1209,62 @@ no significa que funcione— aplicada a una función cuyo producto es un número
 
 **Relacionado:** [[../adr/ADR-026-router-y-deep-links]], [[DECISIONS]] D-68, [[BACKLOG]] T-135,
 `src/universo/core.cljs`, `src/universo/fuente.cljs`, `sessions/SESSION-043.md`.
+
+### L-63 · La credencial real entra al `.example` **depurando**, no por descuido
+
+**Síntoma.** Las contraseñas de `claude_ro` y `claude_ddl` terminaron escritas en `.env.example`
+—que está versionado— y se commitearon en `6556e86` (2026-09-18). No se pushearon, así que la
+exposición real fue cero, pero el commit existía.
+
+**Causa.** No fue olvido. `openssl rand -base64 32` produce `/` y `=`, que dentro de una cadena
+`postgresql://user:pass@host` hay que percent-encodear. La conexión fallaba, y para probar la cadena
+**ya encodeada** se pegó entera en el archivo que estaba abierto. El archivo que estaba abierto era
+el `.example`, no el `.env`, justamente porque el `.example` es el que se edita para documentar el
+formato. Un archivo cuyo trabajo es contener valores falsos **no despierta desconfianza**: nadie lo
+revisa antes de commitear como revisaría un `.env`.
+
+**Regla, en dos capas.**
+
+1. **La de arriba, que es la que sirve:** generar las contraseñas con `openssl rand -hex 32`. Hex no
+   tiene ningún carácter que obligue a encodear, así que **desaparece el paso de depuración durante
+   el cual la credencial anda suelta**. Corregido en `.env.example` **y** en
+   `supabase/acceso_del_agente.sql`, que era donde vivía el consejo malo.
+2. **La de abajo:** una credencial real nunca se prueba en un archivo versionado. Se prueba en
+   `.env`, o como variable de entorno de un solo comando.
+
+**Corolario sobre el remedio.** Reescribir el historial solo es el remedio **mientras nada esté
+pusheado** — y eso se verifica con `git log --oneline origin/main..main`, no de memoria. Una vez
+publicado, el único remedio es rotar; la reescritura pasa a ser cosmética. Acá el orden correcto fue:
+**rotar primero** (la credencial es el riesgo), reescribir después (el commit es el rastro). Y el
+respaldo previo a la reescritura **es** una copia del secreto: hay que borrarlo al final, o la
+limpieza no limpió nada.
+
+**Relacionado:** [[../adr/ADR-040-el-agente-accede-a-la-base]], [[BACKLOG]] T-151,
+`supabase/acceso_del_agente.sql`, `sessions/SESSION-044.md`, `sessions/SESSION-045.md`.
+
+### L-64 · `git reflog expire --all` borra los stashes
+
+**Síntoma (evitado, no sufrido).** La receta habitual para purgar objetos tras un `filter-branch`
+es `git reflog expire --expire=now --all && git gc --prune=now`. En este repo eso habría destruido
+**13 stashes** del owner, creados por GitHub Desktop a lo largo de meses.
+
+**Causa.** `git stash list` no lee una lista: lee el **reflog de `refs/stash`**. Solo `stash@{0}` es
+el ref; del `{1}` en adelante existen únicamente como entradas de reflog. `--all` significa *todos
+los reflogs*, incluido ese, así que expirarlo deja un solo stash en pie y `gc --prune=now` se lleva
+los objetos. Nada avisa: el comando no menciona los stashes ni pide confirmación.
+
+**Regla.** Tras reescribir una rama, expirar **solo los reflogs de esa rama**:
+
+```
+git reflog expire --expire=now --expire-unreachable=now refs/heads/<rama> HEAD
+git gc --prune=now
+```
+
+Y medir antes y después: `git stash list | wc -l`. Es un control de dos segundos sobre una pérdida
+irreversible.
+
+**Corolario.** Vale para todo `gc` agresivo en un repo que no es solo de uno: en esta máquina, el
+repo lo comparten Claude Code y GitHub Desktop, y el estado que deja la herramienta gráfica
+—stashes, ramas locales— es invisible desde la línea de comandos salvo que se lo busque a propósito.
+
+**Relacionado:** `sessions/SESSION-045.md`, [[LESSONS_LEARNED]] L-63.
