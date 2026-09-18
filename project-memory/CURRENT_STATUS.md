@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-09-17** (SESSION-044 — **sesión de documentación y decisión, cero código**: ADR-038 (el módulo es rendible), ADR-039 (`expected_seconds` por ítem), skill `unidad-de-contenido` con su séptimo auditor, **T-118 cerrada tras 20 días cumplida**, y ⭐ **un defecto de producción encontrado leyendo**: los 102 ítems de probabilidad y los 116 de electrotecnia **no pueden producir un plan personalizado** porque sus slugs no están en `universo.topics/module-slugs`. Detalle en el bloque de abajo). Antes: **2026-09-16** (SESSION-043 — ⭐ **el proyecto mide un canal por primera vez**: `/?de=tarjeta` dejó la fila **1052** con `fuente = 'tarjeta'` **en producción**. `061` la aplicó el owner y el bundle con `p_fuente` salió después, que es el orden que pide R-39. La migración se verificó antes contra un PostgreSQL 14.18 desechable **y un PostgREST real**, y `/?de=tarjeta` deja `visitor.fuente = 'tarjeta'` de punta a punta con el supabase-js del proyecto. **T-135 y T-136 cierran**; el árbol queda limpio. Queda **T-148**: decidir las etiquetas del QR antes de imprimir, que es lo único con plazo duro. **D-68**, **L-62**; segunda instancia de **R-39**, esta vez con el modo de fallo medido. Detalle en el bloque de abajo). Antes: **2026-09-13** (SESSION-042, **cerrada y mergeada a `main`** — T-130, T-110, T-132 y T-92 ✅, `067` aplicada, 20 % de la muestra era depuración; sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
+**Fecha de corte: 2026-09-18** (SESSION-044 día 2 — ⭐ **el agente puede consultar la base**: dos roles, `068`/`069` aplicadas por él, y **cuatro defectos que la documentación ocultaba**, incluido `tests.email-user` poblada en las 350 filas (**R-45**). Detalle abajo). Antes: **2026-09-17** (SESSION-044 día 1 — **sesión de documentación y decisión, cero código**: ADR-038 (el módulo es rendible), ADR-039 (`expected_seconds` por ítem), skill `unidad-de-contenido` con su séptimo auditor, **T-118 cerrada tras 20 días cumplida**, y ⭐ **un defecto de producción encontrado leyendo**: los 102 ítems de probabilidad y los 116 de electrotecnia **no pueden producir un plan personalizado** porque sus slugs no están en `universo.topics/module-slugs`. Detalle en el bloque de abajo). Antes: **2026-09-16** (SESSION-043 — ⭐ **el proyecto mide un canal por primera vez**: `/?de=tarjeta` dejó la fila **1052** con `fuente = 'tarjeta'` **en producción**. `061` la aplicó el owner y el bundle con `p_fuente` salió después, que es el orden que pide R-39. La migración se verificó antes contra un PostgreSQL 14.18 desechable **y un PostgREST real**, y `/?de=tarjeta` deja `visitor.fuente = 'tarjeta'` de punta a punta con el supabase-js del proyecto. **T-135 y T-136 cierran**; el árbol queda limpio. Queda **T-148**: decidir las etiquetas del QR antes de imprimir, que es lo único con plazo duro. **D-68**, **L-62**; segunda instancia de **R-39**, esta vez con el modo de fallo medido. Detalle en el bloque de abajo). Antes: **2026-09-13** (SESSION-042, **cerrada y mergeada a `main`** — T-130, T-110, T-132 y T-92 ✅, `067` aplicada, 20 % de la muestra era depuración; sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
 
@@ -55,6 +55,53 @@
 >
 > *(Actualizado 2026-09-16: **los dos se cerraron**. `061` está aplicada y commiteada (T-135) y la
 > edición de `029` se revirtió, así que **T-136 cierra** y el árbol queda limpio.)*
+
+> ## ⭐ 2026-09-18 — el agente entra a la base, y la base desmiente a la documentación cuatro veces (SESSION-044, día 2)
+>
+> **El proyecto puede consultarse.** Dos roles en PostgreSQL 17.6 vía el pooler de `sa-east-1`:
+> `claude_ro` (solo lectura, default) y `claude_ddl` (migraciones **de contenido**; las de esquema
+> siguen siendo del owner porque no es dueño de ninguna tabla). **ADR-040**, **D-71**, **T-151**.
+>
+> ⭐ **Las dos primeras migraciones aplicadas por el agente:** `068` y `069`. 18 ítems y 14 ideas
+> erróneas para los dos módulos que tenían banda y ningún ítem en el banco de su eje —
+> `aritmetica/operaciones_fundamentales` (sumar, restar, multiplicar y dividir) y
+> `algebra/inecuaciones`. Nueve controles en cero tras aplicar.
+>
+> ⭐ **Cuatro defectos que ningún script había visto, y tres eran de cosas escritas el día anterior:**
+>
+> | | Defecto |
+> |---|---|
+> | 1 | `difficulty` es `real` y `band_min` `numeric`: compararlos da falsos positivos en los bordes |
+> | 2 | Dos ítems de `068` con las cuatro `misconception_*` en null — no diagnosticaban nada |
+> | 3 | M1 contaba `cuantica` y «contradecía» a este archivo |
+> | 4 | ⭐ **`tests.email-user` poblada en las 350 filas** |
+>
+> 🔺 **El cuarto es R-45 y es serio:** ADR-040 dio `select` sobre `tests` afirmando que no traía
+> identidad. La tabla tiene `email-user` en **las 350 filas** y una clave `email` en 348 del jsonb —
+> el rol podía leer correos de estudiantes **menores** del liceo. Corregido el mismo día con la vista
+> `tests_sin_identidad`, verificada en **0 correos y 0 arrobas**. Se escapó porque la lista de
+> exclusiones se armó leyendo `SCHEMA.md`, y `tests` **preexiste al esquema versionado** (como
+> `questions`, L-46) y la columna tiene un guion en el nombre.
+>
+> ✅ **T-152 abierta, corregida y cerrada** el mismo día: los 18 slugs entraron, pero **lo que
+> realmente la cierra** es `catch-all-topics` — `suffix-match` compara el *topic* con el sufijo y
+> ningún módulo tiene sufijo `probabilidad`. Octavo auditor: `comparar_module_slugs.py`.
+>
+> ⚠️ **Y una corrección que vale como método:** la ficha de T-152 decía «cinco personas reales
+> afectadas». **Falso.** 100 % de las respuestas del motor v2 traen `module-slug`, así que `profile`
+> nunca llega al fallback: el defecto era **latente**. Se verificó el código y se dio por hecha la
+> consecuencia. Lo mismo pasó con la afirmación del día 1 sobre los 218 ítems.
+>
+> **T-117 corrida y no es medible todavía:** su 37 % sale de simulación con θ verdadero conocido, y
+> con estudiantes reales no lo hay. Lo que sí dice la base: **once de trece estudiantes no pasaron de
+> `numeros`** y probabilidad tiene **cero** tests. La cadena por eje se adoptó hace 20 días y **no
+> ocurrió**. **T-111 reconfirmada** (17 de 22 por `max-items`, cero por precisión) y **R-44 empeoró**:
+> **4 de 22 (18 %)** en el clamp, era 2 de 12.
+>
+> 🔜 **Pendientes:** rotar la contraseña de `claude_ro` (quedó un fragmento en la conversación);
+> `numeros`/`algebra`/`geometria` atribuyen los 100 ítems del eje a un solo módulo (anterior,
+> inofensivo hoy, sin ficha); R-44 sin mitigación. Y **T-131 sigue sin moverse**, que es lo único que
+> mide el negocio.
 
 > ## ⭐ 2026-09-17 — el flujo del estudiante, estudiado; y un defecto de producción que nadie veía (SESSION-044)
 >

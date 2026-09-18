@@ -548,7 +548,65 @@ D-66 resiste su primer contacto con datos.
 
 ---
 
+### R-45 · El acceso del agente a la base se diseña leyendo la documentación — 🔺 **alto** (2026-09-18)
+
+**Se materializó el mismo día en que se creó el acceso, y con datos de menores.**
+
+`ADR-040` le dio a `claude_ro` un `select` sobre `tests` afirmando que la tabla *«no tiene email ni
+nombre — solo `user_id`, que es un uuid»*. Al conectarse por primera vez:
+
+```
+select count(*) filter (where "email-user" is not null),
+       count(*) filter (where test->>'email' is not null), count(*) from tests;
+→  350 | 348 | 350
+```
+
+`tests` tiene una columna **`email-user` poblada en las 350 filas** y una clave `email` en el jsonb
+de 348. El rol podía leer el correo de cada estudiante que rindió, incluidos los del 4º medio del
+liceo, que son **menores de edad**. Corregido el mismo día con `tests_sin_identidad`, verificado en
+cero.
+
+**Por qué se escapó, que es lo que hay que mitigar:** la lista de tablas a excluir se armó leyendo
+`SCHEMA.md` y las migraciones. `tests` figura ahí como la tabla de resultados —θ, respuestas,
+`origin`— porque **preexiste al esquema versionado**: no hay `create table` del cual leer sus
+columnas, igual que `questions` (L-46). Y la columna tiene un **guion en el nombre**, así que
+ninguna búsqueda de «email» en `supabase/` la encuentra.
+
+**Mitigación, y es una regla, no una intención:** antes de otorgar `select` sobre cualquier tabla a
+un rol de agente, se listan sus **columnas reales**:
+
+```sql
+select table_name, column_name from information_schema.columns
+ where table_schema='public' and table_name = '<la tabla>' order by ordinal_position;
+```
+
+Y se busca lo que no debería estar:
+
+```sql
+select table_name, column_name from information_schema.columns
+ where table_schema='public'
+   and (column_name ~* 'mail|nombre|name|phone|telefono|rut|ip|address|user_agent');
+```
+
+**Lo que este riesgo NO es:** un argumento para quitarle el acceso al agente. En los dos días
+siguientes ese acceso encontró cuatro defectos que la documentación ocultaba, incluido éste. Lo que
+dice es que **el diseño de acceso se verifica contra la base, no contra su documentación** — y que
+una tabla que preexiste al esquema versionado merece que se miren sus columnas una por una.
+
+**Severidad 🔺 alta** y no crítica porque la ventana fue de horas, el acceso era de lectura, y no
+hay indicio de que ningún correo saliera de la sesión. Baja a media cuando exista staging (**T-09**).
+
+**Relacionado:** [[../adr/ADR-040-el-agente-accede-a-la-base]], [[DECISIONS]] D-71, R-28, R-17,
+[[BACKLOG]] T-09, T-07, `supabase/acceso_correccion_tests_pii.sql`, `sessions/SESSION-044.md`.
+
+---
+
 ### R-44 · El banco no llega al suelo de sus propios estudiantes — 🔺 **alto** (2026-09-13)
+
+> ⚠️ **2026-09-18 — empeoró, medido contra producción con acceso directo.** Sobre los tests de
+> `origin = 'student'` con motor v2 en los cuatro bancos del producto: **4 de 22 (18 %)** en
+> θ ≤ −2,99, no 2 de 12. Casi **uno de cada cinco** estudiantes cae en el borde del instrumento.
+> Tres en `numeros` y uno en `algebra`. La mitigación sigue sin hacerse.
 
 **Qué pasa, y está medido.** En la sesión del 2026-09-10, **dos estudiantes de doce quedaron en
 θ = −3,00 exacto** — que es el **clamp** del estimador, no una estimación— y un tercero en −2,93.

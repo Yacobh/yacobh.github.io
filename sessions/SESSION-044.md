@@ -2,7 +2,7 @@
 
 ## Fecha
 
-2026-09-17
+2026-09-17 y **2026-09-18** (dos días, una sesión)
 
 ## Participantes
 
@@ -21,8 +21,13 @@ El objetivo se cumplió y **creció dos veces**, las dos por hallazgos medidos:
    (empates de `next_question` y tiempo esperado por ítem).
 2. El estudio del flujo destapó **un defecto en producción** que nadie había visto.
 
-**Sesión de documentación y decisión, no de implementación.** No se tocó una línea de ClojureScript
-ni se escribió SQL: lo que se produjo son dos ADR aprobados, una skill con su verificador, y memoria.
+**Día 1: documentación y decisión, sin implementación.** Dos ADR aprobados, una skill con su
+verificador, y memoria.
+
+**Día 2 (2026-09-18): el owner pidió acceso a la base, y eso cambió la sesión.** Acceso real, las dos
+primeras migraciones aplicadas por el agente, y **cuatro defectos que la documentación ocultaba** —
+tres de ellos en cosas escritas el día anterior, incluida una de esta misma ficha. Ver el bloque
+«Día 2» al final.
 
 ## Contexto de entrada
 
@@ -51,6 +56,11 @@ ni se escribió SQL: lo que se produjo son dos ADR aprobados, una skill con su v
    `plan/resources-for-deficits` (`plan.cljs:43`) devuelve `:general`. **Los 102 ítems de
    probabilidad y los 116 de electrotecnia no pueden producir un plan personalizado.** La migración
    estaba perfecta, el build en verde, los seis auditores en verde.
+   > ⚠️ **Corregido el 2026-09-18 con acceso a la base: esa última frase es FALSA.** La cadena existe
+   > y el fallback está roto, pero `events/test.cljs:35` copia `module_slug` del RPC a cada ítem, y
+   > **100 % de las respuestas del motor v2 lo traen** (0 % en v1). Desde el 2026-08-28 `profile` lo
+   > encuentra en el primer `or` y nunca llega al fallback. El defecto era **latente**. Se verificó
+   > la cadena en el código y se dio por hecha la consecuencia sin medirla. Ver T-152 y el día 2.
 3. **Skill `unidad-de-contenido`** (SKILL.md + 3 referencias + plantilla + verificador). La
    referencia central es el **mapa de los 18 lugares**, cada uno con *qué pasa si no lo tocás* —
    todos fallan en silencio salvo uno.
@@ -225,3 +235,107 @@ probada contra nada.**
 Relacionado: [[../project-memory/CURRENT_STATUS]] · [[../project-memory/AGENT_INSTRUCTIONS]] ·
 [[../adr/ADR-038-el-modulo-es-rendible]] · [[../adr/ADR-039-tiempo-esperado-por-item]] ·
 `../prompts/session-close-memory-update.md`
+
+---
+
+# Día 2 — 2026-09-18
+
+## Objetivo
+
+El owner preguntó **cómo darle al agente acceso al SQL Editor**. Terminó en acceso real a la base,
+las dos primeras migraciones aplicadas por el agente, y **cuatro defectos que la documentación
+ocultaba** — tres de ellos en cosas escritas el día anterior.
+
+## Actividades
+
+1. **ADR-040 + `supabase/acceso_del_agente.sql`** — dos roles de PostgreSQL. `claude_ro` (default,
+   solo lectura) y `claude_ddl` (migraciones de contenido, a pedido). Corregidos `CLAUDE.md` §9, la
+   skill `banco-de-items` y el paso 8 de `unidad-de-contenido`, que decían lo contrario.
+2. **El `grant` que Supabase rechazó, y que mejoró el diseño.** `grant postgres to claude_ddl` →
+   `42501`: en PG16+ el `postgres` de Supabase no tiene ADMIN OPTION sobre sí mismo. Obligó a un
+   **límite técnico real** (`claude_ddl` no es dueño de nada → contenido sí, esquema no) en vez de
+   la «separación de flujo de trabajo» que no contenía nada.
+3. **Conexión, dos trabas:** la contraseña de `openssl rand -base64 32` trae `/` y rompe la URL (hay
+   que percent-encodearla); y la conexión directa es **solo IPv6**, así que va el **pooler en modo
+   sesión** con el ref pegado al usuario (`claude_ro.<project-ref>`).
+4. ⭐ **`tests` tenía `email-user` poblada en las 350 filas.** ADR-040 afirmaba lo contrario. El rol
+   de lectura podía ver los correos de estudiantes menores. Corregido con `tests_sin_identidad`,
+   verificado en **0 correos y 0 arrobas**. Es **R-45**.
+5. **M1…M11 sobre la base real, por primera vez.** M1 tenía un bug propio (no excluía `cuantica`).
+6. **T-117 corrida: no es medible todavía**, y el porqué vale más que el número.
+7. **068 y 069 aplicadas** — las primeras del agente bajo ADR-040.
+8. **T-152 abierta, corregida y cerrada** el mismo día.
+9. **`comparar_module_slugs.py`** — octavo auditor.
+
+## Los cuatro defectos que el acceso destapó
+
+| # | Defecto | Dónde estaba escrito lo contrario |
+|---|---|---|
+| 1 | `difficulty` es `real` y `band_min` es `numeric`: compararlos da falsos positivos en los bordes | M3 de la skill, escrita el día anterior |
+| 2 | Dos ítems de `068` con las cuatro `misconception_*` en null — no diagnosticaban nada | el JSON de la tanda, verificado en verde |
+| 3 | M1 contaba `cuantica` y «contradecía» a `CURRENT_STATUS` | M1 de la skill |
+| 4 | ⭐ `tests.email-user` poblada en 350 filas | ADR-040, escrito esa misma mañana |
+
+**Tres de los cuatro son de cosas escritas en esta misma sesión, y ninguno lo vio un script.**
+
+## Lo que NO funcionó, y es lo más útil para la próxima
+
+⚠️ **Afirmé daño sin medir el camino completo.** La ficha de T-152 decía *«cinco personas reales ya
+rindieron un diagnóstico cuyo plan no se pudo personalizar»*. **Falso.** `events/test.cljs:35` copia
+`module_slug` del RPC a cada ítem: **0 % de las respuestas del motor v1 lo traen y 100 % de las de
+v2**, así que desde el 2026-08-28 `profile` nunca llega al fallback roto. El defecto era **latente**.
+Verifiqué la cadena en el código y **di por hecha la consecuencia** — el error exacto contra el que
+la propia sesión venía advirtiendo.
+
+⚠️ **Y el arreglo que propuse tampoco era el arreglo.** Agregar los 18 slugs no resuelve nada:
+`suffix-match` compara el *topic* con el sufijo, y ningún módulo tiene sufijo `probabilidad`. Lo que
+cierra T-152 es `catch-all-topics`.
+
+⚠️ **Un trinquete que no trinca.** El test fijaba `(= 20 (count module-slugs))` y **nadie lo movió
+mientras el banco crecía a 53 módulos**, porque no falla si el `def` tampoco crece. Un trinquete que
+solo se actualiza cuando alguien ya hizo el trabajo no avisa de nada.
+
+⚠️ **Fragmento de contraseña en la conversación.** El primer error de psql imprimió 13 de los 44
+caracteres de la de `claude_ro`. Rotarla es `alter role claude_ro password '...'` + recargar `.env`.
+
+## Comandos
+
+```
+clj -M:test                → 213 tests / 2843 assertions / 0 failures
+npx shadow-cljs release app→ 250 archivos, 178 compilados, 0 warnings
+comparar_module_slugs.py   → ✓ verde tras T-152
+068 y 069                  → aplicadas en producción, 9 controles en cero
+graphify update .          → ver Pendientes
+```
+
+## Decisiones
+
+| Decisión | ADR | Dónde |
+|---|---|---|
+| El agente accede con dos roles y aplica migraciones de contenido | **ADR-040** | D-71, T-151 |
+| `tests` sale del alcance; se ve por `tests_sin_identidad` | ADR-040 (corregido) | D-71, `SCHEMA.md`, R-45 |
+| Los bancos de eje van a `catch-all-topics` | — | T-152 |
+| `cuantica` queda fuera de `module-slugs` | ADR-018 (vigente) | T-152, `TRACKS_TOLERADOS` |
+
+## Riesgos
+
+| Riesgo | Severidad | Dónde |
+|---|---|---|
+| El acceso del agente se diseña leyendo la doc, no la base | 🔺 alto | **R-45 (nuevo)** |
+| El banco no llega al suelo: **4 de 22 (18 %)** en el clamp, era 2 de 12 | 🔺 alto | **R-44 actualizado** |
+
+## Pendientes del día 2
+
+- **`graphify update .`** sin correr después de los últimos commits.
+- **Rotar la contraseña de `claude_ro`** (decisión del owner).
+- **`numeros`, `algebra`, `geometria` NO están en `catch-all-topics`** y atribuyen los 100 ítems del
+  eje a un solo módulo. Anterior a T-152, hoy inofensivo, anotado en el código y **sin ficha**.
+- **R-44 sigue sin mitigación** y empeoró.
+- **T-131** —el café con el colega— **sigue sin moverse**, y es lo único que mide el negocio.
+
+## Nota para la próxima sesión
+
+**El acceso a la base cambia cómo hay que trabajar acá.** En dos días encontró cuatro defectos que
+ninguna cantidad de lectura había encontrado en meses. La regla que sale de eso, y que conviene
+tratar como norma: **antes de afirmar un número o una consecuencia, correr la consulta.** Tres de
+los cuatro defectos eran afirmaciones escritas con confianza el día anterior.

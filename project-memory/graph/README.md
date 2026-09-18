@@ -11,9 +11,9 @@
 
 ## Snapshot actual
 
-- **Commit:** SESSION-044 (rama `main`)
-- **Fecha:** 2026-09-17
-- **Tamaño:** 3975 nodos · 9183 aristas · 270 comunidades
+- **Commit:** SESSION-044 día 2 (rama `main`)
+- **Fecha:** 2026-09-18
+- **Tamaño:** 4016 nodos · 9287 aristas · 283 comunidades
 - **Extracción:** ver el encabezado de `GRAPH_REPORT.md`
 - **Ciclos de importación:** ninguno
 
