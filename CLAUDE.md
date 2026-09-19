@@ -165,7 +165,7 @@ Edge Function `send-enrollment-emails` (Deno) → Resend
 > | Track | Migraciones | Visible para el estudiante | Por qué |
 > |---|---|---|---|
 > | `cuantica` | `033`–`040` (aplicadas) | **No** (`active = false`) | Su destinatario es el autor, que es admin ([[adr/ADR-018-track-experimental-cuantica]]) |
-> | `electrotecnia` | `062`–`066` (**sin aplicar**) | **Sí** (`active = true`) | Su destinatario es un **alumno**, y `test_configs_select` de `020` no admite un estado intermedio ([[adr/ADR-035-track-electrotecnia-visible]], D-66, R-42) |
+> | `electrotecnia` | `062`–`066` (**aplicadas 2026-09-09**) | **Sí** (`active = true`) | Su destinatario es un **alumno**, y `test_configs_select` de `020` no admite un estado intermedio ([[adr/ADR-035-track-electrotecnia-visible]], D-66, R-42) |
 >
 > Tres consecuencias para cualquier agente que trabaje acá:
 >

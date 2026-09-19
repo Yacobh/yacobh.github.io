@@ -4074,7 +4074,7 @@ más de un temario sin registrarse**.
   ve también el alumno de electrotecnia.
 - **Vector:** G-5. **Relacionado:** Q-45 (marca y dominio).
 
-### T-141 · El diagnóstico no dura 20 minutos: corregir el copy — **P1** · `abierto`
+### T-141 · El diagnóstico no dura 20 minutos: corregir el copy — **P1** · ✅ `CERRADA` (2026-09-19)
 
 **Medido el 2026-09-13 sobre 17 intentos reales:** mediana **5,8 min**, media 7,5, rango 1,5–16,5, y
 **10 de 17 por debajo de 10 minutos**. El copy publicado promete ~20.
@@ -4086,6 +4086,11 @@ más de un temario sin registrarse**.
 - **Dónde vive el copy:** re-verificar con `grep` cada vez (L-22), no confiar en una lista.
 - **Terminado cuando:** el número publicado corresponde a la mediana medida y T-91 tiene la premisa
   corregida en su ficha.
+- ✅ **Corregido el 2026-09-19** en los **cinco** lugares, buscados con `grep` y no con una lista
+  (L-22): el JSON-LD del `FAQPage` en `index.html`, y en `landing.cljs` el paso 1 de «cómo
+  funciona», el FAQ espejo, la tira de datos del hero y el CTA final. Dice **~6 min**, con el rango
+  medido en el FAQ («la mitad terminó en menos de 6 minutos, y el más largo tardó 17»).
+- ⚠️ **Queda la mitad que no es copy:** la premisa de **T-91** sigue sin corregir en su ficha.
 
 ### T-142 · Decidir qué θ vale cuando hay varios intentos — **P0** · `abierto` · **Q-46**
 
@@ -4266,6 +4271,76 @@ vez impresas las 100 tarjetas y el afiche, la etiqueta no se corrige.
 > todas cerradas. Las P0 de E8 significan **"bloquea el primer peso de ingreso institucional"**. No
 > son la misma escala y no compiten: E1 ya terminó. **T-07, T-09 y T-11 (P1/P2 de E2) suben de
 > hecho a P0** en el momento en que se firme un contrato institucional — ver [[RISKS]] R-28.
+
+### T-153 · El producto es honesto y se siente genérico — **P0** · `abierto` · **requiere ADR-041**
+
+**Veredicto del owner el 2026-09-19, mirando el flujo completo:** *«no me gustó mucho cómo está todo
+el flujo, me parece genérico y no está muy interesante»*. Coincide con el feedback de usuarios que
+él ya había recogido: **no se ve juvenil**, faltan ayudas visuales y animaciones, y alguien pidió un
+avatar tutor que te lleve.
+
+**No es un defecto de implementación.** Los cinco auditores estaban en verde, los tests en 0
+failures y el flujo igual aburre. Lo que hay es una **tensión nunca registrada**:
+
+> El lenguaje Braun/Rams ([[../adr/ADR-022-lenguaje-braun-rams]], [[../adr/ADR-023-panel-de-instrumento]])
+> es deliberadamente austero —un aparato de medida— y es **exactamente eso** lo que lo hace sentir
+> genérico a alguien de 17 años. Es coherente, está bien ejecutado, y ningún script puede avisar de
+> esto.
+
+**La sesión 046 lo demostró por el camino equivocado:** intentó resolverlo con una antesala de seis
+reglas numeradas en una caja, que es la forma más genérica posible. *Dice* en vez de *mostrar*. Está
+aparcada en la rama `antesala-del-diagnostico`, con su commit explicando por qué.
+
+**La inversión que hay que discutir en el ADR.** Lo único verdaderamente distintivo del producto —la
+línea del tiempo, Euclides y Planck en el mismo eje— está **después** del diagnóstico, en el
+tablero. Un visitante nuevo no llega nunca. El producto pide el máximo compromiso (cuenta + test)
+antes de mostrar lo que nadie más tiene, y encima **33 de sus 53 módulos ni siquiera están en esa
+línea** (T-154).
+
+- **El ADR tiene que decidir**, no describir: si la austeridad se conserva y el interés se consigue
+  con *contenido* (personajes, recorrido histórico, simulaciones), o si el lenguaje visual cede en
+  el embudo y se conserva en el instrumento. Son caminos distintos y hoy no hay ninguno elegido.
+- **Escalón 0 disponible sin decidir nada:** `resource-card` (`plan.cljs:53-56`) ya pinta
+  `media_url` como «Abrir recurso →». Enlazar una simulación externa es **una fila en la base**, no
+  código — ver **T-139** escalón 0. Si nadie la abre, se ahorró el escalón 1 entero.
+- ⚠️ **No empezar por el avatar tutor.** Es lo más caro por unidad de evidencia y choca de frente
+  con el lenguaje de instrumento. Los **personajes históricos** son otra cosa y son casi gratis:
+  `modules.historical_figure` ya existe y ya viaja hasta `timeline/milestone-of` como `:figure`.
+  Lo único que les falta es imagen, que es T-139 escalón 1 — **la misma tarea**, no una nueva.
+- **Precondición honesta:** **T-90** (aplicar el diagnóstico en un curso real y observar). Sin eso,
+  cualquier decisión de este ADR es criterio del autor, y este proyecto ya se equivocó dos veces así
+  (el piso de `min_response_seconds` y los cortes de fluidez).
+- **Vector:** G-5. **Relacionado:** T-91, T-139, T-154, R-31, L-36.
+
+### T-154 · 33 de 53 módulos no existen en la línea del tiempo — **P1** · `abierto`
+
+**Medido el 2026-09-18 desde el historial de migraciones, sin tocar la base.** `042` es la **única**
+migración del repo que menciona `historical_year` —verificado con
+`grep -ln "historical_year" supabase/migrations/*.sql`— y puebla **exactamente 20 slugs**: 7 de
+`aritmetica`, 6 de `algebra`, 7 de `geometria`.
+
+| módulos | ¿año? | ¿en la línea? |
+|---|---|---|
+| 20 PAES (`002`) | sí, los pone `042` | **sí** |
+| 15 `cuantica` (`033`) | no | no |
+| 6 `probabilidad` (`055`) | no | no |
+| 12 `electrotecnia` (`062`) | no | no |
+
+`timeline/milestones` lo dice en una línea: **«Un módulo sin año queda fuera»**, en silencio.
+
+**Lo más llamativo son los 15 de cuántica:** el propio preámbulo de `042` los nombra como motivo
+para existir —*«hay 20 módulos PAES y 15 de cuántica con contexto histórico escrito, y ningún
+usuario ve nada de eso»*— y después **no le da año a ninguno de los 15**. El blurb sigue escrito,
+pagado y sin verse, que es literalmente el problema que `042` venía a resolver.
+
+- **Confirmar primero contra la base con M12** (`metricas-de-la-unidad.md`): el `grep` es sólido
+  pero indirecto, y no vería filas editadas a mano desde el SQL Editor.
+- **Es contenido de autor, no código:** 33 hitos con año, era, figura y blurb. La era y el año no
+  pueden contradecirse (`modules_historical_era_coherente` lo rechaza con 23514).
+- **Sube de prioridad si T-153 decide que el recorrido histórico es la respuesta**, porque entonces
+  esto deja de ser una pantalla incompleta y pasa a ser precondición.
+- **Prevención ya hecha:** A10 del mapa de la unidad y `revisar_historia` en `verificar_unidad.py`,
+  para que ninguna unidad nueva vuelva a caerse de la línea en silencio.
 
 ---
 
