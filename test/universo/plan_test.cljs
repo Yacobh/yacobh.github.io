@@ -77,3 +77,61 @@
       (is (= :general kind))
       (is (= [] resources)))
     (is (= [] (:resources (plan/resources-for-deficits nil nil))))))
+
+;; -----------------------------------------------------------------------------
+;; Cómo se nombra un déficit delante del estudiante
+;; -----------------------------------------------------------------------------
+
+(def ^:private recursos-con-titulo
+  "Igual que `recursos`, pero con el join completo que hace
+   `crud/fetch-published-resources`: `modules(slug, title, track)`."
+  [{:id "r1" :title "Guía de enteros"
+    :modules {:slug "aritmetica/enteros" :title "Números enteros" :track "aritmetica"}}
+   {:id "r2" :title "Práctica de enteros"
+    :modules {:slug "aritmetica/enteros" :title "Números enteros" :track "aritmetica"}}
+   {:id "r3" :title "Factorizar"
+    :modules {:slug "algebra/polinomios" :title "Polinomios" :track "algebra"}}])
+
+(deftest module-titles-arma-el-indice
+  (testing "un título por slug, sin depender de cuántos recursos tenga"
+    (is (= {"aritmetica/enteros" "Números enteros"
+            "algebra/polinomios" "Polinomios"}
+           (plan/module-titles recursos-con-titulo))))
+
+  (testing "tolera filas sin join y no explota con la lista vacía"
+    (is (= {} (plan/module-titles [])))
+    (is (= {} (plan/module-titles nil)))
+    (is (= {} (plan/module-titles [{:id "x" :module_slug "algebra/x"}])))))
+
+(deftest deficit-label-prefiere-el-titulo-real
+  (let [titulos (plan/module-titles recursos-con-titulo)]
+    (testing "con título en la base, se usa ése"
+      (is (= {:texto "Números enteros" :mapeado? true}
+             (plan/deficit-label "aritmetica/enteros" titulos))))
+
+    (testing "sin recurso publicado, se deriva del slug en vez de mostrarlo crudo"
+      ;; El respaldo no inventa acentos: el slug no los tiene.
+      (is (= {:texto "Porcentajes" :mapeado? true}
+             (plan/deficit-label "aritmetica/porcentajes" titulos)))
+      (is (= {:texto "Operaciones fundamentales" :mapeado? true}
+             (plan/deficit-label "aritmetica/operaciones_fundamentales" titulos)))
+      (is (= {:texto "Tendencia central" :mapeado? true}
+             (plan/deficit-label "probabilidad/tendencia-central" titulos))))))
+
+(deftest deficit-label-marca-lo-que-no-se-pudo-ubicar
+  (testing "`unknown/<topic>` se muestra por su tema, pero marcado"
+    ;; Es el déficit que produce `profile/module-slug-for` cuando el ítem no
+    ;; trae `module_id` o el slug no está en `topics/module-slugs` (T-51, T-60).
+    ;; Decir «Probabilidad» a secas sería presentarlo como módulo diagnosticado.
+    (is (= {:texto "Probabilidad" :mapeado? false}
+           (plan/deficit-label "unknown/probabilidad" {})))
+    (is (= false (:mapeado? (plan/deficit-label "unknown/paes_m1" {})))))
+
+  (testing "un módulo de verdad nunca queda marcado como no ubicado"
+    (is (true? (:mapeado? (plan/deficit-label "geometria/pitagoras" {}))))))
+
+(deftest deficit-label-no-se-cae-con-entradas-raras
+  (testing "slug sin barra, vacío o nil"
+    (is (= {:texto "Suelto" :mapeado? true} (plan/deficit-label "suelto" {})))
+    (is (string? (:texto (plan/deficit-label "" {}))))
+    (is (string? (:texto (plan/deficit-label nil {}))))))

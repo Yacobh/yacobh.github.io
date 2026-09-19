@@ -108,6 +108,23 @@ Es a propósito (T-118): la escala común entre ejes siempre fue hipótesis
 editorial, nunca medición. Se puede decir «nivel 2 en números»; **no** «nivel 2
 en general».
 
+### 🟡 `modules.historical_*` — el otro eje, y está a medio llenar
+
+**Qué afirma:** «este contenido es el momento en que alguien resolvió por primera
+vez este problema». Es el único eje del sistema que **no** es θ, y el único que
+cruza tracks: Euclides, Ohm y Planck caen en la misma línea aunque vivan en
+`geometria`, `electrotecnia` y `cuantica`.
+
+**Cuidado con confundirlo con el camino.** `module_prerequisites` dice *qué hay
+que saber antes*; `historical_year` dice *cuándo se descubrió*. A veces coinciden
+y **eso es una coincidencia, no un diseño**: el orden histórico no es un orden de
+aprendizaje. La línea del tiempo es un **relato**; la ruta la sigue mandando A4.
+
+**Estado real (2026-09-18):** `042` es la única migración que escribe
+`historical_year` y puebla 20 slugs. **33 de 53 módulos no tienen año y por lo
+tanto no existen en la línea** — incluidos los 15 de cuántica, cuyo blurb `042`
+menciona explícitamente como motivo para existir. Ver A10 del mapa y M12.
+
 ### 🟢 `questions` — la evidencia
 
 Lo único que el proyecto trata como **activo defendible** (ADR-005, ADR-015):

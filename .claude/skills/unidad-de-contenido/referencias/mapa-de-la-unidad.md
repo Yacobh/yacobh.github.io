@@ -20,7 +20,8 @@
 > **Si el código y esta tabla no coinciden, gana el código** y esta tabla se
 > corrige en el mismo commit.
 >
-> Verificado por última vez: **2026-09-17**.
+> Verificado por última vez: **2026-09-18** — y esa pasada encontró A10, que
+> faltaba. Tres columnas de `042` que este archivo no listaba.
 
 ---
 
@@ -41,9 +42,12 @@ archivo.
 | `track` | `not null` + **CHECK enumerado** — ver A2 |
 | `order_index` | `not null default 0`. Orden curricular. Dejá huecos de 10 en 10 |
 | `band_min` / `band_max` | `numeric`, agregadas por `046`. **Obligatorias de hecho** — ver A3 |
-| `historical_blurb` | Opcional. Contexto histórico (042) |
+| `historical_blurb` | Desde `002`. **Es el contenido de la línea del tiempo** — ver A10 |
+| `historical_year` / `historical_era` / `historical_figure` | `042`. Nullable, y **sin año la unidad desaparece de la línea del tiempo en silencio** — ver A10 |
 
-**Si no lo hacés:** no existe la unidad. Es el único lugar que sí es obvio.
+**Si no lo hacés:** no existe la unidad. Es el único lugar que sí es obvio…
+**salvo por las cuatro columnas de historia**, que no lo son en absoluto: la fila
+entra perfecta sin ellas. Ver A10.
 
 ### A2 · `modules_track_check` — la constraint del track
 
@@ -204,6 +208,48 @@ el 2026-09-10: **16 de 40 tests cayeron ahí** (T-122, T-143, T-138).
 bancos nuevos tuvieron **414 ítems inalcanzables** hasta que `059` los creó
 (T-125).
 
+### A10 · `historical_year` / `era` / `figure` / `blurb` — la línea del tiempo
+
+`042` (año, era, figura) sobre `002` (blurb). **Las cuatro son nullable**, la fila
+de A1 entra perfecta sin ellas, y `timeline/milestones` lo resuelve en una línea:
+
+> *«Un módulo **sin año queda fuera**. La migración 042 deja `historical_year`
+> nullable justamente para no tener que inventarle una fecha a un módulo nuevo, y
+> ubicar un hito en un año falso sería peor que no mostrarlo.»*
+
+⚠️ **Este lugar se escapó de este mapa hasta el 2026-09-18.** El mapa listaba
+`historical_blurb` como «opcional, contexto histórico» y **no listaba las tres
+columnas que `042` agregó para poder mostrarlo**. Es el mismo modo de fallo que
+B1 —el que le costó al eje de probabilidad sus 102 ítems— ocurriendo **dentro del
+archivo que existe para prevenirlo**. Que L-22 valga también para este archivo no
+es retórica: ya pasó dos veces.
+
+| columna | regla |
+|---|---|
+| `historical_year` | Entero con signo, **negativo = a.C.** Se eligió sobre `date` porque estas fechas no tienen día ni mes y varias son aproximadas por siglo. `null` = fuera de la línea, y es una decisión válida **si está dicha** |
+| `historical_era` | CHECK `modules_historical_era_valida`: `antiguedad` (..500) · `medieval` (501–1400) · `renacimiento` (1401–1650) · `moderna` (1651–1899) · `contemporanea` (1900..) |
+| — coherencia | CHECK `modules_historical_era_coherente`: el año tiene que caer en su era. **23514 si no.** Es, con A2, el único otro lugar ruidoso de todo el mapa |
+| `historical_figure` | Persona u obra del hito. **Se le muestra al estudiante** (comentario de la columna en `042`). Es donde colgarían los personajes de T-139 |
+| `historical_blurb` | El texto del hito. **Un año sin blurb es una tarjeta vacía** |
+
+**Por qué la era se guarda si se puede derivar:** lo dice `042` — *«el criterio de
+corte vive en el dato, no en el cliente»*. El cliente **sí** la deriva
+(`timeline/era-of`) como respaldo para filas viejas, y `milestone-of` prefiere
+siempre la columna. Dejarla en `null` mueve una decisión editorial al código.
+El corte 1900 no es arbitrario: es el cuanto de Planck, donde arranca `cuantica`.
+
+**Si no lo hacés:** la unidad no existe en la línea del tiempo del tablero. Nada
+falla, nada avisa, y el contenido histórico que sí escribiste queda donde estaba
+todo antes de `042` — *«pagado, auditado y muerto en la base»*
+(`timeline.cljs`). Lo chequea `verificar_unidad.py`.
+
+⚠️ **Y ya pasó, en grande.** `042` es la **única** migración del repo que
+menciona `historical_year`, y puebla **20 slugs**: aritmética, álgebra y
+geometría. Ninguna posterior la toca. O sea que los 15 módulos de `cuantica`
+(`033`), los 6 de `probabilidad` (`055`) y los 12 de `electrotecnia` (`062`)
+—**33 de 53**— están fuera de la línea del tiempo hoy. La consulta que lo
+confirma contra la base es **M12** en `metricas-de-la-unidad.md`.
+
 ---
 
 ## B. En el cliente ClojureScript
@@ -342,6 +388,7 @@ nuevo · `DECISIONS` + `adr/ADR-XXX-*.md` si se decidió algo con consecuencias 
 | A7 | `resources` | siempre | plan `:general`; `published=false` esconde |
 | A8 | `resource_misconceptions` | siempre | plan genérico por estructura |
 | A9 | `test_configs` | si es rendible | **ítems inalcanzables** |
+| A10 | `historical_*` | **siempre** | ⭐ fuera de la línea del tiempo, en silencio |
 | B1 | `topics/module-slugs` | **slug nuevo** | ⭐ `unknown/*`, plan sin personalizar |
 | B2 | `explicit-topic->module-slug` | topic ≠ sufijo | ídem B1 |
 | B3 | `bands/product-tracks` | track del producto | mueve las bandas de los 26 |

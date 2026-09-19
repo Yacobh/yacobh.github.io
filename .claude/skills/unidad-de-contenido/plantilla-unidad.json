@@ -16,6 +16,20 @@
   "items_objetivo": 18,
   "_items_objetivo": "Mínimo 6 por cada tramo de 1,0 logit dentro de la banda. Una banda de 1,4 logits pide ~9; una de 2,4 pide ~15.",
 
+  "historia": {
+    "year": -300,
+    "_year": "Entero con signo, negativo = a.C. (042 eligió entero sobre `date`: estas fechas no tienen día ni mes y varias son aproximadas por siglo). NULL ES VÁLIDO y entonces la unidad NO aparece en la línea del tiempo — `timeline/milestones` la descarta en silencio. Si va null, llená `sin_year_porque`.",
+    "era": "antiguedad",
+    "_era": "antiguedad (..500) | medieval (501..1400) | renacimiento (1401..1650) | moderna (1651..1899) | contemporanea (1900..). Redundante con el año a propósito: 042 la guarda para que el criterio de corte viva en el DATO y no en el cliente. El corte 1900 es el cuanto de Planck. Si no coincide con el año, el insert falla con 23514.",
+    "figure": "Euclides",
+    "_figure": "Persona u obra a la que se atribuye el hito. SE LE MUESTRA AL ESTUDIANTE (comentario de la columna en 042). Es también el lugar donde colgarían los personajes si se hace T-139.",
+    "blurb": "…",
+    "_blurb": "`modules.historical_blurb`, existe desde 002. Es EL CONTENIDO de la línea del tiempo: un hito con año y sin blurb es una tarjeta vacía. 042 existe justamente porque había 35 módulos con blurb escrito que ningún usuario veía nunca.",
+    "sin_year_porque": null,
+    "_sin_year_porque": "Obligatorio SOLO si `year` es null. Quedar fuera de la línea es una decisión legítima —inventar una fecha es peor—, pero tiene que ser dicha y no un campo que nadie llenó. Mismo criterio que `rendible: false`."
+  },
+  "_historia": "A10 del mapa. Las cuatro columnas son nullable, así que la unidad entra igual y queda fuera de la línea del tiempo sin que nada avise. Es el mismo modo de fallo que B1 (probabilidad), y se escapó del propio mapa hasta el 2026-09-18.",
+
   "rendible": true,
   "_rendible": "DECIDIDO 2026-09-17: toda unidad nueva nace rendible. El eje queda como ubicador (12 ítems, «¿dónde estoy?») y el módulo es un test corto dentro de su banda. false solo para una unidad que a propósito se rinde dentro del test de su eje — que es el estado heredado de las 26 de hoy, no el objetivo. OJO: next_question filtra `where q.topic = p_topic` y NO por módulo, así que esto pide ADR-038 (ver las-tablas-y-su-sentido.md §5). Hasta entonces la migración de test_configs se deja escrita y SIN aplicar, anotada como ⏳ en SCHEMA.md.",
 

@@ -217,7 +217,8 @@ Es un **trinquete**, igual que los seis auditores del repo: sale con código 1 s
 algo falla. Chequea lo que ningún ojo detecta leyendo — banda fuera de `[-3,3]`,
 cobertura con huecos, prerrequisito que apunta a un módulo inexistente, ciclo en
 el grafo, idea errónea sin recurso que la ataque, slug que no cumple el check de
-`027`, y **los lugares del cliente que faltan**.
+`027`, **año y era que se contradicen** (y el módulo que se cae de la línea del
+tiempo sin decir por qué), y **los lugares del cliente que faltan**.
 
 ## Paso 7 — Recorrer el mapa
 

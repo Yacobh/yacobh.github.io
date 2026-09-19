@@ -3,6 +3,7 @@
    [re-frame.core :as re-frame]
    [reagent.core :as r]
    [universo.irt.fluency :as fluency]
+   [universo.plan :as plan]
    [universo.profile :as profile]
    [universo.components.math-render :as math]
    [universo.components.ui :as ui]))
@@ -178,6 +179,7 @@
             loading? @(re-frame/subscribe [:plan/loading?])
             layer0 @(re-frame/subscribe [:plan/layer0])
             deficits @(re-frame/subscribe [:plan/deficits])
+            module-titles @(re-frame/subscribe [:plan/module-titles])
             {resources :resources resources-kind :kind} @(re-frame/subscribe [:plan/resources])
             personalized? (= :personalized resources-kind)
             error @(re-frame/subscribe [:plan/error])
@@ -235,10 +237,24 @@
                 [:ul.space-y-2
                  (for [d deficits]
                    ^{:key (:module-slug d)}
-                   [:li.flex.justify-between.text-sm.border-b.border-gray-100.py-2
-                    [:span.font-medium.text-gray-800 (:module-slug d)]
-                    [:span.text-red-600
-                     (str (:errors d) "/" (:total d) " errores")]])]])
+                   ;; Acá se leía `(:module-slug d)` crudo: el estudiante veía
+                   ;; `aritmetica/operaciones_fundamentales` en el momento en que
+                   ;; el producto entrega lo que prometió. El título real ya
+                   ;; viajaba en el join de los recursos.
+                   (let [{:keys [texto mapeado?]}
+                         (plan/deficit-label (:module-slug d) module-titles)]
+                     [:li.flex.justify-between.items-baseline.gap-3.text-sm.border-b.border-gray-100.py-2
+                      [:span.min-w-0
+                       [:span.font-medium.text-gray-800 texto]
+                       ;; `unknown/<topic>`: falló en ítems que no se pudieron
+                       ;; ubicar en un módulo (T-51, T-60). Decirlo es la misma
+                       ;; regla que `:kind :general` de `universo.plan` — no
+                       ;; presentar como diagnosticado lo que no lo está.
+                       (when-not mapeado?
+                         [:span.block.text-xs.text-gray-500.mt-0.5
+                          "Tema general: estos errores no se pudieron ubicar en un contenido concreto."])]
+                      [:span.text-red-600.flex-none.tabular-nums
+                       (str (:errors d) "/" (:total d) " errores")]]))]])
 
              [:div.bg-white.rounded-xl.shadow.p-6
               [:h2.text-lg.font-bold.text-gray-800.mb-3 "Desde tu diagnóstico"]

@@ -216,12 +216,15 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
   `.visor`, `.grabado`) se reutilizan en vez de rehacerse con utilidades sueltas (ADR-023), y el
   fondo de página es `.fondo-graticule` (ADR-031).
 - **Un contenido nuevo entra por la skill `unidad-de-contenido`**, que es la capa de arriba de
-  `banco-de-items`. Una unidad es una fila de `modules`, y **toca 18 lugares**, de los cuales solo
-  uno falla ruidosamente: todos los demás quedan en silencio. El eje de probabilidad se dio de alta
-  con la migración perfecta y los seis auditores en verde, y nadie agregó sus slugs a
-  `universo.topics/module-slugs` — sus 102 ítems **no pueden producir un plan personalizado**. El
-  mapa está en `.claude/skills/unidad-de-contenido/referencias/mapa-de-la-unidad.md`, **se
-  re-verifica con `grep` cada vez** (L-22) y lo hace cumplir `scripts/verificar_unidad.py`.
+  `banco-de-items`. Una unidad es una fila de `modules`, y **toca 19 lugares**, de los cuales solo
+  uno falla ruidosamente al omitirlo: todos los demás quedan en silencio. El eje de probabilidad se
+  dio de alta con la migración perfecta y los seis auditores en verde, y nadie agregó sus slugs a
+  `universo.topics/module-slugs` — sus 102 ítems **no pueden producir un plan personalizado**. Y el
+  lugar 19 (`modules.historical_*`, A10) faltaba **en el propio mapa** hasta el 2026-09-18: `042`
+  es la única migración que escribe `historical_year` y puebla 20 slugs, así que **33 de 53 módulos
+  están fuera de la línea del tiempo**. El mapa está en
+  `.claude/skills/unidad-de-contenido/referencias/mapa-de-la-unidad.md`, **se re-verifica con
+  `grep` cada vez** (L-22) y lo hace cumplir `scripts/verificar_unidad.py`.
 - **Los ítems nuevos entran por la skill `banco-de-items`**, no a mano. El JSON de la tanda es la
   fuente de verdad y el `.sql` es un artefacto generado: se corrige el JSON, se vuelve a verificar
   y se regenera. `scripts/verificar_items.py` es el sexto auditor y el único que mira contenido —

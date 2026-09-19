@@ -19,7 +19,9 @@
 (def ^:private steps
   [{:n "1"
     :title "Diagnóstico adaptativo"
-    :time "~20 min"
+    ;; Medido, no prometido: T-141, 17 intentos reales, mediana 5,8 min.
+    ;; El copy anterior decía "~20 min" y no salía de ninguna medición.
+    :time "~6 min"
     :body "Respondes preguntas que se ajustan a tu nivel en tiempo real. No pierdes tiempo en lo que ya dominas ni te frustras con lo que aún no."}
    {:n "2"
     :title "Tu perfil real"
@@ -52,7 +54,7 @@
   [{:q "¿Cuánto cuesta?"
     :a "El diagnóstico, tu perfil y el plan de estudio no tienen costo. Es un proyecto personal del profesor Jacobo Córdova. Las clases de los grupos tienen un valor de $10.000 por hora; la primera videollamada después del diagnóstico es gratuita."}
    {:q "¿Qué necesito para empezar?"
-    :a "Solo una cuenta con tu correo. El diagnóstico se hace desde el navegador, en computador o teléfono, y toma alrededor de 20 minutos."}
+    :a "Solo una cuenta con tu correo. El diagnóstico se hace desde el navegador, en computador o teléfono. La mitad de quienes lo han rendido terminó en menos de 6 minutos, y el más largo tardó 17: son entre 5 y 12 preguntas, y se detiene apenas queda claro dónde estás."}
    ;; Responde la objeción de fondo al producto: «¿para qué medir, si puedo preguntar?».
    ;; No es una hipótesis de marketing — es la crítica que el sistema recibió en 2011 y que
    ;; sigue siendo la primera que se hace cualquiera. Ver BACKLOG T-75 y OPEN_QUESTIONS Q-31.
@@ -100,7 +102,20 @@
 ;; -----------------------------------------------------------------------------
 
 (defn- profile-preview
-  "Muestra la salida real del producto (perfil θ + déficits) como demostración."
+  "La salida real del producto (perfil θ + déficits) como demostración.
+
+   ⚠️ **Esta función decía lo mismo y no era cierto** (corregido 2026-09-18).
+   Mostraba «Qué corregir primero» con porcentajes decrecientes —72 %, 54 %,
+   38 %— y títulos inventados. Lo que «Mi plan» entrega de verdad es otra cosa:
+   el encabezado es «Dónde necesitas ayuda» y la cifra a la derecha es un conteo
+   de errores sobre intentos (`components/plan.cljs`), porque un diagnóstico
+   adaptativo sirve entre 5 y 12 ítems y un porcentaje sobre tres respuestas
+   sugeriría una precisión que no existe.
+
+   Una demo que promete una pantalla distinta de la que se entrega es una
+   promesa incumplida en el primer minuto del producto. Si `plan.cljs` cambia,
+   esto cambia con él — igual que `resource-card`, que el panel admin reusa por
+   la misma razón."
   []
   [:div {:class "relative"}
    [:div {:class "relative rounded border border-gray-300 bg-white p-6"}
@@ -112,26 +127,28 @@
 
     [:div {:class "mt-5"}
      [:div {:class "flex items-baseline gap-2"}
+      ;; θ = 0,42 cae en «básico» por `profile/theta-band` (>= 0.0 y < 1.0).
+      ;; Los cuatro cortes son -3 · 0 · 1 · 2 · 3, así que la barra va en el
+      ;; punto que le corresponde al valor y no en uno elegido a ojo.
       [:span {:class "text-4xl font-bold text-gray-900"} "θ = 0,42"]
       [:span {:class "text-sm text-gray-500"} "nivel estimado"]]
      [:div {:class "mt-3 h-2.5 w-full overflow-hidden rounded-full bg-gray-100"}
       [:div {:class "h-full rounded-full bg-senal-400"
-             :style {:width "46%"}}]]
+             :style {:width "57%"}}]]
      [:div {:class "mt-1.5 flex justify-between text-xs text-gray-400"}
       [:span "inicial"] [:span "básico"] [:span "intermedio"] [:span "avanzado"]]]
 
     [:div {:class "mt-6"}
-     [:p {:class "text-sm font-semibold text-gray-700"} "Qué corregir primero"]
+     ;; Mismo encabezado y mismo formato de cifra que `plan.cljs`.
+     [:p {:class "text-sm font-semibold text-gray-700"} "Dónde necesitas ayuda"]
      [:ul {:class "mt-3 space-y-2.5"}
-      (for [[label pct] [["Fracciones y proporciones" "72%"]
-                         ["Factorización" "54%"]
-                         ["Ecuación de la recta" "38%"]]]
+      (for [[label errores] [["Números enteros" "3/4 errores"]
+                             ["Polinomios" "2/3 errores"]
+                             ["Ecuación de la recta" "1/2 errores"]]]
         ^{:key label}
-        [:li {:class "flex items-center gap-3"}
-         [:span {:class "flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-700"}
-          "!"]
-         [:span {:class "flex-1 text-sm text-gray-700"} label]
-         [:span {:class "text-xs font-medium text-gray-400"} pct]])]]
+        [:li {:class "flex items-baseline justify-between gap-3 border-b border-gray-100 pb-2"}
+         [:span {:class "min-w-0 text-sm font-medium text-gray-700"} label]
+         [:span {:class "flex-none text-xs font-medium tabular-nums text-gray-500"} errores]])]]
 
     [:p {:class "mt-6 border-t border-gray-100 pt-4 text-xs leading-relaxed text-gray-400"}
      "Datos de demostración. Tu perfil se calcula con tus propias respuestas."]]])
@@ -169,7 +186,7 @@
 
       [:dl {:class "mt-10 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4"}
        (for [[k v] [["Sin costo" "Diagnóstico y plan"]
-                    ["~20 min" "Dura el diagnóstico"]
+                    ["~6 min" "Dura el diagnóstico"]
                     ["Online" "y presencial en Iquique"]
                     ["Método IRT" "Psicometría aplicada"]]]
          ^{:key k}
@@ -381,7 +398,7 @@
     [:h2 {:class "text-3xl font-bold tracking-tight text-white sm:text-4xl"}
      "Descubre hoy qué te está frenando"]
     [:p {:class "mx-auto mt-4 max-w-xl text-lg leading-relaxed text-indigo-100"}
-     "Veinte minutos de diagnóstico y sabrás exactamente en qué concentrar tu estudio. Sin costo y sin compromiso."]
+     "Unos seis minutos de diagnóstico y sabrás exactamente en qué concentrar tu estudio. Sin costo y sin compromiso."]
     [:div {:class "mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"}
      [:button
       {:type "button"

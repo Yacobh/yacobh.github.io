@@ -97,7 +97,11 @@ BASE = {
     "login.cljs": 4,
     "contacto.cljs": 4,
     "admin_test_configs.cljs": 4,
-    "landing.cljs": 3,
+    # 3 → 1 el 2026-09-18: el perfil de ejemplo del hero usaba `bg-amber-100` y
+    # `text-amber-700` para los círculos «!» de «Qué corregir primero». Esa
+    # sección no existe más — no por el color, sino porque prometía una pantalla
+    # distinta de la que «Mi plan» entrega.
+    "landing.cljs": 1,
     "admin_catalog.cljs": 3,
     "ui.cljs": 2,
     "resume.cljs": 2,

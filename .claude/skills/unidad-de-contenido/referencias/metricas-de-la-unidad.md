@@ -233,6 +233,51 @@ resuelve nada. Si el topic es un **banco de eje que abarca varios módulos**, lo
 correcto es `catch-all-topics` — `nil` como decisión escrita, en vez de
 inventarle un módulo. Eso fue lo que realmente cerró T-152.
 
+### M12 · Ningún módulo caído de la línea del tiempo
+
+```sql
+select track,
+       count(*)                                          as modulos,
+       count(*) filter (where historical_year is null)   as sin_year,
+       count(*) filter (where historical_blurb is null
+                           or btrim(historical_blurb) = '') as sin_blurb,
+       count(*) filter (where historical_figure is null) as sin_figura
+  from public.modules
+ group by track
+ order by sin_year desc, track;
+```
+**Esperado: `sin_year` = 0, o cada caso explicado.** `timeline/milestones`
+descarta el módulo sin año y no avisa: ese número **es** cuánto de la línea del
+tiempo está vacía. Un `sin_blurb` con año es peor todavía — hito en la línea con
+la tarjeta en blanco.
+
+La fila incoherente no puede existir (`modules_historical_era_coherente` la
+rechaza con 23514), así que no hay métrica para eso: lo impide el esquema.
+
+> ⚠️ **El resultado ya se puede anticipar desde el historial de migraciones, y
+> es malo** (2026-09-18). `042` es la **única** migración del repo que menciona
+> `historical_year` — verificado con
+> `grep -ln "historical_year" supabase/migrations/*.sql` — y puebla
+> **exactamente 20 slugs**: los 7 de `aritmetica`, 6 de `algebra` y 7 de
+> `geometria`. Como ninguna migración posterior la toca:
+>
+> | módulos | año | en la línea |
+> |---|---|---|
+> | 20 PAES (`002`) | sí, los pone `042` | **sí** |
+> | 15 `cuantica` (`033`) | no | no |
+> | 6 `probabilidad` (`055`) | no | no |
+> | 12 `electrotecnia` (`062`) | no | no |
+>
+> **33 de 53 módulos están fuera de la línea del tiempo**, y 6 de ellos son del
+> producto. Lo más llamativo es cuántica: el propio preámbulo de `042` dice que
+> existen *«20 módulos PAES **y 15 de cuántica** con contexto histórico
+> escrito»* y después **no le da año a ninguno de los 15**. El blurb está
+> escrito, pagado y sigue sin verse — que es literalmente el problema que `042`
+> venía a resolver.
+>
+> Corré la consulta igual: confirma el conteo contra la base en vez de contra el
+> `grep`, y es la línea base de la que falta.
+
 ---
 
 ## 2. Métricas de salud — después de que alguien la rinda

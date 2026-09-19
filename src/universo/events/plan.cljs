@@ -18,6 +18,18 @@
     (get-in db [:student-profile :profile :deficits] []))))
 
 (re-frame/reg-sub
+ :plan/module-titles
+ ;; Índice `slug -> title` para no mostrarle al estudiante el identificador de la
+ ;; base. Se arma de las filas **crudas** —no de `:plan/resources`, que ya está
+ ;; filtrado por sus déficits— porque un módulo puede tener material publicado y
+ ;; aun así no estar entre los suyos, y el título sirve igual.
+ ;;
+ ;; No hay consulta nueva: `crud/fetch-published-resources` ya selecciona
+ ;; `modules(slug, title, track)`.
+ (fn [db _]
+   (plan/module-titles (get-in db [:plan :resources] []))))
+
+(re-frame/reg-sub
  :plan/loading?
  (fn [db _]
    (get-in db [:plan :loading?] false)))

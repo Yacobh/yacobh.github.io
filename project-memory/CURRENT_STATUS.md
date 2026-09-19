@@ -169,8 +169,8 @@
 > durante veinte días**. La P0 que encabezaba el backlog no existía.
 >
 > 🆕 **Skill `unidad-de-contenido`** — la capa de arriba de `banco-de-items`, que solo cubre ítems.
-> Una unidad es una fila de `modules` y toca **18 lugares**, de los cuales **solo uno falla
-> ruidosamente**. Su verificador (`scripts/verificar_unidad.py`, séptimo auditor) **lee el código en
+> Una unidad es una fila de `modules` y toca **19 lugares** (A10 se agregó el 2026-09-18), de los
+> cuales **solo uno falla ruidosamente** al omitirlo. Su verificador (`scripts/verificar_unidad.py`, séptimo auditor) **lee el código en
 > vez de copiarlo**, y al primer uso real reprodujo el defecto de probabilidad **y encontró un bug
 > propio** (el regex de slug aceptaba `_` pero no `-`, y `probabilidad/tendencia-central` es real).
 >

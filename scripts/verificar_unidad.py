@@ -2,8 +2,9 @@
 """Verifica una unidad de contenido antes de que llegue a la base.
 
 El séptimo auditor del repo. `verificar_items.py` mira los ítems de una tanda;
-éste mira **la unidad entera**: módulo, banda, prerrequisitos, ideas erróneas,
-recursos y test_config, más los lugares del cliente que ninguna migración toca.
+éste mira **la unidad entera**: módulo, banda, historia, prerrequisitos, ideas
+erróneas, recursos y test_config, más los lugares del cliente que ninguna
+migración toca.
 
 Existe por un defecto concreto y medido (2026-09-17): el eje de probabilidad se
 dio de alta con su migración perfecta, sus 102 ítems verificados y los seis
@@ -18,6 +19,12 @@ cadena, verificada en el código:
       -> plan/resources-for-deficits no cruza -> {:kind :general}
 
 Los 102 ítems no pueden producir un plan personalizado. Nada falló. Nada avisó.
+
+El mismo modo de fallo, encontrado el 2026-09-18 **dentro del mapa que existe
+para prevenirlo**: el mapa listaba `historical_blurb` y no las tres columnas que
+`042` agregó para poder mostrarlo (`historical_year`, `historical_era`,
+`historical_figure`). `timeline/milestones` descarta el módulo sin año, en
+silencio, y la unidad nunca aparece en la línea del tiempo.
 
 Uso:
     python3 scripts/verificar_unidad.py contenido/unidades/enteros.json
@@ -118,6 +125,71 @@ def tracks_del_check_sql():
     return tracks, origen
 
 
+# Espejo del `case` de `universo.timeline/eras`, que a su vez es espejo del check
+# de 042. Solo para nombrar la era esperada en el mensaje de error; el
+# vocabulario y los cortes se LEEN del SQL, igual que los tracks.
+_RANGO_RE = re.compile(
+    r"historical_era\s*=\s*'([a-z]+)'\s*and\s*historical_year\s*"
+    r"(?:<=\s*(-?\d+)|between\s*(-?\d+)\s*and\s*(-?\d+)|>=\s*(-?\d+))",
+    re.I | re.S,
+)
+
+
+def eras_del_check_sql():
+    """El vocabulario de `historical_era` y los cortes año ↔ era, leídos de la
+    migración que los define (`042`).
+
+    Se leen y no se copian por la misma razón que `tracks_del_check_sql`: un
+    espejo escrito de memoria repite la suposición en vez de contradecirla
+    (L-59). Los cortes son convenciones —lo dice la propia migración—, así que
+    copiarlos acá sería fijarlos dos veces y que una de las dos envejezca.
+
+    Devuelve `({era: (desde, hasta)}, origen)` con `None` en los extremos
+    abiertos, o `(None, None)` si no se pudo leer.
+    """
+    mig = sorted((RAIZ / "supabase" / "migrations").glob("*.sql"))
+    vocabulario, rangos, origen = None, {}, None
+    for ruta in mig:
+        try:
+            texto = ruta.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        for m in re.finditer(
+            r"add\s+constraint\s+modules_historical_era_valida\s+check\s*\((.*?)\)\s*;",
+            texto, re.I | re.S,
+        ):
+            encontrados = set(re.findall(r"'([a-z]+)'", m.group(1)))
+            if encontrados:
+                vocabulario, origen = encontrados, ruta.name
+        for m in re.finditer(
+            r"add\s+constraint\s+modules_historical_era_coherente\s+check\s*\((.*?)\)\s*;",
+            texto, re.I | re.S,
+        ):
+            encontrados = {}
+            for era, hasta, desde_e, hasta_e, desde in _RANGO_RE.findall(m.group(1)):
+                if hasta:
+                    encontrados[era] = (None, int(hasta))
+                elif desde_e and hasta_e:
+                    encontrados[era] = (int(desde_e), int(hasta_e))
+                elif desde:
+                    encontrados[era] = (int(desde), None)
+            if encontrados:
+                rangos, origen = encontrados, ruta.name
+    if vocabulario is None:
+        return None, None
+    # Una era admitida por el vocabulario y sin rango declarado queda abierta:
+    # el check no la contradice, así que este auditor tampoco.
+    return {e: rangos.get(e, (None, None)) for e in vocabulario}, origen
+
+
+def era_esperada(year, eras):
+    """La era que le corresponde a un año según los cortes leídos del SQL."""
+    for era, (desde, hasta) in eras.items():
+        if (desde is None or year >= desde) and (hasta is None or year <= hasta):
+            return era
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Chequeos
 # ---------------------------------------------------------------------------
@@ -201,6 +273,106 @@ def revisar_banda(u, inf):
             f"{MIN_POR_TRAMO}: hacen falta ~{minimo}. Un tramo vacío es un test que para por :exhausted",
         )
     return banda
+
+
+def revisar_historia(u, inf):
+    """A10 del mapa: las cuatro columnas de `042`, y la línea del tiempo.
+
+    Ninguna es `not null`, así que la unidad entra igual —y queda **fuera de la
+    línea del tiempo sin que nada avise**. `timeline/milestones` lo dice en una
+    línea: «Un módulo sin año queda fuera». Es el mismo modo de fallo que B1, y
+    se escapó del mapa hasta el 2026-09-18: el mapa listaba `historical_blurb`
+    y no las tres columnas que `042` agregó para poder mostrarlo.
+    """
+    if "historia" not in u:
+        inf.error(
+            "historia",
+            "falta el bloque `historia`. Las cuatro columnas de `042` son nullable a "
+            "propósito —inventarle una fecha a un módulo es peor que dejarlo fuera— pero "
+            "la decisión SÍ es obligatoria. Sin año, `timeline/milestones` descarta la "
+            "unidad y el estudiante nunca la ve en la línea del tiempo. Nada falla, nada avisa",
+        )
+        return
+
+    h = _campos(u.get("historia") or {})
+    year = h.get("year")
+    era = h.get("era")
+    blurb = (h.get("blurb") or "").strip()
+    figure = (h.get("figure") or "").strip()
+
+    if year is None:
+        if not (h.get("sin_year_porque") or "").strip():
+            inf.error(
+                "historia.year",
+                "`year` es null y no hay `sin_year_porque`. Quedar fuera de la línea del "
+                "tiempo es válido —042 dejó la columna nullable justamente para eso—, pero "
+                "tiene que ser una decisión dicha y no un campo que nadie llenó",
+            )
+        else:
+            inf.aviso(
+                "historia.year",
+                "sin año: la unidad NO va a aparecer en la línea del tiempo del tablero. "
+                "Está dicho, así que pasa",
+            )
+        if blurb:
+            inf.aviso(
+                "historia.blurb",
+                "hay `blurb` pero no `year`: hoy el blurb solo se lee desde la línea del "
+                "tiempo (`timeline/milestone-of`), así que no lo va a ver nadie",
+            )
+        return
+
+    if not isinstance(year, int) or isinstance(year, bool):
+        inf.error("historia.year", f"«{year}» no es un entero. Negativo = a.C. (042 eligió "
+                                   "entero sobre `date` porque estas fechas no tienen día ni mes)")
+        return
+    if year == 0:
+        inf.aviso("historia.year", "no existe el año 0 en la convención a.C./d.C.: "
+                                   "el check del SQL lo acepta, pero probablemente sea un error")
+
+    eras, origen = eras_del_check_sql()
+    if eras is None:
+        inf.aviso("historia.era", "no se pudo leer `modules_historical_era_valida` de las "
+                                  "migraciones: verificá la era a mano contra 042")
+    elif era is None:
+        esperada = era_esperada(year, eras)
+        inf.aviso(
+            "historia.era",
+            f"sin `era`. El cliente la deriva del año (`timeline/era-of` daría «{esperada}»), "
+            "pero 042 la guarda a propósito: el criterio de corte vive en el dato, no en el "
+            "código. Dejarla null mueve esa decisión al cliente",
+        )
+    elif era not in eras:
+        inf.error(
+            "historia.era",
+            f"«{era}» no está en `modules_historical_era_valida` ({origen}, admite "
+            f"{sorted(eras)}). El insert falla con 23514",
+        )
+    else:
+        esperada = era_esperada(year, eras)
+        if esperada and esperada != era:
+            desde, hasta = eras[era]
+            rango = f"[{desde if desde is not None else '…'}, {hasta if hasta is not None else '…'}]"
+            inf.error(
+                "historia.era",
+                f"el año {year} no cae en «{era}» {rango}: le corresponde «{esperada}». "
+                f"Lo impide `modules_historical_era_coherente` ({origen}) con un 23514",
+            )
+
+    if not blurb:
+        inf.error(
+            "historia.blurb",
+            "hay `year` pero no `blurb`: la unidad entra a la línea del tiempo como un hito "
+            "sin nada que contar. El blurb ES el contenido de la línea — 042 existe porque "
+            "había 35 módulos con blurb escrito que nadie veía",
+        )
+    if not figure:
+        inf.aviso(
+            "historia.figure",
+            "sin `figure`. Es la persona u obra a la que se atribuye el hito y se muestra "
+            "al estudiante (comentario de la columna en 042); además es el lugar donde "
+            "colgarían los personajes si se hace T-139",
+        )
 
 
 def revisar_camino(u, inf):
@@ -431,6 +603,7 @@ def revisar_unidad(u, inf):
     u = _campos(u)
     revisar_identidad(u, inf)
     revisar_banda(u, inf)
+    revisar_historia(u, inf)
     revisar_camino(u, inf)
     revisar_error_y_material(u, inf)
     revisar_test_config(u, inf)
