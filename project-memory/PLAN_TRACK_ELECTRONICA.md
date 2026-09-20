@@ -119,6 +119,27 @@ electronica_notacion   (sin prerrequisito)   ← la puerta de entrada
 que el esquema permite hoy. Y tiene una ventaja práctica: **un alumno trabado en Ohm igual puede
 avanzar en capacitores**, en vez de quedarse sin nada que rendir.
 
+### Convenciones de escritura (decididas 2026-09-19)
+
+| Convención | Estado |
+|---|---|
+| Decimal **con coma** (`2,2 kΩ`) | ✅ decidida |
+| Resultados **siempre con unidad y prefijo** del taller (mA, kΩ, µF), nunca en unidades base | ✅ decidida — es lo que hace que notación científica sea prerrequisito real y no decorativo |
+| Kirchhoff: **sentido de malla horario** fijo en todos los ítems | ✅ decidida — así el error de signo es diagnosticable en vez de ambiguo |
+| **«tensión»/«corriente»** vs «voltaje»/«intensidad» | ⏳ **sin decidir.** El borrador de T-155 usa las primeras **como supuesto**. Hay que cerrarlo antes de los ítems: un distractor que falla por vocabulario y no por física hace que el mapa de errores mienta |
+
+### `min_theta`: el centro de la banda del prerrequisito
+
+Decidido el 2026-09-19, **en contra del default**: los cuatro ejes del producto usan `null` —basta
+*haber rendido*— y acá la cadena exige alcanzar el centro de la banda previa.
+
+⚠️ **Con una salvedad que hay que resolver al escribir `077`.** El centro de `notacion_cientifica`
+es **−2,4** y el estimador **clampea en −3,0**; **R-44** midió dos de doce estudiantes reales
+clavados en −3,00 **habiendo trabajado**. Ese alumno no abriría ningún módulo. Lo acota que
+`notacion_cientifica` no tiene prerrequisito y que el desbloqueo mira el **máximo** histórico —puede
+reintentar—, pero se queda con **una sola** cosa que hacer. **Recomendación: ≈ −2,7 para las dos
+aristas que salen de la raíz, y el centro para las demás.**
+
 ### Por qué un `topic` por módulo, y no un banco de eje
 
 **ADR-038 («el módulo es rendible») está aprobado y sin implementar** (T-149). Con el esquema de hoy
@@ -270,8 +291,11 @@ destinatario, deja de ser un problema de higiene. Es **T-159**.
 
 ## 7. Orden de trabajo
 
-1. **T-155** — **Catalogar los errores reales del curso.** Lo único que nadie más puede hacer, y el
-   insumo de todo lo demás. *Bloquea T-158.*
+1. ⏳ **T-155** — **Catalogar los errores reales del curso.** Lo único que nadie más puede hacer, y
+   el insumo de todo lo demás. *Bloquea T-158.*
+   **Borrador entregado el 2026-09-19**: `contenido/unidades/electronica_errores_para_revisar.md`,
+   31 hipótesis con su `cuándo SÍ / cuándo NO`, para tachar y corregir. **Ninguna es un dato hasta
+   que el owner la marque.**
 2. ✅ **T-156** — `071`: track, cinco módulos con banda explícita, `historical_*`, prerrequisitos.
    **Escrita y verificada contra PostgreSQL 17.11 el 2026-09-19. Falta aplicarla.**
 3. ✅ **T-157** — B1 + B2 en `universo.topics`, test (`t-156-los-cinco-modulos-de-electronica`),

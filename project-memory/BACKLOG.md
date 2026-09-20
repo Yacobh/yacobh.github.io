@@ -4309,7 +4309,7 @@ vez impresas las 100 tarjetas y el afiche, la etiqueta no se corrige.
 > ⚠️ **R-28: son menores.** No hace falta contrato —es su propio curso— pero el dato es el mismo:
 > **T-07 (respaldo) deja de ser higiene** y pasa a ser lo mínimo antes de que el curso rinda.
 
-### T-155 · Catalogar los errores reales del curso — **P0** · `abierto`
+### T-155 · Catalogar los errores reales del curso — **P0** · `a medias` — borrador entregado, falta la corrección del owner
 
 **Lo único que nadie más que el owner puede producir** —ni el agente ni un libro—: la lista de
 errores que de verdad comete este curso en continua. Es el insumo directo de `misconceptions` (A5) y
@@ -4322,6 +4322,34 @@ de las cuatro `error_*` de cada ítem, y decide cuántos ítems merece cada mód
 - **Terminado cuando:** hay una lista de errores con nombre, cada uno atribuible a un módulo, y
   ninguno inventado.
 - *Bloquea **T-158**.*
+
+⏳ **Borrador entregado el 2026-09-19:** `contenido/unidades/electronica_errores_para_revisar.md`,
+**31 hipótesis** repartidas 6/6/6/7/6 entre los cinco módulos, con `slug`, `name` y el `cuándo SÍ /
+cuándo NO` que pide el contrato de `027`. Los 31 slugs **verificados contra el check de `027`**: 0
+duplicados, 0 inválidos.
+
+⛔ **Ninguna es un dato todavía.** Son hipótesis del agente, y F4 exige errores **vistos en el
+aula**. El archivo trae una columna `¿lo ves?` y la regla está escrita arriba de todo: **solo los
+`SÍ` entran**, y **no marcado no es aprobado**.
+
+**La sección que importa del archivo es «Los que me faltaron»** — es la única parte que no puede
+salir de ningún libro.
+
+**Dos preguntas que el borrador abre y no puede responder:**
+
+1. **¿Hay errores que son de aritmética y no de electrónica?** Si fallan en dividir 12 entre 0,002
+   más que en entender la ley de Ohm, el módulo que falta no es de este track: es
+   `aritmetica/operaciones_fundamentales`, que ya existe con banda `[-2,7 · -1,3]` y ocho ítems
+   desde `068`. Saberlo **antes** de escribir 60 ítems que midan otra cosa.
+2. **¿Fallan leyendo el circuito?** Si no distinguen serie de paralelo *mirando el dibujo*, eso no
+   es Ohm ni Kirchhoff: es un sexto módulo que el plan no tiene, y es el hueco más plausible entre
+   `ley_de_ohm` y `leyes_de_kirchhoff`.
+
+⚠️ **Un supuesto declarado y sin confirmar:** el borrador usa **«tensión»** y **«corriente»**. El
+owner eligió las otras tres convenciones (decimal con coma, siempre con unidad y prefijo, malla
+horaria) y **no marcó ésta**, así que queda por decidir. Es un reemplazo mecánico, pero hay que
+decidirlo **antes** de los ítems: un distractor que falla por vocabulario y no por física hace que
+el mapa de errores mienta.
 
 ### T-156 · `071` — track, cinco módulos y prerrequisitos — **P1** · ✅ `ESCRITA Y VERIFICADA` (2026-09-19) · ⏳ sin aplicar
 
@@ -4399,6 +4427,24 @@ Es **R-42**, y `077` es la migración que lo enciende, así que es el punto natu
   igual con el número a la vista.
 
 ### T-160 · `077` — `test_configs` con la cadena — **P1** · `abierto` · bloqueada por T-158 y T-159
+
+⚠️ **`min_theta` decidido el 2026-09-19: el centro de la banda del prerrequisito** (no `null`, que
+es lo que hacen los cuatro ejes del producto). Abrir `ley_de_ohm` pide θ ≥ −2,4 en
+`notacion_cientifica`, y así sucesivamente.
+
+**Riesgo que hay que mirar al escribir `077`, con la aritmética a la vista:** el centro de la banda
+de `notacion_cientifica` es **−2,4** y el estimador **clampea en −3,0**. **R-44** midió que dos de
+doce estudiantes reales quedaron clavados en −3,00 exacto **habiendo trabajado** (uno rindió 12
+ítems en 16,5 minutos). Un alumno así no alcanza −2,4 y **no abre ningún otro módulo** — en un curso
+correctivo eso es lo contrario de lo que se busca.
+
+Lo que **sí** lo acota, y conviene que esté escrito: `notacion_cientifica` **no tiene
+prerrequisito**, así que siempre está disponible para volver a rendirla, y `access/best-theta-by-topic`
+toma el **máximo** histórico. Nadie queda sin nada que hacer; queda con **una sola** cosa que hacer.
+
+**Recomendación al escribir `077`:** para las dos aristas que salen de `notacion_cientifica` usar un
+umbral más blando que el centro (≈ **−2,7**, el tercio inferior), y el centro para las demás. Es la
+diferencia entre «no automatizó los prefijos» y «el motor no lo pudo medir».
 
 Cinco filas encadenadas por `prerequisite_topic`, con la **guarda de `065`**: se niega si algún banco
 no llega a 20 ítems activos. Una config sin banco deja al estudiante sin preguntas a mitad del
