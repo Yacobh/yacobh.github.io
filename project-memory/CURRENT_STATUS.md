@@ -15,6 +15,7 @@
 > | `071` | track, 5 módulos con banda explícita y las **cuatro** columnas históricas, 4 prerrequisitos |
 > | `072`…`076` | los cinco bancos, **16 ítems por módulo** (80), un `topic` por módulo (patrón de `cuantica`) |
 > | `077` | las cinco `test_configs` encadenadas, con **`initial_theta` explícito** |
+> | `078` | 10 recursos (`published = false`) **y las primeras 60 filas de `resource_misconceptions`** |
 > | cliente | los cinco slugs en `universo.topics`, con test y bundle |
 >
 > **Los nueve controles del banco en verde**, sobre los 80: 0 sin módulo, 0 sin diagnosticar, 0 con idea errónea en
@@ -62,6 +63,20 @@
 > mismo `initial_theta`, así que el primer ítem tiende a repetirse— y el problema es de **todo** el
 > banco, no solo de electrónica. El arreglo de fondo —que `next_question` excluya lo respondido en
 > intentos anteriores del mismo topic— va con T-149.
+>
+> ⭐ **`078` hizo algo que ninguna migración había hecho: escribir en `resource_misconceptions`.**
+> `045` creó esa tabla y llevaba **un año con cero filas** — es el lugar A8 del mapa de la unidad, y
+> sin él la capa 1 de «Mi plan» es genérica **por estructura**. Ahora tiene **60 filas** que cubren
+> las 30 ideas erróneas del track: `rank = 1` al recurso que ataca el error de frente.
+>
+> Eso **cambia la naturaleza de T-54**. Su ficha decía que la precondición era que una misconception
+> tuviera identificador; T-57 la convirtió en entidad y `078` demuestra que el modelo de `045`
+> alcanza. Lo que falta ya no es modelo de datos ni ADR de estructura: es **que algún namespace lea
+> la tabla**. Hoy nadie lo hace, y «Mi plan» sigue cruzando por módulo.
+>
+> ⏳ **Los 10 recursos están despublicados**, así que el estudiante todavía no ve material de apoyo.
+> Publicarlos es un `update` de una línea, **después** de auditarlos rehaciendo cada cuenta
+> (ADR-016): el destinatario es un alumno de 16 años que no tiene cómo detectar un error de signo.
 >
 > ⏳ **Y el catálogo de errores volvió sin marcas.** El owner lo revisó y no tenía nada que agregar,
 > así que las 31 ideas quedan como **hipótesis revisadas en bloque**, no como errores confirmados uno

@@ -83,7 +83,10 @@ El objetivo no cambió. Cambiaron dos cosas de fondo:
     el owner; `072`…`077` las aplicó el agente con `claude_ddl`. Verificación contra la base real:
     5 módulos, **80 ítems**, 30 ideas erróneas, 0 sin módulo, 0 sin diagnosticar, 0 fuera de banda,
     claves 20/20/20/20, 5 `test_configs` encadenadas.
-17. Desmontaje de los clusters y del PostgREST desechables.
+17. **`078` escrita, verificada y aplicada**: 10 recursos de capa 1 (`published = false`) y —lo que
+    más importa— **las primeras 60 filas de `resource_misconceptions`**, la tabla que `045` creó y
+    que llevaba un año vacía. Reencuadra **T-54**.
+18. Desmontaje de los clusters y del PostgREST desechables.
 
 ### Lo que no funcionó, y por qué vale anotarlo
 
@@ -255,8 +258,11 @@ Ninguna.
 ## Pendientes
 
 - ~~**Publicar el bundle.**~~ ✅ Hecho al cierre: las siete migraciones aplicadas y el push a `main`.
-- **`078` (recursos de capa 1) y la revisión pedagógica de los 80 ítems** siguen abiertos (T-161,
-  T-162). Ninguno bloquea que el curso rinda.
+- ✅ **`078` aplicada.** Queda **publicar los 10 recursos** tras auditarlos rehaciendo cada cuenta
+  (`update ... set published = true`, escrito en el pie de la migración): hasta entonces el
+  estudiante ve su mapa de errores sin material de apoyo.
+- **T-162** (correr `verificar_unidad.py` sobre los cinco JSON de unidad) y la **revisión pedagógica
+  de los 80 ítems** siguen abiertos. Ninguno bloquea que el curso rinda.
 - **La verificación de comportamiento en producción no está completa**, y no puede estarlo todavía:
   no hay ninguna fila. Se completa cuando alguien rinda un diagnóstico — ahí valen las consultas
   (b), (c) y (d) del pie de la migración.

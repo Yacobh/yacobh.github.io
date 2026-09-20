@@ -711,6 +711,49 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > de todo estudiante de PAES. `077` trae la alternativa (`active = false`) escrita en su cabecera.
 
 
+76. `migrations/078_electronica_resources.sql` — ✅ **aplicada 2026-09-20 por el agente** (ADR-040) ·
+    **T-161, épica E10.** **10 recursos** de capa 1 para los cinco módulos de `electronica`: una
+    **guía** (`text`) y una **práctica guiada** (`exercise`) por módulo, todos con
+    `published = false` (ADR-016 §1). Texto redactado desde cero; las referencias —Boylestad, Irwin &
+    Nelms, Edminister— van a nivel de **capítulo**, nunca de página.
+    Las guías están escritas para leerse **después de fallar un ítem**, así que arrancan por el error
+    y no por la definición. Las prácticas traen el **desarrollo escrito**, y en capacitores y
+    Kirchhoff la comprobación de sentido común va explícita.
+
+    ⭐ **ES LA PRIMERA MIGRACIÓN QUE ESCRIBE EN `resource_misconceptions`.** `045` creó esa tabla y
+    llevaba **un año sin una sola fila** — el lugar **A8** del mapa de la unidad, que dice que sin
+    ella la capa 1 de «Mi plan» es genérica **por estructura** y no por falta de contenido. `078`
+    escribe **60 filas** que cubren las **30 ideas erróneas del track**: `rank = 1` al recurso que
+    ataca el error de frente, `rank = 2` al otro del mismo módulo. **Ninguna idea errónea queda sin
+    material** (P4.3 de la skill).
+    El reparto sigue un criterio: las ideas **conceptuales** las ataca la guía —lo que falta es la
+    idea—; las **procedimentales**, la práctica —lo que falta es hacerlo—.
+
+    ⚠️ **Y hoy no cambia nada en pantalla, a propósito.** Ningún namespace lee
+    `resource_misconceptions` (verificado con `grep` sobre `src/`): «Mi plan» sigue cruzando por
+    módulo en `plan/resources-for-deficits`. Es el dato listo para **T-54**, y se escribió ahora
+    porque hacerlo junto con los recursos cuesta cero y reconstruirlo después es caro — **quien
+    escribe el recurso es quien sabe qué error ataca**.
+
+> **Verificación de `078` (2026-09-20).** Contra un **PostgreSQL 17.11** desechable con `071`…`076`
+> aplicadas antes, y después **contra la base real**. Aplica limpia, **idempotente** (la segunda
+> pasada deja 10 y 60, no 20 y 120), y los cinco controles del pie en verde:
+>
+> | Control | Producción |
+> |---|---|
+> | Recursos | **10** — 5 `text` + 5 `exercise` |
+> | Publicados | **0** (es lo correcto hasta auditarlos) |
+> | Filas de `resource_misconceptions` | **60** |
+> | Ideas erróneas del track sin material | **0** de 30 |
+> | Reparto por `rank` | 30 en `1` · 30 en `2` |
+> | Filas de `resource_misconceptions` **en toda la base** | **60** — o sea que antes había **0** |
+>
+> ⏳ **Mientras estén despublicados el estudiante no ve ninguno**: la policy
+> `resources_select_published` los esconde sin avisar y «Mi plan» le muestra su mapa de errores sin
+> material de apoyo. Publicarlos es un `update` de una línea, escrito en el pie de la migración —
+> **después** de auditarlos rehaciendo cada cuenta, porque el destinatario es un alumno de 16 años
+> que no tiene cómo detectar un error de signo (ADR-016 §1-2).
+
 > ## ✅ Aplicadas en producción el 2026-09-20 — el track `electronica` existe
 >
 > **`071` la aplicó el owner** (es estructural: dos `alter table ... constraint` sobre `modules` y
