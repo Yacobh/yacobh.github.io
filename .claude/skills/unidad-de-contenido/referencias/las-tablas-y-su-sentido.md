@@ -328,6 +328,34 @@ aritmetica/fracciones   [-1,8 · -0,4]   ← prereq duro: enteros
 Y **cierra la Junta 1 sin romper nada**: el eje sigue colgando de `topic`, el
 módulo pasa a colgar de `module_id`, y las dos jerarquías dejan de competir.
 
+### ⚠️ Corrección (2026-09-20): la tabla de arriba compara **para el producto**, no para un track nuevo
+
+Esa comparación supone que se están convirtiendo los **26 módulos que ya
+existen**, y con ese supuesto B gana. **Para un track que nace de cero, A no
+tiene ninguno de sus dos costos:**
+
+| Costo de A | En el producto | En un track nuevo |
+|---|---|---|
+| Tocar `questions.topic` de los ítems | 402 ítems, y `tests.topic` los referencia | **cero** — los ítems se escriben con su topic propio desde el principio |
+| Perder el ubicador del eje | grave: el estudiante no sabe dónde está | **no aplica** si el track no tiene eje, sino una cadena corta con su propia puerta de entrada |
+
+**Y A ya está en producción dos veces:** `040` (los 15 módulos de `cuantica`) y
+`077` (los 5 de `electronica`, aplicado el 2026-09-20 y funcionando). En los dos
+casos el `topic` de `questions` es el del módulo y `test_configs` lo referencia
+directo; no hizo falta esperar ADR-038.
+
+**La regla, entonces:**
+
+- **Track del producto PAES** → **B**, y hasta T-149 la migración de
+  `test_configs` se deja escrita y sin aplicar.
+- **Track nuevo, chico y encadenado** → **A**, se aplica hoy, y cuando T-149
+  llegue migra a `item_topic` + `module_id` **sin tocar la identidad de los
+  tests ni el histórico de `tests.topic`**, porque sus `topic` ya son por módulo.
+
+`scripts/verificar_unidad.py` distingue los dos casos desde el 2026-09-20: antes
+avisaba «no se puede aplicar hasta ADR-038» a toda unidad rendible, y eso eran
+**cinco falsos positivos** sobre un track que ya estaba en producción.
+
 ⚠️ **Lo que B pide como contrapartida:** cada módulo necesita ~9-15 ítems en su
 banda (6 por tramo de 1,0 logit). Hoy hay ~16-18 por módulo en números, así que
 alcanza; en los ejes con bandas más anchas, **no**. Medilo con M3 antes de

@@ -1,8 +1,9 @@
 # Plan — track `electronica`: circuitos de continua, desde cero y para corregir errores
 
 > Estado: ✅ **aplicado en producción el 2026-09-20.** El track existe: 5 módulos, 80 ítems, 30 ideas
-> erróneas, 5 tests encadenados y 10 recursos con sus 60 enlaces a ideas erróneas. Queda **publicar
-> los recursos** (tras auditarlos) y la **revisión pedagógica** de los 80 ítems. Épica **E10** en [[BACKLOG]], tareas **T-155…T-162**.
+> erróneas, 5 tests encadenados y **10 recursos publicados** con sus 60 enlaces a ideas erróneas.
+> Los cinco JSON de unidad pasan el séptimo auditor con 0 errores. **Queda la revisión pedagógica de
+> los 80 ítems**, que es lo único pendiente. Épica **E10** en [[BACKLOG]], tareas **T-155…T-162**.
 >
 > Decidido por el owner: **track nuevo `electronica`, visible**, con **cinco módulos** encadenados
 > por prerrequisito.
@@ -323,7 +324,9 @@ en el mismo `initial_theta`) y que afecta a todo el banco: el arreglo de fondo v
    12. **Hecha el 2026-09-20**, con las dos guardas probadas disparando. Sin aplicar.
 7. ✅ **T-161** — `078`: 10 recursos `published = false`, **y las primeras 60 filas de
    `resource_misconceptions`** que existieron en el proyecto. Aplicada el 2026-09-20.
-8. **T-162** — `verificar_unidad.py` sobre los cinco `contenido/unidades/*.json`.
+8. ✅ **T-162** — los cinco `contenido/unidades/*.json` existen y el auditor pasa con **0 errores**.
+   De paso encontró una idea errónea sin criterio de exclusión y **cinco falsos positivos del propio
+   auditor** (T-165), los dos corregidos.
 
 **Y uno que no es del plan pero lo condiciona:** **T-07 (respaldo)** antes de que el curso rinda
 (R-28).

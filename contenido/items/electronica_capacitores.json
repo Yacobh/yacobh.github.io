@@ -38,7 +38,7 @@
     {
       "slug": "capacitores/mas-capacitancia-en-serie",
       "name": "Cree que asociar en serie aumenta la capacitancia",
-      "description": "Usar cuando ante dos capacitores iguales en serie responde 2C en vez de C/2. Es el caso particular mas frecuente de la regla de los resistores, y se separa porque el estudiante que lo comete suele hacer bien el paralelo.",
+      "description": "Usar cuando ante capacitores IGUALES en serie responde 2C (o nC) en vez de C/2 (o C/n). Se separa de serie-y-paralelo-como-resistores porque el estudiante que la comete suele hacer bien el paralelo: el error es solo con el caso de iguales en serie. NO usar cuando aplica la regla de los resistores en general, ni cuando los capacitores son distintos: eso es serie-y-paralelo-como-resistores.",
       "module_slug": "electronica/capacitores"
     },
     {

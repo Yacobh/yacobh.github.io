@@ -74,9 +74,21 @@
 > alcanza. Lo que falta ya no es modelo de datos ni ADR de estructura: es **que algún namespace lea
 > la tabla**. Hoy nadie lo hace, y «Mi plan» sigue cruzando por módulo.
 >
-> ⏳ **Los 10 recursos están despublicados**, así que el estudiante todavía no ve material de apoyo.
-> Publicarlos es un `update` de una línea, **después** de auditarlos rehaciendo cada cuenta
-> (ADR-016): el destinatario es un alumno de 16 años que no tiene cómo detectar un error de signo.
+> ✅ **El owner revisó y publicó los 10 recursos el 2026-09-20** (verificado: los 10 con
+> `published = true`). El estudiante ya ve material de apoyo en su plan.
+>
+> ✅ **T-162 cerrada:** los cinco JSON de unidad existen —**generados desde la base**, así que no
+> pueden mentir sobre lo aplicado— y el séptimo auditor pasa con **0 errores**. Encontró dos cosas
+> que valían la corrida:
+>
+> 1. **Una idea errónea sin criterio de exclusión**, `capacitores/mas-capacitancia-en-serie`, que es
+>    justo la que se solapa con otra. Corregida en la fuente **y en producción**: `072` usa
+>    `on conflict do nothing`, así que reaplicarla no habría arreglado nada. Las 30 del track tienen
+>    ahora su «NO usar».
+> 2. **Cinco falsos positivos del propio auditor** (**T-165**): avisaba que un `test_config` de
+>    módulo «no se puede aplicar hasta ADR-038» cuando `077` ya estaba en producción. La causa es que
+>    conocía una sola salida a la Junta 1. Arreglados el auditor —con las dos ramas probadas— y la
+>    referencia de la skill: **track del producto → opción B; track nuevo chico → opción A, hoy**.
 >
 > ⏳ **Y el catálogo de errores volvió sin marcas.** El owner lo revisó y no tenía nada que agregar,
 > así que las 31 ideas quedan como **hipótesis revisadas en bloque**, no como errores confirmados uno

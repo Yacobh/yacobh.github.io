@@ -748,11 +748,32 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > | Reparto por `rank` | 30 en `1` · 30 en `2` |
 > | Filas de `resource_misconceptions` **en toda la base** | **60** — o sea que antes había **0** |
 >
-> ⏳ **Mientras estén despublicados el estudiante no ve ninguno**: la policy
-> `resources_select_published` los esconde sin avisar y «Mi plan» le muestra su mapa de errores sin
-> material de apoyo. Publicarlos es un `update` de una línea, escrito en el pie de la migración —
-> **después** de auditarlos rehaciendo cada cuenta, porque el destinatario es un alumno de 16 años
-> que no tiene cómo detectar un error de signo (ADR-016 §1-2).
+> ✅ **Publicados por el owner el 2026-09-20**, tras revisarlos. Verificado: los 10 con
+> `published = true`. Hasta ese momento la policy `resources_select_published` los escondía sin
+> avisar y «Mi plan» mostraba el mapa de errores sin material de apoyo.
+
+> ## 🔧 2026-09-20 — dos correcciones de contenido que encontró `verificar_unidad.py` (T-162)
+>
+> Los cinco JSON de unidad se escribieron **después** de aplicar las migraciones —generados desde la
+> base, para que no pudieran mentir sobre lo aplicado— y el séptimo auditor pasó con **0 errores**.
+> Aun así encontró dos cosas:
+>
+> **1. Una idea errónea sin criterio de exclusión.** `capacitores/mas-capacitancia-en-serie` no
+> decía cuándo **NO** usarla, y es justo la que se solapa con
+> `capacitores/serie-y-paralelo-como-resistores` — el duplicado que ese campo existe para impedir.
+> Corregida en `contenido/items/electronica_capacitores.json` (la fuente), regenerada `072`, y
+> **actualizada en producción con un `update`**: `072` inserta las ideas erróneas con
+> `on conflict (slug) do nothing`, así que **reaplicar la migración no habría corregido nada**. Es
+> una propiedad del generador que conviene tener presente: *las descripciones no se actualizan
+> reaplicando*. Verificado: las **30** del track tienen ahora su «NO usar».
+>
+> **2. Cinco falsos positivos del propio auditor** (T-165), que avisaba que un `test_configs` de
+> módulo «no se puede aplicar hasta ADR-038» cuando `077` llevaba un día aplicada y funcionando.
+> Conocía una sola salida a la Junta 1. Corregidos el auditor —con las dos ramas probadas— y la
+> referencia `las-tablas-y-su-sentido.md` §5.
+>
+> ✅ **Y el owner revisó y publicó los 10 recursos** el mismo día: los 10 con `published = true`,
+> verificado contra la base. El estudiante ya ve material de apoyo en su plan.
 
 > ## ✅ Aplicadas en producción el 2026-09-20 — el track `electronica` existe
 >

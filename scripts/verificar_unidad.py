@@ -508,15 +508,43 @@ def revisar_test_config(u, inf):
         return
 
     # Junta 1 del esquema: `next_question` filtra `where q.topic = p_topic` y NO
-    # por módulo, así que hoy un test_configs de módulo serviría los ítems del
-    # eje entero. No es un error del JSON: es una precondición de arquitectura.
-    inf.aviso("rendible",
-              "unidad rendible: `next_question` filtra por `topic` y NO por módulo, así que este "
-              "test_config NO se puede aplicar hasta ADR-038 (ver las-tablas-y-su-sentido.md §5). "
-              "Dejá la migración de test_configs escrita y SIN aplicar, anotada como ⏳ en SCHEMA.md. "
-              "El resto de la unidad entra igual y sirve desde el primer día")
-
+    # por módulo. Eso tiene DOS salidas, y hasta el 2026-09-20 este aviso solo
+    # conocía una — daba cinco falsos positivos sobre el track `electronica`,
+    # cuyo `077` estaba aplicado y funcionando.
+    #
+    #   · Opción B (ADR-038, T-149): `test_configs` gana `module_id` y
+    #     `next_question` una sobrecarga. Conserva el ubicador del eje. SIN
+    #     implementar, así que un test de módulo que comparta el topic del eje
+    #     serviría los ítems del eje entero.
+    #   · Opción A: un `topic` propio por módulo en `questions`. **Funciona hoy**
+    #     y ya está en producción dos veces — `040` (cuantica) y `077`
+    #     (electronica). El precio es que ese track no tiene ubicador, lo que es
+    #     un problema para un eje PAES y **no** para un track chico y encadenado.
+    #
+    # El aviso distingue las dos por el topic declarado: si el topic del test es
+    # el del eje (no contiene el nombre del módulo), es opción B y no se puede
+    # aplicar todavía.
     tc = _campos(u.get("test_config") or {})
+    topic_tc = str(tc.get("topic") or "")
+    sufijo = str(u.get("slug") or "").split("/")[-1]
+    topic_propio = bool(topic_tc) and (
+        sufijo[:6] in topic_tc or topic_tc.replace("/", "_") == str(u.get("slug") or "").replace("/", "_")
+    )
+    if topic_propio:
+        inf.aviso("rendible",
+                  "unidad rendible con `topic` propio por módulo (opción A, la de `040` y `077`): "
+                  "**se puede aplicar hoy**. El precio es que este track no tiene ubicador de eje, "
+                  "que es aceptable en un track chico y encadenado y no en un eje PAES. Cuando "
+                  "ADR-038 (T-149) esté implementado, migra a `item_topic` + `module_id` sin tocar "
+                  "la identidad de los tests ni el historial de `tests.topic`")
+    else:
+        inf.aviso("rendible",
+                  "unidad rendible cuyo `topic` es el del EJE: `next_question` filtra por `topic` y "
+                  "NO por módulo, así que serviría los ítems del eje entero. NO se puede aplicar "
+                  "hasta ADR-038 (ver las-tablas-y-su-sentido.md §5). Dejá la migración de "
+                  "test_configs escrita y SIN aplicar, anotada como ⏳ en SCHEMA.md. El resto de la "
+                  "unidad entra igual y sirve desde el primer día. La salida barata, si no querés "
+                  "esperar, es darle un `topic` propio a los ítems del módulo (opción A)")
     if not tc.get("topic"):
         inf.error("test_config.topic", "unidad rendible sin `topic`: los ítems existen y NO LLEGAN "
                                        "A NADIE. Medido: 414 ítems inalcanzables hasta que 059 los creó (T-125)")

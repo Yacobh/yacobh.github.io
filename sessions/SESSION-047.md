@@ -86,7 +86,11 @@ El objetivo no cambió. Cambiaron dos cosas de fondo:
 17. **`078` escrita, verificada y aplicada**: 10 recursos de capa 1 (`published = false`) y —lo que
     más importa— **las primeras 60 filas de `resource_misconceptions`**, la tabla que `045` creó y
     que llevaba un año vacía. Reencuadra **T-54**.
-18. Desmontaje de los clusters y del PostgREST desechables.
+18. **T-162**: los cinco JSON de unidad, **generados desde la base** para que no puedan mentir sobre
+    lo aplicado, y el séptimo auditor en **0 errores**. Encontró una idea errónea sin criterio de
+    exclusión (corregida en la fuente y en producción) y **cinco falsos positivos suyos** (T-165),
+    que se arreglaron en el auditor y en la referencia de la skill.
+19. Desmontaje de los clusters y del PostgREST desechables.
 
 ### Lo que no funcionó, y por qué vale anotarlo
 
@@ -261,8 +265,8 @@ Ninguna.
 - ✅ **`078` aplicada.** Queda **publicar los 10 recursos** tras auditarlos rehaciendo cada cuenta
   (`update ... set published = true`, escrito en el pie de la migración): hasta entonces el
   estudiante ve su mapa de errores sin material de apoyo.
-- **T-162** (correr `verificar_unidad.py` sobre los cinco JSON de unidad) y la **revisión pedagógica
-  de los 80 ítems** siguen abiertos. Ninguno bloquea que el curso rinda.
+- ✅ **T-162 cerrada** y los recursos publicados por el owner.
+- **La revisión pedagógica de los 80 ítems** sigue abierta, y es lo único que queda de E10.
 - **La verificación de comportamiento en producción no está completa**, y no puede estarlo todavía:
   no hay ninguna fila. Se completa cuando alguien rinda un diagnóstico — ahí valen las consultas
   (b), (c) y (d) del pie de la migración.
@@ -314,6 +318,14 @@ Son **dos**, y las dos son sobre qué significa «verificado»:
    de producción es parte del fixture**, como lo son `auth.uid()` o `is_admin()`.
 
 Si salen L nuevas, son éstas dos.
+
+Y una sobre las herramientas, que es la más incómoda: **un auditor que aconseja «no se puede» sobre
+algo que ya está hecho es peor que uno que no avisa nada**, porque el siguiente le cree.
+`verificar_unidad.py` daba cinco falsos positivos diciendo que un `test_config` de módulo no se podía
+aplicar hasta ADR-038, con `077` ya en producción. No estaba mal escrito: conocía **una sola** de las
+dos salidas a la Junta 1, porque la referencia de la que sale compara para el producto y no para un
+track nuevo. Es L-22 aplicado a una herramienta: **si la herramienta y la realidad no coinciden, gana
+la realidad y se corrige la herramienta.**
 
 Y una que no es de método sino de higiene, y que casi se publica: **un número medido contra el
 fixture no es un número medido.** Estas notas dijeron tres veces que el selector pasaba de **18 a 23**

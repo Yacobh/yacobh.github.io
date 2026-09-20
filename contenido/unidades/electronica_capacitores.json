@@ -1,0 +1,135 @@
+{
+  "_lease": "Unidad del track `electronica`. ⚠️ ESTE ARCHIVO DOCUMENTA LO QUE YA ESTÁ APLICADO, no es su fuente. La unidad se construyó con migraciones escritas a mano (071..078) y este JSON se generó DESDE LA BASE el 2026-09-20 (T-162) para que `verificar_unidad.py` pueda auditarla y para que la próxima unidad tenga un ejemplo lleno. La fuente de verdad de los ítems sigue siendo contenido/items/*.json.",
+  "slug": "electronica/capacitores",
+  "title": "Capacitancia y capacitores",
+  "track": "electronica",
+  "order_index": 3040,
+  "track_nuevo": false,
+  "_track_nuevo": "El track `electronica` fue nuevo y `071` amplió los dos checks de `track` (modules y class_slots). Queda en false porque la pregunta que este campo responde es operativa: ¿hay que ampliar el check? Ya no.",
+  "banda": {
+    "min": -2.2,
+    "max": -1.0
+  },
+  "items_objetivo": 16,
+  "_items_objetivo": "16 y no ~8, que es lo que pide la cobertura de una banda de 1,2 logits. El número sale del REINTENTO: 16 = 2 × max_items es el umbral a partir del cual dos intentos pueden no compartir ningún ítem (R-47, T-164).",
+  "historia": {
+    "year": 1746,
+    "era": "moderna",
+    "figure": "Pieter van Musschenbroek y la botella de Leyden",
+    "blurb": "El primer capacitor fue accidental y doloroso. Pieter van Musschenbroek, en Leiden, recibió en 1746 la descarga de un frasco de agua cargado y escribió que no repetiría el experimento \"ni por todo el reino de Francia\"; Ewald von Kleist había hecho lo mismo unos meses antes en Pomerania sin que nadie le prestara atención. La unidad, en cambio, honra a Michael Faraday, que llegó casi un siglo después y aportó la idea que este módulo pone primero: lo que importa no es cuánta carga hay, sino **cuánta carga por cada volt** — que es exactamente lo que dice C = Q/V.",
+    "sin_year_porque": null
+  },
+  "rendible": true,
+  "test_config": {
+    "topic": "electronica_capacitores",
+    "display_name": "Electrónica · Capacitancia y capacitores",
+    "min_items": 4,
+    "max_items": 8,
+    "se_threshold": 0.35,
+    "prerequisite_topic": "electronica_notacion",
+    "min_theta": -2.4,
+    "initial_theta": -1.6,
+    "active": true
+  },
+  "_test_config": "`topic` propio por módulo (patrón de `040`/cuantica), porque ADR-038 está aprobado y SIN implementar y `next_question` filtra solo por topic. `se_threshold = 0.35` NO se dispara nunca (T-111, R-38): se deja por coherencia con los otros bancos y está dicho. `min_theta` = centro de la banda del prerrequisito, decisión del owner (D-73): quien no llega vuelve a rendir, y ésa es la remediación del track.",
+  "prerrequisitos": [
+    {
+      "prerequisite_slug": "electronica/notacion_cientifica",
+      "strength": "duro",
+      "rationale": "Los capacitores del taller se miden en µF, nF y pF, nunca en F. Sin prefijos no se puede ni comparar dos capacitores, y menos sumarlos. NO cuelga de la ley de Ohm: C = Q/V no la usa."
+    }
+  ],
+  "habilita": [],
+  "misconceptions": [
+    {
+      "slug": "capacitancia/confunde-carga-con-capacitancia",
+      "name": "Cree que la capacitancia es cuanta carga tiene el capacitor",
+      "description": "Usar cuando el estudiante afirma que un capacitor descargado tiene C = 0, o responde el valor de la carga cuando se pide la capacitancia, o cree que dos capacitores a la misma tension almacenan la misma carga. NO usar cuando entiende la definicion y despeja mal.",
+      "recursos": [
+        "guia"
+      ]
+    },
+    {
+      "slug": "capacitancia/confunde-carga-con-corriente",
+      "name": "Usa carga y corriente como si fueran lo mismo",
+      "description": "Usar cuando el estudiante responde una corriente (A, mA) donde se pide una carga (C, uC), o al reves. NO usar cuando la unidad es correcta y solo el prefijo esta mal.",
+      "recursos": [
+        "guia"
+      ]
+    },
+    {
+      "slug": "capacitancia/cree-que-c-depende-de-la-tension-aplicada",
+      "name": "Cree que la capacitancia cambia al cambiar la tension aplicada",
+      "description": "Usar cuando afirma que al duplicar la tension se duplica (o se reduce) la capacitancia. NO usar para la confusion entre carga y capacitancia: aca el estudiante distingue las dos magnitudes, pero cree que una determina a la otra.",
+      "recursos": [
+        "guia"
+      ]
+    },
+    {
+      "slug": "capacitancia/despeja-mal-c-igual-q-sobre-v",
+      "name": "Despeja al reves en C = Q/V",
+      "description": "Usar cuando el estudiante invierte o multiplica donde corresponde lo contrario: hace V/Q para hallar C, C/V para hallar Q, o C/Q para hallar V. NO usar para la confusion conceptual de creer que C es la carga.",
+      "recursos": [
+        "practica"
+      ]
+    },
+    {
+      "slug": "capacitores/ignora-la-tension-de-trabajo",
+      "name": "No mira la tension que el capacitor aguanta",
+      "description": "Usar cuando elige un capacitor cuya tension de trabajo es menor que la del circuito, mirando solo la capacitancia. NO usar si el item no daba la tension de trabajo de las alternativas.",
+      "recursos": [
+        "guia"
+      ]
+    },
+    {
+      "slug": "capacitores/mas-capacitancia-en-serie",
+      "name": "Cree que asociar en serie aumenta la capacitancia",
+      "description": "Usar cuando ante capacitores IGUALES en serie responde 2C (o nC) en vez de C/2 (o C/n). Se separa de serie-y-paralelo-como-resistores porque el estudiante que la comete suele hacer bien el paralelo: el error es solo con el caso de iguales en serie. NO usar cuando aplica la regla de los resistores en general, ni cuando los capacitores son distintos: eso es serie-y-paralelo-como-resistores.",
+      "recursos": [
+        "practica"
+      ]
+    },
+    {
+      "slug": "capacitores/serie-y-paralelo-como-resistores",
+      "name": "Asocia capacitores con la regla de los resistores",
+      "description": "Usar cuando el estudiante suma capacitores en serie, o usa la formula de inversas para el paralelo. NO usar para errores de prefijo al sumar uF con nF (eso es notacion cientifica) ni para el caso particular de dos iguales en serie, que tiene su propia entrada.",
+      "recursos": [
+        "practica"
+      ]
+    }
+  ],
+  "_misconceptions": "Las 30 del track salieron de `contenido/unidades/electronica_errores_para_revisar.md`, que el owner REVISÓ EN BLOQUE el 2026-09-20: leyó la lista y no marcó la columna `¿lo ves?` ni agregó ninguna propia. Son por lo tanto hipótesis revisadas, no errores observados uno por uno — que es lo que pide la regla F4 del plan.",
+  "misconceptions_preexistentes": [],
+  "recursos": [
+    {
+      "clave": "guia",
+      "type": "text",
+      "title": "Guía — C = Q/V, y por qué los capacitores se asocian al revés que los resistores",
+      "body": null,
+      "media_url": null,
+      "published": true,
+      "order_index": 10
+    },
+    {
+      "clave": "practica",
+      "type": "exercise",
+      "title": "Práctica guiada — De la definición a la asociación, con la comprobación siempre puesta",
+      "body": null,
+      "media_url": null,
+      "published": true,
+      "order_index": 20
+    }
+  ],
+  "_recursos": "`body` va en null A PROPÓSITO: el texto completo vive en `supabase/migrations/078_electronica_resources.sql`, que se escribió a mano y es su única fuente. Duplicarlo acá crearía dos copias que pueden divergir (CLAUDE.md §6: un hecho vive en un solo archivo). ✅ Publicados por el owner el 2026-09-20 tras revisarlos (ADR-016 §1).",
+  "reemplaza": [],
+  "_reemplaza": "No reemplaza nada. `electrotecnia` cubre cuatro de estos cinco contenidos y NO se apaga: es otro track, con otro destinatario y otro nivel. La frontera está en PLAN_TRACK_ELECTRONICA §2 (reglas F1–F4).",
+  "justificacion": {
+    "hueco_medido": "No es un hueco del banco PAES: es un destinatario. El curso de técnico en electrónica del owner —16-17 años, muchas fallas de base— no tenía dónde rendir, y `electrotecnia` le queda alto (mezcla Ohm y potencia en un módulo, y su centro es la alterna). Antes de `071` el track tenía 0 módulos, 0 ítems y 0 test_configs.",
+    "quien_revisa": "El owner, que es quien les hace clase. Es la primera unidad del proyecto cuyo revisor es el profesor del curso destinatario — a diferencia de los 402 ítems bajo R-41.",
+    "cuando": "Los 10 recursos: revisados y publicados el 2026-09-20. Los 80 ítems: pendiente de revisión pedagógica ítem por ítem."
+  },
+  "preguntas_abiertas": [],
+  "migracion_archivo": "072_banco_de_electronica_capacitores.sql",
+  "migracion_titulo": "Unidad electronica/capacitores — documentada tras aplicar (T-162)",
+  "migracion_notas": "La unidad entró por `071` (módulo, banda, historia, prerrequisitos), `072_banco_de_electronica_capacitores.sql` (ítems e ideas erróneas), `077` (test_config) y `078` (recursos y sus enlaces a ideas erróneas). Las siete están aplicadas en producción desde el 2026-09-20."
+}
