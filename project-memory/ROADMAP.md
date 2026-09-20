@@ -1,6 +1,6 @@
 # ROADMAP
 
-Última actualización: **2026-09-13** (SESSION-042) — **F16 (capital) baja de urgencia** por **D-67**: la meta es CLP 48M/año y no USD 1M, o sea **~20 colegios y no ~380**, que no necesitan capital externo ni socios. **F12 gana dos precondiciones nuevas**: T-110 (separar las corridas de admin) y T-134 (que el abandono deje rastro) — sin ellas la muestra de calibración está sesgada por los dos extremos. Y nace la **épica E9**, que es el trabajo previo a F13: el mapa de errores por curso existe en la base y el panel no lo muestra. · Antes: **2026-08-16** — **el roadmap cambia de naturaleza**. Las fases F0–F11
+Última actualización: **2026-09-20** (SESSION-047) — **las dos precondiciones de F12 están cerradas**: T-110 (`067`, aplicada el 2026-09-13: 20 % de la muestra eran corridas de depuración) y **T-134** (`070`, aplicada el 2026-09-19: el abandono deja rastro). La muestra de calibración deja de estar sesgada por los dos extremos, aunque **el problema de denominador sigue y empeoró**: el banco pasó de 530 a **610 ítems** con los 80 de `electronica`. · Antes: **2026-09-13** (SESSION-042) — **F16 (capital) baja de urgencia** por **D-67**: la meta es CLP 48M/año y no USD 1M, o sea **~20 colegios y no ~380**, que no necesitan capital externo ni socios. **F12 gana dos precondiciones nuevas**: T-110 (separar las corridas de admin) y T-134 (que el abandono deje rastro) — sin ellas la muestra de calibración está sesgada por los dos extremos. Y nace la **épica E9**, que es el trabajo previo a F13: el mapa de errores por curso existe en la base y el panel no lo muestra. · Antes: **2026-08-16** — **el roadmap cambia de naturaleza**. Las fases F0–F11
 respondían a "MVP actual → en uso"; ese trabajo está esencialmente hecho y **el proyecto no está
 detenido por código**. Con el pivote de negocio del 2026-08-16
 ([[../adr/ADR-025-motor-de-valor-b2b-y-cinco-vectores]], [[TESIS_DE_CRECIMIENTO]]) se abren las
@@ -341,6 +341,10 @@ motor.
 >   depurados** ([[RISKS]] R-37).
 > - **T-134 — por abajo:** un test abandonado **no deja ninguna fila**, así que los ítems que hacen
 >   abandonar desaparecen de la muestra. Se calibraría solo con quienes llegaron al final.
+>   ✅ **Cerrada el 2026-09-19 (ADR-036) y `070` aplicada en producción el mismo día.** El intento en
+>   curso vive en `public.intentos` y el abandono se **deriva**: sin cerrar y sin latir hace más de
+>   2 h. Falta que alguien rinda para que haya filas — ahí la consulta (c) del pie de `070` responde
+>   por primera vez *en qué ítem se van*.
 >
 > ⚠️ **Y un problema de denominador que conviene mirar antes de seguir escribiendo ítems:** el banco
 > pasó de 387 a **530 ítems** (414 del producto + 116 de electrotecnia) mientras los diagnósticos

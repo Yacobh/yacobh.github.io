@@ -16,6 +16,10 @@ Dos cosas pedidas explícitamente: **(1) T-134**, que un diagnóstico abandonado
 circuitos: notación científica, ley de Ohm, potencia, capacitores y leyes de Kirchhoff— como un
 corpus relacionado.
 
+**Lo segundo dejó de ser un plan y se ejecutó entero.** La sesión terminó con el track
+`electronica` **aplicado en producción**: 5 módulos, 80 ítems, 30 ideas erróneas, 5 tests
+encadenados y 10 recursos publicados. Nueve migraciones (`070`…`079`), todas aplicadas.
+
 El objetivo no cambió. Cambiaron dos cosas de fondo:
 
 - **Cómo se resuelve T-134**: su ficha proponía dos opciones y **se eligió una tercera**.
@@ -166,9 +170,17 @@ El objetivo no cambió. Cambiaron dos cosas de fondo:
 | `public/js/app.js` | Recompilado (ADR-003) |
 | `adr/ADR-036-el-intento-en-curso-vive-en-su-propia-tabla.md` | **Nuevo** |
 | `project-memory/PLAN_TRACK_ELECTRONICA.md` | **Nuevo** |
-| `project-memory/{BACKLOG,CURRENT_STATUS,DECISIONS,RISKS,ARCHITECTURE}.md` | T-134 cerrada, épica E10, D-72, R-39 tercera instancia, tabla `intentos` |
-| `supabase/SCHEMA.md` | Entrada 72 (`070`) con su verificación |
-| `.claude/skills/unidad-de-contenido/referencias/mapa-de-la-unidad.md` | B1 estaba desactualizado (ver Notas) |
+| `supabase/migrations/071`…`079` | **Nuevas.** El track `electronica` entero: módulos, 5 bancos (80 ítems), `test_configs`, recursos y la reparación de 7 ítems |
+| `contenido/items/electronica_*.json` | **Nuevos.** Los cinco bancos, fuente de verdad de los ítems |
+| `contenido/unidades/electronica_*.json` | **Nuevos.** Las cinco unidades, generadas desde la base (T-162) |
+| `contenido/unidades/electronica_errores_para_revisar.md` | **Nuevo.** Las 31 hipótesis de error, revisadas en bloque por el owner |
+| `scripts/revisar_redaccion_items.py` | **Nuevo. El octavo auditor**: la redacción de los ítems |
+| `scripts/verificar_unidad.py` | Corregidos cinco falsos positivos (T-165) |
+| `src/universo/topics.cljs` · `test/universo/topics_test.cljs` | Los cinco slugs del track (B1 y B2) |
+| `project-memory/{BACKLOG,CURRENT_STATUS,DECISIONS,RISKS,ARCHITECTURE,ROADMAP,LESSONS_LEARNED,PLAN_TRACK_ELECTRONICA}.md` | T-134/T-155…T-166, D-72/D-73, R-46/R-47, L-65…L-69, épica E10 |
+| `supabase/SCHEMA.md` · `supabase/CONTENT.md` | Entradas 72–77; sección nueva de convenciones de notación por track |
+| `CLAUDE.md` | §5: el octavo auditor, y que **ninguno de los ocho comprueba que la cuenta esté bien** |
+| `.claude/skills/unidad-de-contenido/` | `mapa-de-la-unidad.md` B1 desactualizado; `las-tablas-y-su-sentido.md` §5 con la corrección de T-165 |
 
 ## Comandos ejecutados y resultados
 
@@ -194,7 +206,19 @@ initdb + pg_ctl + psql (PostgreSQL 14.18 desechable, TCP 127.0.0.1:54399) + Post
     el reintento sin la columna → 201
   → bundle: `intentos` ×8, `intento_id` ×5, `cerrado_en` ×1 en public/js/app.js
 
-psql contra PRODUCCIÓN (PostgreSQL 17.6), rol claude_ddl, solo lectura — tras aplicar 070:
+los ocho auditores        → los ocho en verde
+graphify update .         → corrido en cada pasada, snapshot refrescado
+
+psql contra PRODUCCIÓN (PostgreSQL 17.6), rol claude_ddl — aplicando 072..079:
+  → 071 ya estaba (la aplicó el owner); 072..079 las aplicó el agente
+  → 5 módulos · 80 ítems · 30 ideas erróneas · 5 test_configs · 10 recursos publicados
+  → 0 sin module_id · 0 sin diagnosticar · 0 con idea errónea en la correcta
+  → 0 fuera de banda · 0 enunciados repetidos · 0 ideas huérfanas
+  → claves 20/20/20/20 · los 80 Bonus empiezan por «Correcto»
+  → resource_misconceptions: 60 filas, y en TODA la base había 0 antes
+  → R-42 real: test_configs activos 14 → 19 (NO 18 → 23, que era del fixture)
+
+psql contra PRODUCCIÓN, rol claude_ddl, solo lectura — tras aplicar 070:
   → tabla `intentos`: dueño postgres, rls = t, force = f  (misma postura que `tests`)
   → 10 columnas con sus defaults · 6 constraints, incluida la FK a auth.users
   → triggers: intentos_marcar_origen (solo INSERT) · intentos_sellar (INSERT OR UPDATE)
@@ -229,6 +253,19 @@ psql contra PRODUCCIÓN (PostgreSQL 17.6), rol claude_ddl, solo lectura — tras
 nueva con los de `tests`. Es el argumento a favor de escribir grants explícitos aunque el default
 «ya funcione»: sin `070` al lado, nadie tenía con qué comparar.
 
+## Estado al cierre
+
+**Nueve migraciones aplicadas en producción** (`070`…`079`) y **12 commits pusheados a `main`**.
+
+| | |
+|---|---|
+| `070` · el rastro del intento | ✅ aplicada por el owner · ⏳ sin filas hasta que alguien rinda |
+| `071`…`079` · el track `electronica` | ✅ aplicadas — `071` el owner, el resto el agente con `claude_ddl` |
+| Track en producción | 5 módulos · **80 ítems** · 30 ideas erróneas · 5 tests · **10 recursos publicados** |
+| Los ocho auditores | ✅ en verde |
+| `clj -M:test` | ✅ **229 tests / 2936 assertions / 0 failures** |
+| Árbol | limpio, todo pusheado |
+
 ## Bloqueos
 
 **Ninguno al cierre.** Hubo uno durante la sesión y se resolvió: `070` no podía aplicarla el agente
@@ -252,15 +289,25 @@ Ninguna.
 
 ## Próximos pasos
 
-1. **Aplicar `070`** en producción, **antes** de publicar el bundle (R-39). Correr la verificación
-   (a)–(e) del pie de la migración.
-2. Correr la consulta **(c)** —el ítem en el que se van— en cuanto haya intentos reales. Es la
-   primera vez que esa pregunta tiene respuesta.
-3. **T-163**: acotar los privilegios de tabla, empezando por las que guardan datos personales y por
-   `questions`. Dos líneas de SQL por tabla, sin tocar ninguna policy.
-3. **T-133** (agregado del mapa de errores) ya puede incluir «cuántos empezaron y cuántos
-   terminaron».
-4. Para E10: **T-155** primero (la frontera con `electrotecnia`), que bloquea todo lo demás.
+En orden, y todos son del owner salvo el último:
+
+1. **La revisión pedagógica de los 80 ítems** (T-166, `a medias`). La pasada mecánica está hecha y
+   encontró siete defectos; la que falta es la que ningún script puede hacer: *¿es éste el error que
+   cometen mis alumnos, y este enunciado se lo hace cometer?* Es donde se verifica **F4**. Conviene
+   de a un módulo por vez, no los 80 de una.
+2. **Que el curso rinda.** Todo está en pie: `electronica_notacion` es la puerta de entrada y no
+   tiene prerrequisito. En cuanto haya intentos reales:
+   - la consulta **(c)** del pie de `070` responde por primera vez *en qué ítem se van*;
+   - se puede mirar si un test que **no viaja** mueve el piso del SE (T-111, R-38), que es la
+     primera oportunidad que el proyecto tiene de comprobarlo;
+   - y aparece el primer dato para decidir si `min_theta` en el centro de la banda deja a alguien
+     trabado (R-44), con la alternativa más blanda ya comentada en `077`.
+3. **T-129** (visibilidad de `test_configs` por usuario). D-73 la volvió más urgente: el estudiante
+   de PAES tiene ahora **14 bancos ajenos de 19**.
+4. **T-163** (R-46): acotar los privilegios de tabla, dos líneas de SQL por tabla, empezando por las
+   que guardan datos personales y por `questions`.
+5. **R-47 de fondo**, junto con **T-149**: que `next_question` excluya los ítems respondidos en
+   intentos anteriores del mismo topic. Sirve para **todo** el banco, no solo electrónica.
 
 ## Pendientes
 
@@ -296,13 +343,15 @@ Ninguna.
 - [x] `project-memory/DECISIONS.md`
 - [x] `adr/ADR-036-el-intento-en-curso-vive-en-su-propia-tabla.md` (nuevo)
 - [x] `project-memory/ARCHITECTURE.md`
-- [ ] `project-memory/ROADMAP.md` — **no se tocó**: T-134 era precondición de F12 y sigue siéndolo
-      hasta que `070` esté aplicada. Se actualiza cuando lo esté.
+- [x] `project-memory/ROADMAP.md` — **las dos precondiciones de F12 quedan cerradas** (T-110 con
+      `067`, T-134 con `070`). Anotado también que el problema de denominador **empeoró**: el banco
+      pasó de 530 a 610 ítems con los 80 de `electronica`.
 - [ ] `project-memory/REQUIREMENTS.md` — no aplica
 - [ ] `project-memory/OPEN_QUESTIONS.md` — ninguna nueva
 - [ ] `project-memory/ASSUMPTIONS.md` — el supuesto de la ventana está en este archivo y en la
       migración; no se abrió fila propia porque no es un supuesto de negocio
-- [ ] `project-memory/LESSONS_LEARNED.md` — ver Notas: hay material para una L nueva, no se escribió
+- [x] `project-memory/LESSONS_LEARNED.md` — **L-65 … L-69**, las cinco sobre qué significa
+      «verificado». La que más vale es **L-68**: ningún auditor comprueba que la cuenta esté bien
 - [ ] `project-memory/TERMINOLOGY.md`
 - [x] `project-memory/graph/` (snapshot de Graphify)
 

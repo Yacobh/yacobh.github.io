@@ -1,6 +1,6 @@
 # LESSONS_LEARNED
 
-Última actualización: **2026-09-18** — **L-63 y L-64 nuevas** (la credencial real entra al `.example` **depurando**, y el arreglo de fondo es generar la contraseña en hex para que no haya nada que encodear; y `git reflog expire --all` borra los stashes, porque `git stash list` **es** un reflog). Antes: **2026-09-16** — **L-62** (lo que trae la URL hay que leerlo antes de que el router la normalice: el modo de fallo de una función de medición es **parecerse a un resultado**). Antes: **2026-09-09** — **L-57 nueva** (un mecanismo de aislamiento vale mientras el destinatario no cambie: `active = false` aisló el track de cuántica porque su usuario era admin, no por diseño). Antes: **2026-08-28 (2ª pasada)** — **L-54, L-55 y L-56 nuevas** (la memoria puede documentar una capacidad que la base no tiene —`questions.active` no existía y dos tareas se planificaron encima—; una migración idempotente por contenido no corrige lo ya cargado, hace falta una de delta calculado; reordenar las alternativas de un ítem ya rendido rompe el histórico, porque `tests` guarda la letra) y **L-46 con una tercera repetición**: el fixture volvió a construirse desde el supuesto que debía refutar, y lo que lo atrapó fue una guarda dentro de la migración. · Antes: **2026-08-28** — **L-52 y L-53 nuevas** (la explicación obvia de un sesgo puede ser falsa tres veces seguidas y solo la medición lo dice; un test que compara dos configuraciones puede estar midiendo la salvaguarda en vez de la configuración). · Antes: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
+Última actualización: **2026-09-20** — **L-65 … L-69 nuevas**, y las cinco son sobre **qué significa «verificado»**: verificar contra SQL no es verificar porque el cliente real encuentra otra clase de defecto (**L-65**); la **versión mayor de producción es parte del fixture** (**L-66**); un número medido contra el fixture **no es un número medido** (**L-67**); ⭐ **ningún auditor comprueba que la cuenta esté bien**, y un distractor cuyo número no corresponde a su explicación le dice al profesor que su alumno comete un error que no comete (**L-68**); y un auditor que aconseja «no se puede» sobre algo ya hecho es peor que uno que calla (**L-69**). · Antes: **2026-09-18** — **L-63 y L-64 nuevas** (la credencial real entra al `.example` **depurando**, y el arreglo de fondo es generar la contraseña en hex para que no haya nada que encodear; y `git reflog expire --all` borra los stashes, porque `git stash list` **es** un reflog). Antes: **2026-09-16** — **L-62** (lo que trae la URL hay que leerlo antes de que el router la normalice: el modo de fallo de una función de medición es **parecerse a un resultado**). Antes: **2026-09-09** — **L-57 nueva** (un mecanismo de aislamiento vale mientras el destinatario no cambie: `active = false` aisló el track de cuántica porque su usuario era admin, no por diseño). Antes: **2026-08-28 (2ª pasada)** — **L-54, L-55 y L-56 nuevas** (la memoria puede documentar una capacidad que la base no tiene —`questions.active` no existía y dos tareas se planificaron encima—; una migración idempotente por contenido no corrige lo ya cargado, hace falta una de delta calculado; reordenar las alternativas de un ítem ya rendido rompe el histórico, porque `tests` guarda la letra) y **L-46 con una tercera repetición**: el fixture volvió a construirse desde el supuesto que debía refutar, y lo que lo atrapó fue una guarda dentro de la migración. · Antes: **2026-08-28** — **L-52 y L-53 nuevas** (la explicación obvia de un sesgo puede ser falsa tres veces seguidas y solo la medición lo dice; un test que compara dos configuraciones puede estar midiendo la salvaguarda en vez de la configuración). · Antes: **2026-08-24** — **L-50 y L-51 nuevas** (un auditor mide lo que le declararon, no lo que pertenece al sistema; una utilidad de Tailwind que no se genera falla en silencio). · Antes: **2026-08-23 (segunda pasada)** — **L-49 nueva** (un formulario devuelve `""` donde la base tenía `null`: sin coercionar antes de comparar, «guardar sin cambios» escribe). · Antes: **2026-08-23** — **L-47 y L-48 nuevas** (un auditor de paleta no ve el fondo heredado; un glifo ausente en la fuente se sustituye en silencio). · Antes: **2026-08-17** (**L-42**, un proveedor OAuth **crea cuentas también en la
 ruta de login** — el gate legal no va donde está el formulario sino donde nace la cuenta; y
 **L-43**, si Google Cloud te pide datos tributarios para configurar OAuth, te desviaste de camino.
 Antes ese mismo día: **L-41**, una copia que nadie mira diverge — la pregunta útil
@@ -1268,3 +1268,83 @@ repo lo comparten Claude Code y GitHub Desktop, y el estado que deja la herramie
 —stashes, ramas locales— es invisible desde la línea de comandos salvo que se lo busque a propósito.
 
 **Relacionado:** `sessions/SESSION-045.md`, [[LESSONS_LEARNED]] L-63.
+
+### L-65 · Verificar contra SQL no es verificar: el cliente real encuentra otra clase de defecto
+
+**Síntoma.** `070` (la tabla `intentos`) pasó una batería completa contra un PostgreSQL desechable
+—aplicación, idempotencia, triggers, policies, reversión— y **dos defectos aparecieron en el primer
+minuto contra un PostgREST real**:
+
+1. **`cerrado_en` venía del reloj del cliente.** Un navegador atrasado hace fallar el `update` de
+   cierre por un check, el intento queda abierto para siempre y **alguien que terminó su diagnóstico
+   cuenta como abandono** — en la única métrica que esa migración existe para producir.
+2. **Con la tabla ausente, PostgREST 12 responde `404` con el cuerpo vacío**: ni código, ni mensaje,
+   ni nada que reconocer. La mitigación de R-39 leía el texto del error.
+
+**Causa.** `psql` deja mandar cualquier cosa como superusuario y con relojes coherentes. El cliente
+real manda JSON, con su propio reloj, a través de una capa que traduce errores.
+
+**Regla.** Toda migración que el cliente vaya a escribir se prueba **también** contra PostgREST con
+un JWT, no solo contra `psql`. Y toda mitigación se diseña sobre **qué falló**, no sobre **qué dijo
+que falló**.
+
+### L-66 · La versión mayor de producción es parte del fixture
+
+**Síntoma.** `070` se verificó contra PostgreSQL **14.18**, que era lo que había instalado.
+Producción es **17.6**. Se descubrió al conectarse para aplicar la migración, no al verificarla.
+
+**Causa.** El procedimiento heredado (SESSION-043) describe cómo levantar un cluster desechable y no
+dice en ninguna parte que haya que igualar la versión mayor.
+
+**Regla.** El fixture incluye la **versión mayor de producción**, igual que incluye `auth.uid()` o
+`is_admin()`. Se repitió la batería contra 17.11 y el comportamiento resultó idéntico — pero eso no
+se sabía antes de medirlo, y ése es exactamente el punto.
+
+### L-67 · Un número medido contra el fixture no es un número medido
+
+**Síntoma.** Tres notas de memoria afirmaron que publicar el track `electronica` llevaría el selector
+de **18 a 23** bancos activos. Ese 18 salía del `generate_series(1,18)` del **fixture de prueba**.
+En producción eran **14**, y quedaron **19**.
+
+**Causa.** El fixture se escribe para que la migración tenga contra qué correr, no para que sus
+números se citen. Y una vez escrito en una nota, un número no vuelve a cuestionarse.
+
+**Regla.** Un número que va a la memoria del proyecto sale de **producción** o lleva dicho de dónde
+sale. El riesgo no cambió de naturaleza; la cifra era del entorno de verificación.
+
+### L-68 · ⭐ Ningún auditor comprueba que la cuenta esté bien
+
+**Síntoma.** Dos defectos distintos en el mismo banco, los dos invisibles para los ocho auditores:
+
+- un ítem cuya **alternativa correcta decía «alrededor de 50 ohm»** cuando la cuenta da 20 — lo
+  atrapó releerlo;
+- **cuatro distractores cuyo número no era el que produce el error que dicen diagnosticar**
+  (`0,011 W` donde I²/R da `0,000011`; `550 W` donde 50 A dan `550 000`; `0,1 ohm` donde I/V da
+  `0,01`; `2×10⁻²` donde restar los exponentes da `2×10⁻⁶`).
+
+**Causa.** `verificar_items.py` comprueba que haya **exactamente una** alternativa marcada como
+correcta, no que el número esté bien. Y ningún script puede saber qué número produce un
+razonamiento equivocado descrito en prosa.
+
+**Por qué el segundo es peor que un ítem roto.** Un ítem roto se nota. Un distractor cuyo número no
+corresponde a su explicación **le dice al profesor que su alumno comete un error que no comete** —
+lo contrario exacto de lo que el banco promete.
+
+**Regla.** Es el argumento entero de por qué la revisión humana es el cuello de botella, y ahora
+está medido y no afirmado. Está escrito en `CLAUDE.md` §5 para que nadie confunda «los ocho en
+verde» con «el banco está bien».
+
+### L-69 · Un auditor que aconseja «no se puede» sobre algo ya hecho es peor que uno que calla
+
+**Síntoma.** `verificar_unidad.py` avisaba que un `test_configs` de módulo «NO se puede aplicar hasta
+ADR-038» sobre cinco unidades cuyo `077` llevaba un día aplicado y funcionando en producción.
+
+**Causa.** El auditor —y la referencia de la skill de la que sale— conocía **una sola** salida a la
+Junta 1. La otra funciona hoy y ya estaba en producción dos veces (`040` y `077`). La referencia no
+estaba equivocada: comparaba **para el producto**, donde esa salida cuesta tocar 402 ítems y borra
+el ubicador del eje. Para un track que nace de cero no cuesta ninguna de las dos cosas.
+
+**Regla.** Es L-22 aplicado a una herramienta: **si la herramienta y la realidad no coinciden, gana
+la realidad y se corrige la herramienta** — en el mismo commit. Un consejo equivocado es peor que
+ningún consejo, porque el siguiente le cree.
+
