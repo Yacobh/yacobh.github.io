@@ -201,7 +201,15 @@
           :configs {}
           ;; Config de parada resuelta para el test en curso (nil hasta que
           ;; :test/start la arma desde :configs).
-          :stop-config nil}
+          :stop-config nil
+
+          ;; El rastro del intento en curso (070, ADR-036, T-134).
+          ;; :id    → uuid generado por el cliente al empezar; nil fuera de un test.
+          ;; :off?  → true cuando la tabla `intentos` no está alcanzable (070 sin
+          ;;          aplicar, R-39). Se apaga **una vez y para toda la sesión**:
+          ;;          el diagnóstico nunca se bloquea por no poder dejar rastro, y
+          ;;          reintentar en cada respuesta solo llenaría la consola.
+          :rastro {:id nil :off? false}}
 
    :bookings {:by-id {}        ;; id -> booking info
               :all-ids []}})   ;; to preserve insertion order

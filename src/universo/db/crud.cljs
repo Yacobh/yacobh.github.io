@@ -222,6 +222,55 @@
                                    :error (.-message error)}))))
      ch)))
 
+;; -----------------------------------------------------------------------------
+;; `intentos` — el rastro de un diagnóstico en curso (070, ADR-036, T-134)
+;; -----------------------------------------------------------------------------
+;; Las tres funciones devuelven `{:success bool :error str}` como el resto del
+;; namespace, y **ninguna usa `.select()`**: el rastro se escribe y no se lee de
+;; vuelta. Una ida y vuelta menos en cada respuesta, y un modo de fallo menos.
+;;
+;; Quien decide qué mandar es `universo.rastro`; acá solo se habla con Supabase.
+
+(defn- resultado-de-escritura
+  "Adapta una respuesta de supabase-js a `{:success ...}` sin loguear el error:
+   quien llama decide si vale la pena decir algo. Un rastro que no se pudo
+   escribir **no es un problema del estudiante** y no debe llenarle la consola."
+  [ch]
+  (fn [result]
+    (if (.-error result)
+      (async/put! ch {:success false :error (.-message (.-error result))})
+      (async/put! ch {:success true}))))
+
+(defn abrir-intento!
+  "Inserta la fila del intento al empezar el diagnóstico. `row` la arma
+   `rastro/fila-de-apertura`, con el uuid ya generado por el cliente."
+  [row]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "intentos")
+        (.insert (clj->js row))
+        (.then (resultado-de-escritura ch))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn latir-intento!
+  "Reescribe el rastro parcial. `row` la arma `rastro/fila-de-latido` (o
+   `fila-de-cierre`, que es la misma más el sello).
+
+   La policy `intentos_update_own` acota el alcance a la propia fila abierta, y
+   el `.eq` de acá es la otra mitad: sin él se estaría pidiendo actualizar
+   *todas* las filas visibles, y que hoy RLS lo reduzca a una no es razón para
+   escribir una consulta que dice otra cosa."
+  [intento-id row]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "intentos")
+        (.update (clj->js row))
+        (.eq "id" (str intento-id))
+        (.then (resultado-de-escritura ch))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
 (defn fetch-tests
   "Obtiene tests visibles (RLS). Opcionalmente filtra en servidor.
    filter-mode:

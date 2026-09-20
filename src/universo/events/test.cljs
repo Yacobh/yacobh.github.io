@@ -8,6 +8,7 @@
    [universo.irt.fluency :as fluency]
    [universo.irt.progress :as progress]
    [universo.motor :as motor]
+   [universo.rastro :as rastro]
    [universo.reintento :as reintento]
    [cljs.core.async :as async :refer [go <!]]
    [universo.db.crud :as crud]
@@ -195,38 +196,48 @@
                            ;; `universo.motor`, igual que el resto de la config.
                            :guessing-c (:guessing_c cfg)
                            :prior-sd (:prior_sd cfg)}
-                          progress/default-stop-config)]
-         {:db (-> db
-                  (assoc-in [:test :status] :questions)
-                  (assoc-in [:test :topic] resolved)
-                  (assoc-in [:test :responses] [])
-                  (assoc-in [:test :questions] [])
-                  (assoc-in [:test :feedback] nil)
-                  (assoc-in [:test :prefetched-question] nil)
-                  (assoc-in [:test :prefetching?] false)
-                  (assoc-in [:test :start-time] (.now js/Date))
-                  ;; θ de arranque: el de la evaluación si `046` está aplicada y
-                  ;; alguien lo configuró; si no, el -1.0 de siempre. **No depende
-                  ;; del estudiante a propósito** — es dónde abre el banco, no una
-                  ;; estimación previa de quien lo rinde: el primer ítem servido es
-                  ;; el más cercano a este valor.
-                  (assoc-in [:test :theta] (let [t (:initial_theta cfg)]
-                                             (if (number? t) (double t) -1.0)))
-                  ;; El mismo θ, guardado aparte porque `:theta` se sobrescribe
-                  ;; en cada respuesta: deshacer la primera (`universo.reintento`)
-                  ;; necesita saber dónde abría el banco, y 0.0 —la media del
-                  ;; prior— no es ese punto.
-                  (assoc-in [:test :theta-initial] (let [t (:initial_theta cfg)]
+                          progress/default-stop-config)
+             nuevo-db (-> db
+                          (assoc-in [:test :status] :questions)
+                          (assoc-in [:test :topic] resolved)
+                          (assoc-in [:test :responses] [])
+                          (assoc-in [:test :questions] [])
+                          (assoc-in [:test :feedback] nil)
+                          (assoc-in [:test :prefetched-question] nil)
+                          (assoc-in [:test :prefetching?] false)
+                          (assoc-in [:test :start-time] (.now js/Date))
+                          ;; θ de arranque: el de la evaluación si `046` está aplicada y
+                          ;; alguien lo configuró; si no, el -1.0 de siempre. **No depende
+                          ;; del estudiante a propósito** — es dónde abre el banco, no una
+                          ;; estimación previa de quien lo rinde: el primer ítem servido es
+                          ;; el más cercano a este valor.
+                          (assoc-in [:test :theta] (let [t (:initial_theta cfg)]
                                                      (if (number? t) (double t) -1.0)))
-                  (assoc-in [:test :theta-history] [])
-                  ;; Un editor abierto no sobrevive a un test nuevo: apuntaría a
-                  ;; un ítem que ya no está en pantalla.
-                  (assoc-in [:test :editor] nil)
-                  (assoc-in [:test :stop-reason] nil)
-                  (assoc-in [:test :stop-config] stop-config)
-                  (assoc-in [:test :escape-resources] nil)
-                  (assoc-in [:test :current-question] nil))
-          :dispatch [:test/fetch-next-question]})))))
+                          ;; El mismo θ, guardado aparte porque `:theta` se sobrescribe
+                          ;; en cada respuesta: deshacer la primera (`universo.reintento`)
+                          ;; necesita saber dónde abría el banco, y 0.0 —la media del
+                          ;; prior— no es ese punto.
+                          (assoc-in [:test :theta-initial] (let [t (:initial_theta cfg)]
+                                                             (if (number? t) (double t) -1.0)))
+                          (assoc-in [:test :theta-history] [])
+                          ;; Un editor abierto no sobrevive a un test nuevo: apuntaría a
+                          ;; un ítem que ya no está en pantalla.
+                          (assoc-in [:test :editor] nil)
+                          (assoc-in [:test :stop-reason] nil)
+                          (assoc-in [:test :stop-config] stop-config)
+                          (assoc-in [:test :escape-resources] nil)
+                          ;; Un intento nuevo, un rastro nuevo. `:off?` se conserva: si
+                          ;; `070` no está aplicada, no lo va a estar en el test
+                          ;; siguiente tampoco.
+                          (assoc-in [:test :rastro :id] (str (random-uuid)))
+                          (assoc-in [:test :current-question] nil))]
+         (cond-> {:db nuevo-db
+                  :dispatch [:test/fetch-next-question]}
+           ;; El rastro se abre **antes** de servir el primer ítem: un estudiante
+           ;; que abandona en la pantalla de la pregunta 1 es justo el caso que
+           ;; T-134 existe para poder contar.
+           (not (get-in nuevo-db [:test :rastro :off?]))
+           (assoc :rastro/abrir {:db nuevo-db})))))))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EFECTO: Obtiene la siguiente pregunta desde Supabase
@@ -505,7 +516,20 @@
              :dispatch [:test/show-feedback {:question question
                                              :response new-response}]}
       (nil? reason)
-      (assoc :test/fetch-next-question {:db db-with-theta :mode :prefetch}))))
+      (assoc :test/fetch-next-question {:db db-with-theta :mode :prefetch})
+
+      ;; ── El latido (T-134, ADR-036) ──────────────────────────────────────
+      ;; Acá, y no en cada vía por separado, porque `register-response` es el
+      ;; único embudo por el que pasan las dos clases de respuesta —la corregida
+      ;; por el servidor y el escape— y ésa es justo la propiedad que hace que
+      ;; el rastro no pueda quedarse a medias para una de las dos.
+      ;;
+      ;; Se late **después** de reestimar θ y de evaluar la parada, con
+      ;; `db-with-theta`: lo que se guarda es el estado en el que el estudiante
+      ;; quedaría si cerrara la pestaña justo ahora, que es literalmente lo que
+      ;; se quiere poder mirar.
+      (not (get-in db-with-theta [:test :rastro :off?]))
+      (assoc :rastro/latir {:db db-with-theta}))))
 
 (defn- current-question-by-id
   [db question-id]
@@ -687,16 +711,23 @@
                   ;; topic/theta van también como columnas propias (no solo
                   ;; dentro del JSON de "test") para poder calcular qué otros
                   ;; tests desbloquea este intento (universo.access).
-                  row {"test" test-payload
-                       "topic" topic
-                       "theta" theta
-                       ;; Con qué reglas se calculó ese θ (048, ADR-034). Sin
-                       ;; esto, un cambio de motor vuelve incomparables dos
-                       ;; filas idénticas y el Δθ de G-4 mediría el motor en vez
-                       ;; del estudiante.
-                       "engine_version" motor/version
-                       "email-user" email*
-                       "user_id" uid}]
+                  intento-id (or (get data "intento_id") (:intento_id data))
+                  row (cond-> {"test" test-payload
+                               "topic" topic
+                               "theta" theta
+                               ;; Con qué reglas se calculó ese θ (048, ADR-034). Sin
+                               ;; esto, un cambio de motor vuelve incomparables dos
+                               ;; filas idénticas y el Δθ de G-4 mediría el motor en vez
+                               ;; del estudiante.
+                               "engine_version" motor/version
+                               "email-user" email*
+                               "user_id" uid}
+                        ;; Se manda solo si hay rastro. Un `intento_id` nulo y
+                        ;; una columna ausente son cosas distintas: la primera
+                        ;; es «este test no tuvo rastro» y es válida, la segunda
+                        ;; rompe el insert entero (ver el reintento de abajo).
+                        (some? intento-id)
+                        (assoc "intento_id" intento-id))]
               (if-not uid
                 (js/console.error "Sin sesión Supabase; vuelve a iniciar sesión")
                 (let [primero (<! (crud/insert-data-table! row "tests" {:returning? false}))
@@ -709,14 +740,30 @@
                       ;; fila que nunca se guardó, no. Mismo criterio que
                       ;; `test-config-payload` con `initial_theta`, pero acá el
                       ;; costo de equivocarse lo paga el estudiante.
-                      result (if (and (not (:success primero))
-                                      (motor/falta-la-columna-de-version? (:error primero)))
+                      result (cond
+                               (:success primero) primero
+
+                               (motor/falta-la-columna-de-version? (:error primero))
                                (do
                                  (js/console.warn
                                   "La migración 048 no está aplicada: se guarda el test sin engine_version.")
                                  (<! (crud/insert-data-table!
                                       (dissoc row "engine_version") "tests" {:returning? false})))
-                               primero)]
+
+                               ;; Misma red, ahora para `tests.intento_id` (070).
+                               ;; Si el bundle llegó antes que la migración, el
+                               ;; insert se rechaza entero por una columna que
+                               ;; PostgREST no conoce y **se pierde el
+                               ;; diagnóstico recién rendido**. Perder el enlace
+                               ;; con su rastro es barato; perder el test, no.
+                               (rastro/falta-la-tabla? (:error primero))
+                               (do
+                                 (js/console.warn
+                                  "La migración 070 no está aplicada: se guarda el test sin intento_id.")
+                                 (<! (crud/insert-data-table!
+                                      (rastro/fila-sin-intento row) "tests" {:returning? false})))
+
+                               :else primero)]
                   (if (:success result)
                     (when email*
                       (re-frame/dispatch [:dashboard/consultar email*]))
@@ -724,6 +771,113 @@
        (.catch (fn [err]
                  (js/console.error "No se pudo leer la sesión:" err))))))
 
+
+;; -----------------------------------------------------------------------------
+;; 🔹 EFECTOS: el rastro del intento en curso (070, ADR-036, T-134)
+;; -----------------------------------------------------------------------------
+;; Tres efectos con la misma forma —abrir, latir, cerrar— y **una sola regla de
+;; comportamiento**, que es la que importa:
+;;
+;;   ⭐ **Un rastro que no se puede escribir no interrumpe nada.** No hay
+;;   `js/console.error`, no hay estado de error en pantalla, no hay reintento
+;;   por respuesta. Si la escritura falla porque `070` todavía no está aplicada
+;;   —R-39, que ya se materializó dos veces— el rastro se apaga para el resto de
+;;   la sesión con `:rastro/apagar` y el diagnóstico sigue exactamente igual.
+;;   Cualquier otro fallo (red, RLS) se anota una vez con `console.debug` y se
+;;   ignora: la respuesta siguiente reescribe el rastro entero de todas formas,
+;;   así que un latido perdido se recupera solo.
+;;
+;;   El orden de prioridades es explícito: **el intento del estudiante vale más
+;;   que su rastro.**
+
+(defn- rastro-id [db] (get-in db [:test :rastro :id]))
+
+(defn- apagar-rastro!
+  [motivo]
+  (js/console.warn "Rastro apagado para esta sesión:" motivo
+                   "— el diagnóstico sigue igual.")
+  (re-frame/dispatch [:rastro/apagar]))
+
+(defn- manejar-fallo-de-rastro!
+  "Único lugar donde se decide qué hacer con un rastro que no se pudo escribir.
+
+   ⚠️ **La apertura y los latidos no se tratan igual, y la diferencia salió de
+   medirlo.** Contra un PostgREST real sin la tabla, el `insert` vuelve
+   **`404` con el cuerpo vacío**: no hay `PGRST205`, no hay mensaje, no hay nada
+   que `rastro/falta-la-tabla?` pueda reconocer. Confiar en el texto del error
+   habría dejado el rastro encendido reintentando en cada respuesta, contra una
+   fila que no existe.
+
+   La regla que no depende de la versión de PostgREST es más simple: **si la
+   apertura falla, por lo que sea, no hay fila contra la cual latir**, así que
+   se apaga. Un latido suelto que falla, en cambio, no apaga nada —puede ser la
+   red— porque la respuesta siguiente reescribe el rastro entero y lo recupera
+   sola."
+  [etapa {:keys [success error]}]
+  (when-not success
+    (cond
+      (= etapa :abrir)
+      (apagar-rastro! (if (rastro/falta-la-tabla? error)
+                        "la migración 070 no está aplicada"
+                        (str "no se pudo abrir el intento (" error ")")))
+
+      (rastro/falta-la-tabla? error)
+      (apagar-rastro! "la migración 070 no está aplicada")
+
+      :else
+      (js/console.debug "Rastro no escrito" (name etapa) (str error)))))
+
+(re-frame/reg-fx
+ :rastro/abrir
+ (fn [{:keys [db]}]
+   ;; El `user_id` sale de la **sesión real**, no de `app-db`: es el mismo
+   ;; criterio de `:save-test`, y la policy `intentos_insert_own` compara contra
+   ;; `auth.uid()`. Sin sesión no hay intento que abrir — y tampoco habría test
+   ;; que guardar después.
+   (-> (sb/current-user-id)
+       (.then (fn [uid]
+                (if-not uid
+                  ;; Sin sesión no hay intento que abrir —y tampoco habría test
+                  ;; que guardar después—. Se apaga para no latir contra una
+                  ;; fila que nunca existió.
+                  (apagar-rastro! "no hay sesión de Supabase")
+                  (go
+                    (manejar-fallo-de-rastro!
+                     :abrir
+                     (<! (crud/abrir-intento!
+                          (rastro/fila-de-apertura
+                           {:id (rastro-id db)
+                            :user-id uid
+                            :topic (get-in db [:test :topic])
+                            :engine-version motor/version
+                            :test (:test db)}))))))))
+       (.catch (fn [err]
+                 (apagar-rastro! (str "no se pudo leer la sesión (" err ")")))))))
+
+(re-frame/reg-fx
+ :rastro/latir
+ (fn [{:keys [db]}]
+   (when-let [id (rastro-id db)]
+     (go
+       (manejar-fallo-de-rastro!
+        :latir
+        (<! (crud/latir-intento! id (rastro/fila-de-latido (:test db)))))))))
+
+(re-frame/reg-fx
+ :rastro/cerrar
+ (fn [{:keys [db]}]
+   (when-let [id (rastro-id db)]
+     (go
+       (manejar-fallo-de-rastro!
+        :cerrar
+        (<! (crud/latir-intento! id (rastro/fila-de-cierre (:test db)))))))))
+
+(re-frame/reg-event-db
+ :rastro/apagar
+ ;; Para el resto de la sesión. No se vuelve a intentar hasta recargar: si `070`
+ ;; no está aplicada ahora, no lo va a estar en la pregunta siguiente.
+ (fn [db _]
+   (assoc-in db [:test :rastro :off?] true)))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EVENTO: Finaliza el test
@@ -740,40 +894,67 @@
          new-db     (-> db
                         (assoc-in [:test :status] :completed)
                         (assoc-in [:test :end-time] (.now js/Date)))
-         test       (:test new-db)]
-     {:db new-db
-      :save-test {:data {"test" test
-                         "topic" (:topic test)
-                         "theta" (:theta test)
-                         "email-user" email-user
-                         "user_id" user-id}
-                  :email email-user}
-      ;; Perfil derivado; el usuario abre resultados desde la pantalla de cierre
-      :dispatch [:profile/save-from-test]})))
+         test       (:test new-db)
+         rastro-off? (get-in new-db [:test :rastro :off?])
+         intento-id  (get-in new-db [:test :rastro :id])]
+     (cond-> {:db new-db
+              :save-test {:data {"test" test
+                                 "topic" (:topic test)
+                                 "theta" (:theta test)
+                                 "email-user" email-user
+                                 "user_id" user-id
+                                 ;; El puente con el rastro (070). Nulo si `070`
+                                 ;; no está aplicada; el efecto :save-test
+                                 ;; reintenta sin la columna si PostgREST la
+                                 ;; rechaza, igual que con `engine_version`.
+                                 "intento_id" (when-not rastro-off? intento-id)}
+                          :email email-user}
+              ;; Perfil derivado; el usuario abre resultados desde la pantalla de cierre
+              :dispatch [:profile/save-from-test]}
+       ;; El sello. A partir de acá la policy `intentos_update_own` deja la fila
+       ;; fuera de alcance para siempre: el rastro de un test terminado es tan
+       ;; inmutable como la fila de `tests` que lo acompaña.
+       (not rastro-off?)
+       (assoc :rastro/cerrar {:db new-db})))))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :test/reintentar-ultimo
  ;; «Volver a servir este ítem»: deshace la última respuesta y vuelve a mostrar
  ;; la misma pregunta, ya con los cambios que el admin acaba de guardar. Es la
  ;; mitad del editor en vivo que toca el test (ADR-032); la otra mitad vive en
  ;; `universo.events.editor-vivo`.
  ;;
- ;; **Es seguro porque nada se persiste por ítem.** La fila de `tests` se escribe
- ;; entera en `:test/complete`, así que deshacer no deja rastro que corregir en la
- ;; base. Si algún día se guarda respuesta por respuesta, este evento deja de ser
- ;; solo estado local y necesita su propia migración.
+ ;; ⚠️ **Ese día llegó: desde `070` sí se persiste por ítem.** El comentario que
+ ;; estaba acá decía «es seguro porque nada se persiste por ítem… si algún día se
+ ;; guarda respuesta por respuesta, este evento deja de ser solo estado local y
+ ;; necesita su propia migración». T-134 es ese día, y la migración es `070`.
+ ;;
+ ;; Lo que hace que siga siendo seguro es una propiedad del diseño del rastro, no
+ ;; una excepción: **el latido reescribe `parcial` entero, no parchea**. Deshacer
+ ;; una respuesta se refleja mandando el rastro como quedó, sin ninguna operación
+ ;; de borrado y sin nada que reconciliar. Por eso este evento late también —si
+ ;; no lo hiciera, la respuesta deshecha se quedaría en la base hasta la
+ ;; siguiente, y el rastro mostraría un ítem que el admin ya retiró.
+ ;;
+ ;; (Toda fila que produce este camino es `origin = 'admin_preview'` por el
+ ;; trigger de `070`, así que nunca entra a la calibración. Que igual se
+ ;; mantenga coherente es porque un rastro que miente es peor que no tenerlo.)
  ;;
  ;; El `admin?` es UX y está para que un `dispatch` desde la consola no sea el
  ;; camino corto a rehacer un ítem: nada de esto atraviesa RLS.
- (fn [db [_ {:keys [parche]}]]
-   (if (and (get-in db [:auth :admin?])
-            (reintento/puede-reintentar? (:test db)))
-     (-> db
-         (update :test reintento/deshacer-ultima parche)
-         ;; El panel se va con el feedback y el editor se iría con él: se cierra
-         ;; explícitamente para que el ítem vuelva a la pantalla limpio.
-         (assoc-in [:test :editor] nil))
-     db)))
+ (fn [{:keys [db]} [_ {:keys [parche]}]]
+   (if-not (and (get-in db [:auth :admin?])
+                (reintento/puede-reintentar? (:test db)))
+     {:db db}
+     (let [nuevo-db (-> db
+                        (update :test reintento/deshacer-ultima parche)
+                        ;; El panel se va con el feedback y el editor se iría con
+                        ;; él: se cierra explícitamente para que el ítem vuelva a
+                        ;; la pantalla limpio.
+                        (assoc-in [:test :editor] nil))]
+       (cond-> {:db nuevo-db}
+         (not (get-in nuevo-db [:test :rastro :off?]))
+         (assoc :rastro/latir {:db nuevo-db}))))))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 SUSCRIPCIONES
