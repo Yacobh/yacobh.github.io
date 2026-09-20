@@ -612,6 +612,41 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > origen distingue depuración de no-depuración, no «muestra válida» de «ruido». Filtrar por
 > `origin = 'student'` es necesario y **no suficiente**.
 
+> ## 🔎 2026-09-19 — lo que la verificación de `070` encontró del **resto** del esquema
+>
+> Al comparar los privilegios de `intentos` con los de `tests`, salió esto. **No es un defecto de
+> `070`** —`070` es la única tabla que está bien— sino de todo lo demás:
+>
+> ```
+> intentos  | authenticated=arw/postgres          ← acotada a propósito por 070
+> tests     | anon=arwdDxt/postgres               ← TODO, incluidos delete (d) y truncate (D)
+> tests     | authenticated=arwdDxt/postgres      ← ídem
+> ```
+>
+> Medido sobre las **19 tablas** de `public`: **18 le dan a `anon` privilegio de TRUNCATE** y 18 le
+> dan DELETE a `authenticated`. Son las *default privileges* que Supabase deja puestas sobre el
+> esquema `public`, y ninguna migración de este repositorio escribió nunca un `grant` de tabla, así
+> que nadie las miró. Las dos excepciones son **`intentos`** (acotada por `070`) y **`questions`**,
+> que tiene `anon=awdDxt` — **sin `r`**: alguien le quitó el SELECT a `anon` y le dejó insert,
+> update, delete y truncate.
+>
+> ### ⚠️ Qué tan grave es: **no es explotable hoy**, y conviene decir por qué exactamente
+>
+> 1. **`anon` y `authenticated` son `rolcanlogin = f`** (verificado): no se pueden conectar directo a
+>    Postgres. Se asumen vía JWT a través de PostgREST.
+> 2. **PostgREST no expone TRUNCATE.** No hay verbo HTTP que lo alcance. Y `TRUNCATE` es justamente
+>    la operación que **RLS no filtra**, así que si alguna vez fuera alcanzable, la policy no
+>    salvaría nada.
+> 3. Para `select`/`insert`/`update`/`delete`, **RLS sí filtra**, y ninguna tabla tiene policy para
+>    `anon` sobre datos de estudiantes.
+>
+> O sea: las puertas están abiertas y no hay picaporte del lado de afuera. Pero es **exactamente la
+> lección que ADR-040 ya escribió al revés** —*«el grant es la puerta, la policy es el límite»*—:
+> hoy todo el esquema descansa en que la RLS esté bien, **sin segunda línea**. `intentos` muestra lo
+> que cuesta tenerla: dos líneas de SQL.
+>
+> Registrado como **[[../project-memory/RISKS]] R-46** y **[[../project-memory/BACKLOG]] T-163**.
+
 > ## 🔒 2026-09-18 — `public.tests_sin_identidad` (vista), y el defecto que la motivó
 >
 > **No es una migración numerada**: vive en `supabase/acceso_correccion_tests_pii.sql`, junto al
@@ -694,6 +729,121 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > redacción no: las notas de las dos migraciones se corrigieron y se regeneró el `.sql` antes de
 > aplicar. Es la cuarta vez en dos días que la documentación dice una cosa y la base otra.
 
+
+72. `migrations/070_intentos.sql` — ✅ **aplicada 2026-09-19 por el owner** ·
+    **SESSION-047, T-134, [[../adr/ADR-036-el-intento-en-curso-vive-en-su-propia-tabla]].**
+    Crea `public.intentos`: una fila por **intento de diagnóstico iniciado**, con su rastro parcial
+    (`parcial` jsonb, `n_respuestas`), su origen y sus relojes. Más `public.intento_abandonado()`,
+    dos triggers, tres policies, privilegios explícitos, dos índices, `tests.intento_id` (nullable,
+    FK) y `tests_sin_identidad` recreada con esa columna al final.
+    **Para qué:** hasta hoy el diagnóstico escribía **una sola vez**, en `:test/complete`. Quien
+    respondía ocho ítems y cerraba la pestaña no dejaba nada, así que «cuáles no lo hicieron» no se
+    podía responder (**G-1**) y los ítems que hacen abandonar desaparecían de la muestra de
+    calibración (**G-2**).
+    **Por qué tabla nueva y no una columna en `tests`:** `tests` es append-only desde el cliente
+    (`023`) y **al menos seis lectores suyos asumen «fila = medición terminada»** — entre ellos
+    `universo.access/best-theta-by-topic`, que toma el **máximo** θ, así que un θ parcial inflado
+    desbloquearía un topic no ganado. Con tabla aparte los seis siguen correctos sin tocar una línea.
+    **El abandono no se escribe, se deriva:** `cerrado_en is null` y sin latir hace más de 2 horas
+    (≈20× la duración mediana medida de 5,8 min). Nadie puede avisar que cerró la pestaña, así que no
+    hay estado que alguien tenga que poner ni job que lo ponga.
+    **Lo que decide el servidor:** `origin` (trigger, como `067`), `updated_at` y **`cerrado_en`** —
+    el cliente manda la intención de cerrar, no la hora. Y `intentos_sellar` le saca `email` y
+    `email-user` al jsonb **venga de donde venga**: es L-46 cortado antes de que exista la primera
+    fila.
+    ⚠️ **A `claude_ro` y `claude_ddl` NO se les da lectura sobre `intentos`**, y es una decisión, no
+    un olvido: sin policy no hay acceso, que es el default seguro. `parcial` sale recortado, pero L-46
+    enseñó que eso se afirma después de mirar filas reales.
+    **Consulta:** toda métrica de estudiantes filtra `origin = 'student'`, igual que en `tests`.
+
+> **Verificación de `070` (2026-09-19).** Contra **PostgreSQL 14.18 y 17.11 desechables** (TCP; el
+> socket Unix del scratchpad excede los 103 bytes que permite Postgres) con una réplica del estado
+> **previo** —`auth.users`, `auth.uid()`, `profiles`, `is_admin()`, `tests` con sus dos policies y
+> `tests_sin_identidad` sin `intento_id`— **y un PostgREST 12.0.3 real** con JWT firmados, que es lo
+> único que prueba que policies y privilegios se alinean con un `PATCH`.
+>
+> ⚠️ **Se verificó primero contra 14.18 y eso estaba mal: producción es PostgreSQL 17.6.** Se
+> descubrió al conectarse a la base para intentar aplicarla. La batería completa se repitió contra un
+> **17.11** y el comportamiento es **idéntico** en los dos — pero eso no se sabía antes de medirlo.
+> **Regla que queda: la verificación se hace contra la versión mayor de producción**, no contra la
+> que está instalada en la máquina.
+>
+> Aplica limpia con `ON_ERROR_STOP=1`, **idempotente**, y la reversión del pie funciona y deja volver
+> a aplicarla. El trigger pisa `origin` aunque el cliente mande `admin_preview`; `email` y
+> `email-user` no entran ni por SQL ni por HTTP; dueño, topic, origen y fecha de inicio no se mueven;
+> otro estudiante no ve ni escribe el intento ajeno; `anon` no ve la tabla; `DELETE` da
+> `42501 permission denied` **por privilegio**, no solo por falta de policy; un intento cerrado no se
+> reescribe (por policy desde el cliente, por excepción desde el SQL Editor). Ciclo completo por HTTP:
+> abrir `201`, latir `204`, cerrar `204`, guardar el test con su `intento_id` `201`.
+>
+> ⚠️ **Dos defectos que solo aparecieron contra PostgREST, no contra SQL.**
+> (1) **`cerrado_en` venía del reloj del cliente.** Con un navegador atrasado el `update` de cierre
+> falla entero por el check `intentos_cierre_posterior`, el intento queda abierto para siempre y
+> **alguien que terminó su diagnóstico cuenta como abandono** — en la única métrica que esta migración
+> existe para producir. Medido: con la hora del cliente en 1970, `PATCH 400`; con la intención y
+> `now()` del servidor, `204` y `cerrado_en` correcto.
+> (2) **Con la tabla ausente, PostgREST 12.0.3 responde `404` con el cuerpo vacío** — sin `PGRST205`,
+> sin mensaje, sin nada que reconocer por texto. Reconocer el error por su mensaje habría dejado el
+> rastro encendido reintentando contra una fila inexistente. La regla que no depende de la versión de
+> PostgREST: **si la apertura falla, por lo que sea, se apaga**; un latido suelto que falla no apaga
+> nada, porque el siguiente reescribe todo.
+>
+> ⛔ **La aplica el owner, no el agente.** Medido contra producción con el rol `claude_ddl` de
+> ADR-040, tres sentencias fallan: `alter table public.tests add column intento_id` →
+> *must be owner of table tests*; `references auth.users(id)` →
+> *permission denied for schema auth*; `create or replace view tests_sin_identidad` →
+> *must be owner of view*. `claude_ddl` **sí** podría crear `public.intentos` —tiene `create` sobre
+> `public`—, y ahí hay un segundo motivo para que no lo haga: quedaría como **dueño de la tabla**, y
+> el dueño está **exento de su propia RLS** salvo `force row level security`. No es un defecto del
+> rol: es la línea que ADR-040 trazó entre agregar contenido y cambiar la forma de la base.
+>
+> **Comprobado contra producción en solo lectura** (los tres supuestos de la migración):
+> `gen_random_uuid()` existe, `public.is_admin()` existe y es `security definer`, y
+> `tests_origin_valido` admite exactamente `'student'` y `'admin_preview'` — los dos valores que
+> `intentos.origin` copia.
+>
+> **Orden invertido medido (R-39, tercera instancia):** con el bundle antes que la migración, el
+> `insert` de `tests` con `intento_id` devuelve `PGRST204` y **se perdería el diagnóstico recién
+> rendido**. De ahí el reintento sin la columna, verificado: `400` → `201`. **Migración primero,
+> bundle después.**
+
+> ## ✅ Aplicada en producción el 2026-09-19 por el owner, y verificada contra la base real
+>
+> **La aplicó el owner desde el SQL Editor**, como corresponde: el agente lo intentó primero con
+> `claude_ddl` y tres sentencias lo exceden (ver arriba). Verificación corrida después con
+> `claude_ddl`, en solo lectura y contra el catálogo:
+>
+> | Control | Resultado |
+> |---|---|
+> | Tabla, dueño y RLS | `intentos`, dueño `postgres`, `rls = t` — **misma postura que `tests`** |
+> | Columnas | Las 10, con sus defaults (`gen_random_uuid()`, `'student'`, `'{}'::jsonb`, `now()`) |
+> | Constraints | Las 6, incluida `FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE` |
+> | Triggers | `intentos_marcar_origen` (**solo INSERT**) · `intentos_sellar` (**INSERT OR UPDATE**) |
+> | `security definer` | **Solo `intentos_marcar_origen`**, con `search_path = public`, igual que `is_admin()`. `intentos_sellar` e `intento_abandonado` **no** lo son, que es lo correcto |
+> | Policies | Las 3, con el `using`/`with check` que corresponde a cada verbo |
+> | Índices | `intentos_abiertos_idx` (parcial sobre `cerrado_en is null`) y `intentos_user_topic_idx` |
+> | `intento_abandonado()` | `stable`, y devuelve `f / t / f` en los tres casos de la regla |
+> | `tests.intento_id` + FK | `tests_intento_fk … REFERENCES intentos(id) ON DELETE SET NULL` |
+> | `tests` intacta | **351 filas**, 280 de `origin = 'student'`, **0** con `intento_id` (todavía no hay bundle publicado) |
+> | La vista | 9 columnas con `intento_id` al final; **0** claves `email`, **0** arrobas |
+>
+> ⭐ **El control que más vale, porque es el que `information_schema` esconde.** Con `claude_ddl`,
+> `information_schema.role_table_grants` devuelve **0 filas** para `intentos` — precisamente porque el
+> rol no tiene ningún privilegio sobre ella, que es la decisión de esta migración. Hubo que leer
+> `pg_class.relacl`:
+>
+> ```
+> intentos | authenticated=arw/postgres        ← select, insert, update. SIN delete, SIN truncate
+> intentos | service_role=arwdDxt/postgres     ← el rol de servidor, como en toda la base
+>                                                 (anon NO aparece: no tiene nada)
+> ```
+>
+> Y comprobado de verdad, no por catálogo: `select count(*) from public.intentos` con **los dos**
+> roles del agente devuelve `ERROR: permission denied for table intentos`.
+>
+> ⏳ **Lo que todavía no está verificado de punta a punta:** no hay ninguna fila. El bundle con el
+> rastro **no está publicado**, así que `intentos` está vacía y `tests.intento_id` es nulo en las 351.
+> La verificación de comportamiento en producción se completa cuando alguien rinda un diagnóstico.
 
 > **Verificación de `067` (2026-09-13).** Contra un **PostgreSQL 14.18 desechable** con fixture a
 > mano (`auth.uid()`, `profiles`, `tests`, `is_admin()`): aplica limpio con `ON_ERROR_STOP=1`; el
