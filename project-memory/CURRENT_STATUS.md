@@ -4,6 +4,48 @@
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
 
+> ## ⏳ 2026-09-20 — el track de electrónica está escrito entero, y sin aplicar
+>
+> Siete migraciones, **60 ítems y 30 ideas erróneas**, verificadas en orden sobre un **PostgreSQL
+> 17.11** desechable.
+>
+> | | |
+> |---|---|
+> | `071` | track, 5 módulos con banda explícita y las **cuatro** columnas históricas, 4 prerrequisitos |
+> | `072`…`076` | los cinco bancos, **12 ítems por módulo**, un `topic` por módulo (patrón de `cuantica`) |
+> | `077` | las cinco `test_configs` encadenadas, con **`initial_theta` explícito** |
+> | cliente | los cinco slugs en `universo.topics`, con test y bundle |
+>
+> **Los nueve controles del banco en verde:** 0 sin módulo, 0 sin diagnosticar, 0 con idea errónea en
+> la alternativa correcta, 0 fuera de banda, 0 enunciados repetidos, 0 LaTeX con doble escape, 0
+> ideas huérfanas. Claves **25/28/23/23 %**. Idempotentes: la segunda pasada deja 60 ítems y no 120.
+>
+> ⭐ **Lo que enseñó escribirlos**, que vale más que los ítems:
+>
+> 1. **Un ítem salió con la alternativa correcta equivocada** («alrededor de 50 ohm» cuando da 20), y
+>    lo atrapó releerlo, **no el verificador**: `verificar_items.py` comprueba que haya *exactamente
+>    una* correcta, no que el número esté bien. Es T-105 en su versión que ningún script alcanza.
+> 2. **El verificador rebota por punto flotante en los bordes de tramo** (`-2,8 + 0,6` da
+>    `-2,2000000000000002`). Pasó en dos de los cinco bancos. Conviene no poner ítems justo en el borde.
+> 3. **Una idea errónea del catálogo se descartó**: la que penaliza usar el camino largo. No es un
+>    error —el alumno llega al resultado correcto— y el ítem habría sido injusto. Queda dicho en la
+>    cabecera de `075` para que nadie la agregue creyendo que fue un olvido.
+>
+> ⚠️ **Dos cosas pendientes antes de que un alumno rinda:**
+>
+> - **T-159 / R-42, medido:** aplicar `077` lleva el selector de **18 a 23 bancos activos**. Todo
+>   estudiante de PAES va a ver los cinco de electrónica. La alternativa (`active = false`) está
+>   escrita en la cabecera de `077`: es cambiar una palabra por fila.
+> - **`min_theta` y R-44.** La cadena exige el centro de la banda previa (−2,4 desde la raíz), y el
+>   estimador **clampea en −3,0**: R-44 midió dos de doce alumnos clavados ahí **habiendo
+>   trabajado**. Uno así no abriría ningún módulo. La alternativa más blanda (−2,7) está comentada
+>   en `077` con la aritmética.
+>
+> ⏳ **Y el catálogo de errores volvió sin marcas.** El owner lo revisó y no tenía nada que agregar,
+> así que las 31 ideas quedan como **hipótesis revisadas en bloque**, no como errores confirmados uno
+> por uno. Está dicho en la cabecera de cada banco: importa cuando alguien pregunte de dónde salió
+> cada distractor.
+
 > ## ⏳ 2026-09-19 (SESSION-047) — el abandono deja rastro, y hay plan para un track nuevo
 >
 > **T-134 cerrada con ADR-036**, y con **ninguna de las dos opciones que proponía su ficha**: el
@@ -16,7 +58,7 @@
 > | `070_intentos.sql` | ✅ **aplicada por el owner el 2026-09-19** y verificada contra la base real |
 > | `public/js/app.js` | ✅ recompilado, con el rastro adentro |
 > | `clj -M:test` | ✅ **228 tests / 2907 assertions / 0 failures** |
-> | **Épica E10** track `electronica` | 🆕 planificada, **T-155…T-162**, cero líneas escritas |
+> | **Épica E10** track `electronica` | ✅ **escrita entera** (`071`…`077`), ⏳ sin aplicar |
 >
 > **Por qué tabla nueva.** `tests` es append-only desde el cliente (`023`) y **al menos seis
 > lectores suyos asumen «fila = medición terminada»** — entre ellos `access/best-theta-by-topic`,

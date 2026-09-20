@@ -1,16 +1,16 @@
-# Graph Report - yacobh.github.io  (2026-09-19)
+# Graph Report - yacobh.github.io  (2026-09-20)
 
 ## Corpus Check
-- 253 files · ~1,413,806 words
+- 265 files · ~1,447,043 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4154 nodes · 9507 edges · 285 communities (252 shown, 33 thin omitted)
+- 4181 nodes · 9529 edges · 294 communities (261 shown, 33 thin omitted)
 - Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 958 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a863f500`
+- Built from commit: `03e78088`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -245,10 +245,13 @@
 - acceso_correccion_tests_pii.sql
 - yh
 - Zg
+- T-155 — Catálogo de errores del curso de electrónica · **BORRADOR PARA CORREGIR**
+- .push
+- Contenido pedagógico (capa 0 + Baldor)
 
 ## God Nodes (most connected - your core abstractions)
-1. `x()` - 195 edges
-2. `Communities (274 total, 29 thin omitted)` - 192 edges
+1. `Communities (285 total, 33 thin omitted)` - 198 edges
+2. `x()` - 195 edges
 3. `t()` - 165 edges
 4. `C()` - 163 edges
 5. `y()` - 156 edges
@@ -261,19 +264,19 @@
 ## Surprising Connections (you probably didn't know these)
 - `K()` --indirect_call--> `A()`  [INFERRED]
   public/js/app.js → public/js/app.js  _Bridges community 174 → community 131_
-- `K()` --indirect_call--> `Ie()`  [INFERRED]
-  public/js/app.js → public/js/app.js  _Bridges community 174 → community 187_
+- `K()` --indirect_call--> `ba()`  [INFERRED]
+  public/js/app.js → public/js/app.js  _Bridges community 174 → community 255_
 - `K()` --indirect_call--> `mR()`  [INFERRED]
   public/js/app.js → public/js/app.js  _Bridges community 174 → community 269_
 - `K()` --indirect_call--> `ua()`  [INFERRED]
-  public/js/app.js → public/js/app.js  _Bridges community 174 → community 179_
-- `u()` --indirect_call--> `A()`  [INFERRED]
-  public/js/app.js → public/js/app.js  _Bridges community 164 → community 131_
+  public/js/app.js → public/js/app.js  _Bridges community 174 → community 166_
+- `K()` --indirect_call--> `v()`  [INFERRED]
+  public/js/app.js → public/js/app.js  _Bridges community 174 → community 172_
 
 ## Import Cycles
 - None detected.
 
-## Communities (285 total, 33 thin omitted)
+## Communities (294 total, 33 thin omitted)
 
 ### Community 0 - "C"
 Cohesion: 0.11
@@ -289,7 +292,7 @@ Nodes (39): Actividades realizadas, Actualizaciones requeridas en Project Memory
 
 ### Community 3 - "Communities (283 total, 40 thin omitted)"
 Cohesion: 0.01
-Nodes (192): Communities (274 total, 29 thin omitted), Community 0 - "C", Community 102 - "ADR-025: Motor de valor B2B y los cinco vectores de crecimiento (G-1 … G-5)", Community 103 - "SESSION-017", Community 104 - "ADR-030: Las alternativas se barajan con una permutación sembrada, no con una rotación", Community 105 - "SESSION-012", Community 106 - "SESSION-013", Community 107 - "Track de negocio (F12–F16) — decidido 2026-08-16" (+184 more)
+Nodes (198): Communities (285 total, 33 thin omitted), Community 0 - "C", Community 102 - "ADR-025: Motor de valor B2B y los cinco vectores de crecimiento (G-1 … G-5)", Community 103 - "SESSION-017", Community 104 - "ADR-030: Las alternativas se barajan con una permutación sembrada, no con una rotación", Community 105 - "SESSION-012", Community 106 - "SESSION-013", Community 107 - "Track de negocio (F12–F16) — decidido 2026-08-16" (+190 more)
 
 ### Community 4 - "Épica E2 — Endurecimiento (F9)"
 Cohesion: 0.15
@@ -616,8 +619,8 @@ Cohesion: 0.20
 Nodes (10): T-01 · Publicar contenido mínimo por módulo prioritario — **P0** · `hecho` (2026-08-09), T-02 · Cerrar el pipeline de email de cohorte — **P0** · `hecho` (2026-08-09), T-03 · Agregar control de capacidad en la inscripción — **P0** · `hecho` (2026-07-29), T-04 · Publicar cupos reales y retirar los demo — **P0** · `hecho` (2026-08-09) ⭐ **último bloqueo de go-live**, T-08 · Limpiar el árbol y publicar el bundle correcto — **P0** · `hecho` (2026-07-29), T-19 · Verificar qué hay realmente en producción — **P0** · `hecho` (2026-07-29), seguimiento en T-35, T-35 · Mergear `visual-fixes` a `main` y republicar — **P1** · `hecho` (2026-07-29), T-52 · Grabar o buscar los 3 videos placeholder de recursos — **P3** · `abierto` (+2 more)
 
 ### Community 115 - "BACKLOG"
-Cohesion: 0.11
-Nodes (19): BACKLOG, Cambios de prioridad decididos el 2026-09-13 (SESSION-042), Resumen por prioridad, T-153 · El producto es honesto y se siente genérico — **P0** · `abierto` · **requiere ADR-041**, T-154 · 33 de 53 módulos no existen en la línea del tiempo — **P1** · `abierto`, T-155 · Catalogar los errores reales del curso — **P0** · `abierto`, T-156 · `071` — track, cinco módulos y prerrequisitos — **P1** · ✅ `ESCRITA Y VERIFICADA` (2026-09-19) · ⏳ sin aplicar, T-157 · Los cinco slugs en `universo.topics` — **P1** · ✅ `CERRADA` (2026-09-19) (+11 more)
+Cohesion: 0.22
+Nodes (9): BACKLOG, Cambios de prioridad decididos el 2026-09-13 (SESSION-042), Resumen por prioridad, T-153 · El producto es honesto y se siente genérico — **P0** · `abierto` · **requiere ADR-041**, T-154 · 33 de 53 módulos no existen en la línea del tiempo — **P1** · `abierto`, T-20 · Instrumentar el funnel — **P1** · `abierto`, T-21 · Vistas SQL de métricas — **P2** · `abierto`, T-22 · Panel interno de métricas — **P3** · `abierto` (+1 more)
 
 ### Community 116 - "SESSION-018"
 Cohesion: 0.07
@@ -644,8 +647,8 @@ Cohesion: 0.29
 Nodes (6): Checklist de cierre, Errores frecuentes al cerrar, Notas para quien use este prompt, Prompt: cierre de sesión y actualización de memoria, Qué debe pasar, en orden, Regla de fondo
 
 ### Community 131 - "x"
-Cohesion: 0.15
-Nodes (103): A(), af(), aQ(), aT(), aU(), aW(), ba(), BV() (+95 more)
+Cohesion: 0.16
+Nodes (77): A(), af(), aT(), aW(), BV(), C(), cU(), dT() (+69 more)
 
 ### Community 132 - "ADR-016: La IA produce contenido en el pipeline de autoría, nunca en runtime"
 Cohesion: 0.22
@@ -692,12 +695,16 @@ Cohesion: 0.40
 Nodes (5): IRT y dominio, L-15 · Sin prior, θ divergía con pocas respuestas, L-16 · Saltos de θ arruinan la experiencia, L-17 · Ventana de selección con plan B, L-18 · Un topic sin mapeo no falla: se degrada
 
 ### Community 150 - "app.js"
-Cohesion: 0.09
-Nodes (25): aj(), bM(), dM(), ee(), fL(), fM(), gk(), gL() (+17 more)
+Cohesion: 0.07
+Nodes (37): aL(), aM(), Be(), BL(), bM(), DL(), dM(), ee() (+29 more)
 
 ### Community 152 - "SESSION-029"
 Cohesion: 0.11
 Nodes (19): 1. El owner refutó parcialmente R-30, y tenía razón, 2. T-93 ejecutada: contrato de Cpech leído, 3. Definidos los criterios L-1…L-5 y empezado L-2, Actividades realizadas, Actualizaciones requeridas en Project Memory, Archivos modificados, Contexto de entrada, Decisiones tomadas (+11 more)
+
+### Community 153 - "z"
+Cohesion: 0.08
+Nodes (5): gj(), VM(), XM(), YM(), z()
 
 ### Community 155 - "Datos del proponente responsable"
 Cohesion: 0.50
@@ -731,13 +738,17 @@ Nodes (9): ADR-020: La identidad visual se define con tokens de Tailwind, redefi
 Cohesion: 0.22
 Nodes (9): ADR-021: La línea del tiempo histórica es el eje del tablero, y las medallas se derivan de `tests`, Alternativas Evaluadas, Consecuencias, Contexto, Decisión, Estado, Fecha, Riesgos (+1 more)
 
+### Community 164 - "u"
+Cohesion: 0.05
+Nodes (3): Ia(), ra(), u()
+
 ### Community 165 - "audit_dark_theme.py"
 Cohesion: 0.47
 Nodes (5): clases_mapeadas(), main(), Número de tono de una clase de color, o None si no lo tiene., Clases que `app.css` remapea bajo `.dark`.      Dos detalles del formato de Tail, tono()
 
 ### Community 166 - "ca"
 Cohesion: 0.05
-Nodes (65): ab(), ae(), B(), Bd(), ca(), cb(), cd(), Cg() (+57 more)
+Nodes (56): ak(), bb(), Bd(), ca(), cb(), cd(), Ch(), db() (+48 more)
 
 ### Community 167 - "audit_contraste.py"
 Cohesion: 0.70
@@ -756,16 +767,16 @@ Cohesion: 0.11
 Nodes (19): Actividades realizadas, Actualizaciones requeridas en Project Memory, Archivos modificados, Archivos revisados, Bloqueos, Comandos ejecutados y resultados, Contexto de entrada, Decisiones tomadas (+11 more)
 
 ### Community 172 - "N"
-Cohesion: 0.07
-Nodes (6): Ac(), dj(), ej(), fj(), Kg(), N()
+Cohesion: 0.10
+Nodes (6): aa(), dj(), ej(), fj(), N(), v()
 
 ### Community 173 - "ADR-023: Panel de instrumento — la física está en los controles, no en la superficie"
 Cohesion: 0.22
 Nodes (9): ADR-023: Panel de instrumento — la física está en los controles, no en la superficie, Alternativas Evaluadas, Consecuencias, Contexto, Decisión, Estado, Fecha, Riesgos (+1 more)
 
 ### Community 174 - "K"
-Cohesion: 0.07
-Nodes (55): AO(), aP(), bO(), bP(), bW(), cO(), cP(), dO() (+47 more)
+Cohesion: 0.06
+Nodes (64): AO(), aP(), bO(), bP(), bW(), cO(), cP(), dO() (+56 more)
 
 ### Community 175 - "ADR-024: La raíz del proyecto es la tesis de 2010, no el convenio UNAP de 2025"
 Cohesion: 0.22
@@ -780,8 +791,8 @@ Cohesion: 0.67
 Nodes (3): main(), Devuelve la lista de problemas de un archivo., revisar()
 
 ### Community 179 - "Fa"
-Cohesion: 0.18
-Nodes (8): Ch(), Mc(), nc(), pe(), Re(), sa(), tg(), ua()
+Cohesion: 0.12
+Nodes (7): ci(), ke(), Kg(), Na(), Qd(), tN(), xN()
 
 ### Community 180 - "2. Lo que hay que sincerar sobre el alcance"
 Cohesion: 0.18
@@ -805,7 +816,7 @@ Nodes (18): Actividades realizadas, Actualizaciones requeridas en Project Memory
 
 ### Community 187 - "t"
 Cohesion: 0.02
-Nodes (135): ai(), aL(), AX(), Be(), bK(), bT(), cj(), cL() (+127 more)
+Nodes (131): ai(), AX(), bh(), bK(), bT(), cj(), cL(), cV() (+123 more)
 
 ### Community 188 - "046_bandas_de_conocimiento_y_theta_inicial.sql"
 Cohesion: 0.50
@@ -832,8 +843,8 @@ Cohesion: 0.27
 Nodes (10): assets(), leer(), main(), mostrar(), Ruta absoluta del archivo al que apunta un href, sea relativo o de raíz.      `., Versión legible de un valor de `assets`: rutas relativas al repo., El IIFE que aplica la clase `dark` antes del primer paint, normalizado., {rol → archivo destino} de los recursos que ambos documentos comparten. (+2 more)
 
 ### Community 194 - "htmlBuilder"
-Cohesion: 0.16
-Nodes (3): htmlBuilder(), jj(), xc()
+Cohesion: 0.14
+Nodes (5): hg(), htmlBuilder(), jj(), mathmlBuilder(), xc()
 
 ### Community 195 - "SESSION-034"
 Cohesion: 0.12
@@ -852,8 +863,8 @@ Cohesion: 0.10
 Nodes (20): Actividades realizadas, Actualizaciones requeridas en Project Memory, Archivos modificados, Archivos revisados, Bloqueos, Comandos ejecutados y resultados, Contexto de entrada, Decisiones tomadas (+12 more)
 
 ### Community 199 - "Ze"
-Cohesion: 0.13
-Nodes (4): Cf(), ih(), qg(), zh()
+Cohesion: 0.12
+Nodes (5): Cf(), ih(), oi(), qg(), zh()
 
 ### Community 200 - "ADR-028: Toda entrada social pasa por la declaración de edad, y el redirect de OAuth es una sola URL fija"
 Cohesion: 0.22
@@ -868,8 +879,8 @@ Cohesion: 0.67
 Nodes (3): public.module_prerequisites, public.resource_misconceptions, public.resources
 
 ### Community 206 - "Ib"
-Cohesion: 0.12
-Nodes (17): 1. Quién lo va a usar, y por qué eso decide todo lo demás, 2. La frontera con `electrotecnia`, escrita para poder aplicarla, 3. Los cinco módulos, 4. Las migraciones, 5. Lo que de verdad cuesta: los ítems, y antes que ellos los errores, 6. Riesgos, 7. Orden de trabajo, Bandas propuestas (hipótesis autorales, no mediciones) (+9 more)
+Cohesion: 0.11
+Nodes (19): 1. Quién lo va a usar, y por qué eso decide todo lo demás, 2. La frontera con `electrotecnia`, escrita para poder aplicarla, 3. Los cinco módulos, 4. Las migraciones, 5. Lo que de verdad cuesta: los ítems, y antes que ellos los errores, 6. Riesgos, 7. Orden de trabajo, Bandas propuestas (hipótesis autorales, no mediciones) (+11 more)
 
 ### Community 207 - "Banco de ítems"
 Cohesion: 0.15
@@ -877,11 +888,11 @@ Nodes (12): 1. Escribir el JSON, 2. Verificar, 3. Generar la migración, 4. Entr
 
 ### Community 208 - "v"
 Cohesion: 0.06
-Nodes (10): Ad(), Ah(), bc(), cc(), Eb(), ec(), oa(), ob() (+2 more)
+Nodes (11): Ac(), Ad(), Ah(), bc(), Eb(), ec(), oa(), ob() (+3 more)
 
 ### Community 209 - "jh"
-Cohesion: 0.08
-Nodes (13): ak(), bb(), eh(), EQ(), G(), HQ(), m(), md() (+5 more)
+Cohesion: 0.06
+Nodes (38): AS(), bS(), ck(), cN(), CQ(), cT(), CY(), DY() (+30 more)
 
 ### Community 210 - "ADR-031: El fondo de página es un plano de medida, y ninguna sección hereda su fondo"
 Cohesion: 0.22
@@ -932,8 +943,8 @@ Cohesion: 0.22
 Nodes (9): ADR-035: El track de Electrotecnia se publica visible para todos, porque no hay forma de mostrárselo a uno solo, Alternativas Evaluadas, Consecuencias, Contexto, Decisión, Estado, Fecha, Riesgos (+1 more)
 
 ### Community 223 - "G"
-Cohesion: 0.11
-Nodes (4): BL(), D(), IN(), zL()
+Cohesion: 0.09
+Nodes (3): D(), IN(), kN()
 
 ### Community 224 - "verificar_items.py"
 Cohesion: 0.35
@@ -968,36 +979,32 @@ Cohesion: 0.13
 Nodes (15): ✅ Actualización 2026-08-17 — T-93 ejecutada: el contrato de Cpech leído, R-33 · La pantalla de Google nombra a `supabase.co`, no a la marca, R-34 · El escape se usa como salida fácil y degrada la medición del banco, R-35 · La respuesta correcta está en la letra A en 293 de los 306 ítems, R-36 · Una sección sin fondo propio hereda el de la página, y ningún auditor lo ve, R-37 · Las corridas de depuración del admin ensucian la calibración del banco, R-38 · La parada por precisión del diagnóstico nunca se dispara, R-39 · El bundle puede llegar a producción antes que su migración, y el test del estudiante se pierde (+7 more)
 
 ### Community 249 - "of"
-Cohesion: 0.10
-Nodes (14): Ag(), Fh(), Gh(), Hh(), Lh(), of(), pd(), pf() (+6 more)
+Cohesion: 0.19
+Nodes (10): Ag(), Fh(), Gh(), Hh(), Lh(), nb(), of(), pf() (+2 more)
 
 ### Community 251 - "SESSION-045"
 Cohesion: 0.11
 Nodes (19): Actividades realizadas, Actualizaciones requeridas en Project Memory, Archivos modificados, Archivos revisados, Bloqueos, Comandos ejecutados y resultados, Contexto de entrada, Decisiones tomadas (+11 more)
 
 ### Community 252 - "mg"
-Cohesion: 0.15
-Nodes (25): aR(), bS(), BZ(), CZ(), DN(), dQ(), Ef(), gg() (+17 more)
+Cohesion: 0.20
+Nodes (4): B(), HM(), IM(), KM()
 
 ### Community 253 - "I"
-Cohesion: 0.16
-Nodes (4): aa(), Fd(), kN(), vh()
+Cohesion: 0.20
+Nodes (10): T-155 · Catalogar los errores reales del curso — **P0** · `a medias` — borrador entregado, falta la corrección del owner, T-156 · `071` — track, cinco módulos y prerrequisitos — **P1** · ✅ `ESCRITA Y VERIFICADA` (2026-09-19) · ⏳ sin aplicar, T-157 · Los cinco slugs en `universo.topics` — **P1** · ✅ `CERRADA` (2026-09-19), T-158 · Los cinco bancos, ≥12 ítems activos cada uno — **P1** · ✅ `ESCRITOS Y VERIFICADOS` (2026-09-20) · ⏳ sin aplicar, T-159 · Decidir T-129 o `active = false` antes de publicar — **P0** · `abierto`, T-160 · `077` — `test_configs` con la cadena — **P1** · ✅ `ESCRITA Y VERIFICADA` (2026-09-20) · ⏳ sin aplicar, T-161 · `078` — recursos de capa 1 — **P2** · `abierto`, T-162 · Cerrar los 19 lugares con `verificar_unidad.py` — **P2** · `abierto` (+2 more)
 
 ### Community 254 - "SESSION-043"
 Cohesion: 0.11
 Nodes (18): Actividades realizadas, Actualizaciones requeridas en Project Memory, Archivos modificados, Archivos revisados, Bloqueos, Comandos ejecutados y resultados, Contexto de entrada, Decisiones tomadas (+10 more)
 
 ### Community 255 - "Ib"
-Cohesion: 0.05
-Nodes (54): aM(), cW(), db(), dS(), eL(), eW(), fb(), Fc() (+46 more)
+Cohesion: 0.13
+Nodes (59): aQ(), aU(), ba(), bX(), ce(), cS(), cW(), cX() (+51 more)
 
 ### Community 256 - "ADR-040: El agente accede a la base con dos roles, y puede aplicar migraciones bajo autorización"
 Cohesion: 0.15
 Nodes (13): ADR-040: El agente accede a la base con dos roles, y puede aplicar migraciones bajo autorización, Alternativas Evaluadas, `claude_ddl` — aplicar migraciones **de contenido**, cuando el owner lo pide, `claude_ro` — el default, siempre disponible, Consecuencias, Contexto, Decisión, El procedimiento, que es donde está la seguridad real (+5 more)
-
-### Community 257 - ".push"
-Cohesion: 0.16
-Nodes (3): ik(), kK(), mg()
 
 ### Community 258 - "1. Métricas de completitud — antes de aplicar"
 Cohesion: 0.09
@@ -1036,47 +1043,55 @@ Cohesion: 0.11
 Nodes (19): Actividades realizadas, Actualizaciones requeridas en Project Memory, Archivos modificados, Archivos revisados, Bloqueos, Comandos ejecutados y resultados, Contexto de entrada, Decisiones tomadas (+11 more)
 
 ### Community 269 - "l"
-Cohesion: 0.05
-Nodes (96): AS(), bg(), bh(), bj(), bQ(), BU(), bX(), ck() (+88 more)
+Cohesion: 0.04
+Nodes (99): ab(), ae(), aR(), bg(), bj(), bQ(), BU(), BZ() (+91 more)
 
 ### Community 270 - "Día 2 — 2026-09-18"
 Cohesion: 0.20
 Nodes (10): Actividades, Comandos, Decisiones, Día 2 — 2026-09-18, Lo que NO funcionó, y es lo más útil para la próxima, Los cuatro defectos que el acceso destapó, Nota para la próxima sesión, Objetivo (+2 more)
 
 ### Community 271 - ".indexOf"
-Cohesion: 0.16
-Nodes (5): da(), de(), tK(), Xj(), YJ()
+Cohesion: 0.22
+Nodes (4): da(), de(), Xj(), YJ()
 
 ### Community 272 - "xa"
-Cohesion: 0.17
-Nodes (4): nb(), xa(), Xe(), Ya()
-
-### Community 273 - ".push"
-Cohesion: 0.20
-Nodes (3): handler(), mf(), wa()
+Cohesion: 0.12
+Nodes (6): aj(), gk(), qa(), tK(), xa(), Ye()
 
 ### Community 274 - "project-memory/graph/"
-Cohesion: 0.33
-Nodes (6): Cómo refrescar el snapshot, ⚠️ Limitación crítica, Por qué existe esta carpeta, project-memory/graph/, Snapshot actual, Verificar frescura antes de usarlo
+Cohesion: 0.24
+Nodes (5): pd(), ph(), qh(), rh(), sh()
 
 ### Community 275 - "slugs_del_cliente"
 Cohesion: 0.67
 Nodes (3): main(), Los slugs del `def module-slugs`, leídos del código.      Se leen, no se copian:, slugs_del_cliente()
 
+### Community 285 - "T-155 — Catálogo de errores del curso de electrónica · **BORRADOR PARA CORREGIR**"
+Cohesion: 0.22
+Nodes (9): 1 · `electronica/notacion_cientifica` — banda [−3,0 · −1,8], 2 · `electronica/ley_de_ohm` — banda [−2,8 · −1,6], 3 · `electronica/potencia` — banda [−2,4 · −1,2], 4 · `electronica/capacitores` — banda [−2,2 · −1,0], 5 · `electronica/leyes_de_kirchhoff` — banda [−1,8 · −0,6], Dos preguntas que el borrador no puede responder, Los que me faltaron, Qué pasa cuando lo devuelvas (+1 more)
+
+### Community 286 - ".push"
+Cohesion: 0.22
+Nodes (3): cc(), ik(), kK()
+
+### Community 287 - "Contenido pedagógico (capa 0 + Baldor)"
+Cohesion: 0.22
+Nodes (9): Contenido pedagógico (capa 0 + Baldor), Convenciones de notación por track, Cómo mejorar `error_*` (prioridad), Migraciones de contenido, Nota sobre el track `cuantica`, PAES M1 (`aritmetica`, `algebra`, `geometria`, `probabilidad`), Principio, Recursos (Admin → Recursos) (+1 more)
+
 ## Knowledge Gaps
-- **2341 isolated node(s):** `autoprefixer`, `postcss`, `shadow-cljs`, `tailwindcss`, `@supabase/supabase-js` (+2336 more)
+- **2359 isolated node(s):** `autoprefixer`, `postcss`, `shadow-cljs`, `tailwindcss`, `@supabase/supabase-js` (+2354 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **33 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `BACKLOG` connect `BACKLOG` to `Épica E2 — Endurecimiento (F9)`, `Épica E9 — Ver lo que ya pasó (SESSION-042, 2026-09-13)`, `Épica E1 — Go-live real (F8)`, `BACKLOG.md`, `Épica E8 — Motor de valor: los cinco vectores (F12–F16)`, `Épica E4 — Producto y experiencia`, `Épica E5 — Contenido y calidad pedagógica`, `de`, `Épica E7 — Memoria del proyecto (PMF)`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
-- **Why does `OPEN_QUESTIONS` connect `OPEN_QUESTIONS` to `BACKLOG.md`, `Técnicas`, `Dominio (IRT y contenido)`, `Producto y negocio`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
-- **Why does `Épica E5 — Contenido y calidad pedagógica` connect `Épica E5 — Contenido y calidad pedagógica` to `BACKLOG`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
+- **Why does `BACKLOG` connect `BACKLOG` to `Épica E5 — Contenido y calidad pedagógica`, `Épica E2 — Endurecimiento (F9)`, `Épica E9 — Ver lo que ya pasó (SESSION-042, 2026-09-13)`, `Épica E1 — Go-live real (F8)`, `BACKLOG.md`, `Épica E8 — Motor de valor: los cinco vectores (F12–F16)`, `Épica E4 — Producto y experiencia`, `I`, `de`, `Épica E7 — Memoria del proyecto (PMF)`?**
+  _High betweenness centrality (0.052) - this node is a cross-community bridge._
+- **Why does `Épica E4 — Producto y experiencia` connect `Épica E4 — Producto y experiencia` to `BACKLOG`?**
+  _High betweenness centrality (0.028) - this node is a cross-community bridge._
+- **Why does `ADR-014: El tiempo de respuesta es un eje separado de θ, no un término dentro del modelo 1PL` connect `ADR-014: El tiempo de respuesta es un eje separado de θ, no un término dentro del modelo 1PL` to `BACKLOG.md`?**
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **Are the 18 inferred relationships involving `x()` (e.g. with `aa()` and `B()`) actually correct?**
   _`x()` has 18 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 24 inferred relationships involving `t()` (e.g. with `._autoRefreshTokenTick()` and `._challenge()`) actually correct?**

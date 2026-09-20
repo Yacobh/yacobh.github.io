@@ -72,7 +72,11 @@ El objetivo no cambió. Cambiaron dos cosas de fondo:
     base real** con `claude_ddl` en solo lectura: los 12 controles en verde (ver abajo).
 13. **Hallazgo lateral de esa verificación:** **18 de las 19 tablas de `public` le dan a `anon`
     DELETE y TRUNCATE**. Registrado como **R-46** y **T-163**.
-14. Desmontaje de los clusters y del PostgREST desechables.
+14. **El track `electronica` escrito entero** (2026-09-20): `072`…`076` con 60 ítems y 30 ideas
+    erróneas por la skill `banco-de-items`, y `077` con las cinco `test_configs`. Las siete
+    migraciones aplicadas **en orden** sobre PostgreSQL 17.11, nueve controles en verde,
+    idempotentes, y las dos guardas de `077` probadas disparando.
+15. Desmontaje de los clusters y del PostgREST desechables.
 
 ### Lo que no funcionó, y por qué vale anotarlo
 
@@ -101,6 +105,18 @@ El objetivo no cambió. Cambiaron dos cosas de fondo:
   sobre `public`, así que crearía `intentos` y quedaría como **dueño de la tabla** — y el dueño está
   **exento de su propia RLS** salvo `force row level security`. El rastro de los estudiantes tendría
   un rol de agente capaz de leerlo entero.
+
+- ⭐ **Un ítem salió con la alternativa correcta equivocada, y lo atrapó releerlo — no el
+  verificador.** En el banco de Ohm, la opción marcada como correcta decía «alrededor de 50 ohm»
+  cuando la cuenta da 20, y su explicación se contradecía a mitad de frase. `verificar_items.py`
+  comprueba que haya **exactamente una** alternativa correcta, no que el número esté bien: es T-105
+  (3 ítems sin ninguna correcta, 7 con dos) en la versión que **ningún script alcanza**. El
+  cuello de botella que la skill declara —la revisión humana— es exactamente esto.
+
+- **El verificador rebota por punto flotante en los bordes de tramo.** Con `min = -2,8` y
+  `ancho = 0,6`, el borde se calcula como `-2,2000000000000002`, así que un ítem en `-2,2` cae en el
+  tramo de abajo y el de arriba queda con 5 de 6. Pasó en **dos de los cinco bancos**. Se corrige
+  corriendo la dificultad unas centésimas; la regla práctica es no poner ítems justo en el borde.
 
 - ⭐ **La verificación estaba hecha contra la versión mayor equivocada.** Producción es **PostgreSQL
   17.6**; el cluster desechable era **14.18**, que es lo que había instalado. Se descubrió al
@@ -235,6 +251,14 @@ Ninguna.
 - **La verificación de comportamiento en producción no está completa**, y no puede estarlo todavía:
   no hay ninguna fila. Se completa cuando alguien rinda un diagnóstico — ahí valen las consultas
   (b), (c) y (d) del pie de la migración.
+- **`071`…`077` sin aplicar.** Son siete, y el orden importa: `071` primero (los ítems referencian
+  `module_id`), después `072`…`076`, y `077` al final porque su guarda cuenta los ítems. Las dos
+  guardas están probadas, así que aplicarlas fuera de orden **falla ruidosamente** en vez de dejar
+  algo a medias.
+- **T-159 sin decidir**, y ahora con el número: aplicar `077` lleva el selector de **18 a 23 bancos
+  activos**. La alternativa (`active = false`) está comentada en la cabecera de `077`.
+- **El catálogo de errores volvió sin marcas.** Las 31 ideas quedan como hipótesis **revisadas en
+  bloque**, no confirmadas una por una. Está dicho en la cabecera de cada banco.
 - El plan de E10 **no tiene una sola línea escrita**: es plan, no implementación.
 
 ## Actualizaciones requeridas en Project Memory

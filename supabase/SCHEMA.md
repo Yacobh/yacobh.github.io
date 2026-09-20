@@ -662,6 +662,48 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > `[1,95 · 2,85]` a `[0,70 · 1,60]` sin que nadie lo tocara— y la banda explícita es lo que lo
 > impide.
 
+74. `migrations/072`…`076` — ⏳ **escritas y verificadas, SIN aplicar** (2026-09-20) · **T-158, épica
+    E10.** Los **cinco bancos** del track `electronica`, uno por módulo: `072` capacitores, `073`
+    notación científica, `074` ley de Ohm, `075` potencia, `076` leyes de Kirchhoff. **12 ítems
+    cada uno = 60**, más **30 ideas erróneas nuevas**. Generadas por
+    `scripts/generar_migracion_items.py` desde los cinco JSON de `contenido/items/`, que son la
+    fuente de verdad: el `.sql` no se edita, se regenera.
+    **Un `topic` por módulo** (`electronica_capacitores`, `electronica_ohm`, …), copiando `040`:
+    con ADR-038 aprobado y sin implementar, `next_question` filtra solo por `topic`, así que un
+    banco de eje no puede servir el test de un módulo — y este curso necesita saber **qué** repasar.
+    **12 y no 20 ítems por banco:** el 20 de `065` protegía dos bancos que cubren doce módulos; acá
+    cada banco es **un módulo de 1,2 logits**, y la regla de cobertura es ≥6 ítems por 1,0 logit.
+
+75. `migrations/077_test_configs_de_electronica.sql` — ⏳ **escrita y verificada, SIN aplicar**
+    (2026-09-20) · **T-160.** Las cinco filas de `test_configs` que hacen **rendible** el track,
+    encadenadas por `prerequisite_topic` y con **`initial_theta` explícito**.
+    ⭐ **`initial_theta` es lo que `065` no hizo.** Aquellos dos bancos quedaron con el −1,0 por
+    defecto de `048`; con `|Δθ| ≤ 0,4`, llegar a −2,8 cuesta **mínimo 5 ítems solo de viaje**, o sea
+    más de la mitad de un test de 8, y lo paga el alumno más débil (causa (b) de **R-44**). Acá cada
+    test arranca en el **centro de la banda de su módulo**, así los 8 ítems son medición.
+    **Guarda doble, probada:** se niega si no hay 5 módulos (`071` sin aplicar) y se niega si algún
+    banco no llega a 12 ítems activos (`072`…`076` sin aplicar).
+
+> **Verificación de `071`…`077` (2026-09-20).** Las siete aplicadas **en orden** sobre un
+> **PostgreSQL 17.11** desechable —la versión mayor de producción— con réplica del estado previo
+> (`modules`, `class_slots`, `module_prerequisites`, `misconceptions`, `questions`, `test_configs`).
+> Todas aplican limpias con `ON_ERROR_STOP=1` y **la segunda pasada completa deja 60 ítems, 5
+> configs y 5 módulos — no 120, 10 y 10**.
+>
+> **Los nueve controles del banco, en verde:** 60 ítems · **0** sin `module_id` · **0** sin ninguna
+> idea errónea (el modo de fallo de `064`) · **0** con idea errónea en la alternativa correcta ·
+> **0** sin las cuatro explicaciones · **0** fuera de la banda de su módulo · **0** enunciados
+> repetidos · **0** LaTeX con doble escape (`047`) · 30 ideas erróneas, **0 huérfanas**.
+> Reparto de claves sobre los 60: **A 25 % · B 28 % · C 23 % · D 23 %** (R-35 pide que ninguna pase
+> de 40 % y que se usen las cuatro).
+>
+> Los cinco `initial_theta` caen **dentro** de la banda de su módulo, y las dos guardas de `077` se
+> probaron disparando: con un banco en 5 ítems activos y con los módulos borrados.
+>
+> ⚠️ **R-42 medido:** `test_configs` activos pasa de **18 a 23**. Son cinco bancos más en el selector
+> de todo estudiante de PAES. `077` trae la alternativa (`active = false`) escrita en su cabecera.
+
+
 > ## 🔎 2026-09-19 — lo que la verificación de `070` encontró del **resto** del esquema
 >
 > Al comparar los privilegios de `intentos` con los de `tests`, salió esto. **No es un defecto de

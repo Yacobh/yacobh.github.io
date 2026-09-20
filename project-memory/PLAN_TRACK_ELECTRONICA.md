@@ -303,9 +303,13 @@ destinatario, deja de ser un problema de higiene. Es **T-159**.
    **Escrita y verificada contra PostgreSQL 17.11 el 2026-09-19. Falta aplicarla.**
 3. ✅ **T-157** — B1 + B2 en `universo.topics`, test (`t-156-los-cinco-modulos-de-electronica`),
    `release app` y bundle recompilado. **Hecho el 2026-09-19.**
-4. **T-158** — Los cinco bancos, uno por vez. **Es el 80 % del trabajo**, y donde se verifica F1–F4.
-5. **T-159** — Decidir T-129 o `active = false`. *Precondición de T-160.*
-6. **T-160** — `077`: `test_configs` con la cadena, `initial_theta` por módulo y la guarda de los 20.
+4. ✅ **T-158** — Los cinco bancos. **Hechos el 2026-09-20**: `072`…`076`, 60 ítems y 30 ideas
+   erróneas, nueve controles en verde. Sin aplicar.
+5. ⏳ **T-159** — Decidir T-129 o `active = false`. **Medido el 2026-09-20: el selector pasa de 18 a
+   23 bancos activos.** `077` está escrita con `active = true` y la alternativa comentada en su
+   cabecera: es cambiar una palabra por fila.
+6. ✅ **T-160** — `077`: `test_configs` con la cadena, `initial_theta` por módulo y la guarda de los
+   12. **Hecha el 2026-09-20**, con las dos guardas probadas disparando. Sin aplicar.
 7. **T-161** — `078`: recursos, `published = false`.
 8. **T-162** — `verificar_unidad.py` sobre los cinco `contenido/unidades/*.json`.
 
