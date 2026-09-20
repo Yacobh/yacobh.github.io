@@ -83,7 +83,18 @@
     "electrotecnia/kirchhoff" "electrotecnia/teoremas" "electrotecnia/capacitancia"
     "electrotecnia/magnetismo" "electrotecnia/ca_senales" "electrotecnia/reactancia"
     "electrotecnia/impedancia" "electrotecnia/potencia_ca" "electrotecnia/resonancia"
-    "electrotecnia/trifasico"})
+    "electrotecnia/trifasico"
+    ;; Track `electronica` (071, T-156). Circuitos de continua desde cero, para
+    ;; el curso de técnico en electrónica del owner. Mismo caso que
+    ;; electrotecnia: está fuera del producto y aun así va acá, porque este set
+    ;; alimenta `suffix-match` y **no** el reparto de bandas.
+    ;;
+    ;; ⚠️ `leyes_de_kirchhoff` y no `kirchhoff`: `electrotecnia/kirchhoff` ya
+    ;; existe, y `suffix-match` exige coincidencia **única** — con dos
+    ;; candidatos devuelve nil y dejaría de resolver **el que ya estaba**.
+    "electronica/notacion_cientifica" "electronica/ley_de_ohm"
+    "electronica/potencia" "electronica/capacitores"
+    "electronica/leyes_de_kirchhoff"})
 
 ;; Solo los topics cuyo nombre NO coincide con el sufijo de su módulo. El resto
 ;; los resuelve `suffix-match` sin necesidad de listarlos, que es lo que evita
@@ -125,6 +136,22 @@
    "ecuaciones lineales" "algebra/ecuaciones"
    "expresiones algebraicas" "algebra/expresiones"
    "suma de numeros enteros" "aritmetica/enteros"
+
+   ;; Los cinco topics del track `electronica` (071/077, T-156). Necesitan
+   ;; entrada explícita porque **ninguno coincide con el sufijo de su slug**:
+   ;; el topic es plano (`electronica_ohm`) y el slug es descriptivo
+   ;; (`electronica/ley_de_ohm`). Sin esto, `suffix-match` devuelve nil, el
+   ;; déficit sale `unknown/*` y «Mi plan» no se puede personalizar — el mismo
+   ;; modo de fallo que T-152, que costó 218 ítems.
+   ;;
+   ;; A diferencia de `probabilidad` o `electrotecnia`, acá **no** van a
+   ;; `catch-all-topics`: no son bancos de eje. Cada topic es exactamente un
+   ;; módulo, que es lo que permite que el plan señale qué repasar.
+   "electronica_notacion" "electronica/notacion_cientifica"
+   "electronica_ohm" "electronica/ley_de_ohm"
+   "electronica_potencia" "electronica/potencia"
+   "electronica_capacitores" "electronica/capacitores"
+   "electronica_kirchhoff" "electronica/leyes_de_kirchhoff"
 
    ;; Decidido por el profesor el 2026-08-10. `inecuaciones` y
    ;; `operaciones_fundamentales` NO están acá: se les creó módulo propio en

@@ -155,16 +155,53 @@
       ;; lo agrega acá, este test cae. Eso es **exactamente lo que no pasó** con
       ;; los 18 de T-152, porque la cuenta decía 20 y nadie la movió durante los
       ;; meses en que el banco creció a 53 módulos.
-      (is (= 38 (count topics/module-slugs)))
+      ;; +5 de `071` (track `electronica`, T-156) = 43.
+      (is (= 43 (count topics/module-slugs)))
       (is (= (count sufijos) (count (set sufijos)))
           "dos módulos con el mismo sufijo romperían la regla de coincidencia")
       ;; `cuantica` NO está, y es deliberado: ADR-018 la mantiene fuera del
       ;; producto y su `test_configs` está inactivo (ver TRACKS_TOLERADOS en
       ;; scripts/comparar_module_slugs.py).
       (is (every? #(contains? #{"aritmetica" "algebra" "geometria"
-                                "probabilidad" "electrotecnia"}
+                                "probabilidad" "electrotecnia" "electronica"}
                               (first (str/split % #"/")))
                   topics/module-slugs)))))
+
+;; ── T-156 (2026-09-19) ──────────────────────────────────────────────────────
+;; El track `electronica` de `071`: cinco módulos de continua, para el curso de
+;; técnico en electrónica. Es la primera unidad dada de alta recorriendo el mapa
+;; de los 19 lugares **antes** de escribirla, y no después de que falte algo.
+
+(deftest t-156-los-cinco-modulos-de-electronica
+  (testing "los cinco slugs están en el set"
+    (doseq [s ["electronica/notacion_cientifica" "electronica/ley_de_ohm"
+               "electronica/potencia" "electronica/capacitores"
+               "electronica/leyes_de_kirchhoff"]]
+      (is (contains? topics/module-slugs s) (str s " falta en module-slugs"))))
+
+  (testing "⚠️ `leyes_de_kirchhoff` y no `kirchhoff`: el sufijo ya estaba tomado
+            por electrotecnia, y `suffix-match` exige coincidencia única — con
+            dos candidatos habría dejado de resolver **el que ya existía**"
+    (is (not (contains? topics/module-slugs "electronica/kirchhoff")))
+    (is (contains? topics/module-slugs "electrotecnia/kirchhoff"))
+    (is (= "electrotecnia/kirchhoff" (topics/module-slug-for "kirchhoff"))))
+
+  (testing "cada topic resuelve a su módulo, y son cinco módulos distintos"
+    (let [pares {"electronica_notacion"    "electronica/notacion_cientifica"
+                 "electronica_ohm"         "electronica/ley_de_ohm"
+                 "electronica_potencia"    "electronica/potencia"
+                 "electronica_capacitores" "electronica/capacitores"
+                 "electronica_kirchhoff"   "electronica/leyes_de_kirchhoff"}]
+      (doseq [[topic slug] pares]
+        (is (= slug (topics/module-slug-for topic))
+            (str topic " no resuelve a " slug)))
+      (is (= 5 (count (set (vals pares)))))))
+
+  (testing "NO son bancos de eje: ninguno cae en catch-all-topics, que es lo
+            que permite que «Mi plan» señale qué módulo repasar"
+    (doseq [t ["electronica_notacion" "electronica_ohm" "electronica_potencia"
+               "electronica_capacitores" "electronica_kirchhoff"]]
+      (is (not (contains? topics/catch-all-topics t))))))
 
 ;; ── T-152 (2026-09-18) ──────────────────────────────────────────────────────
 ;; Los 18 slugs que faltaban, y la razón por la que agregarlos NO alcanzaba.
