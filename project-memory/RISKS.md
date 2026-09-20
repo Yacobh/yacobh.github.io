@@ -1,6 +1,6 @@
 # RISKS
 
-Última actualización: **2026-09-13** (SESSION-042, 2ª pasada) — **R-44 nuevo y 🔺alto**: corrido T-130 sobre 17 intentos reales, **dos estudiantes quedaron en θ = −3,00 exacto, que es el clamp y no una estimación** — y **no fue click-through**: uno trabajó 16,5 minutos con una sola respuesta desestimada. El banco no llega al suelo de sus propios estudiantes, no se les puede distinguir ni planificar, y un valor censurado ensucia la calibración. · Antes, 1ª pasada: **R-43 nuevo y 🔺alto**: el trabajo de distribución **sí ocurre y no queda registrado** — tres actos en cuatro semanas (un curso real diagnosticado, una campaña de 100 tarjetas QR con su migración escrita, un alumno pagando USD 20/h) y **ninguno** estaba en la memoria. **Corrige la señal de alarma de R-30**: *"si el `git log` de un mes muestra solo código"* **no ve la mitad del trabajo** y produjo un falso positivo. R-30 sigue siendo el riesgo dominante; lo que cambia es cómo se detecta. · Antes: **2026-09-09** — **R-42 nuevo**: el track de Electrotecnia se publica con `active = true` y aparece en el selector de todo estudiante de PAES, porque la policy de `020` no admite un estado intermedio (D-66 / ADR-035). Es la versión **confirmada** de R-23, que para `cuantica` era hipotética. · Antes: **2026-08-28 (2ª pasada)** — **R-41 nuevo**: los 414 ítems de los cuatro bancos nuevos se publicaron sin revisión pedagógica y ya llegan a estudiantes (decisión explícita del owner); mitigable de a poco ahora que `057` permite retirar un ítem sin borrarlo. · Antes: **2026-08-28** — **R-39 abierto y cerrado el mismo día** (el bundle podía llegar a producción antes que `048` y perder el diagnóstico completo de un estudiante; el owner aplicó la migración antes del push y no se materializó — el patrón sigue vivo para migraciones futuras) y **R-40 nuevo** (los θ de motor v1 y v2 no son comparables y nada impide compararlos). **R-38 empeoró a propósito**: con azar, el piso del SE sube de 0,577 a ≈0,73. · Antes: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
+Última actualización: **2026-09-19** (SESSION-047, 2ª pasada) — **R-46 nuevo**: al verificar `070` contra producción se midió que **18 de las 19 tablas de `public` le dan a `anon` DELETE y TRUNCATE**, porque son las *default privileges* de Supabase y ninguna migración del repo escribió nunca un `grant` de tabla. **No es explotable hoy** —`anon` no puede conectarse y PostgREST no expone TRUNCATE, que es lo único que RLS no filtra— pero deja el esquema entero descansando en que la RLS esté bien, sin segunda línea. `intentos` es la única acotada (**T-163**). · Antes, 1ª pasada: **R-39 suma su tercera instancia, medida**, y con ella un hallazgo que cambia cómo se mitiga: con la tabla ausente PostgREST responde **`404` con el cuerpo vacío**, sin código ni mensaje, así que **una mitigación que lea el texto del error es frágil por construcción**. Y **R-42 queda anotado para empeorar**: la épica **E10** publicaría cinco bancos más en el selector de todo estudiante de PAES (de 12 a 17), y **T-159 es el punto donde se decide** entre T-129 o `active = false`. · Antes: **2026-09-13** (SESSION-042, 2ª pasada) — **R-44 nuevo y 🔺alto**: corrido T-130 sobre 17 intentos reales, **dos estudiantes quedaron en θ = −3,00 exacto, que es el clamp y no una estimación** — y **no fue click-through**: uno trabajó 16,5 minutos con una sola respuesta desestimada. El banco no llega al suelo de sus propios estudiantes, no se les puede distinguir ni planificar, y un valor censurado ensucia la calibración. · Antes, 1ª pasada: **R-43 nuevo y 🔺alto**: el trabajo de distribución **sí ocurre y no queda registrado** — tres actos en cuatro semanas (un curso real diagnosticado, una campaña de 100 tarjetas QR con su migración escrita, un alumno pagando USD 20/h) y **ninguno** estaba en la memoria. **Corrige la señal de alarma de R-30**: *"si el `git log` de un mes muestra solo código"* **no ve la mitad del trabajo** y produjo un falso positivo. R-30 sigue siendo el riesgo dominante; lo que cambia es cómo se detecta. · Antes: **2026-09-09** — **R-42 nuevo**: el track de Electrotecnia se publica con `active = true` y aparece en el selector de todo estudiante de PAES, porque la policy de `020` no admite un estado intermedio (D-66 / ADR-035). Es la versión **confirmada** de R-23, que para `cuantica` era hipotética. · Antes: **2026-08-28 (2ª pasada)** — **R-41 nuevo**: los 414 ítems de los cuatro bancos nuevos se publicaron sin revisión pedagógica y ya llegan a estudiantes (decisión explícita del owner); mitigable de a poco ahora que `057` permite retirar un ítem sin borrarlo. · Antes: **2026-08-28** — **R-39 abierto y cerrado el mismo día** (el bundle podía llegar a producción antes que `048` y perder el diagnóstico completo de un estudiante; el owner aplicó la migración antes del push y no se materializó — el patrón sigue vivo para migraciones futuras) y **R-40 nuevo** (los θ de motor v1 y v2 no son comparables y nada impide compararlos). **R-38 empeoró a propósito**: con azar, el piso del SE sube de 0,577 a ≈0,73. · Antes: **2026-08-23** (segunda pasada del día) — **R-37 nuevo** (las corridas de depuración del admin sobre el diagnóstico entran a `tests` sin distintivo y van a contaminar la calibración del banco, que es G-2) y **R-38 nuevo** (la parada por precisión del diagnóstico es aritméticamente inalcanzable: nunca se dispara). · Antes: **2026-08-23** — **R-36 nuevo** (una sección sin fondo propio hereda el de la página y ningún auditor lo detecta; costó 52 textos bajo AA en el CV). · Antes: **2026-08-19** — **R-35 nuevo** (la clave correcta está en la letra A en 293
 de los 306 ítems; mitigado en el cliente por ADR-030, el dato sigue sesgado). ·
 Antes: **2026-08-17** — **R-33 nuevo** (la pantalla de Google nombra a `supabase.co`
 y no a la marca, visto en vivo al verificar T-92; toca la confianza justo en el registro) y **R-32
@@ -73,7 +73,8 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | **R-31** | **El funnel está diseñado para el canal que nunca produjo un usuario** | Alto | **Confirmada** | **Alta** | 🔺 **abierto 2026-08-16** |
 | **R-32** | ~~Propiedad intelectual~~ **y conflicto de interés con los empleadores (Cpech, liceo)** | Medio | Media | Media | 🔻 **rebajado 2026-08-17** (T-93): **no hay cesión de PI** — la titularidad no está en discusión. Queda solo el conflicto de interés, y con una respuesta concreta: **el canal Cpech no es usable hasta el 2026-11-21** |
 | **R-33** | **La pantalla de Google nombra a `supabase.co`, no a la marca** | Bajo | **Confirmada** | Media | abierto 2026-08-17 |
-| **R-42** | **El track de Electrotecnia es visible para todo estudiante de PAES** | Bajo | **Confirmada** | Media | abierto 2026-09-09 (D-66). No es un efecto lateral: es la decisión. Apagado con un `update` de una línea (`065`) |
+| **R-46** | **18 de las 19 tablas de `public` le dan a `anon` privilegio de DELETE y TRUNCATE; todo el esquema descansa solo en RLS** | Bajo | Latente | Media | abierto 2026-09-19. **No explotable hoy**: `anon` es `rolcanlogin = f` y PostgREST no expone TRUNCATE, que es la única operación que RLS no filtra. Son las *default privileges* de Supabase y **ninguna migración del repo escribió nunca un `grant` de tabla**. `intentos` (`070`) es la única acotada, con dos líneas. **T-163** |
+| **R-42** | **El track de Electrotecnia es visible para todo estudiante de PAES** | Bajo | **Confirmada** | Media | abierto 2026-09-09 (D-66). No es un efecto lateral: es la decisión. Apagado con un `update` de una línea (`065`). ⚠️ **2026-09-19: la épica E10 lo llevaría de 12 bancos ajenos a 17** en el selector — **T-159** decide entre reevaluar T-129 o publicar con `active = false` |
 | **R-34** | **El escape («no sé») se usa como salida fácil y diluye la evidencia del banco** | Medio | Media | Media | abierto 2026-08-18 (D-57). Mitigado estructuralmente contra el estudiante —peso 0.0 no mueve θ—; **se reactiva con severidad alta si el escape pasa a tener peso positivo** |
 
 ---
@@ -1057,6 +1058,44 @@ pese a ser lo que recomienda la teoría de tests de clasificación.
 - **Severidad:** 🔶 media hoy, **alta** cuando la afirmación psicométrica entre a un pitch (G-1).
 - **Relacionado:** T-111, X-10, ADR-004, ADR-034, R-17, G-2 en [[TESIS_DE_CRECIMIENTO]].
 
+### R-46 · Las puertas están abiertas y solo la RLS las sostiene
+
+**Abierto 2026-09-19**, al verificar `070` contra producción. No lo encontró una auditoría: salió de
+**comparar** los privilegios de la tabla nueva con los de `tests`.
+
+```
+intentos  | authenticated=arw/postgres         ← lo que 070 concedió explícitamente
+tests     | anon=arwdDxt/postgres              ← todo, incluidos delete (d) y truncate (D)
+tests     | authenticated=arwdDxt/postgres     ← ídem
+```
+
+Medido sobre las **19 tablas** de `public`: **18 le dan TRUNCATE a `anon`**. Son las *default
+privileges* que Supabase deja puestas sobre el esquema, y **ninguna migración de este repositorio
+escribió nunca un `grant` de tabla**, así que nadie las miró en 70 migraciones. Las excepciones son
+`intentos` y `questions` —esta última con `anon=awdDxt`, o sea **sin SELECT pero con insert, update,
+delete y truncate**, que es una combinación que alguien dejó a medias.
+
+**Por qué no es explotable hoy, con precisión:**
+
+1. `anon` y `authenticated` son **`rolcanlogin = f`** (verificado): no hay conexión directa a
+   Postgres; se asumen vía JWT a través de PostgREST.
+2. **PostgREST no expone TRUNCATE.** No hay verbo HTTP que lo alcance — y TRUNCATE es justamente la
+   operación que **RLS no filtra**, así que si alguna vez fuera alcanzable, la policy no salvaría
+   nada.
+3. Para `select`/`insert`/`update`/`delete`, **RLS sí filtra**, y ninguna tabla tiene policy para
+   `anon` sobre datos de estudiantes.
+
+**Por qué igual importa:** es la lección de ADR-040 al revés —*«el grant es la puerta, la policy es
+el límite»*—. Hoy el esquema entero descansa en que **toda** policy esté bien escrita, sin segunda
+línea. Una policy futura mal puesta (un `using (true)` de más) pasa de ser un bug a ser una fuga,
+porque el privilegio ya está concedido. `intentos` muestra lo que cuesta la segunda línea: dos
+líneas de SQL.
+
+**Mitigación:** **T-163**, acotar los privilegios tabla por tabla al verbo que su policy contempla.
+Es reversible y no toca ninguna policy. Empezar por las que guardan datos personales (`tests`,
+`profiles`, `visitor`, `contacto`, `guestbook`) y por `questions`, cuyo estado actual no responde a
+ninguna decisión escrita.
+
 ### R-39 · El bundle puede llegar a producción antes que su migración, y el test del estudiante se pierde
 
 **Abierto y cerrado 2026-08-28** con ADR-034. **No se materializó:** el owner aplicó `048` **antes**
@@ -1077,6 +1116,22 @@ entere salvo por la consola.
 (`universo.motor/falta-la-columna-de-version?`) y **reintenta sin la columna**, avisando por consola.
 Un θ sin versión se puede reconstruir por fecha; una fila que nunca se guardó, no. Tiene test para
 que la red no se apague sola, incluido el caso que **no** debe reintentarse (un fallo de RLS).
+
+> ### 🔁 Tercera instancia, medida (2026-09-19, `070` / T-134 / ADR-036)
+>
+> `tests` gana `intento_id` y el cliente lo manda. Reproducido contra PostgREST real: con el bundle
+> antes que la migración, el `insert` responde **`PGRST204`** y **se pierde el diagnóstico recién
+> rendido**. Misma red que `048`: `rastro/falta-la-tabla?` y reintento sin la columna, verificado
+> `400` → `201`.
+>
+> ⭐ **Y la instancia agregó algo que las dos anteriores no habían mostrado: el error puede no tener
+> texto.** Con la **tabla** ausente (no la columna), PostgREST 12.0.3 responde **`404` con el cuerpo
+> vacío** — sin `PGRST205`, sin mensaje, sin nada que reconocer. Toda mitigación de R-39 que dependa
+> de *leer* el error es frágil por construcción. La que no depende: **si la escritura de apertura
+> falla, por lo que sea, se apaga la función entera** y el camino principal sigue.
+>
+> **Regla que queda:** cuando una migración agrega algo que el cliente escribe, la mitigación se
+> diseña sobre *qué falló*, no sobre *qué dijo que falló*.
 
 **Segunda instancia, 2026-09-16 (`061` / T-135) — y esta vez el modo de fallo está medido.** El
 cliente ahora manda `p_fuente` a `track_visitor`, un argumento que crea `061`. Se levantó PostgREST
