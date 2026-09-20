@@ -612,6 +612,56 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > origen distingue depuración de no-depuración, no «muestra válida» de «ruido». Filtrar por
 > `origin = 'student'` es necesario y **no suficiente**.
 
+73. `migrations/071_electronica_track_y_modulos.sql` — ⏳ **escrita y verificada, SIN aplicar**
+    (2026-09-19) · **T-156, épica E10.** El track `electronica` y sus **cinco módulos** de circuitos
+    de **corriente continua**: `notacion_cientifica`, `ley_de_ohm`, `potencia`, `capacitores` y
+    `leyes_de_kirchhoff`, con banda explícita, las **cuatro** columnas históricas y cuatro aristas
+    en `module_prerequisites`.
+    **Para quién:** el curso de **técnico en electrónica** del owner, chicos de 16–17 años con
+    fallas de base para quienes `electrotecnia` queda muy alto. Solo continua, correctivo, aritmética
+    de cabeza, y `C = Q/V` explícita. Plan completo en
+    [[../project-memory/PLAN_TRACK_ELECTRONICA]].
+    **No trae un solo ítem**: eso es `072`…`076` y depende del catálogo de errores del curso.
+    **No mueve ninguna banda del producto** (banda explícita, y `bands/product-tracks` no se toca).
+
+    ⭐ **Dos cosas que esta migración hace y `062` no había hecho:**
+
+    - **Las cuatro columnas históricas completas**, no solo el blurb. `042` es la única migración que
+      escribe `historical_year`, y por eso 33 de 53 módulos están fuera de la línea del tiempo —
+      entre ellos los 12 de `electrotecnia` (**T-154**). Un módulo sin año desaparece de la línea del
+      tiempo **en silencio**.
+    - **`module_prerequisites` poblada**, sabiendo que hoy no la lee ningún namespace (ADR-038): es
+      el camino curricular documentado y el insumo de T-149. El mecanismo que sí funciona hoy es
+      `test_configs.prerequisite_topic`, y va en `077`. Los dos tienen que decir lo mismo.
+
+    ⚠️ **`leyes_de_kirchhoff` y no `kirchhoff`, y no es estética.** `electrotecnia/kirchhoff` ya
+    existe, y `universo.topics/suffix-match` resuelve buscando una coincidencia **única**: con dos
+    candidatos devuelve `nil`. El choque no habría roto solo el módulo nuevo — habría **dejado de
+    resolver el de electrotecnia, que ya está aplicado**, en silencio. Lo detectó comprobar los
+    sufijos contra el `def` real antes de escribir el SQL, que es para lo que existe la skill
+    `unidad-de-contenido`.
+
+    ⚠️ **Nota de reversión medida:** el último paso —volver a angostar `class_slots_track_check`—
+    **falla si ya se publicó algún cupo de electrónica**, porque el check nuevo no puede validar
+    filas que ya existen. Está escrito en el pie de la migración.
+
+> **Verificación de `071` (2026-09-19).** Contra un **PostgreSQL 17.11** desechable —la versión mayor
+> de producción, que es la lección que dejó `070`— con una réplica del estado previo: `modules` con
+> sus checks de `001`/`042`/`046`/`062`, `class_slots` con el suyo, `module_prerequisites` de `045` y
+> cuatro módulos del producto con su banda.
+>
+> Aplica limpia con `ON_ERROR_STOP=1`, **idempotente**, y la reversión funciona y deja volver a
+> aplicarla. Los cinco módulos entran con su banda; **0 sin año, 0 sin era, 0 sin figura, 0 sin
+> blurb**; las cuatro aristas quedan `duro` y con `capacitores` colgando de `notacion_cientifica`
+> (**no** de `ley_de_ohm`: `C = Q/V` no usa la ley de Ohm, y así un alumno trabado en Ohm igual puede
+> avanzar); **ningún sufijo repetido en todo el sistema**; un track desconocido y una era incoherente
+> **sí** son rechazados por sus checks; y un cupo de `electronica` ya se puede publicar.
+>
+> ⭐ **Y el control que importa:** las bandas de los módulos del producto **son idénticas antes y
+> después**. Crear módulos corre las bandas derivadas —es lo que movió `geometria/pitagoras` de
+> `[1,95 · 2,85]` a `[0,70 · 1,60]` sin que nadie lo tocara— y la banda explícita es lo que lo
+> impide.
+
 > ## 🔎 2026-09-19 — lo que la verificación de `070` encontró del **resto** del esquema
 >
 > Al comparar los privilegios de `intentos` con los de `tests`, salió esto. **No es un defecto de
