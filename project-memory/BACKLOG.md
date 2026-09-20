@@ -1,6 +1,6 @@
 # BACKLOG
 
-Última actualización: **2026-09-16** (SESSION-043: **T-135 y T-136 CERRADAS** — `061` verificada contra un PostgreSQL 14.18 desechable **y un PostgREST real**, y escrita la mitad cliente que faltaba: `universo.fuente` lee `?de=tarjeta`, `core/init!` la captura **antes** de que el router borre la query con `replaceState`, y `crud/track-visitor!` manda `p_fuente` con reintento si la migración no está aplicada — **D-68**. Lo que falta ya no es código: el owner aplicó `061` el mismo día, el bundle salió después y **la fila 1052 confirmó `fuente = 'tarjeta'` en producción**. Queda **T-148**: decidir las etiquetas antes de mandar el QR a la imprenta. Medido: con el bundle antes que la migración se pierde **la fila entera**, no la etiqueta — segunda instancia de **R-39**. **T-136 cierra**: el árbol queda limpio). Antes: **2026-09-13** (**épica E9 nueva**, SESSION-042: el owner no puede ver los resultados de su curso, y son **dos problemas** — *dónde se equivocaron* ya está en `tests.test` y solo falta pantalla (**T-132**, **T-133**); *cuáles no lo hicieron* **no se captura**, porque un test abandonado no deja ninguna fila (**T-134**, con ADR). **T-130 escrita y verificada** contra un PostgreSQL desechable: el mapa de errores por SQL, cero despliegues. **T-90 pasa a `a medias`** — se aplicó a un 4º medio real y falta la observación (**T-131**). Además **T-135** cerrar `061` antes de imprimir las tarjetas QR, **T-137**…**T-140** el producto deja de presentarse como si solo existiera la PAES, y **D-67**: la meta es CLP 48M/año, no USD 1M, lo que baja F16. Nueve cambios de prioridad al final de este archivo). Antes: **2026-09-09** (**track de electrotecnia**: `062`…`066` escritas y verificadas contra un PostgreSQL desechable, sin aplicar todavía — **T-127 cerrada** — aplicadas y batería corrida, los nueve controles coinciden; **T-128** revisar sus 116 ítems y 24 recursos, **T-129** visibilidad de `test_configs` por usuario, que es lo que cerraría R-42 y es precondición de G-1. D-66 / ADR-035). Antes: **2026-08-28** (7ª pasada: **el owner ya había aplicado `049`…`056`**, `055`/`056` en su versión original. **T-125 y T-126 cerradas**: los cuatro bancos no tenían fila en `test_configs` —414 ítems inalcanzables, medido— y `059` las crea. `055`…`059` **aplicadas y verificadas** el mismo día; no quedan migraciones pendientes (`next_question` nunca miró `questions.active`, así que retirar un ítem no lo retiraba). Antes, 6ª pasada: el eje de **probabilidad y estadística** existe — `055` crea sus seis módulos (**T-119 cerrada**) y `056` trae 102 ítems con 45 ideas erróneas nuevas. **T-124 nueva**: revisar esos 102 ítems. El owner respondió en la misma sesión las dos preguntas de contenido: la convención de cuartiles del DEMRE, y que **varianza y desviación estándar no entran en M1** — salieron 12 ítems y el módulo 340 pasó a ser `conteo`. ⚠️ `055` va **después** de `051` y `053`: crear módulos corre las bandas derivadas de los demás. Antes, 5ª pasada: el eje de **geometría** escrito — `053` bandas y `054` con 100 ítems y 33 ideas erróneas nuevas, el primer eje **sin banco previo**. **T-123 nueva**: revisar esos 100 ítems. Antes, 4ª pasada: **`049` y `050` aplicadas** por el owner, y el eje de **álgebra** escrito — `051` bandas y `052` con 100 ítems. **T-121 y T-122 nuevas**: revisar esos 100 ítems, y retirar de circulación el banco `polinomios` viejo y los once fragmentos del eje. Antes, 3ª pasada: **T-118 aprobada y escrita** en `049`, y **T-120 nueva**: revisar a mano los 100 ítems del eje de números que trae `050`, que es lo único que ningún script puede verificar. Antes, 2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
+Última actualización: **2026-09-19** (SESSION-047, 2ª pasada: **`070` aplicada en producción por el owner y verificada contra la base real** — tabla, dueño, RLS, 10 columnas, 6 constraints, 2 triggers, 3 policies, 2 índices, la FK de `tests` y la vista con `intento_id`; `authenticated = arw` **sin delete ni truncate** y `anon` sin nada. **Solo falta publicar el bundle.** Y la verificación destapó algo ajeno a `070`: **18 de las 19 tablas le dan a `anon` DELETE y TRUNCATE** — no explotable hoy, pero abre **R-46** y **T-163**. · 1ª pasada: **T-134 CERRADA** con **ADR-036** y ninguna de las dos opciones de su ficha — el intento en curso vive en una **tabla nueva**, `intentos` (`070`), y `tests` sigue siendo la tabla de mediciones terminadas, con sus seis lectores intactos. El abandono **no se escribe, se deriva**. Verificada contra PostgreSQL desechable **y PostgREST real**, que encontró dos defectos que el SQL solo no ve: la hora del cierre no puede venir del cliente, y con la tabla ausente PostgREST responde `404` sin mensaje. ⏳ **Falta aplicarla antes de publicar el bundle** (R-39). Y nace la **épica E10**: track `electronica` desde cero, cinco módulos, **T-155…T-162**, con el plan completo en [[PLAN_TRACK_ELECTRONICA]]). Antes: **2026-09-16** (SESSION-043: **T-135 y T-136 CERRADAS** — `061` verificada contra un PostgreSQL 14.18 desechable **y un PostgREST real**, y escrita la mitad cliente que faltaba: `universo.fuente` lee `?de=tarjeta`, `core/init!` la captura **antes** de que el router borre la query con `replaceState`, y `crud/track-visitor!` manda `p_fuente` con reintento si la migración no está aplicada — **D-68**. Lo que falta ya no es código: el owner aplicó `061` el mismo día, el bundle salió después y **la fila 1052 confirmó `fuente = 'tarjeta'` en producción**. Queda **T-148**: decidir las etiquetas antes de mandar el QR a la imprenta. Medido: con el bundle antes que la migración se pierde **la fila entera**, no la etiqueta — segunda instancia de **R-39**. **T-136 cierra**: el árbol queda limpio). Antes: **2026-09-13** (**épica E9 nueva**, SESSION-042: el owner no puede ver los resultados de su curso, y son **dos problemas** — *dónde se equivocaron* ya está en `tests.test` y solo falta pantalla (**T-132**, **T-133**); *cuáles no lo hicieron* **no se captura**, porque un test abandonado no deja ninguna fila (**T-134**, con ADR). **T-130 escrita y verificada** contra un PostgreSQL desechable: el mapa de errores por SQL, cero despliegues. **T-90 pasa a `a medias`** — se aplicó a un 4º medio real y falta la observación (**T-131**). Además **T-135** cerrar `061` antes de imprimir las tarjetas QR, **T-137**…**T-140** el producto deja de presentarse como si solo existiera la PAES, y **D-67**: la meta es CLP 48M/año, no USD 1M, lo que baja F16. Nueve cambios de prioridad al final de este archivo). Antes: **2026-09-09** (**track de electrotecnia**: `062`…`066` escritas y verificadas contra un PostgreSQL desechable, sin aplicar todavía — **T-127 cerrada** — aplicadas y batería corrida, los nueve controles coinciden; **T-128** revisar sus 116 ítems y 24 recursos, **T-129** visibilidad de `test_configs` por usuario, que es lo que cerraría R-42 y es precondición de G-1. D-66 / ADR-035). Antes: **2026-08-28** (7ª pasada: **el owner ya había aplicado `049`…`056`**, `055`/`056` en su versión original. **T-125 y T-126 cerradas**: los cuatro bancos no tenían fila en `test_configs` —414 ítems inalcanzables, medido— y `059` las crea. `055`…`059` **aplicadas y verificadas** el mismo día; no quedan migraciones pendientes (`next_question` nunca miró `questions.active`, así que retirar un ítem no lo retiraba). Antes, 6ª pasada: el eje de **probabilidad y estadística** existe — `055` crea sus seis módulos (**T-119 cerrada**) y `056` trae 102 ítems con 45 ideas erróneas nuevas. **T-124 nueva**: revisar esos 102 ítems. El owner respondió en la misma sesión las dos preguntas de contenido: la convención de cuartiles del DEMRE, y que **varianza y desviación estándar no entran en M1** — salieron 12 ítems y el módulo 340 pasó a ser `conteo`. ⚠️ `055` va **después** de `051` y `053`: crear módulos corre las bandas derivadas de los demás. Antes, 5ª pasada: el eje de **geometría** escrito — `053` bandas y `054` con 100 ítems y 33 ideas erróneas nuevas, el primer eje **sin banco previo**. **T-123 nueva**: revisar esos 100 ítems. Antes, 4ª pasada: **`049` y `050` aplicadas** por el owner, y el eje de **álgebra** escrito — `051` bandas y `052` con 100 ítems. **T-121 y T-122 nuevas**: revisar esos 100 ítems, y retirar de circulación el banco `polinomios` viejo y los once fragmentos del eje. Antes, 3ª pasada: **T-118 aprobada y escrita** en `049`, y **T-120 nueva**: revisar a mano los 100 ítems del eje de números que trae `050`, que es lo único que ningún script puede verificar. Antes, 2ª pasada: **T-118 nueva y P0** —las bandas derivadas meten el eje de números entero en [−2,85, −0,54] y con diagnósticos por eje eso agota el test, que es lo que ya pasó— y **T-119 nueva**: el eje de probabilidad no tiene módulos. Además, skill `banco-de-items` para redactar ítems y entregarlos como migración verificada). Antes: **2026-08-28** (**T-112 y T-114 cerradas** por ADR-034 —el motor modela el azar y suelta el prior—, **T-111 sigue abierta y con la aritmética peor** (la información por ítem bajó de 0,25 a ≈0,155), y **T-116 / T-117 nuevas**: recalibrar los cortes de fluidez contra el motor v2, y el 37 % de banda correcta que le queda al estudiante fuerte). Antes: **2026-08-24** (**T-115 nueva** y **T-100 ahora tiene número**: `scripts/audit_paleta.py` mide 92 usos de color de fábrica en el embudo, 87 en admin y 50 fuera del bundle, con línea base y trinquete — ADR-033). Antes: **2026-08-23** (**T-110…T-114 nuevas**, tras implementar el editor en vivo del diagnóstico —ADR-032— y evaluar el motor IRT contra ADR-004: distinguir las corridas de admin antes de calibrar (**T-110**, precondición de G-2), decidir qué se hace con la parada por precisión que hoy es inalcanzable (**T-111**), poner el ADR del estimador al día (**T-112**), el rol editor cuando exista una segunda persona (**T-113**) y evaluar 1PL con azar fijo (**T-114**)). Antes: **2026-08-17** (**T-92 cerrada**: login con Google conectado, desplegado y
 verificado en producción, con D-21 respetado en las dos rutas — **ADR-028 / D-56**. Abre **T-95**
 (persistir el consentimiento) y **R-33** (la pantalla de Google nombra a `supabase.co`)). Antes: **2026-08-16** (2ª pasada: **T-90 y T-91**, funnel de aula tras detectar R-31/L-36; 3ª: **T-92**, conectar login con Google — gratis, y posible puerta de entrada institucional vía Workspace, Q-37; 4ª: **T-93**, revisar el contrato de Cpech — P0 y bloqueante del canal, R-32) — **épica E8 nueva** (Motor de valor: los cinco vectores
 G-1…G-5, tareas T-76…T-89), abierta por
@@ -3923,7 +3923,7 @@ el ranking de misconceptions, los ítems más fallados y el déficit por módulo
 - **Terminado cuando:** reproduce en pantalla lo que T-130 da por SQL, y hay test de la agregación.
 - **Vector:** G-1. *"Si esta pantalla no impresiona, no hay venta"* (T-82).
 
-### T-134 · Que un diagnóstico abandonado deje rastro — **P0** · `abierto` · **requiere ADR-036**
+### T-134 · Que un diagnóstico abandonado deje rastro — **P0** · ✅ `CERRADA` (2026-09-19)
 
 Hoy el abandono es **invisible**: el único `insert` es `:save-test`, disparado solo desde
 `:test/complete` (`events/test.cljs:668-724`). Un estudiante que responde 8 ítems y cierra la pestaña
@@ -3940,6 +3940,55 @@ no deja **nada**. Eso impide responder *"cuáles no lo hicieron"* y **sesga la c
 - **Terminado cuando:** un test abandonado deja fila consultable con θ parcial y respuestas, las
   policies RLS cubren el estado nuevo, y está en `supabase/SCHEMA.md`.
 - **Vector:** G-2, G-5. **Cierra** el vacío que ADR-029 declara (`irt/escape.cljs:9-10`).
+
+✅ **Hecho 2026-09-19 (SESSION-047), con ADR-036 — y ninguna de las dos opciones de la ficha.**
+Se eligió una **tabla nueva**, `public.intentos` (`070`), en vez de meter la fila en `tests`.
+
+**Por qué no la opción (a):** `tests` es **append-only desde el cliente** (`023`: solo
+`tests_insert_own` y `tests_select_own`), y **al menos seis lectores suyos asumen «fila = medición
+terminada» y fallan en silencio** — entre ellos `access/best-theta-by-topic`, que toma el **máximo**
+θ del historial, así que un intento abandonado con θ parcial inflado **desbloquearía un topic que el
+estudiante no ganó**. Con tabla aparte los seis siguen correctos sin tocar una línea.
+
+**El abandono no se escribe, se deriva:** `cerrado_en is null` y sin latir hace más de 2 horas
+(≈20× los 5,8 min de mediana medidos en SESSION-046). Nadie puede avisar que cerró la pestaña, así
+que no hay estado que poner ni job que lo ponga. La regla vive en `public.intento_abandonado()` y su
+espejo con test propio es `universo.rastro/abandonado?`.
+
+**Entregado:** `supabase/migrations/070_intentos.sql` · `src/universo/rastro.cljs` (puro, 13 tests) ·
+`crud/abrir-intento!` y `crud/latir-intento!` · los efectos `:rastro/abrir` / `:rastro/latir` /
+`:rastro/cerrar` en `events/test.cljs` · `tests.intento_id`.
+
+⭐ **Dos defectos que solo aparecieron contra un PostgREST real, no contra SQL:**
+1. **`cerrado_en` venía del reloj del cliente.** Con un navegador atrasado el cierre falla por el
+   check y el intento queda abierto para siempre — **quien terminó su diagnóstico contaría como
+   abandono**, en la única métrica que esto existe para producir. Ahora el cliente manda la
+   intención y el servidor pone `now()`.
+2. **Con la tabla ausente PostgREST 12 responde `404` con el cuerpo vacío**, sin `PGRST205` ni
+   mensaje. Por eso la regla no depende del texto del error: **si la apertura falla, por lo que sea,
+   se apaga el rastro**; un latido suelto que falla no apaga nada.
+
+⚠️ **Reescribe un contrato:** el comentario de `:test/reintentar-ultimo` decía *«es seguro porque
+nada se persiste por ítem»*. Ese día llegó. Sigue siendo seguro porque **el latido reescribe el
+rastro entero y no parchea**, así que deshacer se refleja solo; el evento pasó a `reg-event-fx` y
+late.
+
+✅ **`070` aplicada en producción por el owner el 2026-09-19**, y verificada contra la base real: la
+tabla con su dueño (`postgres`) y su RLS, las 10 columnas con sus defaults, las 6 constraints
+—incluida la FK a `auth.users`—, los 2 triggers con `security definer` **solo** donde corresponde,
+las 3 policies, los 2 índices, `intento_abandonado()` devolviendo `f/t/f`, `tests.intento_id` con su
+FK, la vista con 9 columnas y 0 correos, y `tests` intacta en **351 filas**.
+
+Y el control que `information_schema` esconde, leído de `pg_class.relacl`:
+`authenticated = arw` sobre `intentos` —**sin delete ni truncate**—, `anon` sin nada, y los dos roles
+del agente respondiendo `permission denied` de verdad, no solo en el catálogo.
+
+⏳ **Lo que le queda al owner:** **publicar el bundle** (ya compilado). El orden correcto de R-39 ya
+está cumplido: migración primero. Cuando alguien rinda un diagnóstico, la consulta (c) de la
+verificación responde por primera vez *«en qué ítem se van»*.
+
+🔎 **La verificación encontró algo que no era de `070`:** 18 de las 19 tablas de `public` le dan a
+`anon` DELETE y TRUNCATE. No es explotable hoy, pero abre **R-46** y **T-163**.
 
 ### T-135 · Terminar y desplegar la atribución de campaña (`061`) — **P1** · ✅ `CERRADA` (2026-09-16)
 
@@ -4230,6 +4279,155 @@ vez impresas las 100 tarjetas y el afiche, la etiqueta no se corrige.
 - **Terminado cuando:** las etiquetas están escritas, las URLs del QR generadas, y probada al menos
   una en un navegador limpio antes de mandar a imprenta.
 - **Vector:** G-5. **Relacionado:** T-135, [[RISKS]] R-31, R-43, [[DECISIONS]] D-68.
+
+---
+
+## Épica E10 — Track `electronica`: electricidad desde cero (SESSION-047, 2026-09-19)
+
+> **El plan completo vive en [[PLAN_TRACK_ELECTRONICA]].** Acá solo están las tareas.
+>
+> Decidido por el owner el 2026-09-19: **track nuevo `electronica`, visible**, con **cinco módulos**
+> —notación científica, ley de Ohm, potencia, capacitores, leyes de Kirchhoff— encadenados por
+> prerrequisito. Un `topic` de `test_configs` por módulo, copiando el patrón de `cuantica` (`040`),
+> porque **ADR-038 está aprobado y sin implementar** (T-149) y hoy `next_question` filtra solo por
+> `topic`: un banco de eje no puede servir el test de un módulo.
+>
+> ⭐ **El destinatario es un curso real, y eso es lo que decide el diseño:** alumnos de **16–17
+> años de técnico en electrónica** a los que el owner les hace clase, que **llegan con muchas fallas
+> de base** y para quienes **`electrotecnia` queda muy alto**. De ahí las cuatro restricciones:
+> **solo continua** (nada de alterna), **track correctivo y no de cobertura** (el entregable es el
+> mapa de errores), **aritmética de cabeza** (un despeje, dos operaciones) y **`C = Q/V` explícita**
+> antes de cualquier asociación de capacitores.
+>
+> ⚠️ **Corrección de la primera versión de esta épica, que decía «R-30 en estado puro».** Era un
+> error de análisis. **Un curso entero rindiendo un diagnóstico, con el profesor mirando el
+> resultado, es lo más parecido a un cliente institucional que este proyecto ha tenido**: ensaya
+> **T-130/T-133** contra un curso real (que es literalmente T-82, *«si esta pantalla no impresiona,
+> no hay venta»*), produce **Δθ medido** (G-4) y cierra la observación que dejó **T-90/T-131** a
+> medias. Lo que **no** hace es calibrar el banco PAES, que es lo que G-2 necesita.
+>
+> ⚠️ **R-28: son menores.** No hace falta contrato —es su propio curso— pero el dato es el mismo:
+> **T-07 (respaldo) deja de ser higiene** y pasa a ser lo mínimo antes de que el curso rinda.
+
+### T-155 · Catalogar los errores reales del curso — **P0** · `abierto`
+
+**Lo único que nadie más que el owner puede producir** —ni el agente ni un libro—: la lista de
+errores que de verdad comete este curso en continua. Es el insumo directo de `misconceptions` (A5) y
+de las cuatro `error_*` de cada ítem, y decide cuántos ítems merece cada módulo.
+
+- **Por qué es esto y no un ADR de frontera:** la frontera con `electrotecnia` ya está escrita en
+  [[PLAN_TRACK_ELECTRONICA]] §2 como cuatro reglas verificables (**F1** solo continua · **F2** un
+  despeje y dos operaciones · **F3** una magnitud por enunciado · **F4** error observado en el aula).
+  **F4 es la que de verdad separa los dos tracks**, y no se puede escribir en un ADR: se cataloga.
+- **Terminado cuando:** hay una lista de errores con nombre, cada uno atribuible a un módulo, y
+  ninguno inventado.
+- *Bloquea **T-158**.*
+
+### T-156 · `071` — track, cinco módulos y prerrequisitos — **P1** · `abierto`
+
+Ampliar el check de `track` (A2, el único lugar ruidoso del mapa), cinco filas de `modules` con
+**banda explícita**, `historical_*` completos (A10) y `module_prerequisites`.
+
+⚠️ **La cadena cambió respecto del primer borrador.** `capacitores` **no** cuelga de `ley_de_ohm`:
+`C = Q/V` no necesita la ley de Ohm para nada, y lo que sí necesita —mucho— es saber qué es un µF y
+qué es un nF. Cuelga de `notacion_cientifica`. Efecto práctico: **un alumno trabado en Ohm igual
+puede avanzar en capacitores** en vez de quedarse sin nada que rendir.
+
+- **No tocar** `bands/product-tracks` ni `track-order`: movería las bandas de los 26 módulos del
+  producto. La banda explícita es lo que permite entrar sin recompilar.
+- `module_prerequisites` se puebla sabiendo que **hoy no la lee ningún namespace** (ADR-038): es el
+  camino curricular documentado, no el mecanismo. El mecanismo es `prerequisite_topic` de `077`.
+- **Terminado cuando:** verificada contra un PostgreSQL desechable, idempotente y con reversión.
+
+### T-157 · Los cinco slugs en `universo.topics` — **P1** · `abierto`
+
+**B1** (`module-slugs`) y **B2** (`explicit-topic->module-slug`, porque `electronica_ohm` ≠ el sufijo
+`ley_de_ohm`), test leyendo el `def` real (L-59), `release app` y commit del bundle.
+
+- **Si falta:** déficit `unknown/*` → **«Mi plan» no puede personalizarse**, con todo en verde. Es
+  literalmente lo que le pasó a 218 ítems hasta T-152.
+- Se puede hacer **en paralelo** con los ítems: es inerte hasta que existan los módulos.
+
+### T-158 · Los cinco bancos, ≥20 ítems activos cada uno — **P1** · `abierto` · **es el 80 % del trabajo**
+
+Por la skill `banco-de-items`, un banco por vez. JSON en `contenido/items/` como fuente de verdad,
+`.sql` generado. Clave repartida entre las cuatro letras (R-35), las cuatro `error_*` escritas,
+LaTeX con escape simple (`047`), cobertura de dificultad sin huecos.
+
+- **≥100 ítems en total.** Es el piso que impone la guarda de `077`, no una meta.
+- **Es donde se aplican F1–F4** ([[PLAN_TRACK_ELECTRONICA]] §2), ítem por ítem. F4 —cada distractor
+  nombra un error del catálogo de **T-155**— es la que no se puede fingir: si un ítem no corrige
+  nada que haya pasado en clase, sobra.
+- **`electronica/capacitores` lleva `C = Q/V` primero**, antes de serie/paralelo: el error clásico
+  es asociarlos al revés que los resistores, y la definición es lo que lo desarma.
+- **Nada de alterna, ni transitorio RC.** Eso ya está en `electrotecnia` y es lo que queda alto.
+
+### T-159 · Decidir T-129 o `active = false` antes de publicar — **P0** · `abierto`
+
+Hoy un estudiante de PAES ve **12 bancos de electrotecnia** que no le sirven; con esto ve **17**.
+Es **R-42**, y `077` es la migración que lo enciende, así que es el punto natural para decidir.
+
+- **Recomendación:** reevaluar **T-129** (visibilidad de `test_configs` por usuario) *antes* de
+  `077`, no después. Ya había «dos destinatarios y una queja de UX real» el 2026-09-13.
+- **Terminado cuando:** o existe visibilidad por usuario, o hay una decisión escrita de publicar
+  igual con el número a la vista.
+
+### T-160 · `077` — `test_configs` con la cadena — **P1** · `abierto` · bloqueada por T-158 y T-159
+
+Cinco filas encadenadas por `prerequisite_topic`, con la **guarda de `065`**: se niega si algún banco
+no llega a 20 ítems activos. Una config sin banco deja al estudiante sin preguntas a mitad del
+diagnóstico (T-125 al revés).
+
+⭐ **Y con `initial_theta` explícito por fila**, que es lo que `065` no hizo. Con el −1,0 por defecto
+de `048` y `|Δθ| ≤ 0,4`, llegar a −2,8 cuesta **mínimo 5 ítems solo de viaje**: en un test de 10, la
+mitad se gasta en llegar al nivel del alumno, y lo paga justo el más débil — que acá es todo el
+curso. Es la aritmética de ADR-038 y la causa (b) de **R-44**. Cada fila arranca en el **centro de la
+banda de su módulo**, así los diez ítems son medición.
+
+### T-161 · `078` — recursos de capa 1 — **P2** · `abierto`
+
+Una guía y una práctica por módulo, `published = false` (ADR-016 §1). No es precondición de nada: los
+recursos no intervienen en el diagnóstico. Se publican **después** de auditarlos rehaciendo las
+cuentas, igual que T-128 para electrotecnia.
+
+### T-162 · Cerrar los 19 lugares con `verificar_unidad.py` — **P2** · `abierto`
+
+`contenido/unidades/` está **vacío**: ninguna unidad se dio de alta todavía por la skill. Este track
+sería la primera, y conviene usar el séptimo auditor desde el primer módulo en vez de descubrir al
+final qué faltó.
+
+---
+
+### T-163 · Acotar los privilegios de tabla al verbo que su policy contempla — **P1** · `abierto`
+
+**18 de las 19 tablas de `public` le dan a `anon` DELETE y TRUNCATE.** Son las *default privileges*
+de Supabase, y **ninguna migración de este repositorio escribió nunca un `grant` de tabla** — por eso
+nadie las miró en 70 migraciones. Lo encontró la verificación de `070` **comparando** la tabla nueva
+con `tests`, no una auditoría.
+
+**No es explotable hoy**, y conviene tenerlo claro para no tratarlo como incendio: `anon` es
+`rolcanlogin = f` y PostgREST no expone TRUNCATE, que es lo único que RLS no filtra. Para el resto
+de los verbos, la RLS sí filtra.
+
+**Por qué igual se hace:** es ADR-040 al revés —*«el grant es la puerta, la policy es el límite»*—.
+Hoy el esquema entero descansa en que **toda** policy esté bien escrita, sin segunda línea; un
+`using (true)` de más en el futuro pasa de bug a fuga porque el privilegio ya está concedido.
+
+- **Cómo se ve bien**, tal como quedó `intentos` con dos líneas:
+  ```sql
+  revoke all on public.<tabla> from anon, authenticated;
+  grant <solo los verbos que la policy contempla> on public.<tabla> to authenticated;
+  ```
+- **Orden:** primero las que guardan datos personales (`tests`, `profiles`, `visitor`, `contacto`,
+  `guestbook`), y **`questions`**, cuyo estado actual —`anon=awdDxt`, **sin SELECT** pero con insert,
+  update, delete y truncate— no responde a ninguna decisión escrita y parece un arreglo a medias.
+- **No toca ninguna policy.** Es aditivo al revés y reversible con un `grant`.
+- ⚠️ **Verificar con `pg_class.relacl`, no con `information_schema`**: la vista del esquema de
+  información **solo muestra los grants del rol que consulta**, así que con el rol del agente
+  devuelve 0 filas y parece que no hay nada. Es exactamente lo que pasó al verificar `070`.
+- **Terminado cuando:** ninguna tabla de `public` le concede a `anon` un verbo que su policy no
+  contemple, verificado leyendo `relacl` tabla por tabla.
+- **Riesgo:** [[RISKS]] R-46.
 
 ---
 

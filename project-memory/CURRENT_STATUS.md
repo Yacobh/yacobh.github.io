@@ -4,6 +4,90 @@
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
 
+> ## ⏳ 2026-09-19 (SESSION-047) — el abandono deja rastro, y hay plan para un track nuevo
+>
+> **T-134 cerrada con ADR-036**, y con **ninguna de las dos opciones que proponía su ficha**: el
+> intento en curso vive en una **tabla nueva**, `public.intentos` (`070`), y `tests` no cambia de
+> significado.
+>
+> | | Estado |
+> |---|---|
+> | **T-134** el abandono deja rastro | ✅ escrita, verificada contra PostgreSQL desechable **y PostgREST real** |
+> | `070_intentos.sql` | ✅ **aplicada por el owner el 2026-09-19** y verificada contra la base real |
+> | `public/js/app.js` | ✅ recompilado, con el rastro adentro |
+> | `clj -M:test` | ✅ **228 tests / 2907 assertions / 0 failures** |
+> | **Épica E10** track `electronica` | 🆕 planificada, **T-155…T-162**, cero líneas escritas |
+>
+> **Por qué tabla nueva.** `tests` es append-only desde el cliente (`023`) y **al menos seis
+> lectores suyos asumen «fila = medición terminada»** — entre ellos `access/best-theta-by-topic`,
+> que toma el **máximo** θ del historial: un intento abandonado con θ parcial inflado
+> **desbloquearía un topic que el estudiante no ganó**. Con tabla aparte los seis siguen correctos
+> sin tocar una línea.
+>
+> **El abandono no se escribe, se deriva:** sin cerrar y sin latir hace más de 2 horas (≈20× los 5,8
+> minutos de mediana que midió SESSION-046). Nadie puede avisar que cerró la pestaña.
+>
+> ⭐ **Lo que más vale de la sesión son dos defectos que el SQL solo no encontró**, y que aparecieron
+> recién contra un PostgREST 12.0.3 real:
+>
+> 1. **`cerrado_en` venía del reloj del cliente.** Un navegador atrasado hace fallar el cierre por el
+>    check, el intento queda abierto para siempre y **quien terminó su diagnóstico cuenta como
+>    abandono** — en la única métrica que `070` existe para producir. Ahora el cliente manda la
+>    intención de cerrar y el servidor pone `now()`.
+> 2. **Con la tabla ausente, PostgREST responde `404` con el cuerpo vacío**: ni `PGRST205`, ni
+>    mensaje, ni nada que reconocer por texto. La regla pasó a no depender de eso — *si la apertura
+>    falla, por lo que sea, se apaga el rastro*.
+>
+> ⛔ **El agente intentó aplicarla y no pudo, a propósito.** Con `claude_ddl` (ADR-040) fallan tres
+> sentencias: `alter table public.tests` (*must be owner*), la FK a `auth.users` (*permission denied
+> for schema auth*) y el `create or replace view` (*must be owner*). Es la línea entre **agregar
+> contenido** y **cambiar la forma de la base**, funcionando como se diseñó. **La aplicó el owner
+> desde el SQL Editor el mismo día**, y el agente la verificó después en solo lectura: tabla, dueño,
+> RLS, 10 columnas, 6 constraints, 2 triggers, 3 policies, 2 índices, `tests.intento_id` con su FK, y
+> la vista con 9 columnas y 0 correos. **`tests` intacta en 351 filas.**
+>
+> ⏳ **Falta publicar el bundle.** El orden de R-39 ya está cumplido —migración primero— y
+> `public/js/app.js` está compilado. Hasta que se publique, `intentos` está vacía.
+>
+> 🔎 **La verificación encontró algo que no era de `070`:** **18 de las 19 tablas de `public` le dan
+> a `anon` DELETE y TRUNCATE**, porque son las *default privileges* de Supabase y **ninguna migración
+> del repo escribió nunca un `grant` de tabla**. **No es explotable hoy** (`anon` es
+> `rolcanlogin = f` y PostgREST no expone TRUNCATE, que es lo único que RLS no filtra), pero deja el
+> esquema entero descansando en que toda policy esté bien, sin segunda línea. `intentos` es la única
+> acotada. **R-46** y **T-163**.
+>
+> ⚠️ **Y el intento destapó un defecto de método: producción es PostgreSQL 17.6 y la verificación se
+> había hecho contra 14.18**, que era lo que había instalado. Se instaló `postgresql@17` y se repitió
+> la batería completa — **comportamiento idéntico**, pero eso no se sabía antes de medirlo. **La
+> versión mayor de producción es parte del fixture**, y el procedimiento de SESSION-043 no lo decía.
+>
+> ⚠️ **R-39 por tercera vez, medida:** con el bundle antes que la migración, el `insert` de `tests`
+> con `intento_id` devuelve `PGRST204` y **se pierde el diagnóstico recién rendido**. Hay reintento
+> sin la columna, pero el orden correcto sigue siendo **`070` primero, bundle después**.
+>
+> **Lo nuevo que no es código:** la épica **E10**, un track `electronica` de cinco módulos
+> —notación científica, Ohm, potencia, capacitores, Kirchhoff— con el plan completo en
+> [[PLAN_TRACK_ELECTRONICA]].
+>
+> ⭐ **Tiene destinatario, y eso es lo que lo hace valer:** el **curso de técnico en electrónica que
+> el owner le hace a chicos de 16–17 años**, que llegan con muchas fallas de base y para quienes
+> `electrotecnia` queda muy alto. **Solo continua**, track **correctivo** (el entregable es el mapa
+> de errores, no la cobertura del temario), aritmética de cabeza, y `C = Q/V` explícita.
+>
+> Un curso entero rindiendo un diagnóstico con el profesor mirando el resultado es **lo más parecido
+> a un cliente institucional que este proyecto ha tenido**: ensaya **T-130/T-133** contra un curso
+> real (T-82: *«si esta pantalla no impresiona, no hay venta»*), produce **Δθ medido** (G-4) y cierra
+> la observación que dejó **T-90/T-131** a medias. No calibra el banco PAES, que es lo que G-2
+> necesita.
+>
+> Dos cosas que hay que tener presentes: su publicación **empeora R-42** (el selector del estudiante
+> de PAES pasa de 12 bancos ajenos a 17, y **T-159** lo decide), y **son menores** — **T-07
+> (respaldo) deja de ser higiene** antes de que el curso rinda (**R-28**).
+>
+> Y una corrección de memoria: el mapa de `unidad-de-contenido` decía en **B1** que `module-slugs`
+> tenía 20 slugs «sin probabilidad ni electrotecnia», cuando **T-152 ya los había agregado el día
+> anterior**. Son 38. Corregido en el mismo commit (L-22, ahora contra el propio mapa).
+
 > ## ✅ 2026-09-13 (cierre) — el panel ya muestra el intento, y el 20 % de la muestra era ruido propio
 >
 > **Todo mergeado a `main`.** Nueve commits. Cuatro tareas cerradas y tres migraciones de estado:
