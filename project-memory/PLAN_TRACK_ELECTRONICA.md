@@ -94,7 +94,12 @@ Y lo único que **no existe en ninguna parte del repositorio**, verificado con `
 | 2 | `electronica/ley_de_ohm` | Ley de Ohm | V = I·R en sus **tres** despejes, uno por vez, con unidades |
 | 3 | `electronica/potencia` | Potencia y energía | P = V·I, P = I²R, P = V²/R; disipación en un resistor; energía y consumo |
 | 4 | `electronica/capacitores` | Capacitancia y capacitores | **C = Q/V**; µF/nF/pF; serie y paralelo; energía almacenada. **Sin transitorio RC** |
-| 5 | `electronica/kirchhoff` | Leyes de Kirchhoff en continua | LCK en un nodo, LVK en una malla. Una fuente, dos o tres resistores |
+| 5 | `electronica/leyes_de_kirchhoff` | Leyes de Kirchhoff en continua | LCK en un nodo, LVK en una malla. Una fuente, dos o tres resistores |
+
+> ⚠️ **`leyes_de_kirchhoff` y no `kirchhoff`.** `electrotecnia/kirchhoff` ya existe, y
+> `universo.topics/suffix-match` exige coincidencia **única**: con dos candidatos devuelve `nil`. El
+> choque habría dejado de resolver **el módulo de electrotecnia que ya está aplicado**, en silencio.
+> Detectado antes de escribir el SQL, comprobando los sufijos contra el `def` real.
 
 ### La cadena de prerrequisitos, corregida
 
@@ -139,7 +144,7 @@ fallas de base y el piso tiene que ser real.
 | `electronica/ley_de_ohm` | 3020 | −2,8 | −1,6 | **−2,2** |
 | `electronica/potencia` | 3030 | −2,4 | −1,2 | **−1,8** |
 | `electronica/capacitores` | 3040 | −2,2 | −1,0 | **−1,6** |
-| `electronica/kirchhoff` | 3050 | −1,8 | −0,6 | **−1,2** |
+| `electronica/leyes_de_kirchhoff` | 3050 | −1,8 | −0,6 | **−1,2** |
 
 `order_index` arranca en 3010 para no chocar con `electrotecnia` (2010–2120).
 
@@ -168,16 +173,17 @@ segunda pasada de idempotencia y reversión escrita** (CLAUDE.md §9).
 | # | Archivo | Qué hace |
 |---|---|---|
 | `071` | `electronica_track_y_modulos.sql` | Check de `track` ampliado (A2, el único lugar ruidoso); cinco filas de `modules` con **banda explícita**, `historical_*` y `historical_blurb`; `module_prerequisites` |
-| `072`…`076` | `banco_de_electronica_<modulo>.sql` | ≥20 ítems activos + sus ideas erróneas, generadas por `scripts/generar_migracion_items.py` |
-| `077` | `test_configs_de_electronica.sql` | Cinco filas con `prerequisite_topic`, **`initial_theta` explícito** y la **guarda de `065`**: se niega si algún banco no llega a 20 ítems activos |
+| `072`…`076` | `banco_de_electronica_<modulo>.sql` | ≥12 ítems activos + sus ideas erróneas, generadas por `scripts/generar_migracion_items.py` |
+| `077` | `test_configs_de_electronica.sql` | Cinco filas con `prerequisite_topic`, **`initial_theta` explícito** y la **guarda de `065`** adaptada: se niega si algún banco no llega a **12** ítems activos |
 | `078` | `electronica_resources.sql` | Una guía y una práctica por módulo, `published = false` (ADR-016 §1) |
 
 **Orden duro:** `071` antes que los bancos (los ítems referencian `module_id`); los bancos antes de
 `077` (la guarda los cuenta). `078` en cualquier momento.
 
 Parámetros sugeridos para `077`, más angostos que los 5/12 de `065` porque cada test es **un solo
-módulo** y ya no tiene que viajar: `min_items = 5`, `max_items = 10`, `se_threshold = 0.35`,
-`min_response_seconds = 3`.
+módulo** y ya no tiene que viajar: `min_items = 4`, `max_items = 8`, `se_threshold = 0.35`,
+`min_response_seconds = 3`. Es el rango que ADR-038 propone para un test de módulo, y el que hace que
+un banco de 12 ítems alcance con margen.
 
 ⚠️ `se_threshold = 0.35` **sigue siendo inalcanzable** (R-38, T-111: el piso del SE con azar es
 ≈0,73). Se deja por coherencia con el resto y sabiendo que la parada real será `max_items`. Que
@@ -201,9 +207,17 @@ explícita. Tocarlos movería las bandas de los 26 módulos del producto.
 
 ## 5. Lo que de verdad cuesta: los ítems, y antes que ellos los errores
 
-**≥100 ítems** (20 × 5, el piso que impone la guarda de `077`), con la skill `banco-de-items`: una
-sola alternativa correcta, clave repartida entre las cuatro letras (R-35), las **cuatro** `error_*`
-escritas, LaTeX con escape simple (`047`), cobertura de dificultad sin huecos.
+**≥60 ítems** (12 × 5), con la skill `banco-de-items`: una sola alternativa correcta, clave
+repartida entre las cuatro letras (R-35), las **cuatro** `error_*` escritas, LaTeX con escape simple
+(`047`), cobertura de dificultad sin huecos.
+
+> ⚠️ **Corrección sobre la primera versión de este plan, que decía 100 (20 × 5).** Ese 20 era una
+> copia de la guarda de `065`, y `065` protegía **dos bancos que cubren doce módulos**. Acá cada
+> banco es **un módulo de 1,2 logits**, y la regla de la skill es **≥6 ítems por cada tramo de 1,0
+> logit**: son ~8 para cobertura. Con `max_items = 8` y margen para que un reintento no sirva los
+> mismos ítems, **12 por banco** es el piso honesto. Escribir 100 no habría hecho mejor el
+> diagnóstico; habría hecho más lenta la revisión, que es el cuello de botella real (P0.2 de la
+> skill: hay 402 ítems activos **sin revisión pedagógica** delante de estudiantes).
 
 **Pero el primer entregable no son los ítems: es el catálogo de errores.** Por F4, cada distractor
 tiene que nombrar un error observado. Eso es **T-155**, y es lo único que nadie más que el owner
@@ -258,9 +272,10 @@ destinatario, deja de ser un problema de higiene. Es **T-159**.
 
 1. **T-155** — **Catalogar los errores reales del curso.** Lo único que nadie más puede hacer, y el
    insumo de todo lo demás. *Bloquea T-158.*
-2. **T-156** — `071`: track, cinco módulos con banda explícita, `historical_*`, prerrequisitos.
-3. **T-157** — B1 + B2 en `universo.topics`, test, `release app`, commit del bundle. *En paralelo
-   con los ítems: es inerte hasta que existan los módulos.*
+2. ✅ **T-156** — `071`: track, cinco módulos con banda explícita, `historical_*`, prerrequisitos.
+   **Escrita y verificada contra PostgreSQL 17.11 el 2026-09-19. Falta aplicarla.**
+3. ✅ **T-157** — B1 + B2 en `universo.topics`, test (`t-156-los-cinco-modulos-de-electronica`),
+   `release app` y bundle recompilado. **Hecho el 2026-09-19.**
 4. **T-158** — Los cinco bancos, uno por vez. **Es el 80 % del trabajo**, y donde se verifica F1–F4.
 5. **T-159** — Decidir T-129 o `active = false`. *Precondición de T-160.*
 6. **T-160** — `077`: `test_configs` con la cadena, `initial_theta` por módulo y la guarda de los 20.
