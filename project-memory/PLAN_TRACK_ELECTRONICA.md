@@ -2,8 +2,9 @@
 
 > Estado: ✅ **aplicado en producción el 2026-09-20.** El track existe: 5 módulos, 80 ítems, 30 ideas
 > erróneas, 5 tests encadenados y **10 recursos publicados** con sus 60 enlaces a ideas erróneas.
-> Los cinco JSON de unidad pasan el séptimo auditor con 0 errores. **Queda la revisión pedagógica de
-> los 80 ítems**, que es lo único pendiente. Épica **E10** en [[BACKLOG]], tareas **T-155…T-162**.
+> Los cinco JSON de unidad pasan el séptimo auditor con 0 errores, y los 80 ítems pasaron una
+> **revisión mecánica** que encontró siete defectos, corregidos en `079` (T-166). **Queda la revisión
+> pedagógica**, que es del owner y donde se verifica F4. Épica **E10** en [[BACKLOG]], tareas **T-155…T-162**.
 >
 > Decidido por el owner: **track nuevo `electronica`, visible**, con **cinco módulos** encadenados
 > por prerrequisito.

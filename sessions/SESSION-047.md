@@ -90,7 +90,10 @@ El objetivo no cambió. Cambiaron dos cosas de fondo:
     lo aplicado, y el séptimo auditor en **0 errores**. Encontró una idea errónea sin criterio de
     exclusión (corregida en la fuente y en producción) y **cinco falsos positivos suyos** (T-165),
     que se arreglaron en el auditor y en la referencia de la skill.
-19. Desmontaje de los clusters y del PostgREST desechables.
+19. **Revisión mecánica de los 80 ítems (T-166)**: un auditor nuevo para la redacción —el octavo— y
+    una pasada recalculando las 80 cuentas y contrastando cada distractor con el error que dice
+    diagnosticar. Siete ítems con defectos, corregidos en `079`, aplicada.
+20. Desmontaje de los clusters y del PostgREST desechables.
 
 ### Lo que no funcionó, y por qué vale anotarlo
 
@@ -266,7 +269,9 @@ Ninguna.
   (`update ... set published = true`, escrito en el pie de la migración): hasta entonces el
   estudiante ve su mapa de errores sin material de apoyo.
 - ✅ **T-162 cerrada** y los recursos publicados por el owner.
-- **La revisión pedagógica de los 80 ítems** sigue abierta, y es lo único que queda de E10.
+- **La revisión pedagógica de los 80 ítems** sigue abierta (T-166 `a medias`), y es lo único que
+  queda de E10. La pasada **mecánica** está hecha; la pedagógica es del owner, y es donde se
+  verifica F4.
 - **La verificación de comportamiento en producción no está completa**, y no puede estarlo todavía:
   no hay ninguna fila. Se completa cuando alguien rinda un diagnóstico — ahí valen las consultas
   (b), (c) y (d) del pie de la migración.
@@ -318,6 +323,14 @@ Son **dos**, y las dos son sobre qué significa «verificado»:
    de producción es parte del fixture**, como lo son `auth.uid()` o `is_admin()`.
 
 Si salen L nuevas, son éstas dos.
+
+Y la que más vale de todas, que salió de revisar los 80 ítems: **un distractor cuyo número no es el
+que produce el error que dice diagnosticar pasa los ocho auditores, y diagnostica una idea errónea
+que el estudiante no tuvo.** Cuatro de los 80 lo tenían — `0,011 W` donde I²/R da `0,000011`, `550 W`
+donde 50 A dan `550 000`, `0,1 ohm` donde I/V da `0,01`, `2×10⁻²` donde restar los exponentes da
+`2×10⁻⁶`. Es peor que un ítem roto: un ítem roto se nota, y éste le dice al profesor que su alumno
+comete un error que no comete. **Es el argumento entero de por qué la revisión humana es el cuello de
+botella**, y ahora está medido y no afirmado.
 
 Y una sobre las herramientas, que es la más incómoda: **un auditor que aconseja «no se puede» sobre
 algo que ya está hecho es peor que uno que no avisa nada**, porque el siguiente le cree.

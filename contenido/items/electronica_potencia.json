@@ -158,7 +158,7 @@
       "errors": {
         "A": "Dividiste la tension por la corriente. Ese cociente da la resistencia de la lampara, que es $24$ ohm.",
         "B": "Correcto. $P = VI = 12 \\times 0,5 = 6$ W. Es la potencia que la lampara toma mientras esta encendida.",
-        "C": "Perdiste un factor de dos: $12$ por $0,5$ es la mitad de 12, o sea 6.",
+        "C": "Dividiste dos veces por dos. Multiplicar por $0,5$ es tomar la mitad, y la mitad de $12$ es $6$, no $3$.",
         "D": "El numero esta bien y la unidad no. El joule mide energia; para saber cuanta energia consume habria que decir durante cuanto tiempo."
       },
       "misconceptions": {
@@ -176,15 +176,15 @@
       "options": {
         "A": "11 W",
         "B": "0,55 W",
-        "C": "0,011 W",
-        "D": "550 W"
+        "C": "0,000011 W",
+        "D": "550 000 W"
       },
       "correct": "B",
       "errors": {
         "A": "Multiplicaste la corriente por la resistencia sin elevar al cuadrado. Esa cuenta da la tension: $11$ V.",
         "B": "Correcto. $P = I^2 R = 0,05^2 \\times 220 = 0,0025 \\times 220 = 0,55$ W. Conviene retener el orden: medio watt es mucho para un resistor comun de un cuarto de watt.",
-        "C": "Elevaste al cuadrado y despues dividiste por la resistencia en vez de multiplicar.",
-        "D": "Trabajaste con 50 amperes en vez de 50 miliamperes. Medio kilowatt en un resistor de $220$ ohm no puede ser."
+        "C": "Elevaste al cuadrado y despues dividiste por la resistencia en vez de multiplicar: $0,0025 / 220$. La resistencia multiplica cuando se parte de la corriente.",
+        "D": "Trabajaste con 50 amperes en vez de 50 miliamperes: $50^2 \\times 220$ da 550 mil watts. Medio megavatio en un resistor de $220$ ohm es imposible, y el orden de magnitud avisa antes que la cuenta."
       },
       "misconceptions": {
         "A": "potencia/olvida-el-cuadrado",
@@ -201,14 +201,14 @@
       "options": {
         "A": "Nada: la potencia nominal es solo una referencia",
         "B": "Nada, porque el resistor tiene el valor de resistencia correcto",
-        "C": "Cambiarlo por uno de mayor potencia nominal, porque disipa mas de lo que aguanta",
+        "C": "Cambiarlo por uno de mayor potencia nominal",
         "D": "Bajar la tension a la mitad para que la potencia baje a la mitad"
       },
       "correct": "C",
       "errors": {
         "A": "La potencia nominal es el limite real de lo que el componente puede disipar sin danarse. Pasarse lo calienta hasta que falla.",
         "B": "El valor de resistencia y la potencia nominal son dos cosas distintas, y hay que elegir las dos. Este resistor tiene bien una y mal la otra.",
-        "C": "Correcto. Un cuarto de watt son $0,25$ W y el circuito le exige $0,8$ W: mas del triple. Hay que poner uno de $1$ W o mas.",
+        "C": "Correcto. Un cuarto de watt son $0,25$ W y el circuito le exige $0,8$ W: mas del triple de lo que aguanta. Hay que poner uno de $1$ W o mas, que es el criterio habitual de elegir con el doble de margen.",
         "D": "Bajar la tension a la mitad baja la potencia a la cuarta parte, no a la mitad, porque la tension entra al cuadrado. Y ademas cambiaria el funcionamiento del circuito."
       },
       "misconceptions": {

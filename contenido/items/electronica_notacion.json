@@ -256,14 +256,14 @@
       "question": "Al resolver un circuito con una pila de $9$ V y un resistor de $1$ kilohm, un alumno obtiene una corriente de $9000$ A. ¿Que conviene hacer?",
       "options": {
         "A": "Aceptarlo: la cuenta $9/0,001$ da ese numero",
-        "B": "Revisar: una pila no entrega miles de amperes; lo mas probable es que se haya multiplicado en vez de dividir por mil",
+        "B": "Revisar: una pila no entrega miles de amperes",
         "C": "Aceptarlo, porque el resistor es de solo 1 kilohm",
         "D": "Cambiar la unidad a miliamperes y dejar el numero igual"
       },
       "correct": "B",
       "errors": {
         "A": "La cuenta esta mal armada: $1$ kilohm son $1000$ ohm, no $0,001$. Y aunque diera eso, el resultado avisa solo: ninguna pila entrega esa corriente.",
-        "B": "Correcto. Antes de dar un resultado por bueno conviene preguntarse si puede existir. Una pila de $9$ V con $1$ kilohm da $9$ mA, y la diferencia con $9000$ A es justamente un prefijo mal aplicado.",
+        "B": "Correcto. Antes de dar un resultado por bueno conviene preguntarse si puede existir. Una pila de $9$ V con $1$ kilohm da $9$ mA, y entre eso y $9000$ A hay un factor de un millon: es el tamano exacto de aplicar un prefijo al reves. El orden de magnitud avisa antes que la cuenta.",
         "C": "Un kilohm no es poca resistencia: son mil ohm. Y el orden de magnitud sigue sin cerrar, sea cual sea el resistor.",
         "D": "Cambiar la unidad no arregla una cuenta equivocada: $9000$ mA tampoco es lo que da ese circuito. Hay que rehacer la division."
       },
@@ -432,14 +432,14 @@
       "options": {
         "A": "$2 \\times 10^{-12}$",
         "B": "$9 \\times 10^{1}$",
-        "C": "$2 \\times 10^{-2}$",
+        "C": "$2 \\times 10^{-6}$",
         "D": "$2 \\times 10^{2}$"
       },
       "correct": "D",
       "errors": {
         "A": "Multiplicaste los exponentes. Al multiplicar potencias de la misma base se suman: $-3 + 4 = 1$.",
         "B": "Sumaste las mantisas. Con los exponentes se suma; con las mantisas se multiplica.",
-        "C": "Restaste los exponentes. Eso corresponde a una division.",
+        "C": "Restaste los exponentes ($-3 - 4 = -7$) en vez de sumarlos. Restar corresponde a una division, no a una multiplicacion.",
         "D": "Correcto. Mantisas: $4 \\times 5 = 20$. Exponentes: $-3 + 4 = 1$. Queda $20 \\times 10^{1}$, que en notacion cientifica se escribe $2 \\times 10^{2}$."
       },
       "misconceptions": {

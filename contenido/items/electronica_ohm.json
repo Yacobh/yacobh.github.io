@@ -208,14 +208,14 @@
         "A": "40 ohm",
         "B": "100 ohm",
         "C": "10 ohm",
-        "D": "0,1 ohm"
+        "D": "0,01 ohm"
       },
       "correct": "B",
       "errors": {
-        "A": "Multiplicaste la tension por la corriente. Para la resistencia hay que dividir.",
+        "A": "Multiplicaste la tension por la corriente en miliamperes ($2 \\times 20$). Para hallar la resistencia hay que dividir, y ademas la corriente va en amperes.",
         "B": "Correcto. $R = V/I = 2 / 0,020 = 100$ ohm. Es la cuenta que se hace cada vez que se pone un LED: se divide la tension que sobra por la corriente que se quiere.",
         "C": "Dividiste 2 por 0,2 en vez de por 0,020. Hay un lugar decimal de diferencia entre miliamperes y decimas de ampere.",
-        "D": "Dividiste la corriente por la tension. El cociente quedo invertido."
+        "D": "Dividiste la corriente por la tension ($0,020 / 2$). El cociente quedo invertido: la tension va arriba."
       },
       "misconceptions": {
         "A": "ohm/usa-la-formula-sin-despejar",

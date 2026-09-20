@@ -752,6 +752,31 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > `published = true`. Hasta ese momento la policy `resources_select_published` los escondía sin
 > avisar y «Mi plan» mostraba el mapa de errores sin material de apoyo.
 
+77. `migrations/079_reparacion_del_banco_de_electronica.sql` — ✅ **aplicada 2026-09-20 por el
+    agente** (ADR-040) · **T-166.** Corrige **siete ítems** del track tras la revisión: cuatro de
+    redacción y **cuatro distractores cuyo número no era el que produce el error que dicen
+    diagnosticar**.
+
+    ⚠️ **Por qué una migración de reparación y no reaplicar `072`…`076`:** el generador inserta con
+    `where not exists` por (topic, enunciado), así que **reaplicar no actualiza un ítem que ya
+    existe**. Medido contra la base desechable antes de escribirla: tras reaplicar `075`, el ítem 60
+    seguía diciendo `0,011 W`. Mismo camino que `058` con el eje de probabilidad.
+
+    ⭐ **El hallazgo que vale guardar:** un distractor cuyo número no corresponde a su explicación
+    **diagnostica una idea errónea que el estudiante no tuvo** — lo contrario de lo que el banco
+    promete— y **pasa los ocho auditores**. `potencia` 60/C decía `0,011 W` donde I²/R da
+    `0,000011`; 60/D decía `550 W` donde 50 A dan `550 000`; `ohm` 70/D decía `0,1 ohm` donde I/V da
+    `0,01`; `notacion` 160/C decía `2×10⁻²` donde restar los exponentes da `2×10⁻⁶`.
+
+    Es puramente correctiva: no agrega ni retira ítems, no toca `difficulty` ni `module_id`, y no
+    cambia ningún enunciado (que es la clave de idempotencia del generador). Idempotente por
+    construcción: es un `update` por (topic, order_index). **Sin reversión a propósito** — revertir
+    sería volver a poner números que no corresponden a su explicación.
+
+> **Verificación (2026-09-20).** Contra **PostgreSQL 17.11** con `071`…`076` aplicadas antes, y
+> después contra la base real. Aplica limpia, idempotente, los siete ítems quedan con sus valores
+> corregidos, y en producción **los 80 Bonus empiezan por «Correcto»** (0 excepciones).
+
 > ## 🔧 2026-09-20 — dos correcciones de contenido que encontró `verificar_unidad.py` (T-162)
 >
 > Los cinco JSON de unidad se escribieron **después** de aplicar las migraciones —generados desde la

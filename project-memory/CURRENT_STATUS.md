@@ -90,6 +90,25 @@
 >    conocía una sola salida a la Junta 1. Arreglados el auditor —con las dos ramas probadas— y la
 >    referencia de la skill: **track del producto → opción B; track nuevo chico → opción A, hoy**.
 >
+> ⭐ **La pasada mecánica sobre los 80 ítems (T-166) encontró siete con defectos**, y la mitad son de
+> una clase que **ningún auditor ve**:
+>
+> - **Cuatro de redacción**, que ahora vigila un **octavo auditor**
+>   (`scripts/revisar_redaccion_items.py`): el Bonus de la correcta decía «mal» —quien lo lee
+>   **acertó**— y tres alternativas correctas eran la más larga por un margen grande, porque
+>   llevaban adentro la explicación que va en el Bonus.
+> - **Cuatro distractores cuyo número no era el que produce el error que dicen diagnosticar**:
+>   `0,011 W` donde I²/R da `0,000011`, `550 W` donde 50 A dan `550 000`, `0,1 ohm` donde I/V da
+>   `0,01`, `2×10⁻²` donde restar los exponentes da `2×10⁻⁶`. **Un distractor así diagnostica una
+>   idea errónea que el estudiante no tuvo**, y pasa los ocho auditores.
+>
+> Corregidos en `079`, aplicada. Hizo falta **migración de reparación** y no reaplicar los bancos: el
+> generador inserta con `where not exists` por enunciado, así que **reaplicar no actualiza un ítem
+> que ya existe** — medido contra la base desechable antes de escribirla.
+>
+> ⏳ **Lo que queda de E10 es la revisión pedagógica**, que es del owner y es donde se verifica F4:
+> *¿es éste el error que cometen mis alumnos?*
+>
 > ⏳ **Y el catálogo de errores volvió sin marcas.** El owner lo revisó y no tenía nada que agregar,
 > así que las 31 ideas quedan como **hipótesis revisadas en bloque**, no como errores confirmados uno
 > por uno. Está dicho en la cabecera de cada banco: importa cuando alguien pregunte de dónde salió

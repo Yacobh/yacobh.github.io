@@ -229,7 +229,15 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
   fuente de verdad y el `.sql` es un artefacto generado: se corrige el JSON, se vuelve a verificar
   y se regenera. `scripts/verificar_items.py` es el sexto auditor y el único que mira contenido —
   clave repartida entre las cuatro letras (R-35), una sola alternativa correcta, las cuatro
-  `error_*` escritas, LaTeX con escape simple (047) y cobertura de dificultad sin huecos.
+  `error_*` escritas, LaTeX con escape simple (047) y cobertura de dificultad sin huecos. Desde el
+  2026-09-20 hay un **octavo**, `scripts/revisar_redaccion_items.py`, que mira la **redacción**: que
+  el Bonus de la correcta no hable de ningún error (ADR-033), que la correcta no sea la más larga
+  (atajo para acertar sin leer), que no haya dos alternativas iguales, y las convenciones de
+  notación del track (`supabase/CONTENT.md`).
+  ⚠️ **Ninguno de los ocho comprueba que la cuenta esté bien.** Un ítem cuya correcta dice «50 ohm»
+  cuando el resultado es 20, o un distractor cuyo número no es el que produce el error que dice
+  diagnosticar, **pasa los ocho**. Eso solo lo encuentra releer, y por eso la revisión humana sigue
+  siendo el cuello de botella (T-166, R-41).
 - **Si tocas el estimador de θ, sube `universo.motor/version`** (ADR-034). Modelo, prior y regla de
   parada definen la versión: un θ guardado solo significa algo junto a las reglas que lo produjeron,
   y G-4 promete entregar Δθ. Los parámetros (`c` del azar, σ del prior) **no se hardcodean**: viven
@@ -267,6 +275,7 @@ python3 scripts/audit_paleta.py       # color de fábrica fuera de la paleta (AD
 python3 scripts/verificar_items.py contenido/items/<topic>.json   # ítems antes de que entren al banco
 python3 scripts/generar_migracion_items.py contenido/items/<topic>.json
 python3 scripts/verificar_unidad.py contenido/unidades/<slug>.json # la unidad entera (séptimo auditor)
+python3 scripts/revisar_redaccion_items.py contenido/items/<topic>.json # redacción de los ítems (octavo)
 python3 scripts/comparar_module_slugs.py /tmp/slugs.txt            # M11: módulos de la base vs el `def` del cliente
 ```
 

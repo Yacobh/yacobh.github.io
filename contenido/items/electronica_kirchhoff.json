@@ -157,7 +157,7 @@
       "options": {
         "A": "Que la suma de las tensiones alrededor del nodo es cero",
         "B": "Que la corriente se reparte en partes iguales entre las ramas",
-        "C": "Que la suma de las corrientes que entran es igual a la suma de las que salen",
+        "C": "Que lo que entra al nodo es igual a lo que sale",
         "D": "Que la suma de las tensiones a lo largo de la malla es cero"
       },
       "correct": "C",
