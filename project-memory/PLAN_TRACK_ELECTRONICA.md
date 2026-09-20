@@ -197,8 +197,8 @@ segunda pasada de idempotencia y reversión escrita** (CLAUDE.md §9).
 | # | Archivo | Qué hace |
 |---|---|---|
 | `071` | `electronica_track_y_modulos.sql` | Check de `track` ampliado (A2, el único lugar ruidoso); cinco filas de `modules` con **banda explícita**, `historical_*` y `historical_blurb`; `module_prerequisites` |
-| `072`…`076` | `banco_de_electronica_<modulo>.sql` | ≥12 ítems activos + sus ideas erróneas, generadas por `scripts/generar_migracion_items.py` |
-| `077` | `test_configs_de_electronica.sql` | Cinco filas con `prerequisite_topic`, **`initial_theta` explícito** y la **guarda de `065`** adaptada: se niega si algún banco no llega a **12** ítems activos |
+| `072`…`076` | `banco_de_electronica_<modulo>.sql` | **16** ítems activos + sus ideas erróneas, generadas por `scripts/generar_migracion_items.py` |
+| `077` | `test_configs_de_electronica.sql` | Cinco filas con `prerequisite_topic`, **`initial_theta` explícito** y la **guarda de `065`** adaptada: se niega si algún banco no llega a **16** ítems activos |
 | `078` | `electronica_resources.sql` | Una guía y una práctica por módulo, `published = false` (ADR-016 §1) |
 
 **Orden duro:** `071` antes que los bancos (los ítems referencian `module_id`); los bancos antes de
@@ -231,7 +231,7 @@ explícita. Tocarlos movería las bandas de los 26 módulos del producto.
 
 ## 5. Lo que de verdad cuesta: los ítems, y antes que ellos los errores
 
-**≥60 ítems** (12 × 5), con la skill `banco-de-items`: una sola alternativa correcta, clave
+**80 ítems** (16 × 5), con la skill `banco-de-items`: una sola alternativa correcta, clave
 repartida entre las cuatro letras (R-35), las **cuatro** `error_*` escritas, LaTeX con escape simple
 (`047`), cobertura de dificultad sin huecos.
 
@@ -286,8 +286,9 @@ del owner y el mecanismo existe. Pero `next_question` **no excluye los ítems de
 anteriores**: con banco de 12 y `max_items = 8`, dos intentos comparten **al menos 4 ítems**, y el
 primero es siempre el mismo. El alumno además ya vio la explicación correcta.
 
-**Piso para que un reintento pueda ser nuevo: `banco ≥ 2 × max_items` = 16 ítems por módulo**
-(**T-164**, 20–30 ítems más). Afecta también a G-4.
+✅ **Resuelto el 2026-09-20 (T-164): los bancos subieron a 16 = `2 × max_items`**, y el solapamiento
+forzado cayó a **0**. Sigue abierto que el primer ítem tiende a repetirse (los dos intentos arrancan
+en el mismo `initial_theta`) y que afecta a todo el banco: el arreglo de fondo va con T-149.
 
 ### Los demás
 

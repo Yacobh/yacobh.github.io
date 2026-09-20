@@ -73,7 +73,7 @@ Estado: `activo` · `mitigado` · `aceptado` · `cerrado`.
 | **R-31** | **El funnel está diseñado para el canal que nunca produjo un usuario** | Alto | **Confirmada** | **Alta** | 🔺 **abierto 2026-08-16** |
 | **R-32** | ~~Propiedad intelectual~~ **y conflicto de interés con los empleadores (Cpech, liceo)** | Medio | Media | Media | 🔻 **rebajado 2026-08-17** (T-93): **no hay cesión de PI** — la titularidad no está en discusión. Queda solo el conflicto de interés, y con una respuesta concreta: **el canal Cpech no es usable hasta el 2026-11-21** |
 | **R-33** | **La pantalla de Google nombra a `supabase.co`, no a la marca** | Bajo | **Confirmada** | Media | abierto 2026-08-17 |
-| **R-47** | **Un reintento sirve casi los mismos ítems, así que mide memoria** | Medio | **Confirmada por aritmética** | Media | abierto 2026-09-20. `next_question` excluye los ítems del test **en curso**, no los de intentos anteriores. Banco 12 + `max_items` 8 ⇒ **≥4 ítems repetidos**, y el primero es siempre el mismo porque arrancan en el mismo `initial_theta`. Afecta al track `electronica`, donde **el reintento es la remediación**. Piso para que un reintento pueda ser nuevo: **banco ≥ 2 × max_items**. **T-164** |
+| **R-47** | **Un reintento sirve casi los mismos ítems, así que mide memoria** | Medio | **Confirmada por aritmética** | Media, **mitigada a medias** | abierto 2026-09-20. `next_question` excluye los ítems del test **en curso**, no los de intentos anteriores. Banco 12 + `max_items` 8 ⇒ **≥4 ítems repetidos**, y el primero es siempre el mismo porque arrancan en el mismo `initial_theta`. Afecta al track `electronica`, donde **el reintento es la remediación**. Piso para que un reintento pueda ser nuevo: **banco ≥ 2 × max_items**. ✅ **T-164 cerrada el mismo día**: los bancos suben a 16 y el solapamiento forzado cae a **0**. Sigue abierto porque los dos intentos arrancan en el mismo `initial_theta` (el primer ítem tiende a repetirse) y porque afecta a **todo** el banco, no solo a electrónica. Arreglo de fondo con **T-149** |
 | **R-46** | **18 de las 19 tablas de `public` le dan a `anon` privilegio de DELETE y TRUNCATE; todo el esquema descansa solo en RLS** | Bajo | Latente | Media | abierto 2026-09-19. **No explotable hoy**: `anon` es `rolcanlogin = f` y PostgREST no expone TRUNCATE, que es la única operación que RLS no filtra. Son las *default privileges* de Supabase y **ninguna migración del repo escribió nunca un `grant` de tabla**. `intentos` (`070`) es la única acotada, con dos líneas. **T-163** |
 | **R-42** | **El track de Electrotecnia es visible para todo estudiante de PAES** | Bajo | **Confirmada** | Media | abierto 2026-09-09 (D-66). No es un efecto lateral: es la decisión. Apagado con un `update` de una línea (`065`). ✅ **2026-09-20, T-159 decidida: el owner opta por que los vean.** Con `electronica` el selector pasa de **18 a 23 bancos activos**, 17 de ellos ajenos al estudiante de PAES. **T-129 no se cierra: se vuelve más urgente** |
 | **R-34** | **El escape («no sé») se usa como salida fácil y diluye la evidencia del banco** | Medio | Media | Media | abierto 2026-08-18 (D-57). Mitigado estructuralmente contra el estudiante —peso 0.0 no mueve θ—; **se reactiva con severidad alta si el escape pasa a tener peso positivo** |
@@ -1082,10 +1082,18 @@ no por aprendizaje — que es lo contrario de lo que el umbral existe para hacer
 **Afecta también a G-4** (entregar Δθ medido): un Δθ entre dos intentos que comparten la mitad de
 los ítems no es una medición limpia de progreso.
 
-**Mitigación:** **T-164**, subir los bancos a 16–18 ítems (`banco ≥ 2 × max_items`). Son 20 a 30
-ítems más en total. El arreglo de fondo —que `next_question` excluya los ítems ya respondidos en
-intentos anteriores del mismo topic— resuelve el problema para **todo** el banco y conviene hacerlo
-junto con T-149, que ya va a tocar esa función.
+**Mitigado a medias el mismo día (T-164, cerrada).** Los cinco bancos pasaron de 12 a **16 ítems**,
+que es `2 × max_items`: medido sobre la base, `max(2 × max_items − banco, 0) = 0` en los cinco, o sea
+que **un reintento puede no repetir ni un solo ítem**. Con 12 el mínimo forzado era 4.
+
+⚠️ **Por qué el riesgo sigue abierto:** que sea *posible* no es que sea *seguro*. La selección es por
+cercanía a θ y los dos intentos arrancan en el mismo `initial_theta`, así que **el primer ítem tiende
+a repetirse** y el solapamiento real va a ser mayor que cero. Y el problema es de **todo el banco**,
+no solo de electrónica: los cuatro ejes del producto tienen la misma propiedad.
+
+**El arreglo de fondo** es que `next_question` excluya los ítems respondidos en **intentos anteriores
+del mismo topic** — hoy `answered-ids` se arma con `[:test :questions]`, que es solo el test en curso.
+Es una sobrecarga más del RPC y conviene hacerla junto con **T-149**, que ya va a tocar esa función.
 
 ### R-46 · Las puertas están abiertas y solo la RLS las sostiene
 

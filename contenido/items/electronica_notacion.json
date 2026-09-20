@@ -2,7 +2,7 @@
   "topic": "electronica_notacion",
   "migracion_archivo": "073_banco_de_electronica_notacion.sql",
   "migracion_titulo": "Banco de electronica/notacion_cientifica: los prefijos del taller",
-  "migracion_notas": "Segundo banco del track `electronica` (071). 12 items para `electronica/notacion_cientifica`, banda [-3,0 · -1,8], y 6 ideas erroneas nuevas.\n\nES LA RAIZ DE LA CADENA. Es el unico modulo del track sin prerrequisito, y de el cuelgan `ley_de_ohm` y `capacitores`. Tambien es el modulo mas bajo del track: su banda llega a -3,0, que es el piso de la escala.\n\nPOR QUE EXISTE. No es \"matematica antes de electronica\": es la herramienta con la que se escriben las otras cuatro. Un alumno que despeja bien la ley de Ohm y obtiene 0,0022 A descarta su propia respuesta porque \"da un numero raro\". Todos los items trabajan sobre magnitudes electricas reales -- resistores, corrientes, capacitores-- y no sobre potencias de diez abstractas.\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\".\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).",
+  "migracion_notas": "Segundo banco del track `electronica` (071). 16 items para `electronica/notacion_cientifica`, banda [-3,0 · -1,8], y 6 ideas erroneas nuevas.\n\nES LA RAIZ DE LA CADENA. Es el unico modulo del track sin prerrequisito, y de el cuelgan `ley_de_ohm` y `capacitores`. Tambien es el modulo mas bajo del track: su banda llega a -3,0, que es el piso de la escala.\n\nPOR QUE EXISTE. No es \"matematica antes de electronica\": es la herramienta con la que se escriben las otras cuatro. Un alumno que despeja bien la ley de Ohm y obtiene 0,0022 A descarta su propia respuesta porque \"da un numero raro\". Todos los items trabajan sobre magnitudes electricas reales -- resistores, corrientes, capacitores-- y no sobre potencias de diez abstractas.\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\".\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).\n\n⚠️ DE 12 A 16 ITEMS (2026-09-20, T-164). Los primeros 12 se escribieron con la guarda de 065 adaptada; los cuatro ultimos existen por una razon distinta y medida: EL REINTENTO ES LA REMEDIACION DEL TRACK (D-73), y `next_question` excluye los items del test EN CURSO, no los de intentos anteriores. Con banco de 12 y max_items 8, dos intentos comparten al menos 8+8-12 = 4 items -- y el primero es siempre el mismo, porque arrancan en el mismo initial_theta. Con 16, `banco >= 2 x max_items` y un reintento PUEDE ser enteramente nuevo. Ver R-47.",
   "cobertura_objetivo": {
     "min": -3.0,
     "max": -1.8,
@@ -346,6 +346,106 @@
         "A": "prefijos/mili-y-micro-intercambiados",
         "B": null,
         "C": "notacion/mantisa-fuera-de-rango",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.95,
+      "order_index": 130,
+      "question": "¿Cuantos ohm son $0,47$ kilohm?",
+      "options": {
+        "A": "470 ohm",
+        "B": "0,00047 ohm",
+        "C": "4700 ohm",
+        "D": "47 ohm"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. Kilo son mil, asi que $0,47 \\times 1000 = 470$ ohm. Que el numero empiece con coma no cambia la regla: la coma se corre tres lugares a la derecha.",
+        "B": "Aplicaste kilo como si achicara. Kilo agranda mil veces; el que achica mil veces es mili.",
+        "C": "Corriste la coma cuatro lugares en vez de tres. Kilo son tres ceros.",
+        "D": "Corriste la coma dos lugares. Con tres queda $470$."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "prefijos/exponente-con-signo-invertido",
+        "C": null,
+        "D": "prefijos/mili-y-micro-intercambiados"
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.55,
+      "order_index": 140,
+      "question": "¿Cual de estos valores NO puede corresponder a un capacitor de un circuito electronico comun?",
+      "options": {
+        "A": "100 nF",
+        "B": "4,7 F",
+        "C": "22 uF",
+        "D": "10 pF"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "$100$ nF es un valor habitual: es el capacitor de desacople que se ve al lado de casi cualquier integrado.",
+        "B": "Correcto. El faradio es una unidad enorme: los capacitores de un circuito comun andan entre los picofaradios y los milifaradios. Uno de $4,7$ F seria un supercapacitor, no un componente de placa.",
+        "C": "$22$ uF es un electrolitico corriente, de los que se usan para filtrar una fuente.",
+        "D": "$10$ pF es chico pero normal: aparece en osciladores y en circuitos de radiofrecuencia."
+      },
+      "misconceptions": {
+        "A": "prefijos/orden-de-magnitud-sin-sentido-fisico",
+        "B": null,
+        "C": "prefijos/orden-de-magnitud-sin-sentido-fisico",
+        "D": "prefijos/orden-de-magnitud-sin-sentido-fisico"
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.35,
+      "order_index": 150,
+      "question": "¿Cual de estas expresiones esta escrita correctamente en notacion cientifica?",
+      "options": {
+        "A": "$0,5 \\times 10^{-3}$",
+        "B": "$12 \\times 10^{4}$",
+        "C": "$3,3 \\times 10^{-6}$",
+        "D": "$47 \\times 10^{-9}$"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "El valor es correcto, la forma no: la mantisa tiene que quedar entre 1 y 10, y $0,5$ es menor que 1. Se escribe $5 \\times 10^{-4}$.",
+        "B": "La mantisa quedo en 12, mayor que 10. Se escribe $1,2 \\times 10^{5}$.",
+        "C": "Correcto. La mantisa $3,3$ esta entre 1 y 10, que es la unica condicion de forma que pide la notacion cientifica.",
+        "D": "$47$ es mayor que 10. Esa forma es valida en notacion de ingenieria, donde el exponente se deja multiplo de 3 para que coincida con los prefijos, pero no es notacion cientifica."
+      },
+      "misconceptions": {
+        "A": "notacion/mantisa-fuera-de-rango",
+        "B": "notacion/mantisa-fuera-de-rango",
+        "C": null,
+        "D": "notacion/mantisa-fuera-de-rango"
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -1.95,
+      "order_index": 160,
+      "question": "¿Cuanto vale $(4 \\times 10^{-3}) \\times (5 \\times 10^{4})$?",
+      "options": {
+        "A": "$2 \\times 10^{-12}$",
+        "B": "$9 \\times 10^{1}$",
+        "C": "$2 \\times 10^{-2}$",
+        "D": "$2 \\times 10^{2}$"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Multiplicaste los exponentes. Al multiplicar potencias de la misma base se suman: $-3 + 4 = 1$.",
+        "B": "Sumaste las mantisas. Con los exponentes se suma; con las mantisas se multiplica.",
+        "C": "Restaste los exponentes. Eso corresponde a una division.",
+        "D": "Correcto. Mantisas: $4 \\times 5 = 20$. Exponentes: $-3 + 4 = 1$. Queda $20 \\times 10^{1}$, que en notacion cientifica se escribe $2 \\times 10^{2}$."
+      },
+      "misconceptions": {
+        "A": "notacion/multiplica-exponentes-al-multiplicar",
+        "B": null,
+        "C": "notacion/multiplica-exponentes-al-multiplicar",
         "D": null
       }
     }

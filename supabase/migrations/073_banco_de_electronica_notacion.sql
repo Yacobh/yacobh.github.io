@@ -1,5 +1,5 @@
 -- Banco de electronica/notacion_cientifica: los prefijos del taller
--- 12 ítems · topic `electronica_notacion` · 6 ideas erróneas nuevas
+-- 16 ítems · topic `electronica_notacion` · 6 ideas erróneas nuevas
 --
 -- GENERADA por scripts/generar_migracion_items.py desde el JSON de la tanda.
 -- No editar a mano: corregir el JSON, volver a verificar y regenerar. Un cambio
@@ -10,7 +10,7 @@
 -- alternativa correcta, las cuatro explicaciones escritas, la correcta sin idea
 -- errónea, LaTeX con escape simple (047) y cobertura de dificultad sin huecos.
 --
--- Segundo banco del track `electronica` (071). 12 items para `electronica/notacion_cientifica`, banda [-3,0 · -1,8], y 6 ideas erroneas nuevas.
+-- Segundo banco del track `electronica` (071). 16 items para `electronica/notacion_cientifica`, banda [-3,0 · -1,8], y 6 ideas erroneas nuevas.
 --
 -- ES LA RAIZ DE LA CADENA. Es el unico modulo del track sin prerrequisito, y de el cuelgan `ley_de_ohm` y `capacitores`. Tambien es el modulo mas bajo del track: su banda llega a -3,0, que es el piso de la escala.
 --
@@ -21,6 +21,8 @@
 -- ⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).
 --
 -- `difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).
+--
+-- ⚠️ DE 12 A 16 ITEMS (2026-09-20, T-164). Los primeros 12 se escribieron con la guarda de 065 adaptada; los cuatro ultimos existen por una razon distinta y medida: EL REINTENTO ES LA REMEDIACION DEL TRACK (D-73), y `next_question` excluye los items del test EN CURSO, no los de intentos anteriores. Con banco de 12 y max_items 8, dos intentos comparten al menos 8+8-12 = 4 items -- y el primero es siempre el mismo, porque arrancan en el mismo initial_theta. Con 16, `banco >= 2 x max_items` y un reintento PUEDE ser enteramente nuevo. Ver R-47.
 
 -- -----------------------------------------------------------------------------
 -- 1. Ideas erróneas nuevas
@@ -213,7 +215,59 @@ with items (topic, module_slug, difficulty, order_index,
    $it$Corriste la coma cinco lugares en vez de seis. Mega son seis ceros exactos.$it$,
    $it$Corriste la coma siete lugares. Y ademas la mantisa quedo menor que 1, que es justo lo que el prefijo sirve para evitar.$it$,
    $it$Correcto. Mega es un millon, asi que $2\,200\,000$ ohm $= 2,2$ megaohm. Elegir el prefijo que deja la mantisa entre 1 y 1000 es lo que hace el valor legible de un vistazo.$it$,
-   $it$prefijos/mili-y-micro-intercambiados$it$, null, $it$notacion/mantisa-fuera-de-rango$it$, null)
+   $it$prefijos/mili-y-micro-intercambiados$it$, null, $it$notacion/mantisa-fuera-de-rango$it$, null),
+  ($it$electronica_notacion$it$, $it$electronica/notacion_cientifica$it$,
+   (-2.95), 130,
+   $it$¿Cuantos ohm son $0,47$ kilohm?$it$,
+   $it$470 ohm$it$,
+   $it$0,00047 ohm$it$,
+   $it$4700 ohm$it$,
+   $it$47 ohm$it$,
+   $it$A$it$,
+   $it$Correcto. Kilo son mil, asi que $0,47 \times 1000 = 470$ ohm. Que el numero empiece con coma no cambia la regla: la coma se corre tres lugares a la derecha.$it$,
+   $it$Aplicaste kilo como si achicara. Kilo agranda mil veces; el que achica mil veces es mili.$it$,
+   $it$Corriste la coma cuatro lugares en vez de tres. Kilo son tres ceros.$it$,
+   $it$Corriste la coma dos lugares. Con tres queda $470$.$it$,
+   null, $it$prefijos/exponente-con-signo-invertido$it$, null, $it$prefijos/mili-y-micro-intercambiados$it$),
+  ($it$electronica_notacion$it$, $it$electronica/notacion_cientifica$it$,
+   (-2.55), 140,
+   $it$¿Cual de estos valores NO puede corresponder a un capacitor de un circuito electronico comun?$it$,
+   $it$100 nF$it$,
+   $it$4,7 F$it$,
+   $it$22 uF$it$,
+   $it$10 pF$it$,
+   $it$B$it$,
+   $it$$100$ nF es un valor habitual: es el capacitor de desacople que se ve al lado de casi cualquier integrado.$it$,
+   $it$Correcto. El faradio es una unidad enorme: los capacitores de un circuito comun andan entre los picofaradios y los milifaradios. Uno de $4,7$ F seria un supercapacitor, no un componente de placa.$it$,
+   $it$$22$ uF es un electrolitico corriente, de los que se usan para filtrar una fuente.$it$,
+   $it$$10$ pF es chico pero normal: aparece en osciladores y en circuitos de radiofrecuencia.$it$,
+   $it$prefijos/orden-de-magnitud-sin-sentido-fisico$it$, null, $it$prefijos/orden-de-magnitud-sin-sentido-fisico$it$, $it$prefijos/orden-de-magnitud-sin-sentido-fisico$it$),
+  ($it$electronica_notacion$it$, $it$electronica/notacion_cientifica$it$,
+   (-2.35), 150,
+   $it$¿Cual de estas expresiones esta escrita correctamente en notacion cientifica?$it$,
+   $it$$0,5 \times 10^{-3}$$it$,
+   $it$$12 \times 10^{4}$$it$,
+   $it$$3,3 \times 10^{-6}$$it$,
+   $it$$47 \times 10^{-9}$$it$,
+   $it$C$it$,
+   $it$El valor es correcto, la forma no: la mantisa tiene que quedar entre 1 y 10, y $0,5$ es menor que 1. Se escribe $5 \times 10^{-4}$.$it$,
+   $it$La mantisa quedo en 12, mayor que 10. Se escribe $1,2 \times 10^{5}$.$it$,
+   $it$Correcto. La mantisa $3,3$ esta entre 1 y 10, que es la unica condicion de forma que pide la notacion cientifica.$it$,
+   $it$$47$ es mayor que 10. Esa forma es valida en notacion de ingenieria, donde el exponente se deja multiplo de 3 para que coincida con los prefijos, pero no es notacion cientifica.$it$,
+   $it$notacion/mantisa-fuera-de-rango$it$, $it$notacion/mantisa-fuera-de-rango$it$, null, $it$notacion/mantisa-fuera-de-rango$it$),
+  ($it$electronica_notacion$it$, $it$electronica/notacion_cientifica$it$,
+   (-1.95), 160,
+   $it$¿Cuanto vale $(4 \times 10^{-3}) \times (5 \times 10^{4})$?$it$,
+   $it$$2 \times 10^{-12}$$it$,
+   $it$$9 \times 10^{1}$$it$,
+   $it$$2 \times 10^{-2}$$it$,
+   $it$$2 \times 10^{2}$$it$,
+   $it$D$it$,
+   $it$Multiplicaste los exponentes. Al multiplicar potencias de la misma base se suman: $-3 + 4 = 1$.$it$,
+   $it$Sumaste las mantisas. Con los exponentes se suma; con las mantisas se multiplica.$it$,
+   $it$Restaste los exponentes. Eso corresponde a una division.$it$,
+   $it$Correcto. Mantisas: $4 \times 5 = 20$. Exponentes: $-3 + 4 = 1$. Queda $20 \times 10^{1}$, que en notacion cientifica se escribe $2 \times 10^{2}$.$it$,
+   $it$notacion/multiplica-exponentes-al-multiplicar$it$, null, $it$notacion/multiplica-exponentes-al-multiplicar$it$, null)
 
 )
 insert into public.questions
@@ -242,7 +296,7 @@ where not exists (
 -- Verificación (correr después de aplicar)
 -- -----------------------------------------------------------------------------
 --   select count(*) from public.questions where topic = 'electronica_notacion';
---   -- esperado: 12 (más lo que ya hubiera)
+--   -- esperado: 16 (más lo que ya hubiera)
 --
 --   -- Ningún ítem sin módulo: delataría un module_slug mal escrito.
 --   select id from public.questions where topic = 'electronica_notacion' and module_id is null;

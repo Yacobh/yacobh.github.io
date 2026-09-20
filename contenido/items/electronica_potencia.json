@@ -2,7 +2,7 @@
   "topic": "electronica_potencia",
   "migracion_archivo": "075_banco_de_electronica_potencia.sql",
   "migracion_titulo": "Banco de electronica/potencia: el cuadrado es lo que se olvida",
-  "migracion_notas": "Cuarto banco del track `electronica` (071). 12 items para `electronica/potencia`, banda [-2,4 · -1,2], y 5 ideas erroneas nuevas.\n\nEL EJE DEL MODULO ES EL CUADRADO. P = VI es facil de recordar; las dos formas derivadas -- P = I^2 R y P = V^2 / R -- salen de sustituir la ley de Ohm adentro, y es ahi donde se pierde el exponente. Por eso el modulo cuelga de `ley_de_ohm`: sin el despeje automatizado, las tres formulas son tres cosas sueltas que se memorizan y se confunden.\n\n⛔ UNA IDEA DEL CATALOGO NO SE USA COMO DISTRACTOR, A PROPOSITO. La 3.5 (\"elige la formula por los datos que sobran\") describe usar el camino largo teniendo uno corto. Eso NO es un error: es un camino largo, y un item que lo penalizara seria injusto -- el alumno llega al resultado correcto. Se deja fuera del banco y no se crea la idea erronea. Es la unica de las 31 del catalogo que se descarta, y queda dicho aca para que nadie la agregue despues creyendo que fue un olvido.\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\".\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).",
+  "migracion_notas": "Cuarto banco del track `electronica` (071). 16 items para `electronica/potencia`, banda [-2,4 · -1,2], y 5 ideas erroneas nuevas.\n\nEL EJE DEL MODULO ES EL CUADRADO. P = VI es facil de recordar; las dos formas derivadas -- P = I^2 R y P = V^2 / R -- salen de sustituir la ley de Ohm adentro, y es ahi donde se pierde el exponente. Por eso el modulo cuelga de `ley_de_ohm`: sin el despeje automatizado, las tres formulas son tres cosas sueltas que se memorizan y se confunden.\n\n⛔ UNA IDEA DEL CATALOGO NO SE USA COMO DISTRACTOR, A PROPOSITO. La 3.5 (\"elige la formula por los datos que sobran\") describe usar el camino largo teniendo uno corto. Eso NO es un error: es un camino largo, y un item que lo penalizara seria injusto -- el alumno llega al resultado correcto. Se deja fuera del banco y no se crea la idea erronea. Es la unica de las 31 del catalogo que se descarta, y queda dicho aca para que nadie la agregue despues creyendo que fue un olvido.\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\".\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).\n\n⚠️ DE 12 A 16 ITEMS (2026-09-20, T-164). Los primeros 12 se escribieron con la guarda de 065 adaptada; los cuatro ultimos existen por una razon distinta y medida: EL REINTENTO ES LA REMEDIACION DEL TRACK (D-73), y `next_question` excluye los items del test EN CURSO, no los de intentos anteriores. Con banco de 12 y max_items 8, dos intentos comparten al menos 8+8-12 = 4 items -- y el primero es siempre el mismo, porque arrancan en el mismo initial_theta. Con 16, `banco >= 2 x max_items` y un reintento PUEDE ser enteramente nuevo. Ver R-47.",
   "cobertura_objetivo": {
     "min": -2.4,
     "max": -1.2,
@@ -340,6 +340,106 @@
         "A": "potencia/ignora-la-potencia-nominal-del-resistor",
         "B": null,
         "C": "potencia/ignora-la-potencia-nominal-del-resistor",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -2.35,
+      "order_index": 130,
+      "question": "Una plancha conectada a $220$ V consume $5$ A. ¿Que potencia tiene?",
+      "options": {
+        "A": "1100 W",
+        "B": "44 W",
+        "C": "225 W",
+        "D": "1100 Wh"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. $P = VI = 220 \\times 5 = 1100$ W. Es la forma directa de la potencia, y explica por que una plancha necesita un enchufe de buena seccion.",
+        "B": "Dividiste la tension por la corriente. Ese cociente da la resistencia de la plancha, no su potencia.",
+        "C": "Sumaste los dos valores. La potencia sale de multiplicar.",
+        "D": "El numero esta bien y la unidad no. El watt-hora mide energia: para saber cuanta consume habria que decir cuanto tiempo estuvo encendida."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": "potencia/confunde-potencia-con-energia"
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -1.95,
+      "order_index": 140,
+      "question": "Si se mantiene la misma corriente y se duplica la resistencia, ¿que pasa con la potencia disipada?",
+      "options": {
+        "A": "Se cuadruplica",
+        "B": "No cambia",
+        "C": "Se duplica",
+        "D": "Se reduce a la mitad"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "El cuadrado esta sobre la corriente, no sobre la resistencia. En $P = I^2 R$ la resistencia entra de a uno: al doble de resistencia, el doble de potencia.",
+        "B": "Con la misma corriente, mas resistencia significa mas tension entre los extremos y por lo tanto mas potencia.",
+        "C": "Correcto. En $P = I^2 R$ la resistencia multiplica sin exponente: si se duplica, la potencia se duplica. Conviene compararlo con duplicar la corriente, que la cuadruplica.",
+        "D": "Mas resistencia con la misma corriente nunca baja la potencia disipada."
+      },
+      "misconceptions": {
+        "A": "potencia/eleva-la-magnitud-equivocada",
+        "B": null,
+        "C": null,
+        "D": "potencia/proporcionalidad-lineal-con-la-corriente"
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -1.65,
+      "order_index": 150,
+      "question": "Un LED consume $60$ mW y queda encendido durante $10$ horas. ¿Que energia consume?",
+      "options": {
+        "A": "6 Wh",
+        "B": "600 Wh",
+        "C": "0,6 Wh",
+        "D": "0,06 Wh"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Multiplicaste sin pasar los milivatios a vatios. $60$ mW son $0,06$ W, no $0,6$ W.",
+        "B": "Trabajaste con 60 vatios en vez de 60 milivatios. Un LED que consumiera 60 W seria una lampara, no un LED indicador.",
+        "C": "Correcto. $E = Pt = 0,06 \\times 10 = 0,6$ Wh. Es poquisimo: por eso un indicador puede quedar encendido todo el dia sin que se note en la cuenta.",
+        "D": "Ese es el valor de la potencia en vatios, no de la energia. Falta multiplicar por las horas."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "potencia/confunde-potencia-con-energia",
+        "C": null,
+        "D": "potencia/confunde-potencia-con-energia"
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -1.35,
+      "order_index": 160,
+      "question": "Un resistor de $50$ ohm disipa $8$ W. ¿Que corriente circula por el?",
+      "options": {
+        "A": "0,16 A",
+        "B": "400 A",
+        "C": "0,4 mA",
+        "D": "0,4 A"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Te quedaste en $P/R = 8/50 = 0,16$, que es el **cuadrado** de la corriente. Falta la raiz cuadrada.",
+        "B": "Multiplicaste la potencia por la resistencia. De $P = I^2 R$ se despeja dividiendo, no multiplicando.",
+        "C": "El numero esta bien y el prefijo no: $0,4$ A son $400$ mA, no $0,4$ mA.",
+        "D": "Correcto. De $P = I^2 R$ sale $I^2 = P/R = 8/50 = 0,16$, y la raiz de $0,16$ es $0,4$ A."
+      },
+      "misconceptions": {
+        "A": "potencia/olvida-el-cuadrado",
+        "B": "potencia/eleva-la-magnitud-equivocada",
+        "C": null,
         "D": null
       }
     }

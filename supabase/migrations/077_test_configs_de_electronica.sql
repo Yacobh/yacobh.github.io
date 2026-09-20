@@ -82,10 +82,13 @@
 -- Y el estudiante **vio la explicación correcta** de cada ítem al responderlo
 -- (capa 0), así que el segundo intento mide en parte memoria y no dominio.
 --
--- **El umbral para que un reintento pueda ser enteramente nuevo es
--- `banco ≥ 2 × max_items`**, o sea **16 ítems por módulo**; 18 deja margen. Con
--- los 12 actuales el reintento funciona pero mide inflado. Está anotado como
--- **R-47** y **T-164**: son 4 a 6 ítems más por banco, no un rediseño.
+-- ✅ **Resuelto el 2026-09-20 (T-164): los cinco bancos pasaron de 12 a 16
+-- ítems**, que es exactamente `2 × max_items`. Con eso `8 + 8 − 16 = 0`: **un
+-- reintento puede no repetir ni un solo ítem**. Sigue sin estar garantizado —la
+-- selección es por cercanía a θ y los dos intentos arrancan en el mismo
+-- `initial_theta`, así que el primer ítem tiende a repetirse— pero deja de ser
+-- una imposibilidad aritmética. El arreglo completo es que `next_question`
+-- excluya lo respondido en intentos anteriores, y va con T-149 (R-47).
 --
 -- **Si aun así apareciera el caso de R-44** —un alumno clavado en el clamp de
 -- −3,00 habiendo trabajado, que es lo que se midió con dos de doce— la
@@ -130,12 +133,13 @@
 -- Copia de la guarda de `065`, con el piso adaptado. **12 y no 20**: `065`
 -- protegía dos bancos que cubren doce módulos; acá cada banco es **un módulo de
 -- 1,2 logits**, y la regla de cobertura es ≥6 ítems por cada 1,0 logit, o sea
--- ~8. Con `max_items = 8`, 12 alcanza para que un test no se agote.
+-- ~8. Pero el piso **no** sale de la cobertura sino del reintento.
 --
--- ⚠️ **12 NO alcanza para que un reintento sea nuevo**, y eso es aritmética:
--- dos intentos de 8 sobre un banco de 12 comparten al menos 4 ítems. Ver la nota
--- de `min_theta` arriba, R-47 y T-164. El piso de la guarda queda en 12 porque
--- es lo que hay hoy; subirlo cuando el banco crezca es cambiar un número.
+-- ⭐ **16 = `2 × max_items`, y es el número que hace que un reintento pueda ser
+-- enteramente nuevo.** Con 12 no alcanzaba, y eso es aritmética: dos intentos de
+-- 8 sobre un banco de 12 comparten al menos `8 + 8 − 12 = 4` ítems. Como el
+-- reintento es **el mecanismo de remediación del track** (D-73), un banco por
+-- debajo de `2 × max_items` hace que el umbral se abra por memoria. Ver R-47.
 --
 -- Es T-125 al revés: una config sin banco deja al estudiante **sin preguntas a
 -- mitad del diagnóstico**, que es peor que no ofrecerle el test.
@@ -160,16 +164,16 @@ begin
       left join public.questions q
              on q.topic = t.topic and coalesce(q.active, true)
      group by t.topic
-    having count(q.id) < 12
+    having count(q.id) < 16
   loop
     raise exception
-      'Guarda: el banco «%» tiene % ítems activos y el mínimo es 12. '
+      'Guarda: el banco «%» tiene % ítems activos y el mínimo es 16. '
       'Una config sin banco deja al estudiante sin preguntas a mitad del test. '
       '¿Faltan aplicar 072..076?',
       falta.topic, falta.n;
   end loop;
 
-  raise notice 'Guardas OK: 5 módulos y los cinco bancos con 12 ítems o más.';
+  raise notice 'Guardas OK: 5 módulos y los cinco bancos con 16 ítems o más.';
 end
 $$;
 

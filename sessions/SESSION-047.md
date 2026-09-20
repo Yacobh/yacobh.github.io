@@ -72,11 +72,14 @@ El objetivo no cambió. Cambiaron dos cosas de fondo:
     base real** con `claude_ddl` en solo lectura: los 12 controles en verde (ver abajo).
 13. **Hallazgo lateral de esa verificación:** **18 de las 19 tablas de `public` le dan a `anon`
     DELETE y TRUNCATE**. Registrado como **R-46** y **T-163**.
-14. **El track `electronica` escrito entero** (2026-09-20): `072`…`076` con 60 ítems y 30 ideas
+14. **El track `electronica` escrito entero** (2026-09-20): `072`…`076` con sus ítems y 30 ideas
     erróneas por la skill `banco-de-items`, y `077` con las cinco `test_configs`. Las siete
     migraciones aplicadas **en orden** sobre PostgreSQL 17.11, nueve controles en verde,
     idempotentes, y las dos guardas de `077` probadas disparando.
-15. Desmontaje de los clusters y del PostgREST desechables.
+15. **Los cinco bancos de 12 a 16 ítems** (T-164), porque el reintento es la remediación del track y
+    con 12 dos intentos compartían al menos 4 ítems. 20 ítems nuevos, apuntados a las ideas erróneas
+    **menos usadas** de cada catálogo. Re-verificado todo: 80 ítems, claves 25 % exacto en las cuatro.
+16. Desmontaje de los clusters y del PostgREST desechables.
 
 ### Lo que no funcionó, y por qué vale anotarlo
 
@@ -203,7 +206,7 @@ psql contra PRODUCCIÓN (PostgreSQL 17.6), rol claude_ddl, solo lectura — tras
 
 | Riesgo | Severidad | Registrado en |
 |--------|-----------|---------------|
-| **Un reintento sirve casi los mismos ítems, así que mide memoria** — y el reintento es la remediación declarada del track | Media, **confirmada por aritmética** | RISKS **R-47** *(nuevo)*, BACKLOG **T-164** |
+| **Un reintento sirve casi los mismos ítems, así que mide memoria** — y el reintento es la remediación declarada del track | Media, **mitigada a medias el mismo día** | RISKS **R-47** *(nuevo)*, BACKLOG **T-164** *(cerrada)* |
 | **18 de las 19 tablas de `public` le dan a `anon` DELETE y TRUNCATE**; todo el esquema descansa solo en RLS | Media, **latente y no explotable hoy** | RISKS **R-46** *(nuevo)*, BACKLOG **T-163** |
 | El bundle puede llegar antes que la migración — **tercera instancia**, ahora con el agregado de que **el error puede no tener texto** | Media, **mitigada en código** | RISKS **R-39** |
 | La épica E10 llevaría el selector del estudiante de PAES de 12 bancos ajenos a 17 | Media | RISKS **R-42** (anotado, decide **T-159**) |
@@ -258,9 +261,10 @@ Ninguna.
   guardas están probadas, así que aplicarlas fuera de orden **falla ruidosamente** en vez de dejar
   algo a medias.
 - ✅ **T-159 decidida** (D-73): que todo estudiante de PAES vea los cinco. `active = true`.
-- **T-164 abierta**: subir los bancos a 16–18 ítems para que el reintento sea nuevo (R-47). Son 20 a
-  30 ítems más; el arreglo de fondo —que `next_question` excluya lo respondido en intentos
-  anteriores— conviene junto con T-149.
+- ✅ **T-164 cerrada**: los bancos subieron a **16 ítems (80 en total)** y el solapamiento forzado de
+  un reintento cayó de 4 a **0**. **R-47 sigue abierto**: que sea posible no es que sea seguro —los
+  dos intentos arrancan en el mismo `initial_theta`— y afecta a todo el banco, no solo a electrónica.
+  El arreglo de fondo va con **T-149**.
 - **El catálogo de errores volvió sin marcas.** Las 31 ideas quedan como hipótesis **revisadas en
   bloque**, no confirmadas una por una. Está dicho en la cabecera de cada banco.
 - El plan de E10 **no tiene una sola línea escrita**: es plan, no implementación.
@@ -301,7 +305,12 @@ Son **dos**, y las dos son sobre qué significa «verificado»:
 
 Si salen L nuevas, son éstas dos.
 
-Y una tercera de la misma familia, que salió al cerrar la decisión del reintento: **una mitigación no
+Y una cuarta, de las de andar: **`zsh` no hace word-splitting de una variable sin comillas.** Un
+`for m in $MIGS` tomó las siete migraciones como un solo nombre de archivo y reportó `✗` en todas.
+Parecía un fallo de las migraciones y era del bucle. Vale para cualquier script de esta sesión en
+adelante: listar los elementos, o usar un array.
+
+Y una tercera de la misma familia que las dos primeras, que salió al cerrar la decisión del reintento: **una mitigación no
 está verificada hasta que se hace su aritmética.** «Si no pasa, que repita» suena completo y no lo
 es: `next_question` no excluye los ítems de intentos anteriores, así que con banco de 12 y
 `max_items = 8` dos intentos comparten **al menos 4 ítems** —pigeonhole, no estimación— y el primero

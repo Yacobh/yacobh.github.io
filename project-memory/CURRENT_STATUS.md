@@ -6,19 +6,19 @@
 
 > ## ⏳ 2026-09-20 — el track de electrónica está escrito entero, y sin aplicar
 >
-> Siete migraciones, **60 ítems y 30 ideas erróneas**, verificadas en orden sobre un **PostgreSQL
+> Siete migraciones, **80 ítems y 30 ideas erróneas**, verificadas en orden sobre un **PostgreSQL
 > 17.11** desechable.
 >
 > | | |
 > |---|---|
 > | `071` | track, 5 módulos con banda explícita y las **cuatro** columnas históricas, 4 prerrequisitos |
-> | `072`…`076` | los cinco bancos, **12 ítems por módulo**, un `topic` por módulo (patrón de `cuantica`) |
+> | `072`…`076` | los cinco bancos, **16 ítems por módulo** (80), un `topic` por módulo (patrón de `cuantica`) |
 > | `077` | las cinco `test_configs` encadenadas, con **`initial_theta` explícito** |
 > | cliente | los cinco slugs en `universo.topics`, con test y bundle |
 >
-> **Los nueve controles del banco en verde:** 0 sin módulo, 0 sin diagnosticar, 0 con idea errónea en
+> **Los nueve controles del banco en verde**, sobre los 80: 0 sin módulo, 0 sin diagnosticar, 0 con idea errónea en
 > la alternativa correcta, 0 fuera de banda, 0 enunciados repetidos, 0 LaTeX con doble escape, 0
-> ideas huérfanas. Claves **25/28/23/23 %**. Idempotentes: la segunda pasada deja 60 ítems y no 120.
+> ideas huérfanas. Claves **25 % exacto en las cuatro**. Idempotentes: la segunda pasada deja 80 y no 160.
 >
 > ⭐ **Lo que enseñó escribirlos**, que vale más que los ítems:
 >
@@ -51,9 +51,16 @@
 > contrario de lo que el umbral existe para hacer. Afecta también a **G-4**: un Δθ entre dos intentos
 > que comparten media prueba no mide progreso limpio.
 >
-> Piso para que un reintento pueda ser nuevo: **`banco ≥ 2 × max_items`** = 16 ítems por módulo. Son
-> 20 a 30 ítems más en total (**T-164**). El arreglo de fondo —que `next_question` excluya lo ya
-> respondido en intentos anteriores— sirve para **todo** el banco y conviene junto con T-149.
+> ✅ **Resuelto el mismo día (T-164): los cinco bancos pasaron de 12 a 16 ítems**, que es
+> `2 × max_items`. Medido: `max(2 × max_items − banco, 0) = 0` en los cinco, o sea que **un reintento
+> puede no repetir ni un solo ítem** (con 12 el mínimo forzado era 4). Son **80 ítems** en total, y
+> los 20 nuevos apuntan a las ideas erróneas **menos usadas** de cada catálogo, así que además
+> reparten mejor el diagnóstico. Claves: **25 % exacto en las cuatro letras**.
+>
+> ⚠️ **R-47 no se cierra:** que sea *posible* no es que sea *seguro* —los dos intentos arrancan en el
+> mismo `initial_theta`, así que el primer ítem tiende a repetirse— y el problema es de **todo** el
+> banco, no solo de electrónica. El arreglo de fondo —que `next_question` excluya lo respondido en
+> intentos anteriores del mismo topic— va con T-149.
 >
 > ⏳ **Y el catálogo de errores volvió sin marcas.** El owner lo revisó y no tenía nada que agregar,
 > así que las 31 ideas quedan como **hipótesis revisadas en bloque**, no como errores confirmados uno

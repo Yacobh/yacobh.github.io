@@ -1,5 +1,5 @@
 -- Banco de electronica/leyes_de_kirchhoff: lo que entra sale, y lo que sube baja
--- 12 ítems · topic `electronica_kirchhoff` · 6 ideas erróneas nuevas
+-- 16 ítems · topic `electronica_kirchhoff` · 6 ideas erróneas nuevas
 --
 -- GENERADA por scripts/generar_migracion_items.py desde el JSON de la tanda.
 -- No editar a mano: corregir el JSON, volver a verificar y regenerar. Un cambio
@@ -10,7 +10,7 @@
 -- alternativa correcta, las cuatro explicaciones escritas, la correcta sin idea
 -- errónea, LaTeX con escape simple (047) y cobertura de dificultad sin huecos.
 --
--- Quinto y ultimo banco del track `electronica` (071). 12 items para `electronica/leyes_de_kirchhoff`, banda [-1,8 · -0,6], y 6 ideas erroneas nuevas.
+-- Quinto y ultimo banco del track `electronica` (071). 16 items para `electronica/leyes_de_kirchhoff`, banda [-1,8 · -0,6], y 6 ideas erroneas nuevas.
 --
 -- SOLO CONTINUA, UNA MALLA O UN NODO POR ITEM. Ningun item pide resolver un sistema de ecuaciones: eso es `electrotecnia/kirchhoff`, que existe y esta aplicado. Aca se trabaja la idea, que es la que falla: lo que entra a un nodo sale, y si volves al punto de partida subiste y bajaste lo mismo.
 --
@@ -23,6 +23,8 @@
 -- ⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).
 --
 -- `difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).
+--
+-- ⚠️ DE 12 A 16 ITEMS (2026-09-20, T-164). Los primeros 12 se escribieron con la guarda de 065 adaptada; los cuatro ultimos existen por una razon distinta y medida: EL REINTENTO ES LA REMEDIACION DEL TRACK (D-73), y `next_question` excluye los items del test EN CURSO, no los de intentos anteriores. Con banco de 12 y max_items 8, dos intentos comparten al menos 8+8-12 = 4 items -- y el primero es siempre el mismo, porque arrancan en el mismo initial_theta. Con 16, `banco >= 2 x max_items` y un reintento PUEDE ser enteramente nuevo. Ver R-47.
 
 -- -----------------------------------------------------------------------------
 -- 1. Ideas erróneas nuevas
@@ -215,7 +217,59 @@ with items (topic, module_slug, difficulty, order_index,
    $it$Le diste al tercer resistor toda la tension de la fuente, sin descontar los $5$ V que ya cayeron en los otros dos.$it$,
    $it$Correcto. $10 - 2 - 3 - x = 0$, asi que $x = 5$ V. Al volver al punto de partida hay que haber bajado exactamente lo que se subio.$it$,
    $it$Repartiste la tension en tres partes iguales. Eso valdria solo si los tres resistores fueran iguales, y el enunciado dice que dos caen $2$ V y $3$ V.$it$,
-   $it$kirchhoff/signo-al-recorrer-la-malla$it$, $it$kirchhoff/signo-al-recorrer-la-malla$it$, null, null)
+   $it$kirchhoff/signo-al-recorrer-la-malla$it$, $it$kirchhoff/signo-al-recorrer-la-malla$it$, null, null),
+  ($it$electronica_kirchhoff$it$, $it$electronica/leyes_de_kirchhoff$it$,
+   (-1.75), 130,
+   $it$A un nodo entran $5$ A por una rama. Por otra salen $2$ A y por una tercera salen $1$ A. ¿Que ocurre en la cuarta rama?$it$,
+   $it$Salen 2 A$it$,
+   $it$Entran 2 A$it$,
+   $it$Salen 8 A$it$,
+   $it$Salen 3 A$it$,
+   $it$A$it$,
+   $it$Correcto. Entran $5$ y ya salieron $3$: por la cuarta tienen que salir los $2$ que faltan. Lo que entra a un nodo sale entero.$it$,
+   $it$Si tambien entrara, al nodo estarian entrando $7$ A y saliendo $3$: sobrarian $4$ A acumulandose en un punto, que es justo lo que no puede pasar.$it$,
+   $it$Sumaste todas las corrientes con el mismo signo. Las que entran y las que salen van con signos opuestos.$it$,
+   $it$Restaste solo una de las dos salidas. Hay que descontar las dos: $5 - 2 - 1 = 2$.$it$,
+   null, $it$kirchhoff/nodo-sin-conservacion$it$, $it$kirchhoff/nodo-sin-conservacion$it$, null),
+  ($it$electronica_kirchhoff$it$, $it$electronica/leyes_de_kirchhoff$it$,
+   (-1.35), 140,
+   $it$Tres lamparas iguales estan conectadas en serie. Si por la primera se miden $0,2$ A, ¿cuanto se mide en la tercera?$it$,
+   $it$0,067 A$it$,
+   $it$0,2 A$it$,
+   $it$0,6 A$it$,
+   $it$0 A$it$,
+   $it$B$it$,
+   $it$Dividiste por tres. La corriente no se reparte entre los elementos en serie: hay un solo camino y pasa entera por los tres.$it$,
+   $it$Correcto. En serie la corriente es la misma en todos los puntos del circuito. Lo que si se reparte entre las tres lamparas es la tension.$it$,
+   $it$Multiplicaste por tres. La corriente no se acumula al avanzar por el circuito.$it$,
+   $it$Si no circulara corriente por la tercera, tampoco circularia por las otras dos: en serie o pasa por todas o no pasa por ninguna.$it$,
+   $it$kirchhoff/corriente-se-reparte-en-serie$it$, null, $it$kirchhoff/corriente-se-reparte-en-serie$it$, null),
+  ($it$electronica_kirchhoff$it$, $it$electronica/leyes_de_kirchhoff$it$,
+   (-1.1), 150,
+   $it$Tres resistores estan conectados en paralelo a una fuente de $9$ V. ¿Que tension hay sobre el del medio?$it$,
+   $it$3 V$it$,
+   $it$Depende de su valor de resistencia$it$,
+   $it$9 V$it$,
+   $it$27 V$it$,
+   $it$C$it$,
+   $it$Repartiste la tension entre los tres. Eso pasa en serie; en paralelo los tres comparten los mismos dos nodos y ven la fuente entera.$it$,
+   $it$Su resistencia decide cuanta corriente circula por el, no cuanta tension recibe. La tension la impone la fuente.$it$,
+   $it$Correcto. En paralelo todos los elementos estan entre los mismos dos puntos, asi que los tres tienen los $9$ V de la fuente.$it$,
+   $it$Conectar en paralelo no multiplica la tension. Lo que se suma entre las ramas son las corrientes.$it$,
+   $it$kirchhoff/tension-se-reparte-en-paralelo$it$, $it$kirchhoff/tension-se-reparte-en-paralelo$it$, null, null),
+  ($it$electronica_kirchhoff$it$, $it$electronica/leyes_de_kirchhoff$it$,
+   (-0.7), 160,
+   $it$Dos pilas de $6$ V estan en serie y conectadas en el mismo sentido, alimentando un unico resistor. ¿Que tension cae sobre el resistor?$it$,
+   $it$6 V$it$,
+   $it$3 V$it$,
+   $it$0 V, porque una anula a la otra$it$,
+   $it$12 V$it$,
+   $it$D$it$,
+   $it$Tomaste una sola pila. Las dos estan en el circuito y las dos empujan en el mismo sentido.$it$,
+   $it$Repartiste la tension de una pila entre las dos. En serie y en el mismo sentido las tensiones se suman, no se dividen.$it$,
+   $it$Se anularian si estuvieran enfrentadas. Conectadas en el mismo sentido se ayudan, y la malla ve la suma.$it$,
+   $it$Correcto. $6 + 6 = 12$ V, y como hay un solo resistor toda esa tension cae sobre el.$it$,
+   null, $it$kirchhoff/tension-se-reparte-en-paralelo$it$, $it$kirchhoff/signo-al-recorrer-la-malla$it$, null)
 
 )
 insert into public.questions
@@ -244,7 +298,7 @@ where not exists (
 -- Verificación (correr después de aplicar)
 -- -----------------------------------------------------------------------------
 --   select count(*) from public.questions where topic = 'electronica_kirchhoff';
---   -- esperado: 12 (más lo que ya hubiera)
+--   -- esperado: 16 (más lo que ya hubiera)
 --
 --   -- Ningún ítem sin módulo: delataría un module_slug mal escrito.
 --   select id from public.questions where topic = 'electronica_kirchhoff' and module_id is null;

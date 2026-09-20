@@ -1,5 +1,5 @@
 -- Banco de electronica/potencia: el cuadrado es lo que se olvida
--- 12 ítems · topic `electronica_potencia` · 5 ideas erróneas nuevas
+-- 16 ítems · topic `electronica_potencia` · 5 ideas erróneas nuevas
 --
 -- GENERADA por scripts/generar_migracion_items.py desde el JSON de la tanda.
 -- No editar a mano: corregir el JSON, volver a verificar y regenerar. Un cambio
@@ -10,7 +10,7 @@
 -- alternativa correcta, las cuatro explicaciones escritas, la correcta sin idea
 -- errónea, LaTeX con escape simple (047) y cobertura de dificultad sin huecos.
 --
--- Cuarto banco del track `electronica` (071). 12 items para `electronica/potencia`, banda [-2,4 · -1,2], y 5 ideas erroneas nuevas.
+-- Cuarto banco del track `electronica` (071). 16 items para `electronica/potencia`, banda [-2,4 · -1,2], y 5 ideas erroneas nuevas.
 --
 -- EL EJE DEL MODULO ES EL CUADRADO. P = VI es facil de recordar; las dos formas derivadas -- P = I^2 R y P = V^2 / R -- salen de sustituir la ley de Ohm adentro, y es ahi donde se pierde el exponente. Por eso el modulo cuelga de `ley_de_ohm`: sin el despeje automatizado, las tres formulas son tres cosas sueltas que se memorizan y se confunden.
 --
@@ -21,6 +21,8 @@
 -- ⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).
 --
 -- `difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).
+--
+-- ⚠️ DE 12 A 16 ITEMS (2026-09-20, T-164). Los primeros 12 se escribieron con la guarda de 065 adaptada; los cuatro ultimos existen por una razon distinta y medida: EL REINTENTO ES LA REMEDIACION DEL TRACK (D-73), y `next_question` excluye los items del test EN CURSO, no los de intentos anteriores. Con banco de 12 y max_items 8, dos intentos comparten al menos 8+8-12 = 4 items -- y el primero es siempre el mismo, porque arrancan en el mismo initial_theta. Con 16, `banco >= 2 x max_items` y un reintento PUEDE ser enteramente nuevo. Ver R-47.
 
 -- -----------------------------------------------------------------------------
 -- 1. Ideas erróneas nuevas
@@ -212,7 +214,59 @@ with items (topic, module_slug, difficulty, order_index,
    $it$Margen de veinte veces es desperdicio: el resistor seria mucho mas grande y caro sin ninguna ventaja. El criterio habitual es el doble de lo calculado.$it$,
    $it$Un octavo de watt son $0,125$ W, cuatro veces menos de lo que el circuito le exige. Se quemaria.$it$,
    $it$Correcto. $P = V^2/R = 225/470 = 0,48$ W, casi medio watt. Elegir uno de $1$ W deja el margen habitual de aproximadamente el doble.$it$,
-   $it$potencia/ignora-la-potencia-nominal-del-resistor$it$, null, $it$potencia/ignora-la-potencia-nominal-del-resistor$it$, null)
+   $it$potencia/ignora-la-potencia-nominal-del-resistor$it$, null, $it$potencia/ignora-la-potencia-nominal-del-resistor$it$, null),
+  ($it$electronica_potencia$it$, $it$electronica/potencia$it$,
+   (-2.35), 130,
+   $it$Una plancha conectada a $220$ V consume $5$ A. ¿Que potencia tiene?$it$,
+   $it$1100 W$it$,
+   $it$44 W$it$,
+   $it$225 W$it$,
+   $it$1100 Wh$it$,
+   $it$A$it$,
+   $it$Correcto. $P = VI = 220 \times 5 = 1100$ W. Es la forma directa de la potencia, y explica por que una plancha necesita un enchufe de buena seccion.$it$,
+   $it$Dividiste la tension por la corriente. Ese cociente da la resistencia de la plancha, no su potencia.$it$,
+   $it$Sumaste los dos valores. La potencia sale de multiplicar.$it$,
+   $it$El numero esta bien y la unidad no. El watt-hora mide energia: para saber cuanta consume habria que decir cuanto tiempo estuvo encendida.$it$,
+   null, null, null, $it$potencia/confunde-potencia-con-energia$it$),
+  ($it$electronica_potencia$it$, $it$electronica/potencia$it$,
+   (-1.95), 140,
+   $it$Si se mantiene la misma corriente y se duplica la resistencia, ¿que pasa con la potencia disipada?$it$,
+   $it$Se cuadruplica$it$,
+   $it$No cambia$it$,
+   $it$Se duplica$it$,
+   $it$Se reduce a la mitad$it$,
+   $it$C$it$,
+   $it$El cuadrado esta sobre la corriente, no sobre la resistencia. En $P = I^2 R$ la resistencia entra de a uno: al doble de resistencia, el doble de potencia.$it$,
+   $it$Con la misma corriente, mas resistencia significa mas tension entre los extremos y por lo tanto mas potencia.$it$,
+   $it$Correcto. En $P = I^2 R$ la resistencia multiplica sin exponente: si se duplica, la potencia se duplica. Conviene compararlo con duplicar la corriente, que la cuadruplica.$it$,
+   $it$Mas resistencia con la misma corriente nunca baja la potencia disipada.$it$,
+   $it$potencia/eleva-la-magnitud-equivocada$it$, null, null, $it$potencia/proporcionalidad-lineal-con-la-corriente$it$),
+  ($it$electronica_potencia$it$, $it$electronica/potencia$it$,
+   (-1.65), 150,
+   $it$Un LED consume $60$ mW y queda encendido durante $10$ horas. ¿Que energia consume?$it$,
+   $it$6 Wh$it$,
+   $it$600 Wh$it$,
+   $it$0,6 Wh$it$,
+   $it$0,06 Wh$it$,
+   $it$C$it$,
+   $it$Multiplicaste sin pasar los milivatios a vatios. $60$ mW son $0,06$ W, no $0,6$ W.$it$,
+   $it$Trabajaste con 60 vatios en vez de 60 milivatios. Un LED que consumiera 60 W seria una lampara, no un LED indicador.$it$,
+   $it$Correcto. $E = Pt = 0,06 \times 10 = 0,6$ Wh. Es poquisimo: por eso un indicador puede quedar encendido todo el dia sin que se note en la cuenta.$it$,
+   $it$Ese es el valor de la potencia en vatios, no de la energia. Falta multiplicar por las horas.$it$,
+   null, $it$potencia/confunde-potencia-con-energia$it$, null, $it$potencia/confunde-potencia-con-energia$it$),
+  ($it$electronica_potencia$it$, $it$electronica/potencia$it$,
+   (-1.35), 160,
+   $it$Un resistor de $50$ ohm disipa $8$ W. ¿Que corriente circula por el?$it$,
+   $it$0,16 A$it$,
+   $it$400 A$it$,
+   $it$0,4 mA$it$,
+   $it$0,4 A$it$,
+   $it$D$it$,
+   $it$Te quedaste en $P/R = 8/50 = 0,16$, que es el **cuadrado** de la corriente. Falta la raiz cuadrada.$it$,
+   $it$Multiplicaste la potencia por la resistencia. De $P = I^2 R$ se despeja dividiendo, no multiplicando.$it$,
+   $it$El numero esta bien y el prefijo no: $0,4$ A son $400$ mA, no $0,4$ mA.$it$,
+   $it$Correcto. De $P = I^2 R$ sale $I^2 = P/R = 8/50 = 0,16$, y la raiz de $0,16$ es $0,4$ A.$it$,
+   $it$potencia/olvida-el-cuadrado$it$, $it$potencia/eleva-la-magnitud-equivocada$it$, null, null)
 
 )
 insert into public.questions
@@ -241,7 +295,7 @@ where not exists (
 -- Verificación (correr después de aplicar)
 -- -----------------------------------------------------------------------------
 --   select count(*) from public.questions where topic = 'electronica_potencia';
---   -- esperado: 12 (más lo que ya hubiera)
+--   -- esperado: 16 (más lo que ya hubiera)
 --
 --   -- Ningún ítem sin módulo: delataría un module_slug mal escrito.
 --   select id from public.questions where topic = 'electronica_potencia' and module_id is null;

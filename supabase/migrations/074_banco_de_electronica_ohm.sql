@@ -1,5 +1,5 @@
 -- Banco de electronica/ley_de_ohm: un despeje por vez
--- 12 ítems · topic `electronica_ohm` · 6 ideas erróneas nuevas
+-- 16 ítems · topic `electronica_ohm` · 6 ideas erróneas nuevas
 --
 -- GENERADA por scripts/generar_migracion_items.py desde el JSON de la tanda.
 -- No editar a mano: corregir el JSON, volver a verificar y regenerar. Un cambio
@@ -10,7 +10,7 @@
 -- alternativa correcta, las cuatro explicaciones escritas, la correcta sin idea
 -- errónea, LaTeX con escape simple (047) y cobertura de dificultad sin huecos.
 --
--- Tercer banco del track `electronica` (071). 12 items para `electronica/ley_de_ohm`, banda [-2,8 · -1,6], y 6 ideas erroneas nuevas.
+-- Tercer banco del track `electronica` (071). 16 items para `electronica/ley_de_ohm`, banda [-2,8 · -1,6], y 6 ideas erroneas nuevas.
 --
 -- UN DESPEJE POR VEZ. Es la regla F2 del plan aplicada al modulo: cada item pide una sola de las tres magnitudes y ninguno mezcla la ley de Ohm con la potencia. Esa mezcla es justo lo que hace `electrotecnia/magnitudes`, y es una de las razones por las que ese modulo queda alto para este curso.
 --
@@ -23,6 +23,8 @@
 -- ⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).
 --
 -- `difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).
+--
+-- ⚠️ DE 12 A 16 ITEMS (2026-09-20, T-164). Los primeros 12 se escribieron con la guarda de 065 adaptada; los cuatro ultimos existen por una razon distinta y medida: EL REINTENTO ES LA REMEDIACION DEL TRACK (D-73), y `next_question` excluye los items del test EN CURSO, no los de intentos anteriores. Con banco de 12 y max_items 8, dos intentos comparten al menos 8+8-12 = 4 items -- y el primero es siempre el mismo, porque arrancan en el mismo initial_theta. Con 16, `banco >= 2 x max_items` y un reintento PUEDE ser enteramente nuevo. Ver R-47.
 
 -- -----------------------------------------------------------------------------
 -- 1. Ideas erróneas nuevas
@@ -215,7 +217,59 @@ with items (topic, module_slug, difficulty, order_index,
    $it$Correcto. $250$ mA son un cuarto de ampere, y $5$ dividido un cuarto da $20$ ohm. Pensar la corriente como fraccion de ampere permite estimar sin calculadora.$it$,
    $it$Invertiste el cociente. La tension va arriba: $R = V/I$.$it$,
    $it$Tomaste el valor de la corriente como si fuera la resistencia. Son magnitudes distintas, con unidades distintas.$it$,
-   $it$ohm/usa-la-formula-sin-despejar$it$, null, $it$ohm/despeje-invertido$it$, $it$ohm/confunde-tension-con-corriente$it$)
+   $it$ohm/usa-la-formula-sin-despejar$it$, null, $it$ohm/despeje-invertido$it$, $it$ohm/confunde-tension-con-corriente$it$),
+  ($it$electronica_ohm$it$, $it$electronica/ley_de_ohm$it$,
+   (-2.75), 130,
+   $it$Si se mantiene el mismo resistor y se duplica la tension aplicada, ¿que pasa con la corriente?$it$,
+   $it$Se duplica$it$,
+   $it$Se reduce a la mitad$it$,
+   $it$No cambia, porque el resistor es el mismo$it$,
+   $it$Se cuadruplica$it$,
+   $it$A$it$,
+   $it$Correcto. En $I = V/R$ la tension esta multiplicando: si se duplica y la resistencia no cambia, la corriente se duplica.$it$,
+   $it$Mas tension empuja mas corriente, no menos. La que frena es la resistencia.$it$,
+   $it$El resistor es el mismo, pero la corriente depende tambien de cuanta tension se le aplique. Solo fijo el resistor no queda fija la corriente.$it$,
+   $it$La relacion es directa, no al cuadrado: al doble de tension, el doble de corriente. Los cuadrados aparecen en la potencia.$it$,
+   null, $it$ohm/proporcionalidad-invertida$it$, $it$ohm/proporcionalidad-invertida$it$, null),
+  ($it$electronica_ohm$it$, $it$electronica/ley_de_ohm$it$,
+   (-2.35), 140,
+   $it$Por un resistor de $500$ ohm circulan $0,1$ A. ¿Que tension hay entre sus extremos?$it$,
+   $it$50 ohm$it$,
+   $it$5000 V$it$,
+   $it$50 V$it$,
+   $it$0,0002 V$it$,
+   $it$C$it$,
+   $it$El numero esta bien y la unidad no. Lo que se pide es una tension, que se mide en volts; el ohm mide resistencia.$it$,
+   $it$Dividiste la resistencia por la corriente. Para hallar la tension hay que multiplicar: $V = IR$.$it$,
+   $it$Correcto. $V = IR = 0,1 \times 500 = 50$ V.$it$,
+   $it$Dividiste la corriente por la resistencia. Ese cociente no corresponde a ninguna de las tres magnitudes.$it$,
+   $it$ohm/pierde-la-unidad-en-el-resultado$it$, $it$ohm/despeje-invertido$it$, null, $it$ohm/despeje-invertido$it$),
+  ($it$electronica_ohm$it$, $it$electronica/ley_de_ohm$it$,
+   (-2.05), 150,
+   $it$En un circuito con una pila y un resistor, ¿de que depende la corriente que circula?$it$,
+   $it$De la pila solamente, que es la que la entrega$it$,
+   $it$Del resistor solamente, que es el que la limita$it$,
+   $it$Del grosor del cable, que es por donde pasa$it$,
+   $it$De la tension de la pila y de la resistencia juntas$it$,
+   $it$D$it$,
+   $it$La pila pone la tension, pero no decide sola cuanta corriente circula: eso depende tambien de contra que resistencia empuja.$it$,
+   $it$El resistor limita, pero necesita que algo empuje. Con el mismo resistor y otra pila, la corriente es distinta.$it$,
+   $it$En un circuito comun el cable aporta una resistencia despreciable. Lo que manda son la tension de la fuente y el resistor.$it$,
+   $it$Correcto. Es exactamente lo que dice $I = V/R$: la tension empuja y la resistencia frena, y la corriente sale de las dos.$it$,
+   $it$ohm/aplica-la-ley-a-la-fuente$it$, null, null, null),
+  ($it$electronica_ohm$it$, $it$electronica/ley_de_ohm$it$,
+   (-1.75), 160,
+   $it$Un multimetro marca $2$ A circulando por un resistor de $6$ ohm. ¿Que tension hay sobre el resistor?$it$,
+   $it$3 V$it$,
+   $it$2 V$it$,
+   $it$6 V$it$,
+   $it$12 V$it$,
+   $it$D$it$,
+   $it$Dividiste la resistencia por la corriente. Teniendo corriente y resistencia, la tension sale multiplicando.$it$,
+   $it$Ese es el valor de la corriente. El ampere mide corriente y el volt mide tension: no son la misma magnitud aunque el numero este a mano.$it$,
+   $it$Ese es el valor de la resistencia, no de la tension.$it$,
+   $it$Correcto. $V = IR = 2 \times 6 = 12$ V.$it$,
+   $it$ohm/despeje-invertido$it$, $it$ohm/confunde-tension-con-corriente$it$, $it$ohm/confunde-tension-con-corriente$it$, null)
 
 )
 insert into public.questions
@@ -244,7 +298,7 @@ where not exists (
 -- Verificación (correr después de aplicar)
 -- -----------------------------------------------------------------------------
 --   select count(*) from public.questions where topic = 'electronica_ohm';
---   -- esperado: 12 (más lo que ya hubiera)
+--   -- esperado: 16 (más lo que ya hubiera)
 --
 --   -- Ningún ítem sin módulo: delataría un module_slug mal escrito.
 --   select id from public.questions where topic = 'electronica_ohm' and module_id is null;

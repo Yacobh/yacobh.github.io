@@ -2,13 +2,14 @@
   "topic": "electronica_kirchhoff",
   "migracion_archivo": "076_banco_de_electronica_kirchhoff.sql",
   "migracion_titulo": "Banco de electronica/leyes_de_kirchhoff: lo que entra sale, y lo que sube baja",
-
-  "migracion_notas": "Quinto y ultimo banco del track `electronica` (071). 12 items para `electronica/leyes_de_kirchhoff`, banda [-1,8 · -0,6], y 6 ideas erroneas nuevas.\n\nSOLO CONTINUA, UNA MALLA O UN NODO POR ITEM. Ningun item pide resolver un sistema de ecuaciones: eso es `electrotecnia/kirchhoff`, que existe y esta aplicado. Aca se trabaja la idea, que es la que falla: lo que entra a un nodo sale, y si volves al punto de partida subiste y bajaste lo mismo.\n\nSENTIDO DE MALLA HORARIO, siempre. Es una de las convenciones cerradas en `supabase/CONTENT.md`, y la razon es diagnostica: con el sentido libre, un error de signo puede ser criterio del alumno y no se puede distinguir de un error. Fijandolo, el signo se vuelve diagnosticable -- que es de lo que vive `kirchhoff/signo-al-recorrer-la-malla`.\n\nLOS DOS PARES DUALES SE SEPARAN A PROPOSITO. \"La corriente se reparte en serie\" y \"la tension se reparte en paralelo\" son ideas erroneas distintas y tienen entrada propia: un alumno suele cometer una y no la otra, y juntarlas perderia esa informacion.\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\".\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).",
-
-  "cobertura_objetivo": { "min": -1.8, "max": -0.6, "ancho_tramo": 0.6, "min_por_tramo": 6 },
-
+  "migracion_notas": "Quinto y ultimo banco del track `electronica` (071). 16 items para `electronica/leyes_de_kirchhoff`, banda [-1,8 · -0,6], y 6 ideas erroneas nuevas.\n\nSOLO CONTINUA, UNA MALLA O UN NODO POR ITEM. Ningun item pide resolver un sistema de ecuaciones: eso es `electrotecnia/kirchhoff`, que existe y esta aplicado. Aca se trabaja la idea, que es la que falla: lo que entra a un nodo sale, y si volves al punto de partida subiste y bajaste lo mismo.\n\nSENTIDO DE MALLA HORARIO, siempre. Es una de las convenciones cerradas en `supabase/CONTENT.md`, y la razon es diagnostica: con el sentido libre, un error de signo puede ser criterio del alumno y no se puede distinguir de un error. Fijandolo, el signo se vuelve diagnosticable -- que es de lo que vive `kirchhoff/signo-al-recorrer-la-malla`.\n\nLOS DOS PARES DUALES SE SEPARAN A PROPOSITO. \"La corriente se reparte en serie\" y \"la tension se reparte en paralelo\" son ideas erroneas distintas y tienen entrada propia: un alumno suele cometer una y no la otra, y juntarlas perderia esa informacion.\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\".\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).\n\n⚠️ DE 12 A 16 ITEMS (2026-09-20, T-164). Los primeros 12 se escribieron con la guarda de 065 adaptada; los cuatro ultimos existen por una razon distinta y medida: EL REINTENTO ES LA REMEDIACION DEL TRACK (D-73), y `next_question` excluye los items del test EN CURSO, no los de intentos anteriores. Con banco de 12 y max_items 8, dos intentos comparten al menos 8+8-12 = 4 items -- y el primero es siempre el mismo, porque arrancan en el mismo initial_theta. Con 16, `banco >= 2 x max_items` y un reintento PUEDE ser enteramente nuevo. Ver R-47.",
+  "cobertura_objetivo": {
+    "min": -1.8,
+    "max": -0.6,
+    "ancho_tramo": 0.6,
+    "min_por_tramo": 6
+  },
   "misconceptions_preexistentes": [],
-
   "misconceptions": [
     {
       "slug": "kirchhoff/signo-al-recorrer-la-malla",
@@ -47,14 +48,18 @@
       "module_slug": "electronica/leyes_de_kirchhoff"
     }
   ],
-
   "items": [
     {
       "module_slug": "electronica/leyes_de_kirchhoff",
       "difficulty": -1.8,
       "order_index": 10,
       "question": "A un nodo entran $3$ A. Del nodo salen dos ramas, y por una de ellas circula $1$ A. ¿Que corriente lleva la otra?",
-      "options": { "A": "2 A", "B": "4 A", "C": "3 A", "D": "1 A" },
+      "options": {
+        "A": "2 A",
+        "B": "4 A",
+        "C": "3 A",
+        "D": "1 A"
+      },
       "correct": "A",
       "errors": {
         "A": "Correcto. Lo que entra tiene que salir: $3 = 1 + x$, asi que $x = 2$ A. La ley de nodos no es mas que conservacion de la carga.",
@@ -74,7 +79,12 @@
       "difficulty": -1.7,
       "order_index": 20,
       "question": "Dos resistores estan conectados en serie. Por el primero circulan $0,5$ A. ¿Que corriente circula por el segundo?",
-      "options": { "A": "0,25 A", "B": "0,5 A", "C": "1 A", "D": "Depende del valor de cada resistor" },
+      "options": {
+        "A": "0,25 A",
+        "B": "0,5 A",
+        "C": "1 A",
+        "D": "Depende del valor de cada resistor"
+      },
       "correct": "B",
       "errors": {
         "A": "La corriente no se reparte en serie. En serie hay un solo camino, asi que toda la carga que pasa por el primero pasa tambien por el segundo.",
@@ -94,7 +104,12 @@
       "difficulty": -1.6,
       "order_index": 30,
       "question": "Dos ramas estan conectadas en paralelo a una fuente de $12$ V. ¿Que tension hay en cada rama?",
-      "options": { "A": "6 V en cada una", "B": "Depende de la resistencia de cada rama", "C": "12 V en cada una", "D": "24 V entre las dos" },
+      "options": {
+        "A": "6 V en cada una",
+        "B": "Depende de la resistencia de cada rama",
+        "C": "12 V en cada una",
+        "D": "24 V entre las dos"
+      },
       "correct": "C",
       "errors": {
         "A": "La tension no se reparte en paralelo. Las dos ramas estan conectadas a los mismos dos puntos, asi que las dos ven la fuente entera.",
@@ -114,7 +129,12 @@
       "difficulty": -1.5,
       "order_index": 40,
       "question": "En una malla con una fuente de $12$ V y dos resistores, sobre el primero caen $5$ V. ¿Cuanto cae sobre el segundo?",
-      "options": { "A": "17 V", "B": "12 V", "C": "5 V", "D": "7 V" },
+      "options": {
+        "A": "17 V",
+        "B": "12 V",
+        "C": "5 V",
+        "D": "7 V"
+      },
       "correct": "D",
       "errors": {
         "A": "Sumaste la caida a la tension de la fuente. Al recorrer la malla la fuente sube y los resistores bajan: no van con el mismo signo.",
@@ -134,7 +154,12 @@
       "difficulty": -1.4,
       "order_index": 50,
       "question": "En un nodo se quiere hallar una corriente desconocida. ¿Que hay que plantear?",
-      "options": { "A": "Que la suma de las tensiones alrededor del nodo es cero", "B": "Que la corriente se reparte en partes iguales entre las ramas", "C": "Que la suma de las corrientes que entran es igual a la suma de las que salen", "D": "Que la suma de las tensiones a lo largo de la malla es cero" },
+      "options": {
+        "A": "Que la suma de las tensiones alrededor del nodo es cero",
+        "B": "Que la corriente se reparte en partes iguales entre las ramas",
+        "C": "Que la suma de las corrientes que entran es igual a la suma de las que salen",
+        "D": "Que la suma de las tensiones a lo largo de la malla es cero"
+      },
       "correct": "C",
       "errors": {
         "A": "Esa es la idea de la ley de mallas, y ademas un nodo no tiene tensiones que recorrer: es un punto. En un nodo se trabaja con corrientes.",
@@ -154,7 +179,12 @@
       "difficulty": -1.3,
       "order_index": 60,
       "question": "Recorriendo una malla en sentido horario se entra a la pila por el borne positivo y se sale por el negativo. ¿Con que signo entra su tension en la ecuacion?",
-      "options": { "A": "Positiva, porque es la fuente y las fuentes suman", "B": "Negativa, porque en ese sentido se baja de potencial", "C": "Positiva, porque el recorrido es horario", "D": "No lleva signo: las fuentes no entran en la ecuacion de malla" },
+      "options": {
+        "A": "Positiva, porque es la fuente y las fuentes suman",
+        "B": "Negativa, porque en ese sentido se baja de potencial",
+        "C": "Positiva, porque el recorrido es horario",
+        "D": "No lleva signo: las fuentes no entran en la ecuacion de malla"
+      },
       "correct": "B",
       "errors": {
         "A": "El signo no depende de que sea una fuente, sino de por donde se la recorre. Entrando por el positivo y saliendo por el negativo se baja, igual que en un resistor.",
@@ -174,7 +204,12 @@
       "difficulty": -1.15,
       "order_index": 70,
       "question": "A un nodo llegan $250$ mA por una rama y $150$ mA por otra. Del nodo sale una sola rama. ¿Que corriente lleva?",
-      "options": { "A": "100 mA", "B": "200 mA", "C": "250 mA", "D": "400 mA" },
+      "options": {
+        "A": "100 mA",
+        "B": "200 mA",
+        "C": "250 mA",
+        "D": "400 mA"
+      },
       "correct": "D",
       "errors": {
         "A": "Restaste las dos corrientes. Las dos entran al nodo, asi que se suman; se restaria si una entrara y la otra saliera.",
@@ -194,7 +229,12 @@
       "difficulty": -1.05,
       "order_index": 80,
       "question": "Tres resistores iguales estan en serie con una fuente de $12$ V. ¿Que tension cae sobre cada uno?",
-      "options": { "A": "4 V", "B": "12 V en cada uno", "C": "6 V", "D": "36 V" },
+      "options": {
+        "A": "4 V",
+        "B": "12 V en cada uno",
+        "C": "6 V",
+        "D": "36 V"
+      },
       "correct": "A",
       "errors": {
         "A": "Correcto. En serie la tension se reparte, y si los tres son iguales les toca un tercio a cada uno: $12/3 = 4$ V. Las tres caidas suman los $12$ V de la fuente.",
@@ -214,7 +254,12 @@
       "difficulty": -0.95,
       "order_index": 90,
       "question": "Una malla tiene dos pilas conectadas en oposicion, una de $12$ V y otra de $4$ V, y un unico resistor. ¿Que tension cae sobre el resistor?",
-      "options": { "A": "16 V", "B": "8 V", "C": "12 V", "D": "4 V" },
+      "options": {
+        "A": "16 V",
+        "B": "8 V",
+        "C": "12 V",
+        "D": "4 V"
+      },
       "correct": "B",
       "errors": {
         "A": "Sumaste las dos pilas. Estan en oposicion: una sube el potencial y la otra lo baja, asi que se restan.",
@@ -234,7 +279,12 @@
       "difficulty": -0.85,
       "order_index": 100,
       "question": "De una fuente salen $600$ mA que se reparten en dos ramas en paralelo. Por una circulan $250$ mA. ¿Cuanto circula por la otra?",
-      "options": { "A": "850 mA", "B": "300 mA", "C": "600 mA", "D": "350 mA" },
+      "options": {
+        "A": "850 mA",
+        "B": "300 mA",
+        "C": "600 mA",
+        "D": "350 mA"
+      },
       "correct": "D",
       "errors": {
         "A": "Sumaste en vez de restar. Las dos ramas salen del mismo nodo, asi que entre las dos tienen que dar los $600$ mA que entran.",
@@ -254,7 +304,12 @@
       "difficulty": -0.75,
       "order_index": 110,
       "question": "En un circuito con resistores en serie y en paralelo, ¿cual de estas afirmaciones es correcta?",
-      "options": { "A": "Por los que estan en serie circula la misma corriente, y sobre los que estan en paralelo hay la misma tension", "B": "Por los que estan en serie hay la misma tension, y sobre los que estan en paralelo la misma corriente", "C": "En serie la corriente se reparte entre los resistores", "D": "En paralelo la tension se reparte entre las ramas" },
+      "options": {
+        "A": "Por los que estan en serie circula la misma corriente, y sobre los que estan en paralelo hay la misma tension",
+        "B": "Por los que estan en serie hay la misma tension, y sobre los que estan en paralelo la misma corriente",
+        "C": "En serie la corriente se reparte entre los resistores",
+        "D": "En paralelo la tension se reparte entre las ramas"
+      },
       "correct": "A",
       "errors": {
         "A": "Correcto. Es el par que hay que tener memorizado: serie comparte corriente, paralelo comparte tension. Todo lo demas se deduce de ahi.",
@@ -274,7 +329,12 @@
       "difficulty": -0.65,
       "order_index": 120,
       "question": "Una malla tiene una fuente de $10$ V y tres resistores. Sobre dos de ellos caen $2$ V y $3$ V. ¿Cuanto cae sobre el tercero?",
-      "options": { "A": "15 V", "B": "10 V", "C": "5 V", "D": "3,33 V" },
+      "options": {
+        "A": "15 V",
+        "B": "10 V",
+        "C": "5 V",
+        "D": "3,33 V"
+      },
       "correct": "C",
       "errors": {
         "A": "Sumaste las tres tensiones como si todas subieran. La fuente sube y los resistores bajan: la suma de las caidas iguala a la fuente, no se le agrega.",
@@ -286,6 +346,106 @@
         "A": "kirchhoff/signo-al-recorrer-la-malla",
         "B": "kirchhoff/signo-al-recorrer-la-malla",
         "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -1.75,
+      "order_index": 130,
+      "question": "A un nodo entran $5$ A por una rama. Por otra salen $2$ A y por una tercera salen $1$ A. ¿Que ocurre en la cuarta rama?",
+      "options": {
+        "A": "Salen 2 A",
+        "B": "Entran 2 A",
+        "C": "Salen 8 A",
+        "D": "Salen 3 A"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. Entran $5$ y ya salieron $3$: por la cuarta tienen que salir los $2$ que faltan. Lo que entra a un nodo sale entero.",
+        "B": "Si tambien entrara, al nodo estarian entrando $7$ A y saliendo $3$: sobrarian $4$ A acumulandose en un punto, que es justo lo que no puede pasar.",
+        "C": "Sumaste todas las corrientes con el mismo signo. Las que entran y las que salen van con signos opuestos.",
+        "D": "Restaste solo una de las dos salidas. Hay que descontar las dos: $5 - 2 - 1 = 2$."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "kirchhoff/nodo-sin-conservacion",
+        "C": "kirchhoff/nodo-sin-conservacion",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -1.35,
+      "order_index": 140,
+      "question": "Tres lamparas iguales estan conectadas en serie. Si por la primera se miden $0,2$ A, ¿cuanto se mide en la tercera?",
+      "options": {
+        "A": "0,067 A",
+        "B": "0,2 A",
+        "C": "0,6 A",
+        "D": "0 A"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Dividiste por tres. La corriente no se reparte entre los elementos en serie: hay un solo camino y pasa entera por los tres.",
+        "B": "Correcto. En serie la corriente es la misma en todos los puntos del circuito. Lo que si se reparte entre las tres lamparas es la tension.",
+        "C": "Multiplicaste por tres. La corriente no se acumula al avanzar por el circuito.",
+        "D": "Si no circulara corriente por la tercera, tampoco circularia por las otras dos: en serie o pasa por todas o no pasa por ninguna."
+      },
+      "misconceptions": {
+        "A": "kirchhoff/corriente-se-reparte-en-serie",
+        "B": null,
+        "C": "kirchhoff/corriente-se-reparte-en-serie",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -1.1,
+      "order_index": 150,
+      "question": "Tres resistores estan conectados en paralelo a una fuente de $9$ V. ¿Que tension hay sobre el del medio?",
+      "options": {
+        "A": "3 V",
+        "B": "Depende de su valor de resistencia",
+        "C": "9 V",
+        "D": "27 V"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Repartiste la tension entre los tres. Eso pasa en serie; en paralelo los tres comparten los mismos dos nodos y ven la fuente entera.",
+        "B": "Su resistencia decide cuanta corriente circula por el, no cuanta tension recibe. La tension la impone la fuente.",
+        "C": "Correcto. En paralelo todos los elementos estan entre los mismos dos puntos, asi que los tres tienen los $9$ V de la fuente.",
+        "D": "Conectar en paralelo no multiplica la tension. Lo que se suma entre las ramas son las corrientes."
+      },
+      "misconceptions": {
+        "A": "kirchhoff/tension-se-reparte-en-paralelo",
+        "B": "kirchhoff/tension-se-reparte-en-paralelo",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -0.7,
+      "order_index": 160,
+      "question": "Dos pilas de $6$ V estan en serie y conectadas en el mismo sentido, alimentando un unico resistor. ¿Que tension cae sobre el resistor?",
+      "options": {
+        "A": "6 V",
+        "B": "3 V",
+        "C": "0 V, porque una anula a la otra",
+        "D": "12 V"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Tomaste una sola pila. Las dos estan en el circuito y las dos empujan en el mismo sentido.",
+        "B": "Repartiste la tension de una pila entre las dos. En serie y en el mismo sentido las tensiones se suman, no se dividen.",
+        "C": "Se anularian si estuvieran enfrentadas. Conectadas en el mismo sentido se ayudan, y la malla ve la suma.",
+        "D": "Correcto. $6 + 6 = 12$ V, y como hay un solo resistor toda esa tension cae sobre el."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "kirchhoff/tension-se-reparte-en-paralelo",
+        "C": "kirchhoff/signo-al-recorrer-la-malla",
         "D": null
       }
     }

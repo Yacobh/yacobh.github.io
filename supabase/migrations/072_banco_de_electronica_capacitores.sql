@@ -1,5 +1,5 @@
 -- Banco de electronica/capacitores: C = Q/V antes que la asociacion
--- 12 ítems · topic `electronica_capacitores` · 7 ideas erróneas nuevas
+-- 16 ítems · topic `electronica_capacitores` · 7 ideas erróneas nuevas
 --
 -- GENERADA por scripts/generar_migracion_items.py desde el JSON de la tanda.
 -- No editar a mano: corregir el JSON, volver a verificar y regenerar. Un cambio
@@ -10,7 +10,7 @@
 -- alternativa correcta, las cuatro explicaciones escritas, la correcta sin idea
 -- errónea, LaTeX con escape simple (047) y cobertura de dificultad sin huecos.
 --
--- Primer banco del track `electronica` (071). 12 items para el modulo `electronica/capacitores`, banda [-2,2 · -1,0], y las 7 ideas erroneas de su catalogo.
+-- Primer banco del track `electronica` (071). 16 items para el modulo `electronica/capacitores`, banda [-2,2 · -1,0], y las 7 ideas erroneas de su catalogo.
 --
 -- PARA QUIEN. El curso de tecnico en electronica del owner: chicos de 16-17 anos con fallas de base, para quienes `electrotecnia` queda muy alto. Solo continua, correctivo, aritmetica de cabeza.
 --
@@ -23,6 +23,8 @@
 -- ⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, NO ITEM POR ITEM. El owner leyo `contenido/unidades/electronica_errores_para_revisar.md` el 2026-09-20 y no marco la columna `¿lo ves?` ni agrego ninguno propio. Las 7 ideas erroneas de este banco quedan por lo tanto como hipotesis revisadas, no como errores observados uno por uno. Es una diferencia que importa cuando alguien pregunte de donde salio cada distractor: la regla F4 del plan pide errores vistos en el aula, y lo que hay es una lista leida y no objetada.
 --
 -- `difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).
+--
+-- ⚠️ DE 12 A 16 ITEMS (2026-09-20, T-164). Los primeros 12 se escribieron con la guarda de 065 adaptada; los cuatro ultimos existen por una razon distinta y medida: EL REINTENTO ES LA REMEDIACION DEL TRACK (D-73), y `next_question` excluye los items del test EN CURSO, no los de intentos anteriores. Con banco de 12 y max_items 8, dos intentos comparten al menos 8+8-12 = 4 items -- y el primero es siempre el mismo, porque arrancan en el mismo initial_theta. Con 16, `banco >= 2 x max_items` y un reintento PUEDE ser enteramente nuevo. Ver R-47.
 
 -- -----------------------------------------------------------------------------
 -- 1. Ideas erróneas nuevas
@@ -216,7 +218,59 @@ with items (topic, module_slug, difficulty, order_index,
    $it$Multiplicaste la capacitancia por la carga. Esa cuenta no corresponde a ninguna de las tres magnitudes; para hallar la tension hay que dividir la carga por la capacitancia.$it$,
    $it$Tomaste el valor de la carga como si fuera la tension. Son magnitudes distintas: el coulomb mide carga y el volt mide tension.$it$,
    $it$Correcto. $V = Q/C = 2,35/0,47 = 5$ V. Otra forma de verlo: si guarda $0,47$ uC por cada volt, para juntar $2,35$ uC hacen falta 5 volts.$it$,
-   $it$capacitancia/despeja-mal-c-igual-q-sobre-v$it$, $it$capacitancia/despeja-mal-c-igual-q-sobre-v$it$, $it$capacitancia/confunde-carga-con-capacitancia$it$, null)
+   $it$capacitancia/despeja-mal-c-igual-q-sobre-v$it$, $it$capacitancia/despeja-mal-c-igual-q-sobre-v$it$, $it$capacitancia/confunde-carga-con-capacitancia$it$, null),
+  ($it$electronica_capacitores$it$, $it$electronica/capacitores$it$,
+   (-2.15), 130,
+   $it$Tres capacitores de $30$ uF cada uno se conectan en serie. ¿Cuanto vale la capacitancia equivalente?$it$,
+   $it$10 uF$it$,
+   $it$90 uF$it$,
+   $it$30 uF$it$,
+   $it$15 uF$it$,
+   $it$A$it$,
+   $it$Correcto. Con capacitores iguales en serie la equivalente es el valor de uno dividido por la cantidad: $30/3 = 10$ uF. Siempre queda por debajo del mas chico.$it$,
+   $it$Los sumaste. Esa es la regla del paralelo; en serie la capacitancia equivalente baja, no sube.$it$,
+   $it$Poner tres en serie si cambia el resultado: la tension se reparte entre los tres y el conjunto guarda menos carga por volt.$it$,
+   $it$Dividiste por dos y son tres capacitores. Con n iguales en serie, la equivalente es el valor de uno dividido por n.$it$,
+   null, $it$capacitores/mas-capacitancia-en-serie$it$, $it$capacitores/mas-capacitancia-en-serie$it$, null),
+  ($it$electronica_capacitores$it$, $it$electronica/capacitores$it$,
+   (-1.75), 140,
+   $it$Un capacitor viene marcado «$100$ uF  $25$ V». ¿Que significa el segundo numero?$it$,
+   $it$Que solo funciona conectado a $25$ V$it$,
+   $it$Que es la tension maxima que soporta sin danarse$it$,
+   $it$Que almacena $25$ V de carga$it$,
+   $it$Que su capacitancia se midio con $25$ V aplicados$it$,
+   $it$B$it$,
+   $it$Funciona con cualquier tension por debajo de esa. El numero es un techo, no una condicion de uso.$it$,
+   $it$Correcto. Es la tension de trabajo: el limite que el dielectrico aguanta. Se elige siempre con margen sobre la tension del circuito.$it$,
+   $it$La carga no se mide en volts sino en coulomb, y ademas depende de a cuanta tension se lo conecte. Ese numero no dice cuanta carga tiene.$it$,
+   $it$La capacitancia no depende de la tension aplicada: la fijan las placas y el dielectrico. Es la misma a $5$ V que a $20$ V.$it$,
+   $it$capacitores/ignora-la-tension-de-trabajo$it$, null, $it$capacitancia/confunde-carga-con-capacitancia$it$, $it$capacitancia/cree-que-c-depende-de-la-tension-aplicada$it$),
+  ($it$electronica_capacitores$it$, $it$electronica/capacitores$it$,
+   (-1.55), 150,
+   $it$Se quiere reemplazar un capacitor de $100$ uF por dos capacitores iguales conectados en paralelo. ¿De cuanto tiene que ser cada uno?$it$,
+   $it$200 uF$it$,
+   $it$100 uF$it$,
+   $it$50 uF$it$,
+   $it$25 uF$it$,
+   $it$C$it$,
+   $it$En paralelo las capacitancias se suman, asi que dos de $200$ uF darian $400$ uF. Para llegar a $100$ hay que ir por debajo, no por encima.$it$,
+   $it$Dos de $100$ uF en paralelo dan $200$ uF, el doble de lo que se busca.$it$,
+   $it$Correcto. En paralelo se suman, asi que dos iguales tienen que valer la mitad cada uno: $50 + 50 = 100$ uF.$it$,
+   $it$Dividiste por cuatro. Son dos capacitores, asi que a cada uno le toca la mitad.$it$,
+   $it$capacitores/serie-y-paralelo-como-resistores$it$, null, null, null),
+  ($it$electronica_capacitores$it$, $it$electronica/capacitores$it$,
+   (-1.15), 160,
+   $it$Un capacitor de $10$ uF y otro de $20$ uF estan conectados en serie. ¿Cual de los dos almacena mas carga?$it$,
+   $it$El de $20$ uF, el doble$it$,
+   $it$El de $10$ uF$it$,
+   $it$No se puede saber sin conocer la tension de la fuente$it$,
+   $it$Los dos la misma$it$,
+   $it$D$it$,
+   $it$Mas capacitancia significa mas carga solo si los dos tienen la misma tension, y en serie no la tienen: lo que comparten es la carga.$it$,
+   $it$Tampoco. En serie ninguno de los dos guarda mas que el otro, porque por los dos paso exactamente la misma carga.$it$,
+   $it$La tension de la fuente decide cuanta carga hay en total, pero no cambia el hecho de que en serie los dos guardan la misma.$it$,
+   $it$Correcto. En serie hay un solo camino: la carga que sale de uno es la que llega al otro. Lo que se reparte distinto es la tension.$it$,
+   $it$capacitancia/confunde-carga-con-capacitancia$it$, null, $it$capacitancia/cree-que-c-depende-de-la-tension-aplicada$it$, null)
 
 )
 insert into public.questions
@@ -245,7 +299,7 @@ where not exists (
 -- Verificación (correr después de aplicar)
 -- -----------------------------------------------------------------------------
 --   select count(*) from public.questions where topic = 'electronica_capacitores';
---   -- esperado: 12 (más lo que ya hubiera)
+--   -- esperado: 16 (más lo que ya hubiera)
 --
 --   -- Ningún ítem sin módulo: delataría un module_slug mal escrito.
 --   select id from public.questions where topic = 'electronica_capacitores' and module_id is null;

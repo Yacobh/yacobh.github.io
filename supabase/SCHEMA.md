@@ -664,15 +664,19 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 
 74. `migrations/072`…`076` — ⏳ **escritas y verificadas, SIN aplicar** (2026-09-20) · **T-158, épica
     E10.** Los **cinco bancos** del track `electronica`, uno por módulo: `072` capacitores, `073`
-    notación científica, `074` ley de Ohm, `075` potencia, `076` leyes de Kirchhoff. **12 ítems
-    cada uno = 60**, más **30 ideas erróneas nuevas**. Generadas por
+    notación científica, `074` ley de Ohm, `075` potencia, `076` leyes de Kirchhoff. **16 ítems
+    cada uno = 80**, más **30 ideas erróneas nuevas**. Generadas por
     `scripts/generar_migracion_items.py` desde los cinco JSON de `contenido/items/`, que son la
     fuente de verdad: el `.sql` no se edita, se regenera.
     **Un `topic` por módulo** (`electronica_capacitores`, `electronica_ohm`, …), copiando `040`:
     con ADR-038 aprobado y sin implementar, `next_question` filtra solo por `topic`, así que un
     banco de eje no puede servir el test de un módulo — y este curso necesita saber **qué** repasar.
-    **12 y no 20 ítems por banco:** el 20 de `065` protegía dos bancos que cubren doce módulos; acá
-    cada banco es **un módulo de 1,2 logits**, y la regla de cobertura es ≥6 ítems por 1,0 logit.
+    ⭐ **16 y no 12, y el número no sale de la cobertura sino del reintento.** La cobertura pedía ~8
+    (≥6 ítems por 1,0 logit sobre una banda de 1,2). **16 = `2 × max_items`**, que es el umbral a
+    partir del cual un reintento **puede** no repetir ni un solo ítem: con 12 y `max_items = 8`, dos
+    intentos comparten al menos `8 + 8 − 12 = 4` por pigeonhole. Como **el reintento es el mecanismo
+    de remediación del track** (D-73), un banco por debajo de `2 × max_items` hace que el umbral de
+    `min_theta` se abra por memoria y no por aprendizaje. Ver **R-47** y **T-164**.
 
 75. `migrations/077_test_configs_de_electronica.sql` — ⏳ **escrita y verificada, SIN aplicar**
     (2026-09-20) · **T-160.** Las cinco filas de `test_configs` que hacen **rendible** el track,
@@ -682,20 +686,24 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     más de la mitad de un test de 8, y lo paga el alumno más débil (causa (b) de **R-44**). Acá cada
     test arranca en el **centro de la banda de su módulo**, así los 8 ítems son medición.
     **Guarda doble, probada:** se niega si no hay 5 módulos (`071` sin aplicar) y se niega si algún
-    banco no llega a 12 ítems activos (`072`…`076` sin aplicar).
+    banco no llega a **16** ítems activos (`072`…`076` sin aplicar).
 
 > **Verificación de `071`…`077` (2026-09-20).** Las siete aplicadas **en orden** sobre un
 > **PostgreSQL 17.11** desechable —la versión mayor de producción— con réplica del estado previo
 > (`modules`, `class_slots`, `module_prerequisites`, `misconceptions`, `questions`, `test_configs`).
-> Todas aplican limpias con `ON_ERROR_STOP=1` y **la segunda pasada completa deja 60 ítems, 5
-> configs y 5 módulos — no 120, 10 y 10**.
+> Todas aplican limpias con `ON_ERROR_STOP=1` y **la segunda pasada completa deja 80 ítems, 5
+> configs y 5 módulos — no 160, 10 y 10**.
 >
-> **Los nueve controles del banco, en verde:** 60 ítems · **0** sin `module_id` · **0** sin ninguna
+> **Los nueve controles del banco, en verde:** 80 ítems · **0** sin `module_id` · **0** sin ninguna
 > idea errónea (el modo de fallo de `064`) · **0** con idea errónea en la alternativa correcta ·
 > **0** sin las cuatro explicaciones · **0** fuera de la banda de su módulo · **0** enunciados
 > repetidos · **0** LaTeX con doble escape (`047`) · 30 ideas erróneas, **0 huérfanas**.
-> Reparto de claves sobre los 60: **A 25 % · B 28 % · C 23 % · D 23 %** (R-35 pide que ninguna pase
-> de 40 % y que se usen las cuatro).
+> Reparto de claves sobre los 80: **20 y 20 y 20 y 20 — 25 % exacto en las cuatro** (R-35 pide que
+> ninguna pase de 40 % y que se usen las cuatro).
+>
+> ⭐ **Y el control que motivó subir a 16:** para los cinco bancos,
+> `max(2 × max_items − banco, 0) = 0`, o sea que **un reintento puede no repetir ni un solo ítem**.
+> Con 12 el mínimo forzado era 4. La guarda de `077` se probó disparando con un banco en 15.
 >
 > Los cinco `initial_theta` caen **dentro** de la banda de su módulo, y las dos guardas de `077` se
 > probaron disparando: con un banco en 5 ítems activos y con los módulos borrados.

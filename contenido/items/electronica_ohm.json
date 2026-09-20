@@ -2,7 +2,7 @@
   "topic": "electronica_ohm",
   "migracion_archivo": "074_banco_de_electronica_ohm.sql",
   "migracion_titulo": "Banco de electronica/ley_de_ohm: un despeje por vez",
-  "migracion_notas": "Tercer banco del track `electronica` (071). 12 items para `electronica/ley_de_ohm`, banda [-2,8 · -1,6], y 6 ideas erroneas nuevas.\n\nUN DESPEJE POR VEZ. Es la regla F2 del plan aplicada al modulo: cada item pide una sola de las tres magnitudes y ninguno mezcla la ley de Ohm con la potencia. Esa mezcla es justo lo que hace `electrotecnia/magnitudes`, y es una de las razones por las que ese modulo queda alto para este curso.\n\nNUMEROS DE CABEZA. Todas las cuentas salen sin calculadora, y los valores son de componentes reales (220 ohm, 1 kilohm, 4,7 kilohm, pilas de 4,5 y 9 V).\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\".\n\nNINGUN ITEM PIDE CONVERTIR PREFIJOS COMO DIFICULTAD PRINCIPAL. Donde aparece kilohm y el resultado es en mA, la conversion es parte del oficio y esta explicada en la alternativa correcta; el distractor que la ataca de frente vive en `electronica_notacion`, que es su prerrequisito.\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).",
+  "migracion_notas": "Tercer banco del track `electronica` (071). 16 items para `electronica/ley_de_ohm`, banda [-2,8 · -1,6], y 6 ideas erroneas nuevas.\n\nUN DESPEJE POR VEZ. Es la regla F2 del plan aplicada al modulo: cada item pide una sola de las tres magnitudes y ninguno mezcla la ley de Ohm con la potencia. Esa mezcla es justo lo que hace `electrotecnia/magnitudes`, y es una de las razones por las que ese modulo queda alto para este curso.\n\nNUMEROS DE CABEZA. Todas las cuentas salen sin calculadora, y los valores son de componentes reales (220 ohm, 1 kilohm, 4,7 kilohm, pilas de 4,5 y 9 V).\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\".\n\nNINGUN ITEM PIDE CONVERTIR PREFIJOS COMO DIFICULTAD PRINCIPAL. Donde aparece kilohm y el resultado es en mA, la conversion es parte del oficio y esta explicada en la alternativa correcta; el distractor que la ataca de frente vive en `electronica_notacion`, que es su prerrequisito.\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).\n\n⚠️ DE 12 A 16 ITEMS (2026-09-20, T-164). Los primeros 12 se escribieron con la guarda de 065 adaptada; los cuatro ultimos existen por una razon distinta y medida: EL REINTENTO ES LA REMEDIACION DEL TRACK (D-73), y `next_question` excluye los items del test EN CURSO, no los de intentos anteriores. Con banco de 12 y max_items 8, dos intentos comparten al menos 8+8-12 = 4 items -- y el primero es siempre el mismo, porque arrancan en el mismo initial_theta. Con 16, `banco >= 2 x max_items` y un reintento PUEDE ser enteramente nuevo. Ver R-47.",
   "cobertura_objetivo": {
     "min": -2.8,
     "max": -1.6,
@@ -347,6 +347,106 @@
         "B": null,
         "C": "ohm/despeje-invertido",
         "D": "ohm/confunde-tension-con-corriente"
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -2.75,
+      "order_index": 130,
+      "question": "Si se mantiene el mismo resistor y se duplica la tension aplicada, ¿que pasa con la corriente?",
+      "options": {
+        "A": "Se duplica",
+        "B": "Se reduce a la mitad",
+        "C": "No cambia, porque el resistor es el mismo",
+        "D": "Se cuadruplica"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. En $I = V/R$ la tension esta multiplicando: si se duplica y la resistencia no cambia, la corriente se duplica.",
+        "B": "Mas tension empuja mas corriente, no menos. La que frena es la resistencia.",
+        "C": "El resistor es el mismo, pero la corriente depende tambien de cuanta tension se le aplique. Solo fijo el resistor no queda fija la corriente.",
+        "D": "La relacion es directa, no al cuadrado: al doble de tension, el doble de corriente. Los cuadrados aparecen en la potencia."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "ohm/proporcionalidad-invertida",
+        "C": "ohm/proporcionalidad-invertida",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -2.35,
+      "order_index": 140,
+      "question": "Por un resistor de $500$ ohm circulan $0,1$ A. ¿Que tension hay entre sus extremos?",
+      "options": {
+        "A": "50 ohm",
+        "B": "5000 V",
+        "C": "50 V",
+        "D": "0,0002 V"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "El numero esta bien y la unidad no. Lo que se pide es una tension, que se mide en volts; el ohm mide resistencia.",
+        "B": "Dividiste la resistencia por la corriente. Para hallar la tension hay que multiplicar: $V = IR$.",
+        "C": "Correcto. $V = IR = 0,1 \\times 500 = 50$ V.",
+        "D": "Dividiste la corriente por la resistencia. Ese cociente no corresponde a ninguna de las tres magnitudes."
+      },
+      "misconceptions": {
+        "A": "ohm/pierde-la-unidad-en-el-resultado",
+        "B": "ohm/despeje-invertido",
+        "C": null,
+        "D": "ohm/despeje-invertido"
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -2.05,
+      "order_index": 150,
+      "question": "En un circuito con una pila y un resistor, ¿de que depende la corriente que circula?",
+      "options": {
+        "A": "De la pila solamente, que es la que la entrega",
+        "B": "Del resistor solamente, que es el que la limita",
+        "C": "Del grosor del cable, que es por donde pasa",
+        "D": "De la tension de la pila y de la resistencia juntas"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "La pila pone la tension, pero no decide sola cuanta corriente circula: eso depende tambien de contra que resistencia empuja.",
+        "B": "El resistor limita, pero necesita que algo empuje. Con el mismo resistor y otra pila, la corriente es distinta.",
+        "C": "En un circuito comun el cable aporta una resistencia despreciable. Lo que manda son la tension de la fuente y el resistor.",
+        "D": "Correcto. Es exactamente lo que dice $I = V/R$: la tension empuja y la resistencia frena, y la corriente sale de las dos."
+      },
+      "misconceptions": {
+        "A": "ohm/aplica-la-ley-a-la-fuente",
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -1.75,
+      "order_index": 160,
+      "question": "Un multimetro marca $2$ A circulando por un resistor de $6$ ohm. ¿Que tension hay sobre el resistor?",
+      "options": {
+        "A": "3 V",
+        "B": "2 V",
+        "C": "6 V",
+        "D": "12 V"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Dividiste la resistencia por la corriente. Teniendo corriente y resistencia, la tension sale multiplicando.",
+        "B": "Ese es el valor de la corriente. El ampere mide corriente y el volt mide tension: no son la misma magnitud aunque el numero este a mano.",
+        "C": "Ese es el valor de la resistencia, no de la tension.",
+        "D": "Correcto. $V = IR = 2 \\times 6 = 12$ V."
+      },
+      "misconceptions": {
+        "A": "ohm/despeje-invertido",
+        "B": "ohm/confunde-tension-con-corriente",
+        "C": "ohm/confunde-tension-con-corriente",
+        "D": null
       }
     }
   ]
