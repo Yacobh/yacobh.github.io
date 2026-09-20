@@ -1,0 +1,353 @@
+{
+  "topic": "electronica_notacion",
+  "migracion_archivo": "073_banco_de_electronica_notacion.sql",
+  "migracion_titulo": "Banco de electronica/notacion_cientifica: los prefijos del taller",
+  "migracion_notas": "Segundo banco del track `electronica` (071). 12 items para `electronica/notacion_cientifica`, banda [-3,0 · -1,8], y 6 ideas erroneas nuevas.\n\nES LA RAIZ DE LA CADENA. Es el unico modulo del track sin prerrequisito, y de el cuelgan `ley_de_ohm` y `capacitores`. Tambien es el modulo mas bajo del track: su banda llega a -3,0, que es el piso de la escala.\n\nPOR QUE EXISTE. No es \"matematica antes de electronica\": es la herramienta con la que se escriben las otras cuatro. Un alumno que despeja bien la ley de Ohm y obtiene 0,0022 A descarta su propia respuesta porque \"da un numero raro\". Todos los items trabajan sobre magnitudes electricas reales -- resistores, corrientes, capacitores-- y no sobre potencias de diez abstractas.\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\".\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).",
+  "cobertura_objetivo": {
+    "min": -3.0,
+    "max": -1.8,
+    "ancho_tramo": 0.6,
+    "min_por_tramo": 6
+  },
+  "misconceptions_preexistentes": [],
+  "misconceptions": [
+    {
+      "slug": "prefijos/mili-y-micro-intercambiados",
+      "name": "Confunde mili con micro",
+      "description": "Usar cuando el estudiante trata un prefijo por otro dentro de la misma familia: mili por micro, micro por nano, kilo por mega. NO usar cuando el prefijo es el correcto y el signo del exponente esta invertido.",
+      "module_slug": "electronica/notacion_cientifica"
+    },
+    {
+      "slug": "prefijos/exponente-con-signo-invertido",
+      "name": "Invierte el signo del exponente",
+      "description": "Usar cuando el estudiante escribe un multiplo como submultiplo o al reves: kilo con exponente negativo, nano con exponente positivo. NO usar cuando el prefijo elegido es otro pero el signo es coherente.",
+      "module_slug": "electronica/notacion_cientifica"
+    },
+    {
+      "slug": "prefijos/no-convierte-antes-de-operar",
+      "name": "Opera con magnitudes de prefijos distintos sin convertir",
+      "description": "Usar cuando suma o compara valores con prefijos distintos como si fueran el mismo numero. NO usar cuando convirtio bien y se equivoco en la aritmetica.",
+      "module_slug": "electronica/notacion_cientifica"
+    },
+    {
+      "slug": "notacion/mantisa-fuera-de-rango",
+      "name": "Deja la mantisa fuera del rango de 1 a 10",
+      "description": "Usar cuando presenta como notacion cientifica algo con mantisa menor que 1 o mayor o igual que 10. NO usar para notacion de ingenieria (exponentes multiplos de 3), que es deliberada y correcta en su contexto.",
+      "module_slug": "electronica/notacion_cientifica"
+    },
+    {
+      "slug": "notacion/multiplica-exponentes-al-multiplicar",
+      "name": "Multiplica los exponentes en vez de sumarlos",
+      "description": "Usar cuando al multiplicar potencias de diez multiplica los exponentes, o al dividir los divide. NO usar cuando el error esta en la mantisa y los exponentes estan bien.",
+      "module_slug": "electronica/notacion_cientifica"
+    },
+    {
+      "slug": "prefijos/orden-de-magnitud-sin-sentido-fisico",
+      "name": "No detecta un resultado fisicamente imposible",
+      "description": "Usar cuando da por buena una magnitud que no puede existir en el circuito del enunciado: cientos de amperes en un circuito de pila, capacitores de varios faradios. NO usar si el procedimiento fue correcto y el enunciado permitia ese valor.",
+      "module_slug": "electronica/notacion_cientifica"
+    }
+  ],
+  "items": [
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -3.0,
+      "order_index": 10,
+      "question": "Un resistor mide $4,7$ kilohm. ¿Cuantos ohm son?",
+      "options": {
+        "A": "4700 ohm",
+        "B": "470 ohm",
+        "C": "0,0047 ohm",
+        "D": "47 000 ohm"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. Kilo significa mil, asi que $4,7$ kilohm $= 4700$ ohm. La coma se corre tres lugares hacia la derecha.",
+        "B": "Multiplicaste por 100 en vez de por 1000. El prefijo kilo vale exactamente mil: $4,7$ kilohm son $4,7 \\times 1000$.",
+        "C": "Pusiste kilo como si achicara el numero. Kilo es un multiplo: agranda. El que achica mil veces es mili.",
+        "D": "Corriste la coma cuatro lugares en vez de tres. Kilo son tres ceros, no cuatro."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": "prefijos/exponente-con-signo-invertido",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.9,
+      "order_index": 20,
+      "question": "Por un circuito circula una corriente de $0,025$ A. ¿Como se expresa en miliamperes?",
+      "options": {
+        "A": "25 mA",
+        "B": "0,000025 mA",
+        "C": "2,5 mA",
+        "D": "25 000 mA"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. Un miliampere es la milesima parte de un ampere, asi que $0,025$ A $= 25$ mA. En el taller casi todas las corrientes se dicen asi.",
+        "B": "Dividiste por mil en vez de multiplicar. Al pasar a una unidad mas chica el numero tiene que crecer, no achicarse.",
+        "C": "Corriste la coma dos lugares en vez de tres. Mili son tres lugares, siempre.",
+        "D": "Corriste la coma seis lugares: eso seria pasar a microamperes, no a miliamperes."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "prefijos/exponente-con-signo-invertido",
+        "C": null,
+        "D": "prefijos/mili-y-micro-intercambiados"
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.8,
+      "order_index": 30,
+      "question": "Un capacitor esta marcado $470$ uF. ¿Cuanto vale en faradios?",
+      "options": {
+        "A": "0,47 F",
+        "B": "470 000 F",
+        "C": "0,000 470 F",
+        "D": "4,70 F"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Usaste mili en vez de micro: $470$ mF serian $0,47$ F. Micro es mil veces mas chico que mili.",
+        "B": "Tomaste micro como si agrandara. Micro es un submultiplo: el valor en faradios tiene que ser mucho menor que 470.",
+        "C": "Correcto. Micro es la millonesima parte, asi que $470$ uF $= 0,000470$ F. Por eso los capacitores se marcan en uF: en faradios los numeros serian incomodos.",
+        "D": "Corriste la coma dos lugares. Micro son seis lugares, que es lo que hace que un capacitor comun sea una fraccion minuscula de faradio."
+      },
+      "misconceptions": {
+        "A": "prefijos/mili-y-micro-intercambiados",
+        "B": "prefijos/exponente-con-signo-invertido",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.7,
+      "order_index": 40,
+      "question": "¿Cual de estas corrientes es la mas grande?",
+      "options": {
+        "A": "500 uA",
+        "B": "2 mA",
+        "C": "0,3 mA",
+        "D": "900 uA"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Comparaste los numeros sin mirar el prefijo. $500$ uA son $0,5$ mA, menos que la mitad de la mayor.",
+        "B": "Correcto. Pasando todo a miliamperes: $0,5$ · $2$ · $0,3$ · $0,9$. Comparar exige primero llevar todo al mismo prefijo.",
+        "C": "Es la mas chica de las cuatro. Puede parecer grande por estar en mA, pero $0,3$ mA son solo $300$ uA.",
+        "D": "Es el numero mas alto de la lista y aun asi no es la corriente mas grande: $900$ uA son $0,9$ mA."
+      },
+      "misconceptions": {
+        "A": "prefijos/no-convierte-antes-de-operar",
+        "B": null,
+        "C": null,
+        "D": "prefijos/no-convierte-antes-de-operar"
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.6,
+      "order_index": 50,
+      "question": "Se conectan en serie un resistor de $2,2$ kilohm y otro de $470$ ohm. ¿Cuanto suman?",
+      "options": {
+        "A": "472,2 ohm",
+        "B": "2670 ohm",
+        "C": "2,67 ohm",
+        "D": "690 ohm"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Sumaste $2,2$ con $470$ sin convertir. Antes de sumar hay que llevar los dos al mismo prefijo: $2,2$ kilohm son $2200$ ohm.",
+        "B": "Correcto. $2200 + 470 = 2670$ ohm, o $2,67$ kilohm. La suma exige primero igualar los prefijos.",
+        "C": "Sumaste bien en kilohm pero entregaste el resultado en ohm. El numero $2,67$ es correcto solo si la unidad es kilohm.",
+        "D": "Sumaste $220$ con $470$: convertiste kilo como si fueran cien. Kilo son mil."
+      },
+      "misconceptions": {
+        "A": "prefijos/no-convierte-antes-de-operar",
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.5,
+      "order_index": 60,
+      "question": "Una corriente de $0,000\\,08$ A, ¿como se escribe en notacion cientifica?",
+      "options": {
+        "A": "$0,8 \\times 10^{-4}$ A",
+        "B": "$80 \\times 10^{-6}$ A",
+        "C": "$8 \\times 10^{-5}$ A",
+        "D": "$8 \\times 10^{5}$ A"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "El numero vale lo mismo, pero no esta en notacion cientifica: la mantisa tiene que quedar entre 1 y 10, y $0,8$ es menor que 1.",
+        "B": "Tambien vale lo mismo, y tambien queda fuera de la regla: $80$ es mayor que 10. Esa forma se usa en notacion de ingenieria, no en la cientifica.",
+        "C": "Correcto. La coma se corre cinco lugares a la derecha, asi que el exponente es $-5$ y la mantisa queda en $8$, dentro del rango de 1 a 10.",
+        "D": "El exponente quedo positivo. Un numero menor que 1 siempre lleva exponente negativo; asi escrito serian 800 mil amperes."
+      },
+      "misconceptions": {
+        "A": "notacion/mantisa-fuera-de-rango",
+        "B": "notacion/mantisa-fuera-de-rango",
+        "C": null,
+        "D": "prefijos/exponente-con-signo-invertido"
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.4,
+      "order_index": 70,
+      "question": "¿Cuanto vale $(2 \\times 10^{3}) \\times (3 \\times 10^{2})$?",
+      "options": {
+        "A": "$6 \\times 10^{6}$",
+        "B": "$6 \\times 10^{1}$",
+        "C": "$5 \\times 10^{5}$",
+        "D": "$6 \\times 10^{5}$"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Multiplicaste los exponentes. Al multiplicar potencias de la misma base los exponentes se suman: $3 + 2 = 5$.",
+        "B": "Restaste los exponentes. Eso corresponde a una division, no a una multiplicacion.",
+        "C": "Sumaste las mantisas en vez de multiplicarlas. Con los exponentes se suma; con las mantisas, no.",
+        "D": "Correcto. Las mantisas se multiplican ($2 \\times 3 = 6$) y los exponentes se suman ($3 + 2 = 5$)."
+      },
+      "misconceptions": {
+        "A": "notacion/multiplica-exponentes-al-multiplicar",
+        "B": "notacion/multiplica-exponentes-al-multiplicar",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.3,
+      "order_index": 80,
+      "question": "Un capacitor de $10$ nF, ¿cuantos microfaradios son?",
+      "options": {
+        "A": "10 000 uF",
+        "B": "0,1 uF",
+        "C": "0,01 uF",
+        "D": "10 uF"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Tomaste nano como si fuera mas grande que micro. Es al reves: nano es mil veces mas chico, asi que el numero en uF tiene que ser menor.",
+        "B": "Dividiste por cien. De nano a micro hay un factor de mil, no de cien.",
+        "C": "Correcto. Mil nanofaradios hacen un microfaradio, asi que $10$ nF $= 0,01$ uF. Es el paso que hace falta para sumar un capacitor en nF con otro en uF.",
+        "D": "Cambiaste la unidad y dejaste el numero igual. Cambiar de prefijo siempre cambia el numero."
+      },
+      "misconceptions": {
+        "A": "prefijos/exponente-con-signo-invertido",
+        "B": "prefijos/mili-y-micro-intercambiados",
+        "C": null,
+        "D": "prefijos/mili-y-micro-intercambiados"
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.2,
+      "order_index": 90,
+      "question": "Al resolver un circuito con una pila de $9$ V y un resistor de $1$ kilohm, un alumno obtiene una corriente de $9000$ A. ¿Que conviene hacer?",
+      "options": {
+        "A": "Aceptarlo: la cuenta $9/0,001$ da ese numero",
+        "B": "Revisar: una pila no entrega miles de amperes; lo mas probable es que se haya multiplicado en vez de dividir por mil",
+        "C": "Aceptarlo, porque el resistor es de solo 1 kilohm",
+        "D": "Cambiar la unidad a miliamperes y dejar el numero igual"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "La cuenta esta mal armada: $1$ kilohm son $1000$ ohm, no $0,001$. Y aunque diera eso, el resultado avisa solo: ninguna pila entrega esa corriente.",
+        "B": "Correcto. Antes de dar un resultado por bueno conviene preguntarse si puede existir. Una pila de $9$ V con $1$ kilohm da $9$ mA, y la diferencia con $9000$ A es justamente un prefijo mal aplicado.",
+        "C": "Un kilohm no es poca resistencia: son mil ohm. Y el orden de magnitud sigue sin cerrar, sea cual sea el resistor.",
+        "D": "Cambiar la unidad no arregla una cuenta equivocada: $9000$ mA tampoco es lo que da ese circuito. Hay que rehacer la division."
+      },
+      "misconceptions": {
+        "A": "prefijos/orden-de-magnitud-sin-sentido-fisico",
+        "B": null,
+        "C": "prefijos/orden-de-magnitud-sin-sentido-fisico",
+        "D": "prefijos/mili-y-micro-intercambiados"
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.1,
+      "order_index": 100,
+      "question": "¿Cuanto vale $\\dfrac{6 \\times 10^{-3}}{2 \\times 10^{-6}}$?",
+      "options": {
+        "A": "$3 \\times 10^{-9}$",
+        "B": "$3 \\times 10^{18}$",
+        "C": "$4 \\times 10^{3}$",
+        "D": "$3 \\times 10^{3}$"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Sumaste los exponentes. Al dividir se restan: $-3 - (-6) = +3$.",
+        "B": "Multiplicaste los exponentes. En una division los exponentes se restan, nunca se multiplican.",
+        "C": "El exponente esta bien y la mantisa no: $6$ dividido $2$ da $3$, no $4$.",
+        "D": "Correcto. Las mantisas se dividen ($6/2 = 3$) y los exponentes se restan ($-3 - (-6) = 3$). Es exactamente la cuenta de dividir $6$ mA por $2$ uA."
+      },
+      "misconceptions": {
+        "A": "notacion/multiplica-exponentes-al-multiplicar",
+        "B": "notacion/multiplica-exponentes-al-multiplicar",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -2.0,
+      "order_index": 110,
+      "question": "Tres resistores miden $1,5$ kilohm, $820$ ohm y $0,33$ kilohm. ¿Cual es el mas chico?",
+      "options": {
+        "A": "El de $0,33$ kilohm",
+        "B": "El de $820$ ohm",
+        "C": "El de $1,5$ kilohm",
+        "D": "Los tres miden practicamente lo mismo"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. Pasando todo a ohm: $1500$, $820$ y $330$. El numero mas chico de la lista original no era el menor, y el mas chico de verdad venia escrito en kilohm.",
+        "B": "Es el numero mas grande de los tres tal como estan escritos, y aun asi no es el mayor ni el menor. Hay que convertir antes de comparar.",
+        "C": "Es el mas grande: $1500$ ohm. Aca el prefijo si acompana al numero, pero eso no se puede saber sin convertir.",
+        "D": "Se diferencian bastante: entre $330$ y $1500$ ohm hay mas de cuatro veces."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "prefijos/no-convierte-antes-de-operar",
+        "C": null,
+        "D": "prefijos/no-convierte-antes-de-operar"
+      }
+    },
+    {
+      "module_slug": "electronica/notacion_cientifica",
+      "difficulty": -1.9,
+      "order_index": 120,
+      "question": "Un resistor de $2\\,200\\,000$ ohm, ¿como se escribe con el prefijo que corresponde?",
+      "options": {
+        "A": "2,2 kilohm",
+        "B": "22 megaohm",
+        "C": "0,22 megaohm",
+        "D": "2,2 megaohm"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Kilo son mil, no un millon. $2,2$ kilohm serian $2200$ ohm, mil veces menos.",
+        "B": "Corriste la coma cinco lugares en vez de seis. Mega son seis ceros exactos.",
+        "C": "Corriste la coma siete lugares. Y ademas la mantisa quedo menor que 1, que es justo lo que el prefijo sirve para evitar.",
+        "D": "Correcto. Mega es un millon, asi que $2\\,200\\,000$ ohm $= 2,2$ megaohm. Elegir el prefijo que deja la mantisa entre 1 y 1000 es lo que hace el valor legible de un vistazo."
+      },
+      "misconceptions": {
+        "A": "prefijos/mili-y-micro-intercambiados",
+        "B": null,
+        "C": "notacion/mantisa-fuera-de-rango",
+        "D": null
+      }
+    }
+  ]
+}

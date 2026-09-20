@@ -1,0 +1,353 @@
+{
+  "topic": "electronica_ohm",
+  "migracion_archivo": "074_banco_de_electronica_ohm.sql",
+  "migracion_titulo": "Banco de electronica/ley_de_ohm: un despeje por vez",
+  "migracion_notas": "Tercer banco del track `electronica` (071). 12 items para `electronica/ley_de_ohm`, banda [-2,8 · -1,6], y 6 ideas erroneas nuevas.\n\nUN DESPEJE POR VEZ. Es la regla F2 del plan aplicada al modulo: cada item pide una sola de las tres magnitudes y ninguno mezcla la ley de Ohm con la potencia. Esa mezcla es justo lo que hace `electrotecnia/magnitudes`, y es una de las razones por las que ese modulo queda alto para este curso.\n\nNUMEROS DE CABEZA. Todas las cuentas salen sin calculadora, y los valores son de componentes reales (220 ohm, 1 kilohm, 4,7 kilohm, pilas de 4,5 y 9 V).\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\".\n\nNINGUN ITEM PIDE CONVERTIR PREFIJOS COMO DIFICULTAD PRINCIPAL. Donde aparece kilohm y el resultado es en mA, la conversion es parte del oficio y esta explicada en la alternativa correcta; el distractor que la ataca de frente vive en `electronica_notacion`, que es su prerrequisito.\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).",
+  "cobertura_objetivo": {
+    "min": -2.8,
+    "max": -1.6,
+    "ancho_tramo": 0.6,
+    "min_por_tramo": 6
+  },
+  "misconceptions_preexistentes": [],
+  "misconceptions": [
+    {
+      "slug": "ohm/despeje-invertido",
+      "name": "Despeja al reves en la ley de Ohm",
+      "description": "Usar cuando invierte el cociente: hace R/V para hallar la corriente, o I/V para hallar la resistencia. NO usar cuando multiplica donde habia que dividir sin invertir el orden, ni para errores de prefijo.",
+      "module_slug": "electronica/ley_de_ohm"
+    },
+    {
+      "slug": "ohm/usa-la-formula-sin-despejar",
+      "name": "Reemplaza en la forma que recuerda, sin despejar",
+      "description": "Usar cuando le piden una magnitud y responde el resultado de la operacion que recuerda de memoria, tipicamente el producto V por I o I por R sin importar cual se pedia. NO usar cuando el despeje esta bien planteado e invertido (eso es despeje-invertido).",
+      "module_slug": "electronica/ley_de_ohm"
+    },
+    {
+      "slug": "ohm/confunde-tension-con-corriente",
+      "name": "Cambia tension por corriente al leer el enunciado",
+      "description": "Usar cuando toma el valor en volts como si fuera la corriente, o el valor en amperes como si fuera la tension, tipicamente cuando el enunciado no los presenta en el orden habitual. NO usar para errores de unidad en el resultado.",
+      "module_slug": "electronica/ley_de_ohm"
+    },
+    {
+      "slug": "ohm/pierde-la-unidad-en-el-resultado",
+      "name": "Entrega el resultado sin unidad o con la unidad equivocada",
+      "description": "Usar cuando el numero es correcto pero lo acompana una unidad de otra magnitud: responde volts cuando se pedia una resistencia, u ohm cuando se pedia una corriente. NO usar cuando la unidad es correcta y solo el prefijo esta mal.",
+      "module_slug": "electronica/ley_de_ohm"
+    },
+    {
+      "slug": "ohm/proporcionalidad-invertida",
+      "name": "Cree que mas resistencia da mas corriente",
+      "description": "Usar en preguntas cualitativas donde responde que la corriente crece al crecer la resistencia, o que decrece al crecer la tension. NO usar cuando la cuenta numerica esta bien resuelta.",
+      "module_slug": "electronica/ley_de_ohm"
+    },
+    {
+      "slug": "ohm/aplica-la-ley-a-la-fuente",
+      "name": "Le aplica la ley de Ohm a la fuente",
+      "description": "Usar cuando trata la tension de la pila como si fuera una caida en un resistor, o le busca una resistencia interna que el enunciado no da. NO usar en items de Kirchhoff, donde el signo de la fuente es una idea aparte.",
+      "module_slug": "electronica/ley_de_ohm"
+    }
+  ],
+  "items": [
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -2.8,
+      "order_index": 10,
+      "question": "Por un resistor de $200$ ohm circula una corriente de $0,05$ A. ¿Que tension hay entre sus extremos?",
+      "options": {
+        "A": "10 V",
+        "B": "4000 V",
+        "C": "0,00025 V",
+        "D": "10 ohm"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. $V = IR = 0,05 \\times 200 = 10$ V. Cuando te dan corriente y resistencia, la tension sale multiplicando.",
+        "B": "Dividiste la resistencia por la corriente. Para hallar la tension hay que multiplicar: $V = IR$.",
+        "C": "Dividiste la corriente por la resistencia. Ese cociente no corresponde a ninguna de las tres magnitudes.",
+        "D": "El numero esta bien y la unidad no. Lo que se pide es una tension, y la tension se mide en volts."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "ohm/despeje-invertido",
+        "C": "ohm/despeje-invertido",
+        "D": "ohm/pierde-la-unidad-en-el-resultado"
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -2.7,
+      "order_index": 20,
+      "question": "Una pila de $9$ V alimenta un resistor de $3$ ohm. ¿Que corriente circula?",
+      "options": {
+        "A": "27 A",
+        "B": "0,33 A",
+        "C": "3 A",
+        "D": "12 A"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Multiplicaste la tension por la resistencia. Ese producto sirve para hallar la tension cuando ya conoces la corriente, no al reves.",
+        "B": "Dividiste la resistencia por la tension. El despeje es $I = V/R$: la tension va arriba.",
+        "C": "Correcto. $I = V/R = 9/3 = 3$ A. Mas tension empuja mas corriente; mas resistencia la frena.",
+        "D": "Sumaste los dos valores. La ley de Ohm relaciona las tres magnitudes multiplicando y dividiendo, nunca sumando."
+      },
+      "misconceptions": {
+        "A": "ohm/usa-la-formula-sin-despejar",
+        "B": "ohm/despeje-invertido",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -2.6,
+      "order_index": 30,
+      "question": "Un resistor tiene $12$ V entre sus extremos y por el circulan $2$ A. ¿Cuanto vale su resistencia?",
+      "options": {
+        "A": "24 ohm",
+        "B": "0,17 ohm",
+        "C": "6 V",
+        "D": "6 ohm"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Multiplicaste la tension por la corriente. Para hallar la resistencia hay que dividir: $R = V/I$.",
+        "B": "Dividiste la corriente por la tension. Quedo el cociente al reves: la tension va arriba.",
+        "C": "El numero esta bien y la unidad no. Lo que se pide es una resistencia, que se mide en ohm.",
+        "D": "Correcto. $R = V/I = 12/2 = 6$ ohm. Leelo como \"hacen falta 6 volts por cada ampere que quieras hacer circular\"."
+      },
+      "misconceptions": {
+        "A": "ohm/usa-la-formula-sin-despejar",
+        "B": "ohm/despeje-invertido",
+        "C": "ohm/pierde-la-unidad-en-el-resultado",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -2.5,
+      "order_index": 40,
+      "question": "Si en un circuito se mantiene la misma tension y se reemplaza el resistor por otro del doble de resistencia, ¿que pasa con la corriente?",
+      "options": {
+        "A": "Se duplica",
+        "B": "Se reduce a la mitad",
+        "C": "No cambia, porque la tension es la misma",
+        "D": "Se reduce a la cuarta parte"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "La resistencia no empuja la corriente, la frena. Mas resistencia con la misma tension da menos corriente.",
+        "B": "Correcto. En $I = V/R$ la resistencia esta dividiendo: si se duplica, la corriente cae a la mitad.",
+        "C": "La tension sola no fija la corriente: hace falta saber contra que resistencia empuja. Cambiar el resistor cambia el resultado.",
+        "D": "La relacion es directa, no al cuadrado: al doble de resistencia, la mitad de corriente. Los cuadrados aparecen en la potencia, no aca."
+      },
+      "misconceptions": {
+        "A": "ohm/proporcionalidad-invertida",
+        "B": null,
+        "C": "ohm/proporcionalidad-invertida",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -2.4,
+      "order_index": 50,
+      "question": "Por un resistor de $1$ kilohm circulan $9$ mA. ¿Que tension hay entre sus extremos?",
+      "options": {
+        "A": "9 V",
+        "B": "9000 V",
+        "C": "0,009 V",
+        "D": "111 V"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. $V = IR$ con $1$ kilohm $= 1000$ ohm y $9$ mA $= 0,009$ A: $0,009 \\times 1000 = 9$ V. Atajo util del taller: mA por kilohm da volts directo.",
+        "B": "Multiplicaste 9 por 1000 sin pasar los miliamperes a amperes. Una de las dos conversiones quedo sin hacer.",
+        "C": "Te quedaste con la corriente en amperes y no multiplicaste por la resistencia.",
+        "D": "Dividiste en vez de multiplicar. Con corriente y resistencia conocidas, la tension sale del producto."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": "ohm/despeje-invertido"
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -2.3,
+      "order_index": 60,
+      "question": "Por un resistor circulan $3$ A y entre sus extremos hay $6$ V. ¿Cuanto vale la resistencia?",
+      "options": {
+        "A": "18 ohm",
+        "B": "0,5 ohm",
+        "C": "2 ohm",
+        "D": "3 ohm"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Multiplicaste los dos datos. Para la resistencia hay que dividir la tension por la corriente.",
+        "B": "Dividiste la corriente por la tension. El enunciado da primero la corriente, pero en $R = V/I$ la tension va arriba igual.",
+        "C": "Correcto. $R = V/I = 6/3 = 2$ ohm. El orden en que aparecen los datos en el enunciado no cambia el despeje.",
+        "D": "Tomaste el valor de la corriente como si fuera la resistencia. Son magnitudes distintas: el ampere mide corriente y el ohm, resistencia."
+      },
+      "misconceptions": {
+        "A": "ohm/usa-la-formula-sin-despejar",
+        "B": "ohm/despeje-invertido",
+        "C": null,
+        "D": "ohm/confunde-tension-con-corriente"
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -2.15,
+      "order_index": 70,
+      "question": "Un LED necesita que circulen $20$ mA y se alimenta desde una fuente con un resistor en serie sobre el que caen $2$ V. ¿Cuanto vale ese resistor?",
+      "options": {
+        "A": "40 ohm",
+        "B": "100 ohm",
+        "C": "10 ohm",
+        "D": "0,1 ohm"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Multiplicaste la tension por la corriente. Para la resistencia hay que dividir.",
+        "B": "Correcto. $R = V/I = 2 / 0,020 = 100$ ohm. Es la cuenta que se hace cada vez que se pone un LED: se divide la tension que sobra por la corriente que se quiere.",
+        "C": "Dividiste 2 por 0,2 en vez de por 0,020. Hay un lugar decimal de diferencia entre miliamperes y decimas de ampere.",
+        "D": "Dividiste la corriente por la tension. El cociente quedo invertido."
+      },
+      "misconceptions": {
+        "A": "ohm/usa-la-formula-sin-despejar",
+        "B": null,
+        "C": null,
+        "D": "ohm/despeje-invertido"
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -2.1,
+      "order_index": 80,
+      "question": "Una pila de $4,5$ V se conecta a un resistor de $220$ ohm. ¿Que corriente circula, expresada en miliamperes?",
+      "options": {
+        "A": "49 mA",
+        "B": "990 mA",
+        "C": "0,02 mA",
+        "D": "20 mA"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Dividiste 220 por 4,5. El cociente quedo al reves: la tension va arriba.",
+        "B": "Multiplicaste los dos valores. Ese producto no da una corriente.",
+        "C": "La cuenta $4,5/220$ da $0,02$ en amperes, no en miliamperes. Faltaba el ultimo paso de la conversion.",
+        "D": "Correcto. $I = V/R = 4,5/220 = 0,02$ A, o sea $20$ mA. Casi todas las corrientes de un circuito de pila caen en ese orden."
+      },
+      "misconceptions": {
+        "A": "ohm/despeje-invertido",
+        "B": "ohm/usa-la-formula-sin-despejar",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -2.0,
+      "order_index": 90,
+      "question": "Se quiere que por un resistor circulen $3$ mA cuando se le aplican $6$ V. ¿Que resistencia hay que usar?",
+      "options": {
+        "A": "2 kilohm",
+        "B": "18 kilohm",
+        "C": "0,5 kilohm",
+        "D": "2 ohm"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. $R = V/I = 6 / 0,003 = 2000$ ohm, o sea $2$ kilohm. Volts divididos por miliamperes dan kilohm directo.",
+        "B": "Multiplicaste la tension por la corriente en vez de dividir.",
+        "C": "Invertiste el cociente, dividiendo los numeros como venian en el enunciado ($3$ entre $6$). La tension va arriba: $R = V/I$.",
+        "D": "El numero de la cuenta en kilohm es 2, pero lo entregaste en ohm. $2$ ohm y $2$ kilohm se diferencian en mil veces."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "ohm/usa-la-formula-sin-despejar",
+        "C": "ohm/despeje-invertido",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -1.9,
+      "order_index": 100,
+      "question": "En un circuito con una pila de $12$ V y un unico resistor, ¿que tension hay entre los bornes de la pila?",
+      "options": {
+        "A": "Depende del valor del resistor",
+        "B": "12 V, la que entrega la fuente",
+        "C": "Cero, porque la pila no tiene resistencia",
+        "D": "La mitad, porque se reparte con el resistor"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "La fuente impone su tension; el resistor decide la corriente, no la tension de la pila. Aca se pide la de los bornes de la fuente.",
+        "B": "Correcto. La pila fija la tension y el resistor determina cuanta corriente circula. Con un solo resistor, toda la tension de la fuente cae sobre el.",
+        "C": "La ley de Ohm describe la caida en un resistor, no la tension de la fuente. Que la pila no tenga resistencia no anula su tension.",
+        "D": "No hay con quien repartir: hay un solo resistor. La tension se reparte cuando hay dos o mas en serie."
+      },
+      "misconceptions": {
+        "A": "ohm/aplica-la-ley-a-la-fuente",
+        "B": null,
+        "C": "ohm/aplica-la-ley-a-la-fuente",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -1.8,
+      "order_index": 110,
+      "question": "Por un resistor de $4,7$ kilohm circulan $2$ mA. ¿Que tension cae sobre el?",
+      "options": {
+        "A": "2,35 V",
+        "B": "9400 V",
+        "C": "9,4 V",
+        "D": "0,0094 V"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Dividiste la resistencia por la corriente en unidades mezcladas. Con corriente y resistencia se multiplica.",
+        "B": "Multiplicaste $2$ por $4700$ sin pasar los miliamperes a amperes. Falto una de las dos conversiones.",
+        "C": "Correcto. $V = IR = 0,002 \\times 4700 = 9,4$ V. Con el atajo del taller sale directo: mA por kilohm da volts.",
+        "D": "Dividiste por mil de mas. Conviene comprobar el orden de magnitud: unos milesimos de volt sobre un resistor de casi 5 kilohm no cierra."
+      },
+      "misconceptions": {
+        "A": "ohm/despeje-invertido",
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/ley_de_ohm",
+      "difficulty": -1.7,
+      "order_index": 120,
+      "question": "Un alumno mide $5$ V sobre un resistor y anota que circulan $250$ mA. Sin hacer la cuenta completa, ¿que resistencia es razonable esperar?",
+      "options": {
+        "A": "Alrededor de 1250 ohm, porque se multiplican los dos valores",
+        "B": "Alrededor de 20 ohm, porque son 5 V divididos por un cuarto de ampere",
+        "C": "Alrededor de 0,05 ohm, porque se divide la corriente por la tension",
+        "D": "Alrededor de 250 ohm, la misma cifra que la corriente"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "El producto de tension por corriente no da una resistencia. Para hallar la resistencia se divide.",
+        "B": "Correcto. $250$ mA son un cuarto de ampere, y $5$ dividido un cuarto da $20$ ohm. Pensar la corriente como fraccion de ampere permite estimar sin calculadora.",
+        "C": "Invertiste el cociente. La tension va arriba: $R = V/I$.",
+        "D": "Tomaste el valor de la corriente como si fuera la resistencia. Son magnitudes distintas, con unidades distintas."
+      },
+      "misconceptions": {
+        "A": "ohm/usa-la-formula-sin-despejar",
+        "B": null,
+        "C": "ohm/despeje-invertido",
+        "D": "ohm/confunde-tension-con-corriente"
+      }
+    }
+  ]
+}

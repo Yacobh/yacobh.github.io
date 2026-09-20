@@ -1,0 +1,293 @@
+{
+  "topic": "electronica_kirchhoff",
+  "migracion_archivo": "076_banco_de_electronica_kirchhoff.sql",
+  "migracion_titulo": "Banco de electronica/leyes_de_kirchhoff: lo que entra sale, y lo que sube baja",
+
+  "migracion_notas": "Quinto y ultimo banco del track `electronica` (071). 12 items para `electronica/leyes_de_kirchhoff`, banda [-1,8 · -0,6], y 6 ideas erroneas nuevas.\n\nSOLO CONTINUA, UNA MALLA O UN NODO POR ITEM. Ningun item pide resolver un sistema de ecuaciones: eso es `electrotecnia/kirchhoff`, que existe y esta aplicado. Aca se trabaja la idea, que es la que falla: lo que entra a un nodo sale, y si volves al punto de partida subiste y bajaste lo mismo.\n\nSENTIDO DE MALLA HORARIO, siempre. Es una de las convenciones cerradas en `supabase/CONTENT.md`, y la razon es diagnostica: con el sentido libre, un error de signo puede ser criterio del alumno y no se puede distinguir de un error. Fijandolo, el signo se vuelve diagnosticable -- que es de lo que vive `kirchhoff/signo-al-recorrer-la-malla`.\n\nLOS DOS PARES DUALES SE SEPARAN A PROPOSITO. \"La corriente se reparte en serie\" y \"la tension se reparte en paralelo\" son ideas erroneas distintas y tienen entrada propia: un alumno suele cometer una y no la otra, y juntarlas perderia esa informacion.\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\".\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).",
+
+  "cobertura_objetivo": { "min": -1.8, "max": -0.6, "ancho_tramo": 0.6, "min_por_tramo": 6 },
+
+  "misconceptions_preexistentes": [],
+
+  "misconceptions": [
+    {
+      "slug": "kirchhoff/signo-al-recorrer-la-malla",
+      "name": "Pierde el signo al recorrer la malla",
+      "description": "Usar cuando suma todas las caidas con el mismo signo sin atender al sentido del recorrido, o cuando suma dos fuentes que estan en oposicion. NO usar para el signo de la fuente segun por que borne se entra, que tiene entrada propia.",
+      "module_slug": "electronica/leyes_de_kirchhoff"
+    },
+    {
+      "slug": "kirchhoff/corriente-se-reparte-en-serie",
+      "name": "Cree que la corriente se divide entre los elementos en serie",
+      "description": "Usar cuando afirma que por dos elementos en serie circulan corrientes distintas, o que la corriente se reparte entre ellos. NO usar para el caso dual de la tension en paralelo.",
+      "module_slug": "electronica/leyes_de_kirchhoff"
+    },
+    {
+      "slug": "kirchhoff/fuente-siempre-positiva",
+      "name": "Le da signo positivo a la fuente sin mirar por donde se la recorre",
+      "description": "Usar cuando mantiene la tension de la fuente con signo positivo sea cual sea el borne por el que se entra al recorrerla. NO usar cuando el error esta en el signo de las caidas sobre los resistores.",
+      "module_slug": "electronica/leyes_de_kirchhoff"
+    },
+    {
+      "slug": "kirchhoff/tension-se-reparte-en-paralelo",
+      "name": "Cree que la tension se divide entre las ramas en paralelo",
+      "description": "Usar cuando reparte la tension de la fuente entre dos ramas en paralelo. NO usar para el caso dual de la corriente en serie.",
+      "module_slug": "electronica/leyes_de_kirchhoff"
+    },
+    {
+      "slug": "kirchhoff/nodo-sin-conservacion",
+      "name": "La suma del nodo no cierra",
+      "description": "Usar cuando suma todas las corrientes de un nodo con el mismo signo, o cuando el resultado no cumple que lo que entra sea igual a lo que sale. NO usar cuando el planteo es correcto y falla la aritmetica.",
+      "module_slug": "electronica/leyes_de_kirchhoff"
+    },
+    {
+      "slug": "kirchhoff/confunde-nodo-con-malla",
+      "name": "Aplica la ley equivocada de las dos",
+      "description": "Usar cuando suma tensiones en un nodo o corrientes en una malla, o cuando atribuye a los elementos en serie la propiedad de los que estan en paralelo. NO usar cuando eligio bien la ley y se equivoco con el signo.",
+      "module_slug": "electronica/leyes_de_kirchhoff"
+    }
+  ],
+
+  "items": [
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -1.8,
+      "order_index": 10,
+      "question": "A un nodo entran $3$ A. Del nodo salen dos ramas, y por una de ellas circula $1$ A. ¿Que corriente lleva la otra?",
+      "options": { "A": "2 A", "B": "4 A", "C": "3 A", "D": "1 A" },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. Lo que entra tiene que salir: $3 = 1 + x$, asi que $x = 2$ A. La ley de nodos no es mas que conservacion de la carga.",
+        "B": "Sumaste las dos corrientes conocidas. Una de ellas entra y la otra sale: no se suman, se restan.",
+        "C": "Le diste a la segunda rama toda la corriente que entra, sin descontar el $1$ A que ya se fue por la primera.",
+        "D": "Supusiste que las dos ramas llevan lo mismo. La corriente se reparte segun la resistencia de cada rama, no en partes iguales."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "kirchhoff/nodo-sin-conservacion",
+        "C": "kirchhoff/nodo-sin-conservacion",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -1.7,
+      "order_index": 20,
+      "question": "Dos resistores estan conectados en serie. Por el primero circulan $0,5$ A. ¿Que corriente circula por el segundo?",
+      "options": { "A": "0,25 A", "B": "0,5 A", "C": "1 A", "D": "Depende del valor de cada resistor" },
+      "correct": "B",
+      "errors": {
+        "A": "La corriente no se reparte en serie. En serie hay un solo camino, asi que toda la carga que pasa por el primero pasa tambien por el segundo.",
+        "B": "Correcto. En serie la corriente es la misma en todos los elementos: hay un unico camino y la carga no se pierde por el medio.",
+        "C": "La corriente no se duplica al pasar por el segundo resistor. Es la misma de punta a punta.",
+        "D": "Los valores deciden cuanta corriente circula en total y cuanta tension cae en cada uno, pero no hacen que la corriente sea distinta en uno y en otro."
+      },
+      "misconceptions": {
+        "A": "kirchhoff/corriente-se-reparte-en-serie",
+        "B": null,
+        "C": null,
+        "D": "kirchhoff/corriente-se-reparte-en-serie"
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -1.6,
+      "order_index": 30,
+      "question": "Dos ramas estan conectadas en paralelo a una fuente de $12$ V. ¿Que tension hay en cada rama?",
+      "options": { "A": "6 V en cada una", "B": "Depende de la resistencia de cada rama", "C": "12 V en cada una", "D": "24 V entre las dos" },
+      "correct": "C",
+      "errors": {
+        "A": "La tension no se reparte en paralelo. Las dos ramas estan conectadas a los mismos dos puntos, asi que las dos ven la fuente entera.",
+        "B": "La resistencia de cada rama decide cuanta corriente circula por ella, no cuanta tension recibe. La tension la impone la fuente.",
+        "C": "Correcto. En paralelo todos los elementos comparten los mismos dos nodos, asi que tienen la misma tension: los $12$ V de la fuente.",
+        "D": "Conectar en paralelo no suma tensiones. La fuente sigue entregando $12$ V; lo que se suma son las corrientes de cada rama."
+      },
+      "misconceptions": {
+        "A": "kirchhoff/tension-se-reparte-en-paralelo",
+        "B": "kirchhoff/tension-se-reparte-en-paralelo",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -1.5,
+      "order_index": 40,
+      "question": "En una malla con una fuente de $12$ V y dos resistores, sobre el primero caen $5$ V. ¿Cuanto cae sobre el segundo?",
+      "options": { "A": "17 V", "B": "12 V", "C": "5 V", "D": "7 V" },
+      "correct": "D",
+      "errors": {
+        "A": "Sumaste la caida a la tension de la fuente. Al recorrer la malla la fuente sube y los resistores bajan: no van con el mismo signo.",
+        "B": "Le diste al segundo resistor toda la tension de la fuente, sin descontar los $5$ V que ya cayeron en el primero.",
+        "C": "Supusiste que los dos resistores caen lo mismo. Eso pasa solo si son iguales, y el enunciado no lo dice.",
+        "D": "Correcto. Recorriendo la malla: $12 - 5 - x = 0$, asi que $x = 7$ V. Lo que sube la fuente lo bajan los resistores entre todos."
+      },
+      "misconceptions": {
+        "A": "kirchhoff/signo-al-recorrer-la-malla",
+        "B": "kirchhoff/signo-al-recorrer-la-malla",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -1.4,
+      "order_index": 50,
+      "question": "En un nodo se quiere hallar una corriente desconocida. ¿Que hay que plantear?",
+      "options": { "A": "Que la suma de las tensiones alrededor del nodo es cero", "B": "Que la corriente se reparte en partes iguales entre las ramas", "C": "Que la suma de las corrientes que entran es igual a la suma de las que salen", "D": "Que la suma de las tensiones a lo largo de la malla es cero" },
+      "correct": "C",
+      "errors": {
+        "A": "Esa es la idea de la ley de mallas, y ademas un nodo no tiene tensiones que recorrer: es un punto. En un nodo se trabaja con corrientes.",
+        "B": "El reparto en partes iguales pasa solo si las ramas son identicas. Lo que siempre vale es que el total se conserva.",
+        "C": "Correcto. Es la ley de nodos, y es conservacion de la carga: en un punto no se acumula ni desaparece corriente.",
+        "D": "Esa es la ley de mallas, que se usa recorriendo un camino cerrado. Para un nodo corresponde la de corrientes."
+      },
+      "misconceptions": {
+        "A": "kirchhoff/confunde-nodo-con-malla",
+        "B": null,
+        "C": null,
+        "D": "kirchhoff/confunde-nodo-con-malla"
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -1.3,
+      "order_index": 60,
+      "question": "Recorriendo una malla en sentido horario se entra a la pila por el borne positivo y se sale por el negativo. ¿Con que signo entra su tension en la ecuacion?",
+      "options": { "A": "Positiva, porque es la fuente y las fuentes suman", "B": "Negativa, porque en ese sentido se baja de potencial", "C": "Positiva, porque el recorrido es horario", "D": "No lleva signo: las fuentes no entran en la ecuacion de malla" },
+      "correct": "B",
+      "errors": {
+        "A": "El signo no depende de que sea una fuente, sino de por donde se la recorre. Entrando por el positivo y saliendo por el negativo se baja, igual que en un resistor.",
+        "B": "Correcto. El signo lo decide el sentido del recorrido, no el tipo de componente: del positivo al negativo se baja de potencial, asi que entra restando.",
+        "C": "El sentido horario es la convencion que fijamos para recorrer, pero no determina por si solo el signo de cada elemento: eso depende de como este conectado cada uno.",
+        "D": "Sin la fuente la ecuacion de malla no cierra nunca: es justamente la que sube el potencial que los resistores bajan."
+      },
+      "misconceptions": {
+        "A": "kirchhoff/fuente-siempre-positiva",
+        "B": null,
+        "C": "kirchhoff/fuente-siempre-positiva",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -1.15,
+      "order_index": 70,
+      "question": "A un nodo llegan $250$ mA por una rama y $150$ mA por otra. Del nodo sale una sola rama. ¿Que corriente lleva?",
+      "options": { "A": "100 mA", "B": "200 mA", "C": "250 mA", "D": "400 mA" },
+      "correct": "D",
+      "errors": {
+        "A": "Restaste las dos corrientes. Las dos entran al nodo, asi que se suman; se restaria si una entrara y la otra saliera.",
+        "B": "Promediaste las dos. La ley de nodos no promedia: suma lo que entra y lo iguala a lo que sale.",
+        "C": "Tomaste solo la rama mas grande. Toda la corriente que llega tiene que irse por la unica salida.",
+        "D": "Correcto. $250 + 150 = 400$ mA. Como hay una sola salida, se lleva todo lo que entro."
+      },
+      "misconceptions": {
+        "A": "kirchhoff/nodo-sin-conservacion",
+        "B": null,
+        "C": "kirchhoff/nodo-sin-conservacion",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -1.05,
+      "order_index": 80,
+      "question": "Tres resistores iguales estan en serie con una fuente de $12$ V. ¿Que tension cae sobre cada uno?",
+      "options": { "A": "4 V", "B": "12 V en cada uno", "C": "6 V", "D": "36 V" },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. En serie la tension se reparte, y si los tres son iguales les toca un tercio a cada uno: $12/3 = 4$ V. Las tres caidas suman los $12$ V de la fuente.",
+        "B": "Eso pasaria si estuvieran en paralelo. En serie la tension se reparte entre los elementos; lo que es igual en serie es la corriente.",
+        "C": "Repartiste entre dos y son tres. La suma de las caidas tiene que dar exactamente la tension de la fuente.",
+        "D": "Multiplicaste por tres en vez de dividir. La suma de las tres caidas no puede superar lo que entrega la fuente."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "kirchhoff/confunde-nodo-con-malla",
+        "C": null,
+        "D": "kirchhoff/signo-al-recorrer-la-malla"
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -0.95,
+      "order_index": 90,
+      "question": "Una malla tiene dos pilas conectadas en oposicion, una de $12$ V y otra de $4$ V, y un unico resistor. ¿Que tension cae sobre el resistor?",
+      "options": { "A": "16 V", "B": "8 V", "C": "12 V", "D": "4 V" },
+      "correct": "B",
+      "errors": {
+        "A": "Sumaste las dos pilas. Estan en oposicion: una sube el potencial y la otra lo baja, asi que se restan.",
+        "B": "Correcto. $12 - 4 = 8$ V. En oposicion, la pila mas chica trabaja en contra de la mas grande y lo que queda para el resistor es la diferencia.",
+        "C": "Ignoraste la segunda pila. Aunque este en contra, participa de la ecuacion de malla.",
+        "D": "Te quedaste con la pila mas chica. La que manda es la diferencia entre las dos, no una de ellas."
+      },
+      "misconceptions": {
+        "A": "kirchhoff/signo-al-recorrer-la-malla",
+        "B": null,
+        "C": "kirchhoff/fuente-siempre-positiva",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -0.85,
+      "order_index": 100,
+      "question": "De una fuente salen $600$ mA que se reparten en dos ramas en paralelo. Por una circulan $250$ mA. ¿Cuanto circula por la otra?",
+      "options": { "A": "850 mA", "B": "300 mA", "C": "600 mA", "D": "350 mA" },
+      "correct": "D",
+      "errors": {
+        "A": "Sumaste en vez de restar. Las dos ramas salen del mismo nodo, asi que entre las dos tienen que dar los $600$ mA que entran.",
+        "B": "Repartiste en partes iguales. Solo pasaria si las dos ramas tuvieran la misma resistencia, y el enunciado dice que una lleva $250$ mA.",
+        "C": "Le diste a la segunda rama toda la corriente. Hay que descontar lo que ya se fue por la primera.",
+        "D": "Correcto. $600 - 250 = 350$ mA. Lo que entra al nodo se reparte entre las salidas, y la suma de las dos ramas da el total."
+      },
+      "misconceptions": {
+        "A": "kirchhoff/nodo-sin-conservacion",
+        "B": null,
+        "C": "kirchhoff/nodo-sin-conservacion",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -0.75,
+      "order_index": 110,
+      "question": "En un circuito con resistores en serie y en paralelo, ¿cual de estas afirmaciones es correcta?",
+      "options": { "A": "Por los que estan en serie circula la misma corriente, y sobre los que estan en paralelo hay la misma tension", "B": "Por los que estan en serie hay la misma tension, y sobre los que estan en paralelo la misma corriente", "C": "En serie la corriente se reparte entre los resistores", "D": "En paralelo la tension se reparte entre las ramas" },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. Es el par que hay que tener memorizado: serie comparte corriente, paralelo comparte tension. Todo lo demas se deduce de ahi.",
+        "B": "Estan cambiadas. En serie lo que se comparte es la corriente, porque hay un solo camino; en paralelo, la tension, porque comparten los dos nodos.",
+        "C": "En serie hay un unico camino: toda la corriente pasa por todos. Lo que se reparte en serie es la tension.",
+        "D": "En paralelo todas las ramas ven los mismos dos puntos, asi que tienen la misma tension. Lo que se reparte en paralelo es la corriente."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "kirchhoff/confunde-nodo-con-malla",
+        "C": "kirchhoff/corriente-se-reparte-en-serie",
+        "D": "kirchhoff/tension-se-reparte-en-paralelo"
+      }
+    },
+    {
+      "module_slug": "electronica/leyes_de_kirchhoff",
+      "difficulty": -0.65,
+      "order_index": 120,
+      "question": "Una malla tiene una fuente de $10$ V y tres resistores. Sobre dos de ellos caen $2$ V y $3$ V. ¿Cuanto cae sobre el tercero?",
+      "options": { "A": "15 V", "B": "10 V", "C": "5 V", "D": "3,33 V" },
+      "correct": "C",
+      "errors": {
+        "A": "Sumaste las tres tensiones como si todas subieran. La fuente sube y los resistores bajan: la suma de las caidas iguala a la fuente, no se le agrega.",
+        "B": "Le diste al tercer resistor toda la tension de la fuente, sin descontar los $5$ V que ya cayeron en los otros dos.",
+        "C": "Correcto. $10 - 2 - 3 - x = 0$, asi que $x = 5$ V. Al volver al punto de partida hay que haber bajado exactamente lo que se subio.",
+        "D": "Repartiste la tension en tres partes iguales. Eso valdria solo si los tres resistores fueran iguales, y el enunciado dice que dos caen $2$ V y $3$ V."
+      },
+      "misconceptions": {
+        "A": "kirchhoff/signo-al-recorrer-la-malla",
+        "B": "kirchhoff/signo-al-recorrer-la-malla",
+        "C": null,
+        "D": null
+      }
+    }
+  ]
+}

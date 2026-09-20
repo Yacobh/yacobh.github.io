@@ -1,0 +1,347 @@
+{
+  "topic": "electronica_potencia",
+  "migracion_archivo": "075_banco_de_electronica_potencia.sql",
+  "migracion_titulo": "Banco de electronica/potencia: el cuadrado es lo que se olvida",
+  "migracion_notas": "Cuarto banco del track `electronica` (071). 12 items para `electronica/potencia`, banda [-2,4 · -1,2], y 5 ideas erroneas nuevas.\n\nEL EJE DEL MODULO ES EL CUADRADO. P = VI es facil de recordar; las dos formas derivadas -- P = I^2 R y P = V^2 / R -- salen de sustituir la ley de Ohm adentro, y es ahi donde se pierde el exponente. Por eso el modulo cuelga de `ley_de_ohm`: sin el despeje automatizado, las tres formulas son tres cosas sueltas que se memorizan y se confunden.\n\n⛔ UNA IDEA DEL CATALOGO NO SE USA COMO DISTRACTOR, A PROPOSITO. La 3.5 (\"elige la formula por los datos que sobran\") describe usar el camino largo teniendo uno corto. Eso NO es un error: es un camino largo, y un item que lo penalizara seria injusto -- el alumno llega al resultado correcto. Se deja fuera del banco y no se crea la idea erronea. Es la unica de las 31 del catalogo que se descarta, y queda dicho aca para que nadie la agregue despues creyendo que fue un olvido.\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\".\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, no item por item (ver la cabecera de `072`).\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).",
+  "cobertura_objetivo": {
+    "min": -2.4,
+    "max": -1.2,
+    "ancho_tramo": 0.6,
+    "min_por_tramo": 6
+  },
+  "misconceptions_preexistentes": [],
+  "misconceptions": [
+    {
+      "slug": "potencia/olvida-el-cuadrado",
+      "name": "Usa I por R o V por R en vez de elevar al cuadrado",
+      "description": "Usar cuando escribe P = IR o P = V/R, perdiendo el exponente de las formas derivadas. NO usar cuando elevo al cuadrado la magnitud equivocada, que tiene su propia entrada.",
+      "module_slug": "electronica/potencia"
+    },
+    {
+      "slug": "potencia/eleva-la-magnitud-equivocada",
+      "name": "Eleva al cuadrado la magnitud que no corresponde",
+      "description": "Usar cuando escribe P = V^2 R o P = I^2 / R: el cuadrado esta, pero sobre la magnitud equivocada o con la resistencia del lado equivocado. NO usar cuando no elevo nada.",
+      "module_slug": "electronica/potencia"
+    },
+    {
+      "slug": "potencia/confunde-potencia-con-energia",
+      "name": "Confunde potencia con energia",
+      "description": "Usar cuando responde una energia (Wh, J) donde se pide una potencia (W), o usa el tiempo en una cuenta que no lo necesita. NO usar para errores de prefijo entre W y kW.",
+      "module_slug": "electronica/potencia"
+    },
+    {
+      "slug": "potencia/proporcionalidad-lineal-con-la-corriente",
+      "name": "Cree que la potencia crece igual que la corriente",
+      "description": "Usar en preguntas cualitativas donde responde que al duplicar la corriente la potencia se duplica, en vez de cuadruplicarse. NO usar cuando la cuenta numerica esta bien resuelta.",
+      "module_slug": "electronica/potencia"
+    },
+    {
+      "slug": "potencia/ignora-la-potencia-nominal-del-resistor",
+      "name": "No compara con la potencia que el componente aguanta",
+      "description": "Usar cuando calcula bien la potencia disipada y no observa que supera la nominal del resistor, o elige un resistor con nominal insuficiente. NO usar si el item no daba la potencia nominal.",
+      "module_slug": "electronica/potencia"
+    }
+  ],
+  "items": [
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -2.4,
+      "order_index": 10,
+      "question": "Un resistor tiene $12$ V entre sus extremos y por el circulan $2$ A. ¿Que potencia disipa?",
+      "options": {
+        "A": "24 W",
+        "B": "6 W",
+        "C": "14 W",
+        "D": "24 Wh"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. $P = VI = 12 \\times 2 = 24$ W. Es la forma directa: cuando tenes la tension y la corriente, la potencia sale del producto.",
+        "B": "Dividiste la tension por la corriente. Ese cociente da la resistencia, no la potencia.",
+        "C": "Sumaste los dos valores. La potencia sale de multiplicar, no de sumar.",
+        "D": "El numero esta bien y la unidad no. El watt mide potencia; el watt-hora mide energia, que es potencia por tiempo."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": "potencia/confunde-potencia-con-energia"
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -2.3,
+      "order_index": 20,
+      "question": "Por un resistor de $100$ ohm circulan $0,2$ A. ¿Que potencia disipa?",
+      "options": {
+        "A": "20 W",
+        "B": "4 W",
+        "C": "500 W",
+        "D": "0,4 W"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Multiplicaste la corriente por la resistencia sin elevar al cuadrado. Esa cuenta da la tension, no la potencia.",
+        "B": "Correcto. $P = I^2 R = 0,2^2 \\times 100 = 0,04 \\times 100 = 4$ W. El cuadrado aparece porque la corriente entra dos veces: una por si misma y otra a traves de la tension que provoca.",
+        "C": "Dividiste la resistencia por la corriente. La resistencia multiplica, no divide, cuando se parte de la corriente.",
+        "D": "Elevaste al cuadrado la resistencia y no la corriente, o perdiste un factor de diez en el camino."
+      },
+      "misconceptions": {
+        "A": "potencia/olvida-el-cuadrado",
+        "B": null,
+        "C": null,
+        "D": "potencia/eleva-la-magnitud-equivocada"
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -2.2,
+      "order_index": 30,
+      "question": "Un resistor de $10$ ohm tiene $20$ V entre sus extremos. ¿Que potencia disipa?",
+      "options": {
+        "A": "2 W",
+        "B": "200 W",
+        "C": "40 W",
+        "D": "4000 W"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Dividiste la tension por la resistencia sin elevar al cuadrado. Esa cuenta da la corriente, que es $2$ A, no la potencia.",
+        "B": "Multiplicaste la tension por la resistencia. La resistencia va dividiendo cuando se parte de la tension.",
+        "C": "Correcto. $P = V^2/R = 400/10 = 40$ W. Tambien sale en dos pasos: la corriente es $2$ A y $P = VI = 20 \\times 2 = 40$ W.",
+        "D": "Elevaste la tension al cuadrado y multiplicaste por la resistencia en vez de dividir."
+      },
+      "misconceptions": {
+        "A": "potencia/olvida-el-cuadrado",
+        "B": "potencia/olvida-el-cuadrado",
+        "C": null,
+        "D": "potencia/eleva-la-magnitud-equivocada"
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -2.1,
+      "order_index": 40,
+      "question": "Si por un resistor se duplica la corriente, ¿que pasa con la potencia que disipa?",
+      "options": {
+        "A": "Se duplica",
+        "B": "Se reduce a la mitad",
+        "C": "No cambia, porque el resistor es el mismo",
+        "D": "Se cuadruplica"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "La potencia no acompana a la corriente de a uno. En $P = I^2 R$ la corriente esta al cuadrado: al doble de corriente, cuatro veces la potencia.",
+        "B": "Mas corriente por el mismo resistor siempre significa mas potencia disipada, nunca menos.",
+        "C": "El resistor es el mismo, pero la potencia depende de cuanta corriente lo atraviese. Es justamente por eso que un resistor se calienta mas cuando se le exige mas.",
+        "D": "Correcto. $P = I^2 R$: si la corriente se duplica, el cuadrado la multiplica por cuatro. Es la razon de que un cable que aguanta 10 A se queme con 20."
+      },
+      "misconceptions": {
+        "A": "potencia/proporcionalidad-lineal-con-la-corriente",
+        "B": "potencia/proporcionalidad-lineal-con-la-corriente",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -2.0,
+      "order_index": 50,
+      "question": "Una lampara de $12$ V consume $0,5$ A. ¿Que potencia tiene?",
+      "options": {
+        "A": "24 W",
+        "B": "6 W",
+        "C": "3 W",
+        "D": "6 J"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Dividiste la tension por la corriente. Ese cociente da la resistencia de la lampara, que es $24$ ohm.",
+        "B": "Correcto. $P = VI = 12 \\times 0,5 = 6$ W. Es la potencia que la lampara toma mientras esta encendida.",
+        "C": "Perdiste un factor de dos: $12$ por $0,5$ es la mitad de 12, o sea 6.",
+        "D": "El numero esta bien y la unidad no. El joule mide energia; para saber cuanta energia consume habria que decir durante cuanto tiempo."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": "potencia/confunde-potencia-con-energia"
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -1.9,
+      "order_index": 60,
+      "question": "Por un resistor de $220$ ohm circulan $50$ mA. ¿Que potencia disipa?",
+      "options": {
+        "A": "11 W",
+        "B": "0,55 W",
+        "C": "0,011 W",
+        "D": "550 W"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Multiplicaste la corriente por la resistencia sin elevar al cuadrado. Esa cuenta da la tension: $11$ V.",
+        "B": "Correcto. $P = I^2 R = 0,05^2 \\times 220 = 0,0025 \\times 220 = 0,55$ W. Conviene retener el orden: medio watt es mucho para un resistor comun de un cuarto de watt.",
+        "C": "Elevaste al cuadrado y despues dividiste por la resistencia en vez de multiplicar.",
+        "D": "Trabajaste con 50 amperes en vez de 50 miliamperes. Medio kilowatt en un resistor de $220$ ohm no puede ser."
+      },
+      "misconceptions": {
+        "A": "potencia/olvida-el-cuadrado",
+        "B": null,
+        "C": "potencia/eleva-la-magnitud-equivocada",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -1.75,
+      "order_index": 70,
+      "question": "Un resistor de un cuarto de watt se usa en un circuito donde disipa $0,8$ W. ¿Que conviene hacer?",
+      "options": {
+        "A": "Nada: la potencia nominal es solo una referencia",
+        "B": "Nada, porque el resistor tiene el valor de resistencia correcto",
+        "C": "Cambiarlo por uno de mayor potencia nominal, porque disipa mas de lo que aguanta",
+        "D": "Bajar la tension a la mitad para que la potencia baje a la mitad"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "La potencia nominal es el limite real de lo que el componente puede disipar sin danarse. Pasarse lo calienta hasta que falla.",
+        "B": "El valor de resistencia y la potencia nominal son dos cosas distintas, y hay que elegir las dos. Este resistor tiene bien una y mal la otra.",
+        "C": "Correcto. Un cuarto de watt son $0,25$ W y el circuito le exige $0,8$ W: mas del triple. Hay que poner uno de $1$ W o mas.",
+        "D": "Bajar la tension a la mitad baja la potencia a la cuarta parte, no a la mitad, porque la tension entra al cuadrado. Y ademas cambiaria el funcionamiento del circuito."
+      },
+      "misconceptions": {
+        "A": "potencia/ignora-la-potencia-nominal-del-resistor",
+        "B": "potencia/ignora-la-potencia-nominal-del-resistor",
+        "C": null,
+        "D": "potencia/proporcionalidad-lineal-con-la-corriente"
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -1.7,
+      "order_index": 80,
+      "question": "Un resistor de $1$ kilohm esta conectado a $10$ V. ¿Que potencia disipa?",
+      "options": {
+        "A": "0,1 W",
+        "B": "10 W",
+        "C": "100 W",
+        "D": "0,01 W"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. $P = V^2/R = 100/1000 = 0,1$ W. Son 100 milivatios: un resistor de un cuarto de watt lo aguanta con comodidad.",
+        "B": "Dividiste la tension por la resistencia en kilohm, o te salteaste el cuadrado. La cuenta $10/1$ no corresponde a ninguna forma de la potencia.",
+        "C": "Te quedaste con el cuadrado de la tension y no dividiste por la resistencia.",
+        "D": "Dividiste de mas: $100$ entre $1000$ da $0,1$, no $0,01$."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "potencia/olvida-el-cuadrado",
+        "C": "potencia/olvida-el-cuadrado",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -1.6,
+      "order_index": 90,
+      "question": "Una resistencia calefactora de $50$ W funciona durante $2$ horas. ¿Que energia consume?",
+      "options": {
+        "A": "25 Wh",
+        "B": "50 Wh",
+        "C": "100 W",
+        "D": "100 Wh"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Dividiste la potencia por el tiempo. La energia es potencia por tiempo, asi que hay que multiplicar.",
+        "B": "Ese es el valor de la potencia, no de la energia. La potencia dice a que ritmo consume; la energia, cuanto consumio en total.",
+        "C": "El numero esta bien y la unidad no: el watt mide potencia. Lo que se pide es energia, en watt-hora.",
+        "D": "Correcto. $E = Pt = 50 \\times 2 = 100$ Wh. Es lo que factura la companía electrica: energia, no potencia."
+      },
+      "misconceptions": {
+        "A": "potencia/confunde-potencia-con-energia",
+        "B": "potencia/confunde-potencia-con-energia",
+        "C": "potencia/confunde-potencia-con-energia",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -1.5,
+      "order_index": 100,
+      "question": "Dos resistores, uno de $10$ ohm y otro de $40$ ohm, llevan la misma corriente. ¿Cual disipa mas potencia?",
+      "options": {
+        "A": "El de $40$ ohm, cuatro veces mas",
+        "B": "El de $10$ ohm, porque ofrece menos oposicion",
+        "C": "Los dos igual, porque la corriente es la misma",
+        "D": "El de $40$ ohm, el doble"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. Con la misma corriente, $P = I^2 R$ crece con la resistencia: cuatro veces mas resistencia, cuatro veces mas potencia.",
+        "B": "Menos oposicion con la misma corriente significa menos tension entre sus extremos, y por lo tanto menos potencia.",
+        "C": "La corriente igual no alcanza: la potencia tambien depende de la resistencia, porque es ella la que fija cuanta tension cae.",
+        "D": "La relacion con la resistencia es directa, no a la mitad del factor: si la resistencia es cuatro veces mayor, la potencia tambien."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": "potencia/olvida-el-cuadrado",
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -1.4,
+      "order_index": 110,
+      "question": "Un resistor disipa $2$ W cuando por el circulan $0,1$ A. ¿Cuanto vale su resistencia?",
+      "options": {
+        "A": "20 ohm",
+        "B": "200 ohm",
+        "C": "0,2 ohm",
+        "D": "0,02 ohm"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Dividiste la potencia por la corriente sin elevarla al cuadrado. Esa cuenta da la tension: $20$ V.",
+        "B": "Correcto. De $P = I^2 R$ sale $R = P/I^2 = 2 / 0,01 = 200$ ohm. El cuadrado de $0,1$ es $0,01$, no $0,1$.",
+        "C": "Multiplicaste en vez de dividir. La resistencia se despeja dividiendo la potencia por el cuadrado de la corriente.",
+        "D": "Multiplicaste la potencia por el cuadrado de la corriente. El cuadrado va dividiendo."
+      },
+      "misconceptions": {
+        "A": "potencia/olvida-el-cuadrado",
+        "B": null,
+        "C": "potencia/eleva-la-magnitud-equivocada",
+        "D": "potencia/eleva-la-magnitud-equivocada"
+      }
+    },
+    {
+      "module_slug": "electronica/potencia",
+      "difficulty": -1.3,
+      "order_index": 120,
+      "question": "Se quiere elegir un resistor de $470$ ohm para un circuito donde caen sobre el $15$ V. ¿Que potencia nominal conviene?",
+      "options": {
+        "A": "De un cuarto de watt alcanza, porque el circuito es de baja tension",
+        "B": "De $10$ W, para tener bastante margen",
+        "C": "De un octavo de watt, que es el mas chico disponible",
+        "D": "De $1$ W, porque disipa alrededor de medio watt"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "La tension baja no garantiza potencia baja: hay que hacer la cuenta. $P = V^2/R = 225/470$, casi medio watt, que es el doble de un cuarto de watt.",
+        "B": "Margen de veinte veces es desperdicio: el resistor seria mucho mas grande y caro sin ninguna ventaja. El criterio habitual es el doble de lo calculado.",
+        "C": "Un octavo de watt son $0,125$ W, cuatro veces menos de lo que el circuito le exige. Se quemaria.",
+        "D": "Correcto. $P = V^2/R = 225/470 = 0,48$ W, casi medio watt. Elegir uno de $1$ W deja el margen habitual de aproximadamente el doble."
+      },
+      "misconceptions": {
+        "A": "potencia/ignora-la-potencia-nominal-del-resistor",
+        "B": null,
+        "C": "potencia/ignora-la-potencia-nominal-del-resistor",
+        "D": null
+      }
+    }
+  ]
+}

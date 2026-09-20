@@ -1,0 +1,299 @@
+{
+  "topic": "electronica_capacitores",
+  "migracion_archivo": "072_banco_de_electronica_capacitores.sql",
+  "migracion_titulo": "Banco de electronica/capacitores: C = Q/V antes que la asociacion",
+
+  "migracion_notas": "Primer banco del track `electronica` (071). 12 items para el modulo `electronica/capacitores`, banda [-2,2 · -1,0], y las 7 ideas erroneas de su catalogo.\n\nPARA QUIEN. El curso de tecnico en electronica del owner: chicos de 16-17 anos con fallas de base, para quienes `electrotecnia` queda muy alto. Solo continua, correctivo, aritmetica de cabeza.\n\nPOR QUE `C = Q/V` PRIMERO. El error que el plan puso como centro del modulo es asociar capacitores con la regla de los resistores (sumar en serie). La definicion es lo que lo desarma: si C es carga POR VOLT, ponerlos en serie reparte la tension y la capacitancia baja. Por eso los seis items del tramo bajo trabajan la definicion y el despeje, y la asociacion aparece recien despues.\n\nCONVENCIONES (supabase/CONTENT.md): decimal con coma, resultado siempre con unidad y prefijo del taller, y \"tension\"/\"corriente\" -- nunca \"voltaje\" ni \"intensidad\".\n\nNINGUN ITEM PIDE CONVERTIR PREFIJOS. Es deliberado: un item de capacitores que falla por confundir uF con nF diagnostica el modulo equivocado. Los prefijos son `electronica/notacion_cientifica`, que es su prerrequisito y tiene su propio banco.\n\n⚠️ EL CATALOGO DE ERRORES SE REVISO EN BLOQUE, NO ITEM POR ITEM. El owner leyo `contenido/unidades/electronica_errores_para_revisar.md` el 2026-09-20 y no marco la columna `¿lo ves?` ni agrego ninguno propio. Las 7 ideas erroneas de este banco quedan por lo tanto como hipotesis revisadas, no como errores observados uno por uno. Es una diferencia que importa cuando alguien pregunte de donde salio cada distractor: la regla F4 del plan pide errores vistos en el aula, y lo que hay es una lista leida y no objetada.\n\n`difficulty` es HIPOTESIS AUTORAL, no medicion (R-17, G-2).",
+
+  "cobertura_objetivo": { "min": -2.2, "max": -1.0, "ancho_tramo": 0.6, "min_por_tramo": 6 },
+
+  "misconceptions_preexistentes": [],
+
+  "misconceptions": [
+    {
+      "slug": "capacitores/serie-y-paralelo-como-resistores",
+      "name": "Asocia capacitores con la regla de los resistores",
+      "description": "Usar cuando el estudiante suma capacitores en serie, o usa la formula de inversas para el paralelo. NO usar para errores de prefijo al sumar uF con nF (eso es notacion cientifica) ni para el caso particular de dos iguales en serie, que tiene su propia entrada.",
+      "module_slug": "electronica/capacitores"
+    },
+    {
+      "slug": "capacitancia/confunde-carga-con-capacitancia",
+      "name": "Cree que la capacitancia es cuanta carga tiene el capacitor",
+      "description": "Usar cuando el estudiante afirma que un capacitor descargado tiene C = 0, o responde el valor de la carga cuando se pide la capacitancia, o cree que dos capacitores a la misma tension almacenan la misma carga. NO usar cuando entiende la definicion y despeja mal.",
+      "module_slug": "electronica/capacitores"
+    },
+    {
+      "slug": "capacitancia/despeja-mal-c-igual-q-sobre-v",
+      "name": "Despeja al reves en C = Q/V",
+      "description": "Usar cuando el estudiante invierte o multiplica donde corresponde lo contrario: hace V/Q para hallar C, C/V para hallar Q, o C/Q para hallar V. NO usar para la confusion conceptual de creer que C es la carga.",
+      "module_slug": "electronica/capacitores"
+    },
+    {
+      "slug": "capacitancia/confunde-carga-con-corriente",
+      "name": "Usa carga y corriente como si fueran lo mismo",
+      "description": "Usar cuando el estudiante responde una corriente (A, mA) donde se pide una carga (C, uC), o al reves. NO usar cuando la unidad es correcta y solo el prefijo esta mal.",
+      "module_slug": "electronica/capacitores"
+    },
+    {
+      "slug": "capacitores/mas-capacitancia-en-serie",
+      "name": "Cree que asociar en serie aumenta la capacitancia",
+      "description": "Usar cuando ante dos capacitores iguales en serie responde 2C en vez de C/2. Es el caso particular mas frecuente de la regla de los resistores, y se separa porque el estudiante que lo comete suele hacer bien el paralelo.",
+      "module_slug": "electronica/capacitores"
+    },
+    {
+      "slug": "capacitores/ignora-la-tension-de-trabajo",
+      "name": "No mira la tension que el capacitor aguanta",
+      "description": "Usar cuando elige un capacitor cuya tension de trabajo es menor que la del circuito, mirando solo la capacitancia. NO usar si el item no daba la tension de trabajo de las alternativas.",
+      "module_slug": "electronica/capacitores"
+    },
+    {
+      "slug": "capacitancia/cree-que-c-depende-de-la-tension-aplicada",
+      "name": "Cree que la capacitancia cambia al cambiar la tension aplicada",
+      "description": "Usar cuando afirma que al duplicar la tension se duplica (o se reduce) la capacitancia. NO usar para la confusion entre carga y capacitancia: aca el estudiante distingue las dos magnitudes, pero cree que una determina a la otra.",
+      "module_slug": "electronica/capacitores"
+    }
+  ],
+
+  "items": [
+    {
+      "module_slug": "electronica/capacitores",
+      "difficulty": -2.2,
+      "order_index": 10,
+      "question": "Un capacitor almacena una carga de $6$ mC cuando se le aplica una tension de $3$ V. ¿Cuanto vale su capacitancia?",
+      "options": { "A": "0,5 mF", "B": "2 mF", "C": "6 mF", "D": "18 mF" },
+      "correct": "B",
+      "errors": {
+        "A": "Dividiste la tension por la carga. La definicion es $C = Q/V$: la carga va arriba, porque la capacitancia dice cuanta carga entra por cada volt.",
+        "B": "Correcto. $C = Q/V = 6/3 = 2$ mF. Leelo como \"este capacitor guarda 2 mC por cada volt que se le aplique\": esa frase es toda la definicion.",
+        "C": "Ese es el valor de la carga, no de la capacitancia. Son magnitudes distintas: la carga depende de cuanta tension le pongas, la capacitancia no.",
+        "D": "Multiplicaste la carga por la tension. Esa cuenta sirve para hallar la carga cuando conoces C y V, no al reves."
+      },
+      "misconceptions": {
+        "A": "capacitancia/despeja-mal-c-igual-q-sobre-v",
+        "B": null,
+        "C": "capacitancia/confunde-carga-con-capacitancia",
+        "D": "capacitancia/despeja-mal-c-igual-q-sobre-v"
+      }
+    },
+    {
+      "module_slug": "electronica/capacitores",
+      "difficulty": -2.1,
+      "order_index": 20,
+      "question": "Un capacitor de $100$ uF se conecta a una fuente de $12$ V. ¿Que carga almacena?",
+      "options": { "A": "1200 uC", "B": "100 uC", "C": "8,3 uC", "D": "1200 uA" },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. De $C = Q/V$ sale $Q = CV = 100 \\times 12 = 1200$ uC. Cada volt mete 100 uC, y hay 12 volts.",
+        "B": "Ese es el valor de la capacitancia, no de la carga. La capacitancia es la misma con la fuente conectada o sin ella; la carga no.",
+        "C": "Dividiste la capacitancia por la tension. Para hallar la carga hay que multiplicar: $Q = CV$.",
+        "D": "El numero esta bien y la unidad no. El ampere mide corriente, que es carga por segundo; aca se pide carga, que se mide en coulomb."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "capacitancia/confunde-carga-con-capacitancia",
+        "C": "capacitancia/despeja-mal-c-igual-q-sobre-v",
+        "D": "capacitancia/confunde-carga-con-corriente"
+      }
+    },
+    {
+      "module_slug": "electronica/capacitores",
+      "difficulty": -2.0,
+      "order_index": 30,
+      "question": "Dos capacitores de $10$ uF cada uno se conectan en paralelo. ¿Cuanto vale la capacitancia equivalente?",
+      "options": { "A": "5 uF", "B": "10 uF", "C": "20 uF", "D": "Depende de la tension que se les aplique" },
+      "correct": "C",
+      "errors": {
+        "A": "Usaste la regla de la serie. En paralelo los capacitores se suman, porque poner dos en paralelo es como agrandar las placas: cabe mas carga por cada volt.",
+        "B": "Asociar dos capacitores si cambia el resultado. En paralelo la capacitancia equivalente es mayor que cada uno por separado.",
+        "C": "Correcto. En paralelo se suman: $10 + 10 = 20$ uF. Es al reves que los resistores, y el motivo es que un capacitor mas grande guarda mas carga por volt.",
+        "D": "La capacitancia es una propiedad del capacitor: depende de su construccion, no de la tension que le apliques. Lo que cambia con la tension es la carga almacenada."
+      },
+      "misconceptions": {
+        "A": "capacitores/serie-y-paralelo-como-resistores",
+        "B": null,
+        "C": null,
+        "D": "capacitancia/cree-que-c-depende-de-la-tension-aplicada"
+      }
+    },
+    {
+      "module_slug": "electronica/capacitores",
+      "difficulty": -1.9,
+      "order_index": 40,
+      "question": "Dos capacitores de $10$ uF cada uno se conectan en serie. ¿Cuanto vale la capacitancia equivalente?",
+      "options": { "A": "20 uF", "B": "10 uF", "C": "0,05 uF", "D": "5 uF" },
+      "correct": "D",
+      "errors": {
+        "A": "Los sumaste. Esa es la regla del paralelo; en serie la capacitancia equivalente es siempre menor que la mas chica de las dos.",
+        "B": "Ponerlos en serie si cambia el resultado: la tension se reparte entre los dos, asi que a cada uno le toca la mitad y el conjunto guarda menos carga por volt.",
+        "C": "Sumaste las capacitancias y recien despues invertiste. La formula es al reves: se suman las inversas, $1/C = 1/10 + 1/10$, y el resultado de esa suma se invierte.",
+        "D": "Correcto. Con dos iguales en serie la equivalente es la mitad: $5$ uF. Se puede comprobar sin formula: la tension se reparte en partes iguales, asi que con la misma carga hace falta el doble de tension."
+      },
+      "misconceptions": {
+        "A": "capacitores/mas-capacitancia-en-serie",
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/capacitores",
+      "difficulty": -1.8,
+      "order_index": 50,
+      "question": "A un capacitor se le duplica la tension aplicada. ¿Que le pasa a su capacitancia?",
+      "options": { "A": "Se duplica", "B": "Se reduce a la mitad", "C": "No cambia; lo que se duplica es la carga almacenada", "D": "No se puede saber sin conocer la carga inicial" },
+      "correct": "C",
+      "errors": {
+        "A": "La capacitancia no sigue a la tension. En $C = Q/V$ suben las dos juntas: al duplicar V tambien se duplica Q, y el cociente queda igual.",
+        "B": "Ver la V abajo en $C = Q/V$ hace pensar que si V sube, C baja. No pasa, porque Q sube en la misma proporcion y el cociente no se mueve.",
+        "C": "Correcto. La capacitancia la fijan las placas y el dielectrico, no la fuente. Al duplicar la tension entra el doble de carga y el cociente $Q/V$ sigue valiendo lo mismo.",
+        "D": "No hace falta ningun dato: la respuesta es la misma para cualquier capacitor, porque la capacitancia no depende de como se lo use."
+      },
+      "misconceptions": {
+        "A": "capacitancia/cree-que-c-depende-de-la-tension-aplicada",
+        "B": "capacitancia/cree-que-c-depende-de-la-tension-aplicada",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/capacitores",
+      "difficulty": -1.7,
+      "order_index": 60,
+      "question": "Un capacitor cargado a $5$ V almacena $250$ uC. Se lo desconecta y se lo descarga por completo. ¿Cuanto vale ahora su capacitancia?",
+      "options": { "A": "0 uF", "B": "50 uF", "C": "250 uF", "D": "1250 uF" },
+      "correct": "B",
+      "errors": {
+        "A": "Descargado no quiere decir sin capacitancia. La capacitancia es la capacidad de guardar carga, y sigue estando aunque en este momento no haya carga guardada.",
+        "B": "Correcto. $C = Q/V = 250/5 = 50$ uF, y ese valor no cambia al descargarlo: es una propiedad del componente, no de su estado.",
+        "C": "Ese es el valor de la carga que tenia, no de la capacitancia. Ademas la carga ya no esta: se descargo.",
+        "D": "Multiplicaste la carga por la tension en vez de dividir. La capacitancia es carga por cada volt, asi que la tension va abajo."
+      },
+      "misconceptions": {
+        "A": "capacitancia/confunde-carga-con-capacitancia",
+        "B": null,
+        "C": "capacitancia/confunde-carga-con-capacitancia",
+        "D": "capacitancia/despeja-mal-c-igual-q-sobre-v"
+      }
+    },
+    {
+      "module_slug": "electronica/capacitores",
+      "difficulty": -1.6,
+      "order_index": 70,
+      "question": "Un capacitor de $10$ uF y otro de $15$ uF se conectan en serie. ¿Cuanto vale la capacitancia equivalente?",
+      "options": { "A": "25 uF", "B": "12,5 uF", "C": "150 uF", "D": "6 uF" },
+      "correct": "D",
+      "errors": {
+        "A": "Los sumaste, que es la regla del paralelo. Una senal para darse cuenta: en serie el resultado tiene que ser menor que $10$ uF, el mas chico de los dos.",
+        "B": "Promediaste los dos valores. La asociacion en serie no es un promedio: el resultado queda por debajo del menor de los dos capacitores.",
+        "C": "Multiplicaste los dos valores y te quedaste ahi. El producto es solo la mitad de la cuenta: falta dividirlo por la suma.",
+        "D": "Correcto. $C = (10 \\times 15)/(10 + 15) = 150/25 = 6$ uF. Y cumple la comprobacion rapida: en serie el resultado siempre queda por debajo del capacitor mas chico."
+      },
+      "misconceptions": {
+        "A": "capacitores/serie-y-paralelo-como-resistores",
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/capacitores",
+      "difficulty": -1.5,
+      "order_index": 80,
+      "question": "Un capacitor de $100$ nF y otro de $220$ nF se conectan en paralelo. ¿Cuanto vale la capacitancia equivalente?",
+      "options": { "A": "320 nF", "B": "68,8 nF", "C": "120 nF", "D": "No se pueden asociar en paralelo porque tienen distinto valor" },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. En paralelo se suman: $100 + 220 = 320$ nF. El resultado siempre queda por encima del mayor de los dos.",
+        "B": "Usaste la formula de la serie. En paralelo los capacitores se suman directamente, sin inversas.",
+        "C": "Restaste en vez de sumar. Poner un segundo capacitor en paralelo agrega capacitancia, nunca la quita.",
+        "D": "Se pueden asociar sin problema, tengan el valor que tengan. Lo que si hay que mirar al elegirlos es la tension de trabajo de cada uno."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "capacitores/serie-y-paralelo-como-resistores",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "module_slug": "electronica/capacitores",
+      "difficulty": -1.4,
+      "order_index": 90,
+      "question": "Dos capacitores de $22$ uF se conectan en paralelo a una fuente de $12$ V. ¿Que carga total almacenan?",
+      "options": { "A": "528 uC", "B": "264 uC", "C": "132 uC", "D": "528 uA" },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. En paralelo la capacitancia equivalente es $22 + 22 = 44$ uF, y $Q = CV = 44 \\times 12 = 528$ uC. Tambien sale sumando la carga de cada uno: $264 + 264$.",
+        "B": "Calculaste la carga de un solo capacitor. Son dos, y cada uno guarda su propia carga a la misma tension.",
+        "C": "Asociaste en serie: $11$ uF por $12$ V. Estan en paralelo, asi que las capacitancias se suman en vez de reducirse.",
+        "D": "El numero esta bien y la unidad no. Lo que se pide es carga, que se mide en coulomb; el ampere mide corriente."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": "capacitores/serie-y-paralelo-como-resistores",
+        "D": "capacitancia/confunde-carga-con-corriente"
+      }
+    },
+    {
+      "module_slug": "electronica/capacitores",
+      "difficulty": -1.3,
+      "order_index": 100,
+      "question": "En un circuito que trabaja a $24$ V hace falta un capacitor de $100$ uF. ¿Cual de estos sirve?",
+      "options": { "A": "$100$ uF / $16$ V", "B": "$100$ uF / $35$ V", "C": "$47$ uF / $50$ V", "D": "$220$ uF / $10$ V" },
+      "correct": "B",
+      "errors": {
+        "A": "La capacitancia es la que pedias, pero ese capacitor aguanta $16$ V y el circuito trabaja a $24$ V. Puesto ahi se perfora, y a veces con ruido.",
+        "B": "Correcto. Es el unico que cumple las dos condiciones: la capacitancia que pedias y una tension de trabajo por encima de la del circuito. Siempre se elige con margen.",
+        "C": "La tension le sobra, pero la capacitancia no es la que pedias: $47$ uF es menos de la mitad.",
+        "D": "Miraste solo la capacitancia, y ademas te pasaste: $220$ uF no son $100$ uF, y $10$ V es mucho menos que los $24$ V del circuito."
+      },
+      "misconceptions": {
+        "A": "capacitores/ignora-la-tension-de-trabajo",
+        "B": null,
+        "C": null,
+        "D": "capacitores/ignora-la-tension-de-trabajo"
+      }
+    },
+    {
+      "module_slug": "electronica/capacitores",
+      "difficulty": -1.2,
+      "order_index": 110,
+      "question": "Un capacitor de $10$ uF y otro de $100$ uF se conectan por separado a la misma fuente de $9$ V. ¿Cual almacena mas carga?",
+      "options": { "A": "El de $10$ uF", "B": "Depende del tiempo que esten conectados", "C": "El de $100$ uF, diez veces mas", "D": "Los dos la misma, porque la tension es la misma" },
+      "correct": "C",
+      "errors": {
+        "A": "Es al reves. Mas capacitancia significa mas carga por cada volt, asi que a igual tension el mas grande guarda mas.",
+        "B": "Una vez cargados, la carga final no depende del tiempo: depende de la capacitancia y de la tension. El tiempo decide cuanto tardan en llegar, no adonde llegan.",
+        "C": "Correcto. $Q = CV$ con la misma V: diez veces mas capacitancia, diez veces mas carga. $90$ uC contra $900$ uC.",
+        "D": "La tension igual no obliga a que la carga sea igual. Justamente la capacitancia es lo que dice cuanta carga entra por cada volt, y aca es distinta."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": "capacitancia/confunde-carga-con-capacitancia"
+      }
+    },
+    {
+      "module_slug": "electronica/capacitores",
+      "difficulty": -1.1,
+      "order_index": 120,
+      "question": "Un capacitor de $0,47$ uF almacena una carga de $2,35$ uC. ¿A que tension esta conectado?",
+      "options": { "A": "0,2 V", "B": "1,1 V", "C": "2,35 V", "D": "5 V" },
+      "correct": "D",
+      "errors": {
+        "A": "Dividiste la capacitancia por la carga. De $C = Q/V$ se despeja $V = Q/C$: la carga va arriba.",
+        "B": "Multiplicaste la capacitancia por la carga. Esa cuenta no corresponde a ninguna de las tres magnitudes; para hallar la tension hay que dividir la carga por la capacitancia.",
+        "C": "Tomaste el valor de la carga como si fuera la tension. Son magnitudes distintas: el coulomb mide carga y el volt mide tension.",
+        "D": "Correcto. $V = Q/C = 2,35/0,47 = 5$ V. Otra forma de verlo: si guarda $0,47$ uC por cada volt, para juntar $2,35$ uC hacen falta 5 volts."
+      },
+      "misconceptions": {
+        "A": "capacitancia/despeja-mal-c-igual-q-sobre-v",
+        "B": "capacitancia/despeja-mal-c-igual-q-sobre-v",
+        "C": "capacitancia/confunde-carga-con-capacitancia",
+        "D": null
+      }
+    }
+  ]
+}
