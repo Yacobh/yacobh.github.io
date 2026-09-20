@@ -4345,11 +4345,11 @@ salir de ningún libro.
    es Ohm ni Kirchhoff: es un sexto módulo que el plan no tiene, y es el hueco más plausible entre
    `ley_de_ohm` y `leyes_de_kirchhoff`.
 
-⚠️ **Un supuesto declarado y sin confirmar:** el borrador usa **«tensión»** y **«corriente»**. El
-owner eligió las otras tres convenciones (decimal con coma, siempre con unidad y prefijo, malla
-horaria) y **no marcó ésta**, así que queda por decidir. Es un reemplazo mecánico, pero hay que
-decidirlo **antes** de los ítems: un distractor que falla por vocabulario y no por física hace que
-el mapa de errores mienta.
+✅ **Las cuatro convenciones quedaron cerradas** (2026-09-19 las tres primeras, **2026-09-20** el
+vocabulario: **«tensión»** y **«corriente»**). Están registradas en `supabase/CONTENT.md`
+§Convenciones de notación por track, junto a las dos de PAES, y la regla es la de P5.1: **si un ítem
+las contradice, el ítem está mal**. No se retroactivan a `electrotecnia`, cuyos 116 ítems se
+escribieron antes.
 
 ### T-156 · `071` — track, cinco módulos y prerrequisitos — **P1** · ✅ `ESCRITA Y VERIFICADA` (2026-09-19) · ⏳ sin aplicar
 

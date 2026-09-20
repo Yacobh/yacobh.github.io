@@ -49,6 +49,34 @@ Módulos a priorizar (según déficits reales de tus tests):
 | `019_baldor_algebra_resources.sql` | 19 recursos originales (track `algebra`) + cierre del hueco de enteros con signo en `aritmetica/enteros` -- mismo criterio que `018`, `published = false` |
 | `033`–`040` | **Experimento, no producto**: track `cuantica` (15 módulos, 77 misconceptions, 123 ítems, 32 recursos). Ver [[SCHEMA]] §Track experimental y [[../adr/ADR-018-track-experimental-cuantica]] |
 
+## Convenciones de notación por track
+
+Las decide **el owner**, no un agente, y son la pregunta **P5.1** de la skill
+`unidad-de-contenido`: *si un ítem contradice una regla de acá, el ítem está mal.* Se escriben
+porque sin esto cada tanda las reinventa, y porque un distractor que falla por **notación** en vez
+de por **contenido** hace que el mapa de errores mienta — el estudiante queda diagnosticado con una
+idea errónea que no tiene.
+
+### PAES M1 (`aritmetica`, `algebra`, `geometria`, `probabilidad`)
+
+| Convención | Decidida |
+|---|---|
+| Cuartiles con la **posición localizadora DEMRE**, `P = k·n/4` | 2026-08-28 |
+| **Varianza y desviación estándar NO entran** en M1 de Admisión 2027 | 2026-08-28 |
+
+### Track `electronica` (`071` en adelante)
+
+| Convención | Decidida | Por qué |
+|---|---|---|
+| Decimal **con coma**: `2,2 kΩ`, `4,7 µF` | 2026-09-19 | Convención chilena y del DEMRE, y la del resto del banco |
+| Resultado **siempre con unidad y prefijo del taller** (mA, kΩ, µF), nunca en unidades base | 2026-09-19 | Es lo que hace que `notacion_cientifica` sea prerrequisito **real** y no decorativo: si el resultado se acepta en amperes, los prefijos no se usan nunca |
+| Kirchhoff: **sentido de malla horario** fijo en todos los ítems | 2026-09-19 | Con el sentido libre, un error de signo es ambiguo — puede ser criterio del alumno. Fijándolo, el signo se vuelve **diagnosticable**, que es de lo que vive `kirchhoff/signo-al-recorrer-la-malla` |
+| **«tensión»** y **«corriente»**, no «voltaje» ni «intensidad» | **2026-09-20** | Un distractor que falla por vocabulario no diagnostica física. Vale para enunciados, alternativas y las cuatro `error_*` |
+
+⚠️ **Estas cuatro aplican al track `electronica` y no a `electrotecnia`**, que ya está aplicado con
+116 ítems escritos antes de que existieran. No se retoactivan: sería reescribir contenido que ya
+está delante de un alumno, por una regla que nació después.
+
 ## Nota sobre el track `cuantica`
 
 Todo lo que dice este archivo aplica al contenido **PAES**. El track `cuantica` (`033`–`040`) es un

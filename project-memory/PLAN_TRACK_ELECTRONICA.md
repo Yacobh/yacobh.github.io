@@ -119,14 +119,17 @@ electronica_notacion   (sin prerrequisito)   ← la puerta de entrada
 que el esquema permite hoy. Y tiene una ventaja práctica: **un alumno trabado en Ohm igual puede
 avanzar en capacitores**, en vez de quedarse sin nada que rendir.
 
-### Convenciones de escritura (decididas 2026-09-19)
+### Convenciones de escritura
+
+**Las cuatro están cerradas.** Viven en `supabase/CONTENT.md` §Convenciones de notación por track,
+que es donde manda: *si un ítem las contradice, el ítem está mal* (P5.1 de la skill).
 
 | Convención | Estado |
 |---|---|
 | Decimal **con coma** (`2,2 kΩ`) | ✅ decidida |
 | Resultados **siempre con unidad y prefijo** del taller (mA, kΩ, µF), nunca en unidades base | ✅ decidida — es lo que hace que notación científica sea prerrequisito real y no decorativo |
 | Kirchhoff: **sentido de malla horario** fijo en todos los ítems | ✅ decidida — así el error de signo es diagnosticable en vez de ambiguo |
-| **«tensión»/«corriente»** vs «voltaje»/«intensidad» | ⏳ **sin decidir.** El borrador de T-155 usa las primeras **como supuesto**. Hay que cerrarlo antes de los ítems: un distractor que falla por vocabulario y no por física hace que el mapa de errores mienta |
+| **«tensión»** y **«corriente»**, no «voltaje» ni «intensidad» | ✅ decidida (2026-09-20) — un distractor que falla por vocabulario no diagnostica física |
 
 ### `min_theta`: el centro de la banda del prerrequisito
 

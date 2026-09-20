@@ -13,14 +13,16 @@
 > Lo que falte, agregalo abajo de todo en «Los que me faltaron». Esa sección es la más valiosa del
 > archivo: es la única parte que no puede salir de ningún libro.
 
-**Convenciones aplicadas** (decididas el 2026-09-19): decimal **con coma** (`2,2 kΩ`), resultados
-**siempre con unidad y prefijo** del taller (mA, kΩ, µF — no unidades base), y en Kirchhoff **sentido
-de malla horario** fijo en todos los ítems.
+**Las cuatro convenciones del track están cerradas** y viven en `supabase/CONTENT.md`
+§Convenciones de notación por track, que es donde mandan: *si un ítem las contradice, el ítem está
+mal*.
 
-⚠️ **Vocabulario: supuesto, no decidido.** Uso **«tensión»** y **«corriente»**. No marcaste esa
-opción, así que puede estar mal. Si usás «voltaje» e «intensidad», decilo y es un reemplazo
-mecánico en todo el banco — pero hay que decidirlo **antes** de escribir los ítems, porque un
-distractor que falla por vocabulario y no por física hace que el mapa de errores mienta.
+| Convención | |
+|---|---|
+| Decimal **con coma** | `2,2 kΩ` · `4,7 µF` |
+| Resultado **siempre con unidad y prefijo del taller** | `12 mA`, no `0,012 A` |
+| Kirchhoff: **sentido de malla horario** fijo | el error de signo se vuelve diagnosticable |
+| **«tensión»** y **«corriente»** | no «voltaje» ni «intensidad» — vale también en las cuatro `error_*` |
 
 `slug` cumple el check de `027`: minúsculas, dígitos, y `-` o `/` como separadores.
 
