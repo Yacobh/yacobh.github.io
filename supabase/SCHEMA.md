@@ -612,8 +612,7 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > origen distingue depuración de no-depuración, no «muestra válida» de «ruido». Filtrar por
 > `origin = 'student'` es necesario y **no suficiente**.
 
-73. `migrations/071_electronica_track_y_modulos.sql` — ⏳ **escrita y verificada, SIN aplicar**
-    (2026-09-19) · **T-156, épica E10.** El track `electronica` y sus **cinco módulos** de circuitos
+73. `migrations/071_electronica_track_y_modulos.sql` — ✅ **aplicada 2026-09-20 por el owner** · **T-156, épica E10.** El track `electronica` y sus **cinco módulos** de circuitos
     de **corriente continua**: `notacion_cientifica`, `ley_de_ohm`, `potencia`, `capacitores` y
     `leyes_de_kirchhoff`, con banda explícita, las **cuatro** columnas históricas y cuatro aristas
     en `module_prerequisites`.
@@ -662,7 +661,7 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > `[1,95 · 2,85]` a `[0,70 · 1,60]` sin que nadie lo tocara— y la banda explícita es lo que lo
 > impide.
 
-74. `migrations/072`…`076` — ⏳ **escritas y verificadas, SIN aplicar** (2026-09-20) · **T-158, épica
+74. `migrations/072`…`076` — ✅ **aplicadas 2026-09-20 por el agente** (ADR-040) · **T-158, épica
     E10.** Los **cinco bancos** del track `electronica`, uno por módulo: `072` capacitores, `073`
     notación científica, `074` ley de Ohm, `075` potencia, `076` leyes de Kirchhoff. **16 ítems
     cada uno = 80**, más **30 ideas erróneas nuevas**. Generadas por
@@ -678,8 +677,8 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     de remediación del track** (D-73), un banco por debajo de `2 × max_items` hace que el umbral de
     `min_theta` se abra por memoria y no por aprendizaje. Ver **R-47** y **T-164**.
 
-75. `migrations/077_test_configs_de_electronica.sql` — ⏳ **escrita y verificada, SIN aplicar**
-    (2026-09-20) · **T-160.** Las cinco filas de `test_configs` que hacen **rendible** el track,
+75. `migrations/077_test_configs_de_electronica.sql` — ✅ **aplicada 2026-09-20 por el agente**
+    (ADR-040) · **T-160.** Las cinco filas de `test_configs` que hacen **rendible** el track,
     encadenadas por `prerequisite_topic` y con **`initial_theta` explícito**.
     ⭐ **`initial_theta` es lo que `065` no hizo.** Aquellos dos bancos quedaron con el −1,0 por
     defecto de `048`; con `|Δθ| ≤ 0,4`, llegar a −2,8 cuesta **mínimo 5 ítems solo de viaje**, o sea
@@ -708,9 +707,39 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 > Los cinco `initial_theta` caen **dentro** de la banda de su módulo, y las dos guardas de `077` se
 > probaron disparando: con un banco en 5 ítems activos y con los módulos borrados.
 >
-> ⚠️ **R-42 medido:** `test_configs` activos pasa de **18 a 23**. Son cinco bancos más en el selector
+> ⚠️ **R-42 medido:** `test_configs` activos pasa de **14 a 19**. Son cinco bancos más en el selector
 > de todo estudiante de PAES. `077` trae la alternativa (`active = false`) escrita en su cabecera.
 
+
+> ## ✅ Aplicadas en producción el 2026-09-20 — el track `electronica` existe
+>
+> **`071` la aplicó el owner** (es estructural: dos `alter table ... constraint` sobre `modules` y
+> `class_slots`, y `claude_ddl` no es dueño de ninguna de las dos). **`072`…`077` las aplicó el
+> agente** con `claude_ddl`: son migraciones de **contenido** —`insert` sobre `misconceptions`,
+> `questions` y `test_configs`— que es exactamente lo que ADR-040 le permite. La línea entre agregar
+> contenido y cambiar la forma de la base funcionó sin discusión.
+>
+> **Verificación corrida después, contra la base real:**
+>
+> | Control | Resultado |
+> |---|---|
+> | Módulos | **5**, con banda, `historical_year`/`era`/`figure`/`blurb` completos y 4 prerrequisitos `duro` |
+> | Ítems | **80** — 16 por banco |
+> | Ideas erróneas | **30**, ninguna huérfana |
+> | Sin `module_id` | **0** |
+> | Sin diagnosticar (las 4 misconceptions en null) | **0** |
+> | Idea errónea en la alternativa correcta | **0** |
+> | Sin las cuatro explicaciones | **0** |
+> | Fuera de la banda de su módulo | **0** |
+> | Claves | **A 20 · B 20 · C 20 · D 20** — 25 % exacto |
+> | `test_configs` | **5**, encadenadas, con `initial_theta` y `min_theta` explícitos |
+> | Sufijos repetidos en los 58 módulos | **0** |
+>
+> ⚠️ **Corrección de un número que estas fichas daban mal.** Decían que el selector pasaba de **18 a
+> 23** bancos activos. Ese número salía del **fixture de prueba**, no de producción. **Medido en la
+> base real: de 14 a 19.** El riesgo R-42 no cambia de naturaleza —14 de los 19 bancos activos le son
+> ajenos al estudiante de PAES— pero la cifra era inventada por el entorno de verificación, y eso es
+> justo lo que este archivo existe para no dejar pasar.
 
 > ## 🔎 2026-09-19 — lo que la verificación de `070` encontró del **resto** del esquema
 >

@@ -4,10 +4,11 @@
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
 
-> ## ⏳ 2026-09-20 — el track de electrónica está escrito entero, y sin aplicar
+> ## ✅ 2026-09-20 — el track de electrónica está aplicado en producción
 >
-> Siete migraciones, **80 ítems y 30 ideas erróneas**, verificadas en orden sobre un **PostgreSQL
-> 17.11** desechable.
+> Siete migraciones **aplicadas**: `071` por el owner (es estructural) y `072`…`077` por el agente
+> con `claude_ddl` (son de contenido, que es lo que ADR-040 permite). **80 ítems y 30 ideas
+> erróneas** en producción, verificadas contra la base real.
 >
 > | | |
 > |---|---|
@@ -34,9 +35,9 @@
 > ✅ **Las dos decisiones que quedaban se cerraron el 2026-09-20 (D-73):**
 >
 > - **T-159 / R-42:** **que todo estudiante de PAES vea los cinco.** `077` queda con
->   `active = true`, y los `test_configs` activos pasan de **18 a 23**. Misma decisión que D-66 para
+>   `active = true`, y los `test_configs` activos pasan de **14 a 19**. Misma decisión que D-66 para
 >   `electrotecnia`. **T-129 no se cierra: se vuelve más urgente**, porque el estudiante de PAES
->   pasa a tener 17 bancos ajenos de 23.
+>   pasa a tener 14 bancos ajenos de 19.
 > - **`min_theta`: el reintento es la remediación.** *«Si un estudiante no pasa un test lo puede
 >   volver a repetir, esa es la idea.»* El mecanismo está verificado en el código: el módulo raíz no
 >   tiene prerrequisito, el desbloqueo toma el **máximo** histórico y `:test/retake` ya existe. Y
@@ -79,7 +80,7 @@
 > | `070_intentos.sql` | ✅ **aplicada por el owner el 2026-09-19** y verificada contra la base real |
 > | `public/js/app.js` | ✅ recompilado, con el rastro adentro |
 > | `clj -M:test` | ✅ **228 tests / 2907 assertions / 0 failures** |
-> | **Épica E10** track `electronica` | ✅ **escrita entera** (`071`…`077`), ⏳ sin aplicar |
+> | **Épica E10** track `electronica` | ✅ **aplicada en producción** (`071`…`077`) |
 >
 > **Por qué tabla nueva.** `tests` es append-only desde el cliente (`023`) y **al menos seis
 > lectores suyos asumen «fila = medición terminada»** — entre ellos `access/best-theta-by-topic`,

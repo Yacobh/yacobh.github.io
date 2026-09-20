@@ -79,7 +79,11 @@ El objetivo no cambió. Cambiaron dos cosas de fondo:
 15. **Los cinco bancos de 12 a 16 ítems** (T-164), porque el reintento es la remediación del track y
     con 12 dos intentos compartían al menos 4 ítems. 20 ítems nuevos, apuntados a las ideas erróneas
     **menos usadas** de cada catálogo. Re-verificado todo: 80 ítems, claves 25 % exacto en las cuatro.
-16. Desmontaje de los clusters y del PostgREST desechables.
+16. **Aplicación en producción de las siete migraciones de E10** (2026-09-20): `071` la había aplicado
+    el owner; `072`…`077` las aplicó el agente con `claude_ddl`. Verificación contra la base real:
+    5 módulos, **80 ítems**, 30 ideas erróneas, 0 sin módulo, 0 sin diagnosticar, 0 fuera de banda,
+    claves 20/20/20/20, 5 `test_configs` encadenadas.
+17. Desmontaje de los clusters y del PostgREST desechables.
 
 ### Lo que no funcionó, y por qué vale anotarlo
 
@@ -199,7 +203,7 @@ psql contra PRODUCCIÓN (PostgreSQL 17.6), rol claude_ddl, solo lectura — tras
 | Decisión | ¿ADR? | Dónde quedó registrada |
 |----------|-------|------------------------|
 | El intento en curso vive en su propia tabla (`intentos`); `tests` sigue siendo la de mediciones terminadas; el abandono se deriva, no se escribe | **Sí — ADR-036** | [[../project-memory/DECISIONS]] **D-72** |
-| El track `electronica` se publica **visible para todos** (activos 18 → 23) y el **reintento es su mecanismo de remediación** | No — repite D-66/ADR-035 y no lo cambia | [[../project-memory/DECISIONS]] **D-73**, cierra T-159 |
+| El track `electronica` se publica **visible para todos** (activos 14 → 19) y el **reintento es su mecanismo de remediación** | No — repite D-66/ADR-035 y no lo cambia | [[../project-memory/DECISIONS]] **D-73**, cierra T-159 |
 | El curso de electrónica es un **track nuevo `electronica`, visible**, con **cinco módulos** encadenados | Pendiente — **ADR-042** es T-155 | [[../project-memory/PLAN_TRACK_ELECTRONICA]], [[../project-memory/BACKLOG]] E10 |
 
 ## Riesgos identificados
@@ -250,9 +254,9 @@ Ninguna.
 
 ## Pendientes
 
-- **Publicar el bundle.** `070` ya está aplicada y verificada; `public/js/app.js` está compilado con
-  el rastro adentro. Falta commitear y publicar. Hasta entonces `intentos` queda vacía y
-  `tests.intento_id` nulo en las 351 filas.
+- ~~**Publicar el bundle.**~~ ✅ Hecho al cierre: las siete migraciones aplicadas y el push a `main`.
+- **`078` (recursos de capa 1) y la revisión pedagógica de los 80 ítems** siguen abiertos (T-161,
+  T-162). Ninguno bloquea que el curso rinda.
 - **La verificación de comportamiento en producción no está completa**, y no puede estarlo todavía:
   no hay ninguna fila. Se completa cuando alguien rinda un diagnóstico — ahí valen las consultas
   (b), (c) y (d) del pie de la migración.
@@ -304,6 +308,12 @@ Son **dos**, y las dos son sobre qué significa «verificado»:
    de producción es parte del fixture**, como lo son `auth.uid()` o `is_admin()`.
 
 Si salen L nuevas, son éstas dos.
+
+Y una que no es de método sino de higiene, y que casi se publica: **un número medido contra el
+fixture no es un número medido.** Estas notas dijeron tres veces que el selector pasaba de **18 a 23**
+bancos activos. Ese 18 venía del `generate_series(1,18)` de mi propio fixture de prueba. **En
+producción son 14, y quedan 19.** El riesgo R-42 no cambia de naturaleza, pero la cifra era del
+entorno de verificación y se estaba citando como si fuera de la base.
 
 Y una cuarta, de las de andar: **`zsh` no hace word-splitting de una variable sin comillas.** Un
 `for m in $MIGS` tomó las siete migraciones como un solo nombre de archivo y reportó `✗` en todas.

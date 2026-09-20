@@ -1,7 +1,7 @@
 # Plan — track `electronica`: circuitos de continua, desde cero y para corregir errores
 
-> Estado: **plan aprobado en su forma (2026-09-19), sin una sola línea escrita.** Nada de lo de acá
-> está aplicado. Épica **E10** en [[BACKLOG]], tareas **T-155…T-162**.
+> Estado: ✅ **aplicado en producción el 2026-09-20.** El track existe: 5 módulos, 80 ítems, 30 ideas
+> erróneas y 5 tests encadenados. Queda `078` (recursos) y la revisión pedagógica de los ítems. Épica **E10** en [[BACKLOG]], tareas **T-155…T-162**.
 >
 > Decidido por el owner: **track nuevo `electronica`, visible**, con **cinco módulos** encadenados
 > por prerrequisito.
@@ -275,9 +275,9 @@ No hay tercer estado.
 
 Hoy un estudiante de PAES ve **12 bancos de electrotecnia** que no le sirven. Con esto ve **17**.
 
-✅ **Decidido el 2026-09-20 (D-73): que los vean.** Activos: **18 → 23**. Es la misma decisión que
+✅ **Decidido el 2026-09-20 (D-73): que los vean.** Activos: **14 → 19**. Es la misma decisión que
 D-66/ADR-035 tomó para `electrotecnia`, y por la misma razón. **T-129 no se cierra con esto: se
-vuelve más urgente**, porque el estudiante de PAES pasa a tener 17 bancos ajenos de 23.
+vuelve más urgente**, porque el estudiante de PAES pasa a tener 14 bancos ajenos de 19.
 
 ### ⚠️ El reintento es la remediación, y hoy mide inflado (R-47)
 
@@ -317,7 +317,7 @@ en el mismo `initial_theta`) y que afecta a todo el banco: el arreglo de fondo v
 4. ✅ **T-158** — Los cinco bancos. **Hechos el 2026-09-20**: `072`…`076`, 60 ítems y 30 ideas
    erróneas, nueve controles en verde. Sin aplicar.
 5. ✅ **T-159** — **Decidido el 2026-09-20 (D-73): que todo estudiante de PAES vea los cinco.**
-   Activos: **18 → 23**. T-129 no se cierra, se vuelve más urgente.
+   Activos: **14 → 19**. T-129 no se cierra, se vuelve más urgente.
 6. ✅ **T-160** — `077`: `test_configs` con la cadena, `initial_theta` por módulo y la guarda de los
    12. **Hecha el 2026-09-20**, con las dos guardas probadas disparando. Sin aplicar.
 7. **T-161** — `078`: recursos, `published = false`.

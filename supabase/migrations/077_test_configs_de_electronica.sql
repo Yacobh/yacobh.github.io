@@ -115,8 +115,8 @@
 -- intermedio**, y ésa es exactamente la situación que ADR-035 documentó para
 -- `electrotecnia`.
 --
--- Hoy un estudiante de PAES ve **12 bancos** que no le sirven; con esto ve
--- **17**. Medido sobre `test_configs`: los activos pasan de **18 a 23**.
+-- Hoy un estudiante de PAES ve **14 bancos** que no le sirven; con esto ve
+-- **19**. Medido sobre `test_configs`: los activos pasan de **14 a 19**.
 --
 -- ✅ **Decidido por el owner el 2026-09-20: que los vean.** Es la misma decisión
 -- que D-66/ADR-035 tomó para `electrotecnia`, por la misma razón —el
@@ -256,7 +256,7 @@ on conflict (topic) do update
 --
 -- -- (d) ⚠️ Cuántos bancos ve ahora un estudiante de PAES (R-42).
 -- select count(*) from public.test_configs where active;
---   → antes de esta migración: 18 · después: 23
+--   → antes de esta migración: 14 · después: 19
 --
 -- -----------------------------------------------------------------------------
 -- Reversión
