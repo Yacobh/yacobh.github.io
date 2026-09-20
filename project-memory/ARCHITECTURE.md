@@ -51,7 +51,7 @@ contra `src/`, `supabase/`, `shadow-cljs.edn`, `index.html` y
 │  PostgreSQL + ROW LEVEL SECURITY  ← único límite de autorización          │
 │    profiles · questions · tests · guestbook · visitor · contacto           │
 │    modules · student_profiles · resources · misconceptions                 │
-│    class_slots · enrollments · notifications · email_outbox                │
+│    class_slots · enrollments · notifications · email_outbox · intentos     │
 │    test_configs (parada IRT + prerequisitos por banco)                     │
 │    site_settings (apariencia por defecto, una sola fila)                  │
 │    funciones public.is_admin() · normalize_topic()                         │
@@ -265,6 +265,7 @@ explícita, pero tampoco extenderlos. Ver [[PROJECT_BRIEF]] §6 y [[BACKLOG]] T-
 | `class_slots` | `theta_band`, `track`, `modality`, `starts_at`, `location_or_link`, `capacity`, `min_enrollments`, `status`, `title` | Cupos de cohorte |
 | `enrollments` | estudiante ↔ cupo, `status` (`pending`/`confirmed`/…) | |
 | `notifications` | destinatario + mensaje | Banner in-app |
+| `intentos` | `id` (uuid del cliente), `user_id`, `topic`, `origin`, `engine_version`, `parcial` (jsonb), `n_respuestas`, `iniciado_en`, `updated_at`, `cerrado_en` | **El intento de diagnóstico en curso** (ADR-036, `070`). Una fila por intento *iniciado*, reescrita entera tras cada respuesta y sellada al completar. **`tests` sigue siendo la tabla de mediciones terminadas** y no cambió de significado: sus lectores —en particular `access/best-theta-by-topic`, que toma el máximo θ— nunca ven un θ parcial. El abandono **no se escribe, se deriva** con `public.intento_abandonado()`: sin cerrar y sin latir hace más de 2 h. `origin`, `updated_at` y `cerrado_en` los pone el servidor, y el trigger `intentos_sellar` le saca `email`/`email-user` al jsonb venga de donde venga |
 | `email_outbox` | `to_email`, `subject`, `body`, `kind`, `meta`, `status` (`pending`/`sent`/`failed`), `attempts`, `last_error`, `sent_at` | Índice parcial sobre `pending` |
 | `site_settings` | `id` (booleano fijo en `true`), `theme_default` (`claro`/`oscuro`/`sistema`), `updated_at`, `updated_by` | Configuración global, **una sola fila** garantizada por un `check` sobre la PK (`043`, ADR-022). Lectura pública a propósito: el visitante anónimo necesita el valor antes de autenticarse. Escritura solo admin |
 | `guestbook` | firma pública, `is_approved` tri-state (`null`/`true`/`false`) | Fuente de los testimonios |
