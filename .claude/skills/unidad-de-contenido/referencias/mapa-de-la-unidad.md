@@ -20,8 +20,11 @@
 > **Si el código y esta tabla no coinciden, gana el código** y esta tabla se
 > corrige en el mismo commit.
 >
-> Verificado por última vez: **2026-09-18** — y esa pasada encontró A10, que
-> faltaba. Tres columnas de `042` que este archivo no listaba.
+> Verificado por última vez: **2026-09-19** — y esa pasada encontró que **B1
+> estaba desactualizado**: decía «20 slugs, no están probabilidad ni
+> electrotecnia» cuando T-152 ya los había agregado el día anterior. L-22 otra
+> vez, ahora contra este mismo archivo. Antes: **2026-09-18**, que encontró A10
+> — tres columnas de `042` que no estaban listadas.
 
 ---
 
@@ -263,9 +266,15 @@ confirma contra la base es **M12** en `metricas-de-la-unidad.md`.
 
 ### B1 · `universo.topics/module-slugs` — ⭐ **el que se olvidó**
 
-`src/universo/topics.cljs:64`. Set literal de slugs. Hoy tiene **20**: aritmética
-(7), álgebra (6), geometría (7). **No están los seis `probabilidad/*`** que creó
-`055`, ni ninguno de electrotecnia.
+`src/universo/topics.cljs:64`. Set literal de slugs. Hoy tiene **38**: aritmética
+(7), álgebra (6), geometría (7), probabilidad (6) y electrotecnia (12).
+
+> ✅ **Corregido el 2026-09-18 por T-152**, que es de donde sale el ejemplo de
+> abajo: hasta ese día faltaban los seis `probabilidad/*` de `055` y los doce
+> `electrotecnia/*` de `062`, o sea **218 ítems que no podían producir un plan
+> personalizado**. El ejemplo se deja escrito porque el modo de fallo sigue
+> intacto para el próximo slug que alguien olvide — **este `def` es un lugar que
+> ninguna migración toca**.
 
 `suffix-match` (`topics.cljs:~133`) resuelve `enteros → aritmetica/enteros`
 **buscando dentro de este set**. Un slug que no esté acá es invisible para él.
@@ -290,8 +299,13 @@ plan/resources-for-deficits (plan.cljs:43)
 ```
 
 **El estudiante rinde, el sistema mide bien su θ, y «Mi plan» no puede
-personalizarse.** Todo en verde. Estado actual de `probabilidad` (102 ítems) y
-`electrotecnia` (116 ítems).
+personalizarse.** Todo en verde, ningún auditor se enciende. Fue el estado real
+de `probabilidad` (102 ítems) y `electrotecnia` (116 ítems) hasta el 2026-09-18.
+
+⚠️ Y mirá también `catch-all-topics` (`topics.cljs:154`): un banco **de eje**
+—uno que abarca varios módulos, como `probabilidad` o `electrotecnia`— no se
+arregla agregándolo a `module-slugs`, porque `suffix-match` no lo va a resolver
+nunca. Va a `catch-all-topics`, donde `nil` es la respuesta honesta.
 
 ### B2 · `universo.topics/explicit-topic->module-slug`
 
@@ -311,6 +325,9 @@ y deja el hueco visible.
 ### B3 · `universo.bands/product-tracks` — solo si el track es del producto
 
 `bands.cljs:54`. Hoy `#{"aritmetica" "algebra" "geometria" "probabilidad"}`.
+`track-order` (`bands.cljs:33`) tiene además `cuantica` al final; **ni
+`electrotecnia` ni ningún track nuevo aparecen en ninguno de los dos**, que es
+justo lo que les permite entrar con banda explícita sin recompilar.
 
 ⚠️ **Es el único `def` que nombra tracks, y agregar uno mueve las bandas
 derivadas de los 26 módulos del producto.** `cuantica` está afuera a propósito:
