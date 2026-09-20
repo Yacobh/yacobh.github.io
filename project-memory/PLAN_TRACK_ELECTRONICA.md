@@ -275,9 +275,19 @@ No hay tercer estado.
 
 Hoy un estudiante de PAES ve **12 bancos de electrotecnia** que no le sirven. Con esto ve **17**.
 
-**Recomendación: reevaluar T-129 (visibilidad por usuario) antes de `077`, no después.** Ya había
-«dos destinatarios y una queja de UX real» el 2026-09-13; con un **curso entero** como tercer
-destinatario, deja de ser un problema de higiene. Es **T-159**.
+✅ **Decidido el 2026-09-20 (D-73): que los vean.** Activos: **18 → 23**. Es la misma decisión que
+D-66/ADR-035 tomó para `electrotecnia`, y por la misma razón. **T-129 no se cierra con esto: se
+vuelve más urgente**, porque el estudiante de PAES pasa a tener 17 bancos ajenos de 23.
+
+### ⚠️ El reintento es la remediación, y hoy mide inflado (R-47)
+
+`min_theta` exige el centro de la banda previa, y quien no llega **vuelve a rendir** — es la decisión
+del owner y el mecanismo existe. Pero `next_question` **no excluye los ítems de intentos
+anteriores**: con banco de 12 y `max_items = 8`, dos intentos comparten **al menos 4 ítems**, y el
+primero es siempre el mismo. El alumno además ya vio la explicación correcta.
+
+**Piso para que un reintento pueda ser nuevo: `banco ≥ 2 × max_items` = 16 ítems por módulo**
+(**T-164**, 20–30 ítems más). Afecta también a G-4.
 
 ### Los demás
 
@@ -305,9 +315,8 @@ destinatario, deja de ser un problema de higiene. Es **T-159**.
    `release app` y bundle recompilado. **Hecho el 2026-09-19.**
 4. ✅ **T-158** — Los cinco bancos. **Hechos el 2026-09-20**: `072`…`076`, 60 ítems y 30 ideas
    erróneas, nueve controles en verde. Sin aplicar.
-5. ⏳ **T-159** — Decidir T-129 o `active = false`. **Medido el 2026-09-20: el selector pasa de 18 a
-   23 bancos activos.** `077` está escrita con `active = true` y la alternativa comentada en su
-   cabecera: es cambiar una palabra por fila.
+5. ✅ **T-159** — **Decidido el 2026-09-20 (D-73): que todo estudiante de PAES vea los cinco.**
+   Activos: **18 → 23**. T-129 no se cierra, se vuelve más urgente.
 6. ✅ **T-160** — `077`: `test_configs` con la cadena, `initial_theta` por módulo y la guarda de los
    12. **Hecha el 2026-09-20**, con las dos guardas probadas disparando. Sin aplicar.
 7. **T-161** — `078`: recursos, `published = false`.

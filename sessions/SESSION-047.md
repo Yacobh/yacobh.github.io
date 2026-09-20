@@ -196,12 +196,14 @@ psql contra PRODUCCIÓN (PostgreSQL 17.6), rol claude_ddl, solo lectura — tras
 | Decisión | ¿ADR? | Dónde quedó registrada |
 |----------|-------|------------------------|
 | El intento en curso vive en su propia tabla (`intentos`); `tests` sigue siendo la de mediciones terminadas; el abandono se deriva, no se escribe | **Sí — ADR-036** | [[../project-memory/DECISIONS]] **D-72** |
+| El track `electronica` se publica **visible para todos** (activos 18 → 23) y el **reintento es su mecanismo de remediación** | No — repite D-66/ADR-035 y no lo cambia | [[../project-memory/DECISIONS]] **D-73**, cierra T-159 |
 | El curso de electrónica es un **track nuevo `electronica`, visible**, con **cinco módulos** encadenados | Pendiente — **ADR-042** es T-155 | [[../project-memory/PLAN_TRACK_ELECTRONICA]], [[../project-memory/BACKLOG]] E10 |
 
 ## Riesgos identificados
 
 | Riesgo | Severidad | Registrado en |
 |--------|-----------|---------------|
+| **Un reintento sirve casi los mismos ítems, así que mide memoria** — y el reintento es la remediación declarada del track | Media, **confirmada por aritmética** | RISKS **R-47** *(nuevo)*, BACKLOG **T-164** |
 | **18 de las 19 tablas de `public` le dan a `anon` DELETE y TRUNCATE**; todo el esquema descansa solo en RLS | Media, **latente y no explotable hoy** | RISKS **R-46** *(nuevo)*, BACKLOG **T-163** |
 | El bundle puede llegar antes que la migración — **tercera instancia**, ahora con el agregado de que **el error puede no tener texto** | Media, **mitigada en código** | RISKS **R-39** |
 | La épica E10 llevaría el selector del estudiante de PAES de 12 bancos ajenos a 17 | Media | RISKS **R-42** (anotado, decide **T-159**) |
@@ -255,8 +257,10 @@ Ninguna.
   `module_id`), después `072`…`076`, y `077` al final porque su guarda cuenta los ítems. Las dos
   guardas están probadas, así que aplicarlas fuera de orden **falla ruidosamente** en vez de dejar
   algo a medias.
-- **T-159 sin decidir**, y ahora con el número: aplicar `077` lleva el selector de **18 a 23 bancos
-  activos**. La alternativa (`active = false`) está comentada en la cabecera de `077`.
+- ✅ **T-159 decidida** (D-73): que todo estudiante de PAES vea los cinco. `active = true`.
+- **T-164 abierta**: subir los bancos a 16–18 ítems para que el reintento sea nuevo (R-47). Son 20 a
+  30 ítems más; el arreglo de fondo —que `next_question` excluya lo respondido en intentos
+  anteriores— conviene junto con T-149.
 - **El catálogo de errores volvió sin marcas.** Las 31 ideas quedan como hipótesis **revisadas en
   bloque**, no confirmadas una por una. Está dicho en la cabecera de cada banco.
 - El plan de E10 **no tiene una sola línea escrita**: es plan, no implementación.
@@ -296,6 +300,13 @@ Son **dos**, y las dos son sobre qué significa «verificado»:
    de producción es parte del fixture**, como lo son `auth.uid()` o `is_admin()`.
 
 Si salen L nuevas, son éstas dos.
+
+Y una tercera de la misma familia, que salió al cerrar la decisión del reintento: **una mitigación no
+está verificada hasta que se hace su aritmética.** «Si no pasa, que repita» suena completo y no lo
+es: `next_question` no excluye los ítems de intentos anteriores, así que con banco de 12 y
+`max_items = 8` dos intentos comparten **al menos 4 ítems** —pigeonhole, no estimación— y el primero
+es siempre el mismo porque arrancan en el mismo `initial_theta`. El mecanismo existía, estaba bien
+elegido, y **medía otra cosa de la que se creía**.
 
 ### Corrección de memoria (L-22, esta vez contra el propio mapa)
 

@@ -59,24 +59,40 @@
 -- del producto usan `min_theta = null` —basta *haber rendido*— y acá la cadena
 -- exige alcanzar el centro de la banda del prerrequisito.
 --
--- ⚠️ **Hay un riesgo medido que el owner todavía no vio cuando lo decidió, y
--- conviene mirarlo antes de aplicar esta migración.** El centro de
--- `notacion_cientifica` es **−2,4** y el estimador **clampea en −3,0**. **R-44**
--- midió que **dos de doce estudiantes reales** quedaron clavados en −3,00
--- exacto **habiendo trabajado** (uno rindió 12 ítems en 16,5 minutos). Un alumno
--- así **no alcanza −2,4 y no abre ningún otro módulo del track**. En un curso
--- correctivo eso es lo contrario de lo que se busca.
+-- **El umbral es el que es porque el reintento es la remediación** (decisión del
+-- owner, 2026-09-20): *«si un estudiante no pasa un test lo puede volver a
+-- repetir, esa es la idea»*. No quedarse corto es lo que dispara volver a
+-- estudiar el módulo, y el profesor está en el aula para acompañarlo.
 --
--- Lo que **sí** lo acota: `electronica_notacion` no tiene prerrequisito, así que
--- siempre puede volver a rendirse, y `access/best-theta-by-topic` toma el
--- **máximo** histórico. Nadie queda sin nada que hacer; queda con **una sola**
--- cosa que hacer.
+-- El mecanismo existe y está verificado en el código, no supuesto:
+--   · `electronica_notacion` no tiene prerrequisito ⇒ **siempre** se puede
+--     volver a rendir;
+--   · `access/best-theta-by-topic` toma el **máximo** histórico ⇒ una mejora
+--     queda, y un intento peor no borra al mejor;
+--   · `:test/retake` («Rendir de nuevo», desde el tablero) ya está construido.
 --
--- **Si eso pasa, la corrección es cambiar dos números de la tabla de abajo** y
--- reaplicar (la migración es idempotente por `topic`): bajar de `-2.4` a `-2.7`
--- —el tercio inferior de la banda— en las dos filas que cuelgan de
--- `electronica_notacion`. Es la diferencia entre «no automatizó los prefijos» y
--- «el motor no lo pudo medir».
+-- ⚠️ **PERO UN REINTENTO SIRVE CASI LOS MISMOS ÍTEMS, Y ESO ES ARITMÉTICA.**
+-- `next_question` excluye los ítems ya respondidos **dentro del test en curso**
+-- (`answered-ids` sale de `[:test :questions]`), **no** los de intentos
+-- anteriores. Con un banco de **12** ítems y `max_items = 8`, dos intentos
+-- comparten como mínimo `8 + 8 − 12 = ` **4 ítems**, y en la práctica más,
+-- porque los dos arrancan en el mismo `initial_theta` y el primer ítem servido
+-- es siempre el mismo.
+--
+-- Y el estudiante **vio la explicación correcta** de cada ítem al responderlo
+-- (capa 0), así que el segundo intento mide en parte memoria y no dominio.
+--
+-- **El umbral para que un reintento pueda ser enteramente nuevo es
+-- `banco ≥ 2 × max_items`**, o sea **16 ítems por módulo**; 18 deja margen. Con
+-- los 12 actuales el reintento funciona pero mide inflado. Está anotado como
+-- **R-47** y **T-164**: son 4 a 6 ítems más por banco, no un rediseño.
+--
+-- **Si aun así apareciera el caso de R-44** —un alumno clavado en el clamp de
+-- −3,00 habiendo trabajado, que es lo que se midió con dos de doce— la
+-- corrección es cambiar dos números de la tabla de abajo y reaplicar (idempotente
+-- por `topic`): bajar de `-2.4` a `-2.7` en las dos filas que cuelgan de
+-- `electronica_notacion`. Ojo con la diferencia: si el alumno **no sabe**, el
+-- umbral está haciendo su trabajo; si el motor **no lo pudo medir**, no.
 --
 -- ── LA PARADA: 4 / 8, Y UN UMBRAL QUE NO SE VA A DISPARAR ─────────────────
 -- `min_items = 4`, `max_items = 8`. Es el rango que ADR-038 propone para un test
@@ -97,10 +113,16 @@
 -- `electrotecnia`.
 --
 -- Hoy un estudiante de PAES ve **12 bancos** que no le sirven; con esto ve
--- **17**. Es **R-42**, y el destinatario de este track es un curso entero, así
--- que deja de ser un problema de higiene. **La alternativa está una línea más
--- abajo**: poner `false` y que los rinda solo el admin hasta que exista T-129
--- (visibilidad por usuario). Con `false`, los alumnos **no pueden rendirlo**.
+-- **17**. Medido sobre `test_configs`: los activos pasan de **18 a 23**.
+--
+-- ✅ **Decidido por el owner el 2026-09-20: que los vean.** Es la misma decisión
+-- que D-66/ADR-035 tomó para `electrotecnia`, por la misma razón —el
+-- destinatario es un alumno y no un admin— y ahora para un curso entero. El
+-- arreglo de fondo sigue siendo **T-129** (visibilidad por usuario), que esto
+-- vuelve más urgente y no menos.
+--
+-- Apagarlo, si alguna vez hace falta, es un `update` de una línea:
+--   update public.test_configs set active = false where topic like 'electronica\_%';
 
 -- -----------------------------------------------------------------------------
 -- 1. Guarda: no se crea una config sin banco detrás
@@ -108,8 +130,12 @@
 -- Copia de la guarda de `065`, con el piso adaptado. **12 y no 20**: `065`
 -- protegía dos bancos que cubren doce módulos; acá cada banco es **un módulo de
 -- 1,2 logits**, y la regla de cobertura es ≥6 ítems por cada 1,0 logit, o sea
--- ~8. Con `max_items = 8`, 12 deja margen para que un reintento no sirva
--- exactamente los mismos ítems.
+-- ~8. Con `max_items = 8`, 12 alcanza para que un test no se agote.
+--
+-- ⚠️ **12 NO alcanza para que un reintento sea nuevo**, y eso es aritmética:
+-- dos intentos de 8 sobre un banco de 12 comparten al menos 4 ítems. Ver la nota
+-- de `min_theta` arriba, R-47 y T-164. El piso de la guarda queda en 12 porque
+-- es lo que hay hoy; subirlo cuando el banco crezca es cambiar un número.
 --
 -- Es T-125 al revés: una config sin banco deja al estudiante **sin preguntas a
 -- mitad del diagnóstico**, que es peor que no ofrecerle el test.

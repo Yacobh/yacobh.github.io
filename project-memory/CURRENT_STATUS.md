@@ -31,15 +31,29 @@
 >    error —el alumno llega al resultado correcto— y el ítem habría sido injusto. Queda dicho en la
 >    cabecera de `075` para que nadie la agregue creyendo que fue un olvido.
 >
-> ⚠️ **Dos cosas pendientes antes de que un alumno rinda:**
+> ✅ **Las dos decisiones que quedaban se cerraron el 2026-09-20 (D-73):**
 >
-> - **T-159 / R-42, medido:** aplicar `077` lleva el selector de **18 a 23 bancos activos**. Todo
->   estudiante de PAES va a ver los cinco de electrónica. La alternativa (`active = false`) está
->   escrita en la cabecera de `077`: es cambiar una palabra por fila.
-> - **`min_theta` y R-44.** La cadena exige el centro de la banda previa (−2,4 desde la raíz), y el
->   estimador **clampea en −3,0**: R-44 midió dos de doce alumnos clavados ahí **habiendo
->   trabajado**. Uno así no abriría ningún módulo. La alternativa más blanda (−2,7) está comentada
->   en `077` con la aritmética.
+> - **T-159 / R-42:** **que todo estudiante de PAES vea los cinco.** `077` queda con
+>   `active = true`, y los `test_configs` activos pasan de **18 a 23**. Misma decisión que D-66 para
+>   `electrotecnia`. **T-129 no se cierra: se vuelve más urgente**, porque el estudiante de PAES
+>   pasa a tener 17 bancos ajenos de 23.
+> - **`min_theta`: el reintento es la remediación.** *«Si un estudiante no pasa un test lo puede
+>   volver a repetir, esa es la idea.»* El mecanismo está verificado en el código: el módulo raíz no
+>   tiene prerrequisito, el desbloqueo toma el **máximo** histórico y `:test/retake` ya existe. Y
+>   `initial_theta` explícito es lo que lo hace sostenible: sin él, el θ del alumno débil quedaba
+>   censurado por el viaje y no por su nivel (R-44).
+>
+> ⚠️ **Pero medirlo destapó R-47, que es el límite de esa remediación.** `next_question` excluye los
+> ítems del test **en curso**, no los de intentos anteriores: con banco de 12 y `max_items = 8`, dos
+> intentos comparten **al menos 4 ítems** —y el primero es siempre el mismo, porque arrancan en el
+> mismo `initial_theta`—. El alumno además ya vio la explicación correcta de cada uno. **El reintento
+> mide memoria en parte**, y eso abre el umbral por recuerdo y no por aprendizaje, que es lo
+> contrario de lo que el umbral existe para hacer. Afecta también a **G-4**: un Δθ entre dos intentos
+> que comparten media prueba no mide progreso limpio.
+>
+> Piso para que un reintento pueda ser nuevo: **`banco ≥ 2 × max_items`** = 16 ítems por módulo. Son
+> 20 a 30 ítems más en total (**T-164**). El arreglo de fondo —que `next_question` excluya lo ya
+> respondido en intentos anteriores— sirve para **todo** el banco y conviene junto con T-149.
 >
 > ⏳ **Y el catálogo de errores volvió sin marcas.** El owner lo revisó y no tenía nada que agregar,
 > así que las 31 ideas quedan como **hipótesis revisadas en bloque**, no como errores confirmados uno
