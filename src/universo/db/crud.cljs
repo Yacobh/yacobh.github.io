@@ -415,6 +415,140 @@
      (consultar (str admin-tests-columnas-base "," admin-tests-columna-origen) true)
      ch)))
 
+(def ^:private cohortes-columnas
+  "id,nombre,profesor_id,desde,hasta,topic_prefijo,creado_por,created_at")
+
+(defn fetch-cohortes
+  "Las cohortes que el usuario puede ver: las suyas si es profesor, todas si es
+   admin (policy `cohortes_select_propia` de `080`).
+
+   ⚠️ **Si `080` no está aplicada, devuelve lista vacía y no un error.** El
+   bundle versionado (ADR-003) puede llegar a producción antes que la migración
+   —es R-39, que este proyecto ya materializó tres veces— y en ese caso el aula
+   tiene que seguir funcionando con la ventana escrita a mano en vez de mostrar
+   una pantalla rota. `:sin-tabla?` se lo dice a quien la llame."
+  []
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "cohortes")
+        (.select cohortes-columnas)
+        (.order "desde" #js {:ascending false})
+        (.limit 200)
+        (.then (fn [result]
+                 (if (.-error result)
+                   (let [msg (str (.-message (.-error result)))]
+                     (if (or (not= -1 (.indexOf msg "cohortes"))
+                             (not= -1 (.indexOf msg "does not exist")))
+                       (do
+                         (js/console.warn
+                          "La migración 080 no está aplicada: el aula funciona sin cohortes.")
+                         (async/put! ch {:success true :data [] :sin-tabla? true}))
+                       (async/put! ch {:success false :error msg})))
+                   (async/put! ch {:success true
+                                   :data (or (js->clj (.-data result)
+                                                      :keywordize-keys true)
+                                             [])}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn insert-cohorte!
+  "Crea una cohorte. La policy `cohortes_insert_admin` solo la deja pasar si
+   quien la manda es admin: el cliente no es el control (CLAUDE.md §7)."
+  [{:keys [nombre profesor-id desde hasta topic-prefijo creado-por]}]
+  (let [ch (async/chan)
+        fila (cond-> {:nombre nombre
+                      :profesor_id profesor-id
+                      :desde desde
+                      :hasta hasta
+                      :creado_por creado-por}
+               (seq topic-prefijo) (assoc :topic_prefijo topic-prefijo))]
+    (-> (.from supabase-client "cohortes")
+        (.insert (clj->js fila))
+        (.select cohortes-columnas)
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false :error (.-message (.-error result))})
+                   (async/put! ch {:success true
+                                   :data (first (js->clj (.-data result)
+                                                         :keywordize-keys true))}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn delete-cohorte!
+  [id]
+  (let [ch (async/chan)]
+    (-> (.from supabase-client "cohortes")
+        (.delete)
+        (.eq "id" (str id))
+        (.then (fn [result]
+                 (if (.-error result)
+                   (async/put! ch {:success false :error (.-message (.-error result))})
+                   (async/put! ch {:success true}))))
+        (.catch (fn [error]
+                  (async/put! ch {:success false :error (.-message error)}))))
+    ch))
+
+(defn fetch-tests-en-ventana
+  "Los tests rendidos entre dos instantes, para el panel del aula.
+
+   ── Por qué no reusa `fetch-admin-tests` ───────────────────────────────────
+   Aquella trae «los N más recientes» y el aula pregunta otra cosa: **todos los
+   de esta clase**. Con un tope de 100 y 143 diagnósticos en un solo día
+   (medido el 2026-09-21), pedir los últimos N y recortar en el cliente dejaría
+   fuera a estudiantes reales **sin avisar** — el curso mostraría 18 personas de
+   26 y el porcentaje de cada idea errónea estaría mal repartido, que es
+   exactamente el modo de fallo que hace inútil un mapa de errores.
+
+   El filtro va en el servidor por la misma razón: cada fila trae el JSON del
+   intento entero (respuestas + alternativas), así que traer el histórico
+   completo para descartarlo en el navegador son varios megas por consulta.
+
+   `desde`/`hasta` son textos ISO **con zona** (`(.toISOString …)`), no fechas
+   sueltas: la ventana de una clase es en hora de Chile y el borde del día en
+   UTC cae en otro lado (un intento de las 21:34 local es del día siguiente en
+   UTC). El intervalo es `[desde, hasta)` — mismo criterio que
+   `universo.cohorte/en-ventana?`, para que el recorte del servidor y el del
+   cliente no puedan diferir.
+
+   El tope existe igual como salvaguarda: una ventana de un año no debe poder
+   tumbar la pestaña. Si se alcanza, el llamador lo nota porque `:data` viene
+   con exactamente `limit` filas."
+  ([desde hasta] (fetch-tests-en-ventana desde hasta 2000))
+  ([desde hasta limit]
+   (let [ch (async/chan)
+         consultar
+         (fn consultar [columnas reintentar?]
+           (-> (.from supabase-client "tests")
+               (.select columnas)
+               (.gte "created_at" desde)
+               (.lt "created_at" hasta)
+               (.order "created_at" #js {:ascending true})
+               (.limit limit)
+               (.then (fn [result]
+                        (if (.-error result)
+                          (let [msg (.-message (.-error result))]
+                            ;; Mismo respaldo que `fetch-admin-tests`: si `067`
+                            ;; no estuviera aplicada, PostgREST rechaza el
+                            ;; select entero por una columna que no conoce.
+                            (if (and reintentar?
+                                     (not= -1 (.indexOf (str msg)
+                                                        admin-tests-columna-origen)))
+                              (do
+                                (js/console.warn
+                                 "La migración 067 no está aplicada: el aula no puede separar las corridas de depuración.")
+                                (consultar admin-tests-columnas-base false))
+                              (async/put! ch {:success false :error msg})))
+                          (async/put! ch {:success true
+                                          :data (or (js->clj (.-data result)
+                                                             :keywordize-keys true)
+                                                    [])}))))
+               (.catch (fn [error]
+                         (async/put! ch {:success false
+                                         :error (.-message error)})))))]
+     (consultar (str admin-tests-columnas-base "," admin-tests-columna-origen) true)
+     ch)))
+
 (defn fetch-visitors-by-ids
   "Contexto de visitante (país/ciudad/idioma/timezone) para mostrar junto a
    cada mensaje del guestbook en el panel admin. Requiere la policy SELECT de

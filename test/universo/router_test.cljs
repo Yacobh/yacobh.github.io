@@ -175,3 +175,30 @@
     (is (nil? (auth/post-clear-target {:current-section :main})))
     (is (nil? (auth/post-clear-target {:current-section :guestbook})))
     (is (nil? (auth/post-clear-target {})))))
+
+;; =============================================================================
+;; El rol `profesor` (T-79, migración `080`)
+;; =============================================================================
+
+(deftest el-aula-la-ven-el-profesor-y-el-admin
+  (testing "el panel del aula es del profesor; el admin lo ve porque ve todo"
+    (is (auth/rol-alcanza? "profesor" :aula))
+    (is (auth/rol-alcanza? "admin" :aula))
+    (is (not (auth/rol-alcanza? "user" :aula)))
+    (is (not (auth/rol-alcanza? nil :aula)))))
+
+(deftest el-panel-de-administracion-sigue-siendo-solo-del-admin
+  (testing "dar el rol de profesor no abre la puerta de al lado"
+    (is (auth/rol-alcanza? "admin" :admin))
+    (is (not (auth/rol-alcanza? "profesor" :admin)))
+    (is (not (auth/rol-alcanza? "user" :admin)))))
+
+(deftest un-rol-desconocido-no-alcanza-para-nada
+  (testing "si mañana aparece un rol nuevo, por defecto no ve nada"
+    (is (not (auth/rol-alcanza? "editor" :aula)))
+    (is (not (auth/rol-alcanza? "editor" :admin)))))
+
+(deftest las-dos-secciones-de-staff-tienen-ruta
+  (doseq [section auth/staff-sections]
+    (is (some? (router/section->path section))
+        (str "sección de staff sin ruta: " section))))

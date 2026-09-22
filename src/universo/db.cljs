@@ -23,6 +23,47 @@
           :role nil
           :redirect-after-login nil}
 
+   ;; Panel del aula (T-133): el mapa de errores de un curso.
+   ;;
+   ;; La cohorte es una **ventana de tiempo con nombre**, no una tabla `cursos`
+   ;; que no existe: un curso que rinde en la sala deja sus intentos contiguos.
+   ;; `:desde`/`:hasta` son textos de `<input type="datetime-local">`, o sea
+   ;; **hora local sin zona** — se convierten a instante al consultar, porque el
+   ;; borde del día en UTC cae en otro lado (medido: un intento de las 21:34 de
+   ;; Chile es del día siguiente en UTC).
+   ;;
+   ;; Estado de carga propio, no el de `:admin`: son dos pantallas distintas y
+   ;; compartirlo haría que el spinner de una contaminara a la otra.
+   :aula {:desde nil
+          :hasta nil
+          :topic-prefijo ""
+          ;; `topic` exacto del banco elegido, o nil por todos. En una hora de
+          ;; clase se rinden **varios** diagnósticos (el 2026-09-21 fueron seis
+          ;; en la mañana), y θ de bancos distintos no es comparable: elegir uno
+          ;; es lo que vuelve comparable la columna.
+          :banco nil
+          :tests []
+          :loading? false
+          :error nil
+          :consultada nil          ;; la ventana que produjo `:tests`
+          :truncada? false         ;; se alcanzó el tope del servidor
+          :item-abierto nil        ;; id del ítem que se está proyectando
+          ;; El ranking. `:primeros` es el default y no es cosmético: comparar
+          ;; el último intento de cada uno premia a quien más veces repitió
+          ;; (medido el 2026-09-21: los cinco primeros por acierto tenían 4, 4,
+          ;; 4, 6 y **15** intentos, todos al 100 %).
+          :ranking-base :primeros
+          :ranking-orden :acierto
+          ;; Las cohortes guardadas (`080`). `:sin-tabla?` es true cuando la
+          ;; migración todavía no se aplicó: el aula sigue funcionando con la
+          ;; ventana escrita a mano y lo dice, en vez de romperse (R-39).
+          :cohortes []
+          :cohortes-cargando? false
+          :sin-tabla? false
+          :cohorte-activa nil
+          :nueva-cohorte nil
+          :perfiles []}
+
    :admin {:tab :overview
            ;; Estado por sección: evita que el spinner/error de una pestaña
            ;; contamine a las demás y permite cachear entre cambios de pestaña.

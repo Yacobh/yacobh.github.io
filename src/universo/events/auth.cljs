@@ -7,7 +7,25 @@
 ;; Secciones que requieren sesión Supabase válida
 ;; -----------------------------------------------------------------------------
 
-(def protected-sections #{:dashboard :diagnostic-test :admin :plan :cupos :cuenta})
+(def protected-sections #{:dashboard :diagnostic-test :admin :aula :plan :cupos :cuenta})
+
+;; Secciones que además de sesión piden **rol**, no solo estar logueado.
+(def staff-sections #{:admin :aula})
+
+(defn rol-alcanza?
+  "¿El rol de esta sesión alcanza para la sección?
+
+   `:admin` exige admin. `:aula` acepta **admin o profesor** (T-79, `080`): el
+   panel del aula es del profesor, y el admin lo ve porque ve todo.
+
+   ⚠️ Esto es **UX, no control de acceso**. Lo que de verdad limita a un
+   profesor es la policy `tests_select_profesor`: aunque se saltara este guard,
+   la base le devuelve solo los intentos de sus cohortes (CLAUDE.md §7)."
+  [role section]
+  (let [r (str role)]
+    (case section
+      :aula (contains? #{"admin" "profesor"} r)
+      (= "admin" r))))
 
 (defn logged-in?
   "True si hay usuario de sesión en app-db."
@@ -125,6 +143,17 @@
  :auth/admin?
  (fn [db _]
    (admin? db)))
+
+(re-frame/reg-sub
+ :auth/profesor?
+ (fn [db _]
+   (= "profesor" (str (get-in db [:auth :role])))))
+
+;; Quién ve el enlace al aula en la barra. No decide nada de seguridad.
+(re-frame/reg-sub
+ :auth/ve-aula?
+ (fn [db _]
+   (rol-alcanza? (get-in db [:auth :role]) :aula)))
 
 ;; :auth/login-mode y :auth/set-login-mode se eliminaron el 2026-08-16 (T-05):
 ;; eran un intent de un solo uso para abrir `login-form` en modo registro. Con
@@ -360,10 +389,10 @@
      :dispatch-later [{:ms 240 :dispatch [:complete-navigation :login opts]}]}
 
     ;; Solo redirigir si el perfil ya cargó (role known) y no es admin
-    (and (= section :admin)
+    (and (contains? staff-sections section)
          (logged-in? db)
          (some? (get-in db [:auth :role]))
-         (not (admin? db)))
+         (not (rol-alcanza? (get-in db [:auth :role]) section)))
     {:db (assoc-in db [:ui :transitioning] true)
      :dispatch-later [{:ms 240 :dispatch [:complete-navigation :dashboard opts]}]}
 
@@ -393,10 +422,10 @@
      {:db (assoc-in db [:auth :redirect-after-login] section)
       :dispatch [:navigate-to :login]}
 
-     (and (= section :admin)
+     (and (contains? staff-sections section)
           (logged-in? db)
           (some? (get-in db [:auth :role]))
-          (not (admin? db)))
+          (not (rol-alcanza? (get-in db [:auth :role]) section)))
      {:dispatch [:navigate-to :dashboard]}
 
      :else

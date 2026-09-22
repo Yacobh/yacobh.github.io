@@ -29,6 +29,9 @@
    :cupos           "/cupos"
    :cuenta          "/cuenta"
    :admin           "/admin"
+   ;; El aula (T-133). No es `/profesor`: esa ruta ya es el currículum
+   ;; público del owner, y dos secciones no pueden compartir path.
+   :aula            "/aula"
    :guestbook       "/libro-de-visitas"
    :jacobocordova   "/profesor"
    :privacidad      "/privacidad"})

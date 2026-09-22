@@ -14,6 +14,7 @@
    [universo.components.slots :as slots]
    [universo.components.guestbook :as guestbook]
    [universo.components.login :as login]
+   [universo.components.panel-docente :as panel-docente]
    [universo.components.ui :as ui]))
 
 ;; seccion principal variable con atomo de reagent, dinamico
@@ -60,7 +61,7 @@
 
 (defn- authed-links
   "Enlaces de sesión. on-navigate permite cerrar el menú móvil."
-  [{:keys [admin? on-navigate stacked?]}]
+  [{:keys [admin? ve-aula? on-navigate stacked?]}]
   (let [go (fn [section]
              (fn []
                (when on-navigate (on-navigate))
@@ -72,6 +73,14 @@
                              (when stacked? "text-left w-full"))
                  :on-click (go :admin)}
         "Admin"])
+     ;; El aula la ve el profesor **y** el admin (`080`). Quién puede de verdad,
+     ;; y qué filas, lo decide la policy; esto solo decide si se ve el enlace.
+     (when ve-aula?
+       [:button {:type "button"
+                 :class (str link-class " font-semibold "
+                             (when stacked? "text-left w-full"))
+                 :on-click (go :aula)}
+        "Aula"])
      [:button {:type "button"
                :class (str link-class (when stacked? " text-left w-full"))
                :on-click (go :plan)}
@@ -147,6 +156,7 @@
       (let [ready? @(re-frame/subscribe [:auth/ready?])
             logged-in? @(re-frame/subscribe [:auth/logged-in?])
             admin? @(re-frame/subscribe [:auth/admin?])
+            ve-aula? @(re-frame/subscribe [:auth/ve-aula?])
             close! #(reset! menu-open? false)
             links (fn [stacked?]
                     (cond
@@ -155,6 +165,7 @@
 
                       logged-in?
                       [authed-links {:admin? admin?
+                                     :ve-aula? ve-aula?
                                      :on-navigate close!
                                      :stacked? stacked?}]
 
@@ -261,6 +272,7 @@
       :plan [plan/plan-panel]
       :cupos [slots/slots-panel]
       :admin [admin/admin-panel]
+      :aula [panel-docente/panel]
       :guestbook [guestbook/guestbook-component]
       :jacobocordova [resume/jacobo]
       :privacidad [privacidad/privacidad-page]

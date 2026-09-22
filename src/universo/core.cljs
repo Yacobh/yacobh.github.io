@@ -6,6 +6,7 @@
    #_[universo.test-subs]
    [universo.events.auth]
    [universo.events.admin]
+   [universo.events.aula]
    [universo.events.test]
    [universo.events.editor-vivo]
    [universo.events.profile]
