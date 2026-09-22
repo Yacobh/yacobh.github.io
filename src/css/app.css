@@ -437,6 +437,33 @@
   box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.45);
 }
 
+/* ---------- Texto DENTRO del visor (2026-09-21) --------------------------
+   El visor es la única superficie del sistema que **no se invierte**: es clara
+   en los dos temas, a propósito (ADR-023), porque es el vidrio de un
+   instrumento y un instrumento no cambia de color cuando se apaga la luz.
+
+   Eso tiene una consecuencia que costó un defecto reportado por el owner: el
+   mapeo global de arriba vuelve `text-gray-600` un gris **claro** en oscuro, y
+   encima de un visor que sigue siendo claro eso queda ilegible. Le pasó a la
+   leyenda que explica los puntos de los gráficos del aula — «se pierde la
+   nomenclatura que explica los puntos»—, y le pasa a cualquier texto que se
+   ponga sobre un visor.
+
+   La regla es simple y vale para todo componente, presente o futuro: **dentro
+   del visor el tema no aplica, se ve como en claro**. No son colores nuevos ni
+   pares nuevos: son exactamente los que `audit_contraste.py` ya valida para el
+   tema claro.
+
+   `irt_chart.cljs` resolvía lo mismo fijando literales por `:style` en cada
+   elemento. Eso funciona pero hay que acordarse en cada componente nuevo; esto
+   no hay que acordárselo. */
+.dark .visor .text-gray-900 { color: theme('colors.gray.900'); }
+.dark .visor .text-gray-800 { color: theme('colors.gray.800'); }
+.dark .visor .text-gray-700 { color: theme('colors.gray.700'); }
+.dark .visor .text-gray-600 { color: theme('colors.gray.600'); }
+.dark .visor .text-gray-500 { color: theme('colors.gray.500'); }
+.dark .visor .placeholder\:text-gray-500::placeholder { color: theme('colors.gray.500'); }
+
 /* --- Etiqueta grabada DENTRO de un alojamiento (T-72b) -------------------- */
 /* El fallo: `.grabado` pinta `panel-700` y `.alojamiento` tiene `panel-700` de
    fondo. **El mismo valor exacto** — en tema claro la etiqueta "Pregunta" del
@@ -458,16 +485,35 @@
 
    Se enciende: más clara (7.83), un punto más grande, menos espaciada y sin
    sombra, que a ese tamaño solo ensuciaba los bordes de las letras. */
-.alojamiento .grabado,
-.visor .grabado {
+/* ⚠️ El alojamiento y el visor son superficies OPUESTAS, y durante un tiempo
+   compartieron esta regla. El alojamiento es oscuro (panel-700), así que su
+   etiqueta va **iluminada**: panel-100 sobre panel-700 = 7.83. El visor es
+   claro en los dos temas (panel-50 / panel-100), así que panel-100 encima daba
+   **el mismo valor o casi** — la etiqueta desaparecía, en tema claro a medias y
+   en oscuro del todo.
+
+   Pasó desapercibido porque `audit_contraste.py` declaraba el par contra el
+   alojamiento —el caso que sí funciona— y nunca contra el visor. El contrato
+   ahora tiene los dos. */
+.alojamiento .grabado {
   color: theme('colors.panel.100');
   font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-shadow: none;
 }
-.dark .alojamiento .grabado,
-.dark .visor .grabado {
+.dark .alojamiento .grabado {
   color: theme('colors.panel.100');
+}
+
+/* Sobre el visor la etiqueta sí va grabada: superficie clara, tinta oscura. Sin
+   sombra blanca, que es luz de arriba sobre una carcasa y no dentro de un
+   hueco. */
+.visor .grabado,
+.dark .visor .grabado {
+  color: theme('colors.panel.700');
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-shadow: none;
 }
 
 /* Cita dentro de una explicación (T-72b). Antes traía un borde azul `#3b82f6` y

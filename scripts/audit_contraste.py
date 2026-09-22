@@ -138,6 +138,11 @@ PARES = [
     # Sube a panel-100: con panel-300 daba 5.50 —AA aprobado— y el owner igual
     # no la leía. Una etiqueta dentro de un visor va iluminada, no grabada.
     ("alojamiento · etiqueta encendida", PANEL["100"],  PANEL["700"],   4.5),
+    # ⚠️ 2026-09-21: el par de arriba estaba declarado y el de abajo NO, y la
+    # misma regla CSS pintaba los dos. Sobre el visor —claro en ambos temas— la
+    # etiqueta quedaba en panel-100 sobre panel-100: invisible. Se mide contra
+    # el visor MÁS OSCURO de los dos (el del tema oscuro), que es el caso peor.
+    ("visor · etiqueta grabada",        PANEL["700"],  PANEL["100"],   4.5),
 
     # Gráfica IRT (T-72d). Sus colores son literales dentro del SVG por una
     # razón documentada, así que el contrato tiene que vivir acá. Se miden
