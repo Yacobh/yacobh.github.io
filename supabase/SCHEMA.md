@@ -4,7 +4,7 @@
 
 | Tabla | Uso |
 |-------|-----|
-| `profiles` | `id`, `email`, `role` (`user`\|`admin`), `full_name`, `phone` (`010`) — ver `admin_rls.sql` |
+| `profiles` | `id`, `email`, `role` (`user`\|`profesor`\|`admin`, `080`), `full_name`, `phone` (`010`) — ver `admin_rls.sql` |
 | `questions` | Banco IRT: opciones, `error_*`, `difficulty`, `topic`, `order_index` |
 | `tests` | Resultado JSON del diagnóstico (`test`, `email-user`, `user_id`) |
 | `guestbook` | Firmas públicas + moderación tri-state |
@@ -772,6 +772,70 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     cambia ningún enunciado (que es la clave de idempotencia del generador). Idempotente por
     construcción: es un `update` por (topic, order_index). **Sin reversión a propósito** — revertir
     sería volver a poner números que no corresponden a su explicación.
+
+78. `migrations/080_cohortes_y_rol_profesor.sql` — ✅ **aplicada 2026-09-21 por el owner**
+    · **T-167 / T-79.** Crea `public.cohortes`, agrega el rol `profesor` al check de
+    `profiles.role` y le da a un profesor lectura de `tests` **acotada a sus cohortes**.
+
+    ⚠️ **La aplicó el owner, no el agente:** hace `alter table public.profiles`, que es una tabla con
+    datos personales y está fuera del alcance de `claude_ddl` (ADR-040).
+
+    ✅ **Verificado contra producción el 2026-09-21, después de aplicar:** la tabla existe con
+    `relrowsecurity = true`, sus **4 policies** (`select` propia + `insert`/`update`/`delete` de
+    admin), la policy `tests_select_profesor` sobre `tests`, las **2 funciones** (`es_profesor`,
+    `tests_en_mi_cohorte`) y el check en
+    `('user','admin','profesor')`. `information_schema.role_table_grants` devuelve **0 filas** para
+    `cohortes` con el rol del agente — que es justo lo que se busca, igual que pasó con `intentos`
+    en `070`.
+
+    **Qué crea:**
+
+    | Pieza | Qué hace |
+    |---|---|
+    | `public.cohortes` | `nombre`, `profesor_id`, `desde`, `hasta`, `topic_prefijo`, `creado_por`. **No tiene lista de estudiantes**: la pertenencia se deriva de haber rendido dentro de `[desde, hasta)` (ADR-042) |
+    | 4 policies | `select` para el dueño y el admin; `insert`/`update`/`delete` **solo admin** — quien define la ventana define lo que ve |
+    | `profiles_role_check` | pasa de `('user','admin')` a `('user','admin','profesor')` |
+    | `public.es_profesor()` | hermana de `is_admin()`, misma receta `security definer` |
+    | `public.tests_en_mi_cohorte(...)` | la regla de visibilidad, en una función y no dentro de la policy |
+    | `tests_select_profesor` | policy permisiva que **se suma** a `tests_select_own` sin tocarla |
+
+    ⭐ **Por qué una función `security definer` y no un `exists` dentro de la policy:** una subconsulta
+    a `cohortes` se evalúa **con la RLS de `cohortes` puesta**, así que la regla de `tests` pasaría a
+    depender en silencio de la policy de otra tabla. Mismo criterio con el que `070` decidió no
+    publicar una vista sobre `intentos`.
+
+    ⭐ **Lo que NO hace falta, verificado recorriendo el código:** abrirle `questions` a nadie. El
+    enunciado y las cuatro alternativas del «ítem con más errores» salen de `tests.test -> 'questions'`
+    —el JSON que guardó el propio intento— y la explicación de cada distractor del `selected-error` de
+    la respuesta. **T-168 queda sin objeto.** `profiles` tampoco se toca: el correo viaja en
+    `tests."email-user"`.
+
+    **Verificada contra PostgreSQL 17.11 desechable** (producción es 17.6), con seis controles de
+    aislamiento y no solo de sintaxis:
+
+    - **profe1** ve **2** de 6 filas: las de su ventana. Quedan fuera la corrida `admin_preview` del
+      owner que cayó dentro de su hora **y** un test de `algebra` de la misma hora, por el prefijo.
+    - **profe2** ve **1**, y nada de profe1. **estudiante**: solo lo suyo (2), y **0 cohortes**.
+      **admin**: 6 y 2. **0 filas de `questions`** y **1 de `profiles`** para el profesor.
+    - Un profesor **no puede** insertar una cohorte (`insufficient_privilege`) ni apropiarse de la de
+      otro (`update` afecta **0 filas**).
+    - El check rechaza un rol inventado; `anon` no tiene **ningún** privilegio sobre `cohortes`
+      (R-46); un rango invertido no entra; y la fila justo en el borde superior **no** se ve —
+      `[desde, hasta)`, igual que `universo.cohorte/en-ventana?`.
+    - **Idempotente**: segunda pasada deja 2 cohortes, 4 policies y 2 profesores, como antes.
+    - **Reversión probada**: deja el check en `('user','admin')`, 0 funciones nuevas, 2 policies en
+      `tests` y la tabla borrada; y **reaplicar después de revertir funciona**.
+
+    ✅ **Orden de despliegue respetado (R-39): la migración se aplicó antes de publicar el bundle.**
+    El cliente trae red propia igual —`crud/fetch-cohortes` devuelve lista vacía con `:sin-tabla?` si
+    `080` faltara— pero esta vez no hizo falta.
+
+    ⚠️ **Aplicarla no es dar cuentas.** Crea la capacidad; promover a alguien es una decisión aparte.
+    El owner precisó el 2026-09-21 que los colegas son **profesores del mismo colegio** y son **sus
+    propios alumnos**, así que no es el caso institucional que describe R-28 — pero **T-07**
+    (respaldo), **T-09** (staging) y **T-11** (verificación automatizada de RLS) siguen abiertas, y
+    el aviso de privacidad no dice todavía que un profesor pueda ver resultados con el correo del
+    estudiante.
 
 > **Verificación (2026-09-20).** Contra **PostgreSQL 17.11** con `071`…`076` aplicadas antes, y
 > después contra la base real. Aplica limpia, idempotente, los siete ítems quedan con sus valores

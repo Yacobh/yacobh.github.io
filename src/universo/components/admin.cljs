@@ -374,8 +374,29 @@
              [:th {:scope "col" :class "px-4 py-3 text-right"} "Acciones"]]]
            [:tbody {:class "divide-y divide-gray-100 bg-white"}
             (for [p rows]
+              ;; Tres roles desde `080` (T-79): un botón por destino en vez de
+              ;; un conmutador, porque con tres estados «alternar» deja de
+              ;; tener un significado obvio. `profesor` ve `/aula` limitada a
+              ;; sus cohortes; el control real es la policy, no este botón
+              ;; (CLAUDE.md §7).
               (let [self? (= (:id p) (:id me))
-                    admin? (= (:role p) "admin")]
+                    role (or (:role p) "user")
+                    cambiar
+                    (fn [destino etiqueta]
+                      [btn {:variant (if (= destino "admin") :default :ghost)
+                            :title (str "Cambiar el rol a «" destino "»")
+                            :on-click
+                            #(re-frame/dispatch
+                              [:confirm/ask
+                               {:message (str "¿Cambiar el rol de " (:email p)
+                                              " a «" destino "»?"
+                                              (when (= destino "profesor")
+                                                (str " Podrá ver el aula de los cursos "
+                                                     "que se le asignen, con el correo "
+                                                     "de esos estudiantes.")))
+                                :confirm-label "Cambiar rol"
+                                :on-confirm [:admin/set-role (:id p) destino]}])}
+                       etiqueta])]
                 ^{:key (:id p)}
                 [:tr {:class "hover:bg-gray-50"}
                  [:td {:class "px-4 py-3 font-medium text-gray-900"}
@@ -383,27 +404,20 @@
                   (when self?
                     [:span {:class "ml-2"} [badge :gray "tú"]])]
                  [:td {:class "px-4 py-3"}
-                  (if admin?
-                    [badge :indigo "admin"]
+                  (case role
+                    "admin" [badge :indigo "admin"]
+                    "profesor" [badge :indigo "profesor"]
                     [badge :gray "user"])]
                  [:td {:class "px-4 py-3 text-gray-500"} (format-date (:created_at p))]
                  [:td {:class "px-4 py-3 text-right"}
                   (if self?
                     [:span {:class "text-xs text-gray-400"} "—"]
-                    [btn {:variant (if admin? :default :ghost)
-                          :title (if admin?
-                                   "Quitar permisos de administrador"
-                                   "Dar permisos de administrador")
-                          :on-click
-                          (fn []
-                            (let [next-role (if admin? "user" "admin")]
-                              (re-frame/dispatch
-                               [:confirm/ask
-                                {:message (str "¿Cambiar el rol de " (:email p)
-                                               " a «" next-role "»?")
-                                 :confirm-label "Cambiar rol"
-                                 :on-confirm [:admin/set-role (:id p) next-role]}])))}
-                     (if admin? "Quitar admin" "Hacer admin")])]]))]]]
+                    [:div {:class "flex flex-wrap justify-end gap-2"}
+                     (for [[destino etiqueta] [["user" "Estudiante"]
+                                               ["profesor" "Profesor"]
+                                               ["admin" "Admin"]]
+                           :when (not= destino role)]
+                       ^{:key destino} [cambiar destino etiqueta])])]]))]]]
          [pagination {:page page :pages pages :total total
                       :on-page #(re-frame/dispatch [:admin/set-users-page %])}]])]]))
 
