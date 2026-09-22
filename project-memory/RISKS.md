@@ -747,6 +747,32 @@ contrato institucional:
 **Nota honesta:** D-20 aceptó revisar el aviso de privacidad sin abogado "dado el tamaño del
 proyecto". Ese argumento **caduca con el primer contrato institucional**.
 
+> ### 🟡 2026-09-21 — precisión del owner: los colegas **son profesores del mismo colegio**
+>
+> La ficha está escrita para *«un colegio que sube su matrícula»*: un tercero cargando datos de
+> menores bajo contrato. **El caso de hoy no es ése.** Los colegas que van a recibir el rol
+> `profesor` son **docentes del establecimiento donde estudian esos alumnos**, y son sus propios
+> alumnos. No son un tercero externo: la institución ya tiene esos datos y ellos ya los tratan.
+>
+> **Qué cambia:** el escalón de riesgo que R-28 describe —volumen institucional, carga por un
+> tercero, responsabilidad contractual— **todavía no se cruzó**. Dar el rol a un docente del propio
+> establecimiento sobre sus propios cursos es más parecido a lo que ya ocurre en la sala.
+>
+> **Qué NO cambia, y conviene no confundirlo:**
+>
+> - **El respaldo (T-07) y el staging (T-09) siguen siendo necesarios**, y ahora más: hay datos
+>   reales de dos cursos y una segunda persona mirándolos. No dependen del régimen legal.
+> - **T-11 (verificación automatizada de RLS) sigue abierta.** El aislamiento de `080` se verificó
+>   **a mano** contra una base desechable el 2026-09-21; que esté bien hoy no es que siga estándolo
+>   tras la próxima migración.
+> - **El aviso de privacidad sigue escrito para el estudiante individual** (D-20) y no menciona que
+>   un profesor pueda ver sus resultados con su correo. Eso hay que decirlo en alguna parte.
+> - **El primer contrato institucional sí cruza el escalón**, y ahí la ficha vale entera.
+>
+> **Lo que sigue sin responder:** de quién es el dato cuando el diagnóstico lo rinde un alumno del
+> colegio en una plataforma personal del profesor. Es la misma pregunta de fondo que Q-01/Q-30 sobre
+> la relación con la institución, y no la responde esta nota.
+
 ---
 
 ### R-29 · Vender B2B con el banco sin calibrar
@@ -1059,6 +1085,53 @@ pese a ser lo que recomienda la teoría de tests de clasificación.
 - **Severidad:** 🔶 media hoy, **alta** cuando la afirmación psicométrica entre a un pitch (G-1).
 - **Relacionado:** T-111, X-10, ADR-004, ADR-034, R-17, G-2 en [[TESIS_DE_CRECIMIENTO]].
 
+### R-48 · Casi la mitad de las mediciones no miden: el banco se queda sin ítems — 🔺 **alto** (2026-09-21)
+
+**Abierto al mirar el gráfico de distribución de θ del aula**, que mostró una pila de puntos
+apiñados justo en θ ≈ 0 donde debía haber dispersión. No era un defecto del gráfico.
+
+**Medido sobre los dos cursos del 2026-09-21 (106 mediciones, una por estudiante y banco):**
+
+| Razón de parada | Mediciones | De ellas, **sin ningún error** | Ítems | θ medio |
+|---|---|---|---|---|
+| `exhausted` | **50** | **44** | 6,0 | +0,24 |
+| `max-items` | 53 | 5 | 9,0 | −1,12 |
+| sin razón | 3 | 0 | 4,3 | −1,79 |
+
+**44 de 106 mediciones son de estudiantes que no fallaron nada y a los que se les acabaron las
+preguntas a los 6 ítems.** Su historia de θ es literalmente:
+
+```
+-2 → -1,6 → -1,2 → -0,8 → -0,4 → 0,0     (seis aciertos, paso fijo de +0,4)
+```
+
+**Ese θ no es un nivel: es dónde llegó a caminar el test antes de quedarse sin ítems.** El nivel real
+de esas 44 personas está por encima y **no se midió**. Y como todas arrancan en el mismo
+`initial_theta` y dan el mismo paso, **terminan todas en el mismo número**, que es la pila del
+gráfico.
+
+**Dos cosas distintas hay que separar acá**, y conviene no confundirlas al arreglarlo:
+
+1. **El paso fijo.** θ avanza +0,4 por acierto en vez de moverse lo que diga la información del ítem.
+   Con seis ítems, el techo alcanzable desde −2 es exactamente 0,4. Relacionado con el tope de paso
+   que ADR-034 discute, pero acá se ve el efecto sobre un curso entero.
+2. **El banco se agota a los 6.** Los bancos de `electronica` tienen **16 ítems** (T-164) y
+   `max_items` es 8, así que `exhausted` a los 6 significa que `next_question` está descartando
+   candidatos por algún criterio —probablemente cercanía de dificultad a θ— mucho antes de quedarse
+   sin banco. **Eso no está explicado en ninguna parte de la memoria** y es lo primero que hay que
+   medir.
+
+**Por qué es alto:** afecta a **G-4** de frente. Δθ entre dos mediciones que son ambas topes del
+instrumento no mide progreso, mide el instrumento. Y afecta al piloto: el panel del aula le muestra
+al profesor una distribución de θ donde media sala aparece en la misma banda por un artefacto.
+
+**Mitigación aplicada el mismo día, que no es un arreglo:** `universo.cohorte/theta-al-tope-del-banco?`
+marca estas mediciones, la tira de θ las dibuja **huecas** y la sección dice cuántas son. El dato deja
+de leerse como si fuera un nivel. El arreglo de fondo es **T-170**.
+
+**Relacionado:** R-44 (θ censurado por el clamp — es otro mecanismo, se cuentan por separado),
+R-47, R-17, ADR-034, T-164, [[BACKLOG]] T-170, `sessions/SESSION-048.md`.
+
 ### R-47 · El reintento mide memoria, no dominio
 
 **Abierto 2026-09-20**, al confirmar el owner que *«si un estudiante no pasa un test lo puede volver
@@ -1078,6 +1151,41 @@ está construido—, pero **lo que el reintento mide está inflado**, y eso es a
 posibilidad; en `electronica` es **el mecanismo de remediación declarado**, porque `min_theta` exige
 alcanzar el centro de la banda previa. Si el reintento mide inflado, el umbral se abre por memoria y
 no por aprendizaje — que es lo contrario de lo que el umbral existe para hacer.
+
+> ### 🔺 2026-09-21 — **ya no es aritmética: está medido, y es peor de lo estimado**
+>
+> Los dos cursos de electrónica del owner (143 diagnósticos, 47 personas) dejaron **37 pares de
+> intentos consecutivos** del mismo estudiante y banco. Medido sobre ellos:
+>
+> | Nº de intento | Casos | Segundos por ítem (mediana) | % de acierto | θ medio |
+> |---|---|---|---|---|
+> | 1º | 26 | **22,2** | 50 % | −1,78 |
+> | 2º | 26 | 7,7 | 76 % | −0,68 |
+> | 3º | 6 | 5,2 | 76 % | −0,98 |
+> | 4º | 3 | 4,1 | 95 % | +0,57 |
+> | 5º | 1 | 2,6 | 100 % | +0,63 |
+> | 6º | 1 | **1,7** | 100 % | +0,47 |
+>
+> **El tiempo por ítem se divide por trece mientras el acierto sube a 100 %.** Nadie resuelve una
+> potencia de diez en 1,7 segundos: la recuerda. Y la repetición de ítems que la ficha estimaba en
+> «al menos 4» resultó ser **4,7 de 7,1 ítems, el 67 %**, incluso después de que T-164 subiera los
+> bancos a 16 ítems — porque el piso de T-164 dice que un reintento *puede* no repetir, no que no
+> repita.
+>
+> ⚠️ **El filtro de esfuerzo no lo tapa.** ADR-014 descarta por debajo de 2 s (o del tiempo de
+> lectura del enunciado): una respuesta correcta en 4 segundos **pasa el filtro** y entra a θ. El
+> filtro está calibrado para sacar el click-through, no el recuerdo, y hace bien — pero significa
+> que **nada del pipeline actual protege a θ de un reintento memorizado**.
+>
+> **Consecuencia inmediata y ya aplicada:** el ranking del aula compara por defecto el **primer
+> intento** de cada estudiante (`universo.cohorte/bases-de-comparacion`), y ordenar por el último
+> muestra una advertencia. Sin eso el ranking premia repetir: medido, los cinco primeros por acierto
+> sobre el último intento tenían **4, 4, 4, 6 y 15 intentos**, todos al 100 %.
+>
+> **Lo que sigue sin resolverse** es T-149 (que `next_question` excluya lo respondido en intentos
+> anteriores del mismo topic), y ahora tiene un número con el que justificarse. Ver
+> `src/universo/cohorte.cljs` (`progreso-por-intento`, `repeticion-entre-intentos`) y
+> `sessions/SESSION-048.md`.
 
 **Afecta también a G-4** (entregar Δθ medido): un Δθ entre dos intentos que comparten la mitad de
 los ítems no es una medición limpia de progreso.

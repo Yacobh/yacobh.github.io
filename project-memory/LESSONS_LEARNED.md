@@ -1348,3 +1348,39 @@ el ubicador del eje. Para un track que nace de cero no cuesta ninguna de las dos
 la realidad y se corrige la herramienta** — en el mismo commit. Un consejo equivocado es peor que
 ningún consejo, porque el siguiente le cree.
 
+### L-70 · ⭐ La superficie que no se invierte necesita que el texto tampoco se invierta
+
+**2026-09-21.** El owner: *«con el tema oscuro las gráficas no se ven bien, y se pierde la
+nomenclatura que explica los puntos»*. Era exacto, y la causa vale más que el defecto.
+
+El `.visor` es la **única** superficie del sistema que no se invierte: es clara en los dos temas, a
+propósito (ADR-023), porque es el vidrio de un instrumento. Pero el mapeo global del tema oscuro
+convierte `text-gray-600` en un gris **claro**, y encima de un visor que sigue siendo claro eso
+queda ilegible. Cualquier texto puesto sobre un visor con las clases neutras de siempre desaparece
+en oscuro, y **no hay nada en el componente que lo advierta**.
+
+`irt_chart.cljs` ya lo había resuelto —fija literales por `:style` en cada elemento— pero esa
+solución hay que **acordársela en cada componente nuevo**, y tres componentes nuevos no se
+acordaron. La regla ahora vive en el CSS (`.dark .visor .text-gray-*` vuelve a la tinta del tema
+claro) y no hay que recordarla.
+
+⚠️ **Y la parte que más importa: los dos auditores estaban en verde.**
+
+- `audit_dark_theme.py` busca clases **sin mapear**. Ésta estaba mapeada — mal para este contexto,
+  pero mapeada. Invisible para ese auditor por construcción.
+- `audit_contraste.py` mide **pares declarados**. El par `.grabado` estaba declarado contra el
+  **alojamiento** (oscuro, 7.83 ✓) y la misma regla CSS pintaba también el `.visor` (claro), donde
+  daba panel-100 sobre panel-100: **contraste 1.0**, invisible en los dos temas desde hacía meses.
+  El auditor validó el caso que funcionaba y nunca supo del otro.
+
+**La lección no es «faltaba un par».** Es que **un contrato de pares no cubre una regla CSS que
+pinta dos superficies opuestas con el mismo selector**: hay que declarar un par por superficie, o
+separar el selector. Se hizo lo segundo, y el par nuevo quedó declarado.
+
+Es la misma familia que **L-68** (ningún auditor comprueba que la cuenta esté bien) y **L-22** (la
+memoria decía «tres» cuando eran cinco): el verde de una herramienta solo cubre lo que la
+herramienta mira, y conviene saber qué es eso antes de confiar en el verde.
+
+**Cómo se encontró:** renderizando los componentes con el **CSS real del proyecto** dentro de un
+`<div class="dark">`, al lado del mismo contenido en claro. Ninguna de las dos columnas por separado
+lo habría mostrado tan rápido.

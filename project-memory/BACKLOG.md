@@ -3614,12 +3614,26 @@ Extiende T-20 (instrumentación del funnel) con las métricas de negocio M-10…
   contrato) es consultable.
 - **Vector:** G-5. **Relacionado:** [[ROADMAP]] F10/H12, S-12, [[RISKS]] R-30, Q-15.
 
-### T-79 · Rol `profesor` y panel docente por curso — **P0** · `abierto`
+### T-79 · Rol `profesor` y panel docente por curso — **P0** · 🟡 `a medias` (2026-09-21: `080` aplicada; falta publicar el bundle y que entre un profesor de verdad)
 
 Crear el rol `profesor` (hoy inexistente: solo `user` y `admin`) y el panel que ve: distribución de
 θ de **su** curso, déficits ordenados y misconceptions agregadas.
 
-- **Dependencias:** T-81 (multi-tenant) — el rol sin aislamiento es un agujero, no una función.
+- ⭐ **2026-09-21: T-81 deja de ser precondición dura** (D-74 / ADR-042). La objeción era correcta
+  —«el rol sin aislamiento es un agujero»— y la cohorte como **ventana de tiempo con dueño** la
+  responde sin modelar nada institucional: la policy es *«existe una cohorte mía cuya ventana
+  contiene esta fila»*, que es aislamiento real, verificable con policies y no con la UI. Q-36 y
+  T-81 siguen abiertas para cuando haya **dos colegios**, que es cuando de verdad hacen falta.
+- **Dependencias hoy:** una migración que cree `cohortes` (dueño + ventana), agregue `'profesor'` al
+  check de `profiles.role` y escriba la policy de lectura sobre `tests`. Toca el check de una tabla
+  con datos personales, así que **la aplica el owner**, no el agente (ADR-040).
+- ⚠️ **No se dan cuentas antes de cerrar F9** (respaldo T-07, staging T-09, verificación de RLS
+  T-11): dar cuenta a un profesor es dar acceso a datos de menores a otra persona (R-28).
+- **Decidido el 2026-09-21:** las cohortes **las crea el owner** y el profesor solo lee. Con
+  autoservicio, un profesor podría escribir una ventana que cubra la clase de un colega — quien
+  define la ventana define lo que ve.
+- **La pantalla ya existe** (T-133): es `/aula`, hoy visible para `:admin`. El rol solo amplía
+  `staff-sections` en `events/auth.cljs`; no hay que mudar ni reescribir la vista.
 - **Terminado cuando:** un profesor de prueba entra, ve solo sus cursos, y el panel muestra el
   agregado de T-82. Verificado **con policies**, no con la UI ([[../CLAUDE]] §7).
 - **Vector:** G-1. **Relacionado:** [[ROADMAP]] F13/H14, S-13, [[PROJECT_BRIEF]] §6 (deja de ser
@@ -3986,7 +4000,7 @@ y arriba θ con su SE, `theta-history`, `stop-reason` y `engine_version`.
 - El θ en el borde del clamp se marca como **censurado** y se dice en pantalla que no es una
   medición (R-44).
 
-### T-133 · Agregado del mapa de errores por conjunto de estudiantes — **P0** · `abierto`
+### T-133 · Agregado del mapa de errores por conjunto de estudiantes — **P0** · ✅ `CERRADA` (2026-09-21)
 
 La versión en pantalla de T-130: elegido un `topic` y una ventana de fechas (o una lista de correos),
 el ranking de misconceptions, los ítems más fallados y el déficit por módulo.
@@ -3996,6 +4010,183 @@ el ranking de misconceptions, los ítems más fallados y el déficit por módulo
 - **Lógica pura y testeable** en namespace propio (ADR-009), con test en `test/`.
 - **Terminado cuando:** reproduce en pantalla lo que T-130 da por SQL, y hay test de la agregación.
 - **Vector:** G-1. *"Si esta pantalla no impresiona, no hay venta"* (T-82).
+
+✅ **Hecho 2026-09-21 (SESSION-048), con ADR-042 y con el criterio de agrupación decidido.**
+La ficha dejaba abierto *«una ventana de fechas (o una lista de correos)»*; se eligió la ventana, y
+**la elección resultó ser estructural y no de conveniencia** (D-74).
+
+- `universo.cohorte` (puro, ADR-009) + `test/universo/cohorte_test.cljs` (**39 tests**), y la
+  pantalla en módulo propio `components/panel_docente.cljs` (R-07), sección `:aula` en `/aula`.
+  ⚠️ **No `/profesor`: esa ruta ya es el currículum público del owner.**
+- **Las reglas de conteo no se reescribieron**: se llaman desde `universo.intento`, donde
+  `cuenta-como-error?` ya era literalmente el criterio de la consulta 2 de T-130. La pantalla y el
+  SQL **no pueden divergir** porque es el mismo código.
+- ⭐ **Verificado como pedía la ficha, y con datos reales:** se compiló `universo.cohorte` como
+  script de node y se corrió sobre los **147 diagnósticos del 2026-09-21** extraídos de
+  `tests_sin_identidad`. Contra el SQL de T-130 sobre la misma ventana: **61 ideas erróneas, mismo
+  orden, mismos conteos**, y los cabezales coinciden (24 estudiantes / 69 intentos / 485 respuestas
+  en la mañana). El único renglón que no comparaba era una idea errónea **con saltos de línea**
+  adentro, que mi propio `grep` cortaba — no el código.
+- **Se agregó una consulta y no se reusó `fetch-admin-tests`:** aquella trae «los N más recientes»
+  con tope 100, y en **un solo día hubo 143 diagnósticos**. Pedir los últimos N habría mostrado 18
+  estudiantes de 26 **sin avisar**, con todos los porcentajes mal repartidos — que es el modo de
+  fallo que vuelve inútil un mapa de errores. `crud/fetch-tests-en-ventana` filtra en el servidor y
+  avisa si alcanzó el tope.
+- ⭐ **Lo que la pantalla agrega sobre T-130, y salió del owner:** el **ítem más fallado con su
+  retroalimentación completa**, para proyectar. Y se resuelve **sin leer `questions`**: desde `025`
+  el banco no es legible fuera de admin, pero cada respuesta guardó el `selected-error` del
+  distractor que eligió, así que la explicación de cada alternativa **está en las respuestas del
+  propio curso**. Si nadie marcó una alternativa, no hay nada que explicar de ella.
+- **Lo que la pantalla dice en voz alta en vez de esconder:** cuántas respuestas quedaron fuera del
+  ranking y por qué (escape, esfuerzo, error sin idea catalogada); que con varios intentos se usa el
+  último de cada banco **y que cuál debería valer sigue abierto** (Q-46); y que un θ en el borde del
+  clamp es un límite alcanzado y no una medición (R-44).
+- **Cero migraciones.** Lee lo que `tests` ya guarda.
+
+⭐ **Segunda tanda (2026-09-21, tras verla el owner): ranking, intentos y gráficos.** El pedido fue
+«un ranking de los que participaron, por tiempo, por porcentaje, etc.» y «qué pasa con el número de
+intentos». Lo que salió de medirlo antes de dibujarlo está en **R-47** (el reintento) y **R-48** (el
+banco se agota). Entró además:
+
+- **Ranking ordenable** por acierto, θ, velocidad, fluidez, intentos, ítems o nombre, comparando por
+  defecto el **primer intento** de cada estudiante — la única base en que dos personas rindieron en
+  las mismas condiciones.
+- **Cuatro gráficos** (`components/graficos_aula.cljs` + `cuadrante_aula.cljs`): barras de acierto
+  por módulo, tira de θ, pequeños múltiples de los intentos y velocidad × acierto. Todos con su
+  **gemelo en tabla**, sin leyenda de color (una sola serie) y **sin dos escalas en un mismo par de
+  ejes**.
+- ⭐ **Se corrigió un defecto real que el owner detectó como «no entiendo esta caja»:** el acierto por
+  módulo se ordenaba **por porcentaje**, así que encabezaba `aritmetica/fracciones` con 38 % —**un**
+  estudiante que entró a un banco ajeno— y dejaba cuarto a `electronica/notacion_cientifica`, donde
+  estaban **23 de 24**. Ahora ordena por evidencia y marca en gris lo que tiene menos de
+  `minimo-de-estudiantes-por-modulo` estudiantes. Es el mismo error que sí se había evitado en el
+  ranking de ideas erróneas.
+- ⭐ **Y se quitaron los juicios de valor de toda la pantalla**, también a pedido del owner: los
+  títulos describen lo que hay («Acierto por módulo», «Ideas erróneas», «Intentos sucesivos») en vez
+  de recomendar («Dónde poner la próxima clase», «La pregunta para empezar la próxima clase»), y los
+  párrafos que sacaban conclusiones por el profesor se reemplazaron por **definiciones del conteo**.
+  Las esquinas del cuadrante rotulan **los ejes**, no un veredicto.
+
+⭐ **Cuarta tanda: por banco de preguntas.** En una hora de clase se rinden **varios** diagnósticos
+(seis en la mañana del 2026-09-21, siete en la tarde, con `diagnostico` y `electrotecnia` mezclados
+entre los de electrónica), y la pantalla agrupaba solo por **módulo** — que no es lo mismo: en
+`electronica` cada banco es un módulo, pero en PAES un banco cubre varios.
+
+- Sección **«Por banco de preguntas»** con estudiantes, intentos, aciertos, % y **θ medio propio**.
+- El banco es **filtro de toda la pantalla**, elegido de la lista de los que de verdad se rindieron
+  (`:aula/bancos-disponibles`, calculada sobre la ventana entera para que elegir uno no haga
+  desaparecer los demás). Reemplaza al campo de texto libre, donde un nombre mal escrito fallaba en
+  silencio.
+- ⭐ **Resuelve algo que la pantalla solo advertía:** θ de bancos distintos está en escalas distintas
+  (ADR-034). **Dentro de un banco sí es comparable**, así que el θ por banco se calcula sobre el
+  último intento de cada estudiante en ese banco.
+- `:banco` (exacto) convive con `:topic-prefijo` (familia) y **no se colapsan en uno**: un prefijo no
+  distingue `electronica_notacion` de `electronica_notacion_avanzada` si algún día existiera.
+
+**Lo que NO cierra:** el rol `profesor` (T-79) y las cuentas para los colegas. Hoy la sección la ve
+`:admin`, con `staff-sections` en `events/auth.cljs` como único lugar a cambiar cuando llegue el rol.
+
+### T-167 · Migración `080`: `cohortes`, rol `profesor` y su policy — **P0** · ✅ `CERRADA` (2026-09-21, aplicada por el owner y verificada contra producción)
+
+La fase 2 de lo que abrió T-133. Es **una sola migración** y es la que convierte la pantalla en un
+producto que se le puede dar a otra persona.
+
+Tres piezas, en este orden:
+
+1. **`public.cohortes`** — `id`, `nombre` ('3º B electrónica'), `profesor_id`, `desde`, `hasta`,
+   `topic_prefijo` nullable, `creado_por`, con `check (hasta > desde)`. RLS: **insert solo
+   `is_admin()`** (D-74: quien define la ventana define lo que ve), select para el dueño y el admin.
+2. **`'profesor'` en el check de `profiles.role`**, que hoy es `check (role in ('user','admin'))`.
+   ⚠️ Revisar que `prevent_last_admin_removal` (`006`) siga siendo correcto con un tercer valor.
+3. **`tests_select_profesor`**: `exists (select 1 from cohortes c where c.profesor_id = auth.uid()
+   and tests.created_at >= c.desde and tests.created_at < c.hasta and (c.topic_prefijo is null or
+   tests.topic like c.topic_prefijo||'%') and tests.origin = 'student')`. Las policies permisivas se
+   combinan con OR, así que **no toca** `tests_select_own`.
+
+- ⚠️ **La aplica el owner, no el agente:** toca el check de `profiles`, que es una tabla con datos
+  personales, y `alter table` excede a `claude_ddl` (ADR-040).
+- **Antes de aplicar:** PostgreSQL desechable, segunda pasada para idempotencia, reversión escrita,
+  y **migración antes que bundle** (R-39, materializado tres veces).
+- ⚠️ **No se entrega ninguna cuenta antes de cerrar F9** (T-07 respaldo, T-09 staging, T-11
+  verificación de RLS): son datos de menores y otra persona pasa a verlos ([[RISKS]] R-28).
+- **Terminado cuando:** una cuenta `profesor` de prueba entra a `/aula`, ve **solo** los tests de su
+  ventana y **cero** filas fuera de ella, verificado **con policies** y no con la UI
+  ([[../CLAUDE]] §7), y `SCHEMA.md` actualizado en el mismo commit.
+- **Vector:** G-1. **Cierra** T-79 junto con la ampliación de `staff-sections`. **ADR-042 / D-74.**
+
+✅ **Escrita y verificada el 2026-09-21** contra PostgreSQL **17.11** desechable (producción es
+17.6), con **seis controles de aislamiento** y no solo de sintaxis:
+
+| Quién mira | Ve de `tests` | Cohortes | `questions` | `profiles` |
+|---|---|---|---|---|
+| profe1 (ventana mañana, prefijo `electronica`) | **2 de 6** | 1 | **0** | 1 |
+| profe2 (ventana tarde) | **1**, nada de profe1 | 1 | 0 | 1 |
+| estudiante | 2 (las suyas) | **0** | 0 | 1 |
+| admin | 6 | 2 | 1 | 6 |
+
+Las **dos filas que profe1 no ve estando en su hora** son las que dan confianza: la corrida
+`admin_preview` del owner y un test de `algebra` descartado por el prefijo.
+
+Además: un profesor **no puede** crear una cohorte (`insufficient_privilege`) ni apropiarse de la de
+otro (`update` afecta **0 filas**); el check rechaza un rol inventado; `anon` no tiene **ningún**
+privilegio sobre `cohortes` (R-46); un rango invertido no entra; la fila justo en el borde superior
+**no** se ve (`[desde, hasta)`); **idempotente** en segunda pasada; y la **reversión escrita
+funciona** y se puede reaplicar después.
+
+⭐ **Y una simplificación que salió de recorrer el código en vez de suponer: T-168 queda sin objeto.**
+El aula hace **una sola consulta** (`crud/fetch-tests-en-ventana`), y el enunciado y las cuatro
+alternativas del «ítem con más errores» salen de `tests.test -> 'questions'` —el JSON del propio
+intento— con la explicación de cada distractor en el `selected-error` de la respuesta. **No hace
+falta abrirle el banco a nadie**, ni por policy ni por RPC.
+
+✅ **Aplicada por el owner el 2026-09-21**, y verificada contra producción después: tabla con RLS,
+4 policies, `tests_select_profesor`, las 2 funciones y el check en `('user','admin','profesor')`.
+**La migración fue antes que el bundle** (R-39).
+
+⏳ **Lo que queda es la verificación en vivo** con una cuenta de profesor real: nadie ha entrado
+todavía como `profesor` a `/aula`.
+
+🟡 **Precisión del owner el 2026-09-21:** los colegas son **profesores del mismo colegio** y son sus
+propios alumnos, así que **no es el caso institucional de R-28**. Siguen abiertas igual **T-07**
+(respaldo), **T-09** (staging) y **T-11** (RLS automatizada), que no dependen del régimen legal.
+
+### T-168 · RPC para proyectar el ítem sin abrir el banco — **P1** · ✅ `CERRADA SIN TRABAJO` (2026-09-21)
+
+Hoy `/aula` muestra el ítem más fallado con sus cuatro alternativas porque **el admin sí lee
+`questions`**. Un `profesor` no: desde `025` la única policy de lectura del banco es
+`questions_select_admin`, y darle el banco entero a un rol nuevo es regalar las claves de todos los
+diagnósticos.
+
+- **La pantalla ya funciona sin el banco para casi todo:** el `selected-error` de cada distractor
+  viaja **dentro de la respuesta**, así que la explicación de una alternativa está en el curso si
+  alguien la marcó. Lo que falta es lo que nadie marcó, y el **Bonus de la correcta**.
+- **Forma propuesta:** `cohorte_item_mas_fallado(cohorte_id uuid)`, `security definer`, que verifica
+  que quien llama es el dueño de esa cohorte y devuelve **ese ítem** con sus alternativas y su
+  explicación. Un ítem, no el banco.
+- **Terminado cuando:** una cuenta `profesor` proyecta el ítem completo y `select * from questions`
+  con esa misma cuenta devuelve **cero filas**.
+- **Dependencias:** T-167. **Vector:** G-1.
+
+✅ **Cerrada sin escribir nada el 2026-09-21: el problema no existía.** La ficha suponía que la
+pantalla leía `questions` para mostrar las alternativas. Recorriendo el código al escribir `080`
+resultó que no: `cohorte/alternativas-del-grupo` las saca de `tests.test -> 'questions'` —lo que el
+propio intento guardó— y `cohorte/idea-de-la-letra` saca la explicación de cada distractor del
+`selected-error` de quien lo marcó. **Un profesor ve el ítem completo sin que el banco se le abra**,
+y de hecho `select * from questions` con una cuenta de profesor devuelve **0 filas** (verificado).
+
+**Lo que sí queda sin mostrarse** es el «Bonus» de la alternativa correcta, que vive en `questions` y
+la pantalla nunca pintó. Si alguna vez hiciera falta, **entonces** hace falta este RPC. · Guardar las cohortes con nombre — **P2** · `abierto`
+
+Hoy la ventana se escribe a mano cada vez que se abre `/aula`. Con T-167 la tabla ya existe, así que
+esto es la mitad cliente: listar las cohortes del profesor, elegir una, y crear una nueva desde el
+panel admin en vez de escribir dos `datetime-local`.
+
+- **Por qué importa más de lo que parece:** una ventana reescrita a mano cada vez es una ventana que
+  tarde o temprano queda mal, y **un mapa de errores con la ventana equivocada no se ve roto** —
+  se ve como un curso que anduvo distinto. Guardarla la vuelve reproducible.
+- **Terminado cuando:** el owner elige «3º B electrónica · 21 de septiembre» de una lista y no
+  escribe ninguna hora.
+- **Dependencias:** T-167. **Vector:** G-1, G-4.
 
 ### T-134 · Que un diagnóstico abandonado deje rastro — **P0** · ✅ `CERRADA` (2026-09-19)
 
@@ -4704,6 +4895,33 @@ llegue migra sin tocar la identidad de los tests ni el histórico de `tests.topi
 
 
 ---
+
+### T-170 · Por qué el banco se agota a los 6 ítems, y qué hace θ mientras tanto — **P0** · `abierto`
+
+Nace de **R-48**, medido el 2026-09-21 sobre los dos cursos reales: **50 de 106 mediciones paran por
+`exhausted` a los 6 ítems, y 44 de ellas sin un solo error**. Son dos preguntas, y conviene medirlas
+en este orden porque la segunda puede depender de la primera:
+
+1. **¿Por qué `exhausted` a los 6?** Los bancos de `electronica` tienen **16 ítems** (T-164) y
+   `max_items` es 8. Si `next_question` descarta candidatos por cercanía de dificultad a θ, el
+   estudiante que sube rápido se queda sin ítems difíciles **porque el banco no tiene ítems
+   difíciles**, no porque los haya visto. Primer paso: contar, por banco, cuántos ítems hay en cada
+   tramo de dificultad y compararlo con el recorrido de θ de una corrida real.
+2. **¿Por qué θ avanza en pasos fijos de 0,4?** La historia medida es
+   `−2 → −1,6 → −1,2 → −0,8 → −0,4 → 0,0`, exacta. Con paso fijo, el θ alcanzable en `n` ítems es
+   `initial + 0,4n` y el instrumento **no puede** distinguir a un estudiante bueno de uno excelente
+   en seis preguntas. Revisar contra ADR-034 si esto es el tope de paso funcionando como se diseñó o
+   un efecto no previsto.
+
+- **Terminado cuando:** está medido y escrito por qué se agota el banco, y decidido si el paso de θ
+  cambia (con `universo.motor/version` subida si cambia el estimador, ADR-034).
+- ⚠️ **No cerrar esto con «subamos `max_items`»** sin responder (1): si el banco no tiene ítems en el
+  tramo alto, más intentos no producen más medición.
+- **Vector:** G-2 (un banco que no discrimina arriba no se puede calibrar), G-4 (Δθ entre dos topes
+  del instrumento no mide progreso).
+- **Mitigación ya aplicada, que no cierra la tarea:** el panel del aula marca estas mediciones y dice
+  cuántas son (`cohorte/theta-al-tope-del-banco?`). Hace visible el problema; no lo arregla.
+- **Relacionado:** [[RISKS]] R-48, R-44, R-17, T-164, T-149, [[../adr/ADR-034-el-motor-modela-el-azar]].
 
 ### T-163 · Acotar los privilegios de tabla al verbo que su policy contempla — **P1** · `abierto`
 

@@ -1,8 +1,238 @@
 # CURRENT_STATUS
 
-**Fecha de corte: 2026-09-20** (SESSION-047 — **el track `electronica` existe en producción**: 5 módulos, 80 ítems, 30 ideas erróneas, 5 tests encadenados y 10 recursos publicados, en nueve migraciones aplicadas (`070`…`079`). Y **T-134 cerrada con ADR-036**: el intento en curso vive en `public.intentos` y el abandono **se deriva**, con lo que quedan cerradas **las dos precondiciones de F12**. Cinco lecciones nuevas (**L-65…L-69**), todas sobre qué significa «verificado» — la que más vale es que **ningún auditor comprueba que la cuenta esté bien**. Pendiente: la revisión pedagógica de los 80 ítems, que es del owner. · Antes: **2026-09-19** (SESSION-046 — 🔺 **el hallazgo es que el flujo no es poco claro, es poco interesante**. El owner revisó el embudo entero y el veredicto fue «genérico y no muy interesante», con los siete auditores en verde y 0 failures. No es un defecto de implementación: es la **tensión nunca registrada** entre la austeridad del lenguaje Braun (ADR-022/023) y que el producto resulte atractivo para alguien de 17 años. **T-153 nueva y P0, requiere ADR-041**; conviene después de T-90. La sesión lo demostró por el camino equivocado: construyó una antesala de seis reglas numeradas —correcta, testeada, y la forma más genérica posible— que quedó **aparcada en la rama `antesala-del-diagnostico`**, no en `main`. Lo que sí entró: **T-141 cerrada** (el diagnóstico no dura 20 min sino ~6 medidos, corregido en los cinco lugares), «Mi plan» deja de mostrarle `aritmetica/operaciones_fundamentales` al estudiante, el perfil de ejemplo de la landing deja de prometer una pantalla distinta de la que entrega, y **A10** en la skill `unidad-de-contenido` — que destapó que **33 de 53 módulos no existen en la línea del tiempo** (**T-154**), incluidos los 15 de cuántica que el propio `042` nombra como motivo para existir. **Q-51 nueva**: cómo marcar el diagnóstico de una cuenta de prueba, que `067` no cubre. El tema oscuro quedó de default, aplicado por el owner). Antes: **2026-09-18** (SESSION-045 — ✅ **el incidente de credenciales queda cerrado**: las dos contraseñas rotadas, el historial reescrito y publicado en `16e2800`, y **cero exposición fuera de la máquina**, medido. **L-63** y **L-64** nuevas. Detalle abajo). Antes, el mismo día: (SESSION-044 día 2 — ⭐ **el agente puede consultar la base**: dos roles, `068`/`069` aplicadas por él, y **cuatro defectos que la documentación ocultaba**, incluido `tests.email-user` poblada en las 350 filas (**R-45**). Detalle abajo). Antes: **2026-09-17** (SESSION-044 día 1 — **sesión de documentación y decisión, cero código**: ADR-038 (el módulo es rendible), ADR-039 (`expected_seconds` por ítem), skill `unidad-de-contenido` con su séptimo auditor, **T-118 cerrada tras 20 días cumplida**, y ⭐ **un defecto de producción encontrado leyendo**: los 102 ítems de probabilidad y los 116 de electrotecnia **no pueden producir un plan personalizado** porque sus slugs no están en `universo.topics/module-slugs`. Detalle en el bloque de abajo). Antes: **2026-09-16** (SESSION-043 — ⭐ **el proyecto mide un canal por primera vez**: `/?de=tarjeta` dejó la fila **1052** con `fuente = 'tarjeta'` **en producción**. `061` la aplicó el owner y el bundle con `p_fuente` salió después, que es el orden que pide R-39. La migración se verificó antes contra un PostgreSQL 14.18 desechable **y un PostgREST real**, y `/?de=tarjeta` deja `visitor.fuente = 'tarjeta'` de punta a punta con el supabase-js del proyecto. **T-135 y T-136 cierran**; el árbol queda limpio. Queda **T-148**: decidir las etiquetas del QR antes de imprimir, que es lo único con plazo duro. **D-68**, **L-62**; segunda instancia de **R-39**, esta vez con el modo de fallo medido. Detalle en el bloque de abajo). Antes: **2026-09-13** (SESSION-042, **cerrada y mergeada a `main`** — T-130, T-110, T-132 y T-92 ✅, `067` aplicada, 20 % de la muestra era depuración; sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
+**Fecha de corte: 2026-09-21** (SESSION-048 — ⭐ **el producto se usó con dos cursos reales, ya existe la pantalla que lo muestra, y el rol `profesor` está escrito y verificado (`080`, ⏳ sin aplicar)**. Mirar la pantalla destapó **R-48: 44 de 106 mediciones no miden** (el banco se queda sin ítems a los 6 y θ avanza en pasos fijos de 0,4). El owner aplicó el sistema a su 3º y su 4º medio de electrónica: **143 diagnósticos, 47 personas**. **T-133 cerrada** con **ADR-042 / D-74**: un curso es una **ventana de tiempo con nombre**, no una tabla `cursos` — y eso **desbloquea T-79**, que llevaba cinco semanas esperando a T-81/Q-36, porque una ventana con dueño alcanza para escribir el aislamiento en RLS. Nace `/aula` (`universo.cohorte` puro con 21 tests + `panel_docente.cljs`), **verificada contra el SQL de T-130 sobre los datos reales**: 61 ideas erróneas, mismo orden, mismos conteos. 🔺 **El hallazgo comercial:** los dos cursos comparten el error dominante — «sumaste las mantisas», **8 de 24** en la mañana y **9 de 21** en la tarde. Es la frase de T-82, con datos propios. ⏳ **Falta la fase 2** (T-167: migración `080` con `cohortes` + rol `profesor` + policy; la aplica el owner) y **la verificación en vivo**: nadie ha visto `/aula` renderizada. · Antes: **2026-09-20** (SESSION-047 — **el track `electronica` existe en producción**: 5 módulos, 80 ítems, 30 ideas erróneas, 5 tests encadenados y 10 recursos publicados, en nueve migraciones aplicadas (`070`…`079`). Y **T-134 cerrada con ADR-036**: el intento en curso vive en `public.intentos` y el abandono **se deriva**, con lo que quedan cerradas **las dos precondiciones de F12**. Cinco lecciones nuevas (**L-65…L-69**), todas sobre qué significa «verificado» — la que más vale es que **ningún auditor comprueba que la cuenta esté bien**. Pendiente: la revisión pedagógica de los 80 ítems, que es del owner. · Antes: **2026-09-19** (SESSION-046 — 🔺 **el hallazgo es que el flujo no es poco claro, es poco interesante**. El owner revisó el embudo entero y el veredicto fue «genérico y no muy interesante», con los siete auditores en verde y 0 failures. No es un defecto de implementación: es la **tensión nunca registrada** entre la austeridad del lenguaje Braun (ADR-022/023) y que el producto resulte atractivo para alguien de 17 años. **T-153 nueva y P0, requiere ADR-041**; conviene después de T-90. La sesión lo demostró por el camino equivocado: construyó una antesala de seis reglas numeradas —correcta, testeada, y la forma más genérica posible— que quedó **aparcada en la rama `antesala-del-diagnostico`**, no en `main`. Lo que sí entró: **T-141 cerrada** (el diagnóstico no dura 20 min sino ~6 medidos, corregido en los cinco lugares), «Mi plan» deja de mostrarle `aritmetica/operaciones_fundamentales` al estudiante, el perfil de ejemplo de la landing deja de prometer una pantalla distinta de la que entrega, y **A10** en la skill `unidad-de-contenido` — que destapó que **33 de 53 módulos no existen en la línea del tiempo** (**T-154**), incluidos los 15 de cuántica que el propio `042` nombra como motivo para existir. **Q-51 nueva**: cómo marcar el diagnóstico de una cuenta de prueba, que `067` no cubre. El tema oscuro quedó de default, aplicado por el owner). Antes: **2026-09-18** (SESSION-045 — ✅ **el incidente de credenciales queda cerrado**: las dos contraseñas rotadas, el historial reescrito y publicado en `16e2800`, y **cero exposición fuera de la máquina**, medido. **L-63** y **L-64** nuevas. Detalle abajo). Antes, el mismo día: (SESSION-044 día 2 — ⭐ **el agente puede consultar la base**: dos roles, `068`/`069` aplicadas por él, y **cuatro defectos que la documentación ocultaba**, incluido `tests.email-user` poblada en las 350 filas (**R-45**). Detalle abajo). Antes: **2026-09-17** (SESSION-044 día 1 — **sesión de documentación y decisión, cero código**: ADR-038 (el módulo es rendible), ADR-039 (`expected_seconds` por ítem), skill `unidad-de-contenido` con su séptimo auditor, **T-118 cerrada tras 20 días cumplida**, y ⭐ **un defecto de producción encontrado leyendo**: los 102 ítems de probabilidad y los 116 de electrotecnia **no pueden producir un plan personalizado** porque sus slugs no están en `universo.topics/module-slugs`. Detalle en el bloque de abajo). Antes: **2026-09-16** (SESSION-043 — ⭐ **el proyecto mide un canal por primera vez**: `/?de=tarjeta` dejó la fila **1052** con `fuente = 'tarjeta'` **en producción**. `061` la aplicó el owner y el bundle con `p_fuente` salió después, que es el orden que pide R-39. La migración se verificó antes contra un PostgreSQL 14.18 desechable **y un PostgREST real**, y `/?de=tarjeta` deja `visitor.fuente = 'tarjeta'` de punta a punta con el supabase-js del proyecto. **T-135 y T-136 cierran**; el árbol queda limpio. Queda **T-148**: decidir las etiquetas del QR antes de imprimir, que es lo único con plazo duro. **D-68**, **L-62**; segunda instancia de **R-39**, esta vez con el modo de fallo medido. Detalle en el bloque de abajo). Antes: **2026-09-13** (SESSION-042, **cerrada y mergeada a `main`** — T-130, T-110, T-132 y T-92 ✅, `067` aplicada, 20 % de la muestra era depuración; sesión de negocio: **épica E9** abierta — el dato de los diagnósticos está en la base y el panel no lo muestra; **T-130 escrita y verificada**, sin correr contra datos reales; **T-90 pasa a `a medias`**; **D-67** fija la meta en CLP 48M/año; **Q-43** abre la pregunta de segmento tras saber que el owner enseña electrónica, no matemática; **R-43** nuevo. Detalle en el bloque de abajo). Antes: **2026-09-09** (rama `track-electrotecnia`; lo que sigue describe `main`) · Antes: **2026-08-28** · Rama **`main`** · **`049`…`059` aplicadas y verificadas**: los **cuatro ejes del temario tienen banco publicado** —414 ítems, 402 activos— con bandas explícitas, encadenados desde números, y `questions.active` ya existe y se respeta. **No queda ninguna migración pendiente:** con `060` aplicada, los **26 módulos del producto** tienen banda explícita y ninguno depende ya del reparto derivado. Lo que falta es la revisión pedagógica de los cuatro bancos (T-120, T-121, T-123, T-124) y retirar los bancos viejos duplicados (T-122). Antes en el día: **todo pusheado** (`2549ac0`) y **`048` aplicada por el owner antes del push** (283 filas en v1, 0 sin versión). El motor v2 está en producción; ~~no se ha rendido un diagnóstico real con él todavía~~ **— obsoleto: el 2026-09-10 se rindieron 40 tests reales, los 17 de `numeros` con `engine_version = 2`** (SESSION-042)
 >
 > *(`escape-no-se` ya está mergeada en `main`; la línea anterior decía lo contrario y quedó corregida el 2026-08-23.)*
+
+> ## ⭐ 2026-09-21 — dos cursos reales, y la pantalla que los lee
+>
+> **El producto salió de la sala del owner y entró a dos cursos.** 3º y 4º medio de electrónica,
+> presencial, el mismo día. Medido sobre `tests_sin_identidad`:
+>
+> | Bloque | Diagnósticos | Personas | Primero → último |
+> |---|---|---|---|
+> | Mañana | 71 | **26** | 10:35 → 11:41 |
+> | Tarde | 72 | **21** | 14:08 → 15:17 |
+>
+> **Cero personas en los dos bloques.** Esa medición —y no una preferencia de diseño— es lo que
+> decidió **ADR-042**: un curso es una **ventana de tiempo con nombre**, no una tabla `cursos`.
+>
+> ⭐ **Lo que eso desatasca es más importante que la pantalla.** T-79 (rol `profesor`) dependía de
+> T-81 (multi-tenant), que depende de **Q-36**, abierta desde el 2026-08-16. La objeción era
+> correcta: *«el rol sin aislamiento es un agujero»*. Pero **una ventana con dueño alcanza para
+> escribir el aislamiento en RLS** — la policy es «existe una cohorte mía cuya ventana contiene esta
+> fila» — **sin modelar nada institucional**. T-81 deja de ser precondición dura.
+>
+> **T-133 cerrada.** `universo.cohorte` (puro, ADR-009, **21 tests**) + `/aula`
+> (`components/panel_docente.cljs`, módulo propio por R-07). **Cero migraciones**: lee lo que `tests`
+> ya guarda. Las reglas de conteo **no se reescribieron** — se llaman desde `universo.intento`, donde
+> `cuenta-como-error?` ya era literalmente el criterio de la consulta 2 de T-130, así que la pantalla
+> y el SQL **no pueden divergir**.
+>
+> ⭐ **Verificado como exige la ficha, contra datos reales y no contra un fixture:** se compiló el
+> namespace como script de node y se corrió sobre los **147 diagnósticos** del día. Contra el SQL de
+> T-130 en la misma ventana: **61 ideas erróneas, mismo orden, mismos conteos**; cabezales
+> coincidentes (24 estudiantes / 69 intentos / 485 respuestas en la mañana). El único renglón que no
+> comparaba era una idea errónea **con saltos de línea adentro**, que cortaba el `grep` de la
+> comparación — no el código.
+>
+> 🔺 **El hallazgo con más valor comercial no es código:** **los dos cursos comparten el error
+> dominante**. «Sumaste las mantisas. Con los exponentes se suma; con las mantisas se multiplica» lo
+> cometen **8 de 24 (33 %)** en la mañana y **9 de 21 (43 %)** en la tarde. Eso es exactamente lo que
+> T-82 dice que hay que poder decirle a un colegio, y por primera vez sale de datos propios.
+>
+> ⭐ **Y una pieza que el owner pidió y que resultó gratis:** proyectar el **ítem más fallado con su
+> retroalimentación completa**. Se resuelve **sin leer `questions`** —que desde `025` no es legible
+> fuera de admin— porque cada respuesta guardó el `selected-error` del distractor elegido: la
+> explicación de cada alternativa **está en las respuestas del propio curso**. Los ítems: **#1108**
+> en la mañana (63 % de acierto, 8 fallaron) y **#1112** en la tarde (52 %, 11 fallaron, y **9 de los
+> 11 marcaron la misma alternativa**).
+>
+> ⚠️ **Tres cosas que esta pantalla dice en voz alta en vez de esconder:** cuántas respuestas
+> quedaron fuera del ranking y por qué (escape ADR-029, esfuerzo ADR-014, error sin idea catalogada);
+> que con varios intentos se usa el último de cada banco **y que cuál debería valer sigue siendo
+> Q-46**; y que un θ en el borde del clamp es un límite alcanzado y no una medición (R-44).
+>
+> ⏳ **Lo que falta, y es deliberado:**
+>
+> 1. **La verificación en vivo del owner.** Los números están verificados contra SQL, pero **nadie
+>    ha visto `/aula` renderizada**: el agente no tiene cuenta en la aplicación (Q-51).
+> 2. **T-167** — la migración `080`: `cohortes` + `'profesor'` en el check de `profiles.role` +
+>    la policy de lectura. **La aplica el owner** (toca una tabla con datos personales, ADR-040).
+> 3. ⚠️ **Ninguna cuenta de profesor se entrega antes de cerrar F9** (T-07, T-09, T-11): dar cuenta a
+>    un colega es dar acceso a datos de menores a otra persona (**R-28**).
+>
+> ⚠️ **Y un costo aceptado que conviene no olvidar:** dos cursos **simultáneos** en salas distintas
+> se mezclarían en una misma ventana. Hoy no pasa —está medido—, y el día que pase, es T-81.
+>
+> ### 🔺 Y la segunda tanda del día encontró algo que vale más que la función que la motivó
+>
+> El owner vio la pantalla y pidió **un ranking de los que participaron**, ordenable por tiempo, por
+> porcentaje, «etc.», y saber **qué pasa con el número de intentos**. Medir los reintentos **antes**
+> de dibujar el ranking mostró que un ranking ingenuo habría sido falso:
+>
+> | Nº de intento | Casos | Segundos por ítem | % acierto | θ medio |
+> |---|---|---|---|---|
+> | 1º | 26 | **22,2** | 50 % | −1,78 |
+> | 2º | 26 | 7,7 | 76 % | −0,68 |
+> | 4º | 3 | 4,1 | 95 % | +0,57 |
+> | 6º | 1 | **1,7** | 100 % | +0,47 |
+>
+> Y entre intentos consecutivos **se repiten 4,7 de 7,1 ítems (67 %)**, con la explicación correcta
+> ya vista. **Es R-47 medido**, no estimado, y es peor de lo que su ficha calculaba — incluso después
+> de que T-164 subiera los bancos a 16 ítems, porque ese piso dice que un reintento *puede* no
+> repetir, no que no repita.
+>
+> ⚠️ **El filtro de esfuerzo no lo tapa:** ADR-014 descarta por debajo de 2 s, así que una correcta
+> en 4 s entra a θ. Está calibrado contra el click-through, no contra el recuerdo. **Nada del
+> pipeline actual protege a θ de un reintento memorizado.**
+>
+> **Consecuencia aplicada:** el ranking compara por defecto el **primer intento** de cada estudiante,
+> y ordenar por el último muestra una advertencia. Sin eso premia repetir: los cinco primeros por
+> acierto sobre el último intento tenían **4, 4, 4, 6 y 15 intentos**, todos al 100 %. La velocidad
+> se mide solo sobre **aciertos con esfuerzo válido**, porque cronometrar los errores haría que el
+> «más rápido» del curso fuera quien clickea sin leer.
+>
+> Se agregó además un **cuadrante velocidad × acierto** (`components/cuadrante_aula.cljs`), que es la
+> única lectura que una columna ordenada no da: separa a quien contesta rápido **y bien** de quien
+> contesta rápido **y mal**. Se miró renderizado con datos reales —no solo compilado— y la primera
+> versión tenía un rótulo **encima de un punto**; ninguna validación automática ve eso.
+>
+> ### 🔺 Y una tercera pasada, que encontró el defecto más serio del día
+>
+> El owner leyó la pantalla y dijo dos cosas: **«hay muchos juicios de valor»** y **«no entiendo qué
+> hace esta caja»**, señalando «Dónde poner la próxima clase». Las dos eran correctas, y la segunda
+> no era de redacción:
+>
+> **El acierto por módulo se ordenaba por porcentaje**, sin mirar cuánta evidencia había detrás. Con
+> ese orden encabezaba `aritmetica/fracciones` con 38 % —**un** estudiante que se metió en un banco
+> ajeno— y `electronica/notacion_cientifica`, donde estaban **23 de 24**, quedaba **cuarto**. Bajo un
+> título que decía «lo que hay que volver a enseñar». Es el mismo error que sí se había evitado en el
+> ranking de ideas erróneas (ordenar por estudiantes y no por frecuencia) y que acá se coló. Corregido
+> con test de regresión, y lo que tiene menos de tres estudiantes queda **en gris**.
+>
+> **Se quitaron los juicios de valor de toda la pantalla.** Los títulos ahora describen lo que hay
+> —«Acierto por módulo», «Ideas erróneas», «Intentos sucesivos», «El ítem con más errores»— en vez de
+> recomendar, y los párrafos que sacaban la conclusión por el profesor se reemplazaron por
+> **definiciones del conteo**. Las esquinas del cuadrante rotulan los ejes, no un veredicto.
+>
+> ### ⚠️ R-48, que salió de mirar un gráfico
+>
+> La tira de θ mostró una pila de puntos apiñados en θ ≈ 0 donde debía haber dispersión. No era el
+> gráfico. Medido sobre las 106 mediciones de los dos cursos:
+>
+> | Parada | Mediciones | **Sin ningún error** | Ítems | θ medio |
+> |---|---|---|---|---|
+> | `exhausted` | **50** | **44** | 6,0 | +0,24 |
+> | `max-items` | 53 | 5 | 9,0 | −1,12 |
+>
+> **44 de 106 mediciones son de estudiantes que no fallaron nada y se quedaron sin preguntas a los 6
+> ítems.** Su historia de θ es `−2 → −1,6 → −1,2 → −0,8 → −0,4 → 0,0`: **paso fijo de +0,4 por
+> acierto**. Ese número no es un nivel, es hasta dónde llegó a caminar el test — y como todos arrancan
+> en el mismo `initial_theta` y dan el mismo paso, **terminan todos en el mismo valor**.
+>
+> Son dos problemas distintos: **el paso fijo** (ADR-034) y que **el banco se agote a los 6 ítems
+> teniendo 16** (T-164). Lo segundo no está explicado en ninguna parte de la memoria. Es **T-170**, y
+> afecta a G-2 y a G-4 de frente: un Δθ entre dos topes del instrumento mide el instrumento.
+>
+> **Mitigado, no arreglado:** la tira de θ dibuja esas mediciones **huecas** y la sección dice cuántas
+> son. En el curso de la mañana son **30 de 53**.
+>
+> ### Y una cuarta pasada: los resultados **por banco de preguntas**
+>
+> El owner: *«hay veces que se rinden diferentes diagnósticos»*. Es exacto — en la mañana se
+> rindieron **seis bancos** y en la tarde **siete**, incluidos `diagnostico` (PAES) y `electrotecnia`
+> mezclados con los cinco de electrónica. La pantalla agrupaba por **módulo**, que no es lo mismo:
+> en `electronica` cada banco es un módulo, pero en el producto PAES un banco cubre varios.
+>
+> Ahora hay una sección **«Por banco de preguntas»** con las métricas propias de cada uno, y el banco
+> es un **filtro de toda la pantalla**: se elige de una lista de los que de verdad se rindieron (no
+> escribiendo el nombre), y el resto de las secciones se recalcula para ese banco.
+>
+> ⭐ **Eso además resuelve algo que la pantalla solo advertía:** θ de bancos distintos está en escalas
+> distintas (ADR-034), así que el θ medio de una cohorte con seis bancos mezclados dice poco.
+> **Dentro de un banco sí es comparable**, y por eso el θ medio por banco se calcula sobre el último
+> intento de cada estudiante en ese banco. Medido en la mañana: `electronica_notacion` −0,65 con 23
+> estudiantes, `electronica_ohm` +0,12 con 9, `diagnostico` −3,00 con 1 (censurado).
+>
+> Se usó otra vez el serializador de hiccup para mirar la tabla renderizada, y apareció un defecto de
+> maquetación —«100 %» partido en dos líneas— más **dos falsos defectos del propio verificador** (no
+> traducía el mapa `:style` de hiccup a CSS, y le faltaba `.h-full`), que hacían ver todos los rieles
+> del mismo largo. Anotado: cuando la prueba dice que algo está mal, hay que descartar primero la
+> prueba.
+>
+> ### ⚠️ Quinta pasada: el tema oscuro, que es el default
+>
+> El owner: *«con el tema oscuro las gráficas no se ven bien, y se pierde la nomenclatura que explica
+> los puntos»*. El SVG estaba bien; lo que fallaba era **el texto encima del visor**.
+>
+> El `.visor` es la única superficie que **no se invierte** (ADR-023): es clara en los dos temas,
+> porque es el vidrio de un instrumento. Pero el mapeo global vuelve `text-gray-600` un gris
+> **claro** en oscuro, y encima de un visor claro eso es ilegible. `irt_chart.cljs` lo resolvía
+> fijando literales en cada elemento; los tres componentes nuevos no se acordaron. **La regla pasa al
+> CSS** (`.dark .visor .text-gray-*` vuelve a la tinta del tema claro) y deja de haber que recordarla.
+>
+> ⭐ **Y buscándolo apareció algo más viejo:** `.alojamiento .grabado` y `.visor .grabado` compartían
+> una sola regla CSS, pintando **dos superficies opuestas** con el mismo color. Sobre el alojamiento
+> (oscuro) daba 7.83 ✓; sobre el visor (claro) daba **panel-100 sobre panel-100 = contraste 1.0**:
+> invisible, en los dos temas, desde hacía meses.
+>
+> ⚠️ **Los dos auditores estaban en verde**, y no por descuido: `audit_dark_theme.py` busca clases
+> **sin mapear** —ésta estaba mapeada, mal pero mapeada— y `audit_contraste.py` mide **pares
+> declarados**, y el par declarado era el del alojamiento. **Un contrato de pares no cubre una regla
+> que pinta dos superficies con el mismo selector.** Se separó el selector y se declaró el par que
+> faltaba: **49 pares**. Es **L-70**.
+
+> ## ✅ 2026-09-21 — el rol `profesor` existe en producción
+>
+> **T-167 CERRADA (aplicada por el owner); T-79 a medias; T-168 cerrada sin escribir nada.**
+> `080_cohortes_y_rol_profesor.sql` crea `public.cohortes`, agrega `profesor` al check de
+> `profiles.role` y le da a un profesor lectura de `tests` **acotada a sus cohortes**.
+>
+> ⭐ **El aislamiento no necesitó multi-tenant.** La policy dice literalmente *«existe una cohorte
+> mía cuya ventana contiene esta fila»* (ADR-042 / D-74), así que **Q-36 y T-81 siguen abiertas** y
+> hacen falta el día que haya **dos colegios**. Hoy no los hay.
+>
+> **Verificado contra PostgreSQL 17.11 desechable** (producción es 17.6), con seis controles de
+> aislamiento y no solo de sintaxis:
+>
+> | Quién mira | `tests` | Cohortes | `questions` | `profiles` |
+> |---|---|---|---|---|
+> | profe1 (ventana mañana, prefijo `electronica`) | **2 de 6** | 1 | **0** | 1 |
+> | profe2 (ventana tarde) | **1**, nada de profe1 | 1 | 0 | 1 |
+> | estudiante | 2 (las suyas) | **0** | 0 | 1 |
+> | admin | 6 | 2 | 1 | 6 |
+>
+> Las **dos filas que profe1 no ve estando en su misma hora** son las que dan confianza: la corrida
+> `admin_preview` del owner y un test de `algebra` descartado por el prefijo. Además: un profesor no
+> puede crear una cohorte ni apropiarse de la de otro (`update` afecta **0 filas**), `anon` no tiene
+> **ningún** privilegio sobre `cohortes` (R-46), el borde superior de la ventana **no** entra
+> (`[desde, hasta)`), es **idempotente** y la **reversión escrita funciona y se puede reaplicar**.
+>
+> ⭐ **T-168 se cerró sin escribir nada, porque el problema no existía.** Su ficha suponía que la
+> pantalla leía `questions` para pintar las alternativas. No las lee: salen de
+> `tests.test -> 'questions'` —el JSON del propio intento— y la explicación de cada distractor del
+> `selected-error` de quien lo marcó. **No hace falta abrirle el banco de ítems a nadie**, y
+> `select * from questions` con cuenta de profesor devuelve **0 filas**, medido.
+>
+> **En el cliente** (compilado, no publicado): `auth/rol-alcanza?` decide qué sección alcanza cada
+> rol —`:aula` acepta admin o profesor, `:admin` sigue siendo solo admin—, el aula carga las
+> cohortes y las ofrece como cursos, el admin puede crearlas eligiendo al profesor de una lista, y
+> el panel de usuarios pasa de un conmutador de dos estados a **tres roles**.
+>
+> ✅ **Aplicada por el owner el mismo día**, y verificada contra producción después: tabla con RLS,
+> **4 policies**, `tests_select_profesor`, las **2 funciones** y el check en
+> `('user','admin','profesor')`. **La migración fue antes que el bundle**, que es lo que pide R-39.
+>
+> 🟡 **Precisión del owner que cambia el encuadre de R-28:** los colegas que van a recibir el rol son
+> **profesores del mismo colegio** y son **sus propios alumnos**. No es el caso de la ficha —un
+> tercero cargando una matrícula bajo contrato—, así que **ese escalón todavía no se cruzó**. Lo que
+> no cambia: **T-07** (respaldo) y **T-09** (staging) siguen haciendo falta, ahora con datos reales
+> de dos cursos y una segunda persona mirándolos; **T-11** (RLS automatizada) sigue abierta —el
+> aislamiento de `080` se verificó **a mano**—; y el aviso de privacidad **no dice todavía** que un
+> profesor pueda ver resultados con el correo del estudiante.
+>
+> ⏳ **Lo único que queda es la verificación en vivo:** nadie ha entrado como `profesor` a `/aula`.
 
 > ## ✅ 2026-09-20 — el track de electrónica está aplicado en producción
 >
