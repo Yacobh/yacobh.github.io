@@ -359,7 +359,7 @@ Y los nueve posteriores, que tocan lo que se está trabajando hoy:
 - Navegar como humano → [[OBSIDIAN_WORKSPACE_GUIDE]]
 - Planificar → [[ROADMAP]], [[BACKLOG]], [[RISKS]]
 
-**Contexto histórico:** `PROJECT_SUMMARY.md` es la documentación anterior a esta memoria. Contiene
+**Contexto histórico:** `docs/historico/PROJECT_SUMMARY.md` (archivado el 2026-09-23, T-33) es la documentación anterior a esta memoria. Contiene
 información desactualizada (describe módulos previos al MVP como parte del producto). Úsalo solo como
 referencia histórica; ante cualquier discrepancia, **gana `project-memory/`** ([[OPEN_QUESTIONS]] X-07).
 

@@ -1,3 +1,8 @@
+> ⛔ **Documento histórico — no describe el proyecto actual.** Es la documentación anterior a la
+> memoria del proyecto (ADR-010). Se movió de la raíz a `docs/historico/` el 2026-09-23 (T-33) para
+> que nadie lo tome por vigente: describe módulos previos al MVP como parte del producto. Ante
+> cualquier discrepancia gana `project-memory/` — empieza por `project-memory/HANDOFF.md`.
+
 # Universo - Plataforma de Evaluación Adaptativa
 
 ## 📋 Descripción General

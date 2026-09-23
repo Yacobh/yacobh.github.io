@@ -38,7 +38,7 @@ De esto se derivan cuatro consecuencias que no son negociables:
    [[OPEN_QUESTIONS]] §Contradicciones y sigue con lo que no dependa de esa ambigüedad.
 5. **Precedencia de fuentes:** para *estado* gana [[CURRENT_STATUS]]; para *cómo está construido*
    gana [[ARCHITECTURE]]; para *por qué* gana el ADR; para *qué hace el código ahora mismo* gana el
-   código. `PROJECT_SUMMARY.md` es histórico y **no** gana nunca.
+   código. `docs/historico/PROJECT_SUMMARY.md` es histórico y **no** gana nunca (archivado 2026-09-23, T-33).
 6. **Reporta con honestidad.** Si un test falla, muestra la salida. Si no verificaste algo, dilo. Si
    no llegaste a terminar, di exactamente qué quedó fuera. No hay ningún valor en un informe
    optimista.

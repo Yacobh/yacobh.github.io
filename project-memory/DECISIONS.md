@@ -164,7 +164,7 @@ Requieren decisión antes de poder avanzar en la tarea asociada. **No asumir la 
 | P-06 | ¿Cómo se configura la URL de Supabase si se crea **staging**? Hoy está inline en el código | T-09 | — |
 | P-07 | ¿El flujo del estudiante debe recibir los ítems **sin** `correct_option` (validación en servidor)? | R-16 | Q-12 |
 | P-09 | ¿Se conserva, mueve o borra el **código no alcanzable** (`mathacademy`, `jardin`, `physics`…)? | T-23 | — |
-| P-10 | ¿`PROJECT_SUMMARY.md` se archiva, se reduce a un puntero o se mantiene? | T-33 | — |
+| P-10 | ¿`PROJECT_SUMMARY.md` se archiva, se reduce a un puntero o se mantiene? | T-33 | ✅ **Archivado** en `docs/historico/` el 2026-09-23 (SESSION-050), con cabecera de documento histórico. El owner aprobó cerrar T-33 sin supervisión; la elección entre archivar y dejar un puntero fue del agente, y se revierte con un `git mv` |
 | ~~P-11~~ | ~~¿Se abre una **épica de negocio nueva** en [[BACKLOG]] para roadmapear el camino hacia [[VISION_LIBRO_PROYECTO]] (ADR-011), o se sigue agregando fase por fase a F8+?~~ ✅ **RESUELTA 2026-08-16: se abre la épica E8** ("Motor de valor") en [[BACKLOG]] y el track de fases **F12–F16** en [[ROADMAP]]. Ambas cosas, no una u otra: la épica lleva las tareas, las fases llevan el orden | Planificación de mediano plazo | Q-21 ✅ |
 | **P-14** | ¿El **precio de la licencia institucional** es por alumno, por establecimiento con piso, o por nivel? Los CLP 6.000/alumno y el piso de CLP 1.500.000 de [[TESIS_DE_CRECIMIENTO]] §3 son **supuestos sin testear con ningún comprador** | F13, T-80 | [[OPEN_QUESTIONS]] Q-32 |
 | **P-15** | ¿Se cobra suscripción B2C, y a qué precio, o el B2C queda 100 % gratuito como puro embudo? | F13 | Q-33 |

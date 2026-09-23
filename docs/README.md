@@ -33,6 +33,10 @@ necesita para continuar el proyecto?* Si sí, es memoria. Si es un procedimiento
 
 ## Nota sobre `PROJECT_SUMMARY.md`
 
+> ✅ **Archivado el 2026-09-23 (T-33):** vive en `historico/PROJECT_SUMMARY.md`, con una cabecera que
+> lo marca como histórico. Se movió con `git mv`, así que su historia sigue en Git y la decisión se
+> revierte con otro `git mv`. Lo que sigue es la nota original.
+
 `../PROJECT_SUMMARY.md` es la documentación **anterior** a esta memoria. Se conserva en la raíz por
 ahora, pero contiene información desactualizada: describe una estructura de módulos previa al MVP y
 presenta como parte del producto namespaces que hoy no son alcanzables desde `core.cljs`
