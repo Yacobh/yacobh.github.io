@@ -858,8 +858,8 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
       imperativo, que no se tocaron).
     - No hace falta bundle: es solo contenido, así que R-39 no aplica.
 
-80. `migrations/082_modulo_de_los_items_de_diagnostico.sql` — ⏳ **escrita y verificada
-    2026-09-22, sin aplicar.** Asigna `module_id` a los **28 ítems de `diagnostico` que no tenían**
+80. `migrations/082_modulo_de_los_items_de_diagnostico.sql` — ✅ **aplicada 2026-09-22 por el
+    owner**, verificada en producción ese día (0 ítems activos de `diagnostico` sin módulo). Asigna `module_id` a los **28 ítems de `diagnostico` que no tenían**
     (todo el álgebra, los tres de enteros y uno de potencias). `diagnostico` cubre varios módulos, así
     que la regla por topic de `029`/`030` no le alcanza: va ítem por ítem. Medido ese día: **485 de
     las 781 respuestas** del curso del 2026-09-22 eran de ítems sin módulo, y no movían ni el déficit
@@ -876,6 +876,27 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
       deja todo idéntico.
     - ⚠️ Anotado en el pie: **36 y 112 son el mismo ítem** ($x^2 - 5x + 6 = 0$). Retirar uno es otra
       decisión.
+
+81. `migrations/083_dificultad_del_banco_diagnostico.sql` — ⏳ **escrita y verificada 2026-09-22,
+    sin aplicar.** Rehace la `difficulty` de los **64 ítems** de `diagnostico`. Las etiquetas viejas
+    eran un **correlativo**, no un juicio (22 ítems de álgebra en 1,00 · 1,01 · … · 1,20; «3x4» en
+    **2,9**, el más difícil del banco), con un hueco de un solo ítem entre −1,2 y 1,0. Es la parte
+    de T-170 / R-48 que se arregla con contenido.
+
+    Valores nuevos: escala de **diagnóstico mixto** (operaciones → fracciones y enteros → ecuaciones
+    y expresiones → factorización, cuadrática y funciones), ordenados dentro de cada contenido por
+    los pasos que exigen y **contrastados con 978 respuestas reales** (un `b` por ítem con θ fijo,
+    usado solo como alerta: errores estándar de 0,5 a 1,5). **Es hipótesis autoral, no
+    calibración.** Corrige además el enunciado del ítem 33 (`$3x4$` → `$3 \times 4$`).
+
+    - **Verificada contra PostgreSQL 17** con `questions` completa copiada de producción: dos
+      pasadas iguales, cambian 63 filas (el ítem 31 ya valía −3,0), 0 fuera de `diagnostico`,
+      reparto por tramo `26 · 10 · 6 · 8 · 13 · 1`, y la reversión del pie deja todo idéntico.
+    - **Simulado** (150 corridas por nivel, tomando las etiquetas nuevas como verdad): el error
+      típico baja de 0,87 a 0,69 en θ = −1 y de 0,71 a 0,59 en θ = 0; **arriba de 1 no mejora**.
+      Arriba de 2 queda **un solo ítem**: eso se arregla con ítems nuevos, no con etiquetas.
+    - ⚠️ `universo.motor/version` no sube (ADR-034: modelo, prior y parada no cambian), pero **el
+      θ de `diagnostico` de antes y después de aplicarla no es comparable** (G-4).
 
 > **Verificación (2026-09-20).** Contra **PostgreSQL 17.11** con `071`…`076` aplicadas antes, y
 > después contra la base real. Aplica limpia, idempotente, los siete ítems quedan con sus valores
