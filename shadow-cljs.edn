@@ -19,7 +19,13 @@
                                        ; (tu archivo core-test.cljs coincide con esto)
                  :autorun true ; shadow-cljs intentará ejecutar los tests automáticamente
                  :compiler-options {:warnings {:fn-deprecated false}} ; Opcional: suprime warnings específicos si es necesario
-                 }}
+                 }
+                ;; Calibración del banco (T-76). Script de node, fuera del
+                ;; bundle: corre `universo.irt.calibracion` sobre un volcado
+                ;; de la base. Ver `scripts/calibrar_banco.sh`.
+                :calibracion {:target    :node-script
+                              :output-to "out/calibracion.js"
+                              :main      universo.irt.calibracion-cli/main}}
 
   ;; `:root "."` es la raíz del repo, igual que GitHub Pages (ADR-027): en
   ;; desarrollo se sirve **el mismo `index.html` que se publica**, no una copia.
