@@ -1132,6 +1132,16 @@ de leerse como si fuera un nivel. El arreglo de fondo es **T-170**.
 **Relacionado:** R-44 (θ censurado por el clamp — es otro mecanismo, se cuentan por separado),
 R-47, R-17, ADR-034, T-164, [[BACKLOG]] T-170, `sessions/SESSION-048.md`.
 
+**2026-09-22 — el mismo síntoma en el banco `diagnostico`, por un mecanismo distinto** (SESSION-049).
+No se agota: tiene 64 ítems y `max_items = 20`. Lo que pasaba es que **arriba de 1,2 había 3
+ítems** y las etiquetas eran un correlativo (22 ítems de álgebra en 1,00…1,20; «3x4» en 2,9). De 28
+estudiantes, **10 terminaron entre 2,3 y 3,0**, con intervalo del 95 % de ~[1,3, 4,9]. El clamp
+solo mordió a dos (20/20 → MAP 4,0; 10/10 → 3,6): **el problema no es el estimador, es que el banco
+no tiene con qué medir arriba**. `083` rehízo las 64 etiquetas (aplicada 2026-09-22): el hueco
+central se llena (1 → 14 ítems entre −1 y 1) y el error simulado baja en el medio (0,87 → 0,69 en
+θ = −1), **pero arriba de 1 no mejora**: sobre 2 queda un ítem. Eso es **T-171**. ⚠️ El θ de
+`diagnostico` anterior a `083` no es comparable con el posterior.
+
 ### R-47 · El reintento mide memoria, no dominio
 
 **Abierto 2026-09-20**, al confirmar el owner que *«si un estudiante no pasa un test lo puede volver

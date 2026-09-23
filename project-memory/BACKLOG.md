@@ -3590,6 +3590,11 @@ acumuladas (252 diagnósticos al 2026-08-09 y creciendo), en un namespace puro y
   por ítem con su error, está testeado, y la comparación contra la `difficulty` autoral actual está
   documentada (cuántos ítems se mueven y cuánto).
 - **Vector:** G-2. **Relacionado:** [[ROADMAP]] F12, [[RISKS]] R-17/R-29, Q-05, T-29, T-50, T-65.
+- **Primer ensayo, 2026-09-22 (SESSION-049):** para `083` se estimó un `b` por ítem de `diagnostico`
+  **con el θ de cada estudiante fijo** y c = 0,25 (978 respuestas, 38 ítems con ≥ 12). Sirvió como
+  alerta, no como calibración: errores estándar de 0,5 a 1,5, y el θ fijo salió de las etiquetas
+  viejas (circular). **8 de 64 ítems tienen ≥ 30 respuestas.** El script no quedó en el repo; el
+  pipeline de verdad necesita estimación conjunta (JML/MML), no θ fijo.
 
 ### T-77 · Reporte técnico de calibración publicable — **P0** · `abierto`
 
@@ -3674,6 +3679,10 @@ estudiantes de 4º B confunden el signo al despejar en inecuaciones"*.
   dentro de un `reg-event-fx`.
 - **Vector:** G-1. **Es el momento de la verdad del piloto:** si esta pantalla no impresiona, no
   hay venta.
+- **Tercer curso con la frase, 2026-09-22:** en `diagnostico`, **«Sumó numeradores y denominadores»**
+  lo cometen **10 de 28** estudiantes. Junto con «sumaste las mantisas» (8/24 y 9/21 el 2026-09-21),
+  ya son tres cursos con un error dominante nombrable. ⚠️ Ese día «Correcta» aparecía como segunda idea
+  errónea por el defecto que corrigió `081`; los intentos guardados lo conservan.
 
 ### T-83 · Histórico versionado de perfiles y Δθ con su error — **P1** · `abierto`
 
@@ -3971,6 +3980,12 @@ profesora de matemática que ofreció el suyo— con el mapa de T-130 proyectado
   cara pone el profesor, qué preguntan los estudiantes) y **R-31 queda confirmado o refutado**.
 - **Guarda heredada (R-32):** que la dirección o UTP del liceo lo sepa, aunque sea informal.
 - **Bloqueante previo:** **T-93 sigue a medias** — el contrato del liceo no se ha leído.
+- 🟡 **2026-09-22 — la observación (1) ya está medida, en un curso de matemática** (SESSION-049).
+  Un curso con profesora de matemática asignada rindió `diagnostico` (28 estudiantes, 12:27–13:05).
+  Primeros intentos: **13 llegaron a las 20 preguntas** (11,1 min en promedio), **13 los cortó el
+  límite de 20 minutos** con 13,4 preguntas y **2 abandonaron**. O sea: **20 ítems en 20 minutos no
+  cabe para la mitad del curso**, y justo los que más avanzan son los que se cortan (llegan al
+  álgebra, que toma más tiempo por ítem). Faltan **(2) y (3)**, que solo el owner puede escribir.
 
 ### T-132 · Vista de detalle de un diagnóstico en el panel — **P0** · ✅ `CERRADA` (2026-09-13, verificada en vivo por el owner)
 
@@ -4421,6 +4436,10 @@ dio θ = −0,85 contra los +0,80 y +0,67 de sus dos intentos serios.
   fracción de respuestas con esfuerzo válido. **No se decide de memoria.**
 - **Terminado cuando:** la regla está escrita, implementada en lógica pura con test, y aplicada tanto
   en el tablero del estudiante como en la calibración.
+- **Dato nuevo, 2026-09-22 (curso de `diagnostico`):** **12 de 28 rindieron más de una vez**. Entre el
+  primer y el último intento θ sube en promedio **+1,93**, 10 de 12 suben más de 0,5, y **el 45 % de
+  los ítems del último intento ya estaba en el primero**. Es R-47 (el reintento mide memoria) fuera de
+  electrónica, y con el mismo orden de magnitud.
 
 ### T-143 · Los bancos viejos se llevaron la mitad de la hora de clase — **P1** · `abierto`
 
@@ -4440,6 +4459,9 @@ produce dato calibrable del banco bueno.
   `diagnostico` (10), `ecuaciones_simples` (5) y `polinomios` (1), los duplicados muertos— mientras
   `geometria` y `algebra`, que son los bancos **buenos** y nuevos, recibieron **un test cada uno**.
   El selector no perdió su tiempo: **los mandó al lugar equivocado**, que es exactamente T-138.
+- **2026-09-22:** un curso entero de matemática rindió **solo `diagnostico`**, el banco viejo. De él
+  salieron `081`, `082` y `083` (SESSION-049). Queda usable, pero sigue sin cubrir arriba de 2
+  (T-171), cuando `numeros` y `algebra` sí lo hacen.
 
 ### T-144 · `tests.test` guarda estado de UI junto al diagnóstico — **P2** · `abierto`
 
@@ -4922,6 +4944,29 @@ en este orden porque la segunda puede depender de la primera:
 - **Mitigación ya aplicada, que no cierra la tarea:** el panel del aula marca estas mediciones y dice
   cuántas son (`cohorte/theta-al-tope-del-banco?`). Hace visible el problema; no lo arregla.
 - **Relacionado:** [[RISKS]] R-48, R-44, R-17, T-164, T-149, [[../adr/ADR-034-el-motor-modela-el-azar]].
+- 🟡 **2026-09-22 — la mitad de contenido, hecha para `diagnostico`** (SESSION-049): `083` rehízo
+  sus 64 etiquetas (D-75). Medido antes: el clamp solo explicaba 2 de 10 θ en el techo; el resto era
+  **falta de ítems arriba de 1,2**. El paso de 0,4 no se tocó y la pregunta (2) sigue abierta. Lo que
+  sigue para este banco es **T-171**.
+
+### T-171 · Ítems de `diagnostico` por encima de 2 — **P1** · `abierto`
+
+Tras `083` (2026-09-22) el reparto por tramo es `26 · 10 · 6 · 8 · 13 · 1`: **sobre 2 hay un solo
+ítem** (108, factorizar 2x² + 7x + 3). Quien resuelve el álgebra sigue llegando a ~3 sin medición
+fina, y en el curso del 2026-09-22 fueron 10 de 28.
+
+- **Qué:** 6–8 ítems en [2,0, 3,0] del mismo temario (ecuaciones con fracciones, cuadráticas por
+  fórmula, sistemas, funciones), por la skill `banco-de-items`. **Primero crear
+  `contenido/items/diagnostico.json`** con los 64 existentes, para que el banco entre por fin a los
+  auditores (L-71).
+- **Y del otro extremo:** 26 ítems bajo −2, la mitad del tipo «1 + 1», casi no informan sobre un
+  estudiante de enseñanza media. Retirar parte (`active = false`) acorta el camino hacia arriba.
+- **Dos defectos anotados, a decidir en la misma tanda:** el ítem **61** («Calcula y simplifica
+  1/4 + 1/4», clave 1/2) tiene **2/4** entre las alternativas, que también es la suma; y **36 y 112**
+  son la misma ecuación (x² − 5x + 6 = 0).
+- **Alternativa que no requiere escribir nada:** que los cursos rindan `numeros` + `algebra`, que ya
+  cubren todos los tramos (T-138, T-143).
+- **Relacionado:** T-170, [[RISKS]] R-48, D-75, `083`.
 
 ### T-163 · Acotar los privilegios de tabla al verbo que su policy contempla — **P1** · `abierto`
 

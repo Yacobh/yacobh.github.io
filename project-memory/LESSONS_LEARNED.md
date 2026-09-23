@@ -1384,3 +1384,24 @@ herramienta mira, y conviene saber qué es eso antes de confiar en el verde.
 **Cómo se encontró:** renderizando los componentes con el **CSS real del proyecto** dentro de un
 `<div class="dark">`, al lado del mismo contenido en claro. Ninguna de las dos columnas por separado
 lo habría mostrado tan rápido.
+
+### L-71 · Un banco sin JSON está fuera del alcance de todos los auditores
+
+**2026-09-22.** Los ocho auditores de contenido leen `contenido/items/*.json`. El banco
+`diagnostico` es anterior a la skill `banco-de-items` y **no tiene JSON**, así que ninguno lo miró
+nunca, y tenía cuatro defectos que cualquiera de ellos habría atrapado en una tanda nueva:
+
+- tres ítems con las `error_*` **corridas de letra** —el distractor decía «Correcta»— que le
+  mostraron «Correcta» a 7 estudiantes que se equivocaron (`081`);
+- 28 de 64 ítems **sin módulo**, que no movían el plan (`082`);
+- `difficulty` **correlativa** (1,00 · 1,01 · … · 1,20) en vez de juzgada, y «3x4» como el ítem más
+  difícil del banco (`083`).
+
+Los cuatro los encontró **leer las respuestas de un curso real en `/aula`**, no un auditor. La
+regla: cuando un curso rinde un banco, **preguntar primero si ese banco pasó por los auditores**.
+Si no, la primera tarea es una pasada de SQL sobre sus filas (`error_*` que digan «Correcta» fuera de
+la clave, `module_id` nulo, `difficulty` en progresión aritmética), antes de leer ningún resultado.
+
+Misma familia que **L-68** y **L-70**: el verde de una herramienta cubre solo lo que la herramienta
+mira.
+

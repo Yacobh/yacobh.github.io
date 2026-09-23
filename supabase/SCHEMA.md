@@ -877,8 +877,9 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     - ⚠️ Anotado en el pie: **36 y 112 son el mismo ítem** ($x^2 - 5x + 6 = 0$). Retirar uno es otra
       decisión.
 
-81. `migrations/083_dificultad_del_banco_diagnostico.sql` — ⏳ **escrita y verificada 2026-09-22,
-    sin aplicar.** Rehace la `difficulty` de los **64 ítems** de `diagnostico`. Las etiquetas viejas
+81. `migrations/083_dificultad_del_banco_diagnostico.sql` — ✅ **aplicada 2026-09-22 por el
+    agente** (ADR-040, a pedido del owner), verificada en producción (64 + 1 filas; reparto
+    `26 · 10 · 6 · 8 · 13 · 1`; enunciado 33 corregido). **D-75.** Rehace la `difficulty` de los **64 ítems** de `diagnostico`. Las etiquetas viejas
     eran un **correlativo**, no un juicio (22 ítems de álgebra en 1,00 · 1,01 · … · 1,20; «3x4» en
     **2,9**, el más difícil del banco), con un hueco de un solo ítem entre −1,2 y 1,0. Es la parte
     de T-170 / R-48 que se arregla con contenido.
