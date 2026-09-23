@@ -925,6 +925,17 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     - **No incluye** cortar los privilegios por defecto del esquema, que es la causa de fondo: es
       una regla de trabajo nueva y la decide el owner (bloque comentado en la migración).
 
+84. `migrations/086_retirar_items_duplicados.sql` — ⏳ **sin aplicar**. Migración de contenido:
+    puede aplicarla `claude_ddl` a pedido del owner. T-106: `active = false` en **28 copias** de
+    enunciados repetidos dentro de un mismo banco (19 grupos más el par 36/112 de `diagnostico`).
+    Se conserva la copia de id menor, y 36 en el par. Ninguna copia tenía ideas erróneas
+    catalogadas. No toca los duplicados entre bancos distintos, que son T-122.
+
+    - **Verificada contra PostgreSQL 17** con `questions` copiada de producción (1.138 filas): dos
+      pasadas iguales, exactamente 28 inactivas, **0 enunciados repetidos** dentro de un banco
+      activo, y la reversión del pie deja todo idéntico.
+    - `paes_m1` pasa de 44 a 34 ítems activos, y `numbers_v1` de 178 a 171.
+
 > **Verificación (2026-09-20).** Contra **PostgreSQL 17.11** con `071`…`076` aplicadas antes, y
 > después contra la base real. Aplica limpia, idempotente, los siete ítems quedan con sus valores
 > corregidos, y en producción **los 80 Bonus empiezan por «Correcto»** (0 excepciones).
