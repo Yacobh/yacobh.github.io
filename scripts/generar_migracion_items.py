@@ -186,6 +186,13 @@ def render(datos):
 
 def main(ruta):
     datos = json.loads(Path(ruta).read_text(encoding="utf-8"))
+    # Un espejo de la base (T-171) describe ítems que YA están insertados, con su
+    # id. Generar inserts desde él duplicaría el banco entero en silencio: el
+    # upsert de la tanda es por clave natural y un espejo no la garantiza.
+    if datos.get("espejo_de_la_base") or any("id" in it for it in datos.get("items") or []):
+        print(f"✗ {ruta} es un espejo de la base (trae ids): no se genera migración.")
+        print("  Para corregir un ítem existente, escribe un `update` por id.")
+        return 1
     destino = Path("supabase/migrations") / datos["migracion_archivo"]
     if destino.exists():
         print(f"⚠ {destino} ya existe y se va a sobrescribir.")

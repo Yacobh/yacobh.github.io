@@ -1,0 +1,1764 @@
+{
+  "topic": "diagnostico",
+  "espejo_de_la_base": true,
+  "migracion_archivo": null,
+  "migracion_titulo": "Banco diagnostico — espejo de la base (T-171)",
+  "migracion_notas": "Este archivo NO genera una migración: los 64 ítems ya están en la base desde antes\ndel flujo de banco-de-items, con sus ids. Existe para que el banco entre a los auditores\n(L-71): hasta el 2026-09-23 `diagnostico` era el único banco en uso sin JSON, y por eso\nningún script vio los tres ítems que 081 reparó.\n\nVolcado de la base con claude_ro el 2026-09-23, después de 081, 082 y 083. Si se corrige\nun ítem, se corrige en una migración y se vuelve a volcar: el archivo sigue a la base,\nno al revés. `generar_migracion_items.py` se niega a procesar un archivo con ids.",
+  "cobertura_objetivo": {
+    "min": -3.0,
+    "max": 3.0,
+    "ancho_tramo": 1.0,
+    "min_por_tramo": 6
+  },
+  "misconceptions_preexistentes": [
+    "altera-los-terminos-sin-una-regla-que-lo-justifique",
+    "confunde-el-doble-con-el-triple",
+    "cree-que-a-mayor-denominador-mayor-fraccion",
+    "declara-iguales-dos-fracciones-distintas",
+    "deja-la-fraccion-sin-simplificar",
+    "divide-por-un-numero-que-no-es-divisor-comun",
+    "hace-la-operacion-contraria-a-la-pedida",
+    "invierte-numerador-y-denominador",
+    "no-relaciona-el-denominador-con-las-partes-del-entero",
+    "opera-tambien-los-denominadores-al-sumar-o-restar",
+    "opera-un-solo-termino-de-la-fraccion",
+    "reduce-la-fraccion-a-n-sobre-n",
+    "responde-con-un-dato-del-enunciado-en-vez-del-resultado",
+    "responde-con-uno-de-los-numeros-del-enunciado",
+    "resuelve-el-parentesis-y-olvida-la-operacion-de-afuera",
+    "se-pasa-o-se-queda-corto-por-uno-al-contar",
+    "suma-cuando-la-operacion-pide-restar",
+    "suma-los-factores-en-vez-de-multiplicarlos"
+  ],
+  "misconceptions": [],
+  "items": [
+    {
+      "id": 31,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -3,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuánto es $1 + 1$?",
+      "options": {
+        "A": "2",
+        "B": "3",
+        "C": "10",
+        "D": "0"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Sumó mal",
+        "B": "Confundió la suma con multiplicación",
+        "C": "Error conceptual",
+        "D": "Respuesta vacía"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 38,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -3,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuánto es $2 + 1$?",
+      "options": {
+        "A": "3",
+        "B": "2",
+        "C": "4",
+        "D": "1"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Sumó mal",
+        "B": "El 2 es uno de los sumandos, no el resultado. Sumar 2+1 es avanzar una unidad desde el 2: llegas a 3",
+        "C": "Confundió con resta",
+        "D": "Respuesta vacía"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "responde-con-uno-de-los-numeros-del-enunciado",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 43,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.95,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuánto es $6 + 1$?",
+      "options": {
+        "A": "8",
+        "B": "6",
+        "C": "7",
+        "D": "9"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Sumó de más",
+        "B": "No sumó",
+        "C": "Correcta",
+        "D": "Error casual"
+      },
+      "misconceptions": {
+        "A": "se-pasa-o-se-queda-corto-por-uno-al-contar",
+        "B": "responde-con-uno-de-los-numeros-del-enunciado",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 47,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.95,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuánto es $7 + 1$?",
+      "options": {
+        "A": "9",
+        "B": "8",
+        "C": "10",
+        "D": "6"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Sumó mal",
+        "B": "Correcta",
+        "C": "Confusión numérica",
+        "D": "Error casual"
+      },
+      "misconceptions": {
+        "A": "se-pasa-o-se-queda-corto-por-uno-al-contar",
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 40,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.9,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuánto es $4 + 2$?",
+      "options": {
+        "A": "5",
+        "B": "6",
+        "C": "8",
+        "D": "7"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Error de suma",
+        "B": "Correcta",
+        "C": "Sumó doble",
+        "D": "Confusión numérica"
+      },
+      "misconceptions": {
+        "A": "se-pasa-o-se-queda-corto-por-uno-al-contar",
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 32,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.85,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuál es el resultado de $5 - 2$?",
+      "options": {
+        "A": "2",
+        "B": "3",
+        "C": "7",
+        "D": "4"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Confundió orden de la resta",
+        "B": "Correcta",
+        "C": "Sumó en lugar de restar",
+        "D": "Error aritmético"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": "suma-cuando-la-operacion-pide-restar",
+        "D": null
+      }
+    },
+    {
+      "id": 39,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.85,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuánto es $5 - 3$?",
+      "options": {
+        "A": "2",
+        "B": "3",
+        "C": "4",
+        "D": "1"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Restó al revés",
+        "B": "Suma incorrecta",
+        "C": "Confusión de signos",
+        "D": "Error casual"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 42,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.8,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuánto es $10 - 7$?",
+      "options": {
+        "A": "2",
+        "B": "3",
+        "C": "4",
+        "D": "5"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Restó al revés",
+        "B": "Correcta",
+        "C": "Olvidó restar",
+        "D": "Error menor"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 44,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.8,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuánto es $9 - 6$?",
+      "options": {
+        "A": "2",
+        "B": "4",
+        "C": "3",
+        "D": "5"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Restó mal",
+        "B": "Olvidó signo",
+        "C": "Correcta",
+        "D": "Error menor"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 46,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.8,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuánto es $8 - 5$?",
+      "options": {
+        "A": "4",
+        "B": "3",
+        "C": "2",
+        "D": "1"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Restó al revés",
+        "B": "Correcta",
+        "C": "Error de conteo",
+        "D": "Respuesta vacía"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 45,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.75,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuánto es $2 \\times 2$?",
+      "options": {
+        "A": "2",
+        "B": "3",
+        "C": "4",
+        "D": "5"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Dividió en lugar de multiplicar",
+        "B": "Sumó en lugar de multiplicar",
+        "C": "Correcta",
+        "D": "Confusión leve"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 33,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.7,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuánto es $3 \\times 4$?",
+      "options": {
+        "A": "7",
+        "B": "12",
+        "C": "9",
+        "D": "8"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Sumó en lugar de multiplicar",
+        "B": "Correcta",
+        "C": "Confundió el orden de factores",
+        "D": "Error casual"
+      },
+      "misconceptions": {
+        "A": "suma-los-factores-en-vez-de-multiplicarlos",
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 41,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.7,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuál es el doble de $3$?",
+      "options": {
+        "A": "9",
+        "B": "6",
+        "C": "12",
+        "D": "3"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Multiplicó por 3",
+        "B": "Correcta",
+        "C": "Sumó en lugar de multiplicar",
+        "D": "Error de concepto"
+      },
+      "misconceptions": {
+        "A": "confunde-el-doble-con-el-triple",
+        "B": null,
+        "C": null,
+        "D": "responde-con-uno-de-los-numeros-del-enunciado"
+      }
+    },
+    {
+      "id": 48,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.55,
+      "order_index": null,
+      "active": true,
+      "question": "Evalúa: $(2 + 3) - 4$",
+      "options": {
+        "A": "1",
+        "B": "5",
+        "C": "9",
+        "D": "0"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "**Solución correcta paso a paso:**\n\n$(2 + 3) - 4 = 5 - 4$ (primero resolvemos el paréntesis)\n\n$= 1$ (luego restamos)\n\n**Respuesta:** $1$ es correcto porque seguimos el orden de operaciones: paréntesis primero, después la resta.",
+        "B": "5 es lo que vale el parentesis, pero la operacion no termina ahi: falta restar 4. (2+3)-4 = 5-4 = 1",
+        "C": "Sumaste el 4 en vez de restarlo: (2+3)-4 = 5-4 = 1",
+        "D": "Revisa el orden: primero el parentesis (2+3 = 5) y despues la resta con 4"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "resuelve-el-parentesis-y-olvida-la-operacion-de-afuera",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 50,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.55,
+      "order_index": null,
+      "active": true,
+      "question": "Evalúa: $(6 - 2) + 1$",
+      "options": {
+        "A": "5",
+        "B": "4",
+        "C": "6",
+        "D": "3"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "# Solución correcta paso a paso:\n\n$$ (6 - 2) + 1 = 4 + 1 $$\n\n> Primero resolvemos el paréntesis: $6 - 2 = 4$\n\n$$ = 5 $$\n\n> Luego sumamos: $4 + 1 = 5$\n\n**Respuesta:** $5$ es correcto porque seguimos el orden de operaciones: paréntesis primero, después la suma.",
+        "B": "4 es lo que vale el parentesis (6-2), no el resultado. Falta sumar el 1: 4+1 = 5",
+        "C": "El 6 es el primer numero, no el resultado: primero 6-2 = 4 y despues +1 = 5",
+        "D": "Revisa la resta del parentesis: 6-2 = 4, y despues sumale 1"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "resuelve-el-parentesis-y-olvida-la-operacion-de-afuera",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 52,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.5,
+      "order_index": null,
+      "active": true,
+      "question": "Evalúa: $(7 - 4) + 2$",
+      "options": {
+        "A": "5",
+        "B": "4",
+        "C": "3",
+        "D": "6"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Sumó al revés",
+        "B": "Te quedaste a mitad de camino y ademas el parentesis esta mal: 7-4 = 3, y despues falta sumar 2. El resultado es 5",
+        "C": "3 es lo que vale el parentesis (7-4). Falta sumarle el 2: 3+2 = 5",
+        "D": "Revisa el orden: (7-4) = 3 y despues +2 = 5"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": "resuelve-el-parentesis-y-olvida-la-operacion-de-afuera",
+        "D": null
+      }
+    },
+    {
+      "id": 49,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.45,
+      "order_index": null,
+      "active": true,
+      "question": "Evalúa: $5 - (3 + 1)$",
+      "options": {
+        "A": "1",
+        "B": "4",
+        "C": "5",
+        "D": "2"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "**Solución correcta paso a paso:**\n\n$5-(3+1) = 5 - 4$ (primero resolvemos el paréntesis)\n\n$= 1$ (luego restamos)\n\n**Respuesta:** $1$ es correcto porque seguimos el orden de operaciones: paréntesis primero, después la resta.",
+        "B": "4 es lo que vale el parentesis (3+1), no el resultado. Falta restarselo a 5: 5-4 = 1",
+        "C": "El 5 es el numero del que hay que restar, no el resultado: 5-(3+1) = 5-4 = 1",
+        "D": "Sin parentesis daria 5-3+1 = 3; con parentesis, 5-(3+1) = 5-4 = 1"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "resuelve-el-parentesis-y-olvida-la-operacion-de-afuera",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 51,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.45,
+      "order_index": null,
+      "active": true,
+      "question": "Evalúa: $8 - (2 + 3)$",
+      "options": {
+        "A": "3",
+        "B": "5",
+        "C": "2",
+        "D": "1"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Restó al revés",
+        "B": "5 es lo que vale el parentesis (2+3), no el resultado. Falta restarselo a 8: 8-5 = 3",
+        "C": "Dentro del parentesis hay que sumar primero: 2+3 = 5. Despues 8-5 = 3",
+        "D": "Primero el parentesis (2+3 = 5), despues la resta: 8-5 = 3"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "resuelve-el-parentesis-y-olvida-la-operacion-de-afuera",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 53,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.4,
+      "order_index": null,
+      "active": true,
+      "question": "Evalúa: $10 - (2 + 5)$",
+      "options": {
+        "A": "3",
+        "B": "5",
+        "C": "7",
+        "D": "2"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Error en suma interna",
+        "B": "El 5 es uno de los numeros del parentesis, no su suma. Primero 2+5 = 7, y despues 10-7 = 3",
+        "C": "7 es lo que vale el parentesis (2+5). Falta restarselo a 10: 10-7 = 3",
+        "D": "El parentesis va primero: 2+5 = 7, y despues 10-7 = 3"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "resuelve-el-parentesis-y-olvida-la-operacion-de-afuera",
+        "C": "resuelve-el-parentesis-y-olvida-la-operacion-de-afuera",
+        "D": null
+      }
+    },
+    {
+      "id": 58,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -2.4,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuál es la fracción que representa la mitad?",
+      "options": {
+        "A": "$\\frac{1}{2}$",
+        "B": "$\\frac{2}{1}$",
+        "C": "$\\frac{1}{3}$",
+        "D": "$\\frac{2}{4}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Invirtió numerador y denominador",
+        "C": "Confundió con un tercio",
+        "D": "No simplificó"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "invierte-numerador-y-denominador",
+        "C": "no-relaciona-el-denominador-con-las-partes-del-entero",
+        "D": "deja-la-fraccion-sin-simplificar"
+      }
+    },
+    {
+      "id": 54,
+      "module_slug": "aritmetica/operaciones_fundamentales",
+      "difficulty": -2.35,
+      "order_index": null,
+      "active": true,
+      "question": "Evalúa: $(9 - 6) + (2 - 1)$",
+      "options": {
+        "A": "4",
+        "B": "3",
+        "C": "5",
+        "D": "2"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Olvidó un paréntesis",
+        "B": "3 es el primer parentesis (9-6). Falta sumarle el segundo: (2-1) = 1, asi que 3+1 = 4",
+        "C": "Revisa el segundo parentesis: (2-1) = 1, no 2. El total es 3+1 = 4",
+        "D": "Resuelve los dos parentesis y despues sumalos: (9-6) = 3 y (2-1) = 1, o sea 4"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "resuelve-el-parentesis-y-olvida-la-operacion-de-afuera",
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 72,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -2.3,
+      "order_index": null,
+      "active": true,
+      "question": "Identifica la fracción que representa dos tercios",
+      "options": {
+        "A": "$\\frac{2}{3}$",
+        "B": "$\\frac{3}{2}$",
+        "C": "$\\frac{2}{2}$",
+        "D": "$\\frac{1}{3}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Invirtió numerador y denominador",
+        "C": "Numerador y denominador iguales",
+        "D": "Solo consideró el denominador"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "invierte-numerador-y-denominador",
+        "C": "reduce-la-fraccion-a-n-sobre-n",
+        "D": "responde-con-un-dato-del-enunciado-en-vez-del-resultado"
+      }
+    },
+    {
+      "id": 60,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -2.2,
+      "order_index": null,
+      "active": true,
+      "question": "¿Qué fracción es mayor: $\\frac{1}{2}$ o $\\frac{1}{4}$?",
+      "options": {
+        "A": "$\\frac{1}{2}$",
+        "B": "$\\frac{1}{4}$",
+        "C": "Son iguales",
+        "D": "$\\frac{1}{3}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Confundió denominador mayor con fracción mayor",
+        "C": "No entendió la comparación",
+        "D": "Respuesta sin relación"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "cree-que-a-mayor-denominador-mayor-fraccion",
+        "C": "declara-iguales-dos-fracciones-distintas",
+        "D": null
+      }
+    },
+    {
+      "id": 62,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -2.2,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuántos cuartos hay en un entero?",
+      "options": {
+        "A": "4",
+        "B": "2",
+        "C": "8",
+        "D": "1"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Confundió con medios",
+        "C": "Duplicó el valor",
+        "D": "No entendió el concepto"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "no-relaciona-el-denominador-con-las-partes-del-entero",
+        "C": "altera-los-terminos-sin-una-regla-que-lo-justifique",
+        "D": "no-relaciona-el-denominador-con-las-partes-del-entero"
+      }
+    },
+    {
+      "id": 64,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -2.2,
+      "order_index": null,
+      "active": true,
+      "question": "¿Qué fracción representa tres de cuatro partes?",
+      "options": {
+        "A": "$\\frac{3}{4}$",
+        "B": "$\\frac{4}{3}$",
+        "C": "$\\frac{3}{3}$",
+        "D": "$\\frac{1}{4}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Invirtió numerador y denominador",
+        "C": "Numerador y denominador iguales",
+        "D": "Solo consideró una parte"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "invierte-numerador-y-denominador",
+        "C": "reduce-la-fraccion-a-n-sobre-n",
+        "D": "responde-con-un-dato-del-enunciado-en-vez-del-resultado"
+      }
+    },
+    {
+      "id": 65,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -2.1,
+      "order_index": null,
+      "active": true,
+      "question": "Calcula: $\\frac{3}{5} + \\frac{1}{5}$",
+      "options": {
+        "A": "$\\frac{4}{5}$",
+        "B": "$\\frac{4}{10}$",
+        "C": "$\\frac{3}{5}$",
+        "D": "$\\frac{5}{5}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Sumó numeradores y denominadores",
+        "C": "No sumó",
+        "D": "Error en el cálculo"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "opera-tambien-los-denominadores-al-sumar-o-restar",
+        "C": "responde-con-un-dato-del-enunciado-en-vez-del-resultado",
+        "D": null
+      }
+    },
+    {
+      "id": 34,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": -2,
+      "order_index": null,
+      "active": true,
+      "question": "Resuelve: $x + 5 = 9$",
+      "options": {
+        "A": "x = 4",
+        "B": "x = 5",
+        "C": "x = 9",
+        "D": "x = 14"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Se resta a ambos lados de la ecuación 5, y al restar 9-5 se obtiene el resultado.",
+        "B": "Suma incorrecta",
+        "C": "Confundió los términos",
+        "D": "En este caso, durante el despeje, hay que dejar sola, a la $x$ y el 5 que está sumando pasa al otro lado restando.\n\nEn realidad a ambos lados de la igualdad se resta 5 quedando como resultado \n$x=9-5$"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 57,
+      "module_slug": "aritmetica/enteros",
+      "difficulty": -1.9,
+      "order_index": null,
+      "active": true,
+      "question": "Evalúa: $(-1) + (-3)$",
+      "options": {
+        "A": "-2",
+        "B": "-4",
+        "C": "2",
+        "D": "0"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Sumó en valor absoluto",
+        "B": "Correcta",
+        "C": "Ignoró signos",
+        "D": "Error leve"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 59,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -1.8,
+      "order_index": null,
+      "active": true,
+      "question": "Identifica la fracción equivalente a $\\frac{2}{4}$, escrita en su mínima expresión",
+      "options": {
+        "A": "$\\frac{1}{2}$",
+        "B": "$\\frac{2}{8}$",
+        "C": "$\\frac{4}{2}$",
+        "D": "$\\frac{3}{6}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Duplicó el denominador solamente",
+        "C": "Invirtió la fracción",
+        "D": "Sumó en vez de simplificar"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "opera-un-solo-termino-de-la-fraccion",
+        "C": "invierte-numerador-y-denominador",
+        "D": "altera-los-terminos-sin-una-regla-que-lo-justifique"
+      }
+    },
+    {
+      "id": 68,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -1.8,
+      "order_index": null,
+      "active": true,
+      "question": "Calcula: $\\frac{5}{6} - \\frac{2}{6}$",
+      "options": {
+        "A": "$\\frac{3}{6}$",
+        "B": "$\\frac{3}{0}$",
+        "C": "$\\frac{7}{6}$",
+        "D": "$\\frac{5}{4}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Error con denominadores",
+        "C": "Sumó en vez de restar",
+        "D": "Operación incorrecta"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "opera-tambien-los-denominadores-al-sumar-o-restar",
+        "C": "hace-la-operacion-contraria-a-la-pedida",
+        "D": null
+      }
+    },
+    {
+      "id": 55,
+      "module_slug": "aritmetica/enteros",
+      "difficulty": -1.7,
+      "order_index": null,
+      "active": true,
+      "question": "Evalúa: $(-3) + 5$",
+      "options": {
+        "A": "2",
+        "B": "8",
+        "C": "-2",
+        "D": "-8"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. Con signos distintos se restan los valores absolutos, $5 - 3 = 2$, y el resultado lleva el signo del de mayor valor absoluto, que es el $5$: positivo.",
+        "B": "Sumaste $3 + 5$ sin mirar el signo del $-3$. Con signos distintos los valores absolutos se restan: $5 - 3 = 2$.",
+        "C": "La resta $5 - 3$ está bien, pero le pusiste el signo del $-3$. El resultado lleva el signo del número de mayor valor absoluto, que es el $5$.",
+        "D": "Sumaste los valores absolutos y dejaste el signo menos, como si los dos números fueran negativos. Con signos distintos se restan: $5 - 3 = 2$."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 63,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -1.7,
+      "order_index": null,
+      "active": true,
+      "question": "Simplifica: $\\frac{4}{8}$",
+      "options": {
+        "A": "$\\frac{1}{2}$",
+        "B": "$\\frac{2}{4}$",
+        "C": "$\\frac{4}{8}$",
+        "D": "$\\frac{1}{4}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Simplificación incompleta",
+        "C": "No simplificó",
+        "D": "Simplificó incorrectamente"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "opera-un-solo-termino-de-la-fraccion",
+        "C": "deja-la-fraccion-sin-simplificar",
+        "D": "divide-por-un-numero-que-no-es-divisor-comun"
+      }
+    },
+    {
+      "id": 61,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -1.6,
+      "order_index": null,
+      "active": true,
+      "question": "Calcula y simplifica: $\\frac{1}{4} + \\frac{1}{4}$",
+      "options": {
+        "A": "$\\frac{2}{4}$",
+        "B": "$\\frac{2}{8}$",
+        "C": "$\\frac{1}{8}$",
+        "D": "$\\frac{1}{2}$"
+      },
+      "correct": "D",
+      "errors": {
+        "A": "Sumaste bien los numeradores, pero $\\frac{2}{4}$ todavía se puede reducir: divide numerador y denominador por 2.",
+        "B": "Sumó numeradores y denominadores",
+        "C": "Solo cambió el denominador",
+        "D": "Correcta"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "opera-tambien-los-denominadores-al-sumar-o-restar",
+        "C": "opera-un-solo-termino-de-la-fraccion",
+        "D": null
+      }
+    },
+    {
+      "id": 56,
+      "module_slug": "aritmetica/enteros",
+      "difficulty": -1.3,
+      "order_index": null,
+      "active": true,
+      "question": "Evalúa: $(-4) - (-2)$",
+      "options": {
+        "A": "-2",
+        "B": "-6",
+        "C": "2",
+        "D": "6"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto. Restar un número es sumar su opuesto: $-4 - (-2) = -4 + 2 = -2$.",
+        "B": "Restaste $2$ en vez de sumarlo: $-4 - 2 = -6$. Restar $-2$ es sumar su opuesto: $-4 + 2 = -2$.",
+        "C": "Hiciste $4 - 2$ sin el signo del $-4$. Restar $-2$ es sumar $2$, y $-4 + 2 = -2$ sigue siendo negativo porque el $4$ pesa más que el $2$.",
+        "D": "Sumaste $4 + 2$ sin mirar ningún signo. Primero, restar $-2$ es sumar $2$; después, $-4 + 2 = -2$."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 66,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -1.3,
+      "order_index": null,
+      "active": true,
+      "question": "Identifica la fracción equivalente a $\\frac{3}{6}$, escrita en su mínima expresión",
+      "options": {
+        "A": "$\\frac{1}{2}$",
+        "B": "$\\frac{2}{4}$",
+        "C": "$\\frac{6}{3}$",
+        "D": "$\\frac{3}{9}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "También equivalente pero no simplificada",
+        "C": "Invirtió la fracción",
+        "D": "Multiplicó incorrectamente"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "deja-la-fraccion-sin-simplificar",
+        "C": "invierte-numerador-y-denominador",
+        "D": "altera-los-terminos-sin-una-regla-que-lo-justifique"
+      }
+    },
+    {
+      "id": 71,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -1.2,
+      "order_index": null,
+      "active": true,
+      "question": "Calcula: $\\frac{2}{3} + \\frac{1}{3}$",
+      "options": {
+        "A": "$\\frac{3}{3}$",
+        "B": "$\\frac{3}{6}$",
+        "C": "$\\frac{2}{3}$",
+        "D": "$\\frac{1}{3}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Sumó numeradores y denominadores",
+        "C": "No sumó correctamente",
+        "D": "Solo consideró un sumando"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "opera-tambien-los-denominadores-al-sumar-o-restar",
+        "C": "responde-con-un-dato-del-enunciado-en-vez-del-resultado",
+        "D": "responde-con-un-dato-del-enunciado-en-vez-del-resultado"
+      }
+    },
+    {
+      "id": 67,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -1,
+      "order_index": null,
+      "active": true,
+      "question": "¿Qué fracción es menor: $\\frac{2}{3}$ o $\\frac{2}{5}$?",
+      "options": {
+        "A": "$\\frac{2}{5}$",
+        "B": "$\\frac{2}{3}$",
+        "C": "Son iguales",
+        "D": "$\\frac{2}{4}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Confundió denominador con valor",
+        "C": "No entendió comparación",
+        "D": "Respuesta sin relación"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "cree-que-a-mayor-denominador-mayor-fraccion",
+        "C": "declara-iguales-dos-fracciones-distintas",
+        "D": null
+      }
+    },
+    {
+      "id": 94,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": -1,
+      "order_index": null,
+      "active": true,
+      "question": "Resuelve la ecuación: $3x + 7 = 22$",
+      "options": {
+        "A": "5",
+        "B": "15",
+        "C": "8",
+        "D": "29"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Sumó 7 en vez de restar",
+        "C": "Restó 7 pero no dividió",
+        "D": "Operó incorrectamente"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 35,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": -0.8,
+      "order_index": null,
+      "active": true,
+      "question": "Resuelve: $3x = 12$",
+      "options": {
+        "A": "x = 4",
+        "B": "x = 3",
+        "C": "x = 9",
+        "D": "x = 15"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcto, si despejamos X, el tres divide al doce dando como resultado 4",
+        "B": "Olvidó dividir",
+        "C": "Error de signo",
+        "D": "Operó mal"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 70,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -0.8,
+      "order_index": null,
+      "active": true,
+      "question": "¿Cuántos tercios hay en dos enteros?",
+      "options": {
+        "A": "6",
+        "B": "3",
+        "C": "2",
+        "D": "9"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Solo contó un entero",
+        "C": "Confundió con la pregunta",
+        "D": "Multiplicó incorrectamente"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "responde-con-un-dato-del-enunciado-en-vez-del-resultado",
+        "C": "no-relaciona-el-denominador-con-las-partes-del-entero",
+        "D": "altera-los-terminos-sin-una-regla-que-lo-justifique"
+      }
+    },
+    {
+      "id": 73,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -0.6,
+      "order_index": null,
+      "active": true,
+      "question": "Simplifica: $\\frac{10}{15}$",
+      "options": {
+        "A": "$\\frac{2}{3}$",
+        "B": "$\\frac{5}{10}$",
+        "C": "$\\frac{1}{5}$",
+        "D": "$\\frac{10}{15}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Restó 5 al numerador y denominador. Para simplificar, dividimos numerador y denominador por un mismo número; en este caso, 5.",
+        "C": "Para simplificar, dividimos numerador y denominador por un mismo número. En este caso 5, pues es el maximo com´ún divisor",
+        "D": "No simplificó"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "opera-un-solo-termino-de-la-fraccion",
+        "C": "divide-por-un-numero-que-no-es-divisor-comun",
+        "D": "deja-la-fraccion-sin-simplificar"
+      }
+    },
+    {
+      "id": 69,
+      "module_slug": "aritmetica/fracciones",
+      "difficulty": -0.5,
+      "order_index": null,
+      "active": true,
+      "question": "Simplifica: $\\frac{6}{9}$",
+      "options": {
+        "A": "$\\frac{2}{3}$",
+        "B": "$\\frac{3}{3}$",
+        "C": "$\\frac{1}{3}$",
+        "D": "$\\frac{6}{9}$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Simplificó a la unidad",
+        "C": "Simplificó incorrectamente",
+        "D": "No simplificó"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": "reduce-la-fraccion-a-n-sobre-n",
+        "C": "divide-por-un-numero-que-no-es-divisor-comun",
+        "D": "deja-la-fraccion-sin-simplificar"
+      }
+    },
+    {
+      "id": 98,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": 0,
+      "order_index": null,
+      "active": true,
+      "question": "Resuelve: $\\frac{x}{3} + 5 = 8$",
+      "options": {
+        "A": "9",
+        "B": "24",
+        "C": "4",
+        "D": "1"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Multiplicó sin restar primero",
+        "C": "Solo restó 5",
+        "D": "Error en operaciones"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 114,
+      "module_slug": "aritmetica/potencias",
+      "difficulty": 0,
+      "order_index": null,
+      "active": true,
+      "question": "Si $2^x = 32$, ¿cuál es el valor de $x$?",
+      "options": {
+        "A": "5",
+        "B": "6",
+        "C": "4",
+        "D": "3"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Dividió en vez de usar logaritmos",
+        "C": "Restó en vez de encontrar el exponente",
+        "D": "Error en potencias de 2"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 100,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": 0.3,
+      "order_index": null,
+      "active": true,
+      "question": "Si $-2x + 5 = -7$, ¿cuál es el valor de $x$?",
+      "options": {
+        "A": "6",
+        "B": "-6",
+        "C": "1",
+        "D": "-1"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Error en el signo al dividir",
+        "C": "Restó en vez de sumar",
+        "D": "Sumó en vez de restar"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 99,
+      "module_slug": "algebra/expresiones",
+      "difficulty": 0.5,
+      "order_index": null,
+      "active": true,
+      "question": "Simplifica: $(3x^2)(4x^3)$",
+      "options": {
+        "A": "12x^5",
+        "B": "12x^6",
+        "C": "7x^5",
+        "D": "12x"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Sumó exponentes incorrectamente",
+        "C": "Sumó coeficientes y exponentes",
+        "D": "Solo multiplicó coeficientes"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 96,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": 0.6,
+      "order_index": null,
+      "active": true,
+      "question": "Si $2(x - 4) = 10$, ¿cuál es el valor de $x$?",
+      "options": {
+        "A": "9",
+        "B": "1",
+        "C": "13",
+        "D": "5"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "No sumó 8 después de dividir",
+        "C": "Multiplicó en vez de dividir",
+        "D": "Dividió antes de sumar"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 95,
+      "module_slug": "algebra/expresiones",
+      "difficulty": 0.7,
+      "order_index": null,
+      "active": true,
+      "question": "Simplifica la expresión: $5(2x - 3) + 4x$",
+      "options": {
+        "A": "14x - 15",
+        "B": "10x - 11",
+        "C": "14x - 11",
+        "D": "9x - 15"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "No distribuyó el 5 correctamente",
+        "C": "Distribuyó pero no sumó términos semejantes",
+        "D": "Error en la distribución y suma"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 104,
+      "module_slug": "algebra/expresiones",
+      "difficulty": 0.8,
+      "order_index": null,
+      "active": true,
+      "question": "Simplifica: $\\frac{6x^3y^2}{3x^2y}$",
+      "options": {
+        "A": "2xy",
+        "B": "2x^2y",
+        "C": "3xy",
+        "D": "6xy"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "No simplificó los exponentes correctamente",
+        "C": "No dividió el coeficiente",
+        "D": "No simplificó ningún término"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 106,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": 0.9,
+      "order_index": null,
+      "active": true,
+      "question": "Resuelve para $y$: $2y - 3(y - 4) = 8$",
+      "options": {
+        "A": "4",
+        "B": "-4",
+        "C": "20",
+        "D": "2"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Error en el signo al distribuir",
+        "C": "Multiplicó los términos incorrectamente",
+        "D": "Error al despejar"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 101,
+      "module_slug": "algebra/polinomios",
+      "difficulty": 1,
+      "order_index": null,
+      "active": true,
+      "question": "Expande y simplifica: $(x + 4)(x - 2)$",
+      "options": {
+        "A": "x^2 + 2x - 8",
+        "B": "x^2 - 2x - 8",
+        "C": "x^2 + 6x - 8",
+        "D": "x^2 + 2x + 8"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Error en el signo del término lineal",
+        "C": "Sumó los términos del medio incorrectamente",
+        "D": "Error en el signo del término constante"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 102,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": 1,
+      "order_index": null,
+      "active": true,
+      "question": "Resuelve: $4(x + 3) - 2x = 18$",
+      "options": {
+        "A": "3",
+        "B": "6",
+        "C": "9",
+        "D": "-3"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "No combinó términos semejantes correctamente",
+        "C": "Error al distribuir y combinar",
+        "D": "Error en el signo"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 105,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": 1.1,
+      "order_index": null,
+      "active": true,
+      "question": "Si $3(x - 2) + 4 = 2x + 5$, ¿cuál es el valor de $x$?",
+      "options": {
+        "A": "7",
+        "B": "3",
+        "C": "5",
+        "D": "1"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Error al combinar términos",
+        "C": "Error al distribuir",
+        "D": "Error en operaciones básicas"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 109,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": 1.2,
+      "order_index": null,
+      "active": true,
+      "question": "Resuelve: $5 - 2(3 - x) = 7$",
+      "options": {
+        "A": "3",
+        "B": "-4",
+        "C": "4",
+        "D": "2"
+      },
+      "correct": "C",
+      "errors": {
+        "A": "Distribuiste bien, $5 - 6 + 2x = 7$, pero al pasar el $-1$ al otro lado no le cambiaste el signo. Queda $2x = 7 + 1 = 8$, no $2x = 6$.",
+        "B": "El $-2$ multiplica también a la $-x$, y menos por menos da más: $-2(3 - x) = -6 + 2x$. Con $-2x$ la cuenta lleva a $x = -4$.",
+        "C": "Correcto. Al distribuir, $-2 \\cdot 3 = -6$ y $-2 \\cdot (-x) = +2x$, así que $5 - 6 + 2x = 7$. Queda $2x = 8$ y $x = 4$. Se comprueba reemplazando: $5 - 2(3 - 4) = 5 + 2 = 7$.",
+        "D": "Llegaste a $-2(3 - x) = 2$ y dividiste por $2$ en vez de por $-2$, así que se perdió el signo menos: $3 - x = 1$. Dividiendo por $-2$ queda $3 - x = -1$ y $x = 4$."
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 110,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": 1.2,
+      "order_index": null,
+      "active": true,
+      "question": "Si $\\frac{x+2}{3} = \\frac{x-1}{2}$, ¿cuál es el valor de $x$?",
+      "options": {
+        "A": "7",
+        "B": "5",
+        "C": "11",
+        "D": "2"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Error al multiplicar cruzado",
+        "C": "Error al reducir fracciones",
+        "D": "Error en operaciones finales"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 97,
+      "module_slug": "algebra/polinomios",
+      "difficulty": 1.3,
+      "order_index": null,
+      "active": true,
+      "question": "Factoriza completamente: $x^2 - 9$",
+      "options": {
+        "A": "(x+3)(x-3)",
+        "B": "(x-3)^2",
+        "C": "(x+9)(x-1)",
+        "D": "x(x-9)"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Factorizó incorrectamente como cuadrado perfecto",
+        "C": "Error en los factores",
+        "D": "No reconoció diferencia de cuadrados"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 37,
+      "module_slug": "algebra/funciones",
+      "difficulty": 1.6,
+      "order_index": null,
+      "active": true,
+      "question": "Si $f(x) = 2x^2 - 3x + 1$, ¿cuál es el valor de $f(-2)$?",
+      "options": {
+        "A": "11",
+        "B": "15",
+        "C": "9",
+        "D": "3"
+      },
+      "correct": "B",
+      "errors": {
+        "A": "Error de signo al elevar",
+        "B": "Correcta",
+        "C": "Olvidó aplicar el cuadrado",
+        "D": "Sustitución incorrecta"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 103,
+      "module_slug": "algebra/polinomios",
+      "difficulty": 1.6,
+      "order_index": null,
+      "active": true,
+      "question": "Factoriza: $x^2 + 7x + 12$",
+      "options": {
+        "A": "(x+3)(x+4)",
+        "B": "(x+2)(x+6)",
+        "C": "(x+1)(x+12)",
+        "D": "(x-3)(x-4)"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Factores incorrectos que suman 8",
+        "C": "Factores incorrectos que suman 13",
+        "D": "Error en los signos"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 111,
+      "module_slug": "algebra/expresiones",
+      "difficulty": 1.6,
+      "order_index": null,
+      "active": true,
+      "question": "Simplifica: $3x(2x - 5) - 2x(x + 1)$",
+      "options": {
+        "A": "$4x^2 - 17x$",
+        "B": "$6x^2 - 15x$",
+        "C": "$4x^2 - 13x$",
+        "D": "$x^2 - 17x$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "No restó el segundo producto",
+        "C": "Error al combinar términos",
+        "D": "Error en los coeficientes"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 36,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": 1.8,
+      "order_index": null,
+      "active": true,
+      "question": "Resuelve la ecuación cuadrática: $x^2 - 5x + 6 = 0$",
+      "options": {
+        "A": "x = 2,3",
+        "B": "x = -2,-3",
+        "C": "x = 1,6",
+        "D": "x = 5,-1"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Signos incorrectos",
+        "B": "Factorización errónea",
+        "C": "Sumó en lugar de restar",
+        "D": "Error conceptual"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 107,
+      "module_slug": "algebra/expresiones",
+      "difficulty": 1.8,
+      "order_index": null,
+      "active": true,
+      "question": "Simplifica: $(2x^2 - 3x + 1) - (x^2 + 2x - 5)$",
+      "options": {
+        "A": "$x^2 - 5x + 6$",
+        "B": "$x^2 - x + 6$",
+        "C": "$3x^2 - 5x + 6$",
+        "D": "$x^2 - 5x - 4$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "No cambió todos los signos al restar",
+        "C": "Sumó en vez de restar",
+        "D": "Error en el término constante"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 112,
+      "module_slug": "algebra/ecuaciones",
+      "difficulty": 1.8,
+      "order_index": null,
+      "active": true,
+      "question": "Resuelve: $x^2 - 5x + 6 = 0$",
+      "options": {
+        "A": "$x=2 \\text{ o } x=3$",
+        "B": "$x=1 \\text{ o } x=6$",
+        "C": "$x=-2 \\text{ o } x=-3$",
+        "D": "$x=5 \\text{ o } x=1$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Factorizó incorrectamente",
+        "C": "Error en los signos",
+        "D": "Usó fórmula incorrecta"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 113,
+      "module_slug": "algebra/polinomios",
+      "difficulty": 1.9,
+      "order_index": null,
+      "active": true,
+      "question": "Simplifica: $\\frac{x^2 - 4}{x + 2}$ para $x \\neq -2$",
+      "options": {
+        "A": "$x - 2$",
+        "B": "$x + 2$",
+        "C": "$\\frac{x-4}{x+2}$",
+        "D": "$x^2 - 2$"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Simplificó incorrectamente",
+        "C": "No factorizó el numerador",
+        "D": "Error algebraico"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    },
+    {
+      "id": 108,
+      "module_slug": "algebra/polinomios",
+      "difficulty": 2.6,
+      "order_index": null,
+      "active": true,
+      "question": "Factoriza: $2x^2 + 7x + 3$",
+      "options": {
+        "A": "(2x+1)(x+3)",
+        "B": "(2x+3)(x+1)",
+        "C": "(x+1)(x+3)",
+        "D": "2(x+1)(x+3)"
+      },
+      "correct": "A",
+      "errors": {
+        "A": "Correcta",
+        "B": "Invirtió los factores",
+        "C": "No consideró el coeficiente 2",
+        "D": "Sacó factor común inexistente"
+      },
+      "misconceptions": {
+        "A": null,
+        "B": null,
+        "C": null,
+        "D": null
+      }
+    }
+  ]
+}
