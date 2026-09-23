@@ -837,8 +837,9 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     el aviso de privacidad no dice todavía que un profesor pueda ver resultados con el correo del
     estudiante.
 
-79. `migrations/081_reparacion_de_tres_items_de_diagnostico.sql` — ⏳ **escrita y verificada
-    2026-09-22, sin aplicar.** Los ítems **55, 56 y 109** del banco `diagnostico` tenían las
+79. `migrations/081_reparacion_de_tres_items_de_diagnostico.sql` — ✅ **aplicada 2026-09-22 por el
+    owner**, verificada en producción ese día (las tres filas con los textos nuevos, 0 distractores
+    activos que digan «Correcta»). Los ítems **55, 56 y 109** del banco `diagnostico` tenían las
     `error_*` **corridas de letra**: la clave estaba bien, pero el texto «Correcta» vivía en un
     distractor, así que quien se equivocaba leía «Correcta». Medido ese día: **7 estudiantes del
     curso del 2026-09-22** (10 respuestas) y 10 en todo el histórico; en `/aula` salía como la
@@ -856,6 +857,25 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     - `revisar_redaccion_items.py` sobre los tres: 0 errores (3 avisos por enunciados en
       imperativo, que no se tocaron).
     - No hace falta bundle: es solo contenido, así que R-39 no aplica.
+
+80. `migrations/082_modulo_de_los_items_de_diagnostico.sql` — ⏳ **escrita y verificada
+    2026-09-22, sin aplicar.** Asigna `module_id` a los **28 ítems de `diagnostico` que no tenían**
+    (todo el álgebra, los tres de enteros y uno de potencias). `diagnostico` cubre varios módulos, así
+    que la regla por topic de `029`/`030` no le alcanza: va ítem por ítem. Medido ese día: **485 de
+    las 781 respuestas** del curso del 2026-09-22 eran de ítems sin módulo, y no movían ni el déficit
+    por módulo ni el plan.
+
+    Criterio: clasificar como el banco ya clasifica ítems iguales (cuadrática → `ecuaciones`, como
+    `030`; monomios → `expresiones`; binomios y factorización → `polinomios`, como `algebra.json`).
+    Los seis módulos ya existen y están en `universo.topics/module-slugs`: **no toca el cliente**.
+    No cambia qué ítems ve un test (se elige por topic); el histórico no se reescribe.
+
+    - **Verificada contra PostgreSQL 17** con `modules` y `questions` completos copiados de
+      producción: primera pasada 28 filas, segunda 0 (idempotente), 0 ítems de `diagnostico` sin
+      módulo, 0 asignaciones previas pisadas, 0 filas fuera de `diagnostico`, y la reversión del pie
+      deja todo idéntico.
+    - ⚠️ Anotado en el pie: **36 y 112 son el mismo ítem** ($x^2 - 5x + 6 = 0$). Retirar uno es otra
+      decisión.
 
 > **Verificación (2026-09-20).** Contra **PostgreSQL 17.11** con `071`…`076` aplicadas antes, y
 > después contra la base real. Aplica limpia, idempotente, los siete ítems quedan con sus valores
