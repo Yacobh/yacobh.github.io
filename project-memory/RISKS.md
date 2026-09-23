@@ -1167,6 +1167,15 @@ central se llena (1 → 14 ítems entre −1 y 1) y el error simulado baja en el
 θ = −1), **pero arriba de 1 no mejora**: sobre 2 queda un ítem. Eso es **T-171**. ⚠️ El θ de
 `diagnostico` anterior a `083` no es comparable con el posterior.
 
+> 🟡 **2026-09-23 — la causa en `electronica`, medida** (SESSION-050, T-170 parte 1). En los cinco
+> bancos, el θ final de las corridas que se agotaron es **`max(b) + 2` menos una décima**: el techo
+> es propiedad del banco, no del estudiante (`kirchhoff`: techo 1,35, medido 1,19; `notacion`:
+> 0,10 contra 0,00). `next_question` sirve solo ítems a ≤ 2 logits de θ, y las 16 etiquetas de cada
+> banco caben en ~1,1 logits. La calibración (T-76) agrega que esas etiquetas además **subestiman**
+> los ítems más duros: 15 de los 16 movimientos significativos son hacia arriba. Sin tope de paso,
+> el MAP de seis aciertos quedaría en 0,87 con SE 1,48, que tampoco es una medición: el paso fijo
+> (pregunta 2) no es la causa de fondo.
+
 ### R-47 · El reintento mide memoria, no dominio
 
 **Abierto 2026-09-20**, al confirmar el owner que *«si un estudiante no pasa un test lo puede volver

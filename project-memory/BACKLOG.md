@@ -429,7 +429,7 @@ error. Documentado como nota fechada dentro del ADR, no editando la decisión or
 - **Relacionado:** [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]], [[RISKS]] R-16,
   [[OPEN_QUESTIONS]] Q-12 y X-03, [[../adr/ADR-003-github-pages-artefacto-versionado]].
 
-### T-48 · Versionar el DDL real del esquema (`000_baseline`) — **P1** · `abierto`
+### T-48 · Versionar el DDL real del esquema (`000_baseline`) — **P1** · ✅ `HECHA` (2026-09-23)
 
 **2026-08-10:** el paso que faltaba para poder escribirla ya está hecho. El **bloque G** de
 `supabase/queries/verificacion_esquema.sql` vuelca columnas, restricciones y cuerpo de funciones de
@@ -449,6 +449,13 @@ restauración de un respaldo (T-07).
 - **Terminado cuando:** aplicar `000` + `001`…`025` sobre una base vacía reproduce el esquema de
   producción, verificado al menos una vez.
 - **Relacionado:** [[RISKS]] R-03, R-15, T-07, T-09, [[../adr/ADR-015-item-sin-respuesta-en-el-cliente]].
+
+- ✅ **2026-09-23 — cerrada** (SESSION-050). `000_baseline.sql` + `supabase/baseline/stub_supabase.sql`
+  + `scripts/reconstruir_esquema.sh`: sobre PostgreSQL 17 vacío, el stub, `000` y las 88
+  migraciones reproducen **los 442 hechos** de la huella de producción. La comparación detecta una
+  columna plantada. `pg_dump` no sirvió: `claude_ro` no puede bloquear tablas que no lee.
+- ⚠️ **No reconstruye contenido**: faltan unos 400 ítems que solo existen en producción. T-07
+  sigue siendo necesaria.
 
 ### T-49 · La banda del estudiante no está protegida en la base — **P2** · `abierto`
 
@@ -473,13 +480,21 @@ banda y aparecer en cualquier cohorte; los perjudicados son los demás del grupo
   escribir, o está documentado por qué se acepta el riesgo.
 - **Relacionado:** [[RISKS]] R-14, [[../adr/ADR-006-cohortes-por-banda-con-minimo-de-inscritos]].
 
-### T-11 · Verificación automatizada de policies RLS — **P2** · `abierto`
+### T-11 · Verificación automatizada de policies RLS — **P2** · ✅ `HECHA` (2026-09-23, contra el esquema reconstruido)
 
 Script SQL o suite que valide, con dos usuarios de prueba (`user` y `admin`), que:
 estudiante no lee perfiles ajenos, no escribe `questions`, no ve cupos de otra banda; admin no
 puede degradarse; nunca queda el sistema sin admin.
 
 - **Terminado cuando:** el script corre contra staging y falla si alguna aserción se rompe.
+
+- ✅ **2026-09-23 — cerrada** (SESSION-050). `scripts/verificar_rls.sh` reconstruye el esquema (T-48) y
+  corre `supabase/pruebas/rls.sql`: ocho invariantes como estudiante, profesora, admin y anon.
+  Probada con dos regresiones plantadas, y las dos la hacen fallar. **No hay staging** (T-09), así
+  que corre contra la reconstrucción, que es lo más parecido que existe.
+- ⚠️ **«No ve cupos de otra banda» no es un invariante de la base**: `class_slots_select_open`
+  muestra todas las bandas y el filtro vive en el cliente. La suite lo informa como pendiente de
+  **T-49**, en vez de afirmarlo.
 
 ### T-12 · Resolver la duplicación de `index.html` — **P1** · `hecho` (2026-08-17, rama `t-12-html-unico`)
 
@@ -626,7 +641,7 @@ falta un documento aparte; si el equipo crece, retomar esa parte del criterio or
   permanencia; y está escrita la convención de ramas en [[../CLAUDE]] §5. ✅ (mergeadas/borradas;
   convención no escrita, ver nota arriba)
 
-### T-43 · Binding sin usar en `crud/fetch-modules-by-ids` — **P3** · `abierto`
+### T-43 · Binding sin usar en `crud/fetch-modules-by-ids` — **P3** · ✅ `CERRADA` (ya resuelta el 2026-08-09)
 
 Detectado 2026-08-08 al correr `clj-kondo` sobre los archivos tocados en T-40/T-42 (primer
 hallazgo real desde que se adoptó la herramienta en D-33): `src/universo/db/crud.cljs` declara el
@@ -637,6 +652,10 @@ no los que se le piden. No se tocó por estar fuera del alcance de T-40/T-42
 - **Terminado cuando:** o la función filtra realmente por `module-ids`, o el parámetro se elimina
   porque traer todo es lo correcto — con el motivo registrado en el código.
 - **Relacionado:** [[DECISIONS]] D-33, [[GRAPHIFY_INTEGRATION_GUIDE]] §6.1.
+
+- ✅ **2026-09-23 — estaba resuelta y nadie la cerró.** La función se llamaba en realidad
+  `fetch-resources-for-modules` (el nombre de esta ficha estaba mal) y la eliminó `648e444` el
+  2026-08-09, al personalizar los recursos de «Mi plan». `clj-kondo` sobre `crud.cljs`: 0 warnings.
 
 ### T-23 · Decidir el destino del código no alcanzable — **P3** · `abierto`
 
@@ -1034,7 +1053,7 @@ así que ahí se movió la clave a `1/2` y se reescribió la explicación de `2/
 - **Terminado cuando:** ~~los cuatro bancos activos están revisados ítem por ítem~~ ✅
 - **Relacionado:** T-103 (la vista que lo destapó), T-106, R-35, ADR-030, `sessions/SESSION-035.md`.
 
-### T-106 · `paes_m1` tiene 13 de sus 44 ítems duplicados — **P1** · `abierto`
+### T-106 · `paes_m1` tiene 13 de sus 44 ítems duplicados — **P1** · 🟡 `escrita y verificada` (2026-09-23) · ⏳ sin aplicar
 
 Tres enunciados aparecen repetidos: «¿Cuál es el valor de $1-(-3)(-2-6)$?» (ids 375, 377, 379, 381,
 383), «¿Cuál es el número cuya tercera parte es $0.09$?» (376, 378, 380, 382, 384) y el de la
@@ -1054,6 +1073,10 @@ modelo la cuenta como si sí.
   una copia esté catalogada y las otras no.
 - **Relacionado:** T-105, R-35.
 
+- 🟡 **2026-09-23 — `086` escrita y verificada** (SESSION-050): 28 copias con `active = false` (19
+  grupos dentro de un mismo banco, más 36/112). Ninguna copia tenía ideas erróneas catalogadas.
+  Probada sobre una copia de `questions`: 0 repetidos restantes, reversión idéntica. Es de
+  contenido: la puede aplicar `claude_ddl` si el owner lo pide.
 
 ### T-107 · Auditor de contraste sobre el DOM renderizado — **P1** · `abierto`
 
@@ -3079,7 +3102,7 @@ Graphify no indexa ClojureScript hoy, por lo que el grafo no ve la lógica princ
   [[GRAPHIFY_INTEGRATION_GUIDE]] que no es posible y cuál es el sustituto. **Cumplido** (segunda
   opción).
 
-### T-33 · Reconciliar `PROJECT_SUMMARY.md` con `project-memory/` — **P2** · `abierto`
+### T-33 · Reconciliar `PROJECT_SUMMARY.md` con `project-memory/` — **P2** · ✅ `HECHA` (2026-09-23)
 
 `PROJECT_SUMMARY.md` es la doc histórica; hoy convive con la memoria nueva y contiene datos
 desactualizados (lista de módulos previa al MVP).
@@ -3088,6 +3111,9 @@ desactualizados (lista de módulos previa al MVP).
   o se archiva en `docs/`, sin dejar dos versiones contradictorias del mismo hecho.
 
 ---
+
+- ✅ **2026-09-23:** archivado con `git mv` en `docs/historico/PROJECT_SUMMARY.md`, con cabecera de
+  documento histórico. P-10 y X-07 cerradas.
 
 ---
 
@@ -3120,7 +3146,7 @@ queda es aplicarlo y usarlo.
 
 ---
 
-### T-62 · El cuerpo de `resources` no renderiza tablas de Markdown — **P3** · `abierto` (2026-08-11)
+### T-62 · El cuerpo de `resources` no renderiza tablas de Markdown — **P3** · ✅ `HECHA` (2026-09-23) · ⏳ sin publicar
 
 Hallazgo de la vista previa lateral (D-40): `plan/resource-card` renderiza `resources.body` con
 `math/latex`, **no** con `math/parse-markdown-latex`. `math/latex` entiende `$…$`, `$$…$$`,
@@ -3150,6 +3176,13 @@ Hallazgo de la vista previa lateral (D-40): `plan/resource-card` renderiza `reso
 
 **No se resolvió en esta sesión a propósito:** las migraciones ya están aplicadas, así que tocar
 `039` dejaría el archivo diciendo algo distinto de lo que hay en la base — peor que el problema.
+
+- ✅ **2026-09-23 — cerrada con una opción que la ficha no tenía** (SESSION-050). El alcance había
+  crecido: **10 recursos publicados** con tablas, 8 de `electrotecnia` (visible para un alumno), y
+  los de cuántica ya estaban publicados. `universo.tablas-md` (puro, 6 tests) reconoce solo tablas
+  con fila separadora, y `resource-card` las dibuja. Un cuerpo sin tabla produce el mismo árbol
+  que antes; medido: 0 de 80 recursos PAES tiene una línea que empiece con `|`. Cuatro auditores de
+  UI en verde. ⚠️ **No se miró renderizado en un navegador.**
 
 ---
 
@@ -3579,7 +3612,7 @@ peor), [[BUSINESS_CONTEXT]] §3, T-20 (sin analítica, no se sabrá si mejora la
 > **Orden decidido:** T-76/T-77 (G-2) y T-78 (G-5) **primero y en paralelo**. Nada de lo demás
 > arranca antes.
 
-### T-76 · Pipeline de calibración de `difficulty` sobre respuestas reales — **P0** · `abierto`
+### T-76 · Pipeline de calibración de `difficulty` sobre respuestas reales — **P0** · ✅ `HECHA` (2026-09-23)
 
 Pasar de `difficulty` **asignada a criterio** a `difficulty` **estimada** con las respuestas ya
 acumuladas (252 diagnósticos al 2026-08-09 y creciendo), en un namespace puro y testeable.
@@ -3596,6 +3629,16 @@ acumuladas (252 diagnósticos al 2026-08-09 y creciendo), en un namespace puro y
   viejas (circular). **8 de 64 ítems tienen ≥ 30 respuestas.** El script no quedó en el repo; el
   pipeline de verdad necesita estimación conjunta (JML/MML), no θ fijo.
 
+- ✅ **2026-09-23 — cerrada (SESSION-050, D-76).** `universo.irt.calibracion` (puro, 15 tests,
+  entre ellos uno de recuperación en simulación y uno con el dato real que no convergía) +
+  `scripts/calibrar_banco.sh`, que vuelca con `claude_ro`, compila y estima. Primera corrida en
+  `docs/calibracion/T-76_primera_corrida_2026-09-23.md`: 1.710 respuestas, 223 pares
+  estudiante-banco. Solo `electronica` y `diagnostico` tienen datos que pesan más que la
+  etiqueta, y en `electronica` **15 de 16 movimientos van hacia arriba**. **No cambia ninguna
+  `difficulty`**: moverlas es una migración con criterio y la decide el owner.
+- ⚠️ Pendiente de T-145: la lista `excluidos` de la consulta está vacía, porque `claude_ro` no ve
+  correos. Quedan fuera 185 intentos sin `user_id`.
+
 ### T-77 · Reporte técnico de calibración publicable — **P0** · `abierto`
 
 La salida de T-76 escrita como documento que un jefe de UTP o un evaluador técnico pueda leer:
@@ -3606,6 +3649,9 @@ metodología, tamaño de muestra, resultados y **limitaciones declaradas**.
 - **Criterio de calidad:** un banco calibrado con esta muestra se llama *calibrado con N=252*, no
   *validado*. Exagerar acá destruye exactamente lo que la tarea busca construir (B-07).
 - **Vector:** G-2. **Relacionado:** S-11, H13, [[RISKS]] R-29.
+
+- 🟡 **2026-09-23:** la §5 del documento de T-76 («lo que no se puede afirmar») es el esqueleto de
+  limitaciones de este reporte.
 
 ### T-78 · Instrumentar CAC, LTV y el pipeline B2B — **P0** · `abierto`
 
@@ -4463,7 +4509,7 @@ produce dato calibrable del banco bueno.
   salieron `081`, `082` y `083` (SESSION-049). Queda usable, pero sigue sin cubrir arriba de 2
   (T-171), cuando `numeros` y `algebra` sí lo hacen.
 
-### T-144 · `tests.test` guarda estado de UI junto al diagnóstico — **P2** · `abierto`
+### T-144 · `tests.test` guarda estado de UI junto al diagnóstico — **P2** · ✅ `HECHA` (2026-09-23) · ⏳ sin publicar
 
 Descubierto el 2026-09-13 mirando las claves reales de una fila. `:test/complete`
 serializa **el mapa `:test` entero del `app-db`**, así que cada diagnóstico guarda, junto a las
@@ -4479,6 +4525,11 @@ de ADR-019) y `score-error`.
   buscar quién la lee — incluidas las consultas de `supabase/queries/`.
 - **Terminado cuando:** existe una lista explícita de qué se persiste y por qué, `:test/complete`
   guarda solo eso, y está en `supabase/SCHEMA.md`. Las filas viejas **no se migran** (D-… histórico).
+
+- ✅ **2026-09-23 — cerrada** (SESSION-050). `rastro/claves-del-diagnostico`: diez claves, cada una
+  con su lector anotado en `SCHEMA.md`. Lo que más importa no es el tamaño: **la clave `email` del
+  `default-db` dejaba el correo del estudiante en el jsonb** (348 filas), y con la lista blanca eso
+  deja de pasar en las filas nuevas. Las viejas no se migran. Llega a producción con el bundle.
 
 ### T-145 · `origin = 'student'` no alcanza para calibrar — **P1** · `abierto`
 
@@ -4918,7 +4969,7 @@ llegue migra sin tocar la identidad de los tests ni el histórico de `tests.topi
 
 ---
 
-### T-170 · Por qué el banco se agota a los 6 ítems, y qué hace θ mientras tanto — **P0** · `abierto`
+### T-170 · Por qué el banco se agota a los 6 ítems, y qué hace θ mientras tanto — **P0** · 🟡 `a medias` (pregunta 1 respondida 2026-09-23)
 
 Nace de **R-48**, medido el 2026-09-21 sobre los dos cursos reales: **50 de 106 mediciones paran por
 `exhausted` a los 6 ítems, y 44 de ellas sin un solo error**. Son dos preguntas, y conviene medirlas
@@ -4949,7 +5000,17 @@ en este orden porque la segunda puede depender de la primera:
   **falta de ítems arriba de 1,2**. El paso de 0,4 no se tocó y la pregunta (2) sigue abierta. Lo que
   sigue para este banco es **T-171**.
 
-### T-171 · Ítems de `diagnostico` por encima de 2 — **P1** · `abierto`
+- ✅ **2026-09-23 — pregunta (1) respondida con datos** (SESSION-050, detalle en [[RISKS]] R-48).
+  `next_question` solo sirve ítems a ≤ 2 logits de θ, y las 16 etiquetas de cada banco de
+  `electronica` caben en ~1,1 logits. En los cinco bancos, **el θ final de las corridas agotadas es
+  `max(b) + 2` menos una décima**, así que el techo lo pone el banco. Además, la calibración (T-76)
+  dice que esas etiquetas **subestiman** los ítems más duros (#1108 y #1112 suben ~1,4).
+- **Pregunta (2), para decidir:** el tope de 0,4 es el que produce la escalera exacta, pero sin él
+  el MAP de seis aciertos quedaría en 0,87 ± 1,48, que tampoco es una medición. **Lo que falta es
+  contenido**: abrir el rango de etiquetas de `electronica` (con criterio, como `083`) y escribir
+  ítems sobre −1. Es **T-172**.
+
+### T-171 · Ítems de `diagnostico` por encima de 2 — **P1** · 🟡 `a medias` (JSON hecho 2026-09-23)
 
 Tras `083` (2026-09-22) el reparto por tramo es `26 · 10 · 6 · 8 · 13 · 1`: **sobre 2 hay un solo
 ítem** (108, factorizar 2x² + 7x + 3). Quien resuelve el álgebra sigue llegando a ~3 sin medición
@@ -4968,7 +5029,38 @@ fina, y en el curso del 2026-09-22 fueron 10 de 28.
   cubren todos los tramos (T-138, T-143).
 - **Relacionado:** T-170, [[RISKS]] R-48, D-75, `083`.
 
-### T-163 · Acotar los privilegios de tabla al verbo que su policy contempla — **P1** · `abierto`
+- ✅ **2026-09-23 — primera mitad hecha** (SESSION-050): `contenido/items/diagnostico.json`, espejo
+  de la base con ids (`espejo_de_la_base: true`). `generar_migracion_items.py` se niega a generar
+  inserts desde un espejo. Los auditores encontraron, además del tramo [2, 3) con un ítem:
+  - **50 de 64 claves son la A (78 %)**, sobre el techo de 40 % de R-35. ⚠️ **Dentro de la
+    aplicación no regala aciertos**: el cliente baraja las alternativas con una permutación
+    sembrada por ítem (ADR-030), así que la A de la base no es la primera en pantalla. Importa
+    fuera de la app (un banco exportado o impreso) y para que el auditor dé verde. Se arregla
+    reordenando por id; el histórico no se rompe, porque cada intento guardó su copia.
+  - 60 Bonus que no empiezan con «Correcto», y 3 que hablan de un error (ADR-033).
+  - 36/112 duplicados: **resuelto en `086`**, que retira 112.
+- ⏳ Falta: la tanda de 6–8 ítems en [2, 3], y decidir el 61 y el reparto de claves. Las dos cosas
+  son contenido del owner.
+
+### T-172 · Abrir el rango de dificultad de los bancos de `electronica` — **P1** · `abierto`
+
+Nace de T-170 (1) y T-76, el 2026-09-23. Las 16 etiquetas de cada banco caben en ~1,1 logits, y
+la calibración dice que los ítems más duros son más difíciles de lo etiquetado: #1118 de −2,35 a
+−0,80, #1108 de −2,10 a −0,70, #1112 de −1,95 a −0,56, #1101 de −1,40 a −0,02.
+
+- **Qué:** una migración con criterio, como `083` (D-75), que reetiquete usando la dirección de
+  la calibración **como alerta y no como valor**, más ítems sobre −1 en cada banco.
+- **No:** copiar la tabla de T-76. Los errores son de 0,4 a 0,9.
+- **Terminado cuando:** una corrida perfecta no se agota antes de `max_items`, verificado
+  simulando como en SESSION-049.
+- **Relacionado:** T-170, T-76, R-48, D-75, D-76.
+
+### T-173 · Aplicar `084` (vista del agente) — **P0** · `abierto` · *la aplica el owner*
+
+R-49. Una línea en el SQL Editor, con la verificación escrita al pie de la migración. Después,
+decidir si la ventana 2026-09-18 → aplicación amerita revisar los logs de la API de Supabase.
+
+### T-163 · Acotar los privilegios de tabla al verbo que su policy contempla — **P1** · 🟡 `escrita y verificada` (2026-09-23) · ⏳ sin aplicar
 
 **18 de las 19 tablas de `public` le dan a `anon` DELETE y TRUNCATE.** Son las *default privileges*
 de Supabase, y **ninguna migración de este repositorio escribió nunca un `grant` de tabla** — por eso
@@ -4998,6 +5090,12 @@ Hoy el esquema entero descansa en que **toda** policy esté bien escrita, sin se
 - **Terminado cuando:** ninguna tabla de `public` le concede a `anon` un verbo que su policy no
   contemple, verificado leyendo `relacl` tabla por tabla.
 - **Riesgo:** [[RISKS]] R-46.
+
+- 🟡 **2026-09-23 — `085` escrita y verificada** en PostgreSQL 17 con los `relacl` reales: idempotente,
+  sin D/x/t, reversión exacta. **La aplica el owner, después de `084`.** Hacerlo destapó **R-49**:
+  la vista del agente era legible con la anon key (`084`, urgente).
+- **Decisión pendiente del owner:** cortar los privilegios por defecto del esquema (bloque
+  comentado en `085`). Es la causa de fondo de R-46 y R-49.
 
 ---
 

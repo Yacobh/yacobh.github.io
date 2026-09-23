@@ -1405,3 +1405,39 @@ la clave, `module_id` nulo, `difficulty` en progresión aritmética), antes de l
 Misma familia que **L-68** y **L-70**: el verde de una herramienta cubre solo lo que la herramienta
 mira.
 
+
+### L-72 · Un objeto nuevo en `public` nace abierto, y una vista además se salta la RLS
+
+**2026-09-23.** `tests_sin_identidad` se creó el 2026-09-18 para que el agente leyera `tests` sin
+correos. Se revisó con cuidado lo que la vista **mostraba**, y nadie miró quién podía **leerla**:
+heredó los privilegios por defecto de Supabase (`anon=arwdDxt`), igual que toda tabla (R-46). Una
+tabla nueva queda igual protegida por su RLS. Una vista sin `security_invoker` corre con los
+permisos de su dueño, así que no la protege nada. Un `HEAD` con la anon key contó **635 filas**
+(R-49, `084`).
+
+No lo encontró una auditoría de seguridad. Salió de listar `relacl` de todas las relaciones de
+`public` para T-163 y ver una vista mezclada con las tablas. La regla: **todo objeto nuevo en
+`public` se verifica con `relacl` en la misma sesión que se crea**, y una vista, además, con un
+pedido real como `anon`. Mismo patrón que L-46: la segunda vez que el acceso del agente destapa
+algo que la documentación del esquema no decía.
+
+### L-73 · Un test de regresión que pasa sin el arreglo no protege nada
+
+**2026-09-23.** El estimador de T-76 entraba en un ciclo con los datos reales de
+`electronica_notacion`. Se arregló, y el primer test de regresión fue sintético, con «la misma
+forma» (banco muy fácil, casi sin errores). **Pasaba también con el arreglo quitado.** Solo se supo
+porque se probó a propósito, revirtiendo el arreglo y corriendo el test. El test que quedó usa el
+dato real anonimizado, y falla sin el arreglo.
+
+Lo mismo con `supabase/pruebas/rls.sql`: se le plantaron dos regresiones antes de darlo por bueno,
+y la primera versión de la prueba de «el admin no se degrada» estaba tapada por otra protección (el
+trigger del último admin se dispara antes que la policy). **Un test se da por bueno cuando se lo
+vio fallar por la razón correcta.**
+
+### L-74 · `git add` con una ruta que no existe no agrega nada, y el error se puede perder
+
+**2026-09-23.** Después de un `git mv`, un `git add … PROJECT_SUMMARY.md 2>/dev/null` incluía la
+ruta vieja. Git abortó el `add` **entero** por esa ruta, el `2>/dev/null` se tragó el error, y el
+commit salió solo con el renombrado, sin ninguno de los cinco archivos editados. Se notó porque
+`git status` seguía mostrándolos modificados. Nunca redirigir el `stderr` de `git add`, y mirar el
+`--stat` del commit antes de seguir.
