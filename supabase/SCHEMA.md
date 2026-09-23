@@ -249,8 +249,30 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
 
 ## Orden de aplicación
 
-1. `admin_rls.sql` (si aún no)
-2. `guestbook_tri_state.sql` (si aún no)
+> ### Reconstruir desde cero: `000_baseline.sql` (T-48, 2026-09-23)
+>
+> **En una base vacía**, el punto de partida es `migrations/000_baseline.sql`. Crea las cinco tablas
+> del sitio anterior al MVP en su forma previa a `001` (`questions`, `tests`, `guestbook`,
+> `visitor`, `contacto`) y absorbe `admin_rls.sql` y `guestbook_tri_state.sql` (pasos 1 y 2 de
+> abajo). **En producción no se aplica**: ya tiene todo.
+>
+> ✅ **Verificado el 2026-09-23** con `scripts/reconstruir_esquema.sh`, que sirve para repetirlo:
+> sobre PostgreSQL 17 vacío más `supabase/baseline/stub_supabase.sql` se aplican `000` y las 88
+> migraciones siguientes (con los dos scripts de acceso del agente entre `067` y `068`). La huella
+> del catálogo (`supabase/queries/huella_del_esquema.sql`: columnas, restricciones, índices,
+> policies, triggers, funciones y vistas) **coincide con producción en sus 442 hechos**. Además se
+> plantó una columna de prueba para confirmar que la comparación detecta diferencias.
+>
+> ⚠️ **Lo que esto no reconstruye:**
+> - **Contenido.** La base reconstruida tiene 739 ítems y producción 1.138: unos 400 ítems
+>   (`numbers_v1` y otros bancos viejos) solo existen en producción. El respaldo (T-07) sigue
+>   haciendo falta.
+> - **Privilegios.** La huella no compara `relacl`. Vale para el estado actual y para el de
+>   `085`.
+> - **Auth.** El stub solo imita `auth.uid()` y `auth.users`.
+
+1. `admin_rls.sql` (si aún no) — en una base nueva lo trae `000_baseline.sql`
+2. `guestbook_tri_state.sql` (si aún no) — ídem
 3. `migrations/001_mvp_schema.sql`
 4. `migrations/002_seed_modules.sql`
 5. `migrations/003_demo_slots.sql` (opcional)
