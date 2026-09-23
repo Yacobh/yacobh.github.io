@@ -898,7 +898,9 @@
          rastro-off? (get-in new-db [:test :rastro :off?])
          intento-id  (get-in new-db [:test :rastro :id])]
      (cond-> {:db new-db
-              :save-test {:data {"test" test
+              ;; Lista blanca (T-144): el mapa `:test` entero traía estado de
+              ;; pantalla y el correo. Ver `rastro/claves-del-diagnostico`.
+              :save-test {:data {"test" (rastro/diagnostico test)
                                  "topic" (:topic test)
                                  "theta" (:theta test)
                                  "email-user" email-user

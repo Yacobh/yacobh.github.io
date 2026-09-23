@@ -1369,6 +1369,25 @@ Agrega también `tests_select_own` (`user_id = auth.uid() or is_admin()`) y, de 
 tuviera RLS habilitado ni ninguna policy de SELECT propia del usuario (solo `tests_select_admin`
 en `admin_rls.sql`).
 
+### Qué claves guarda el jsonb `tests.test` (T-144, desde 2026-09-23)
+
+Hasta el bundle de T-144, `:test/complete` guardaba **el mapa `:test` entero del `app-db`**. Eso
+incluía estado de pantalla y la clave `email`, que dejó el correo del estudiante en 348 filas
+además de la columna `email-user`. Desde T-144 se guarda por lista blanca
+(`universo.rastro/claves-del-diagnostico`, con tests):
+
+| Clave | Quién la lee |
+|---|---|
+| `responses` | `universo.cohorte`, detalle del panel admin, `events/plan` (fluidez), dashboard, consultas T-130 / T-59 / T-76 |
+| `questions` | `intento/alternativas-por-id`: las alternativas tal como las vio el estudiante (T-132) |
+| `theta-history`, `stop-reason`, `stop-config` | detalle del panel, `cohorte/theta-al-tope-del-banco?`, T-130 |
+| `start-time`, `end-time` | duración en el dashboard, T-130 |
+| `topic`, `theta`, `theta-initial` | para que la fila se lea sola, sin cruzarla con las columnas |
+
+**Las filas viejas no se migran**: siguen con todas sus claves, y los lectores las toleran porque
+solo leen las de la tabla. Quien consulte el jsonb tiene que suponer que una fila anterior a T-144
+trae claves de pantalla que no significan nada.
+
 ## Nombre de fantasía por evaluación (`022_test_config_display_name.sql`)
 
 `test_configs` gana `display_name text` (nullable) + check `test_configs_display_name_not_blank`

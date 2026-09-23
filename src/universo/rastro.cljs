@@ -73,6 +73,42 @@
   (-> (select-keys (or test {}) claves-del-rastro)
       (as-> m (apply dissoc m claves-de-identidad))))
 
+;; -----------------------------------------------------------------------------
+;; Qué se guarda de un test terminado (T-144)
+;; -----------------------------------------------------------------------------
+
+(def claves-del-diagnostico
+  "Las únicas claves del mapa `:test` que se guardan en `tests.test` al
+   terminar. Es el rastro más dos, y cada una tiene al menos un lector (medido
+   el 2026-09-23):
+
+     · `:responses` — todo: `universo.cohorte`, el detalle del panel admin,
+       `events/plan` (fluidez), el dashboard y las consultas T-130, T-59 y T-76.
+     · `:questions` — **no se recorta aunque pese**: es la copia de las
+       alternativas que vio el estudiante. Con ella `intento/alternativas-por-id`
+       reconstruye el ítem tal como estaba (T-132), aunque después se corrija
+       (`081`).
+     · `:theta-history`, `:stop-reason`, `:stop-config` — detalle del panel y
+       `cohorte/theta-al-tope-del-banco?`.
+     · `:start-time`, `:end-time` — duración en el dashboard y en T-130.
+     · `:topic`, `:theta`, `:theta-initial` — el registro se lee solo, sin
+       tener que cruzarlo con las columnas.
+
+   Todo lo demás era estado de pantalla, y se guardaba porque `:test/complete`
+   mandaba el mapa entero: `:feedback`, `:editor`, `:configs`,
+   `:available-topics`, `:prefetched-question`, `:scoring?`, `:status`,
+   `:question-ids`, `:traits` (stub muerto de ADR-019), `:score`,
+   `:current-question`, `:rastro` (ya es la columna `intento_id`) y
+   **`:email`**, que el `default-db` trae y que dejó el correo del estudiante
+   en 348 jsonb además de la columna (L-46). Las filas viejas no se migran."
+  (conj claves-del-rastro :questions :end-time))
+
+(defn diagnostico
+  "El jsonb que se guarda en `tests.test`: lista blanca, sin identidad."
+  [test]
+  (-> (select-keys (or test {}) claves-del-diagnostico)
+      (as-> m (apply dissoc m claves-de-identidad))))
+
 (defn n-respuestas
   "Cuántas respuestas lleva el intento. Se denormaliza en su propia columna
    porque `jsonb_array_length(parcial->'responses')` en un `where` no usa

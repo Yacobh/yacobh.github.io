@@ -218,3 +218,47 @@
     (testing "y es inocuo sobre una fila que nunca lo tuvo"
       (is (= (dissoc row "intento_id")
              (rastro/fila-sin-intento (dissoc row "intento_id")))))))
+
+;; -----------------------------------------------------------------------------
+;; Lo que se guarda de un test terminado (T-144)
+;; -----------------------------------------------------------------------------
+
+(def ^:private test-terminado
+  (assoc test-en-curso
+         :questions [{:id "q1" :question "¿?" :option_a "1" :option_b "2" :option_c "3" :option_d "4"}]
+         :end-time 1758300600000
+         :stop-reason :max-items
+         ;; Lo que `:test/complete` mandaba antes de T-144 y no lee nadie:
+         :email "estudiante@liceo.cl"
+         :feedback {:question {} :response {}}
+         :editor {:abierto? true}
+         :configs {"numeros" {:max-items 12}}
+         :available-topics [{:topic "numeros"}]
+         :prefetched-question nil
+         :scoring? false
+         :status :completed
+         :question-ids ["q1"]
+         :traits {:logical 0.0}
+         :score 0
+         :current-question 2
+         :rastro {:id "uuid" :off? false}))
+
+(deftest diagnostico-guarda-solo-lo-que-alguien-lee
+  (let [d (rastro/diagnostico test-terminado)]
+    (is (= #{:responses :questions :theta :theta-history :theta-initial :stop-reason
+             :stop-config :topic :start-time :end-time}
+           (set (keys d))))
+    (testing "el correo no entra al jsonb (348 filas lo tenían)"
+      (is (not (contains? d :email))))
+    (testing "las alternativas vistas se conservan: sin ellas no hay T-132"
+      (is (= (:questions test-terminado) (:questions d))))
+    (testing "ni aunque alguien la agregue a la lista blanca"
+      (is (not (contains? (rastro/diagnostico (assoc test-terminado "email" "x")) "email"))))))
+
+(deftest diagnostico-contiene-al-rastro
+  ;; Todo lo que el rastro guarda en `intentos.parcial` tiene que quedar también
+  ;; en `tests.test`: si no, la fila final diría menos que el borrador.
+  (is (every? rastro/claves-del-diagnostico rastro/claves-del-rastro)))
+
+(deftest diagnostico-de-nil
+  (is (= {} (rastro/diagnostico nil))))
