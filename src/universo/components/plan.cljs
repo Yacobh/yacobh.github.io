@@ -6,7 +6,8 @@
    [universo.plan :as plan]
    [universo.profile :as profile]
    [universo.components.math-render :as math]
-   [universo.components.ui :as ui]))
+   [universo.components.ui :as ui]
+   [universo.tablas-md :as tablas-md]))
 
 (defn- empty-no-profile []
   [:div.bg-white.rounded-xl.shadow.p-5.sm:p-8.text-center.max-w-xl.mx-auto
@@ -31,6 +32,33 @@
    (when (:module-slug m)
      [:p.text-xs.text-gray-500.mt-2 (:module-slug m)])])
 
+(defn- cuerpo-del-recurso
+  "El `body` de un recurso: texto con `math/latex`, como siempre, y las tablas
+   de Markdown como tablas (T-62). Un cuerpo sin tabla es un solo bloque de
+   texto y se ve exactamente igual que antes."
+  [body]
+  (into [:div.text-sm.text-gray-700.mb-2.whitespace-pre-wrap]
+        (map-indexed
+         (fn [i {:keys [tipo contenido encabezado filas]}]
+           (if (= tipo :tabla)
+             ^{:key i}
+             [:div.overflow-x-auto.my-2.whitespace-normal
+              [:table.min-w-full.text-sm.border.border-gray-200
+               [:thead
+                (into [:tr.bg-gray-50]
+                      (map (fn [c] [:th.px-2.py-1.text-left.font-semibold.border-b.border-gray-200
+                                    (math/latex c)])
+                           encabezado))]
+               (into [:tbody]
+                     (map (fn [fila]
+                            (into [:tr.border-b.border-gray-200]
+                                  (map (fn [c] [:td.px-2.py-1.align-top (math/latex c)]) fila)))
+                          filas))]]
+             ;; Sin envoltorio: un cuerpo sin tablas produce el mismo árbol
+             ;; que `(math/latex body)` producía antes de T-62.
+             (with-meta (math/latex contenido) {:key i})))
+         (tablas-md/bloques body))))
+
 (defn resource-card
   "Tarjeta de un recurso **tal como la ve el estudiante**.
 
@@ -48,8 +76,7 @@
    (when-let [ctx (or (:historical_context r) (:historical-context r))]
      [:p.text-xs.text-stone-500.italic.mb-2 ctx])
    (when (:body r)
-     [:div.text-sm.text-gray-700.mb-2.whitespace-pre-wrap
-      (math/latex (:body r))])
+     [cuerpo-del-recurso (:body r)])
    (when-let [url (:media_url r)]
      [:a.text-sm.text-indigo-600.hover:underline
       {:href url :target "_blank" :rel "noopener noreferrer"}
