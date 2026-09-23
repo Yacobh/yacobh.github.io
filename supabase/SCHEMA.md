@@ -837,6 +837,26 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     el aviso de privacidad no dice todavía que un profesor pueda ver resultados con el correo del
     estudiante.
 
+79. `migrations/081_reparacion_de_tres_items_de_diagnostico.sql` — ⏳ **escrita y verificada
+    2026-09-22, sin aplicar.** Los ítems **55, 56 y 109** del banco `diagnostico` tenían las
+    `error_*` **corridas de letra**: la clave estaba bien, pero el texto «Correcta» vivía en un
+    distractor, así que quien se equivocaba leía «Correcta». Medido ese día: **7 estudiantes del
+    curso del 2026-09-22** (10 respuestas) y 10 en todo el histórico; en `/aula` salía como la
+    segunda idea errónea del curso. Barrido del banco activo: **son solo esos tres**, todos del
+    banco viejo sin JSON en `contenido/items/`, que ningún auditor mira.
+
+    Reescribe las cuatro `error_*` de cada uno y **cambia cinco alternativas** cuyo número no sale de
+    ningún error nombrable (mismo criterio que el defecto B de `079`). No toca la clave, el
+    enunciado, `difficulty`, `module_id` ni las `misconception_*_id`. El histórico no cambia: cada
+    intento guardó su copia de las alternativas y el `selected-error` que vio.
+
+    - **Verificada contra PostgreSQL 17** con los 64 ítems de `diagnostico` copiados de producción:
+      aplica dos veces igual (idempotente), cambian exactamente 3 filas, 0 distractores dicen
+      «Correcta», y **la reversión escrita en el pie deja las 64 filas idénticas a las de antes**.
+    - `revisar_redaccion_items.py` sobre los tres: 0 errores (3 avisos por enunciados en
+      imperativo, que no se tocaron).
+    - No hace falta bundle: es solo contenido, así que R-39 no aplica.
+
 > **Verificación (2026-09-20).** Contra **PostgreSQL 17.11** con `071`…`076` aplicadas antes, y
 > después contra la base real. Aplica limpia, idempotente, los siete ítems quedan con sus valores
 > corregidos, y en producción **los 80 Bonus empiezan por «Correcto»** (0 excepciones).
