@@ -899,6 +899,32 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     - ⚠️ `universo.motor/version` no sube (ADR-034: modelo, prior y parada no cambian), pero **el
       θ de `diagnostico` de antes y después de aplicarla no es comparable** (G-4).
 
+82. `migrations/084_privilegios_de_la_vista_del_agente.sql` — ⏳ **sin aplicar. Va primero, y la
+    aplica el owner** (el agente no es dueño de la vista). Deja `tests_sin_identidad` legible solo
+    por `claude_ro` y `claude_ddl`. Ver [[../project-memory/RISKS]] R-49. No toca datos ni policies.
+
+    - **Verificada contra PostgreSQL 17** con los roles y privilegios medidos en producción el
+      2026-09-23: dos pasadas iguales; después de aplicar, la vista solo tiene `claude_ro=r` y
+      `claude_ddl=r`.
+    - Verificación en vivo escrita al pie: (a) `relacl`, (b) HTTP con la anon key (esperado ≠ 200),
+      (c) el agente sigue leyendo.
+
+83. `migrations/085_privilegios_de_tabla_al_verbo_de_su_policy.sql` — ⏳ **sin aplicar; la aplica
+    el owner, después de `084`.** T-163: cada rol queda sobre cada tabla con exactamente los verbos
+    que sus policies contemplan. Hoy `anon` y `authenticated` tienen `arwdDxt` en 18 tablas por los
+    privilegios por defecto de Supabase. No toca policies.
+
+    - **Verificada contra PostgreSQL 17** (esqueleto con los 20 `relacl` reales): dos pasadas
+      iguales, ningún `D`/`x`/`t` restante, `anon` solo en `contacto` (a), `guestbook` (ar),
+      `site_settings` (r) y `visitor` (a). La reversión del pie deja los 20 `relacl` idénticos al
+      estado de partida.
+    - ⚠️ **Lo que la base desechable no puede probar:** el funnel real. El esqueleto no tiene las
+      policies ni los triggers, así que la cabecera razona caso por caso por qué nada que funcione
+      hoy deja de funcionar. La prueba en vivo está listada al pie: si algo falla, es
+      `permission denied for table X`, y la reversión es inmediata.
+    - **No incluye** cortar los privilegios por defecto del esquema, que es la causa de fondo: es
+      una regla de trabajo nueva y la decide el owner (bloque comentado en la migración).
+
 > **Verificación (2026-09-20).** Contra **PostgreSQL 17.11** con `071`…`076` aplicadas antes, y
 > después contra la base real. Aplica limpia, idempotente, los siete ítems quedan con sus valores
 > corregidos, y en producción **los 80 Bonus empiezan por «Correcto»** (0 excepciones).

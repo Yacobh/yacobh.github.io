@@ -1085,6 +1085,31 @@ pese a ser lo que recomienda la teoría de tests de clasificación.
 - **Severidad:** 🔶 media hoy, **alta** cuando la afirmación psicométrica entre a un pitch (G-1).
 - **Relacionado:** T-111, X-10, ADR-004, ADR-034, R-17, G-2 en [[TESIS_DE_CRECIMIENTO]].
 
+### R-49 · Una vista hereda los privilegios por defecto y no tiene RLS propia — 🔺 **alto** (2026-09-23)
+
+**Abierto 2026-09-23** (SESSION-050), al medir `relacl` para T-163. La vista `tests_sin_identidad`
+(creada el 2026-09-18 para el agente, D-71) recibió los privilegios por defecto de `public`, igual
+que toda tabla (R-46). La diferencia es que **una vista no tiene RLS**: corre con los permisos de su
+dueño, y la policy de `tests` no la alcanza.
+
+- **Medido, sin traer datos:** un `HEAD` con la anon key devolvió `content-range: 0-634/635`. Sobre
+  `tests` directo, el mismo pedido devuelve `*/0`, así que ahí la RLS funciona.
+- **Qué contiene:** `user_id`, topic, θ y el jsonb de cada diagnóstico, **sin correo** (verificado
+  el 2026-09-18: 0 claves `email`, 0 arrobas). Es dato seudónimo de estudiantes, en su mayoría
+  menores (R-28).
+- **Ventana:** desde que se aplicó `acceso_correccion_tests_pii.sql` (2026-09-18) hasta que se
+  aplique `084`.
+- **Mitigación:** `084` le revoca todo a `anon` y `authenticated`. La aplica el owner, porque el
+  agente no es dueño de la vista. `085` (T-163) cierra la misma puerta en las tablas.
+- **La lección no es la vista, es el patrón:** cualquier objeto nuevo en `public` nace abierto. Lo
+  que lo evita de raíz es cortar los privilegios por defecto del esquema (bloque comentado en `085`,
+  decisión del owner).
+- **Pendiente de decidir:** si la ventana amerita revisar los logs de la API de Supabase por
+  lecturas de la vista que no sean del agente.
+- **Severidad:** 🔺 alta hasta aplicar `084`; después, 🔶 media mientras sigan los privilegios por
+  defecto.
+- **Relacionado:** R-46, R-28, R-45, D-71, T-163, ADR-040.
+
 ### R-48 · Casi la mitad de las mediciones no miden: el banco se queda sin ítems — 🔺 **alto** (2026-09-21)
 
 **Abierto al mirar el gráfico de distribución de θ del aula**, que mostró una pila de puntos
