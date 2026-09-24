@@ -921,8 +921,10 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     - ⚠️ `universo.motor/version` no sube (ADR-034: modelo, prior y parada no cambian), pero **el
       θ de `diagnostico` de antes y después de aplicarla no es comparable** (G-4).
 
-82. `migrations/084_privilegios_de_la_vista_del_agente.sql` — ⏳ **sin aplicar. Va primero, y la
-    aplica el owner** (el agente no es dueño de la vista). Deja `tests_sin_identidad` legible solo
+82. `migrations/084_privilegios_de_la_vista_del_agente.sql` — ⚠️ **SIN EFECTO al 2026-09-23**: el
+    owner la dio por aplicada junto con `085` y `086`, pero la vista sigue con `anon=arwdDxt` y un
+    pedido anónimo responde HTTP 200. **Hay que correrla de nuevo y mirar la salida.** La aplica el
+    owner (el agente no es dueño de la vista). Deja `tests_sin_identidad` legible solo
     por `claude_ro` y `claude_ddl`. Ver [[../project-memory/RISKS]] R-49. No toca datos ni policies.
 
     - **Verificada contra PostgreSQL 17** con los roles y privilegios medidos en producción el
@@ -931,8 +933,8 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     - Verificación en vivo escrita al pie: (a) `relacl`, (b) HTTP con la anon key (esperado ≠ 200),
       (c) el agente sigue leyendo.
 
-83. `migrations/085_privilegios_de_tabla_al_verbo_de_su_policy.sql` — ⏳ **sin aplicar; la aplica
-    el owner, después de `084`.** T-163: cada rol queda sobre cada tabla con exactamente los verbos
+83. `migrations/085_privilegios_de_tabla_al_verbo_de_su_policy.sql` — ✅ **aplicada por el owner,
+    verificada 2026-09-23** con `relacl`: las 20 tablas quedan exactamente como dice la cabecera. T-163: cada rol queda sobre cada tabla con exactamente los verbos
     que sus policies contemplan. Hoy `anon` y `authenticated` tienen `arwdDxt` en 18 tablas por los
     privilegios por defecto de Supabase. No toca policies.
 
@@ -947,7 +949,7 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     - **No incluye** cortar los privilegios por defecto del esquema, que es la causa de fondo: es
       una regla de trabajo nueva y la decide el owner (bloque comentado en la migración).
 
-84. `migrations/086_retirar_items_duplicados.sql` — ⏳ **sin aplicar**. Migración de contenido:
+84. `migrations/086_retirar_items_duplicados.sql` — ✅ **aplicada por el owner, verificada 2026-09-23** (las 28 filas con `active = false`). Migración de contenido:
     puede aplicarla `claude_ddl` a pedido del owner. T-106: `active = false` en **28 copias** de
     enunciados repetidos dentro de un mismo banco (19 grupos más el par 36/112 de `diagnostico`).
     Se conserva la copia de id menor, y 36 en el par. Ninguna copia tenía ideas erróneas

@@ -1053,7 +1053,7 @@ así que ahí se movió la clave a `1/2` y se reescribió la explicación de `2/
 - **Terminado cuando:** ~~los cuatro bancos activos están revisados ítem por ítem~~ ✅
 - **Relacionado:** T-103 (la vista que lo destapó), T-106, R-35, ADR-030, `sessions/SESSION-035.md`.
 
-### T-106 · `paes_m1` tiene 13 de sus 44 ítems duplicados — **P1** · 🟡 `escrita y verificada` (2026-09-23) · ⏳ sin aplicar
+### T-106 · `paes_m1` tiene 13 de sus 44 ítems duplicados — **P1** · ✅ `APLICADA` (2026-09-23, verificada)
 
 Tres enunciados aparecen repetidos: «¿Cuál es el valor de $1-(-3)(-2-6)$?» (ids 375, 377, 379, 381,
 383), «¿Cuál es el número cuya tercera parte es $0.09$?» (376, 378, 380, 382, 384) y el de la
@@ -5057,10 +5057,13 @@ la calibración dice que los ítems más duros son más difíciles de lo etiquet
 
 ### T-173 · Aplicar `084` (vista del agente) — **P0** · `abierto` · *la aplica el owner*
 
+⚠️ **2026-09-23, verificado después de que el owner reportara las tres aplicadas:** `085` y `086`
+sí se aplicaron; `084` **no tuvo efecto** (`relacl` intacto y HTTP 200 como anon).
+
 R-49. Una línea en el SQL Editor, con la verificación escrita al pie de la migración. Después,
 decidir si la ventana 2026-09-18 → aplicación amerita revisar los logs de la API de Supabase.
 
-### T-163 · Acotar los privilegios de tabla al verbo que su policy contempla — **P1** · 🟡 `escrita y verificada` (2026-09-23) · ⏳ sin aplicar
+### T-163 · Acotar los privilegios de tabla al verbo que su policy contempla — **P1** · ✅ `APLICADA` (2026-09-23, verificada con `relacl`)
 
 **18 de las 19 tablas de `public` le dan a `anon` DELETE y TRUNCATE.** Son las *default privileges*
 de Supabase, y **ninguna migración de este repositorio escribió nunca un `grant` de tabla** — por eso
