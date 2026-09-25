@@ -921,9 +921,10 @@ si B devuelve filas, hay un problema de seguridad o un producto roto en silencio
     - ⚠️ `universo.motor/version` no sube (ADR-034: modelo, prior y parada no cambian), pero **el
       θ de `diagnostico` de antes y después de aplicarla no es comparable** (G-4).
 
-82. `migrations/084_privilegios_de_la_vista_del_agente.sql` — ⚠️ **SIN EFECTO al 2026-09-23**: el
-    owner la dio por aplicada junto con `085` y `086`, pero la vista sigue con `anon=arwdDxt` y un
-    pedido anónimo responde HTTP 200. **Hay que correrla de nuevo y mirar la salida.** La aplica el
+82. `migrations/084_privilegios_de_la_vista_del_agente.sql` — ✅ **aplicada, verificada el
+    2026-09-25**: `relacl` = `postgres`, `service_role`, `claude_ro=r`, `claude_ddl=r` (ya sin
+    `anon` ni `authenticated`); un pedido anónimo responde **HTTP 401**; `claude_ro` sigue leyendo
+    (661 filas). El 2026-09-23 no había tenido efecto (`anon=arwdDxt`, HTTP 200). La aplicó el
     owner (el agente no es dueño de la vista). Deja `tests_sin_identidad` legible solo
     por `claude_ro` y `claude_ddl`. Ver [[../project-memory/RISKS]] R-49. No toca datos ni policies.
 

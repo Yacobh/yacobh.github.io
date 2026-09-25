@@ -191,6 +191,43 @@ no está definido entre qué dos números se calcula** — que es justo lo que D
 válido. **Tarea:** T-142. **Ojo:** la consulta 0.c de T-130 usa `max(theta)` y el bloque 6 usa el
 **último**; esa inconsistencia es precisamente el síntoma de que la regla no existe.
 
+> **2026-09-24 — conversación con el owner (después de SESSION-050). Sigue abierta: hay propuesta,
+> no hay respuesta.** Se anota el 2026-09-25 porque la escritura falló en la sesión original.
+>
+> **Dos matices que puso el owner:**
+>
+> 1. **Honestidad.** Hay estudiantes que le sacan foto al ítem y lo resuelven con ChatGPT. Sus
+>    ideas: (a) una hoja en papel con los cálculos; (b) que no sea nota sino participación, con el
+>    incentivo de que el resultado los ubica y define cuánta ayuda reciben; (c) ítems trampa fuera
+>    del temario.
+> 2. **Repetición.** Sus ideas: (a) usar `order_index` como segunda forma; (b) excluir los ítems ya
+>    vistos en intentos anteriores; (c) ítems generativos, parametrizados en código, «como una tabla
+>    de multiplicar por estudiante».
+>
+> **Propuesta del agente, pendiente de respuesta:**
+>
+> - **Regla:** el **primer intento completo es la medición**. Un intento posterior cuenta como
+>   medición nueva **solo si no repite ítems**; si repite, es **práctica** y no mueve θ ni el Δθ.
+> - **Honestidad, en este orden:** (1) no-nota, con el mensaje «si inflas tu nivel, te ubican en un
+>   grupo que va más rápido» — sin código; (2) la hoja en papel; (3) medir la señal de **person-fit**
+>   con los datos que ya existen (aciertos en difíciles con fallos en fáciles, tiempos uniformes).
+>   Los **ítems trampa se desaconsejan por ahora**: adivinar acierta el 25 %, cuestan tiempo de test
+>   y pueden marcar como tramposo a un estudiante bueno.
+> - **Repetición:** excluir ítems ya vistos es barato y **no necesita migración** (la función que
+>   elige el ítem ya recibe la lista de respondidos). **Límite:** electrónica (16 ítems, máximo 8)
+>   da exactamente 2 intentos sin repetir; `diagnostico` (63, máximo 20) da unos 2 a 3.
+> - **Ítems generativos:** la mejor idea a largo plazo — nunca repiten, los distractores salen de
+>   reglas de error y una plantilla junta respuestas para calibrar. Pero requieren **un ADR**
+>   (generar y corregir en el servidor, por ADR-015; no choca con ADR-016 porque no es IA) y son
+>   construir producto (**R-30**). Piloto sugerido: **una sola plantilla** de notación científica.
+>
+> **Cuatro preguntas al owner:**
+>
+> 1. ¿Acepta la regla del primer intento?
+> 2. ¿Se implementa la exclusión de ítems ya vistos?
+> 3. ¿Se mide person-fit en agregado en los tres cursos?
+> 4. ¿Se escribe el ADR de ítems generativos con una sola plantilla piloto?
+
 ---
 
 ### 🟠 Q-47 · ¿El filtro de esfuerzo está borrando la evidencia de fluidez? — **abierta 2026-09-13**

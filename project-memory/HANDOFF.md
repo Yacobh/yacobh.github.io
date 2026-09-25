@@ -13,13 +13,15 @@
 
 ## ⚠️ Antes de cualquier otra cosa
 
-1. **Aplicar `084` (T-173, R-49).** La vista `tests_sin_identidad`, creada el 2026-09-18 para el
+1. ✅ **`084` aplicada y verificada el 2026-09-25** (HTTP 401 como anon, `relacl` sin `anon`).
+   Lo que sigue es histórico. ~~**Aplicar `084` (T-173, R-49).**~~ La vista `tests_sin_identidad`, creada el 2026-09-18 para el
    agente, heredó los privilegios por defecto de Supabase y **se lee con la anon key**: 635
    diagnósticos, sin correos pero con `user_id`, θ y respuestas de estudiantes en su mayoría
    menores. Es una línea en el SQL Editor, con la verificación al pie de la migración. La aplica el
    owner: el agente no es dueño de la vista.
 2. **La rama `trabajo-autonomo-g2` no está mergeada.** Trae T-76, T-48, T-11, T-144, T-62 y T-33,
-   el bundle compilado y las migraciones `084`–`086` sin aplicar. Ver `sessions/SESSION-050.md`.
+   el bundle compilado y las migraciones `084`–`086` (**las tres aplicadas** al 2026-09-25;
+   verificado: la rama sigue 12 commits delante de `main` y de `origin/main`). Ver `sessions/SESSION-050.md`.
 
 ---
 

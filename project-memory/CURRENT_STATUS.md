@@ -10,7 +10,11 @@
 > rama **`trabajo-autonomo-g2`**: nada aplicado en producción y nada pusheado. Detalle en
 > `sessions/SESSION-050.md`.
 >
-> 🔺 **Lo urgente: R-49.** Al medir `relacl` para T-163 apareció que `tests_sin_identidad`, la vista
+> ✅ **2026-09-25: R-49 cerrado en lo urgente** — `084` aplicada y verificada (anon → HTTP 401, `relacl`
+> sin `anon`); `085` y `086` también aplicadas. La rama sigue **sin mergear** (12 commits). Lo que
+> sigue es el texto del 2026-09-23.
+>
+> 🔺 **Lo urgente (2026-09-23): R-49.** Al medir `relacl` para T-163 apareció que `tests_sin_identidad`, la vista
 > que el agente usa desde el 2026-09-18, heredó `anon=arwdDxt` y **no tiene RLS propia**. Un `HEAD`
 > con la anon key contó 635 filas (sin correos). **`084` lo cierra en una línea y la aplica el
 > owner** (T-173). Se avisó con una notificación en cuanto se confirmó.

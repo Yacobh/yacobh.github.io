@@ -5055,7 +5055,10 @@ la calibración dice que los ítems más duros son más difíciles de lo etiquet
   simulando como en SESSION-049.
 - **Relacionado:** T-170, T-76, R-48, D-75, D-76.
 
-### T-173 · Aplicar `084` (vista del agente) — **P0** · `abierto` · *la aplica el owner*
+### T-173 · Aplicar `084` (vista del agente) — **P0** · ✅ `APLICADA` (verificada 2026-09-25)
+
+✅ **2026-09-25:** `relacl` = `postgres`, `service_role`, `claude_ro=r`, `claude_ddl=r`; HEAD anónimo
+→ HTTP 401; `claude_ro` lee 661 filas. **Queda abierto solo** decidir lo de los logs de la API.
 
 ⚠️ **2026-09-23, verificado después de que el owner reportara las tres aplicadas:** `085` y `086`
 sí se aplicaron; `084` **no tuvo efecto** (`relacl` intacto y HTTP 200 como anon).

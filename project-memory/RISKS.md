@@ -1085,7 +1085,12 @@ pese a ser lo que recomienda la teoría de tests de clasificación.
 - **Severidad:** 🔶 media hoy, **alta** cuando la afirmación psicométrica entre a un pitch (G-1).
 - **Relacionado:** T-111, X-10, ADR-004, ADR-034, R-17, G-2 en [[TESIS_DE_CRECIMIENTO]].
 
-### R-49 · Una vista hereda los privilegios por defecto y no tiene RLS propia — 🔺 **alto** (2026-09-23)
+### R-49 · Una vista hereda los privilegios por defecto y no tiene RLS propia — 🔶 **medio** (bajó de 🔺 el 2026-09-25)
+
+> **2026-09-25 — `084` aplicada y verificada:** `relacl` sin `anon` ni `authenticated`, pedido
+> anónimo → HTTP 401, `claude_ro` sigue leyendo. La ventana abierta fue **2026-09-18 → entre el
+> 2026-09-24 y el 2026-09-25**. Queda 🔶 por el patrón (privilegios por defecto del esquema) y por
+> la pregunta de los logs, que sigue sin decidir.
 
 **Abierto 2026-09-23** (SESSION-050), al medir `relacl` para T-163. La vista `tests_sin_identidad`
 (creada el 2026-09-18 para el agente, D-71) recibió los privilegios por defecto de `public`, igual
