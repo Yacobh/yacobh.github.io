@@ -5055,10 +5055,49 @@ la calibración dice que los ítems más duros son más difíciles de lo etiquet
   simulando como en SESSION-049.
 - **Relacionado:** T-170, T-76, R-48, D-75, D-76.
 
+### T-174 · Excluir los ítems ya vistos en intentos anteriores — **P1** · ✅ `hecha` (2026-09-25, **sin desplegar**)
+
+Q-46, D-77. `src/universo/vistos.cljs` (puro, 13 asserts) + `crud/fetch-ids-vistos` + los eventos
+`:test/cargar-vistos`, `:test/vistos-listos` y `:test/repetir-vistos`. Al abrir un diagnóstico con
+sesión, el cliente lee las respuestas de los intentos anteriores del mismo topic en `tests` **y**
+`intentos` (los abandonados también cuentan) y las suma a los ids que `next_question` excluye.
+**Sin migración.** Si el banco se agota sin los vistos, el test **no se corta**: sigue con ellos y
+guarda `:repetidos` en `tests.test` (nueva clave de la lista blanca de T-144). Límite conocido: en
+electrónica alcanza para dos intentos limpios; lo de fondo es ADR-043.
+**Falta:** el push a `main` (bundle ya compilado en la rama) y ver un reintento real en vivo.
+
+### T-175 · Person-fit en agregado — **P1** · ✅ `hecha` (2026-09-25)
+
+`src/universo/irt/person_fit.cljs` (lz, Guttman, CV del tiempo; con tests), CLI con p-valor
+simulado (`person_fit_cli.cljs`, build `:person-fit`), `scripts/medir_person_fit.sh` y
+`supabase/queries/T-175_datos_de_person_fit.sql`. Informe:
+`docs/person_fit/T-175_primera_medicion_2026-09-25.md`. **El hallazgo:** la fracción de patrones
+improbables está en o bajo el azar en los tres cursos; el person-fit no ve la trampa total. En
+electrónica Guttman ≈ 0,5: la etiqueta de dificultad no ordena los ítems (refuerza T-172).
+
+### T-176 · Piloto de ítem generativo: producto en notación científica — **P2** · `abierto` · *espera visto bueno del owner*
+
+ADR-043 §Decisión 8. Una plantilla, su JSON, su verificador de ≥ 10.000 instancias, la migración
+(`kind`, `instancias_servidas` con RLS, `next_question`/`score_answer`) y `motor/version` + 1.
+PostgreSQL desechable, migración antes que bundle. **No empezar sin el visto bueno** (R-30).
+
+### T-177 · Regla multidimensional de qué intento cuenta — **P1** · `abierto`
+
+D-77. Con las variables de D-77, proponer una regla concreta y **simularla sobre los intentos
+reales** antes de decidir: cuántos estudiantes cambian de banda con cada versión. Tiene que
+declarar qué hace con un estudiante que tiene **un solo** intento sospechoso (no hay otro que
+elegir). La decide el owner; el agente propone. Cierra T-142 y Q-46.
+
 ### T-173 · Aplicar `084` (vista del agente) — **P0** · ✅ `APLICADA` (verificada 2026-09-25)
 
 ✅ **2026-09-25:** `relacl` = `postgres`, `service_role`, `claude_ro=r`, `claude_ddl=r`; HEAD anónimo
 → HTTP 401; `claude_ro` lee 661 filas. **Queda abierto solo** decidir lo de los logs de la API.
+
+**Logs (el owner pidió revisarlos, 2026-09-25):** el agente **no pudo**. La CLI de Supabase
+(2.113.0) no tiene comando de logs y el dashboard pide iniciar sesión, cosa que el agente no hace.
+La consulta quedó escrita en `supabase/queries/R-49_logs_de_la_vista.sql`, para pegar en el Logs
+Explorer. **Ojo con la retención del plan:** si solo quedan los logs del último día, la mayor
+parte de la ventana ya no tiene registro, y eso se anota así, no como «nadie leyó».
 
 ⚠️ **2026-09-23, verificado después de que el owner reportara las tres aplicadas:** `085` y `086`
 sí se aplicaron; `084` **no tuvo efecto** (`relacl` intacto y HTTP 200 como anon).

@@ -1109,8 +1109,10 @@ dueño, y la policy de `tests` no la alcanza.
 - **La lección no es la vista, es el patrón:** cualquier objeto nuevo en `public` nace abierto. Lo
   que lo evita de raíz es cortar los privilegios por defecto del esquema (bloque comentado en `085`,
   decisión del owner).
-- **Pendiente de decidir:** si la ventana amerita revisar los logs de la API de Supabase por
-  lecturas de la vista que no sean del agente.
+- **Logs de la API:** el owner decidió revisarlos (2026-09-25). El agente no tiene acceso al
+  dashboard; la consulta está en `supabase/queries/R-49_logs_de_la_vista.sql` y la corre el owner.
+  Con la retención del plan gratuito, lo más probable es que la mayor parte de la ventana ya no
+  tenga registro.
 - **Severidad:** 🔺 alta hasta aplicar `084`; después, 🔶 media mientras sigan los privilegios por
   defecto.
 - **Relacionado:** R-46, R-28, R-45, D-71, T-163, ADR-040.

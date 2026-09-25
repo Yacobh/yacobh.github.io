@@ -227,6 +227,19 @@ válido. **Tarea:** T-142. **Ojo:** la consulta 0.c de T-130 usa `max(theta)` y 
 > 2. ¿Se implementa la exclusión de ítems ya vistos?
 > 3. ¿Se mide person-fit en agregado en los tres cursos?
 > 4. ¿Se escribe el ADR de ítems generativos con una sola plantilla piloto?
+>
+> **2026-09-25 — respuestas del owner (🟡 Q-46 pasa a «respondida en principio»; falta la regla):**
+>
+> 1. **No exactamente.** «El θ depende del intento y debe permanecer inmutable. El que se toma en
+>    cuenta tiene que ser una evaluación multidimensional de variables, pues se ha encontrado muchos
+>    estudiantes que hacen trampa.» → **D-77**. Cuáles variables y con qué peso es **T-177**.
+> 2. **Sí** → **T-174** hecha: `universo.vistos`, sin migración.
+> 3. **Sí** → **T-175** hecha. Resultado que cambia la conversación: **el person-fit no detecta la
+>    trampa total** (foto → ChatGPT): ese patrón es el de un estudiante fuerte y el modelo lo
+>    encuentra creíble. Lo que sí aparece es el **tiempo**: 41 intentos de electrónica bajo 5 s por
+>    ítem y 15 intentos lentos, parejos y casi perfectos. Ver
+>    `docs/person_fit/T-175_primera_medicion_2026-09-25.md`.
+> 4. **Sí** → **ADR-043** (Propuesta), D-78. El piloto es T-176.
 
 ---
 

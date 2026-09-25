@@ -1,6 +1,14 @@
 # HANDOFF
 
-**Fecha del handoff: 2026-09-23** (SESSION-050). La versión anterior, del 2026-08-16, está en Git
+**Fecha del handoff: 2026-09-23** (SESSION-050), **con adenda del 2026-09-25** (SESSION-051).
+
+> **Adenda 2026-09-25 (SESSION-051).** `084`, `085` y `086` aplicadas y verificadas. La rama
+> `trabajo-autonomo-g2` suma T-174 (exclusión de ítems vistos, bundle compilado) y T-175
+> (person-fit) y **sigue sin pushear a `main`**: es lo primero. Q-46 respondida en principio
+> (**D-77**); la regla concreta es **T-177**. **ADR-043** (ítems generativos) en Propuesta; el
+> piloto **T-176** espera visto bueno. Logs de R-49: consulta en
+> `supabase/queries/R-49_logs_de_la_vista.sql`, la corre el owner. Detalle:
+> `sessions/SESSION-051.md`. La versión anterior, del 2026-08-16, está en Git
 (`dda5cb4`, en `main`). Entre las dos el proyecto pasó de «producto terminado, cero usuarios» a
 **tres cursos reales en dos días**, y esta foto describe eso.
 

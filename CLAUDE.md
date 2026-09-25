@@ -146,6 +146,8 @@ Navegador (SPA ClojureScript/re-frame)
                        misconceptions (catálogo de 027, T-57) · reintento (ADR-032)
                        motor (versión y parámetros del estimador, ADR-034)
                        fuente (etiqueta de campaña ?de=, 061 · D-68)
+                       vistos (ítems de intentos anteriores, T-174 · D-77)
+                       irt.person-fit (ajuste del patrón, T-175)
       │
       ▼  @supabase/supabase-js (JWT del usuario)
 Supabase PostgreSQL  ── RLS es el único límite de seguridad ──
@@ -191,7 +193,7 @@ Row Level Security y `public.is_admin()`. Detalle completo, flujos de datos e in
   a un namespace puro y testeable (`universo.profile`, `universo.slots.logic`,
   `universo.irt.progress`, `universo.irt.effort`, `universo.irt.fluency`, `universo.topics`,
   `universo.router`, `universo.components.tetha`, `universo.misconceptions`, `universo.reintento`,
-  `universo.motor`, `universo.fuente`),
+  `universo.motor`, `universo.fuente`, `universo.vistos`, `universo.irt.person-fit`),
   **no** dentro de un `reg-event-fx`.
 - **Navegación:** si agregas una sección, agrégala al `case` de `home/main-content` **y** a la tabla
   de `universo.router` (y a `protected-sections` si es privada). La sección es el estado
@@ -311,7 +313,7 @@ python3 scripts/comparar_module_slugs.py /tmp/slugs.txt            # M11: módul
 - Toda función pura nueva o modificada necesita test en `test/` (`*_test.cljs`, ns terminado en
   `-test`; el build `:test` los descubre con `:ns-regexp "-test$"`).
 - `clj -M:test` debe cerrar en **0 failures / 0 errors** antes de commitear. Estado de referencia
-  al **2026-08-28**: **181 tests / 2677 assertions / 0 failures**.
+  al **2026-09-25**: **301 tests / 3164 assertions / 0 failures**.
 - Reglas espejo de la base de datos (ej. confirmación de cupo) se testean en el namespace puro
   (`universo.slots.logic`) **y** se documenta que la fuente de verdad es el trigger SQL.
 - Los warnings `:infer-warning` de `events/auth.cljs` son conocidos y no rompen el build
