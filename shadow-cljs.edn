@@ -25,7 +25,13 @@
                 ;; de la base. Ver `scripts/calibrar_banco.sh`.
                 :calibracion {:target    :node-script
                               :output-to "out/calibracion.js"
-                              :main      universo.irt.calibracion-cli/main}}
+                              :main      universo.irt.calibracion-cli/main}
+                ;; T-175: person-fit en agregado. Mismo criterio que
+                ;; `:calibracion`: fuera del bundle, sobre un volcado de la
+                ;; base. Ver `scripts/medir_person_fit.sh`.
+                :person-fit {:target    :node-script
+                             :output-to "out/person_fit.js"
+                             :main      universo.irt.person-fit-cli/main}}
 
   ;; `:root "."` es la raíz del repo, igual que GitHub Pages (ADR-027): en
   ;; desarrollo se sirve **el mismo `index.html` que se publica**, no una copia.
