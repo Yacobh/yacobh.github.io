@@ -1112,6 +1112,41 @@
                   (async/put! ch {:success false :error (.-message error)}))))
     ch))
 
+(defn fetch-ids-vistos
+  "Las respuestas de los intentos anteriores de un usuario en un topic, de
+   `tests` (terminados) e `intentos` (también los abandonados), para que
+   `universo.vistos` arme el conjunto de ítems ya vistos (T-174).
+
+   Solo se pide el arreglo `responses` del jsonb (`test->responses`), no el
+   intento entero: las alternativas de cada ítem pesan y acá no hacen falta.
+   El filtro por `user_id` no es seguridad —eso es RLS— sino corrección: un
+   admin ve los intentos de todos y excluiría los ítems que vieron otros.
+
+   **Degrada sin romper:** si `intentos` no existiera (`070` sin aplicar) o
+   cualquiera de las dos lecturas falla, esa fuente aporta cero filas. Lo peor
+   que pasa es servir un ítem ya visto, que es lo que pasaba antes."
+  [user-id topic]
+  (let [ch (async/chan)
+        leer (fn [tabla columna]
+               (let [c (async/chan)]
+                 (-> (.from supabase-client tabla)
+                     (.select (str "responses:" columna "->responses"))
+                     (.eq "user_id" (str user-id))
+                     (.eq "topic" topic)
+                     (.then (fn [result]
+                              (async/put! c (if (.-error result)
+                                              []
+                                              (or (js->clj (.-data result)
+                                                           :keywordize-keys true)
+                                                  [])))))
+                     (.catch (fn [_] (async/put! c []))))
+                 c))]
+    (go
+      (let [de-tests    (<! (leer "tests" "test"))
+            de-intentos (<! (leer "intentos" "parcial"))]
+        (async/put! ch {:success true :data (into (vec de-tests) de-intentos)})))
+    ch))
+
 (defn fetch-modules
   []
   (let [ch (async/chan)]

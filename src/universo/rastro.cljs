@@ -100,8 +100,12 @@
    `:question-ids`, `:traits` (stub muerto de ADR-019), `:score`,
    `:current-question`, `:rastro` (ya es la columna `intento_id`) y
    **`:email`**, que el `default-db` trae y que dejó el correo del estudiante
-   en 348 jsonb además de la columna (L-46). Las filas viejas no se migran."
-  (conj claves-del-rastro :questions :end-time))
+   en 348 jsonb además de la columna (L-46). Las filas viejas no se migran.
+
+   `:repetidos` (T-174, 2026-09-25) — los ítems del intento que el estudiante
+   ya había visto en uno anterior. Vacío casi siempre; con algo adentro, el
+   intento no es una medición limpia (Q-46). Lo lee quien decida qué θ cuenta."
+  (conj claves-del-rastro :questions :end-time :repetidos))
 
 (defn diagnostico
   "El jsonb que se guarda en `tests.test`: lista blanca, sin identidad."

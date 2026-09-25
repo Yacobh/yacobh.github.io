@@ -10,6 +10,7 @@
    [universo.motor :as motor]
    [universo.rastro :as rastro]
    [universo.reintento :as reintento]
+   [universo.vistos :as vistos]
    [cljs.core.async :as async :refer [go <!]]
    [universo.db.crud :as crud]
    [universo.supabase :as sb]))
@@ -230,14 +231,59 @@
                           ;; `070` no está aplicada, no lo va a estar en el test
                           ;; siguiente tampoco.
                           (assoc-in [:test :rastro :id] (str (random-uuid)))
-                          (assoc-in [:test :current-question] nil))]
+                          (assoc-in [:test :current-question] nil)
+                          ;; Ítems vistos en intentos anteriores (T-174). Se
+                          ;; llenan antes del primer ítem; `:repitiendo?` se
+                          ;; enciende solo si el banco se agota sin ellos.
+                          (assoc-in [:test :vistos] #{})
+                          (assoc-in [:test :repitiendo?] false))
+             user-id (get-in db [:auth :user :id])]
          (cond-> {:db nuevo-db
-                  :dispatch [:test/fetch-next-question]}
+                  ;; Sin sesión no hay intentos anteriores que leer: se sirve
+                  ;; directo, como antes.
+                  :dispatch (if user-id
+                              [:test/cargar-vistos user-id resolved]
+                              [:test/fetch-next-question])}
            ;; El rastro se abre **antes** de servir el primer ítem: un estudiante
            ;; que abandona en la pantalla de la pregunta 1 es justo el caso que
            ;; T-134 existe para poder contar.
            (not (get-in nuevo-db [:test :rastro :off?]))
            (assoc :rastro/abrir {:db nuevo-db})))))))
+
+;; -----------------------------------------------------------------------------
+;; Ítems ya vistos en intentos anteriores (T-174, Q-46)
+;; -----------------------------------------------------------------------------
+;; El primer ítem espera a esta lectura: si se sirviera antes, el primero de un
+;; reintento sería justo el que el banco abre siempre, el más visto de todos.
+
+(re-frame/reg-fx
+ :test/cargar-vistos
+ (fn [{:keys [user-id topic]}]
+   (go
+     (let [result (<! (crud/fetch-ids-vistos user-id topic))]
+       (re-frame/dispatch [:test/vistos-listos
+                           (vistos/ids-vistos (:data result))])))))
+
+(re-frame/reg-event-fx
+ :test/cargar-vistos
+ (fn [_ [_ user-id topic]]
+   {:test/cargar-vistos {:user-id user-id :topic topic}}))
+
+(re-frame/reg-event-fx
+ :test/vistos-listos
+ (fn [{:keys [db]} [_ ids]]
+   (let [db (assoc-in db [:test :vistos] (set ids))]
+     {:db db
+      :test/fetch-next-question {:db db :mode :immediate}})))
+
+(re-frame/reg-event-fx
+ :test/repetir-vistos
+ ;; El banco se agotó sin los vistos: se sigue sirviendo con ellos en vez de
+ ;; cortar el test. El intento queda marcado por `vistos/repetidos` al guardar.
+ (fn [{:keys [db]} [_ mode]]
+   (let [db (assoc-in db [:test :repitiendo?] true)]
+     {:db db
+      :test/fetch-next-question {:db db :mode mode}})))
 
 ;; -----------------------------------------------------------------------------
 ;; 🔹 EFECTO: Obtiene la siguiente pregunta desde Supabase
@@ -272,7 +318,11 @@
        (let [theta (get-in db [:test :theta])
              topic (resolve-topic (get-in db [:test :topic]))
              answered-questions (get-in db [:test :questions])
-             answered-ids (set (map :id answered-questions))
+             vistos-antes (get-in db [:test :vistos])
+             repitiendo? (get-in db [:test :repitiendo?])
+             answered-ids (vistos/a-excluir (map :id answered-questions)
+                                            vistos-antes
+                                            repitiendo?)
              ;; El ítem NO se elige con θ, se elige con el θ objetivo: si el
              ;; estudiante viene escapando, la selección retrocede un escalón por
              ;; cada escape seguido. θ no se toca — es la separación entre
@@ -306,6 +356,9 @@
            (if (= mode :prefetch)
              (re-frame/dispatch [:test/prefetch-ready next-q])
              (re-frame/dispatch [:test/add-question next-q]))
+
+           (vistos/reintentar-con-vistos? vistos-antes repitiendo?)
+           (re-frame/dispatch [:test/repetir-vistos mode])
 
            :else
            (if (= mode :prefetch)
@@ -894,7 +947,9 @@
          new-db     (-> db
                         (assoc-in [:test :status] :completed)
                         (assoc-in [:test :end-time] (.now js/Date)))
-         test       (:test new-db)
+         test       (assoc (:test new-db) :repetidos
+                           (vistos/repetidos (get-in new-db [:test :responses])
+                                             (get-in new-db [:test :vistos])))
          rastro-off? (get-in new-db [:test :rastro :off?])
          intento-id  (get-in new-db [:test :rastro :id])]
      (cond-> {:db new-db
